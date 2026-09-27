@@ -1,0 +1,15 @@
+[
+  { "tool": "browser_navigate", "url": "login" },
+  { "tool": "browser_wait_for", "text": "Login in Book Store" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "UserName", "exact": true }, "text": "${env:HARDEN_USER}" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Password", "exact": true }, "text": "${env:DQ_USER_PASSWORD}" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Login", "exact": true } },
+  { "tool": "browser_wait_for", "text": "User Name :" },
+  { "snapshot": "profile after sign-in" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Logout", "exact": true } },
+  { "tool": "browser_wait_for", "text": "Login in Book Store" },
+  { "snapshot": "after logout" },
+  { "tool": "browser_navigate", "url": "profile" },
+  { "tool": "browser_wait_for", "text": "Currently you are not logged into" },
+  { "snapshot": "profile after logout" }
+]

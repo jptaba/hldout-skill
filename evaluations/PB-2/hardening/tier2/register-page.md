@@ -1,0 +1,175 @@
+# Tier-2 walk (Playwright MCP over stdio)
+
+- AUT: ParaBank (Parasoft demo bank, UI + REST) (profile `parabank`) — https://parabank.parasoft.com/parabank/
+- Server: `npx -y @playwright/mcp@latest --isolated --output-dir C:\Users\Jptaba\AppData\Local\Temp\heldout-mcp-EhpaCg --headless` · 2026-09-27T12:02:55.743Z
+- Result: ✔ all steps passed
+
+| # | Step | OK | Detail |
+| --- | --- | --- | --- |
+| 1 | browser_navigate register.htm | ✔ | `await page.goto('https://parabank.parasoft.com/parabank/register.htm');` |
+| 2 | browser_wait_for | ✔ | `await page.getByText("Signing up is easy").first().waitFor({ state: 'visible' });` |
+| 3 | snapshot "register page" | ✔ | 160 lines |
+
+### Snapshot: register page
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - link:
+        - /url: admin.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - img [ref=e4] [cursor=pointer]
+      - link "ParaBank":
+        - /url: index.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - img "ParaBank" [ref=e5] [cursor=pointer]
+      - paragraph [ref=e6]: Experience the difference
+    - generic [ref=e7]:
+      - list [ref=e8]:
+        - listitem [ref=e9]: Solutions
+        - listitem [ref=e10]:
+          - link "About Us" [ref=e11] [cursor=pointer]:
+            - /url: about.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - listitem [ref=e12]:
+          - link "Services" [ref=e13] [cursor=pointer]:
+            - /url: services.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - listitem [ref=e14]:
+          - link "Products" [ref=e15] [cursor=pointer]:
+            - /url: http://www.parasoft.com/jsp/products.jsp
+        - listitem [ref=e16]:
+          - link "Locations" [ref=e17] [cursor=pointer]:
+            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp
+        - listitem [ref=e18]:
+          - link "Admin Page" [ref=e19] [cursor=pointer]:
+            - /url: admin.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+      - list [ref=e20]:
+        - listitem [ref=e21]:
+          - link "home" [ref=e22] [cursor=pointer]:
+            - /url: index.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - listitem [ref=e23]:
+          - link "about" [ref=e24] [cursor=pointer]:
+            - /url: about.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - listitem [ref=e25]:
+          - link "contact" [ref=e26] [cursor=pointer]:
+            - /url: contact.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - heading "Customer Login" [level=2] [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - paragraph [ref=e32]: Username
+            - textbox [active] [ref=e34]
+            - paragraph [ref=e35]: Password
+            - textbox [ref=e37]
+            - button "Log In" [ref=e39] [cursor=pointer]
+          - paragraph [ref=e40]:
+            - link "Forgot login info?" [ref=e41] [cursor=pointer]:
+              - /url: lookup.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+          - paragraph [ref=e42]:
+            - link "Register" [ref=e43] [cursor=pointer]:
+              - /url: register.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+      - generic [ref=e44]:
+        - heading "Signing up is easy!" [level=1] [ref=e45]
+        - paragraph [ref=e46]: If you have an account with us you can sign-up for free instant online access. You will have to provide some personal information.
+        - table [ref=e48]:
+          - rowgroup [ref=e49]:
+            - row [ref=e50]:
+              - cell "First Name:" [ref=e51]
+              - cell [ref=e52]:
+                - textbox [ref=e53]
+              - cell [ref=e54]
+            - row [ref=e55]:
+              - cell "Last Name:" [ref=e56]
+              - cell [ref=e57]:
+                - textbox [ref=e58]
+              - cell [ref=e59]
+            - row [ref=e60]:
+              - cell "Address:" [ref=e61]
+              - cell [ref=e62]:
+                - textbox [ref=e63]
+              - cell [ref=e64]
+            - row [ref=e65]:
+              - cell "City:" [ref=e66]
+              - cell [ref=e67]:
+                - textbox [ref=e68]
+              - cell [ref=e69]
+            - row [ref=e70]:
+              - cell "State:" [ref=e71]
+              - cell [ref=e72]:
+                - textbox [ref=e73]
+              - cell [ref=e74]
+            - row [ref=e75]:
+              - cell "Zip Code:" [ref=e76]
+              - cell [ref=e77]:
+                - textbox [ref=e78]
+              - cell [ref=e79]
+            - row [ref=e80]:
+              - 'cell "Phone #:" [ref=e81]'
+              - cell [ref=e82]:
+                - textbox [ref=e83]
+              - cell [ref=e84]
+            - row [ref=e85]:
+              - cell "SSN:" [ref=e86]
+              - cell [ref=e87]:
+                - textbox [ref=e88]
+              - cell [ref=e89]
+            - row [ref=e90]:
+              - cell [ref=e91]
+            - row [ref=e92]:
+              - cell "Username:" [ref=e93]
+              - cell [ref=e94]:
+                - textbox [ref=e95]
+              - cell [ref=e96]
+            - row [ref=e97]:
+              - cell "Password:" [ref=e98]
+              - cell [ref=e99]:
+                - textbox [ref=e100]
+              - cell [ref=e101]
+            - row [ref=e102]:
+              - cell "Confirm:" [ref=e103]
+              - cell [ref=e104]:
+                - textbox [ref=e105]
+              - cell [ref=e106]
+            - row [ref=e107]:
+              - cell [ref=e108]
+              - cell [ref=e109]:
+                - button "Register" [ref=e110] [cursor=pointer]
+  - generic [ref=e112]:
+    - list [ref=e113]:
+      - listitem [ref=e114]:
+        - link "Home" [ref=e115] [cursor=pointer]:
+          - /url: index.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - text: "|"
+      - listitem [ref=e116]:
+        - link "About Us" [ref=e117] [cursor=pointer]:
+          - /url: about.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - text: "|"
+      - listitem [ref=e118]:
+        - link "Services" [ref=e119] [cursor=pointer]:
+          - /url: services.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - text: "|"
+      - listitem [ref=e120]:
+        - link "Products" [ref=e121] [cursor=pointer]:
+          - /url: http://www.parasoft.com/jsp/products.jsp
+        - text: "|"
+      - listitem [ref=e122]:
+        - link "Locations" [ref=e123] [cursor=pointer]:
+          - /url: http://www.parasoft.com/jsp/pr/contacts.jsp
+        - text: "|"
+      - listitem [ref=e124]:
+        - link "Forum" [ref=e125] [cursor=pointer]:
+          - /url: http://forums.parasoft.com/
+        - text: "|"
+      - listitem [ref=e126]:
+        - link "Site Map" [ref=e127] [cursor=pointer]:
+          - /url: sitemap.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+        - text: "|"
+      - listitem [ref=e128]:
+        - link "Contact Us" [ref=e129] [cursor=pointer]:
+          - /url: contact.htm;jsessionid=AA9559BE531A8C5F22919654D4092AE6
+    - paragraph [ref=e130]: © Parasoft. All rights reserved.
+    - list [ref=e131]:
+      - listitem [ref=e132]: "Visit us at:"
+      - listitem [ref=e133]:
+        - link "www.parasoft.com" [ref=e134] [cursor=pointer]:
+          - /url: http://www.parasoft.com/
+```

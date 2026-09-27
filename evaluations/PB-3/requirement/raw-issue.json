@@ -1,0 +1,246 @@
+{
+  "id": "10003",
+  "key": "PB-3",
+  "self": "https://your-domain.atlassian.net/rest/api/3/issue/PB-3",
+  "fields": {
+    "summary": "Transfer funds between my own accounts",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [],
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "As a signed-in ParaBank customer I want to move money between my own accounts, on the \"Transfer Funds\" page ("
+            },
+            {
+              "type": "text",
+              "text": "transfer.htm",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ") or through the REST service "
+            },
+            {
+              "type": "text",
+              "text": "POST /parabank/services/bank/transfer?fromAccountId=…&toAccountId=…&amount=…",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", so that I can cover payments from the right account."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Balances are read on Accounts Overview and the account details page (Account Activity), or with "
+            },
+            {
+              "type": "text",
+              "text": "GET /accounts/{accountId}",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " and "
+            },
+            {
+              "type": "text",
+              "text": "GET /accounts/{accountId}/transactions",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " (JSON with "
+            },
+            {
+              "type": "text",
+              "text": "Accept: application/json",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ")."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Test data: the shared demo database may be reset at any time. Each scenario registers its own customer (unique user name, password from the environment variable "
+            },
+            {
+              "type": "text",
+              "text": "PB_USER_PASSWORD",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ") and opens a second account for that customer with \"Open New Account\", so that the customer owns two accounts A (the first account) and B (the newly opened one)."
+            }
+          ]
+        },
+        {
+          "type": "codeBlock",
+          "attrs": {
+            "language": "gherkin"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Feature: Transfer funds between own accounts\n\n  Background:\n    Given a newly registered customer who owns accounts A and B\n    And the balances of A and B are known\n\n  Scenario: AC-1 Transfer on the Transfer Funds page\n    When the customer transfers 25.50 from A to B on the Transfer Funds page\n    Then the page shows \"Transfer Complete!\"\n    And the page shows \"$25.50 has been transferred from account #<A> to account #<B>.\"\n    And Accounts Overview shows the balance of A lower by $25.50 and the balance of B higher by $25.50\n    And the total shown on Accounts Overview is unchanged\n\n  Scenario: AC-2 Transfer through the REST service\n    When the service is called with fromAccountId A, toAccountId B and amount 12.34\n    Then it answers 200 with the text \"Successfully transferred $12.34 from account #<A> to account #<B>\"\n    And GET /accounts/<A> returns a balance lower by 12.34 and GET /accounts/<B> a balance higher by 12.34\n\n  Scenario: AC-3 Transfers are listed as transactions on both accounts\n    Given the customer transferred 25.50 from A to B on the Transfer Funds page\n    Then GET /accounts/<A>/transactions contains a \"Debit\" of 25.50 described \"Funds Transfer Sent\"\n    And GET /accounts/<B>/transactions contains a \"Credit\" of 25.50 described \"Funds Transfer Received\"\n    And the Account Activity of A on the web page lists \"Funds Transfer Sent\" with $25.50 in the Debit (-) column\n\n  Scenario Outline: AC-4 Amount missing or not a number on the Transfer Funds page\n    When the customer enters \"<amount>\" as the amount and presses Transfer\n    Then the Transfer Funds form stays on screen with the message \"<message>\"\n    And no balance changes\n\n    Examples:\n      | amount | message                      |\n      |        | The amount cannot be empty.  |\n      | abc    | Please enter a valid amount. |\n\n  Scenario Outline: AC-5 Zero or negative amounts are refused\n    When the customer transfers <amount> from A to B on the Transfer Funds page or through the service\n    Then the transfer is refused\n    And the balances of A and B do not change\n\n    Examples:\n      | amount |\n      | 0      |\n      | -10.00 |\n\n  Scenario: AC-6 Amount larger than the balance of the source account\n    Given the balance of A is lower than 1000.00\n    When the customer transfers 1000.00 from A to B through the service\n    Then the transfer is refused because of insufficient funds\n    And the balances of A and B do not change\n\n  Scenario: AC-7 Unknown destination account\n    When the service is called with fromAccountId A, toAccountId 99999999 and amount 5.00\n    Then it answers 400 with the text \"Could not find account number <A> and/or 99999999\"\n    And the balance of A does not change"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Transfers to other customers' accounts are out of scope (a separate \"Pay someone\" story will cover them)."
+            }
+          ]
+        }
+      ]
+    },
+    "attachment": [],
+    "comment": {
+      "comments": [
+        {
+          "id": "30000",
+          "author": {
+            "displayName": "Dana Whitfield (Product Owner)"
+          },
+          "body": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Update after the review with Risk & Compliance on Tuesday: transfers between a customer's "
+                  },
+                  {
+                    "type": "text",
+                    "text": "own",
+                    "marks": [
+                      {
+                        "type": "strong"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " accounts are allowed to overdraw the source account — the overdraft is covered by the customer's overdraft agreement and settled at end of day. So please treat scenario AC-6 as replaced by this:"
+                  }
+                ]
+              },
+              {
+                "type": "bulletList",
+                "content": [
+                  {
+                    "type": "listItem",
+                    "content": [
+                      {
+                        "type": "paragraph",
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "A transfer larger than the balance of the source account "
+                          },
+                          {
+                            "type": "text",
+                            "text": "completes",
+                            "marks": [
+                              {
+                                "type": "strong"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "text",
+                            "text": " like any other transfer (same confirmation on the page, 200 from the service)."
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "listItem",
+                    "content": [
+                      {
+                        "type": "paragraph",
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "The source account's balance then goes negative by the difference, and the destination account is credited with the full amount."
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Nothing else changes: zero and negative amounts must still be refused (AC-5), and the input messages in AC-4 stay as written."
+                  }
+                ]
+              }
+            ]
+          },
+          "created": "2026-09-26T20:31:45.324Z"
+        }
+      ],
+      "total": 1
+    }
+  }
+}

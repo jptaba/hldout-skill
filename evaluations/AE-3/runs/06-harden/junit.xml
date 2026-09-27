@@ -1,0 +1,8 @@
+<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="8.683067">
+<testsuite name="AE-3\tests\ae-3.spec.ts" timestamp="2026-09-27T12:13:47.127Z" hostname="chromium" tests="2" failures="0" skipped="0" time="13.872" errors="0">
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-010: The form can be sent with only a valid Email" classname="AE-3\tests\ae-3.spec.ts" time="6.513">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-011: Sending the form asks for confirmation, shows success and offers a Home button" classname="AE-3\tests\ae-3.spec.ts" time="7.359">
+</testcase>
+</testsuite>
+</testsuites>

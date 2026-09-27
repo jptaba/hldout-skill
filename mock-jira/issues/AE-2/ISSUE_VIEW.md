@@ -3,7 +3,7 @@
 
 | Type | Status | Priority | Labels |
 | --- | --- | --- | --- |
-| Story | Ready for QA | High | - |
+| Story | Ready for QA | High | `heldout-fail` |
 
 ## Description
 
@@ -21,7 +21,128 @@ Notes for the team:
 ## Attachments
 
 - 📎 [account-api-contract.md](attachments/account-api-contract.md) — text/markdown, 4800 B, by Product Owner on 2026-09-27T00:53:22.668Z
+- 📎 [heldout-verdict-AE-2-202609270609.md](attachments/heldout-verdict-AE-2-202609270609.md) — text/markdown, 38958 B, by Held-out Evaluator (bot) on 2026-09-27T06:09:22.239Z
+- 📎 [heldout-verdict-AE-2-202609271654.md](attachments/heldout-verdict-AE-2-202609271654.md) — text/markdown, 38994 B, by Held-out Evaluator (bot) on 2026-09-27T16:54:16.784Z
+- 📎 [heldout-verdict-AE-2-202609271656.md](attachments/heldout-verdict-AE-2-202609271656.md) — text/markdown, 38994 B, by Held-out Evaluator (bot) on 2026-09-27T16:56:00.929Z
 
 ## Activity — Comments
 
-_No comments yet_
+### 💬 Held-out Evaluator (bot) — 2026-09-27T06:09:22.242Z
+
+### 🧪 Held-out evaluation: FAIL (recommendation)
+
+> **ERROR:** 3 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-5, AC-7. Awaiting reviewer confirmation.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 32/38 passed, 6 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 2 | 0 | 2 | APP-2 |
+| contract | 3 | 2 | 1 | APP-3 |
+| functional | 6 | 5 | 1 | APP-3 |
+| integration | 2 | 2 | 0 | - |
+| negative | 24 | 22 | 2 | APP-1, APP-2 |
+| security | 1 | 1 | 0 | - |
+
+#### Findings for review (3)
+
+| **ID** | **Suggested severity** | **Criteria** | **Type** | **Finding** | **Expected (requirement)** | **Actual (AUT)** |
+| --- | --- | --- | --- | --- | --- | --- |
+| APP-1 | Major | AC-3 | negative | E-mail uniqueness is case-sensitive: an address differing only in letter case creates a second account | 400 | 201 |
+| APP-2 | Major | AC-5 | negative | createAccount accepts invalid e-mail addresses and creates the account | 400 | 201 |
+| APP-3 | Major | AC-7 | contract | getUserDetailByEmail omits mobile_number from the user object | [Array []] | ["user.mobile_number is missing"] |
+
+_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._
+
+**Open questions (not tested):** G5 — the contract states error answers that no acceptance criterion covers: getUserDetailByEmail without email (400 "Bad request, email parameter is missing in GET request."), updateAccount without password (400 "Bad request, password parameter is missing in PUT request."), deleteAccount without email or password (400 "Bad request, <field> parameter is missing in DELETE request."). Are they in scope for this story?
+
+- Full report attached: `heldout-verdict-AE-2-202609270609.md`
+- Final run: 03-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T16:54:16.787Z
+
+### 🧪 Held-out evaluation: FAIL (recommendation)
+
+> **ERROR:** 3 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-5, AC-7. Awaiting reviewer confirmation.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 32/38 passed, 6 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 2 | 0 | 2 | APP-2 |
+| contract | 3 | 2 | 1 | APP-3 |
+| functional | 6 | 5 | 1 | APP-3 |
+| integration | 2 | 2 | 0 | - |
+| negative | 24 | 22 | 2 | APP-1, APP-2 |
+| security | 1 | 1 | 0 | - |
+
+#### Findings for review (3)
+
+| **ID** | **Suggested severity** | **Criteria** | **Type** | **Finding** | **Expected (requirement)** | **Actual (AUT)** |
+| --- | --- | --- | --- | --- | --- | --- |
+| APP-1 | Major | AC-3 | negative | E-mail uniqueness is case-sensitive: an address differing only in letter case creates a second account | 400 | 201 |
+| APP-2 | Major | AC-5 | negative | createAccount accepts invalid e-mail addresses and creates the account | 400 | 201 |
+| APP-3 | Major | AC-7 | contract | getUserDetailByEmail omits mobile_number from the user object | [Array []] | ["user.mobile_number is missing"] |
+
+_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._
+
+**Open questions (not tested):** G5 — the contract states error answers that no acceptance criterion covers: getUserDetailByEmail without email (400 "Bad request, email parameter is missing in GET request."), updateAccount without password (400 "Bad request, password parameter is missing in PUT request."), deleteAccount without email or password (400 "Bad request, <field> parameter is missing in DELETE request."). Are they in scope for this story?
+
+- Full report attached: `heldout-verdict-AE-2-202609271654.md`
+- Final run: 03-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T16:56:00.933Z
+
+### 🧪 Held-out evaluation: FAIL (recommendation)
+
+> **ERROR:** 3 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-5, AC-7. Awaiting reviewer confirmation.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 32/38 passed, 6 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 2 | 0 | 2 | APP-2 |
+| contract | 3 | 2 | 1 | APP-3 |
+| functional | 6 | 5 | 1 | APP-3 |
+| integration | 2 | 2 | 0 | - |
+| negative | 24 | 22 | 2 | APP-1, APP-2 |
+| security | 1 | 1 | 0 | - |
+
+#### Findings for review (3)
+
+| **ID** | **Suggested severity** | **Criteria** | **Type** | **Finding** | **Expected (requirement)** | **Actual (AUT)** |
+| --- | --- | --- | --- | --- | --- | --- |
+| APP-1 | Major | AC-3 | negative | E-mail uniqueness is case-sensitive: an address differing only in letter case creates a second account | 400 | 201 |
+| APP-2 | Major | AC-5 | negative | createAccount accepts invalid e-mail addresses and creates the account | 400 | 201 |
+| APP-3 | Major | AC-7 | contract | getUserDetailByEmail omits mobile_number from the user object | [Array []] | ["user.mobile_number is missing"] |
+
+_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._
+
+**Open questions (not tested):** G5 — the contract states error answers that no acceptance criterion covers: getUserDetailByEmail without email (400 "Bad request, email parameter is missing in GET request."), updateAccount without password (400 "Bad request, password parameter is missing in PUT request."), deleteAccount without email or password (400 "Bad request, <field> parameter is missing in DELETE request."). Are they in scope for this story?
+
+- Full report attached: `heldout-verdict-AE-2-202609271656.md`
+- Final run: 03-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---

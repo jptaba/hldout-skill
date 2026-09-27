@@ -1,0 +1,313 @@
+<testsuites id="" name="" tests="27" failures="3" skipped="0" errors="0" time="82.827401">
+<testsuite name="DQ-1\tests\dq-1.spec.ts" timestamp="2026-09-27T05:50:13.033Z" hostname="chromium" tests="27" failures="3" skipped="0" time="297.459" errors="0">
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-001: A client creates a user with a policy-compliant password and gets 201 with the new user" classname="DQ-1\tests\dq-1.spec.ts" time="10.674">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-002.1: A password that breaks the policy is rejected and no account is created (too short)" classname="DQ-1\tests\dq-1.spec.ts" time="6.58">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-002.2: A password that breaks the policy is rejected and no account is created (missing an uppercase)" classname="DQ-1\tests\dq-1.spec.ts" time="5.692">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-002.3: A password that breaks the policy is rejected and no account is created (missing a lowercase)" classname="DQ-1\tests\dq-1.spec.ts" time="4.913">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-002.4: A password that breaks the policy is rejected and no account is created (missing a digit)" classname="DQ-1\tests\dq-1.spec.ts" time="5.168">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-002.5: A password that breaks the policy is rejected and no account is created (missing a special char)" classname="DQ-1\tests\dq-1.spec.ts" time="5.612">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-014.1: The 8-character minimum length is enforced exactly at the boundary (7 chars)" classname="DQ-1\tests\dq-1.spec.ts" time="3.139">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-014.2: The 8-character minimum length is enforced exactly at the boundary (8 chars)" classname="DQ-1\tests\dq-1.spec.ts" time="8.35">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-003: Creating a user whose user name already exists is rejected with 406" classname="DQ-1\tests\dq-1.spec.ts" time="8.192">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-004.1: Creating a user without a user name or without a password is rejected with 400 (no userName)" classname="DQ-1\tests\dq-1.spec.ts" time="3.119">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-004.2: Creating a user without a user name or without a password is rejected with 400 (no password)" classname="DQ-1\tests\dq-1.spec.ts" time="3.191">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-015.1: An empty user name or empty password counts as missing and is rejected with 400 (empty userName)" classname="DQ-1\tests\dq-1.spec.ts" time="3.103">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-015.2: An empty user name or empty password counts as missing and is rejected with 400 (empty password)" classname="DQ-1\tests\dq-1.spec.ts" time="3.117">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-005: GenerateToken with the correct credentials returns a token" classname="DQ-1\tests\dq-1.spec.ts" time="12.305">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-016: The token expires 7 days after it was issued" classname="DQ-1\tests\dq-1.spec.ts" time="15.642">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-006.1: GenerateToken with wrong credentials issues no token and answers 401 (the correct user name and a wrong password)" classname="DQ-1\tests\dq-1.spec.ts" time="35.065">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] refused token request → 401 Unauthorized" type="expect.toBe">
+<![CDATA[  [chromium] › DQ-1\tests\dq-1.spec.ts:315:5 › DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-006.1: GenerateToken with wrong credentials issues no token and answers 401 (the correct user name and a wrong password) @AC-6 @type:negative @layer:api @P1 › Then the response status is 401 
+
+    Error: [REQ AC-6] refused token request → 401 Unauthorized
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      323 |       });
+      324 |       await journey.step('Then the response status is 401', async () => {
+    > 325 |         expect.soft(res.status, '[REQ AC-6] refused token request → 401 Unauthorized').toBe(REQ.STATUS.S401);
+          |                                                                                        ^
+      326 |       });
+      327 |       await journey.step('And token is null', async () => {
+      328 |         expect.soft(obj(res).token, '[REQ AC-6] token is null').toBeNull();
+        at body (D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:325:88)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:324:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] refused token request → 401 Unauthorized
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      323 |       });
+      324 |       await journey.step('Then the response status is 401', async () => {
+    > 325 |         expect.soft(res.status, '[REQ AC-6] refused token request → 401 Unauthorized').toBe(REQ.STATUS.S401);
+          |                                                                                        ^
+      326 |       });
+      327 |       await journey.step('And token is null', async () => {
+      328 |         expect.soft(obj(res).token, '[REQ AC-6] token is null').toBeNull();
+        at body (D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:325:88)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:324:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-006.2: GenerateToken with wrong credentials issues no token and answers 401 (an unknown user name and the account password)" classname="DQ-1\tests\dq-1.spec.ts" time="27.975">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] refused token request → 401 Unauthorized" type="expect.toBe">
+<![CDATA[  [chromium] › DQ-1\tests\dq-1.spec.ts:315:5 › DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-006.2: GenerateToken with wrong credentials issues no token and answers 401 (an unknown user name and the account password) @AC-6 @type:negative @layer:api @P1 › Then the response status is 401 
+
+    Error: [REQ AC-6] refused token request → 401 Unauthorized
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      323 |       });
+      324 |       await journey.step('Then the response status is 401', async () => {
+    > 325 |         expect.soft(res.status, '[REQ AC-6] refused token request → 401 Unauthorized').toBe(REQ.STATUS.S401);
+          |                                                                                        ^
+      326 |       });
+      327 |       await journey.step('And token is null', async () => {
+      328 |         expect.soft(obj(res).token, '[REQ AC-6] token is null').toBeNull();
+        at body (D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:325:88)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:324:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] refused token request → 401 Unauthorized
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      323 |       });
+      324 |       await journey.step('Then the response status is 401', async () => {
+    > 325 |         expect.soft(res.status, '[REQ AC-6] refused token request → 401 Unauthorized').toBe(REQ.STATUS.S401);
+          |                                                                                        ^
+      326 |       });
+      327 |       await journey.step('And token is null', async () => {
+      328 |         expect.soft(obj(res).token, '[REQ AC-6] token is null').toBeNull();
+        at body (D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:325:88)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:324:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--85a51-e-and-the-account-password--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-007: The issued token does not disclose the user&apos;s password" classname="DQ-1\tests\dq-1.spec.ts" time="25.63">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] the password appears in no part of the token" type="expect.toBe">
+<![CDATA[  [chromium] › DQ-1\tests\dq-1.spec.ts:342:3 › DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-007: The issued token does not disclose the user's password @AC-7 @type:security @layer:api @P1 › And no part of the token or of its decoded header, payload and signature contains the password 
+
+    Error: [REQ AC-7] the password appears in no part of the token
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      359 |       const decoded = parts.map((p) => Buffer.from(p, 'base64url').toString('latin1'));
+      360 |       const leaks = [token, ...decoded].filter((s) => s.includes(a.password)).length;
+    > 361 |       expect(leaks, '[REQ AC-7] the password appears in no part of the token').toBe(0);
+          |                                                                                ^
+      362 |     });
+      363 |   });
+      364 |
+        at body (D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:361:80)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:358:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] the password appears in no part of the token
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      359 |       const decoded = parts.map((p) => Buffer.from(p, 'base64url').toString('latin1'));
+      360 |       const leaks = [token, ...decoded].filter((s) => s.includes(a.password)).length;
+    > 361 |       expect(leaks, '[REQ AC-7] the password appears in no part of the token').toBe(0);
+          |                                                                                ^
+      362 |     });
+      363 |   });
+      364 |
+        at body (D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:361:80)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\DQ-1\tests\dq-1.spec.ts:358:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-1\runs\01-harden\artifacts\DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-008: Authorized is false before a token is issued and true afterwards" classname="DQ-1\tests\dq-1.spec.ts" time="12.801">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-017: Authorized with a wrong password never answers true" classname="DQ-1\tests\dq-1.spec.ts" time="14.935">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-009: Signing in on the web site with an API-created account opens the profile" classname="DQ-1\tests\dq-1.spec.ts" time="17.009">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-010: Signing in with a wrong password keeps the user on the login page with an error" classname="DQ-1\tests\dq-1.spec.ts" time="15.783">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-018: The wrong-credentials message is shown in red" classname="DQ-1\tests\dq-1.spec.ts" time="16.218">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-011: Clicking Login with both fields empty does not sign in" classname="DQ-1\tests\dq-1.spec.ts" time="2.213">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-019: Both empty fields are highlighted as invalid after clicking Login" classname="DQ-1\tests\dq-1.spec.ts" time="2.2">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-012: Logging out returns to the login page and the profile no longer shows the user" classname="DQ-1\tests\dq-1.spec.ts" time="15.328">
+</testcase>
+<testcase name="DQ-1 Book Store accounts - create a user, get a token, sign in and sign out › SCN-013: Deleting the account with the user&apos;s token returns 204 and the account can no longer get a token" classname="DQ-1\tests\dq-1.spec.ts" time="13.505">
+</testcase>
+</testsuite>
+</testsuites>

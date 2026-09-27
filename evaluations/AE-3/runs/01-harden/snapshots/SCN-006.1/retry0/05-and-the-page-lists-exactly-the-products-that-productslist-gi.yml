@@ -1,0 +1,157 @@
+# url: https://automationexercise.com/brand_products/Polo
+# step: And the page lists exactly the products that productsList gives "Polo"
+- banner:
+  - link "Website for automation practice":
+    - /url: /
+    - img "Website for automation practice"
+  - list:
+    - listitem:
+      - link " Home":
+        - /url: /
+    - listitem:
+      - link " Products":
+        - /url: /products
+    - listitem:
+      - link " Cart":
+        - /url: /view_cart
+    - listitem:
+      - link " Signup / Login":
+        - /url: /login
+    - listitem:
+      - link " Test Cases":
+        - /url: /test_cases
+    - listitem:
+      - link " API Testing":
+        - /url: /api_list
+    - listitem:
+      - link " Video Tutorials":
+        - /url: https://www.youtube.com/c/AutomationExercise
+    - listitem:
+      - link " Contact us":
+        - /url: /contact_us
+- list:
+  - listitem:
+    - link "Products":
+      - /url: /products
+  - listitem: Polo
+- heading "Category" [level=2]
+- heading " Women" [level=4]:
+  - link " Women":
+    - /url: "#Women"
+- heading " Men" [level=4]:
+  - link " Men":
+    - /url: "#Men"
+- heading " Kids" [level=4]:
+  - link " Kids":
+    - /url: "#Kids"
+- heading "Brands" [level=2]
+- list:
+  - listitem:
+    - link "(6) Polo":
+      - /url: /brand_products/Polo
+  - listitem:
+    - link "(5) H&M":
+      - /url: /brand_products/H&M
+  - listitem:
+    - link "(5) Madame":
+      - /url: /brand_products/Madame
+  - listitem:
+    - link "(3) Mast & Harbour":
+      - /url: /brand_products/Mast & Harbour
+  - listitem:
+    - link "(4) Babyhug":
+      - /url: /brand_products/Babyhug
+  - listitem:
+    - link "(3) Allen Solly Junior":
+      - /url: /brand_products/Allen Solly Junior
+  - listitem:
+    - link "(3) Kookie Kids":
+      - /url: /brand_products/Kookie Kids
+  - listitem:
+    - link "(5) Biba":
+      - /url: /brand_products/Biba
+- heading "Brand - Polo Products" [level=2]
+- img "ecommerce website products"
+- heading "Rs. 500" [level=2]
+- paragraph: Blue Top
+- link " Add to cart":
+  - /url: javascript:void();
+- heading "Rs. 500" [level=2]
+- paragraph: Blue Top
+- link " Add to cart":
+  - /url: javascript:void();
+- list:
+  - listitem:
+    - link " View Product":
+      - /url: /product_details/1
+- img "ecommerce website products"
+- heading "Rs. 700" [level=2]
+- paragraph: Fancy Green Top
+- link " Add to cart":
+  - /url: javascript:void();
+- heading "Rs. 700" [level=2]
+- paragraph: Fancy Green Top
+- link " Add to cart":
+  - /url: javascript:void();
+- list:
+  - listitem:
+    - link " View Product":
+      - /url: /product_details/8
+- img "ecommerce website products"
+- heading "Rs. 1000" [level=2]
+- paragraph: Green Side Placket Detail T-Shirt
+- link " Add to cart":
+  - /url: javascript:void();
+- heading "Rs. 1000" [level=2]
+- paragraph: Green Side Placket Detail T-Shirt
+- link " Add to cart":
+  - /url: javascript:void();
+- list:
+  - listitem:
+    - link " View Product":
+      - /url: /product_details/29
+- img "ecommerce website products"
+- heading "Rs. 1500" [level=2]
+- paragraph: Premium Polo T-Shirts
+- link " Add to cart":
+  - /url: javascript:void();
+- heading "Rs. 1500" [level=2]
+- paragraph: Premium Polo T-Shirts
+- link " Add to cart":
+  - /url: javascript:void();
+- list:
+  - listitem:
+    - link " View Product":
+      - /url: /product_details/30
+- img "ecommerce website products"
+- heading "Rs. 799" [level=2]
+- paragraph: Soft Stretch Jeans
+- link " Add to cart":
+  - /url: javascript:void();
+- heading "Rs. 799" [level=2]
+- paragraph: Soft Stretch Jeans
+- link " Add to cart":
+  - /url: javascript:void();
+- list:
+  - listitem:
+    - link " View Product":
+      - /url: /product_details/33
+- img "ecommerce website products"
+- heading "Rs. 1400" [level=2]
+- paragraph: Grunt Blue Slim Fit Jeans
+- link " Add to cart":
+  - /url: javascript:void();
+- heading "Rs. 1400" [level=2]
+- paragraph: Grunt Blue Slim Fit Jeans
+- link " Add to cart":
+  - /url: javascript:void();
+- list:
+  - listitem:
+    - link " View Product":
+      - /url: /product_details/37
+- contentinfo:
+  - heading "Subscription" [level=2]
+  - textbox "Your email address"
+  - button ""
+  - paragraph: Get the most recent updates from our site and be updated your self...
+  - paragraph: Copyright © 2021 All rights reserved

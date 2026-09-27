@@ -58,7 +58,10 @@ export function sourceLines(reqDir: string): SourceLine[] {
 }
 
 /** The numbered evidence pack the extractor and the reviewer work from. ● = must appear in the coverage ledger. */
-export function evidencePack(key: string, reqDir: string, binaryAttachments: string[]): string {
+/** The project's facts about the application (not requirement): lets gaps such as "which host" resolve as found-in-config. */
+export interface PackConfig { profile: string; name: string; baseURL: string; apiBaseURL?: string }
+
+export function evidencePack(key: string, reqDir: string, binaryAttachments: string[], config?: PackConfig): string {
   const lines = sourceLines(reqDir);
   const out = [
     `# Evidence pack — ${key}`, '',
@@ -69,6 +72,10 @@ export function evidencePack(key: string, reqDir: string, binaryAttachments: str
     out.push('**Non-text attachments** — open each with the Read tool and transcribe what it states into `requirement/transcripts/<file>.md`',
       '(first line `transcribedFrom: attachments/<file>`); then re-run `contract KEY --pack` so the transcript is numbered here:', '',
       ...binaryAttachments.map((a) => `- ${a}${fs.existsSync(path.join(reqDir, 'transcripts', `${path.basename(a)}.md`)) ? ' (transcribed)' : ' — **not transcribed yet**'}`), '');
+  }
+  if (config) {
+    out.push('**Project configuration** (heldout.config.json: not requirement, nothing to cite or cover; a gap it answers is `found-in-config`):', '',
+      `- AUT profile \`${config.profile}\` "${config.name}": web ${config.baseURL}${config.apiBaseURL && config.apiBaseURL !== config.baseURL ? `, API ${config.apiBaseURL}` : ' (API on the same origin)'}`, '');
   }
   let file = '';
   for (const l of lines) {

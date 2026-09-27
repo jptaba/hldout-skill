@@ -1,0 +1,1 @@
+{ "customer": { "password": "${env:PB_USER_PASSWORD}", "wrongPassword": "Wr0ngPw-hx71", "address": { "street": "12 Heldout Lane", "city": "Testville", "state": "CA", "zipCode": "94016" }, "phoneNumber": "5551234567", "ssn": "123-45-6789" } }

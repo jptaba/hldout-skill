@@ -1,0 +1,10 @@
+[
+  { "tool": "browser_navigate", "url": "contact_us" },
+  { "tool": "browser_wait_for", "text": "Get In Touch" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Email", "exact": true }, "text": "${var:tag}@example.com" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Submit", "exact": true } },
+  { "tool": "browser_handle_dialog", "accept": true },
+  { "tool": "browser_wait_for", "text": "Success! Your details have been submitted successfully." },
+  { "tool": "browser_network_requests" },
+  { "snapshot": "after OK" }
+]

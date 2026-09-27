@@ -2,7 +2,7 @@
  * Phase 5 — Execute the held-out suite for one story against its AUT profile.
  *
  *   heldout run <KEY> [--label eval] [--grep SCN-003] [--capture]
- *       [--retries N] [--workers N] [--repeat-each N] [--headed] [--aut <profile>] [--skip-preflight] [--allow-degraded] [--wait-healthy <seconds>]
+ *       [--retries N] [--workers N] [--repeat-each N] [--headed] [--aut <profile>] [--skip-preflight] [--allow-degraded] [--wait-healthy <seconds>] [--quiet | --verbose]
  *   --repeat-each N: stability check during hardening (exposes races that a single green run hides)
  *
  * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden*)
@@ -20,6 +20,7 @@ import path from 'node:path';
 import { assertIssueKey, autEnv, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
 import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
 import { scrubDir, secretValuesFor } from './lib/redact';
+import { failedTests } from './lib/triage-model';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
@@ -116,7 +117,11 @@ main(async () => {
   // Playwright's CLI straight through node, no shell: arguments such as --grep "SCN-01|SCN-00[89]" reach it intact.
   const cli = path.resolve('node_modules', '@playwright', 'test', 'cli.js');
   if (!fs.existsSync(cli)) throw new Error('@playwright/test is not installed in this project — run: npm run heldout -- init --install (or npm i -D @playwright/test)');
-  const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: 'inherit', env });
+  // An agent (Claude Code sets CLAUDECODE=1) reads every line it is shown: keep Playwright's full output in the run
+  // folder and print a digest. People see the live output; --verbose forces it, --quiet forces the digest.
+  const quiet = Boolean(flags.quiet) || (process.env.CLAUDECODE === '1' && !flags.verbose);
+  const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: quiet ? ['inherit', 'pipe', 'pipe'] : 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
+  if (quiet) writeFile(path.join(runDir, 'console.log'), `${res.stdout ?? ''}${res.stderr ?? ''}`);
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
   const secrets = secretValuesFor(p.testData);
   const scrubbed = scrubDir(runDir, secrets.values);
@@ -141,7 +146,11 @@ main(async () => {
   writeFile(path.join(runDir, 'run-meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
 
   if (!produced) throw new Error(`Playwright produced no results.json (exit ${res.status}). Check config / environment.`);
-  console.log(`\n■ ${runName}: passed ${stats!.expected}, failed ${stats!.unexpected}, flaky ${stats!.flaky}, skipped ${stats!.skipped}`);
+  console.log(`\n■ ${runName}: passed ${stats!.expected}, failed ${stats!.unexpected}, flaky ${stats!.flaky}, skipped ${stats!.skipped} (${Math.round(stats!.duration / 1000)} s)`);
+  if (quiet) {
+    for (const f of failedTests(readJson<unknown>(resultsFile))) console.log(`  ${f.flaky ? '≈' : '✖'} ${f.title}\n      ${f.error}`);
+    console.log(`  full output: ${rel(path.join(runDir, 'console.log'))}`);
+  }
   console.log(`  run dir: ${rel(runDir)}`);
   console.log(`  html:    npx playwright show-report ${rel(path.join(runDir, 'html'))}`);
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
@@ -149,7 +158,7 @@ main(async () => {
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
     for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);
-    console.log('  Remove it (api-probe --chain) and fix the cleanup: re-authenticate inside it rather than reuse a token the test may have revoked.');
+    console.log('  Remove it (api-probe --chain) and fix the cleanup: when its call answers 401, take a fresh token and retry (a sign-in during the test may have revoked the one it had).');
   }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
 });

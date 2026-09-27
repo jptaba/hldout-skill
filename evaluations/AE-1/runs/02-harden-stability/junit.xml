@@ -1,0 +1,556 @@
+<testsuites id="" name="" tests="60" failures="4" skipped="0" errors="0" time="86.01603700000001">
+<testsuite name="AE-1\tests\ae-1.spec.ts" timestamp="2026-09-27T05:44:30.062Z" hostname="chromium" tests="20" failures="1" skipped="0" time="43.971" errors="0">
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-001: A client lists the catalogue through the API" classname="AE-1\tests\ae-1.spec.ts" time="1.342">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-002: Every catalogue product carries id, name, price, brand and category with audience and category name" classname="AE-1\tests\ae-1.spec.ts" time="1.342">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-003: Every catalogue price is written as &quot;Rs. &quot; followed by the amount" classname="AE-1\tests\ae-1.spec.ts" time="0.425">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-004: Searching &quot;jean&quot; through the API returns exactly the three jeans" classname="AE-1\tests\ae-1.spec.ts" time="0.378">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-005.1: Search ignores letter case (TOP / top)" classname="AE-1\tests\ae-1.spec.ts" time="0.828">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-005.2: Search ignores letter case (Top / top)" classname="AE-1\tests\ae-1.spec.ts" time="0.782">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-006: Searching &quot;dress&quot; returns every product with &quot;dress&quot; in its name or in a Dress category" classname="AE-1\tests\ae-1.spec.ts" time="0.889">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-007: Searching &quot;dress&quot; returns nothing else" classname="AE-1\tests\ae-1.spec.ts" time="0.895">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-008: The brand is not a search field" classname="AE-1\tests\ae-1.spec.ts" time="0.6">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-009: A search that matches nothing returns an empty product list" classname="AE-1\tests\ae-1.spec.ts" time="0.379">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-010: A search that matches nothing is not an error" classname="AE-1\tests\ae-1.spec.ts" time="0.348">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-011: Searching with an empty value returns the whole catalogue" classname="AE-1\tests\ae-1.spec.ts" time="0.624">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-012: A search without the search_product parameter is rejected with response code 400" classname="AE-1\tests\ae-1.spec.ts" time="1.382">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] response code 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-1\tests\ae-1.spec.ts:228:3 › AE-1 Product search and catalogue on the shop and the public product API › SCN-012: A search without the search_product parameter is rejected with response code 400 @AC-7 @type:negative @layer:api @P1 › Then the request is rejected with response code 400 
+
+    Error: [REQ AC-7] response code 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      233 |     });
+      234 |     await journey.step('Then the request is rejected with response code 400', async () => {
+    > 235 |       expect(res.status, '[REQ AC-7] response code 400').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                          ^
+      236 |     });
+      237 |   });
+      238 |
+        at body (D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:235:58)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:234:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] response code 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      233 |     });
+      234 |     await journey.step('Then the request is rejected with response code 400', async () => {
+    > 235 |       expect(res.status, '[REQ AC-7] response code 400').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                          ^
+      236 |     });
+      237 |   });
+      238 |
+        at body (D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:235:58)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:234:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-013: A search without the search_product parameter explains what is missing" classname="AE-1\tests\ae-1.spec.ts" time="0.352">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-014: A shopper searches &quot;jean&quot; on the Products page" classname="AE-1\tests\ae-1.spec.ts" time="3.701">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-015: A shopper searches without a term on the Products page and sees the whole catalogue" classname="AE-1\tests\ae-1.spec.ts" time="3.895">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.1: The shop and the API agree on search results (top)" classname="AE-1\tests\ae-1.spec.ts" time="13.304">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.2: The shop and the API agree on search results (dress)" classname="AE-1\tests\ae-1.spec.ts" time="4.184">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.3: The shop and the API agree on search results (Men Tshirt)" classname="AE-1\tests\ae-1.spec.ts" time="4.607">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-017: A search on the Products page that matches nothing shows no product" classname="AE-1\tests\ae-1.spec.ts" time="3.714">
+</testcase>
+</testsuite>
+<testsuite name="AE-1\tests\ae-1.spec.ts" timestamp="2026-09-27T05:44:30.062Z" hostname="chromium" tests="20" failures="1" skipped="0" time="33.987" errors="0">
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-001: A client lists the catalogue through the API" classname="AE-1\tests\ae-1.spec.ts" time="0.783">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-002: Every catalogue product carries id, name, price, brand and category with audience and category name" classname="AE-1\tests\ae-1.spec.ts" time="0.743">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-003: Every catalogue price is written as &quot;Rs. &quot; followed by the amount" classname="AE-1\tests\ae-1.spec.ts" time="0.448">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-004: Searching &quot;jean&quot; through the API returns exactly the three jeans" classname="AE-1\tests\ae-1.spec.ts" time="0.377">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-005.1: Search ignores letter case (TOP / top)" classname="AE-1\tests\ae-1.spec.ts" time="0.843">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-005.2: Search ignores letter case (Top / top)" classname="AE-1\tests\ae-1.spec.ts" time="0.801">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-006: Searching &quot;dress&quot; returns every product with &quot;dress&quot; in its name or in a Dress category" classname="AE-1\tests\ae-1.spec.ts" time="0.608">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-007: Searching &quot;dress&quot; returns nothing else" classname="AE-1\tests\ae-1.spec.ts" time="0.58">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-008: The brand is not a search field" classname="AE-1\tests\ae-1.spec.ts" time="0.91">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-009: A search that matches nothing returns an empty product list" classname="AE-1\tests\ae-1.spec.ts" time="0.385">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-010: A search that matches nothing is not an error" classname="AE-1\tests\ae-1.spec.ts" time="0.391">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-011: Searching with an empty value returns the whole catalogue" classname="AE-1\tests\ae-1.spec.ts" time="0.876">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-012: A search without the search_product parameter is rejected with response code 400" classname="AE-1\tests\ae-1.spec.ts" time="1.429">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] response code 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-1\tests\ae-1.spec.ts:228:3 › AE-1 Product search and catalogue on the shop and the public product API › SCN-012: A search without the search_product parameter is rejected with response code 400 @AC-7 @type:negative @layer:api @P1 › Then the request is rejected with response code 400 
+
+    Error: [REQ AC-7] response code 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      233 |     });
+      234 |     await journey.step('Then the request is rejected with response code 400', async () => {
+    > 235 |       expect(res.status, '[REQ AC-7] response code 400').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                          ^
+      236 |     });
+      237 |   });
+      238 |
+        at body (D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:235:58)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:234:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] response code 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      233 |     });
+      234 |     await journey.step('Then the request is rejected with response code 400', async () => {
+    > 235 |       expect(res.status, '[REQ AC-7] response code 400').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                          ^
+      236 |     });
+      237 |   });
+      238 |
+        at body (D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:235:58)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:234:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-013: A search without the search_product parameter explains what is missing" classname="AE-1\tests\ae-1.spec.ts" time="0.671">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-014: A shopper searches &quot;jean&quot; on the Products page" classname="AE-1\tests\ae-1.spec.ts" time="3.405">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-015: A shopper searches without a term on the Products page and sees the whole catalogue" classname="AE-1\tests\ae-1.spec.ts" time="4.485">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.1: The shop and the API agree on search results (top)" classname="AE-1\tests\ae-1.spec.ts" time="5.177">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.2: The shop and the API agree on search results (dress)" classname="AE-1\tests\ae-1.spec.ts" time="3.145">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.3: The shop and the API agree on search results (Men Tshirt)" classname="AE-1\tests\ae-1.spec.ts" time="4.411">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-017: A search on the Products page that matches nothing shows no product" classname="AE-1\tests\ae-1.spec.ts" time="3.519">
+</testcase>
+</testsuite>
+<testsuite name="AE-1\tests\ae-1.spec.ts" timestamp="2026-09-27T05:44:30.062Z" hostname="chromium" tests="20" failures="2" skipped="0" time="63.546" errors="0">
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-001: A client lists the catalogue through the API" classname="AE-1\tests\ae-1.spec.ts" time="1.034">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-002: Every catalogue product carries id, name, price, brand and category with audience and category name" classname="AE-1\tests\ae-1.spec.ts" time="1.034">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-003: Every catalogue price is written as &quot;Rs. &quot; followed by the amount" classname="AE-1\tests\ae-1.spec.ts" time="0.697">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-004: Searching &quot;jean&quot; through the API returns exactly the three jeans" classname="AE-1\tests\ae-1.spec.ts" time="0.596">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-005.1: Search ignores letter case (TOP / top)" classname="AE-1\tests\ae-1.spec.ts" time="0.641">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-005.2: Search ignores letter case (Top / top)" classname="AE-1\tests\ae-1.spec.ts" time="0.612">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-006: Searching &quot;dress&quot; returns every product with &quot;dress&quot; in its name or in a Dress category" classname="AE-1\tests\ae-1.spec.ts" time="0.577">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-007: Searching &quot;dress&quot; returns nothing else" classname="AE-1\tests\ae-1.spec.ts" time="0.58">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-008: The brand is not a search field" classname="AE-1\tests\ae-1.spec.ts" time="0.803">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-009: A search that matches nothing returns an empty product list" classname="AE-1\tests\ae-1.spec.ts" time="0.577">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-010: A search that matches nothing is not an error" classname="AE-1\tests\ae-1.spec.ts" time="0.646">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-011: Searching with an empty value returns the whole catalogue" classname="AE-1\tests\ae-1.spec.ts" time="0.604">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-012: A search without the search_product parameter is rejected with response code 400" classname="AE-1\tests\ae-1.spec.ts" time="1.194">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] response code 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-1\tests\ae-1.spec.ts:228:3 › AE-1 Product search and catalogue on the shop and the public product API › SCN-012: A search without the search_product parameter is rejected with response code 400 @AC-7 @type:negative @layer:api @P1 › Then the request is rejected with response code 400 
+
+    Error: [REQ AC-7] response code 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      233 |     });
+      234 |     await journey.step('Then the request is rejected with response code 400', async () => {
+    > 235 |       expect(res.status, '[REQ AC-7] response code 400').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                          ^
+      236 |     });
+      237 |   });
+      238 |
+        at body (D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:235:58)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:234:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] response code 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      233 |     });
+      234 |     await journey.step('Then the request is rejected with response code 400', async () => {
+    > 235 |       expect(res.status, '[REQ AC-7] response code 400').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                          ^
+      236 |     });
+      237 |   });
+      238 |
+        at body (D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:235:58)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:34
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:234:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-ebe51-cted-with-response-code-400-chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-013: A search without the search_product parameter explains what is missing" classname="AE-1\tests\ae-1.spec.ts" time="0.394">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-014: A shopper searches &quot;jean&quot; on the Products page" classname="AE-1\tests\ae-1.spec.ts" time="3.429">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-015: A shopper searches without a term on the Products page and sees the whole catalogue" classname="AE-1\tests\ae-1.spec.ts" time="15.788">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-44196-nd-sees-the-whole-catalogue-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-44196-nd-sees-the-whole-catalogue-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-44196-nd-sees-the-whole-catalogue-chromium-repeat2\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.1: The shop and the API agree on search results (top)" classname="AE-1\tests\ae-1.spec.ts" time="20.481">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-10] the page shows exactly what the API returns for &quot;top&quot;" type="expect.toEqual">
+<![CDATA[  [chromium] › AE-1\tests\ae-1.spec.ts:278:5 › AE-1 Product search and catalogue on the shop and the public product API › SCN-016.1: The shop and the API agree on search results (top) @AC-10 @type:integration @layer:e2e @P1 › Then the products shown are exactly the products POST /api/searchProduct returns for "top" 
+
+    Error: [REQ AC-10] the page shows exactly what the API returns for "top"
+
+    [REQ AC-10] the page shows exactly what the API returns for "top"
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+    @@ -2,15 +2,15 @@
+        "Blue Top",
+        "Colour Blocked Shirt – Sky Blue",
+        "Fancy Green Top",
+        "Frozen Tops For Kids",
+        "Full Sleeves Top Cherry - Pink",
+    -   "Half Sleeves Top Schiffli Detailing - Pink",
+    +   "Half Sleeves Top Schiffli Detailing - PinkApparel",
+        "Lace Top For Women",
+        "Little Girls Mr. Panda Shirt",
+        "Madame Top For Women",
+        "Printed Off Shoulder Top - White",
+    -   "Sleeves Printed Top - White",
+    +   "Sleeves Printed Top - WhiteEconomics",
+        "Sleeves Top and Short - Blue & Pink",
+        "Summer White Top",
+        "Winter Top",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      282 |         const fromApi = productsOf(await search(api, term));
+      283 |         expect(Array.isArray(fromApi), 'search API returned a product list (precondition)').toBe(true);
+    > 284 |         await expect.poll(() => shownNames(page), { message: `[REQ AC-10] the page shows exactly what the API returns for "${term}"` }).toEqual(names(fromApi));
+          |                                                                                                                                         ^
+      285 |       });
+      286 |     });
+      287 |   });
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:284:137
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:28
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:281:7
+
+    attachment #2: aria-snapshot 03-failed-then-the-products-shown-are-exactly-the-products-post (text/yaml) 
+    # url: https://automationexercise.com/products?search=top
+    # step: FAILED Then the products shown are exactly the products POST /api/searchProduct returns for "top"
+    - banner:
+      - link "Website for automation practice":
+        - /url: /
+        - img "Website for automation practice"
+      - list:
+        - listitem...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-10] the page shows exactly what the API returns for "top"
+
+    [REQ AC-10] the page shows exactly what the API returns for "top"
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+    @@ -2,15 +2,15 @@
+        "Blue Top",
+        "Colour Blocked Shirt – Sky Blue",
+        "Fancy Green Top",
+        "Frozen Tops For Kids",
+        "Full Sleeves Top Cherry - Pink",
+    -   "Half Sleeves Top Schiffli Detailing - Pink",
+    +   "Half Sleeves Top Schiffli Detailing - PinkApparel",
+        "Lace Top For Women",
+        "Little Girls Mr. Panda Shirt",
+        "Madame Top For Women",
+        "Printed Off Shoulder Top - White",
+    -   "Sleeves Printed Top - White",
+    +   "Sleeves Printed Top - WhiteIndustrial & Product Design",
+        "Sleeves Top and Short - Blue & Pink",
+        "Summer White Top",
+        "Winter Top",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      282 |         const fromApi = productsOf(await search(api, term));
+      283 |         expect(Array.isArray(fromApi), 'search API returned a product list (precondition)').toBe(true);
+    > 284 |         await expect.poll(() => shownNames(page), { message: `[REQ AC-10] the page shows exactly what the API returns for "${term}"` }).toEqual(names(fromApi));
+          |                                                                                                                                         ^
+      285 |       });
+      286 |     });
+      287 |   });
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:284:137
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:318:28
+        at D:\projects\hldout-skill\evaluations\AE-1\tests\ae-1.spec.ts:281:7
+
+    attachment #2: aria-snapshot 03-failed-then-the-products-shown-are-exactly-the-products-post (text/yaml) 
+    # url: https://automationexercise.com/products?search=top
+    # step: FAILED Then the products shown are exactly the products POST /api/searchProduct returns for "top"
+    - banner:
+      - link "Website for automation practice":
+        - /url: /
+        - img "Website for automation practice"
+      - list:
+        - listitem...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-1\runs\02-harden-stability\artifacts\AE-1-tests-ae-1-AE-1-Produ-a3ca8-gree-on-search-results-top--chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.2: The shop and the API agree on search results (dress)" classname="AE-1\tests\ae-1.spec.ts" time="4.791">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-016.3: The shop and the API agree on search results (Men Tshirt)" classname="AE-1\tests\ae-1.spec.ts" time="4.685">
+</testcase>
+<testcase name="AE-1 Product search and catalogue on the shop and the public product API › SCN-017: A search on the Products page that matches nothing shows no product" classname="AE-1\tests\ae-1.spec.ts" time="4.383">
+</testcase>
+</testsuite>
+</testsuites>

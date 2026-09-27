@@ -1,0 +1,668 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/AE-3/tests/",
+      "--grep",
+      "SCN-01[012]",
+      "--workers",
+      "4"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/AE-3/runs/02-harden/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "AE-3\\tests\\ae-3.spec.ts",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AE-3 Brands in the catalogue API and shop, and the Contact Us form",
+          "file": "AE-3/tests/ae-3.spec.ts",
+          "line": 116,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-010: The form can be sent with only a valid Email",
+              "ok": false,
+              "tags": [
+                "AC-6",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6585,
+                      "error": {
+                        "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n",
+                        "stack": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:318:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                          "column": 115,
+                          "line": 318
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 316 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click \"Submit\" and confirm with OK'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m submitForm(page\u001b[33m,\u001b[39m (d) \u001b[33m=>\u001b[39m d\u001b[33m.\u001b[39maccept())\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 317 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the success message is shown'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 318 |\u001b[39m       \u001b[36mawait\u001b[39m expect(contact\u001b[33m.\u001b[39msuccess(page)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] optional fields empty: the form is sent (success message)'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 319 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 320 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                            "column": 115,
+                            "line": 318
+                          },
+                          "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n\n\n  316 |     await journey.step('When I click \"Submit\" and confirm with OK', async () => { await submitForm(page, (d) => d.accept()); });\n  317 |     await journey.step('Then the success message is shown', async () => {\n> 318 |       await expect(contact.success(page), '[REQ AC-6] optional fields empty: the form is sent (success message)').toBeVisible();\n      |                                                                                                                   ^\n  319 |     });\n  320 |   });\n  321 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:318:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1191
+                        },
+                        {
+                          "title": "And I filled only Email with a unique valid address",
+                          "duration": 44
+                        },
+                        {
+                          "title": "When I click \"Submit\" and confirm with OK",
+                          "duration": 5050
+                        },
+                        {
+                          "title": "Then the success message is shown",
+                          "duration": 67,
+                          "error": {
+                            "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n",
+                            "stack": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:318:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                              "column": 115,
+                              "line": 318
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 316 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click \"Submit\" and confirm with OK'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m submitForm(page\u001b[33m,\u001b[39m (d) \u001b[33m=>\u001b[39m d\u001b[33m.\u001b[39maccept())\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 317 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the success message is shown'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 318 |\u001b[39m       \u001b[36mawait\u001b[39m expect(contact\u001b[33m.\u001b[39msuccess(page)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] optional fields empty: the form is sent (success message)'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 319 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 320 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:08:16.031Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-contact-us-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgQ29udGFjdCBVcyBwYWdlCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 02-and-i-filled-only-email-with-a-unique-valid-address",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIEkgZmlsbGVkIG9ubHkgRW1haWwgd2l0aCBhIHVuaXF1ZSB2YWxpZCBhZGRyZXNzCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiOiBxYS5qcnlpaWR4OS0xQGV4YW1wbGUuY29tCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 03-when-i-click-submit-and-confirm-with-ok",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogV2hlbiBJIGNsaWNrICJTdWJtaXQiIGFuZCBjb25maXJtIHdpdGggT0sKLSBiYW5uZXI6CiAgLSBsaW5rICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIjoKICAgIC0gL3VybDogLwogICAgLSBpbWcgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiCiAgLSBsaXN0OgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgJUgSG9tZSI6CiAgICAgICAgLSAvdXJsOiAvCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu6juCBQcm9kdWN0cyI6CiAgICAgICAgLSAvdXJsOiAvcHJvZHVjdHMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74G6IENhcnQiOgogICAgICAgIC0gL3VybDogL3ZpZXdfY2FydAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgKMgU2lnbnVwIC8gTG9naW4iOgogICAgICAgIC0gL3VybDogL2xvZ2luCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AuiBUZXN0IENhc2VzIjoKICAgICAgICAtIC91cmw6IC90ZXN0X2Nhc2VzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AuiBBUEkgVGVzdGluZyI6CiAgICAgICAgLSAvdXJsOiAvYXBpX2xpc3QKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74WqIFZpZGVvIFR1dG9yaWFscyI6CiAgICAgICAgLSAvdXJsOiBodHRwczovL3d3dy55b3V0dWJlLmNvbS9jL0F1dG9tYXRpb25FeGVyY2lzZQogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvg6AgQ29udGFjdCB1cyI6CiAgICAgICAgLSAvdXJsOiAvY29udGFjdF91cwotIGhlYWRpbmcgIkNvbnRhY3QgVXMiIFtsZXZlbD0yXToKICAtIHRleHQ6IENvbnRhY3QKICAtIHN0cm9uZzogVXMKLSB0ZXh0OiAiTm90ZTogQmVsb3cgY29udGFjdCBmb3JtIGlzIGZvciB0ZXN0aW5nIHB1cnBvc2UuIgotIGhlYWRpbmcgIkdldCBJbiBUb3VjaCIgW2xldmVsPTJdCi0gdGV4dDogU3VjY2VzcyEgWW91ciBkZXRhaWxzIGhhdmUgYmVlbiBzdWJtaXR0ZWQgc3VjY2Vzc2Z1bGx5LgotIGxpbmsgIu+EgCBIb21lIjoKICAtIC91cmw6IC8KLSBoZWFkaW5nICJGZWVkYmFjayBGb3IgVXMiIFtsZXZlbD0yXQotIHBhcmFncmFwaDogV2UgcmVhbGx5IGFwcHJlY2lhdGUgeW91ciByZXNwb25zZSB0byBvdXIgd2Vic2l0ZS4KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBLaW5kbHkgc2hhcmUgeW91ciBmZWVkYmFjayB3aXRoIHVzIGF0CiAgLSBsaW5rICJmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tIjoKICAgIC0gL3VybDogbWFpbHRvOmZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20KICAtIHRleHQ6IC4KLSBwYXJhZ3JhcGg6IElmIHlvdSBoYXZlIGFueSBzdWdnZXN0aW9uIGFyZWFzIG9yIGltcHJvdmVtZW50cywgZG8gbGV0IHVzIGtub3cuIFdlIHdpbGwgZGVmaW5pdGVseSB3b3JrIG9uIGl0LgotIHBhcmFncmFwaDogVGhhbmsgeW91Ci0gY29udGVudGluZm86CiAgLSBoZWFkaW5nICJTdWJzY3JpcHRpb24iIFtsZXZlbD0yXQogIC0gdGV4dGJveCAiWW91ciBlbWFpbCBhZGRyZXNzIgogIC0gYnV0dG9uICLvho4iCiAgLSBwYXJhZ3JhcGg6IEdldCB0aGUgbW9zdCByZWNlbnQgdXBkYXRlcyBmcm9tIG91ciBzaXRlIGFuZCBiZSB1cGRhdGVkIHlvdXIgc2VsZi4uLgogIC0gcGFyYWdyYXBoOiBDb3B5cmlnaHQgwqkgMjAyMSBBbGwgcmlnaHRzIHJlc2VydmVkCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 04-failed-then-the-success-message-is-shown",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogRkFJTEVEIFRoZW4gdGhlIHN1Y2Nlc3MgbWVzc2FnZSBpcyBzaG93bgotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0OiBTdWNjZXNzISBZb3VyIGRldGFpbHMgaGF2ZSBiZWVuIHN1Ym1pdHRlZCBzdWNjZXNzZnVsbHkuCi0gbGluayAi74SAIEhvbWUiOgogIC0gL3VybDogLwotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                        "column": 115,
+                        "line": 318
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6455,
+                      "error": {
+                        "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n",
+                        "stack": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:318:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                          "column": 115,
+                          "line": 318
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 316 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click \"Submit\" and confirm with OK'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m submitForm(page\u001b[33m,\u001b[39m (d) \u001b[33m=>\u001b[39m d\u001b[33m.\u001b[39maccept())\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 317 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the success message is shown'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 318 |\u001b[39m       \u001b[36mawait\u001b[39m expect(contact\u001b[33m.\u001b[39msuccess(page)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] optional fields empty: the form is sent (success message)'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 319 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 320 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                            "column": 115,
+                            "line": 318
+                          },
+                          "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n\n\n  316 |     await journey.step('When I click \"Submit\" and confirm with OK', async () => { await submitForm(page, (d) => d.accept()); });\n  317 |     await journey.step('Then the success message is shown', async () => {\n> 318 |       await expect(contact.success(page), '[REQ AC-6] optional fields empty: the form is sent (success message)').toBeVisible();\n      |                                                                                                                   ^\n  319 |     });\n  320 |   });\n  321 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:318:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1167
+                        },
+                        {
+                          "title": "And I filled only Email with a unique valid address",
+                          "duration": 28
+                        },
+                        {
+                          "title": "When I click \"Submit\" and confirm with OK",
+                          "duration": 5039
+                        },
+                        {
+                          "title": "Then the success message is shown",
+                          "duration": 39,
+                          "error": {
+                            "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n",
+                            "stack": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nError: strict mode violation: getByText('Success! Your details have been submitted successfully.') resolved to 2 elements:\n    1) <div class=\"status alert alert-success\">Success! Your details have been submitted success…</div> aka locator('#contact-page').getByText('Success! Your details have')\n    2) <div class=\"alert-success alert\">Success! Your details have been submitted success…</div> aka locator('#success-subscribe').getByText('Success! Your details have')\n\nCall log:\n\u001b[2m  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Success! Your details have been submitted successfully.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:318:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                              "column": 115,
+                              "line": 318
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 316 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click \"Submit\" and confirm with OK'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m submitForm(page\u001b[33m,\u001b[39m (d) \u001b[33m=>\u001b[39m d\u001b[33m.\u001b[39maccept())\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 317 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the success message is shown'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 318 |\u001b[39m       \u001b[36mawait\u001b[39m expect(contact\u001b[33m.\u001b[39msuccess(page)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] optional fields empty: the form is sent (success message)'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 319 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 320 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:08:24.101Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-contact-us-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgQ29udGFjdCBVcyBwYWdlCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 02-and-i-filled-only-email-with-a-unique-valid-address",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIEkgZmlsbGVkIG9ubHkgRW1haWwgd2l0aCBhIHVuaXF1ZSB2YWxpZCBhZGRyZXNzCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiOiBxYS5qcnlvbzczdi0xQGV4YW1wbGUuY29tCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 03-when-i-click-submit-and-confirm-with-ok",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogV2hlbiBJIGNsaWNrICJTdWJtaXQiIGFuZCBjb25maXJtIHdpdGggT0sKLSBiYW5uZXI6CiAgLSBsaW5rICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIjoKICAgIC0gL3VybDogLwogICAgLSBpbWcgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiCiAgLSBsaXN0OgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgJUgSG9tZSI6CiAgICAgICAgLSAvdXJsOiAvCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu6juCBQcm9kdWN0cyI6CiAgICAgICAgLSAvdXJsOiAvcHJvZHVjdHMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74G6IENhcnQiOgogICAgICAgIC0gL3VybDogL3ZpZXdfY2FydAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgKMgU2lnbnVwIC8gTG9naW4iOgogICAgICAgIC0gL3VybDogL2xvZ2luCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AuiBUZXN0IENhc2VzIjoKICAgICAgICAtIC91cmw6IC90ZXN0X2Nhc2VzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AuiBBUEkgVGVzdGluZyI6CiAgICAgICAgLSAvdXJsOiAvYXBpX2xpc3QKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74WqIFZpZGVvIFR1dG9yaWFscyI6CiAgICAgICAgLSAvdXJsOiBodHRwczovL3d3dy55b3V0dWJlLmNvbS9jL0F1dG9tYXRpb25FeGVyY2lzZQogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvg6AgQ29udGFjdCB1cyI6CiAgICAgICAgLSAvdXJsOiAvY29udGFjdF91cwotIGhlYWRpbmcgIkNvbnRhY3QgVXMiIFtsZXZlbD0yXToKICAtIHRleHQ6IENvbnRhY3QKICAtIHN0cm9uZzogVXMKLSB0ZXh0OiAiTm90ZTogQmVsb3cgY29udGFjdCBmb3JtIGlzIGZvciB0ZXN0aW5nIHB1cnBvc2UuIgotIGhlYWRpbmcgIkdldCBJbiBUb3VjaCIgW2xldmVsPTJdCi0gdGV4dDogU3VjY2VzcyEgWW91ciBkZXRhaWxzIGhhdmUgYmVlbiBzdWJtaXR0ZWQgc3VjY2Vzc2Z1bGx5LgotIGxpbmsgIu+EgCBIb21lIjoKICAtIC91cmw6IC8KLSBoZWFkaW5nICJGZWVkYmFjayBGb3IgVXMiIFtsZXZlbD0yXQotIHBhcmFncmFwaDogV2UgcmVhbGx5IGFwcHJlY2lhdGUgeW91ciByZXNwb25zZSB0byBvdXIgd2Vic2l0ZS4KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBLaW5kbHkgc2hhcmUgeW91ciBmZWVkYmFjayB3aXRoIHVzIGF0CiAgLSBsaW5rICJmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tIjoKICAgIC0gL3VybDogbWFpbHRvOmZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20KICAtIHRleHQ6IC4KLSBwYXJhZ3JhcGg6IElmIHlvdSBoYXZlIGFueSBzdWdnZXN0aW9uIGFyZWFzIG9yIGltcHJvdmVtZW50cywgZG8gbGV0IHVzIGtub3cuIFdlIHdpbGwgZGVmaW5pdGVseSB3b3JrIG9uIGl0LgotIHBhcmFncmFwaDogVGhhbmsgeW91Ci0gY29udGVudGluZm86CiAgLSBoZWFkaW5nICJTdWJzY3JpcHRpb24iIFtsZXZlbD0yXQogIC0gdGV4dGJveCAiWW91ciBlbWFpbCBhZGRyZXNzIgogIC0gYnV0dG9uICLvho4iCiAgLSBwYXJhZ3JhcGg6IEdldCB0aGUgbW9zdCByZWNlbnQgdXBkYXRlcyBmcm9tIG91ciBzaXRlIGFuZCBiZSB1cGRhdGVkIHlvdXIgc2VsZi4uLgogIC0gcGFyYWdyYXBoOiBDb3B5cmlnaHQgwqkgMjAyMSBBbGwgcmlnaHRzIHJlc2VydmVkCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 04-failed-then-the-success-message-is-shown",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogRkFJTEVEIFRoZW4gdGhlIHN1Y2Nlc3MgbWVzc2FnZSBpcyBzaG93bgotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0OiBTdWNjZXNzISBZb3VyIGRldGFpbHMgaGF2ZSBiZWVuIHN1Ym1pdHRlZCBzdWNjZXNzZnVsbHkuCi0gbGluayAi74SAIEhvbWUiOgogIC0gL3VybDogLwotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                        "column": 115,
+                        "line": 318
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8b5464c117c10a688bba-1d6e526d827c8a340baa",
+              "file": "AE-3/tests/ae-3.spec.ts",
+              "line": 313,
+              "column": 3
+            },
+            {
+              "title": "SCN-011: Sending the form asks for confirmation, shows success and offers a Home button",
+              "ok": false,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 21715,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n    at submitForm (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:109:30)\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:332:17)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:330:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                          "column": 30,
+                          "line": 109
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 107 |\u001b[39m   page\u001b[33m.\u001b[39mon(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m handler)\u001b[33m;\u001b[39m\n \u001b[90m 108 |\u001b[39m   \u001b[36mconst\u001b[39m post \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mwaitForRequest((r\u001b[33m:\u001b[39m \u001b[33mRequest\u001b[39m) \u001b[33m=>\u001b[39m r\u001b[33m.\u001b[39mmethod() \u001b[33m===\u001b[39m \u001b[32m'POST'\u001b[39m \u001b[33m&&\u001b[39m r\u001b[33m.\u001b[39mresourceType() \u001b[33m===\u001b[39m \u001b[32m'document'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5\u001b[39m_000 })\u001b[33m.\u001b[39m\u001b[36mcatch\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[36mnull\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 109 |\u001b[39m   \u001b[36mawait\u001b[39m contact\u001b[33m.\u001b[39msubmit(page)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 110 |\u001b[39m   \u001b[36mconst\u001b[39m posted \u001b[33m=\u001b[39m \u001b[33mBoolean\u001b[39m(\u001b[36mawait\u001b[39m post)\u001b[33m;\u001b[39m\n \u001b[90m 111 |\u001b[39m   \u001b[36mif\u001b[39m (posted) \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 112 |\u001b[39m   page\u001b[33m.\u001b[39moff(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m handler)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                            "column": 30,
+                            "line": 109
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n\n  107 |   page.on('dialog', handler);\n  108 |   const post = page.waitForRequest((r: Request) => r.method() === 'POST' && r.resourceType() === 'document', { timeout: 5_000 }).catch(() => null);\n> 109 |   await contact.submit(page).click();\n      |                              ^\n  110 |   const posted = Boolean(await post);\n  111 |   if (posted) await page.waitForLoadState('domcontentloaded');\n  112 |   page.off('dialog', handler);\n    at submitForm (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:109:30)\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:332:17)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:330:5"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                            "column": 30,
+                            "line": 109
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n\n  107 |   page.on('dialog', handler);\n  108 |   const post = page.waitForRequest((r: Request) => r.method() === 'POST' && r.resourceType() === 'document', { timeout: 5_000 }).catch(() => null);\n> 109 |   await contact.submit(page).click();\n      |                              ^\n  110 |   const posted = Boolean(await post);\n  111 |   if (posted) await page.waitForLoadState('domcontentloaded');\n  112 |   page.off('dialog', handler);\n    at submitForm (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:109:30)\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:332:17)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:330:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:47376) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 7)\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1401
+                        },
+                        {
+                          "title": "And I filled Name, Email, Subject and Message with unique valid values",
+                          "duration": 68
+                        },
+                        {
+                          "title": "When I click \"Submit\"",
+                          "duration": 22
+                        },
+                        {
+                          "title": "Then a browser confirmation \"Press OK to proceed!\" is shown",
+                          "duration": 20098
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:08:16.032Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-contact-us-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgQ29udGFjdCBVcyBwYWdlCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 02-and-i-filled-name-email-subject-and-message-with-unique-vali",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIEkgZmlsbGVkIE5hbWUsIEVtYWlsLCBTdWJqZWN0IGFuZCBNZXNzYWdlIHdpdGggdW5pcXVlIHZhbGlkIHZhbHVlcwotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0Ym94ICJOYW1lIjogUUEgcWEganJ5aW84dXQtMQotIHRleHRib3ggIkVtYWlsIjogcWEuanJ5aW84dXQtMUBleGFtcGxlLmNvbQotIHRleHRib3ggIlN1YmplY3QiOiBRQSBzdWJqZWN0IHFhIGpyeWlvOHV0LTEKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSI6IFFBIGhlbGQtb3V0IG1lc3NhZ2UgcWEganJ5aW84dXQtMQotIGJ1dHRvbiAiQ2hvb3NlIEZpbGUiCi0gYnV0dG9uICJTdWJtaXQiCi0gaGVhZGluZyAiRmVlZGJhY2sgRm9yIFVzIiBbbGV2ZWw9Ml0KLSBwYXJhZ3JhcGg6IFdlIHJlYWxseSBhcHByZWNpYXRlIHlvdXIgcmVzcG9uc2UgdG8gb3VyIHdlYnNpdGUuCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogS2luZGx5IHNoYXJlIHlvdXIgZmVlZGJhY2sgd2l0aCB1cyBhdAogIC0gbGluayAiZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbSI6CiAgICAtIC91cmw6IG1haWx0bzpmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tCiAgLSB0ZXh0OiAuCi0gcGFyYWdyYXBoOiBJZiB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlvbiBhcmVhcyBvciBpbXByb3ZlbWVudHMsIGRvIGxldCB1cyBrbm93LiBXZSB3aWxsIGRlZmluaXRlbHkgd29yayBvbiBpdC4KLSBwYXJhZ3JhcGg6IFRoYW5rIHlvdQotIGNvbnRlbnRpbmZvOgogIC0gaGVhZGluZyAiU3Vic2NyaXB0aW9uIiBbbGV2ZWw9Ml0KICAtIHRleHRib3ggIllvdXIgZW1haWwgYWRkcmVzcyIKICAtIGJ1dHRvbiAi74aOIgogIC0gcGFyYWdyYXBoOiBHZXQgdGhlIG1vc3QgcmVjZW50IHVwZGF0ZXMgZnJvbSBvdXIgc2l0ZSBhbmQgYmUgdXBkYXRlZCB5b3VyIHNlbGYuLi4KICAtIHBhcmFncmFwaDogQ29weXJpZ2h0IMKpIDIwMjEgQWxsIHJpZ2h0cyByZXNlcnZlZAo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-when-i-click-submit",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogV2hlbiBJIGNsaWNrICJTdWJtaXQiCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiOiBRQSBxYSBqcnlpbzh1dC0xCi0gdGV4dGJveCAiRW1haWwiOiBxYS5qcnlpbzh1dC0xQGV4YW1wbGUuY29tCi0gdGV4dGJveCAiU3ViamVjdCI6IFFBIHN1YmplY3QgcWEganJ5aW84dXQtMQotIHRleHRib3ggIllvdXIgTWVzc2FnZSBIZXJlIjogUUEgaGVsZC1vdXQgbWVzc2FnZSBxYSBqcnlpbzh1dC0xCi0gYnV0dG9uICJDaG9vc2UgRmlsZSIKLSBidXR0b24gIlN1Ym1pdCIKLSBoZWFkaW5nICJGZWVkYmFjayBGb3IgVXMiIFtsZXZlbD0yXQotIHBhcmFncmFwaDogV2UgcmVhbGx5IGFwcHJlY2lhdGUgeW91ciByZXNwb25zZSB0byBvdXIgd2Vic2l0ZS4KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBLaW5kbHkgc2hhcmUgeW91ciBmZWVkYmFjayB3aXRoIHVzIGF0CiAgLSBsaW5rICJmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tIjoKICAgIC0gL3VybDogbWFpbHRvOmZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20KICAtIHRleHQ6IC4KLSBwYXJhZ3JhcGg6IElmIHlvdSBoYXZlIGFueSBzdWdnZXN0aW9uIGFyZWFzIG9yIGltcHJvdmVtZW50cywgZG8gbGV0IHVzIGtub3cuIFdlIHdpbGwgZGVmaW5pdGVseSB3b3JrIG9uIGl0LgotIHBhcmFncmFwaDogVGhhbmsgeW91Ci0gY29udGVudGluZm86CiAgLSBoZWFkaW5nICJTdWJzY3JpcHRpb24iIFtsZXZlbD0yXQogIC0gdGV4dGJveCAiWW91ciBlbWFpbCBhZGRyZXNzIgogIC0gYnV0dG9uICLvho4iCiAgLSBwYXJhZ3JhcGg6IEdldCB0aGUgbW9zdCByZWNlbnQgdXBkYXRlcyBmcm9tIG91ciBzaXRlIGFuZCBiZSB1cGRhdGVkIHlvdXIgc2VsZi4uLgogIC0gcGFyYWdyYXBoOiBDb3B5cmlnaHQgwqkgMjAyMSBBbGwgcmlnaHRzIHJlc2VydmVkCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 04-then-a-browser-confirmation-press-ok-to-proceed-is-shown",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogVGhlbiBhIGJyb3dzZXIgY29uZmlybWF0aW9uICJQcmVzcyBPSyB0byBwcm9jZWVkISIgaXMgc2hvd24KIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRpbWVvdXQgMzAwMG1zIGV4Y2VlZGVkLgo="
+                        },
+                        {
+                          "name": "aria-snapshot 05-failed-when-i-confirm-with-ok",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogRkFJTEVEIFdoZW4gSSBjb25maXJtIHdpdGggT0sKIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRhcmdldCBwYWdlLCBjb250ZXh0IG9yIGJyb3dzZXIgaGFzIGJlZW4gY2xvc2VkCg=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                        "column": 30,
+                        "line": 109
+                      }
+                    },
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 21407,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n    at submitForm (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:109:30)\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:332:17)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:330:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                          "column": 30,
+                          "line": 109
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 107 |\u001b[39m   page\u001b[33m.\u001b[39mon(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m handler)\u001b[33m;\u001b[39m\n \u001b[90m 108 |\u001b[39m   \u001b[36mconst\u001b[39m post \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mwaitForRequest((r\u001b[33m:\u001b[39m \u001b[33mRequest\u001b[39m) \u001b[33m=>\u001b[39m r\u001b[33m.\u001b[39mmethod() \u001b[33m===\u001b[39m \u001b[32m'POST'\u001b[39m \u001b[33m&&\u001b[39m r\u001b[33m.\u001b[39mresourceType() \u001b[33m===\u001b[39m \u001b[32m'document'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5\u001b[39m_000 })\u001b[33m.\u001b[39m\u001b[36mcatch\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[36mnull\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 109 |\u001b[39m   \u001b[36mawait\u001b[39m contact\u001b[33m.\u001b[39msubmit(page)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 110 |\u001b[39m   \u001b[36mconst\u001b[39m posted \u001b[33m=\u001b[39m \u001b[33mBoolean\u001b[39m(\u001b[36mawait\u001b[39m post)\u001b[33m;\u001b[39m\n \u001b[90m 111 |\u001b[39m   \u001b[36mif\u001b[39m (posted) \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 112 |\u001b[39m   page\u001b[33m.\u001b[39moff(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m handler)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                            "column": 30,
+                            "line": 109
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n\n  107 |   page.on('dialog', handler);\n  108 |   const post = page.waitForRequest((r: Request) => r.method() === 'POST' && r.resourceType() === 'document', { timeout: 5_000 }).catch(() => null);\n> 109 |   await contact.submit(page).click();\n      |                              ^\n  110 |   const posted = Boolean(await post);\n  111 |   if (posted) await page.waitForLoadState('domcontentloaded');\n  112 |   page.off('dialog', handler);\n    at submitForm (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:109:30)\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:332:17)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:330:5"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                            "column": 30,
+                            "line": 109
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Submit' })\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"submit\" name=\"submit\" value=\"Submit\" data-qa=\"submit-button\" class=\"btn btn-primary pull-left submit_form\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n\n  107 |   page.on('dialog', handler);\n  108 |   const post = page.waitForRequest((r: Request) => r.method() === 'POST' && r.resourceType() === 'document', { timeout: 5_000 }).catch(() => null);\n> 109 |   await contact.submit(page).click();\n      |                              ^\n  110 |   const posted = Boolean(await post);\n  111 |   if (posted) await page.waitForLoadState('domcontentloaded');\n  112 |   page.off('dialog', handler);\n    at submitForm (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:109:30)\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:332:17)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:330:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:49368) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 7)\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1134
+                        },
+                        {
+                          "title": "And I filled Name, Email, Subject and Message with unique valid values",
+                          "duration": 62
+                        },
+                        {
+                          "title": "When I click \"Submit\"",
+                          "duration": 20
+                        },
+                        {
+                          "title": "Then a browser confirmation \"Press OK to proceed!\" is shown",
+                          "duration": 20107
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:08:39.809Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-contact-us-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgQ29udGFjdCBVcyBwYWdlCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 02-and-i-filled-name-email-subject-and-message-with-unique-vali",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIEkgZmlsbGVkIE5hbWUsIEVtYWlsLCBTdWJqZWN0IGFuZCBNZXNzYWdlIHdpdGggdW5pcXVlIHZhbGlkIHZhbHVlcwotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0Ym94ICJOYW1lIjogUUEgcWEganJ6MHJ0bm4tMQotIHRleHRib3ggIkVtYWlsIjogcWEuanJ6MHJ0bm4tMUBleGFtcGxlLmNvbQotIHRleHRib3ggIlN1YmplY3QiOiBRQSBzdWJqZWN0IHFhIGpyejBydG5uLTEKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSI6IFFBIGhlbGQtb3V0IG1lc3NhZ2UgcWEganJ6MHJ0bm4tMQotIGJ1dHRvbiAiQ2hvb3NlIEZpbGUiCi0gYnV0dG9uICJTdWJtaXQiCi0gaGVhZGluZyAiRmVlZGJhY2sgRm9yIFVzIiBbbGV2ZWw9Ml0KLSBwYXJhZ3JhcGg6IFdlIHJlYWxseSBhcHByZWNpYXRlIHlvdXIgcmVzcG9uc2UgdG8gb3VyIHdlYnNpdGUuCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogS2luZGx5IHNoYXJlIHlvdXIgZmVlZGJhY2sgd2l0aCB1cyBhdAogIC0gbGluayAiZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbSI6CiAgICAtIC91cmw6IG1haWx0bzpmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tCiAgLSB0ZXh0OiAuCi0gcGFyYWdyYXBoOiBJZiB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlvbiBhcmVhcyBvciBpbXByb3ZlbWVudHMsIGRvIGxldCB1cyBrbm93LiBXZSB3aWxsIGRlZmluaXRlbHkgd29yayBvbiBpdC4KLSBwYXJhZ3JhcGg6IFRoYW5rIHlvdQotIGNvbnRlbnRpbmZvOgogIC0gaGVhZGluZyAiU3Vic2NyaXB0aW9uIiBbbGV2ZWw9Ml0KICAtIHRleHRib3ggIllvdXIgZW1haWwgYWRkcmVzcyIKICAtIGJ1dHRvbiAi74aOIgogIC0gcGFyYWdyYXBoOiBHZXQgdGhlIG1vc3QgcmVjZW50IHVwZGF0ZXMgZnJvbSBvdXIgc2l0ZSBhbmQgYmUgdXBkYXRlZCB5b3VyIHNlbGYuLi4KICAtIHBhcmFncmFwaDogQ29weXJpZ2h0IMKpIDIwMjEgQWxsIHJpZ2h0cyByZXNlcnZlZAo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-when-i-click-submit",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogV2hlbiBJIGNsaWNrICJTdWJtaXQiCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiOiBRQSBxYSBqcnowcnRubi0xCi0gdGV4dGJveCAiRW1haWwiOiBxYS5qcnowcnRubi0xQGV4YW1wbGUuY29tCi0gdGV4dGJveCAiU3ViamVjdCI6IFFBIHN1YmplY3QgcWEganJ6MHJ0bm4tMQotIHRleHRib3ggIllvdXIgTWVzc2FnZSBIZXJlIjogUUEgaGVsZC1vdXQgbWVzc2FnZSBxYSBqcnowcnRubi0xCi0gYnV0dG9uICJDaG9vc2UgRmlsZSIKLSBidXR0b24gIlN1Ym1pdCIKLSBoZWFkaW5nICJGZWVkYmFjayBGb3IgVXMiIFtsZXZlbD0yXQotIHBhcmFncmFwaDogV2UgcmVhbGx5IGFwcHJlY2lhdGUgeW91ciByZXNwb25zZSB0byBvdXIgd2Vic2l0ZS4KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBLaW5kbHkgc2hhcmUgeW91ciBmZWVkYmFjayB3aXRoIHVzIGF0CiAgLSBsaW5rICJmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tIjoKICAgIC0gL3VybDogbWFpbHRvOmZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20KICAtIHRleHQ6IC4KLSBwYXJhZ3JhcGg6IElmIHlvdSBoYXZlIGFueSBzdWdnZXN0aW9uIGFyZWFzIG9yIGltcHJvdmVtZW50cywgZG8gbGV0IHVzIGtub3cuIFdlIHdpbGwgZGVmaW5pdGVseSB3b3JrIG9uIGl0LgotIHBhcmFncmFwaDogVGhhbmsgeW91Ci0gY29udGVudGluZm86CiAgLSBoZWFkaW5nICJTdWJzY3JpcHRpb24iIFtsZXZlbD0yXQogIC0gdGV4dGJveCAiWW91ciBlbWFpbCBhZGRyZXNzIgogIC0gYnV0dG9uICLvho4iCiAgLSBwYXJhZ3JhcGg6IEdldCB0aGUgbW9zdCByZWNlbnQgdXBkYXRlcyBmcm9tIG91ciBzaXRlIGFuZCBiZSB1cGRhdGVkIHlvdXIgc2VsZi4uLgogIC0gcGFyYWdyYXBoOiBDb3B5cmlnaHQgwqkgMjAyMSBBbGwgcmlnaHRzIHJlc2VydmVkCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 04-then-a-browser-confirmation-press-ok-to-proceed-is-shown",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogVGhlbiBhIGJyb3dzZXIgY29uZmlybWF0aW9uICJQcmVzcyBPSyB0byBwcm9jZWVkISIgaXMgc2hvd24KIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRpbWVvdXQgMzAwMG1zIGV4Y2VlZGVkLgo="
+                        },
+                        {
+                          "name": "aria-snapshot 05-failed-when-i-confirm-with-ok",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogRkFJTEVEIFdoZW4gSSBjb25maXJtIHdpdGggT0sKIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRhcmdldCBwYWdlLCBjb250ZXh0IG9yIGJyb3dzZXIgaGFzIGJlZW4gY2xvc2VkCg=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\02-harden\\artifacts\\AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts",
+                        "column": 30,
+                        "line": 109
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8b5464c117c10a688bba-dce9ca4d99dc3239d797",
+              "file": "AE-3/tests/ae-3.spec.ts",
+              "line": 322,
+              "column": 3
+            },
+            {
+              "title": "SCN-012: Cancelling the confirmation keeps the form as filled",
+              "ok": true,
+              "tags": [
+                "AC-8",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 6770,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1421
+                        },
+                        {
+                          "title": "And I filled Name, Email, Subject and Message with unique valid values",
+                          "duration": 74
+                        },
+                        {
+                          "title": "When I click \"Submit\" and cancel the confirmation",
+                          "duration": 5034
+                        },
+                        {
+                          "title": "Then no success message is shown",
+                          "duration": 24
+                        },
+                        {
+                          "title": "And the form is still on the page",
+                          "duration": 21
+                        },
+                        {
+                          "title": "And every field still holds what I typed",
+                          "duration": 34
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:08:16.032Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-contact-us-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgQ29udGFjdCBVcyBwYWdlCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiCi0gdGV4dGJveCAiRW1haWwiCi0gdGV4dGJveCAiU3ViamVjdCIKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSIKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 02-and-i-filled-name-email-subject-and-message-with-unique-vali",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIEkgZmlsbGVkIE5hbWUsIEVtYWlsLCBTdWJqZWN0IGFuZCBNZXNzYWdlIHdpdGggdW5pcXVlIHZhbGlkIHZhbHVlcwotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0Ym94ICJOYW1lIjogUUEgcWEganJ5aGxobjQtMQotIHRleHRib3ggIkVtYWlsIjogcWEuanJ5aGxobjQtMUBleGFtcGxlLmNvbQotIHRleHRib3ggIlN1YmplY3QiOiBRQSBzdWJqZWN0IHFhIGpyeWhsaG40LTEKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSI6IFFBIGhlbGQtb3V0IG1lc3NhZ2UgcWEganJ5aGxobjQtMQotIGJ1dHRvbiAiQ2hvb3NlIEZpbGUiCi0gYnV0dG9uICJTdWJtaXQiCi0gaGVhZGluZyAiRmVlZGJhY2sgRm9yIFVzIiBbbGV2ZWw9Ml0KLSBwYXJhZ3JhcGg6IFdlIHJlYWxseSBhcHByZWNpYXRlIHlvdXIgcmVzcG9uc2UgdG8gb3VyIHdlYnNpdGUuCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogS2luZGx5IHNoYXJlIHlvdXIgZmVlZGJhY2sgd2l0aCB1cyBhdAogIC0gbGluayAiZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbSI6CiAgICAtIC91cmw6IG1haWx0bzpmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tCiAgLSB0ZXh0OiAuCi0gcGFyYWdyYXBoOiBJZiB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlvbiBhcmVhcyBvciBpbXByb3ZlbWVudHMsIGRvIGxldCB1cyBrbm93LiBXZSB3aWxsIGRlZmluaXRlbHkgd29yayBvbiBpdC4KLSBwYXJhZ3JhcGg6IFRoYW5rIHlvdQotIGNvbnRlbnRpbmZvOgogIC0gaGVhZGluZyAiU3Vic2NyaXB0aW9uIiBbbGV2ZWw9Ml0KICAtIHRleHRib3ggIllvdXIgZW1haWwgYWRkcmVzcyIKICAtIGJ1dHRvbiAi74aOIgogIC0gcGFyYWdyYXBoOiBHZXQgdGhlIG1vc3QgcmVjZW50IHVwZGF0ZXMgZnJvbSBvdXIgc2l0ZSBhbmQgYmUgdXBkYXRlZCB5b3VyIHNlbGYuLi4KICAtIHBhcmFncmFwaDogQ29weXJpZ2h0IMKpIDIwMjEgQWxsIHJpZ2h0cyByZXNlcnZlZAo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-when-i-click-submit-and-cancel-the-confirmation",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogV2hlbiBJIGNsaWNrICJTdWJtaXQiIGFuZCBjYW5jZWwgdGhlIGNvbmZpcm1hdGlvbgotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0Ym94ICJOYW1lIjogUUEgcWEganJ5aGxobjQtMQotIHRleHRib3ggIkVtYWlsIjogcWEuanJ5aGxobjQtMUBleGFtcGxlLmNvbQotIHRleHRib3ggIlN1YmplY3QiOiBRQSBzdWJqZWN0IHFhIGpyeWhsaG40LTEKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSI6IFFBIGhlbGQtb3V0IG1lc3NhZ2UgcWEganJ5aGxobjQtMQotIGJ1dHRvbiAiQ2hvb3NlIEZpbGUiCi0gYnV0dG9uICJTdWJtaXQiCi0gaGVhZGluZyAiRmVlZGJhY2sgRm9yIFVzIiBbbGV2ZWw9Ml0KLSBwYXJhZ3JhcGg6IFdlIHJlYWxseSBhcHByZWNpYXRlIHlvdXIgcmVzcG9uc2UgdG8gb3VyIHdlYnNpdGUuCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogS2luZGx5IHNoYXJlIHlvdXIgZmVlZGJhY2sgd2l0aCB1cyBhdAogIC0gbGluayAiZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbSI6CiAgICAtIC91cmw6IG1haWx0bzpmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tCiAgLSB0ZXh0OiAuCi0gcGFyYWdyYXBoOiBJZiB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlvbiBhcmVhcyBvciBpbXByb3ZlbWVudHMsIGRvIGxldCB1cyBrbm93LiBXZSB3aWxsIGRlZmluaXRlbHkgd29yayBvbiBpdC4KLSBwYXJhZ3JhcGg6IFRoYW5rIHlvdQotIGNvbnRlbnRpbmZvOgogIC0gaGVhZGluZyAiU3Vic2NyaXB0aW9uIiBbbGV2ZWw9Ml0KICAtIHRleHRib3ggIllvdXIgZW1haWwgYWRkcmVzcyIKICAtIGJ1dHRvbiAi74aOIgogIC0gcGFyYWdyYXBoOiBHZXQgdGhlIG1vc3QgcmVjZW50IHVwZGF0ZXMgZnJvbSBvdXIgc2l0ZSBhbmQgYmUgdXBkYXRlZCB5b3VyIHNlbGYuLi4KICAtIHBhcmFncmFwaDogQ29weXJpZ2h0IMKpIDIwMjEgQWxsIHJpZ2h0cyByZXNlcnZlZAo="
+                        },
+                        {
+                          "name": "aria-snapshot 04-then-no-success-message-is-shown",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogVGhlbiBubyBzdWNjZXNzIG1lc3NhZ2UgaXMgc2hvd24KLSBiYW5uZXI6CiAgLSBsaW5rICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIjoKICAgIC0gL3VybDogLwogICAgLSBpbWcgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiCiAgLSBsaXN0OgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgJUgSG9tZSI6CiAgICAgICAgLSAvdXJsOiAvCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu6juCBQcm9kdWN0cyI6CiAgICAgICAgLSAvdXJsOiAvcHJvZHVjdHMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74G6IENhcnQiOgogICAgICAgIC0gL3VybDogL3ZpZXdfY2FydAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgKMgU2lnbnVwIC8gTG9naW4iOgogICAgICAgIC0gL3VybDogL2xvZ2luCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AuiBUZXN0IENhc2VzIjoKICAgICAgICAtIC91cmw6IC90ZXN0X2Nhc2VzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AuiBBUEkgVGVzdGluZyI6CiAgICAgICAgLSAvdXJsOiAvYXBpX2xpc3QKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74WqIFZpZGVvIFR1dG9yaWFscyI6CiAgICAgICAgLSAvdXJsOiBodHRwczovL3d3dy55b3V0dWJlLmNvbS9jL0F1dG9tYXRpb25FeGVyY2lzZQogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvg6AgQ29udGFjdCB1cyI6CiAgICAgICAgLSAvdXJsOiAvY29udGFjdF91cwotIGhlYWRpbmcgIkNvbnRhY3QgVXMiIFtsZXZlbD0yXToKICAtIHRleHQ6IENvbnRhY3QKICAtIHN0cm9uZzogVXMKLSB0ZXh0OiAiTm90ZTogQmVsb3cgY29udGFjdCBmb3JtIGlzIGZvciB0ZXN0aW5nIHB1cnBvc2UuIgotIGhlYWRpbmcgIkdldCBJbiBUb3VjaCIgW2xldmVsPTJdCi0gdGV4dGJveCAiTmFtZSI6IFFBIHFhIGpyeWhsaG40LTEKLSB0ZXh0Ym94ICJFbWFpbCI6IHFhLmpyeWhsaG40LTFAZXhhbXBsZS5jb20KLSB0ZXh0Ym94ICJTdWJqZWN0IjogUUEgc3ViamVjdCBxYSBqcnlobGhuNC0xCi0gdGV4dGJveCAiWW91ciBNZXNzYWdlIEhlcmUiOiBRQSBoZWxkLW91dCBtZXNzYWdlIHFhIGpyeWhsaG40LTEKLSBidXR0b24gIkNob29zZSBGaWxlIgotIGJ1dHRvbiAiU3VibWl0IgotIGhlYWRpbmcgIkZlZWRiYWNrIEZvciBVcyIgW2xldmVsPTJdCi0gcGFyYWdyYXBoOiBXZSByZWFsbHkgYXBwcmVjaWF0ZSB5b3VyIHJlc3BvbnNlIHRvIG91ciB3ZWJzaXRlLgotIHBhcmFncmFwaDoKICAtIHRleHQ6IEtpbmRseSBzaGFyZSB5b3VyIGZlZWRiYWNrIHdpdGggdXMgYXQKICAtIGxpbmsgImZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20iOgogICAgLSAvdXJsOiBtYWlsdG86ZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbQogIC0gdGV4dDogLgotIHBhcmFncmFwaDogSWYgeW91IGhhdmUgYW55IHN1Z2dlc3Rpb24gYXJlYXMgb3IgaW1wcm92ZW1lbnRzLCBkbyBsZXQgdXMga25vdy4gV2Ugd2lsbCBkZWZpbml0ZWx5IHdvcmsgb24gaXQuCi0gcGFyYWdyYXBoOiBUaGFuayB5b3UKLSBjb250ZW50aW5mbzoKICAtIGhlYWRpbmcgIlN1YnNjcmlwdGlvbiIgW2xldmVsPTJdCiAgLSB0ZXh0Ym94ICJZb3VyIGVtYWlsIGFkZHJlc3MiCiAgLSBidXR0b24gIu+GjiIKICAtIHBhcmFncmFwaDogR2V0IHRoZSBtb3N0IHJlY2VudCB1cGRhdGVzIGZyb20gb3VyIHNpdGUgYW5kIGJlIHVwZGF0ZWQgeW91ciBzZWxmLi4uCiAgLSBwYXJhZ3JhcGg6IENvcHlyaWdodCDCqSAyMDIxIEFsbCByaWdodHMgcmVzZXJ2ZWQK"
+                        },
+                        {
+                          "name": "aria-snapshot 05-and-the-form-is-still-on-the-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIHRoZSBmb3JtIGlzIHN0aWxsIG9uIHRoZSBwYWdlCi0gYmFubmVyOgogIC0gbGluayAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nICJXZWJzaXRlIGZvciBhdXRvbWF0aW9uIHByYWN0aWNlIgogIC0gbGlzdDoKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CVIEhvbWUiOgogICAgICAgIC0gL3VybDogLwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLuo7ggUHJvZHVjdHMiOgogICAgICAgIC0gL3VybDogL3Byb2R1Y3RzCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+BuiBDYXJ0IjoKICAgICAgICAtIC91cmw6IC92aWV3X2NhcnQKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74CjIFNpZ251cCAvIExvZ2luIjoKICAgICAgICAtIC91cmw6IC9sb2dpbgogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogVGVzdCBDYXNlcyI6CiAgICAgICAgLSAvdXJsOiAvdGVzdF9jYXNlcwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgLogQVBJIFRlc3RpbmciOgogICAgICAgIC0gL3VybDogL2FwaV9saXN0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+FqiBWaWRlbyBUdXRvcmlhbHMiOgogICAgICAgIC0gL3VybDogaHR0cHM6Ly93d3cueW91dHViZS5jb20vYy9BdXRvbWF0aW9uRXhlcmNpc2UKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74OgIENvbnRhY3QgdXMiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3RfdXMKLSBoZWFkaW5nICJDb250YWN0IFVzIiBbbGV2ZWw9Ml06CiAgLSB0ZXh0OiBDb250YWN0CiAgLSBzdHJvbmc6IFVzCi0gdGV4dDogIk5vdGU6IEJlbG93IGNvbnRhY3QgZm9ybSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlLiIKLSBoZWFkaW5nICJHZXQgSW4gVG91Y2giIFtsZXZlbD0yXQotIHRleHRib3ggIk5hbWUiOiBRQSBxYSBqcnlobGhuNC0xCi0gdGV4dGJveCAiRW1haWwiOiBxYS5qcnlobGhuNC0xQGV4YW1wbGUuY29tCi0gdGV4dGJveCAiU3ViamVjdCI6IFFBIHN1YmplY3QgcWEganJ5aGxobjQtMQotIHRleHRib3ggIllvdXIgTWVzc2FnZSBIZXJlIjogUUEgaGVsZC1vdXQgbWVzc2FnZSBxYSBqcnlobGhuNC0xCi0gYnV0dG9uICJDaG9vc2UgRmlsZSIKLSBidXR0b24gIlN1Ym1pdCIKLSBoZWFkaW5nICJGZWVkYmFjayBGb3IgVXMiIFtsZXZlbD0yXQotIHBhcmFncmFwaDogV2UgcmVhbGx5IGFwcHJlY2lhdGUgeW91ciByZXNwb25zZSB0byBvdXIgd2Vic2l0ZS4KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBLaW5kbHkgc2hhcmUgeW91ciBmZWVkYmFjayB3aXRoIHVzIGF0CiAgLSBsaW5rICJmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tIjoKICAgIC0gL3VybDogbWFpbHRvOmZlZWRiYWNrQGF1dG9tYXRpb25leGVyY2lzZS5jb20KICAtIHRleHQ6IC4KLSBwYXJhZ3JhcGg6IElmIHlvdSBoYXZlIGFueSBzdWdnZXN0aW9uIGFyZWFzIG9yIGltcHJvdmVtZW50cywgZG8gbGV0IHVzIGtub3cuIFdlIHdpbGwgZGVmaW5pdGVseSB3b3JrIG9uIGl0LgotIHBhcmFncmFwaDogVGhhbmsgeW91Ci0gY29udGVudGluZm86CiAgLSBoZWFkaW5nICJTdWJzY3JpcHRpb24iIFtsZXZlbD0yXQogIC0gdGV4dGJveCAiWW91ciBlbWFpbCBhZGRyZXNzIgogIC0gYnV0dG9uICLvho4iCiAgLSBwYXJhZ3JhcGg6IEdldCB0aGUgbW9zdCByZWNlbnQgdXBkYXRlcyBmcm9tIG91ciBzaXRlIGFuZCBiZSB1cGRhdGVkIHlvdXIgc2VsZi4uLgogIC0gcGFyYWdyYXBoOiBDb3B5cmlnaHQgwqkgMjAyMSBBbGwgcmlnaHRzIHJlc2VydmVkCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 06-and-every-field-still-holds-what-i-typed",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vYXV0b21hdGlvbmV4ZXJjaXNlLmNvbS9jb250YWN0X3VzCiMgc3RlcDogQW5kIGV2ZXJ5IGZpZWxkIHN0aWxsIGhvbGRzIHdoYXQgSSB0eXBlZAotIGJhbm5lcjoKICAtIGxpbmsgIldlYnNpdGUgZm9yIGF1dG9tYXRpb24gcHJhY3RpY2UiOgogICAgLSAvdXJsOiAvCiAgICAtIGltZyAiV2Vic2l0ZSBmb3IgYXV0b21hdGlvbiBwcmFjdGljZSIKICAtIGxpc3Q6CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AlSBIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi7qO4IFByb2R1Y3RzIjoKICAgICAgICAtIC91cmw6IC9wcm9kdWN0cwogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvgbogQ2FydCI6CiAgICAgICAgLSAvdXJsOiAvdmlld19jYXJ0CiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+AoyBTaWdudXAgLyBMb2dpbiI6CiAgICAgICAgLSAvdXJsOiAvbG9naW4KICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IFRlc3QgQ2FzZXMiOgogICAgICAgIC0gL3VybDogL3Rlc3RfY2FzZXMKICAgIC0gbGlzdGl0ZW06CiAgICAgIC0gbGluayAi74C6IEFQSSBUZXN0aW5nIjoKICAgICAgICAtIC91cmw6IC9hcGlfbGlzdAogICAgLSBsaXN0aXRlbToKICAgICAgLSBsaW5rICLvhaogVmlkZW8gVHV0b3JpYWxzIjoKICAgICAgICAtIC91cmw6IGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2MvQXV0b21hdGlvbkV4ZXJjaXNlCiAgICAtIGxpc3RpdGVtOgogICAgICAtIGxpbmsgIu+DoCBDb250YWN0IHVzIjoKICAgICAgICAtIC91cmw6IC9jb250YWN0X3VzCi0gaGVhZGluZyAiQ29udGFjdCBVcyIgW2xldmVsPTJdOgogIC0gdGV4dDogQ29udGFjdAogIC0gc3Ryb25nOiBVcwotIHRleHQ6ICJOb3RlOiBCZWxvdyBjb250YWN0IGZvcm0gaXMgZm9yIHRlc3RpbmcgcHVycG9zZS4iCi0gaGVhZGluZyAiR2V0IEluIFRvdWNoIiBbbGV2ZWw9Ml0KLSB0ZXh0Ym94ICJOYW1lIjogUUEgcWEganJ5aGxobjQtMQotIHRleHRib3ggIkVtYWlsIjogcWEuanJ5aGxobjQtMUBleGFtcGxlLmNvbQotIHRleHRib3ggIlN1YmplY3QiOiBRQSBzdWJqZWN0IHFhIGpyeWhsaG40LTEKLSB0ZXh0Ym94ICJZb3VyIE1lc3NhZ2UgSGVyZSI6IFFBIGhlbGQtb3V0IG1lc3NhZ2UgcWEganJ5aGxobjQtMQotIGJ1dHRvbiAiQ2hvb3NlIEZpbGUiCi0gYnV0dG9uICJTdWJtaXQiCi0gaGVhZGluZyAiRmVlZGJhY2sgRm9yIFVzIiBbbGV2ZWw9Ml0KLSBwYXJhZ3JhcGg6IFdlIHJlYWxseSBhcHByZWNpYXRlIHlvdXIgcmVzcG9uc2UgdG8gb3VyIHdlYnNpdGUuCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogS2luZGx5IHNoYXJlIHlvdXIgZmVlZGJhY2sgd2l0aCB1cyBhdAogIC0gbGluayAiZmVlZGJhY2tAYXV0b21hdGlvbmV4ZXJjaXNlLmNvbSI6CiAgICAtIC91cmw6IG1haWx0bzpmZWVkYmFja0BhdXRvbWF0aW9uZXhlcmNpc2UuY29tCiAgLSB0ZXh0OiAuCi0gcGFyYWdyYXBoOiBJZiB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlvbiBhcmVhcyBvciBpbXByb3ZlbWVudHMsIGRvIGxldCB1cyBrbm93LiBXZSB3aWxsIGRlZmluaXRlbHkgd29yayBvbiBpdC4KLSBwYXJhZ3JhcGg6IFRoYW5rIHlvdQotIGNvbnRlbnRpbmZvOgogIC0gaGVhZGluZyAiU3Vic2NyaXB0aW9uIiBbbGV2ZWw9Ml0KICAtIHRleHRib3ggIllvdXIgZW1haWwgYWRkcmVzcyIKICAtIGJ1dHRvbiAi74aOIgogIC0gcGFyYWdyYXBoOiBHZXQgdGhlIG1vc3QgcmVjZW50IHVwZGF0ZXMgZnJvbSBvdXIgc2l0ZSBhbmQgYmUgdXBkYXRlZCB5b3VyIHNlbGYuLi4KICAtIHBhcmFncmFwaDogQ29weXJpZ2h0IMKpIDIwMjEgQWxsIHJpZ2h0cyByZXNlcnZlZAo="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8b5464c117c10a688bba-2168a747236fa4986715",
+              "file": "AE-3/tests/ae-3.spec.ts",
+              "line": 354,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-27T12:08:15.050Z",
+    "duration": 47664.825,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

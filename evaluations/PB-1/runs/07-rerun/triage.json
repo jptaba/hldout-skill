@@ -1,0 +1,360 @@
+{
+  "key": "PB-1",
+  "run": "07-rerun",
+  "generatedAt": "2026-09-27T16:55:41.181Z",
+  "summary": {
+    "total": 14,
+    "passed": 13,
+    "failed": 1,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: Submitting an empty registration form shows a required message next to every required field",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Registering with a Confirm that differs from Password shows \"Passwords did not match.\"",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: A registration rejected for mismatched passwords creates no customer",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: A complete, valid registration welcomes the new customer and signs them in",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Registering with a user name that is already taken shows \"This username already exists.\"",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: A duplicate registration does not change the existing customer",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: Signing in with a wrong password shows the \"Error!\" page",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/07-rerun/artifacts/PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/07-rerun/artifacts/PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/07-rerun/artifacts/PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://parabank.parasoft.com/parabank/login.htm;jsessionid=D4D571EADD4793D5BF668DAACE0DED08\n# step: FAILED And it says \"The username and password could not be verified.\"\n- link:\n  - /url: admin.htm\n  - img\n- link \"ParaBank\":\n  - /url: index.htm\n  - img \"ParaBank\"\n- paragraph: Experience the difference\n- list:\n  - listitem: Solutions\n  - listitem:\n    - link \"About Us\":\n      - /url: about.htm\n  - listitem:\n    - link \"Services\":\n      - /url: services.htm\n  - listitem:\n    - link \"Products\":\n      - /url: http://www.parasoft.com/jsp/products.jsp\n  - listitem:\n    - link \"Locations\":\n      - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n  - listitem:\n    - link \"Admin Page\":\n      - /url: admin.htm\n- list:\n  - listitem:\n    - link \"home\":\n      - /url: index.htm\n  - listitem:\n    - link \"about\":\n      - /url: about.htm\n  - listitem:\n    - link \"contact\":\n      - /url: contact.htm\n- heading \"Customer Login\" [level=2]\n- paragraph: Username\n- textbox\n- paragraph: Password\n- textbox\n- button \"Log In\"\n- paragraph:\n  - link \"Forgot login info?\":\n    - /url: lookup.htm\n- paragraph:\n  - link \"Register\":\n    - /url: register.htm\n- heading \"Error!\" [level=1]\n- paragraph: An internal error has occurred and has been logged.\n- list:\n  - listitem:\n    - link \"Home\":\n      - /url: index.htm\n    - text: \"|\"\n  - listitem:\n    - link \"About Us\":\n      - /url: about.htm\n    - text: \"|\"\n  - listitem:",
+        "seed": {
+          "tag": "hxeyc9510",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "firstName": "Hana",
+                "lastName": "Heldout9510",
+                "street": "12 Heldout Lane",
+                "city": "Testville",
+                "state": "CA",
+                "zipCode": "94016",
+                "phoneNumber": "5551234567",
+                "ssn": "123-45-6789",
+                "username": "pb1hxeyc9510105s",
+                "password": "***redacted***"
+              }
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] could not be verified",
+        "reqTag": "AC-5",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('The username and password could not be verified.')",
+        "message": "Error: [REQ AC-5] could not be verified\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\n  - waiting for getByText('The username and password could not be verified.')\n\n\n  334 |     });\n  335 |     await journey.step('And it says \"The username and password could not be verified.\"', async () => {\n> 336 |       await expect(page.getByText(REQ.AC5_NOT_VERIFIED), '[REQ AC-5] could not be verified').toBeVisible();\n      |                                                                                              ^\n  337 |     });\n  338 |   });\n  339 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5"
+      },
+      "failingStep": "And it says \"The username and password could not be verified.\"",
+      "auto": {
+        "category": "NEEDS_INVESTIGATION",
+        "confidence": "low",
+        "signals": [
+          "Target not found: getByText('The username and password could not be verified.')",
+          "Target text \"The username and password could not be verified.\" is absent from the failure-time snapshot."
+        ],
+        "next": "Replay the journey live to this step. If the page is in the expected state but the element is simply named/structured differently → SCRIPT. If the app never reached the state or the required element/feature is absent → APPLICATION."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Wrong-password sign-in shows an internal-error message instead of 'The username and password could not be verified.'",
+        "rationale": "Signing in on the Customer Login panel with a registered user name and a wrong password reaches the 'Error!' page (as AC-5 requires), but the page says 'An internal error has occurred and has been logged.' instead of the required 'The username and password could not be verified.'. Locators are verified (heading 'Error!' found; the required text is absent). Deterministic: same result in every harden run, in 04-eval, 05/06/07-rerun and in two live replays. The REST login with the same credentials correctly answers 400 'Invalid username and/or password', so the customer exists and only the password is wrong.",
+        "evidence": "Replayed live 2026-09-27 (tier 3, heldout inspect): registered customer + wrong password on index.htm → heading 'Error!', text 'An internal error has occurred and has been logged.', required text 0 matches (runs/07-rerun/confirm/SCN-007-wrong-password.md); REST cross-check GET login/{user}/{wrong} → 400 'Invalid username and/or password' (runs/07-rerun/confirm/SCN-007-rest-wrong-password.md)",
+        "confirmedAt": "2026-09-27T06:04:56.257Z"
+      }
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: Signing in with both fields empty asks for a user name and password",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Signing in opens the Accounts Overview and Log Out returns to the home page",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: REST login with valid credentials returns the registered customer as JSON",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: REST login without Accept: application/json returns XML with a customer root element",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: REST login with a wrong password answers 400 \"Invalid username and/or password\"",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: The customer and accounts services return the customer registered through the page",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014",
+      "title": "SCN-014: The customer and accounts services match the login response and the Accounts Overview exactly",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:integration",
+        "@layer:e2e",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

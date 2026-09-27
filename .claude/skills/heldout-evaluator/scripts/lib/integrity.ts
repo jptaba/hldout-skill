@@ -34,6 +34,14 @@ export function readAmendments(file: string): Amendment[] {
 const squash = (s: string) => s.replace(/\s+/g, ' ').trim();
 
 /**
+ * A literal timeout-only options argument is mechanics (how long to wait), so hardening may add or change it:
+ * `.toHaveCount(1, { timeout: 15_000 })` freezes as `.toHaveCount(1)`. Other options (ignoreCase, …) stay frozen.
+ */
+const withoutTimeout = (matcher: string) => matcher
+  .replace(/,\s*\{\s*timeout:\s*[\d_]+\s*,?\s*\}\s*\)$/, ')')
+  .replace(/\(\s*\{\s*timeout:\s*[\d_]+\s*,?\s*\}\s*\)$/, '()');
+
+/**
  * Map "[REQ …] message #n" → frozen text for every requirement assertion.
  * Normally only the matcher (WHAT is expected) is frozen — the subject/locator is mechanics.
  * `[REQ AC-n strict]` freezes the whole assertion including its subject, for requirements where the
@@ -47,7 +55,7 @@ export function reqAssertions(source: string): Map<string, string> {
     const n = (seen.get(message) ?? 0) + 1;
     seen.set(message, n);
     const strict = /^\[REQ [^\]]*\bstrict\b/.test(message);
-    map.set(n > 1 ? `${message} #${n}` : message, squash(strict ? `${subject} ${matcher}` : matcher));
+    map.set(n > 1 ? `${message} #${n}` : message, squash(strict ? `${subject} ${withoutTimeout(matcher)}` : withoutTimeout(matcher)));
   };
   // The subject may not cross a statement boundary (`;`) — otherwise a lazy match starting at an
   // earlier non-REQ expect( would swallow unrelated code up to the next [REQ …] message.

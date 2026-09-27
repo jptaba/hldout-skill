@@ -1,0 +1,2 @@
+{ "vars": { "email": "hxprobe.ui.b1@example.com" },
+  "steps": [ { "name": "close UI probe customer", "setup": true, "method": "DELETE", "path": "api/deleteAccount", "form": { "email": "${email}", "password": "${env:AE_USER_PASSWORD}" }, "expect": 200, "show": ["responseCode", "message"] } ] }

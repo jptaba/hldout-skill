@@ -1,0 +1,13 @@
+{
+  "password": "${env:PB_USER_PASSWORD}",
+  "customer": {
+    "firstName": "Heldout",
+    "lastName": "Tester",
+    "street": "1 Test Street",
+    "city": "Testville",
+    "state": "CA",
+    "zipCode": "90210",
+    "phone": "5550100",
+    "ssn": "123-45-6789"
+  }
+}

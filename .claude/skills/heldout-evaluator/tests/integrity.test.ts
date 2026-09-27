@@ -48,6 +48,12 @@ describe('checkIntegrity', () => {
     const dir = workspace(SPEC, SPEC.replace("getByTestId('msg')", "locator('#msg')"));
     assert.equal(checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'draft'), undefined, ORACLE).status, 'PRESERVED');
   });
+  it('adding a literal timeout to a matcher is allowed (HOW); other options are not', () => {
+    const timed = workspace(SPEC, SPEC.replace('.toHaveText(REQ.MSG)', '.toHaveText(REQ.MSG, { timeout: 15_000 })'));
+    assert.equal(checkIntegrity(path.join(timed, 'tests'), path.join(timed, 'draft'), undefined, ORACLE).status, 'PRESERVED');
+    const loose = workspace(SPEC, SPEC.replace('.toHaveText(REQ.MSG)', '.toHaveText(REQ.MSG, { ignoreCase: true, timeout: 15_000 })'));
+    assert.equal(checkIntegrity(path.join(loose, 'tests'), path.join(loose, 'draft'), undefined, ORACLE).status, 'VIOLATED');
+  });
   it('changing an expected value is a violation (WHAT)', () => {
     const dir = workspace(SPEC, SPEC.replace('.toHaveText(REQ.MSG)', ".toHaveText('Hi')"));
     assert.equal(checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'draft'), undefined, ORACLE).status, 'VIOLATED');

@@ -1,0 +1,12 @@
+### add-attachment (simulated — no Jira subscription; this request was NOT sent)
+POST https://your-domain.atlassian.net/rest/api/3/issue/AE-1/attachments
+Authorization: Basic <base64(JIRA_EMAIL:JIRA_API_TOKEN)>
+X-Atlassian-Token: no-check
+Content-Type: multipart/form-data; boundary=----heldout
+
+------heldout
+Content-Disposition: form-data; name="file"; filename="heldout-verdict-AE-1-202609271654.md"
+Content-Type: text/markdown
+
+<16620 bytes from evaluations\AE-1\verdict.md>
+------heldout--

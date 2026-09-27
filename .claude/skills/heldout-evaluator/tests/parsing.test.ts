@@ -237,10 +237,10 @@ describe('snapshot redaction', () => {
   it('removes password values from ARIA snapshots (skill and fixture copies agree)', async () => {
     const { redactSnapshot } = await import('../scripts/lib/redact');
     const { redactSnapshot: fixtureCopy } = await import('../templates/fixtures');
-    const yaml = '- textbox "Email": qa1@example.com\n- textbox "Password" [disabled]: Heldout-49445!x\n- text: echo Heldout-49445!x';
+    const yaml = '- textbox "Email": qa1@example.com\n- textbox "Password" [disabled]: Fixture-00000!q\n- text: echo Fixture-00000!q';
     for (const fn of [redactSnapshot, fixtureCopy]) {
-      const out = fn(yaml, ['Heldout-49445!x']);
-      assert.ok(!out.includes('Heldout-49445!x'));
+      const out = fn(yaml, ['Fixture-00000!q']);
+      assert.ok(!out.includes('Fixture-00000!q'));
       assert.match(out, /textbox "Email": qa1@example.com/);
       assert.match(fn('- textbox "Passcode": 1234'), /Passcode": \*\*\*redacted\*\*\*/);
     }
@@ -285,5 +285,43 @@ describe('Git Bash path rewriting', () => {
     assert.equal(unmangleMsysPath('/health'), '/health');
     assert.equal(unmangleMsysPath('api;C:\\Program Files\\Git\\products'), 'api:/products');
     assert.equal(resolveUrl('https://x.test', 'C:/Program Files/Git/api/ping'), 'https://x.test/api/ping');
+  });
+});
+
+describe('compact run digest', () => {
+  it('lists failed and flaky tests with the first plain line of their last error', async () => {
+    const { failedTests } = await import('../scripts/lib/triage-model');
+    const results = { suites: [{ suites: [{ specs: [
+      { title: 'SCN-001: ok', tests: [{ status: 'expected', results: [{}] }] },
+      { title: 'SCN-002: broken', tests: [{ status: 'unexpected', results: [{ error: { message: '\u001b[31mError: [REQ AC-2] shown\u001b[39m\n\nExpected: 1' } }] }] },
+      { title: 'SCN-003: wobbly', tests: [{ status: 'flaky', results: [{ error: { message: 'Timeout 5000ms exceeded.' } }, {}] }] },
+    ] }] }] };
+    assert.deepEqual(failedTests(results), [
+      { title: 'SCN-002: broken', error: 'Error: [REQ AC-2] shown', flaky: false },
+      { title: 'SCN-003: wobbly', error: 'Timeout 5000ms exceeded.', flaky: true },
+    ]);
+  });
+});
+
+describe('app discovery', () => {
+  it('derives a readable profile id from the host', async () => {
+    const { profileIdFor } = await import('../scripts/lib/detect');
+    assert.equal(profileIdFor('https://demoqa.com'), 'demoqa');
+    assert.equal(profileIdFor('https://www.saucedemo.com/'), 'saucedemo');
+    assert.equal(profileIdFor('https://parabank.parasoft.com/parabank'), 'parabank-parasoft');
+    assert.equal(profileIdFor('http://localhost:3000'), 'app');
+    assert.equal(profileIdFor('http://10.0.0.7:8080'), 'app');
+  });
+  it('names the app from the title segment that names the host', async () => {
+    const { appNameFrom } = await import('../scripts/lib/detect');
+    assert.equal(appNameFrom('ParaBank | Welcome | Online Banking', 'parabank-parasoft'), 'ParaBank');
+    assert.equal(appNameFrom('Swag Labs', 'saucedemo'), 'Swag Labs');
+    assert.equal(appNameFrom('Automation Exercise - Signup / Login', 'automationexercise'), 'Automation Exercise');
+    assert.equal(appNameFrom('', 'shop'), undefined);
+  });
+  it('recognises ad/analytics networks by domain, never the application itself', async () => {
+    const { adDomainsOf } = await import('../scripts/lib/detect');
+    assert.deepEqual(adDomainsOf(['demoqa.com', 'securepubads.g.doubleclick.net', 'pagead2.googlesyndication.com', 'www.googletagmanager.com', 'cdn.example.com', 'notdoubleclick.net']),
+      ['doubleclick.net', 'googlesyndication.com', 'googletagmanager.com']);
   });
 });

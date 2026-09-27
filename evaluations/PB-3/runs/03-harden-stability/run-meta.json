@@ -1,0 +1,80 @@
+{
+  "key": "PB-3",
+  "run": "03-harden-stability",
+  "label": "harden-stability",
+  "startedAt": "2026-09-27T12:45:34.171Z",
+  "finishedAt": "2026-09-27T12:49:12.458Z",
+  "autId": "parabank",
+  "aut": {
+    "name": "ParaBank (Parasoft demo bank, UI + REST)",
+    "baseURL": "https://parabank.parasoft.com/parabank/",
+    "apiBaseURL": "https://parabank.parasoft.com/parabank/services/bank/"
+  },
+  "command": "npx playwright test evaluations/PB-3/tests/ --workers 1 --repeat-each 2",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://parabank.parasoft.com/parabank/index.htm",
+        "ok": true,
+        "status": 200,
+        "ms": 487,
+        "samples": [
+          487,
+          250,
+          259
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://parabank.parasoft.com/parabank/services/bank/openapi.yaml",
+        "ok": true,
+        "status": 200,
+        "ms": 391,
+        "samples": [
+          296,
+          391,
+          129
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://parabank.parasoft.com/parabank/index.htm",
+        "ok": false,
+        "status": 429,
+        "ms": 89,
+        "samples": [
+          89
+        ],
+        "slow": false,
+        "error": "rate limited (429, retry after 176 s) — wait, then run again"
+      },
+      {
+        "url": "https://parabank.parasoft.com/parabank/services/bank/openapi.yaml",
+        "ok": false,
+        "status": 429,
+        "ms": 62,
+        "samples": [
+          62
+        ],
+        "slow": false,
+        "error": "rate limited (429, retry after 176 s) — wait, then run again"
+      }
+    ]
+  },
+  "skill": "a7af3be0361d099d",
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-27T12:45:34.758Z",
+    "duration": 214222.49,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 16,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,5 @@
+{ "vars": { "name": "qa-dq2-walk-1790511350" }, "steps": [
+  { "name": "create walk user", "method": "POST", "path": "Account/v1/User", "json": { "userName": "${name}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "uid2": "userID" }, "show": ["userID"], "setup": true },
+  { "name": "token", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${name}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "tok": "token" }, "setup": true },
+  { "name": "add two books", "method": "POST", "path": "BookStore/v1/Books", "headers": { "Authorization": "Bearer ${tok}" }, "json": { "userId": "${uid2}", "collectionOfIsbns": [ { "isbn": "9781449325862" }, { "isbn": "9781593277574" } ] } }
+] }

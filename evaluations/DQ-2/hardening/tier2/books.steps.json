@@ -1,0 +1,10 @@
+[
+  { "tool": "browser_navigate", "url": "books" },
+  { "tool": "browser_wait_for", "text": "Git Pocket Guide" },
+  { "snapshot": "books page" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Type to search" }, "text": "zakas" },
+  { "snapshot": "after zakas" },
+  { "tool": "browser_click", "find": { "role": "link", "name": "Understanding ECMAScript 6", "exact": true } },
+  { "tool": "browser_wait_for", "text": "ISBN" },
+  { "snapshot": "detail page" }
+]

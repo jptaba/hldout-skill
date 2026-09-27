@@ -1,0 +1,81 @@
+{
+  "key": "AE-2",
+  "run": "01-harden",
+  "label": "harden",
+  "startedAt": "2026-09-27T06:04:47.796Z",
+  "finishedAt": "2026-09-27T06:05:22.543Z",
+  "autId": "automation-exercise",
+  "aut": {
+    "name": "Automation Exercise (demo shop + practice API)",
+    "baseURL": "https://automationexercise.com",
+    "apiBaseURL": "https://automationexercise.com"
+  },
+  "command": "npx playwright test evaluations/AE-2/tests/ --workers 2",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://automationexercise.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 572,
+        "samples": [
+          572,
+          502,
+          185
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://automationexercise.com/api/productsList",
+        "ok": true,
+        "status": 200,
+        "ms": 533,
+        "samples": [
+          533,
+          197,
+          204
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://automationexercise.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 197,
+        "samples": [
+          186,
+          197,
+          183
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://automationexercise.com/api/productsList",
+        "ok": true,
+        "status": 200,
+        "ms": 224,
+        "samples": [
+          224,
+          203,
+          203
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-27T06:04:48.960Z",
+    "duration": 32756.292,
+    "expected": 32,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

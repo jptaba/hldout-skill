@@ -1,0 +1,24 @@
+# url: https://parabank.parasoft.com/parabank/register.htm
+# step: FAILED Given a customer is registered with a fresh user name
+- banner:
+  - heading "Error 1015" [level=1]
+  - text: "Ray ID: a4183ba659b38574 • 2026-09-27 05:50:49 UTC"
+  - heading "You are being rate limited" [level=2]
+- heading "What happened?" [level=2]
+- paragraph: The owner of this website (parabank.parasoft.com) has banned you temporarily from accessing this website.
+- paragraph:
+  - text: Please see
+  - link "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1015/":
+    - /url: https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1015/
+  - text: for more details.
+- text: Was this page helpful?
+- button "Yes"
+- button "No"
+- paragraph:
+  - text: "Cloudflare Ray ID:"
+  - strong: a4183ba659b38574
+  - text: "• Your IP:"
+  - button "Click to reveal"
+  - text: • Performance & security by
+  - link "Cloudflare":
+    - /url: https://www.cloudflare.com/5xx-error-landing

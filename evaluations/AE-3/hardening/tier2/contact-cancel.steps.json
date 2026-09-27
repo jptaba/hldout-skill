@@ -1,0 +1,13 @@
+[
+  { "tool": "browser_navigate", "url": "contact_us" },
+  { "tool": "browser_wait_for", "text": "Get In Touch" },
+  { "snapshot": "contact form" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Name", "exact": true }, "text": "QA ${var:tag}" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Email", "exact": true }, "text": "${var:tag}@example.com" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Subject", "exact": true }, "text": "QA subject ${var:tag}" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Your Message Here", "exact": true }, "text": "QA held-out message ${var:tag}" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Submit", "exact": true } },
+  { "tool": "browser_handle_dialog", "accept": false },
+  { "snapshot": "after cancel" },
+  { "expect": { "role": "button", "name": "Submit", "exact": true } }
+]

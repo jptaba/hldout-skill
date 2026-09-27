@@ -1,0 +1,8 @@
+<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="10.536207999999998">
+<testsuite name="PB-3\tests\pb-3.spec.ts" timestamp="2026-09-27T12:45:09.237Z" hostname="chromium" tests="2" failures="0" skipped="0" time="8.197" errors="0">
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-008: The Transfer Funds page completes a transfer of 1000.00, more than the balance of A" classname="PB-3\tests\pb-3.spec.ts" time="4.753">
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-009: The REST service refuses an unknown destination account" classname="PB-3\tests\pb-3.spec.ts" time="3.444">
+</testcase>
+</testsuite>
+</testsuites>

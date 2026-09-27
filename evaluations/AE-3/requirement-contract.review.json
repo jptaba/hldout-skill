@@ -1,0 +1,46 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-27T00:00:00.000Z",
+  "contractHash": "b2387c405b46ff2c",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "story.md#L31, story.md#L21, story.md#L22",
+      "note": "Quote and text match L31 exactly. The outcome 'one entry per catalogue product' is not stated in the AC-1 table row itself but is explicitly cited to R1/story.md#L21 ('returns the brand of every catalogue product: one entry per product'), which the review rules permit ('outcomes follow from the quote or from another cited source line'). Correctly cited, not an assumption."
+    },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L32", "note": "Quote, text and outcomes match L32 verbatim for PUT/POST/DELETE." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L33", "note": "Quote and outcomes match L33 verbatim." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L34", "note": "Quote and outcomes match L34 verbatim; layer e2e matches table's 'E2E (UI + API)'." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L35", "note": "Quote and outcomes match L35 verbatim, including the named brands to check." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L36, transcripts/contact-us-mockup.png.md#L5-L9, L12", "note": "Quote matches L36; the elaborated field names/mandatory field in 'text' are grounded in the mock-up transcript (verified against the image itself, which matches the transcript)." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "story.md#L37, transcripts/contact-us-mockup.png.md#L10-L11", "note": "Quote matches L37; the parenthetical confirmation text is grounded in the mock-up transcript/image." },
+    { "ref": "AC-8", "verdict": "supported", "evidence": "story.md#L38", "note": "Quote and outcomes match L38 verbatim." },
+    { "ref": "R1", "verdict": "supported", "evidence": "story.md#L21", "note": "Text matches L21 verbatim (one entry per product, id=product id, brand=product's brand, distinct names are our brands)." },
+    { "ref": "R2", "verdict": "supported", "evidence": "story.md#L22", "note": "Text matches L22 verbatim." },
+    { "ref": "R3", "verdict": "supported", "evidence": "story.md#L23", "note": "Text matches L23 verbatim." },
+    { "ref": "R4", "verdict": "supported", "evidence": "transcripts/contact-us-mockup.png.md#L5-L8, L12, story.md#L36", "note": "Mandatory/optional split matches the transcript and the verified image; matches AC-6's wording too." },
+    { "ref": "R5", "verdict": "supported", "evidence": "transcripts/contact-us-mockup.png.md#L10-L11, story.md#L37-L38", "note": "Submit/OK/Cancel flow matches the transcript and the verified image, and AC-7/AC-8." },
+    { "ref": "E1", "verdict": "supported", "evidence": "story.md#L32", "note": "Status 200 and body responseCode 405 / message match L32 verbatim." },
+    { "ref": "G4", "verdict": "supported", "evidence": "story.md#L36, transcripts/contact-us-mockup.png.md#L12", "note": "Neither source defines 'not a valid address'; gap is real and correctly framed as oracle/open." },
+    { "ref": "G5", "verdict": "supported", "evidence": "story.md#L36, transcripts/contact-us-mockup.png.md#L11-L12", "note": "Sources state the form must not be sent but never describe an observable signal for the blocked case; gap is real." },
+    { "ref": "G6", "verdict": "supported", "evidence": "transcripts/contact-us-mockup.png.md#L3, L5-L8, L12", "note": "The mock-up is explicitly marked 'not to scale' (L3) while AC-6 says 'offers the fields shown in the mock-up'; whether literal labels/markers are required is genuinely unresolved." },
+    { "ref": "GET /api/brandsList", "verdict": "supported", "evidence": "story.md#L21", "note": "Method and path stated verbatim." },
+    { "ref": "PUT /api/brandsList", "verdict": "supported", "evidence": "story.md#L32", "note": "Method and path stated verbatim." },
+    { "ref": "POST /api/brandsList", "verdict": "supported", "evidence": "story.md#L32", "note": "L32: 'POST and DELETE on /api/brandsList answer the same way' names the method and path." },
+    { "ref": "DELETE /api/brandsList", "verdict": "supported", "evidence": "story.md#L32", "note": "Same line as POST; method and path both present." },
+    { "ref": "GET /api/productsList", "verdict": "supported", "evidence": "story.md#L31", "note": "Method and path stated verbatim." }
+  ],
+  "missed": [],
+  "observations": [
+    {
+      "field": "endpoints[*].auth",
+      "note": "Every endpoint entry (GET/PUT/POST/DELETE brandsList, and by omission productsList) states auth: \"none\". No line in the pack mentions authentication or login for these endpoints at all; this is an unstated assumption, not a cited fact."
+    },
+    {
+      "field": "testData.strategy",
+      "note": "States 'none seeded' as the strategy. This is a reasonable inference (the pack never describes seeding), but the pack does not itself say seeding is unnecessary; flagged as a mild, uncited characterization rather than a sourced fact."
+    }
+  ],
+  "summary": "The contract is tightly grounded in story.md and the verified mock-up transcript; every AC/R/E/gap/endpoint item checked traces to an exact cited line, and the flagged AC-1 outcome is legitimately supported by R1/L21 rather than invented. No missed requirement-bearing lines were found; two minor unstated assumptions (auth: none, 'no seeding') are noted as observations only."
+}

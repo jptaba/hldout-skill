@@ -1,0 +1,12 @@
+{ "vars": { "cust": "14099", "first": "18561", "low": "18672", "other": "24444" },
+  "steps": [
+    { "name": "customer 14099 accounts before", "method": "GET", "path": "customers/${cust}/accounts", "setup": true, "show": ["length"] },
+    { "name": "funding account 18672 balance (99.99 expected)", "method": "GET", "path": "accounts/${low}", "setup": true, "show": ["customerId","balance"] },
+    { "name": "SCN-004/R5: open CHECKING from the 99.99 account", "method": "POST", "path": "createAccount?customerId=${cust}&newAccountType=0&fromAccountId=${low}", "save": { "n1": "id" }, "show": ["id","customerId","type","balance"] },
+    { "name": "read the new account back", "method": "GET", "path": "accounts/${n1}", "show": ["id","customerId","type","balance"] },
+    { "name": "R5: funding account after", "method": "GET", "path": "accounts/${low}", "show": ["balance"] },
+    { "name": "account 24444 owner and balance (another customer)", "method": "GET", "path": "accounts/${other}", "setup": true, "show": ["customerId","balance"] },
+    { "name": "R4: open for customer 14099 funded from another customer's account", "method": "POST", "path": "createAccount?customerId=${cust}&newAccountType=0&fromAccountId=${other}", "save": { "n2": "id" }, "show": ["id","customerId","type","balance"] },
+    { "name": "R4: other customer's account after", "method": "GET", "path": "accounts/${other}", "show": ["customerId","balance"] },
+    { "name": "customer 14099 accounts after", "method": "GET", "path": "customers/${cust}/accounts", "show": ["length"] }
+  ] }

@@ -1,0 +1,2288 @@
+{
+  "key": "AE-2",
+  "run": "02-harden",
+  "generatedAt": "2026-09-27T06:07:35.773Z",
+  "summary": {
+    "total": 38,
+    "passed": 32,
+    "failed": 6,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The partner creates a customer with all required fields and a new e-mail",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: createAccount answers with the documented response envelope",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: A second account for an already registered e-mail is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: An e-mail that differs from a registered one only in letter case is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxf0ku420",
+          "records": [
+            {
+              "label": "customer (POST /api/createAccount)",
+              "kind": "data",
+              "cleanup": "done",
+              "created": {
+                "email": "hxf0ku420.mujf0ku5bwdp1@example.com",
+                "password": "***redacted***",
+                "name": "QA Customer jf0ku5bz-1",
+                "form": {
+                  "name": "QA Customer jf0ku5bz-1",
+                  "email": "hxf0ku420.mujf0ku5bwdp1@example.com",
+                  "password": "***redacted***",
+                  "title": "Mrs",
+                  "birth_date": "12",
+                  "birth_month": "March",
+                  "birth_year": "1991",
+                  "firstname": "Asha",
+                  "lastname": "Rao",
+                  "company": "Acme QA",
+                  "address1": "12 MG Road",
+                  "address2": "Block B",
+                  "country": "India",
+                  "zipcode": "560001",
+                  "state": "Karnataka",
+                  "city": "Bengaluru",
+                  "mobile_number": "9800000000"
+                }
+              }
+            },
+            {
+              "label": "customer (created by the scenario)",
+              "kind": "scenario-created",
+              "created": {
+                "email": "HXF0KU420.MUJF0KU5BWDP1@EXAMPLE.COM",
+                "password": "***redacted***"
+              },
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0l48d8-2",
+                "email": "HXF0KU420.MUJF0KU5BWDP1@EXAMPLE.COM",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 168,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:05:59 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oSmLikDWdkPVWh60Ktr%2FhxMO8WiuH5qhsbUcoLDqVpW4Kb%2FdRSNy6TujTgclYEIakrDS3wIvGdUu6rqdn2xGj7i0qbIc%2BRun4FkMFIh9m%2BVgjYiqTezCtOgjvd%2BX5sX7mU5Rxkj7uGeDUqNs%2FgNaKa5j%2FKL6\"}]}",
+                "cf-ray": "a41851de28d158d7-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationexercise.com/api/createAccount",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "name": "QA Customer jf0l48d8-2",
+              "email": "HXF0KU420.MUJF0KU5BWDP1@EXAMPLE.COM",
+              "password": "***redacted***",
+              "title": "Mrs",
+              "birth_date": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "firstname": "Asha",
+              "lastname": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "zipcode": "560001",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "mobile_number": "9800000000"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 168,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:05:59 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "content-length": "49",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "OPTIONS, POST",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oSmLikDWdkPVWh60Ktr%2FhxMO8WiuH5qhsbUcoLDqVpW4Kb%2FdRSNy6TujTgclYEIakrDS3wIvGdUu6rqdn2xGj7i0qbIc%2BRun4FkMFIh9m%2BVgjYiqTezCtOgjvd%2BX5sX7mU5Rxkj7uGeDUqNs%2FgNaKa5j%2FKL6\"}]}",
+              "cf-ray": "a41851de28d158d7-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 201,
+              "message": "User created!"
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0ku5bz-1",
+                "email": "hxf0ku420.mujf0ku5bwdp1@example.com",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 356,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:05:59 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=XJ04bygcxIOUOwrhVDr%2FbKHUDjiZLxyiR6E0hI62R7imEm6%2FNvKyD4B4IPp6GtWtq%2BGmWKsnaOc2ZL%2BG9rVa8eLu85enMd%2BqSk9PFLQhxIoqA2V1ddYWG6QrrVP%2FeQWatS58bVeekmKdrSuxXU6dnv2Df%2FRr\"}]}",
+                "cf-ray": "a41851dcee6958d7-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 3,
+          "failed": 3,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-3] e-mail differing only in case → responseCode 400"
+          ]
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-3] e-mail differing only in case → responseCode 400",
+        "reqTag": "AC-3",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "201",
+        "message": "Error: [REQ AC-3] e-mail differing only in case → responseCode 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 201\n\n  175 |     });\n  176 |     await journey.step('Then the responseCode is 400', async () => {\n> 177 |       expect(res.body?.responseCode, '[REQ AC-3] e-mail differing only in case → responseCode 400').toBe(REQ.CODE.BAD_REQUEST);\n      |                                                                                                     ^\n  178 |     });\n  179 |     await journey.step('And the message is \"Email already exists!\"', async () => {\n  180 |       expect(res.body?.message, '[REQ AC-3] e-mail differing only in case → \"Email already exists!\"').toBe(REQ.MSG.EMAIL_EXISTS);\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:177:101)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:176:5"
+      },
+      "failingStep": "Then the responseCode is 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/createAccount → 200",
+          "Requirement assertion [REQ AC-3] failed.",
+          "Expected: 400",
+          "Received: 201"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-005.1",
+      "title": "SCN-005.1: createAccount without a required field is refused and creates nothing (name)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.2",
+      "title": "SCN-005.2: createAccount without a required field is refused and creates nothing (email)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.3",
+      "title": "SCN-005.3: createAccount without a required field is refused and creates nothing (password)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.4",
+      "title": "SCN-005.4: createAccount without a required field is refused and creates nothing (firstname)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.5",
+      "title": "SCN-005.5: createAccount without a required field is refused and creates nothing (lastname)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.6",
+      "title": "SCN-005.6: createAccount without a required field is refused and creates nothing (address1)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.7",
+      "title": "SCN-005.7: createAccount without a required field is refused and creates nothing (country)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.8",
+      "title": "SCN-005.8: createAccount without a required field is refused and creates nothing (zipcode)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.9",
+      "title": "SCN-005.9: createAccount without a required field is refused and creates nothing (state)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.10",
+      "title": "SCN-005.10: createAccount without a required field is refused and creates nothing (city)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.11",
+      "title": "SCN-005.11: createAccount without a required field is refused and creates nothing (mobile_number)",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: createAccount with an e-mail that has no \"@\" is refused and creates nothing",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@\"",
+        "@AC-5",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxf0pe550",
+          "records": [
+            {
+              "label": "customer (created by the scenario)",
+              "kind": "scenario-created",
+              "created": {
+                "email": "hxf0pe550.mujf0pe6km3p1.at.example.com",
+                "password": "***redacted***"
+              },
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0pe6cf-1",
+                "email": "hxf0pe550.mujf0pe6km3p1.at.example.com",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 416,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:05 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KkCJizasXR7yJp1jq74OY2DRCAfLBUL%2BK3C1Jr66FqyChEpK5bYAcM0F1bWCdQCot4bhKKS7%2FL4LnDCg3Txm4UkCEs6ZedEjaWoV5L5gj0ouAYz%2F9bwJOo7GhjAUYzPQ%2FQYcLrR1pDUAJuVDt1EStgAK7afh\"}]}",
+                "cf-ray": "a4185201ddcdda80-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationexercise.com/api/createAccount",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "name": "QA Customer jf0pe6cf-1",
+              "email": "hxf0pe550.mujf0pe6km3p1.at.example.com",
+              "password": "***redacted***",
+              "title": "Mrs",
+              "birth_date": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "firstname": "Asha",
+              "lastname": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "zipcode": "560001",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "mobile_number": "9800000000"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 416,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:06:05 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "content-length": "49",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "OPTIONS, POST",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KkCJizasXR7yJp1jq74OY2DRCAfLBUL%2BK3C1Jr66FqyChEpK5bYAcM0F1bWCdQCot4bhKKS7%2FL4LnDCg3Txm4UkCEs6ZedEjaWoV5L5gj0ouAYz%2F9bwJOo7GhjAUYzPQ%2FQYcLrR1pDUAJuVDt1EStgAK7afh\"}]}",
+              "cf-ray": "a4185201ddcdda80-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 201,
+              "message": "User created!"
+            }
+          }
+        },
+        "repeats": {
+          "runs": 3,
+          "failed": 3,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] e-mail without \"@\" → responseCode 400"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] e-mail without \"@\" → responseCode 400",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "201",
+        "message": "Error: [REQ AC-5] e-mail without \"@\" → responseCode 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 201\n\n  217 |     });\n  218 |     await journey.step('Then the responseCode is 400', async () => {\n> 219 |       expect(res.body?.responseCode, '[REQ AC-5] e-mail without \"@\" → responseCode 400').toBe(REQ.CODE.BAD_REQUEST);\n      |                                                                                          ^\n  220 |     });\n  221 |     await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {\n  222 |       const g = await getUser(api, address);\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:219:90)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:218:5"
+      },
+      "failingStep": "Then the responseCode is 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/createAccount → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: 400",
+          "Received: 201"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-007.1",
+      "title": "SCN-007.1: createAccount with an e-mail that has an \"@\" but is still invalid is refused and creates nothing (no domain after the \"@\")",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@\"",
+        "@\")",
+        "@AC-5",
+        "@type:boundary",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxf0pe740",
+          "records": [
+            {
+              "label": "customer (created by the scenario)",
+              "kind": "scenario-created",
+              "created": {
+                "email": "hxf0pe740.mujf0pe8zbhb1@",
+                "password": "***redacted***"
+              },
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0pe9pr-1",
+                "email": "hxf0pe740.mujf0pe8zbhb1@",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 409,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:05 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=urDCoXbeOx8tBv8E8Viyv0%2Bm8ZPJKGfM3z3aOVoJQA43ZHA3MFQITs7NIsz4DariONowC0WLljgn0dvfotXc%2BHCRHVDmNLk0revENdXVb%2BtsaC0Ls2GV3POTwPqrp1c1o76Rb9ERODCbSdETTxGPh5VXenjG\"}]}",
+                "cf-ray": "a4185201ddb621eb-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationexercise.com/api/createAccount",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "name": "QA Customer jf0pe9pr-1",
+              "email": "hxf0pe740.mujf0pe8zbhb1@",
+              "password": "***redacted***",
+              "title": "Mrs",
+              "birth_date": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "firstname": "Asha",
+              "lastname": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "zipcode": "560001",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "mobile_number": "9800000000"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 409,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:06:05 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "content-length": "49",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "OPTIONS, POST",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=urDCoXbeOx8tBv8E8Viyv0%2Bm8ZPJKGfM3z3aOVoJQA43ZHA3MFQITs7NIsz4DariONowC0WLljgn0dvfotXc%2BHCRHVDmNLk0revENdXVb%2BtsaC0Ls2GV3POTwPqrp1c1o76Rb9ERODCbSdETTxGPh5VXenjG\"}]}",
+              "cf-ray": "a4185201ddb621eb-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 201,
+              "message": "User created!"
+            }
+          }
+        },
+        "repeats": {
+          "runs": 3,
+          "failed": 3,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] invalid e-mail (no domain after the \"@\") → responseCode 400"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] invalid e-mail (no domain after the \"@\") → responseCode 400",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "201",
+        "message": "Error: [REQ AC-5] invalid e-mail (no domain after the \"@\") → responseCode 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 201\n\n  237 |       });\n  238 |       await journey.step('Then the responseCode is 400', async () => {\n> 239 |         expect(res.body?.responseCode, `[REQ AC-5] invalid e-mail (${shape}) → responseCode 400`).toBe(REQ.CODE.BAD_REQUEST);\n      |                                                                                                   ^\n  240 |       });\n  241 |       await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {\n  242 |         const g = await getUser(api, address);\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:239:99)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:238:7"
+      },
+      "failingStep": "Then the responseCode is 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/createAccount → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: 400",
+          "Received: 201"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-007.2",
+      "title": "SCN-007.2: createAccount with an e-mail that has an \"@\" but is still invalid is refused and creates nothing (no local part before the \"@\")",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@\"",
+        "@\")",
+        "@AC-5",
+        "@type:boundary",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxf0sn280",
+          "records": [
+            {
+              "label": "customer (created by the scenario)",
+              "kind": "scenario-created",
+              "created": {
+                "email": "@hxf0sn280.mujf0sn3gcl81.example.com",
+                "password": "***redacted***"
+              },
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0sn48o-1",
+                "email": "@hxf0sn280.mujf0sn3gcl81.example.com",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 319,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:09 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Sr5xh%2BZbxzUokZOxdpSxGLsAt2C55YAGplav6DewvfZPzIskEtifOaYTRhVEPoGwGpHYHWY0BH9eIBpG78tXx9P8nJD7dIL8sunouP4LNPz3aL%2FFMdDgtsBlWdREUF2viXzMEvIx5l9uZM1xZFHAYxyReZzc\"}]}",
+                "cf-ray": "a418521bfcb06513-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationexercise.com/api/createAccount",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "name": "QA Customer jf0sn48o-1",
+              "email": "@hxf0sn280.mujf0sn3gcl81.example.com",
+              "password": "***redacted***",
+              "title": "Mrs",
+              "birth_date": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "firstname": "Asha",
+              "lastname": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "zipcode": "560001",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "mobile_number": "9800000000"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 319,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:06:09 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "content-length": "49",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "OPTIONS, POST",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Sr5xh%2BZbxzUokZOxdpSxGLsAt2C55YAGplav6DewvfZPzIskEtifOaYTRhVEPoGwGpHYHWY0BH9eIBpG78tXx9P8nJD7dIL8sunouP4LNPz3aL%2FFMdDgtsBlWdREUF2viXzMEvIx5l9uZM1xZFHAYxyReZzc\"}]}",
+              "cf-ray": "a418521bfcb06513-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 201,
+              "message": "User created!"
+            }
+          }
+        },
+        "repeats": {
+          "runs": 3,
+          "failed": 3,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] invalid e-mail (no local part before the \"@\") → responseCode 400"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] invalid e-mail (no local part before the \"@\") → responseCode 400",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "201",
+        "message": "Error: [REQ AC-5] invalid e-mail (no local part before the \"@\") → responseCode 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 201\n\n  237 |       });\n  238 |       await journey.step('Then the responseCode is 400', async () => {\n> 239 |         expect(res.body?.responseCode, `[REQ AC-5] invalid e-mail (${shape}) → responseCode 400`).toBe(REQ.CODE.BAD_REQUEST);\n      |                                                                                                   ^\n  240 |       });\n  241 |       await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {\n  242 |         const g = await getUser(api, address);\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:239:99)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:238:7"
+      },
+      "failingStep": "Then the responseCode is 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/createAccount → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: 400",
+          "Received: 201"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: verifyLogin with a valid e-mail and password confirms the customer",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: verifyLogin with a wrong password is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: verifyLogin with an unknown e-mail is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.1",
+      "title": "SCN-011.1: verifyLogin without the email parameter is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.2",
+      "title": "SCN-011.2: verifyLogin without the password parameter is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: verifyLogin called with the DELETE method is not supported",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: getUserDetailByEmail returns a user object with every field of the contract",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxf0v13100",
+          "records": [
+            {
+              "label": "customer (POST /api/createAccount)",
+              "kind": "data",
+              "cleanup": "done",
+              "created": {
+                "email": "hxf0v13100.mujf0v14jx8h1@example.com",
+                "password": "***redacted***",
+                "name": "QA Customer jf0v14nl-1",
+                "form": {
+                  "name": "QA Customer jf0v14nl-1",
+                  "email": "hxf0v13100.mujf0v14jx8h1@example.com",
+                  "password": "***redacted***",
+                  "title": "Mrs",
+                  "birth_date": "12",
+                  "birth_month": "March",
+                  "birth_year": "1991",
+                  "firstname": "Asha",
+                  "lastname": "Rao",
+                  "company": "Acme QA",
+                  "address1": "12 MG Road",
+                  "address2": "Block B",
+                  "country": "India",
+                  "zipcode": "560001",
+                  "state": "Karnataka",
+                  "city": "Bengaluru",
+                  "mobile_number": "9800000000"
+                }
+              }
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationexercise.com/api/getUserDetailByEmail?email=hxf0v13100.mujf0v14jx8h1%40example.com",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 175,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:12 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie,Accept-Encoding",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "PUT, POST, DELETE, OPTIONS, GET",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=V1nK4lIUumTBtHsyt2MjRE%2BNjY71tn9NItIRwZMJhrEPniQ130V7Vv1cW8cXn6eC8JuQQS9DycQfx0bTO3dUgTbTA2FyY641ydFH4Uv0Pnm6AODTpy7MOgv%2FZpkqjPtESZfndhCZaAfne3YlvzHPZHE0sQaE\"}]}",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "content-encoding": "br",
+                "cf-ray": "a41852325d76cfa7-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 200,
+                "user": {
+                  "id": 2937163,
+                  "name": "QA Customer jf0v14nl-1",
+                  "email": "hxf0v13100.mujf0v14jx8h1@example.com",
+                  "title": "Mrs",
+                  "birth_day": "12",
+                  "birth_month": "March",
+                  "birth_year": "1991",
+                  "first_name": "Asha",
+                  "last_name": "Rao",
+                  "company": "Acme QA",
+                  "address1": "12 MG Road",
+                  "address2": "Block B",
+                  "country": "India",
+                  "state": "Karnataka",
+                  "city": "Bengaluru",
+                  "zipcode": "560001"
+                }
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationexercise.com/api/getUserDetailByEmail?email=hxf0v13100.mujf0v14jx8h1%40example.com",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 175,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:06:12 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie,Accept-Encoding",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "PUT, POST, DELETE, OPTIONS, GET",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=V1nK4lIUumTBtHsyt2MjRE%2BNjY71tn9NItIRwZMJhrEPniQ130V7Vv1cW8cXn6eC8JuQQS9DycQfx0bTO3dUgTbTA2FyY641ydFH4Uv0Pnm6AODTpy7MOgv%2FZpkqjPtESZfndhCZaAfne3YlvzHPZHE0sQaE\"}]}",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "content-encoding": "br",
+              "cf-ray": "a41852325d76cfa7-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 200,
+              "user": {
+                "id": 2937163,
+                "name": "QA Customer jf0v14nl-1",
+                "email": "hxf0v13100.mujf0v14jx8h1@example.com",
+                "title": "Mrs",
+                "birth_day": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "first_name": "Asha",
+                "last_name": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "zipcode": "560001"
+              }
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0v14nl-1",
+                "email": "hxf0v13100.mujf0v14jx8h1@example.com",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 611,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:12 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=G1Iij0pHVSxM6kfhcgHbQW4g6%2BcblRuqrfTYl3Xx6O9z9%2FUhD9PuLfOBsgCRcFEeHjrmscwXZhvHEz2STi%2BOmWeRATdL0JuDwnfdBUfjbfGt%2BRHeRIy3o5ieGra2ma9x2GFH0zaYM%2BBtIvuQ8ue99MQvPSQn\"}]}",
+                "cf-ray": "a418522f7fdfcfa7-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 3,
+          "failed": 3,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-7] user object has every contract field"
+          ]
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] user object has every contract field",
+        "reqTag": "AC-7",
+        "matcher": "toEqual",
+        "expected": "[Array []]",
+        "received": "[\"user.mobile_number is missing\"]",
+        "message": "Error: [REQ AC-7] user object has every contract field\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 3\n\n- Array []\n+ Array [\n+   \"user.mobile_number is missing\",\n+ ]\n\n  331 |     await journey.step('And the user object has the fields id, name, email, title, birth_day, birth_month, birth_year, first_name, last_name, company, address1, address2, country, state, city, zipcode, mobile_number', async () => {\n  332 |       const present: Record<string, ShapeRule> = Object.fromEntries(REQ.USER_FIELDS.map((f) => [f, () => true]));\n> 333 |       expect(checkShape(res.body?.user, present, 'user'), '[REQ AC-7] user object has every contract field').toEqual([]);\n      |                                                                                                              ^\n  334 |     });\n  335 |   });\n  336 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:333:110)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:331:5"
+      },
+      "failingStep": "And the user object has the fields id, name, email, title, birth_day, birth_month, birth_year, first_name, last_name, company, address1, address2, country, state, city, zipcode, mobile_number",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/getUserDetailByEmail → 200",
+          "Requirement assertion [REQ AC-7] failed.",
+          "Expected: [Array []]",
+          "Received: [\"user.mobile_number is missing\"]"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-014",
+      "title": "SCN-014: getUserDetailByEmail returns the registration values of the same-named fields",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-2/runs/02-harden/artifacts/AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxf0w21110",
+          "records": [
+            {
+              "label": "customer (POST /api/createAccount)",
+              "kind": "data",
+              "cleanup": "done",
+              "created": {
+                "email": "hxf0w21110.mujf0w227jhq1@example.com",
+                "password": "***redacted***",
+                "name": "QA Customer jf0w22u1-1",
+                "form": {
+                  "name": "QA Customer jf0w22u1-1",
+                  "email": "hxf0w21110.mujf0w227jhq1@example.com",
+                  "password": "***redacted***",
+                  "title": "Mrs",
+                  "birth_date": "12",
+                  "birth_month": "March",
+                  "birth_year": "1991",
+                  "firstname": "Asha",
+                  "lastname": "Rao",
+                  "company": "Acme QA",
+                  "address1": "12 MG Road",
+                  "address2": "Block B",
+                  "country": "India",
+                  "zipcode": "560001",
+                  "state": "Karnataka",
+                  "city": "Bengaluru",
+                  "mobile_number": "9800000000"
+                }
+              }
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationexercise.com/api/getUserDetailByEmail?email=hxf0w21110.mujf0w227jhq1%40example.com",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 158,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:14 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie,Accept-Encoding",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "PUT, POST, DELETE, OPTIONS, GET",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=P0Q671iihXohGglW5qn1qrvEoJx8cfzMzIf4s6pBtCBY5q%2FARFBSpsBsH5QTv5kxP9xnW6bAL1Von245FUgYTcNEfswIlk0uPEbbikVG9qCBAROFfhBoa5yg9fa7MBwDgSVmYIJIdAsq4%2FhXayxOH8RctgTF\"}]}",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "content-encoding": "br",
+                "cf-ray": "a418523aae0e5e71-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 200,
+                "user": {
+                  "id": 2937164,
+                  "name": "QA Customer jf0w22u1-1",
+                  "email": "hxf0w21110.mujf0w227jhq1@example.com",
+                  "title": "Mrs",
+                  "birth_day": "12",
+                  "birth_month": "March",
+                  "birth_year": "1991",
+                  "first_name": "Asha",
+                  "last_name": "Rao",
+                  "company": "Acme QA",
+                  "address1": "12 MG Road",
+                  "address2": "Block B",
+                  "country": "India",
+                  "state": "Karnataka",
+                  "city": "Bengaluru",
+                  "zipcode": "560001"
+                }
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationexercise.com/api/getUserDetailByEmail?email=hxf0w21110.mujf0w227jhq1%40example.com",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 158,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:06:14 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie,Accept-Encoding",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "PUT, POST, DELETE, OPTIONS, GET",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=P0Q671iihXohGglW5qn1qrvEoJx8cfzMzIf4s6pBtCBY5q%2FARFBSpsBsH5QTv5kxP9xnW6bAL1Von245FUgYTcNEfswIlk0uPEbbikVG9qCBAROFfhBoa5yg9fa7MBwDgSVmYIJIdAsq4%2FhXayxOH8RctgTF\"}]}",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "content-encoding": "br",
+              "cf-ray": "a418523aae0e5e71-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 200,
+              "user": {
+                "id": 2937164,
+                "name": "QA Customer jf0w22u1-1",
+                "email": "hxf0w21110.mujf0w227jhq1@example.com",
+                "title": "Mrs",
+                "birth_day": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "first_name": "Asha",
+                "last_name": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "zipcode": "560001"
+              }
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationexercise.com/api/createAccount",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              "body": {
+                "name": "QA Customer jf0w22u1-1",
+                "email": "hxf0w21110.mujf0w227jhq1@example.com",
+                "password": "***redacted***",
+                "title": "Mrs",
+                "birth_date": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "firstname": "Asha",
+                "lastname": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "zipcode": "560001",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "mobile_number": "9800000000"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 619,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 06:06:14 GMT",
+                "content-type": "text/html; charset=utf-8",
+                "content-length": "49",
+                "connection": "keep-alive",
+                "vary": "Accept,Cookie",
+                "referrer-policy": "same-origin",
+                "x-frame-options": "DENY",
+                "x-content-type-options": "nosniff",
+                "allow": "OPTIONS, POST",
+                "x-powered-by": "Phusion Passenger(R) 6.1.8",
+                "status": "200 OK",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xyDmUlxs66jcn4HS0MrHyUqR%2Bs43cOFa5X0Ec4ofGiMCrjEAAnZiooxvg78Mh3adC%2Fm2vxJRemdgbprU97i0kESDOZu2rZ1QQUJhG1yBi93pPGD8UzcV4UOxOcmFCr0s0ZtMgqYh6SRCKCyHNKOzN7JSXyT4\"}]}",
+                "cf-ray": "a4185237eca85e71-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "responseCode": 201,
+                "message": "User created!"
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 3,
+          "failed": 3,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-7] user.mobile_number holds the registration value"
+          ]
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] user.mobile_number holds the registration value",
+        "reqTag": "AC-7",
+        "matcher": "toBe",
+        "expected": "\"9800000000\"",
+        "received": "\"undefined\"",
+        "message": "Error: [REQ AC-7] user.mobile_number holds the registration value\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"9800000000\"\nReceived: \"undefined\"\n\n  345 |       const user = res.body?.user ?? {};\n  346 |       for (const f of REQ.SAME_NAMED_FIELDS) {\n> 347 |         expect.soft(String(user[f]), `[REQ AC-7] user.${f} holds the registration value`).toBe(c.form[f]);\n      |                                                                                           ^\n  348 |       }\n  349 |     });\n  350 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:347:91)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-2\\tests\\ae-2.spec.ts:344:5"
+      },
+      "failingStep": "And name, email, title, birth_month, birth_year, company, address1, address2, country, state, city, zipcode and mobile_number hold the registration values",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/getUserDetailByEmail → 200",
+          "Requirement assertion [REQ AC-7] failed.",
+          "Expected: \"9800000000\"",
+          "Received: \"undefined\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-015",
+      "title": "SCN-015: getUserDetailByEmail returns the registration values of the renamed fields",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-016",
+      "title": "SCN-016: getUserDetailByEmail never returns the password",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-017",
+      "title": "SCN-017: getUserDetailByEmail for an unknown e-mail is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-018",
+      "title": "SCN-018: updateAccount changes only the fields sent",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-019",
+      "title": "SCN-019: updateAccount with a wrong password is refused and changes nothing",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-020",
+      "title": "SCN-020: deleteAccount with the correct credentials closes the account",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-021",
+      "title": "SCN-021: deleteAccount with a wrong password is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-022",
+      "title": "SCN-022: After a refused deleteAccount the account remains usable",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-023",
+      "title": "SCN-023: A customer created through the API signs in on the shop and sees their name",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-10",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-024",
+      "title": "SCN-024: After a name change through updateAccount the shop header shows the new name",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-10",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          },
+          {
+            "scenario": "SCN-018",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-025",
+      "title": "SCN-025: Shop sign-in with a wrong password is refused on the login page",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@type:negative",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "testType": "negative",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-026",
+      "title": "SCN-026: Shop sign-in for an account closed through deleteAccount is refused",
+      "file": "AE-2/tests/ae-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-12",
+        "@type:negative",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-12"
+      ],
+      "testType": "negative",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 3,
+          "failed": 0,
+          "causes": []
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-001",
+            "status": "passed"
+          },
+          {
+            "scenario": "SCN-020",
+            "status": "passed"
+          }
+        ]
+      },
+      "otherFailures": []
+    }
+  ]
+}

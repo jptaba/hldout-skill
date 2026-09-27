@@ -21,18 +21,16 @@ npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → dra
 
 `heldout contract KEY` lists the open **mechanics** gaps ("to discover from the application"): a route, a label, an
 endpoint or request field the story doesn't name. Discover each one with the tiers below or the published API docs,
-then record it in `requirement-contract.json`: add `{ "where": "aut", "result": "<what you found>" }` to `tried`, set
-`"resolution": "discovered-in-aut"`, `"value"` and `"evidence"` (the probe command or its output file), and add what it
-unlocks (the endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`). This is
-mechanics only, so the review stays valid. For example:
+then record it:
 
-```json
-{ "id": "G1", "element": "request fields of POST /Account/v1/User", "kind": "mechanics", "required": true, "affects": ["AC-6"],
-  "tried": [{ "where": "story", "result": "not stated" }, { "where": "aut", "result": "published API docs name userName, password" }],
-  "resolution": "discovered-in-aut", "value": "JSON body {userName, password}", "evidence": "hardening/api-user.md" }
+```bash
+npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence hardening/api-user.md
 ```
 
-and on the endpoint: `{ "method": "POST", "path": "/Account/v1/User", "source": "story.md#L42", "requestFields": ["userName", "password"] }`;
+This sets `"resolution": "discovered-in-aut"`, `value` and `evidence`, and adds `{ "where": "aut" }` to `tried`. It refuses
+oracle gaps. It's mechanics only, so the review stays valid. Then add what the gap unlocks by hand, if anything: the
+endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`. For example, on the
+endpoint: `{ "method": "POST", "path": "/Account/v1/User", "source": "story.md#L42", "requestFields": ["userName", "password"] }`;
 on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement (the story's endpoint doesn't
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
 

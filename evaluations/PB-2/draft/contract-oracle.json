@@ -1,0 +1,124 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "The Open New Account page offers exactly the account types CHECKING and SAVINGS, lists the customer's existing accounts as funding accounts, and tells the customer the minimum opening deposit from the rules (\"A minimum of $100.00 must be deposited into this account at time of opening.\").",
+      "outcomes": [
+        "the account type choices are exactly CHECKING and SAVINGS",
+        "the funding account choices list the customer's existing accounts",
+        "the page shows \"A minimum of $100.00 must be deposited into this account at time of opening.\""
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Opening a SAVINGS account funded from the customer's first account shows \"Account Opened!\", \"Congratulations, your account is now open.\" and \"Your new account number:\" followed by the number as a link; the link opens the account's details page showing Account Type SAVINGS and a balance of $100.00.",
+      "outcomes": [
+        "the page shows \"Account Opened!\"",
+        "the page shows \"Congratulations, your account is now open.\"",
+        "the page shows \"Your new account number:\" followed by the new account number as a link",
+        "the link opens the account's details page showing Account Type SAVINGS",
+        "the details page shows a balance of $100.00"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "After opening, the new account is listed in Accounts Overview with a balance of $100.00, and the funding account's balance is lower by $100.00 than before; GET /customers/{customerId}/accounts returns the new account with the chosen type and a balance of 100.00, and the funding account with the reduced balance.",
+      "outcomes": [
+        "Accounts Overview lists the new account with a balance of $100.00",
+        "Accounts Overview shows the funding account's balance lower by $100.00 than before opening",
+        "GET /customers/{customerId}/accounts returns the new account with the chosen type",
+        "GET /customers/{customerId}/accounts returns the new account with a balance of 100.00",
+        "GET /customers/{customerId}/accounts returns the funding account with its balance reduced by 100.00"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "POST /createAccount for a CHECKING account answers 200 and returns the new account: its id, the customerId, type CHECKING and its opening balance (100.00). GET /accounts/{id} for the returned id answers 200 with the same values.",
+      "outcomes": [
+        "POST /createAccount for a CHECKING account answers 200",
+        "the body is the new account with its id",
+        "the body's customerId is the customer's id",
+        "the body's type is CHECKING",
+        "the body's balance is 100.00",
+        "GET /accounts/{id} for the returned id answers 200",
+        "GET /accounts/{id} returns the same id, customerId, type and balance"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "The opening deposit is recorded as transactions per rules R8 and R9: the funding account shows a Debit of 100.00 \"Funds Transfer Sent\" and the new account a Credit of 100.00 \"Funds Transfer Received\".",
+      "outcomes": [
+        "the funding account's transactions include a Debit of 100.00 \"Funds Transfer Sent\"",
+        "the new account's transactions include a Credit of 100.00 \"Funds Transfer Received\""
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "Opening an account follows the funding rules in account-rules.csv on the page and through the service.",
+      "outcomes": [
+        "R4: the opening deposit is moved from the funding account chosen by the customer, one of the customer's own existing accounts (page and service)",
+        "R5: with a funding account holding at least 100.00 (balance >= 100.00) the new account is opened (page and service)",
+        "R5: with a funding account holding less than 100.00 the new account is not opened and the customer gets an error (page and service)",
+        "R7: after opening, the funding account balance is the previous balance minus the opening deposit (page and service)"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "CHECKING: can be opened online by a signed-in customer (yes; page + service)."
+    },
+    {
+      "id": "R2",
+      "text": "SAVINGS: can be opened online by a signed-in customer (yes; page + service)."
+    },
+    {
+      "id": "R3",
+      "text": "All types: minimum opening deposit (USD) 100.00 (page + service)."
+    },
+    {
+      "id": "R4",
+      "text": "All types: the opening deposit is moved from one existing account of the same customer (the funding account), chosen by the customer (page + service)."
+    },
+    {
+      "id": "R5",
+      "text": "All types: the funding account must hold at least the minimum opening deposit (balance >= 100.00); otherwise the new account is not opened and the customer gets an error (page + service)."
+    },
+    {
+      "id": "R6",
+      "text": "All types: the opening balance of the new account is equal to the opening deposit (100.00) (page + service)."
+    },
+    {
+      "id": "R7",
+      "text": "All types: funding account balance after opening is the previous balance minus the opening deposit (page + service)."
+    },
+    {
+      "id": "R8",
+      "text": "All types: transaction recorded on the funding account: Debit 100.00 'Funds Transfer Sent' (page + service)."
+    },
+    {
+      "id": "R9",
+      "text": "All types: transaction recorded on the new account: Credit 100.00 'Funds Transfer Received' (page + service)."
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "the funding account holds less than the minimum opening deposit (100.00): the new account is not opened and the customer gets an error (page and service). The sources state no message, status or body (G6)",
+      "status": null,
+      "body": null
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G6",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G7",
+      "resolution": "open",
+      "value": null
+    }
+  ]
+}

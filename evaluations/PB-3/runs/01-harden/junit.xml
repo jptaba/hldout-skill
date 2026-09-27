@@ -1,0 +1,2117 @@
+<testsuites id="" name="" tests="12" failures="6" skipped="0" errors="2" time="215.560268">
+<testsuite name="PB-3\tests\pb-3.spec.ts" timestamp="2026-09-27T12:37:25.176Z" hostname="chromium" tests="12" failures="6" skipped="0" time="192.519" errors="2">
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-001: The customer transfers 25.50 from A to B on the Transfer Funds page" classname="PB-3\tests\pb-3.spec.ts" time="3.937">
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-002: The REST service transfers 12.34 from A to B" classname="PB-3\tests\pb-3.spec.ts" time="3.444">
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-003: A transfer made on the page is listed as a transaction on both accounts" classname="PB-3\tests\pb-3.spec.ts" time="3.645">
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-004.1: An empty or non-numeric amount keeps the Transfer Funds form on screen (amount &quot;&quot;)" classname="PB-3\tests\pb-3.spec.ts" time="27.704">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-4] message &quot;The amount cannot be empty.&quot; shown" type="expect.toBeVisible">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:248:5 › PB-3 Transfer funds between my own accounts › SCN-004.1: An empty or non-numeric amount keeps the Transfer Funds form on screen (amount "") @AC-4 @type:negative @layer:ui @P2 › Then the Transfer Funds form stays on screen with the message "The amount cannot be empty." 
+
+    Error: [REQ AC-4] message "The amount cannot be empty." shown
+
+    expect(locator).toBeVisible() failed
+
+    Locator:  getByText('The amount cannot be empty.', { exact: true })
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-4] message "The amount cannot be empty." shown getByText('The amount cannot be empty.', { exact: true }) with timeout 5000ms
+      - waiting for getByText('The amount cannot be empty.', { exact: true })
+        14 × locator resolved to <p class="error" id="amount.errors">↵⇆⇆⇆The amount cannot be empty. ↵⇆⇆</p>
+           - unexpected value "hidden"
+
+
+      254 |       await journey.step(`When I enter "${row.amount}" as the amount and press Transfer`, () => fillTransfer(page, row.amount, c.A, c.B));
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+    > 256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+          |                                                                                                                      ^
+      257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:256:118)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    Error: [REQ AC-4] Transfer Funds form stays on screen
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Transfer', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-4] Transfer Funds form stays on screen getByRole('button', { name: 'Transfer', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Transfer', exact: true })
+
+
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+      256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+    > 257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+          |                                                                                                                                          ^
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+      260 |         expect.soft(await balance(api, c.A), '[REQ AC-4] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:257:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-enter-as-the-amount-and-press-transfer (text/yaml) ──────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I enter "" as the amount and press Transfer
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        -...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-funds-form-stays-on-screen-with-the-messag (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the Transfer Funds form stays on screen with the message "The amount cannot be empty."
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-4] message "The amount cannot be empty." shown
+
+    expect(locator).toBeVisible() failed
+
+    Locator:  getByText('The amount cannot be empty.', { exact: true })
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-4] message "The amount cannot be empty." shown getByText('The amount cannot be empty.', { exact: true }) with timeout 5000ms
+      - waiting for getByText('The amount cannot be empty.', { exact: true })
+        14 × locator resolved to <p class="error" id="amount.errors">↵⇆⇆⇆The amount cannot be empty. ↵⇆⇆</p>
+           - unexpected value "hidden"
+
+
+      254 |       await journey.step(`When I enter "${row.amount}" as the amount and press Transfer`, () => fillTransfer(page, row.amount, c.A, c.B));
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+    > 256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+          |                                                                                                                      ^
+      257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:256:118)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    Error: [REQ AC-4] Transfer Funds form stays on screen
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Transfer', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-4] Transfer Funds form stays on screen getByRole('button', { name: 'Transfer', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Transfer', exact: true })
+
+
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+      256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+    > 257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+          |                                                                                                                                          ^
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+      260 |         expect.soft(await balance(api, c.A), '[REQ AC-4] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:257:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-enter-as-the-amount-and-press-transfer (text/yaml) ──────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I enter "" as the amount and press Transfer
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        -...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-funds-form-stays-on-screen-with-the-messag (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the Transfer Funds form stays on screen with the message "The amount cannot be empty."
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-004.2: An empty or non-numeric amount keeps the Transfer Funds form on screen (amount &quot;abc&quot;)" classname="PB-3\tests\pb-3.spec.ts" time="27.703">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-4] message &quot;Please enter a valid amount.&quot; shown" type="expect.toBeVisible">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:248:5 › PB-3 Transfer funds between my own accounts › SCN-004.2: An empty or non-numeric amount keeps the Transfer Funds form on screen (amount "abc") @AC-4 @type:negative @layer:ui @P2 › Then the Transfer Funds form stays on screen with the message "Please enter a valid amount." 
+
+    Error: [REQ AC-4] message "Please enter a valid amount." shown
+
+    expect(locator).toBeVisible() failed
+
+    Locator:  getByText('Please enter a valid amount.', { exact: true })
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-4] message "Please enter a valid amount." shown getByText('Please enter a valid amount.', { exact: true }) with timeout 5000ms
+      - waiting for getByText('Please enter a valid amount.', { exact: true })
+        14 × locator resolved to <p class="error" id="amount.errors">↵⇆⇆⇆Please enter a valid amount.↵⇆⇆</p>
+           - unexpected value "hidden"
+
+
+      254 |       await journey.step(`When I enter "${row.amount}" as the amount and press Transfer`, () => fillTransfer(page, row.amount, c.A, c.B));
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+    > 256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+          |                                                                                                                      ^
+      257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:256:118)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    Error: [REQ AC-4] Transfer Funds form stays on screen
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Transfer', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-4] Transfer Funds form stays on screen getByRole('button', { name: 'Transfer', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Transfer', exact: true })
+
+
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+      256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+    > 257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+          |                                                                                                                                          ^
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+      260 |         expect.soft(await balance(api, c.A), '[REQ AC-4] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:257:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-enter-abc-as-the-amount-and-press-transfer (text/yaml) ──
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I enter "abc" as the amount and press Transfer
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+      ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-funds-form-stays-on-screen-with-the-messag (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the Transfer Funds form stays on screen with the message "Please enter a valid amount."
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-4] message "Please enter a valid amount." shown
+
+    expect(locator).toBeVisible() failed
+
+    Locator:  getByText('Please enter a valid amount.', { exact: true })
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-4] message "Please enter a valid amount." shown getByText('Please enter a valid amount.', { exact: true }) with timeout 5000ms
+      - waiting for getByText('Please enter a valid amount.', { exact: true })
+        14 × locator resolved to <p class="error" id="amount.errors">↵⇆⇆⇆Please enter a valid amount.↵⇆⇆</p>
+           - unexpected value "hidden"
+
+
+      254 |       await journey.step(`When I enter "${row.amount}" as the amount and press Transfer`, () => fillTransfer(page, row.amount, c.A, c.B));
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+    > 256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+          |                                                                                                                      ^
+      257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:256:118)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    Error: [REQ AC-4] Transfer Funds form stays on screen
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Transfer', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-4] Transfer Funds form stays on screen getByRole('button', { name: 'Transfer', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Transfer', exact: true })
+
+
+      255 |       await journey.step(`Then the Transfer Funds form stays on screen with the message "${row.message}"`, async () => {
+      256 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message "${row.message}" shown`).toBeVisible();
+    > 257 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();
+          |                                                                                                                                          ^
+      258 |       });
+      259 |       await journey.step('And the balances of A and B do not change', async () => {
+      260 |         expect.soft(await balance(api, c.A), '[REQ AC-4] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:257:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:255:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-enter-abc-as-the-amount-and-press-transfer (text/yaml) ──
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I enter "abc" as the amount and press Transfer
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+      ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-funds-form-stays-on-screen-with-the-messag (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the Transfer Funds form stays on screen with the message "Please enter a valid amount."
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-005.1: A zero or negative amount is refused on the Transfer Funds page (0)" classname="PB-3\tests\pb-3.spec.ts" time="8.232">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] page does not show &quot;Transfer Complete!&quot;" type="expect.toBe">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:267:5 › PB-3 Transfer funds between my own accounts › SCN-005.1: A zero or negative amount is refused on the Transfer Funds page (0) @AC-5 @type:boundary @layer:ui @P1 › Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation 
+
+    Error: [REQ AC-5] page does not show "Transfer Complete!"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      273 |       await journey.step(`When I transfer ${amount} from A to B`, () => fillTransfer(page, amount, c.A, c.B));
+      274 |       await journey.step('Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation', async () => {
+    > 275 |         expect.soft(await appears(page, REQ.AC5.COMPLETE), '[REQ AC-5] page does not show "Transfer Complete!"').toBe(false);
+          |                                                                                                                  ^
+      276 |       });
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+      278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:275:114
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:274:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-transfer-0-from-a-to-b (text/yaml) ──────────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I transfer 0 from A to B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About Us":
+     ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-is-refused-the-page-does-not-show-transfer (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] page does not show "Transfer Complete!"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      273 |       await journey.step(`When I transfer ${amount} from A to B`, () => fillTransfer(page, amount, c.A, c.B));
+      274 |       await journey.step('Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation', async () => {
+    > 275 |         expect.soft(await appears(page, REQ.AC5.COMPLETE), '[REQ AC-5] page does not show "Transfer Complete!"').toBe(false);
+          |                                                                                                                  ^
+      276 |       });
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+      278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:275:114
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:274:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-transfer-0-from-a-to-b (text/yaml) ──────────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I transfer 0 from A to B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About Us":
+     ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-is-refused-the-page-does-not-show-transfer (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-005.2: A zero or negative amount is refused on the Transfer Funds page (-10.00)" classname="PB-3\tests\pb-3.spec.ts" time="7.894">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] page does not show &quot;Transfer Complete!&quot;" type="expect.toBe">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:267:5 › PB-3 Transfer funds between my own accounts › SCN-005.2: A zero or negative amount is refused on the Transfer Funds page (-10.00) @AC-5 @type:boundary @layer:ui @P1 
+
+    Error: [REQ AC-5] page does not show "Transfer Complete!"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      273 |       await journey.step(`When I transfer ${amount} from A to B`, () => fillTransfer(page, amount, c.A, c.B));
+      274 |       await journey.step('Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation', async () => {
+    > 275 |         expect.soft(await appears(page, REQ.AC5.COMPLETE), '[REQ AC-5] page does not show "Transfer Complete!"').toBe(false);
+          |                                                                                                                  ^
+      276 |       });
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+      278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:275:114
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:274:7
+
+    Error: [REQ AC-5] GET /accounts/<A> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 415.5
+    Received: 425.5
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      276 |       });
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+    > 278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+          |                                                                                                ^
+      279 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+      280 |       });
+      281 |     });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:278:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:277:7
+
+    Error: [REQ AC-5] GET /accounts/<B> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 100
+    Received: 90
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+      278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+    > 279 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+          |                                                                                                ^
+      280 |       });
+      281 |     });
+      282 |   });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:279:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:277:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-transfer-10-00-from-a-to-b (text/yaml) ──────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I transfer -10.00 from A to B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About U...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-is-refused-the-page-does-not-show-transfer (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] page does not show "Transfer Complete!"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      273 |       await journey.step(`When I transfer ${amount} from A to B`, () => fillTransfer(page, amount, c.A, c.B));
+      274 |       await journey.step('Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation', async () => {
+    > 275 |         expect.soft(await appears(page, REQ.AC5.COMPLETE), '[REQ AC-5] page does not show "Transfer Complete!"').toBe(false);
+          |                                                                                                                  ^
+      276 |       });
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+      278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:275:114
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:274:7
+
+    Error: [REQ AC-5] GET /accounts/<A> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 415.5
+    Received: 425.5
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      276 |       });
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+    > 278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+          |                                                                                                ^
+      279 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+      280 |       });
+      281 |     });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:278:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:277:7
+
+    Error: [REQ AC-5] GET /accounts/<B> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 100
+    Received: 90
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      277 |       await journey.step('And the balances of A and B do not change', async () => {
+      278 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+    > 279 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+          |                                                                                                ^
+      280 |       });
+      281 |     });
+      282 |   });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:279:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:277:7
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-transfer-10-00-from-a-to-b (text/yaml) ──────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I transfer -10.00 from A to B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About U...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-transfer-is-refused-the-page-does-not-show-transfer (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the transfer is refused (the page does not show "Transfer Complete!") — bounded 5 s wait for the confirmation
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 06-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-006.1: A zero or negative amount is refused by the REST service (0)" classname="PB-3\tests\pb-3.spec.ts" time="6.706">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] POST /transfer does not answer with the success confirmation" type="expect.not.toMatch">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:285:5 › PB-3 Transfer funds between my own accounts › SCN-006.1: A zero or negative amount is refused by the REST service (0) @AC-5 @type:boundary @layer:api @P1 › Then the transfer is refused (the service does not answer with the success confirmation of AC-2) 
+
+    Error: [REQ AC-5] POST /transfer does not answer with the success confirmation
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /^\s*Successfully transferred/
+    Received string:      "Successfully transferred $0 from account #46200 to account #46422"
+
+      291 |       await journey.step(`When the service is called with fromAccountId A, toAccountId B and amount ${amount}`, async () => { res = await transfer(api, c.A, c.B, amount); });
+      292 |       await journey.step('Then the transfer is refused (the service does not answer with the success confirmation of AC-2)', async () => {
+    > 293 |         expect.soft(res.text, '[REQ AC-5] POST /transfer does not answer with the success confirmation').not.toMatch(REQ.AC5.SUCCESS_PREFIX);
+          |                                                                                                              ^
+      294 |       });
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+      296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:293:110)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:292:7
+
+    attachment #1: aria-snapshot 01-given-a-newly-registered-customer-who-owns-accounts-a-and-b (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - l...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 03-when-the-service-is-called-with-fromaccountid-a-toaccountid- (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: When the service is called with fromAccountId A, toAccountId B and amount 0
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 04-then-the-transfer-is-refused-the-service-does-not-answer-wit (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Then the transfer is refused (the service does not answer with the success confirmation of AC-2)
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 05-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - lin...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] POST /transfer does not answer with the success confirmation
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /^\s*Successfully transferred/
+    Received string:      "Successfully transferred $0 from account #46533 to account #46644"
+
+      291 |       await journey.step(`When the service is called with fromAccountId A, toAccountId B and amount ${amount}`, async () => { res = await transfer(api, c.A, c.B, amount); });
+      292 |       await journey.step('Then the transfer is refused (the service does not answer with the success confirmation of AC-2)', async () => {
+    > 293 |         expect.soft(res.text, '[REQ AC-5] POST /transfer does not answer with the success confirmation').not.toMatch(REQ.AC5.SUCCESS_PREFIX);
+          |                                                                                                              ^
+      294 |       });
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+      296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:293:110)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:292:7
+
+    attachment #1: aria-snapshot 01-given-a-newly-registered-customer-who-owns-accounts-a-and-b (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - l...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 03-when-the-service-is-called-with-fromaccountid-a-toaccountid- (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: When the service is called with fromAccountId A, toAccountId B and amount 0
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 04-then-the-transfer-is-refused-the-service-does-not-answer-wit (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Then the transfer is refused (the service does not answer with the success confirmation of AC-2)
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 05-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - lin...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-006.2: A zero or negative amount is refused by the REST service (-10.00)" classname="PB-3\tests\pb-3.spec.ts" time="6.673">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] POST /transfer does not answer with the success confirmation" type="expect.not.toMatch">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:285:5 › PB-3 Transfer funds between my own accounts › SCN-006.2: A zero or negative amount is refused by the REST service (-10.00) @AC-5 @type:boundary @layer:api @P1 
+
+    Error: [REQ AC-5] POST /transfer does not answer with the success confirmation
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /^\s*Successfully transferred/
+    Received string:      "Successfully transferred $-10.00 from account #46755 to account #46866"
+
+      291 |       await journey.step(`When the service is called with fromAccountId A, toAccountId B and amount ${amount}`, async () => { res = await transfer(api, c.A, c.B, amount); });
+      292 |       await journey.step('Then the transfer is refused (the service does not answer with the success confirmation of AC-2)', async () => {
+    > 293 |         expect.soft(res.text, '[REQ AC-5] POST /transfer does not answer with the success confirmation').not.toMatch(REQ.AC5.SUCCESS_PREFIX);
+          |                                                                                                              ^
+      294 |       });
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+      296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:293:110)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:292:7
+
+    Error: [REQ AC-5] GET /accounts/<A> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 415.5
+    Received: 425.5
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      294 |       });
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+    > 296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+          |                                                                                                ^
+      297 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+      298 |       });
+      299 |     });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:296:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:295:7
+
+    Error: [REQ AC-5] GET /accounts/<B> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 100
+    Received: 90
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+      296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+    > 297 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+          |                                                                                                ^
+      298 |       });
+      299 |     });
+      300 |   });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:297:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:295:7
+
+    attachment #1: aria-snapshot 01-given-a-newly-registered-customer-who-owns-accounts-a-and-b (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - l...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 03-when-the-service-is-called-with-fromaccountid-a-toaccountid- (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: When the service is called with fromAccountId A, toAccountId B and amount -10.00
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - list...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 04-then-the-transfer-is-refused-the-service-does-not-answer-wit (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Then the transfer is refused (the service does not answer with the success confirmation of AC-2)
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 05-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - lin...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] POST /transfer does not answer with the success confirmation
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /^\s*Successfully transferred/
+    Received string:      "Successfully transferred $-10.00 from account #46977 to account #47088"
+
+      291 |       await journey.step(`When the service is called with fromAccountId A, toAccountId B and amount ${amount}`, async () => { res = await transfer(api, c.A, c.B, amount); });
+      292 |       await journey.step('Then the transfer is refused (the service does not answer with the success confirmation of AC-2)', async () => {
+    > 293 |         expect.soft(res.text, '[REQ AC-5] POST /transfer does not answer with the success confirmation').not.toMatch(REQ.AC5.SUCCESS_PREFIX);
+          |                                                                                                              ^
+      294 |       });
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+      296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+        at body (D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:293:110)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:292:7
+
+    Error: [REQ AC-5] GET /accounts/<A> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 415.5
+    Received: 425.5
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      294 |       });
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+    > 296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+          |                                                                                                ^
+      297 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+      298 |       });
+      299 |     });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:296:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:295:7
+
+    Error: [REQ AC-5] GET /accounts/<B> balance unchanged
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 100
+    Received: 90
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   10
+
+      295 |       await journey.step('And the balances of A and B do not change', async () => {
+      296 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);
+    > 297 |         expect.soft(await balance(api, c.B), '[REQ AC-5] GET /accounts/<B> balance unchanged').toBeCloseTo(b0, 2);
+          |                                                                                                ^
+      298 |       });
+      299 |     });
+      300 |   });
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:297:96
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:295:7
+
+    attachment #1: aria-snapshot 01-given-a-newly-registered-customer-who-owns-accounts-a-and-b (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - l...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balances-of-a-and-b-are-read-with-get-accounts-accou (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B are read with GET /accounts/{accountId}
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutio...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 03-when-the-service-is-called-with-fromaccountid-a-toaccountid- (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: When the service is called with fromAccountId A, toAccountId B and amount -10.00
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - list...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 04-then-the-transfer-is-refused-the-service-does-not-answer-wit (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Then the transfer is refused (the service does not answer with the success confirmation of AC-2)
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 05-and-the-balances-of-a-and-b-do-not-change (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balances of A and B do not change
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - lin...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-007: The REST service completes a transfer of 1000.00, more than the balance of A" classname="PB-3\tests\pb-3.spec.ts" time="3.353">
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-008: The Transfer Funds page completes a transfer of 1000.00, more than the balance of A" classname="PB-3\tests\pb-3.spec.ts" time="71.31">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="Test timeout of 60000ms exceeded." type="Error">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:324:3 › PB-3 Transfer funds between my own accounts › SCN-008: The Transfer Funds page completes a transfer of 1000.00, more than the balance of A @AC-6 @type:boundary @layer:e2e @P1 
+
+    Test timeout of 60000ms exceeded.
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-a-newly-registered-customer-who-owns (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: Given I am signed in as a newly registered customer who owns accounts A and B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listite...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 02-and-the-balance-of-a-is-lower-than-1000-00 (text/yaml) ─────────
+    # url: https://parabank.parasoft.com/parabank/openaccount.htm
+    # step: And the balance of A is lower than 1000.00
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - li...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 03-and-i-am-on-the-transfer-funds-page (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: And I am on the Transfer Funds page
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 04-when-i-transfer-1000-00-from-a-to-b (text/yaml) ────────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: When I transfer 1000.00 from A to B
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "About ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 05-then-the-page-shows-transfer-complete (text/yaml) ──────────────
+    # url: https://parabank.parasoft.com/parabank/transfer.htm
+    # step: Then the page shows "Transfer Complete!"
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the difference
+    - list:
+      - listitem: Solutions
+      - listitem:
+        - link "A...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [SEED] customer who owns accounts A and B (register + Open New Account): precondition could not be established — locator.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[id="customer.firstName"]')
+
+
+       at ..\heldout-support\fixtures.ts:240
+
+      238 |       } catch (err) {
+      239 |         rec.error = (err as Error).message.split('\n')[0];
+    > 240 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      241 |       }
+      242 |     };
+      243 |     await use({
+        at pre (D:\projects\hldout-skill\heldout-support\fixtures.ts:240:15)
+        at Object.create (D:\projects\hldout-skill\heldout-support\fixtures.ts:247:25)
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:327:123
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:327:5
+
+    attachment #1: aria-snapshot 01-failed-given-i-am-signed-in-as-a-newly-registered-customer-w (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/register.htm
+    # step: FAILED Given I am signed in as a newly registered customer who owns accounts A and B
+    - banner:
+      - heading "Error 1015" [level=1]
+      - text: "Ray ID: a41a939fda57c62c • 2026-09-27 12:40:24 UTC"
+      - heading "You are being rate limited"...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-88c42--more-than-the-balance-of-A-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="PB-3 Transfer funds between my own accounts › SCN-009: The REST service refuses an unknown destination account" classname="PB-3\tests\pb-3.spec.ts" time="21.918">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="[SEED] customer who owns accounts A and B (register + Open New Account): precondition could not be established — locator.fill: Timeout 10000ms exceeded." type="Error">
+<![CDATA[  [chromium] › PB-3\tests\pb-3.spec.ts:345:3 › PB-3 Transfer funds between my own accounts › SCN-009: The REST service refuses an unknown destination account @AC-7 @type:negative @layer:api @P2 › Given a newly registered customer who owns account A › [SEED] customer who owns accounts A and B (register + Open New Account) 
+
+    Error: [SEED] customer who owns accounts A and B (register + Open New Account): precondition could not be established — locator.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[id="customer.firstName"]')
+
+
+       at ..\heldout-support\fixtures.ts:240
+
+      238 |       } catch (err) {
+      239 |         rec.error = (err as Error).message.split('\n')[0];
+    > 240 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      241 |       }
+      242 |     };
+      243 |     await use({
+        at pre (D:\projects\hldout-skill\heldout-support\fixtures.ts:240:15)
+        at Object.create (D:\projects\hldout-skill\heldout-support\fixtures.ts:247:25)
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:349:98
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:349:5
+
+    attachment #1: aria-snapshot 01-failed-given-a-newly-registered-customer-who-owns-account-a (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/register.htm
+    # step: FAILED Given a newly registered customer who owns account A
+    - banner:
+      - heading "Error 1015" [level=1]
+      - text: "Ray ID: a41a93eb194f2142 • 2026-09-27 12:40:36 UTC"
+      - heading "You are being rate limited" [level=2]
+    - heading "Wha...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [SEED] customer who owns accounts A and B (register + Open New Account): precondition could not be established — locator.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[id="customer.firstName"]')
+
+
+       at ..\heldout-support\fixtures.ts:240
+
+      238 |       } catch (err) {
+      239 |         rec.error = (err as Error).message.split('\n')[0];
+    > 240 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      241 |       }
+      242 |     };
+      243 |     await use({
+        at pre (D:\projects\hldout-skill\heldout-support\fixtures.ts:240:15)
+        at Object.create (D:\projects\hldout-skill\heldout-support\fixtures.ts:247:25)
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:349:98
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:28
+        at D:\projects\hldout-skill\evaluations\PB-3\tests\pb-3.spec.ts:349:5
+
+    attachment #1: aria-snapshot 01-failed-given-a-newly-registered-customer-who-owns-account-a (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/register.htm
+    # step: FAILED Given a newly registered customer who owns account A
+    - banner:
+      - heading "Error 1015" [level=1]
+      - text: "Ray ID: a41a943b3b87df3f • 2026-09-27 12:40:49 UTC"
+      - heading "You are being rate limited" [level=2]
+    - heading "Wha...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-3\runs\01-harden\artifacts\PB-3-tests-pb-3-PB-3-Trans-8d0be-unknown-destination-account-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+</testsuite>
+</testsuites>

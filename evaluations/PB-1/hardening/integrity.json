@@ -1,0 +1,17 @@
+{
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-27T06:03:44.351Z",
+  "files": [
+    {
+      "file": "pb-1.spec.ts",
+      "draftAssertions": 42,
+      "currentAssertions": 42
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": []
+}

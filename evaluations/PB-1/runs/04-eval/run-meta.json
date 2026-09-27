@@ -1,0 +1,81 @@
+{
+  "key": "PB-1",
+  "run": "04-eval",
+  "label": "eval",
+  "startedAt": "2026-09-27T05:56:44.163Z",
+  "finishedAt": "2026-09-27T05:58:40.586Z",
+  "autId": "parabank",
+  "aut": {
+    "name": "ParaBank (Parasoft demo bank, UI + REST)",
+    "baseURL": "https://parabank.parasoft.com/parabank/",
+    "apiBaseURL": "https://parabank.parasoft.com/parabank/services/bank/"
+  },
+  "command": "npx playwright test evaluations/PB-1/tests/ --workers 1",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://parabank.parasoft.com/parabank/index.htm",
+        "ok": true,
+        "status": 200,
+        "ms": 365,
+        "samples": [
+          365,
+          323,
+          271
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://parabank.parasoft.com/parabank/services/bank/openapi.yaml",
+        "ok": true,
+        "status": 200,
+        "ms": 284,
+        "samples": [
+          284,
+          259,
+          141
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://parabank.parasoft.com/parabank/index.htm",
+        "ok": true,
+        "status": 200,
+        "ms": 304,
+        "samples": [
+          304,
+          293,
+          131
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://parabank.parasoft.com/parabank/services/bank/openapi.yaml",
+        "ok": true,
+        "status": 200,
+        "ms": 283,
+        "samples": [
+          283,
+          216,
+          280
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-27T05:56:45.343Z",
+    "duration": 114269.727,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 1
+  }
+}

@@ -1,0 +1,1103 @@
+{
+  "id": "10001",
+  "key": "DQ-1",
+  "self": "https://your-domain.atlassian.net/rest/api/3/issue/DQ-1",
+  "fields": {
+    "summary": "Book Store accounts - create a user, get a token, sign in and sign out",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [],
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "As a",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " reader of the Book Store"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "I want",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " an account I can create through the Book Store API and use to sign in on the web site"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "so that",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " I can keep a personal book collection."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Context"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "The Book Store (web site at "
+            },
+            {
+              "type": "text",
+              "text": "/login",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " and "
+            },
+            {
+              "type": "text",
+              "text": "/profile",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", API under "
+            },
+            {
+              "type": "text",
+              "text": "/Account/v1",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", documented in the Swagger UI at "
+            },
+            {
+              "type": "text",
+              "text": "/swagger/",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ")"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "lets a client create a user account, request an access token for it and check whether the account is authorized."
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "The same account is used to sign in on the web site, where the profile page greets the user by name."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Wrong credentials must be handled cleanly on both the web site and the API, and the password policy must be enforced"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "when an account is created."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Accounts and data"
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Accounts are created through the API ("
+                    },
+                    {
+                      "type": "text",
+                      "text": "POST /Account/v1/User",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ") with a unique user name per run"
+                    },
+                    {
+                      "type": "text",
+                      "text": " "
+                    },
+                    {
+                      "type": "text",
+                      "text": "(for example "
+                    },
+                    {
+                      "type": "text",
+                      "text": "qa-<timestamp>",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "), and removed afterwards with "
+                    },
+                    {
+                      "type": "text",
+                      "text": "DELETE /Account/v1/User/{UUID}",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The password for these accounts is taken from the environment variable "
+                    },
+                    {
+                      "type": "text",
+                      "text": "DQ_USER_PASSWORD",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " "
+                    },
+                    {
+                      "type": "text",
+                      "text": "(it satisfies the password policy below). Never hard-code a password."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Password policy: at least 8 characters, with at least one uppercase letter, one lowercase letter, one digit and"
+                    },
+                    {
+                      "type": "text",
+                      "text": " "
+                    },
+                    {
+                      "type": "text",
+                      "text": "one special (non-alphanumeric) character."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "The acceptance criteria are maintained in the "
+            },
+            {
+              "type": "text",
+              "text": "Acceptance Criteria",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " field of this ticket."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Out of scope"
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The \"New User\" registration form on the web site."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Password change / reset."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "attachment": [],
+    "comment": {
+      "comments": [
+        {
+          "id": "30000",
+          "author": {
+            "displayName": "Maya Lindqvist (Product Owner)"
+          },
+          "body": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Clarification on AC-6 after the security review with the platform team: a refused token request has to be recognisable at the HTTP level too, not only from the body. So "
+                  },
+                  {
+                    "type": "text",
+                    "text": "POST /Account/v1/GenerateToken",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " with a wrong password (or an unknown user name) must answer "
+                  },
+                  {
+                    "type": "text",
+                    "text": "401 Unauthorized",
+                    "marks": [
+                      {
+                        "type": "strong"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "; the body stays as described in AC-6 ("
+                  },
+                  {
+                    "type": "text",
+                    "text": "token",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "/"
+                  },
+                  {
+                    "type": "text",
+                    "text": "expires",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " null, "
+                  },
+                  {
+                    "type": "text",
+                    "text": "status",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " \"Failed\", "
+                  },
+                  {
+                    "type": "text",
+                    "text": "result",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " \"User authorization failed.\")."
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "This applies to GenerateToken only - AC-8 (Authorized) stays as written."
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Reminder: the registration form on the web site is not part of this story, accounts for sign-in are always created through the API."
+                  }
+                ]
+              }
+            ]
+          },
+          "created": "2026-09-26T20:31:46.006Z"
+        }
+      ],
+      "total": 1
+    },
+    "customfield_10035": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-1 (API) Creating a user with "
+            },
+            {
+              "type": "text",
+              "text": "POST /Account/v1/User",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " and a JSON body "
+            },
+            {
+              "type": "text",
+              "text": "{ \"userName\", \"password\" }",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " whose password satisfies the policy returns "
+            },
+            {
+              "type": "text",
+              "text": "201 Created",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ". The body contains the new user's id ("
+            },
+            {
+              "type": "text",
+              "text": "userID",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", a UUID), "
+            },
+            {
+              "type": "text",
+              "text": "username",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " equal to the requested user name, and an empty "
+            },
+            {
+              "type": "text",
+              "text": "books",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " list."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-2 (API) A password that does not satisfy the policy (too short, or missing an uppercase letter, a lowercase letter, a digit or a special character) is rejected with "
+            },
+            {
+              "type": "text",
+              "text": "400",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", error "
+            },
+            {
+              "type": "text",
+              "text": "code",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " \"1300\" and the message \"Passwords must have at least one non alphanumeric character, one digit ('0'-'9'), one uppercase ('A'-'Z'), one lowercase ('a'-'z'), one special character and Password must be eight characters or longer.\" No account is created (a token cannot be obtained for it)."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-3 (API) Creating a user whose user name already exists is rejected with "
+            },
+            {
+              "type": "text",
+              "text": "406",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", error "
+            },
+            {
+              "type": "text",
+              "text": "code",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " \"1204\" and the message \"User exists!\"."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-4 (API) Creating a user without a user name or without a password is rejected with "
+            },
+            {
+              "type": "text",
+              "text": "400",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", error "
+            },
+            {
+              "type": "text",
+              "text": "code",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " \"1200\" and the message \"UserName and Password required.\""
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-5 (API) "
+            },
+            {
+              "type": "text",
+              "text": "POST /Account/v1/GenerateToken",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " with the correct user name and password returns "
+            },
+            {
+              "type": "text",
+              "text": "200",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " with a non-empty "
+            },
+            {
+              "type": "text",
+              "text": "token",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", "
+            },
+            {
+              "type": "text",
+              "text": "status",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " \"Success\", "
+            },
+            {
+              "type": "text",
+              "text": "result",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " \"User authorized successfully.\" and an "
+            },
+            {
+              "type": "text",
+              "text": "expires",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " timestamp 7 days after the moment the token was issued."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-6 (API) "
+            },
+            {
+              "type": "text",
+              "text": "POST /Account/v1/GenerateToken",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " with a wrong password issues no token: "
+            },
+            {
+              "type": "text",
+              "text": "token",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " and "
+            },
+            {
+              "type": "text",
+              "text": "expires",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " are null, "
+            },
+            {
+              "type": "text",
+              "text": "status",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " is \"Failed\" and "
+            },
+            {
+              "type": "text",
+              "text": "result",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " is \"User authorization failed.\""
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-7 (API, security) The token must not disclose the user's password: decoding the token (a JWT) must not reveal the password in any part of it."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-8 (API) "
+            },
+            {
+              "type": "text",
+              "text": "POST /Account/v1/Authorized",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " with "
+            },
+            {
+              "type": "text",
+              "text": "{ \"userName\", \"password\" }",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " returns "
+            },
+            {
+              "type": "text",
+              "text": "false",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " for a newly created user who has not been issued a token yet, and "
+            },
+            {
+              "type": "text",
+              "text": "true",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " once a token has been generated for that user. With a wrong password it never returns "
+            },
+            {
+              "type": "text",
+              "text": "true",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "; it answers with the message \"User not found!\"."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-9 (UI + API) On the login page ("
+            },
+            {
+              "type": "text",
+              "text": "/login",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "), signing in with an account created through the API opens the profile page ("
+            },
+            {
+              "type": "text",
+              "text": "/profile",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "), which shows \"User Name :\" followed by that user's name. After this sign-in, "
+            },
+            {
+              "type": "text",
+              "text": "POST /Account/v1/Authorized",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " returns "
+            },
+            {
+              "type": "text",
+              "text": "true",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " for the account."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-10 (UI) Signing in with a wrong password keeps the user on the login page and shows the message \"Invalid username or password!\" in red below the form."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-11 (UI) Clicking \"Login\" with an empty user name and an empty password does not sign in; both fields are highlighted as invalid."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-12 (UI) Clicking \"Logout\" on the profile page signs the user out and returns to the login page. Opening "
+            },
+            {
+              "type": "text",
+              "text": "/profile",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " afterwards no longer shows the user name and shows \"Currently you are not logged into the Book Store application, please visit the login page to enter or register page to register yourself.\""
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AC-13 (API) "
+            },
+            {
+              "type": "text",
+              "text": "DELETE /Account/v1/User/{UUID}",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ", authorized with the user's token, deletes the account and returns "
+            },
+            {
+              "type": "text",
+              "text": "204 No Content",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ". Afterwards "
+            },
+            {
+              "type": "text",
+              "text": "POST /Account/v1/GenerateToken",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " for that user name returns "
+            },
+            {
+              "type": "text",
+              "text": "status",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " \"Failed\"."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

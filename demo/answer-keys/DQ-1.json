@@ -18,7 +18,7 @@
       "origin": "genuine",
       "keywords": ["token", "password", "jwt", "payload", "plaintext"],
       "description": "AC-7 says the token must not disclose the user's password; the JWT payload issued by GenerateToken contains the password in clear text.",
-      "evidence": "GenerateToken 200 for a fresh user; base64url-decoding the 2nd JWT segment gives {\"userName\":\"qa-author-1790470246356\",\"password\":\"Qa!7xRv#29kL\",\"iat\":1790470252}. Reproduced 3 times with different users."
+      "evidence": "GenerateToken 200 for a fresh user; base64url-decoding the 2nd JWT segment gives {\"userName\":\"qa-author-1790470246356\",\"password\":\"<DQ_USER_PASSWORD>\",\"iat\":1790470252}. Reproduced 3 times with different users."
     }
   ],
   "seededScriptDefects": [],

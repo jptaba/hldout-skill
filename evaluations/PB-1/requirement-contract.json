@@ -1,0 +1,503 @@
+{
+  "key": "PB-1",
+  "title": "Customer registration and sign-in",
+  "revision": {
+    "story": "8da7a876747aa7ff",
+    "attachments": {}
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "user story, context (routes, REST base, test data, form fields), AC-1..AC-9, out of scope"
+    }
+  ],
+  "actors": [
+    "prospective ParaBank customer; partner apps authenticating through the banking REST service"
+  ],
+  "context": "ParaBank web app at /parabank/; registration page register.htm linked as \"Register\" under the Customer Login panel; sign-in through the Customer Login panel on the home page; REST service base /parabank/services/bank (XML unless Accept: application/json).",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "Submitting the registration form with every field empty keeps the customer on the form and shows a message next to each required field: \"First name is required.\", \"Last name is required.\", \"Address is required.\", \"City is required.\", \"State is required.\", \"Zip Code is required.\", \"Social Security Number is required.\", \"Username is required.\", \"Password is required.\", \"Password confirmation is required.\". No message is shown for Phone #.",
+      "source": "story.md#L32",
+      "text": "Submitting the registration form with every field empty keeps the customer on the form and shows a message next to each required field: \"First name is required.\", \"Last name is required.\", \"Address is required.\", \"City is required.\", \"State is required.\", \"Zip Code is required.\", \"Social Security Number is required.\", \"Username is required.\", \"Password is required.\", \"Password confirmation is required.\". No message is shown for Phone #.",
+      "layer": "ui",
+      "entryPoint": "registration page register.htm",
+      "needsData": false,
+      "outcomes": [
+        "the customer stays on the registration form",
+        "\"First name is required.\" next to First Name",
+        "\"Last name is required.\" next to Last Name",
+        "\"Address is required.\" next to Address",
+        "\"City is required.\" next to City",
+        "\"State is required.\" next to State",
+        "\"Zip Code is required.\" next to Zip Code",
+        "\"Social Security Number is required.\" next to SSN",
+        "\"Username is required.\" next to Username",
+        "\"Password is required.\" next to Password",
+        "\"Password confirmation is required.\" next to Confirm",
+        "no message is shown for Phone #"
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "When Password and Confirm differ, the form shows \"Passwords did not match.\" and no customer is created (the user name cannot sign in afterwards).",
+      "source": "story.md#L33",
+      "text": "When Password and Confirm differ, the form shows \"Passwords did not match.\" and no customer is created (the user name cannot sign in afterwards).",
+      "layer": "e2e",
+      "entryPoint": "registration page register.htm",
+      "needsData": false,
+      "endpoints": [
+        "GET /login/{username}/{password}"
+      ],
+      "outcomes": [
+        "the form shows \"Passwords did not match.\"",
+        "no customer is created: the user name cannot sign in afterwards"
+      ],
+      "gaps": [
+        "G3",
+        "G5"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "A complete, valid registration opens a page with the heading \"Welcome _&lt;username&gt;_\" and the text \"Your account was created successfully. You are now logged in.\" The customer is signed in: the left panel greets them with \"Welcome _&lt;first name&gt; &lt;last name&gt;_\" and shows the Account Services menu.",
+      "source": "story.md#L34",
+      "text": "A complete, valid registration opens a page with the heading Welcome <username> (source: \"Welcome _&lt;username&gt;_\") and the text \"Your account was created successfully. You are now logged in.\" The customer is signed in: the left panel greets them with Welcome <first name> <last name> (source: \"Welcome _&lt;first name&gt; &lt;last name&gt;_\") and shows the Account Services menu.",
+      "layer": "ui",
+      "entryPoint": "registration page register.htm",
+      "needsData": false,
+      "outcomes": [
+        "a page with the heading Welcome <username> (story: \"Welcome _&lt;username&gt;_\")",
+        "the text \"Your account was created successfully. You are now logged in.\"",
+        "the left panel greets the customer with Welcome <first name> <last name> (story: \"Welcome _&lt;first name&gt; &lt;last name&gt;_\")",
+        "the left panel shows the Account Services menu"
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "Registering again with a user name that is already taken shows \"This username already exists.\" next to Username and does not change the existing customer (a REST login of the existing customer still returns their original first and last name).",
+      "source": "story.md#L35",
+      "text": "Registering again with a user name that is already taken shows \"This username already exists.\" next to Username and does not change the existing customer (a REST login of the existing customer still returns their original first and last name).",
+      "layer": "e2e",
+      "entryPoint": "registration page register.htm",
+      "needsData": true,
+      "endpoints": [
+        "GET /login/{username}/{password}"
+      ],
+      "outcomes": [
+        "\"This username already exists.\" next to Username",
+        "a REST login of the existing customer still returns their original first and last name"
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "On the Customer Login panel, signing in with a wrong password shows an \"Error!\" page with \"The username and password could not be verified.\"; signing in with both fields empty shows \"Please enter a username and password.\"",
+      "source": "story.md#L36",
+      "text": "On the Customer Login panel, signing in with a wrong password shows an \"Error!\" page with \"The username and password could not be verified.\"; signing in with both fields empty shows \"Please enter a username and password.\"",
+      "layer": "ui",
+      "entryPoint": "home page, Customer Login panel",
+      "needsData": true,
+      "outcomes": [
+        "wrong password: an \"Error!\" page with \"The username and password could not be verified.\"",
+        "both fields empty: \"Please enter a username and password.\""
+      ],
+      "gaps": [
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "quote": "Signing in with the registered user name and password opens the Accounts Overview page, which lists at least one account for the new customer. \"Log Out\" returns to the home page with the Customer Login panel.",
+      "source": "story.md#L37",
+      "text": "Signing in with the registered user name and password opens the Accounts Overview page, which lists at least one account for the new customer. \"Log Out\" returns to the home page with the Customer Login panel.",
+      "layer": "ui",
+      "entryPoint": "home page, Customer Login panel",
+      "needsData": true,
+      "outcomes": [
+        "the Accounts Overview page opens",
+        "it lists at least one account for the new customer",
+        "\"Log Out\" returns to the home page with the Customer Login panel"
+      ],
+      "gaps": [
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "quote": "`GET /login/{username}/{password}` with valid credentials answers 200 and returns the customer: `id`, `firstName`, `lastName`, `address` (`street`, `city`, `state`, `zipCode`) and `phoneNumber`, equal to the values entered at registration. With `Accept: application/json` the body is JSON; without it, XML with a `customer` root element.",
+      "source": "story.md#L38",
+      "text": "GET /login/{username}/{password} with valid credentials answers 200 and returns the customer: id, firstName, lastName, address (street, city, state, zipCode) and phoneNumber, equal to the values entered at registration. With Accept: application/json the body is JSON; without it, XML with a customer root element.",
+      "layer": "api",
+      "needsData": true,
+      "endpoints": [
+        "GET /login/{username}/{password}"
+      ],
+      "outcomes": [
+        "200",
+        "the body contains the customer's id",
+        "firstName, lastName, address (street, city, state, zipCode) and phoneNumber equal the values entered at registration",
+        "with Accept: application/json the body is JSON",
+        "without Accept: application/json the body is XML with a customer root element"
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "quote": "`GET /login/{username}/{password}` with a wrong password answers 400 with the body \"Invalid username and/or password\".",
+      "source": "story.md#L39",
+      "text": "GET /login/{username}/{password} with a wrong password answers 400 with the body \"Invalid username and/or password\".",
+      "layer": "api",
+      "needsData": true,
+      "endpoints": [
+        "GET /login/{username}/{password}"
+      ],
+      "outcomes": [
+        "400",
+        "body \"Invalid username and/or password\""
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-9",
+      "quote": "End to end: for a customer registered through the page, `GET /customers/{id}` (id from the login response) returns the same customer, and `GET /customers/{id}/accounts` returns the account(s) whose numbers are shown in the Accounts Overview.",
+      "source": "story.md#L40",
+      "text": "End to end: for a customer registered through the page, GET /customers/{id} (id from the login response) returns the same customer, and GET /customers/{id}/accounts returns the account(s) whose numbers are shown in the Accounts Overview.",
+      "layer": "e2e",
+      "entryPoint": "registration page register.htm",
+      "needsData": false,
+      "endpoints": [
+        "GET /login/{username}/{password}",
+        "GET /customers/{id}",
+        "GET /customers/{id}/accounts"
+      ],
+      "outcomes": [
+        "GET /customers/{id} returns the same customer as the login response",
+        "GET /customers/{id}/accounts returns the account(s) whose numbers are shown in the Accounts Overview"
+      ],
+      "gaps": [
+        "G2",
+        "G3",
+        "G4",
+        "G6"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/login/{username}/{password}",
+      "source": "story.md#L38",
+      "success": "200",
+      "request": "Under the REST service base /parabank/services/bank. Credentials in the path. Send Accept: application/json for a JSON body; without it the response is XML (story.md#L24, L38)."
+    },
+    {
+      "method": "GET",
+      "path": "/customers/{id}",
+      "source": "story.md#L40",
+      "request": "Under the REST service base /parabank/services/bank; id from the login response. XML unless Accept: application/json (story.md#L24)."
+    },
+    {
+      "method": "GET",
+      "path": "/customers/{id}/accounts",
+      "source": "story.md#L40",
+      "request": "Under the REST service base /parabank/services/bank. XML unless Accept: application/json (story.md#L24)."
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "Registration form fields: First Name, Last Name, Address, City, State, Zip Code, Phone #, SSN, Username, Password, Confirm. Phone # is optional; all other fields are required.",
+      "source": "story.md#L26"
+    },
+    {
+      "id": "R2",
+      "text": "Every check starts by registering its own customer with a fresh, unique user name; the password comes from the environment variable PB_USER_PASSWORD (never hard-coded).",
+      "source": "story.md#L25"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "registration form submitted with every field empty (UI): one message per required field",
+      "body": "\"First name is required.\", \"Last name is required.\", \"Address is required.\", \"City is required.\", \"State is required.\", \"Zip Code is required.\", \"Social Security Number is required.\", \"Username is required.\", \"Password is required.\", \"Password confirmation is required.\"",
+      "source": "story.md#L32"
+    },
+    {
+      "id": "E2",
+      "case": "Password and Confirm differ (UI)",
+      "body": "Passwords did not match.",
+      "source": "story.md#L33"
+    },
+    {
+      "id": "E3",
+      "case": "registration with a user name that is already taken (UI, next to Username)",
+      "body": "This username already exists.",
+      "source": "story.md#L35"
+    },
+    {
+      "id": "E4",
+      "case": "Customer Login panel, wrong password (UI \"Error!\" page)",
+      "body": "The username and password could not be verified.",
+      "source": "story.md#L36"
+    },
+    {
+      "id": "E5",
+      "case": "Customer Login panel, both fields empty (UI)",
+      "body": "Please enter a username and password.",
+      "source": "story.md#L36"
+    },
+    {
+      "id": "E6",
+      "case": "REST GET /login/{username}/{password} with a wrong password",
+      "status": 400,
+      "body": "Invalid username and/or password",
+      "source": "story.md#L39"
+    }
+  ],
+  "auth": {
+    "mechanism": "UI: user name and password on the Customer Login panel of the home page. REST: user name and password in the path of GET /login/{username}/{password}.",
+    "credentials": "each check registers its own customer with a fresh, unique user name; password from the environment variable PB_USER_PASSWORD",
+    "source": "story.md#L23"
+  },
+  "testData": {
+    "strategy": "every check starts by registering its own customer with a fresh, unique user name (the shared demo database can be reset at any time)",
+    "constraints": [
+      "password from the environment variable PB_USER_PASSWORD, never hard-coded",
+      "a fresh, unique user name per check"
+    ],
+    "source": "story.md#L25"
+  },
+  "outOfScope": [
+    "Forgotten login lookup (lookup.htm)",
+    "profile updates",
+    "password rules beyond \"required\" and \"must match\""
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "how an API-layer check creates its customer: the story states that every check registers its own customer, but names only the registration page (register.htm), no REST registration endpoint",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-7",
+        "AC-8"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L25: every check registers its own customer; L23/L26: registration page and its fields; no REST endpoint for registration is named"
+        },
+        {
+          "where": "aut",
+          "result": "published API docs (openapi.yaml) list no customer-creation endpoint (only /customers/update/{customerId}, /createAccount for accounts); registration works through register.htm"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "Customers are created through the registration page register.htm (UI seed wrapped in seed.create); no REST registration endpoint exists. No customer-deletion endpoint exists, so registered customers cannot be cleaned up",
+      "evidence": "hardening/openapi.yaml; hardening/inspect-register-valid.md; hardening/api-chain-login.md"
+    },
+    {
+      "id": "G2",
+      "element": "Customer Login panel locators (user name and password field labels, sign-in button), Accounts Overview route and how its account numbers are shown",
+      "kind": "mechanics",
+      "required": false,
+      "affects": [
+        "AC-5",
+        "AC-6",
+        "AC-9"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L23 names the Customer Login panel on the home page; L37 names the Accounts Overview page and \"Log Out\"; no field labels, button label or route are given"
+        },
+        {
+          "where": "aut",
+          "result": "Customer Login panel inputs have no accessible names; located by input[name=username] / input[name=password]; submit button \"Log In\". After sign-in the browser lands on overview.htm; account numbers are links in #accountTable"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "Login panel: input[name=\"username\"], input[name=\"password\"], button \"Log In\"; Accounts Overview route overview.htm, heading \"Accounts Overview\"; account numbers: links in #accountTable tbody",
+      "evidence": "hardening/inspect-login-valid.md; hardening/inspect-login-empty.md; hardening/tier2/empty-forms.md"
+    },
+    {
+      "id": "G3",
+      "element": "exact page/control locators on register.htm (submit button label, where each field message is rendered) and the left-panel element for the greeting and Account Services menu",
+      "kind": "mechanics",
+      "required": false,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6",
+        "AC-9"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L23 gives the page register.htm and the \"Register\" link; L26 gives the field labels; no submit button label or message placement beyond \"next to each field\""
+        },
+        {
+          "where": "aut",
+          "result": "register.htm inputs have no accessible names (labels are table cells); ids customer.firstName … customer.password, repeatedPassword; button \"Register\"; each field message is rendered in the third cell of the field row; left panel shows \"Welcome <first> <last>\" text and heading \"Account Services\""
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "Inputs by id ([id=\"customer.firstName\"], … [id=\"customer.password\"], [id=\"repeatedPassword\"]); submit button \"Register\"; message = same table row as the field; greeting text + heading \"Account Services\" in the left panel",
+      "evidence": "hardening/inspect-register-empty.md; hardening/inspect-register-valid.md; hardening/inspect-register-mismatch.md; hardening/inspect-register-duplicate.md"
+    },
+    {
+      "id": "G4",
+      "element": "authentication for GET /customers/{id} and GET /customers/{id}/accounts: the story does not say whether these calls need credentials or how they are sent",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-9"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L24 gives the REST base and Accept header only; L40 names the endpoints with no auth scheme"
+        },
+        {
+          "where": "aut",
+          "result": "GET /customers/{id} and GET /customers/{id}/accounts answered 200 without credentials, cookies or headers (api-probe chain)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "No credentials are sent; both calls take only the customer id in the path",
+      "evidence": "hardening/api-chain-login.md"
+    },
+    {
+      "id": "G5",
+      "element": "how \"the user name cannot sign in afterwards\" is observed: the story does not state what GET /login/{username}/{password} (or the Customer Login panel) answers for a user name that was never created",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L33: \"no customer is created (the user name cannot sign in afterwards)\"; L39 states 400 only for a wrong password of an existing user; nothing for an unknown user name"
+        },
+        {
+          "where": "user",
+          "result": "not asked: non-interactive run"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "Sign-in fails: GET /login/{username}/{password} with that user name and the password used does not answer 200 with a customer. No specific status or message is asserted."
+    },
+    {
+      "id": "G6",
+      "element": "what \"returns the same customer\" and \"returns the account(s) whose numbers are shown\" compare: which customer fields, and whether the account set must be equal or only contain the shown numbers",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-9"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L40: \"returns the same customer\" and \"returns the account(s) whose numbers are shown in the Accounts Overview\"; no field list or set semantics stated"
+        },
+        {
+          "where": "user",
+          "result": "not asked: non-interactive run"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "GET /customers/{id} succeeds and its id, firstName, lastName, address (street, city, state, zipCode) and phoneNumber equal those of the login response (the fields AC-7 lists); the account ids returned by GET /customers/{id}/accounts are exactly the account numbers shown in the Accounts Overview."
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17-L19",
+      "as": "context",
+      "note": "user story: actor and goal; the REST authentication goal is made testable by AC-7 and AC-8"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "context, auth",
+      "note": "app root, registration page and link, Customer Login panel: entry points used by the UI ACs"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "endpoint",
+      "note": "REST base and Accept: application/json header noted in each endpoint's request"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "test-data, R2"
+    },
+    {
+      "lines": "story.md#L26",
+      "as": "R1"
+    },
+    {
+      "lines": "story.md#L30",
+      "as": "not-a-requirement",
+      "note": "table header row of the acceptance-criteria table"
+    },
+    {
+      "lines": "story.md#L32",
+      "as": "AC-1, E1"
+    },
+    {
+      "lines": "story.md#L33",
+      "as": "AC-2, E2, G5"
+    },
+    {
+      "lines": "story.md#L34",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L35",
+      "as": "AC-4, E3"
+    },
+    {
+      "lines": "story.md#L36",
+      "as": "AC-5, E4, E5"
+    },
+    {
+      "lines": "story.md#L37",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L38",
+      "as": "AC-7, endpoint"
+    },
+    {
+      "lines": "story.md#L39",
+      "as": "AC-8, E6"
+    },
+    {
+      "lines": "story.md#L40",
+      "as": "AC-9, endpoint, G6"
+    },
+    {
+      "lines": "story.md#L44",
+      "as": "out-of-scope"
+    }
+  ]
+}

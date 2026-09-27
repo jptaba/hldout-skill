@@ -1,0 +1,600 @@
+<testsuites id="" name="" tests="38" failures="6" skipped="0" errors="0" time="32.756292">
+<testsuite name="AE-2\tests\ae-2.spec.ts" timestamp="2026-09-27T06:04:49.332Z" hostname="chromium" tests="38" failures="6" skipped="0" time="45.323" errors="0">
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-001: The partner creates a customer with all required fields and a new e-mail" classname="AE-2\tests\ae-2.spec.ts" time="1.833">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-002: createAccount answers with the documented response envelope" classname="AE-2\tests\ae-2.spec.ts" time="1.832">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-003: A second account for an already registered e-mail is refused" classname="AE-2\tests\ae-2.spec.ts" time="0.982">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-004: An e-mail that differs from a registered one only in letter case is refused" classname="AE-2\tests\ae-2.spec.ts" time="2.574">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-3] e-mail differing only in case → responseCode 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-2\tests\ae-2.spec.ts:168:3 › AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-004: An e-mail that differs from a registered one only in letter case is refused @AC-3 @type:negative @layer:api @P1 › Then the responseCode is 400 
+
+    Error: [REQ AC-3] e-mail differing only in case → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      175 |     });
+      176 |     await journey.step('Then the responseCode is 400', async () => {
+    > 177 |       expect(res.body?.responseCode, '[REQ AC-3] e-mail differing only in case → responseCode 400').toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                                     ^
+      178 |     });
+      179 |     await journey.step('And the message is "Email already exists!"', async () => {
+      180 |       expect(res.body?.message, '[REQ AC-3] e-mail differing only in case → "Email already exists!"').toBe(REQ.MSG.EMAIL_EXISTS);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:177:101)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:176:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-3] e-mail differing only in case → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      175 |     });
+      176 |     await journey.step('Then the responseCode is 400', async () => {
+    > 177 |       expect(res.body?.responseCode, '[REQ AC-3] e-mail differing only in case → responseCode 400').toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                                     ^
+      178 |     });
+      179 |     await journey.step('And the message is "Email already exists!"', async () => {
+      180 |       expect(res.body?.message, '[REQ AC-3] e-mail differing only in case → "Email already exists!"').toBe(REQ.MSG.EMAIL_EXISTS);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:177:101)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:176:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.1: createAccount without a required field is refused and creates nothing (name)" classname="AE-2\tests\ae-2.spec.ts" time="0.788">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.2: createAccount without a required field is refused and creates nothing (email)" classname="AE-2\tests\ae-2.spec.ts" time="0.668">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.3: createAccount without a required field is refused and creates nothing (password)" classname="AE-2\tests\ae-2.spec.ts" time="0.52">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.4: createAccount without a required field is refused and creates nothing (firstname)" classname="AE-2\tests\ae-2.spec.ts" time="0.534">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.5: createAccount without a required field is refused and creates nothing (lastname)" classname="AE-2\tests\ae-2.spec.ts" time="0.515">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.6: createAccount without a required field is refused and creates nothing (address1)" classname="AE-2\tests\ae-2.spec.ts" time="0.786">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.7: createAccount without a required field is refused and creates nothing (country)" classname="AE-2\tests\ae-2.spec.ts" time="0.7">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.8: createAccount without a required field is refused and creates nothing (zipcode)" classname="AE-2\tests\ae-2.spec.ts" time="0.54">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.9: createAccount without a required field is refused and creates nothing (state)" classname="AE-2\tests\ae-2.spec.ts" time="0.525">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.10: createAccount without a required field is refused and creates nothing (city)" classname="AE-2\tests\ae-2.spec.ts" time="0.757">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-005.11: createAccount without a required field is refused and creates nothing (mobile_number)" classname="AE-2\tests\ae-2.spec.ts" time="0.505">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-006: createAccount with an e-mail that has no &quot;@&quot; is refused and creates nothing" classname="AE-2\tests\ae-2.spec.ts" time="1.826">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] e-mail without &quot;@&quot; → responseCode 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-2\tests\ae-2.spec.ts:211:3 › AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-006: createAccount with an e-mail that has no "@" is refused and creates nothing @AC-5 @type:negative @layer:api @P1 › Then the responseCode is 400 
+
+    Error: [REQ AC-5] e-mail without "@" → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      217 |     });
+      218 |     await journey.step('Then the responseCode is 400', async () => {
+    > 219 |       expect(res.body?.responseCode, '[REQ AC-5] e-mail without "@" → responseCode 400').toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                          ^
+      220 |     });
+      221 |     await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {
+      222 |       const g = await getUser(api, address);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:219:90)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:218:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] e-mail without "@" → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      217 |     });
+      218 |     await journey.step('Then the responseCode is 400', async () => {
+    > 219 |       expect(res.body?.responseCode, '[REQ AC-5] e-mail without "@" → responseCode 400').toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                          ^
+      220 |     });
+      221 |     await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {
+      222 |       const g = await getUser(api, address);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:219:90)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:218:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-007.1: createAccount with an e-mail that has an &quot;@&quot; but is still invalid is refused and creates nothing (no domain after the &quot;@&quot;)" classname="AE-2\tests\ae-2.spec.ts" time="1.673">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] invalid e-mail (no domain after the &quot;@&quot;) → responseCode 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-2\tests\ae-2.spec.ts:228:5 › AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-007.1: createAccount with an e-mail that has an "@" but is still invalid is refused and creates nothing (no domain after the "@") @AC-5 @type:boundary @layer:api @P2 › Then the responseCode is 400 
+
+    Error: [REQ AC-5] invalid e-mail (no domain after the "@") → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      237 |       });
+      238 |       await journey.step('Then the responseCode is 400', async () => {
+    > 239 |         expect(res.body?.responseCode, `[REQ AC-5] invalid e-mail (${shape}) → responseCode 400`).toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                                   ^
+      240 |       });
+      241 |       await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {
+      242 |         const g = await getUser(api, address);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:239:99)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:238:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] invalid e-mail (no domain after the "@") → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      237 |       });
+      238 |       await journey.step('Then the responseCode is 400', async () => {
+    > 239 |         expect(res.body?.responseCode, `[REQ AC-5] invalid e-mail (${shape}) → responseCode 400`).toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                                   ^
+      240 |       });
+      241 |       await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {
+      242 |         const g = await getUser(api, address);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:239:99)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:238:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-238db-othing-no-domain-after-the--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-007.2: createAccount with an e-mail that has an &quot;@&quot; but is still invalid is refused and creates nothing (no local part before the &quot;@&quot;)" classname="AE-2\tests\ae-2.spec.ts" time="2.428">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] invalid e-mail (no local part before the &quot;@&quot;) → responseCode 400" type="expect.toBe">
+<![CDATA[  [chromium] › AE-2\tests\ae-2.spec.ts:228:5 › AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-007.2: createAccount with an e-mail that has an "@" but is still invalid is refused and creates nothing (no local part before the "@") @AC-5 @type:boundary @layer:api @P2 › Then the responseCode is 400 
+
+    Error: [REQ AC-5] invalid e-mail (no local part before the "@") → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      237 |       });
+      238 |       await journey.step('Then the responseCode is 400', async () => {
+    > 239 |         expect(res.body?.responseCode, `[REQ AC-5] invalid e-mail (${shape}) → responseCode 400`).toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                                   ^
+      240 |       });
+      241 |       await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {
+      242 |         const g = await getUser(api, address);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:239:99)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:238:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] invalid e-mail (no local part before the "@") → responseCode 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 201
+
+      237 |       });
+      238 |       await journey.step('Then the responseCode is 400', async () => {
+    > 239 |         expect(res.body?.responseCode, `[REQ AC-5] invalid e-mail (${shape}) → responseCode 400`).toBe(REQ.CODE.BAD_REQUEST);
+          |                                                                                                   ^
+      240 |       });
+      241 |       await journey.step('And getUserDetailByEmail for that address answers responseCode 404', async () => {
+      242 |         const g = await getUser(api, address);
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:239:99)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:238:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-cd8e1-g-no-local-part-before-the--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-008: verifyLogin with a valid e-mail and password confirms the customer" classname="AE-2\tests\ae-2.spec.ts" time="1.209">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-009: verifyLogin with a wrong password is refused" classname="AE-2\tests\ae-2.spec.ts" time="1.035">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-010: verifyLogin with an unknown e-mail is refused" classname="AE-2\tests\ae-2.spec.ts" time="0.379">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-011.1: verifyLogin without the email parameter is refused" classname="AE-2\tests\ae-2.spec.ts" time="0.372">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-011.2: verifyLogin without the password parameter is refused" classname="AE-2\tests\ae-2.spec.ts" time="0.353">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-012: verifyLogin called with the DELETE method is not supported" classname="AE-2\tests\ae-2.spec.ts" time="0.359">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-013: getUserDetailByEmail returns a user object with every field of the contract" classname="AE-2\tests\ae-2.spec.ts" time="1.881">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] user object has every contract field" type="expect.toEqual">
+<![CDATA[  [chromium] › AE-2\tests\ae-2.spec.ts:324:3 › AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-013: getUserDetailByEmail returns a user object with every field of the contract @AC-7 @type:contract @layer:api @P1 › And the user object has the fields id, name, email, title, birth_day, birth_month, birth_year, first_name, last_name, company, address1, address2, country, state, city, zipcode, mobile_number 
+
+    Error: [REQ AC-7] user object has every contract field
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "user.mobile_number is missing",
+    + ]
+
+      331 |     await journey.step('And the user object has the fields id, name, email, title, birth_day, birth_month, birth_year, first_name, last_name, company, address1, address2, country, state, city, zipcode, mobile_number', async () => {
+      332 |       const present: Record<string, ShapeRule> = Object.fromEntries(REQ.USER_FIELDS.map((f) => [f, () => true]));
+    > 333 |       expect(checkShape(res.body?.user, present, 'user'), '[REQ AC-7] user object has every contract field').toEqual([]);
+          |                                                                                                              ^
+      334 |     });
+      335 |   });
+      336 |
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:333:110)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:331:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] user object has every contract field
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "user.mobile_number is missing",
+    + ]
+
+      331 |     await journey.step('And the user object has the fields id, name, email, title, birth_day, birth_month, birth_year, first_name, last_name, company, address1, address2, country, state, city, zipcode, mobile_number', async () => {
+      332 |       const present: Record<string, ShapeRule> = Object.fromEntries(REQ.USER_FIELDS.map((f) => [f, () => true]));
+    > 333 |       expect(checkShape(res.body?.user, present, 'user'), '[REQ AC-7] user object has every contract field').toEqual([]);
+          |                                                                                                              ^
+      334 |     });
+      335 |   });
+      336 |
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:333:110)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:331:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-014: getUserDetailByEmail returns the registration values of the same-named fields" classname="AE-2\tests\ae-2.spec.ts" time="1.881">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] user.mobile_number holds the registration value" type="expect.toBe">
+<![CDATA[  [chromium] › AE-2\tests\ae-2.spec.ts:337:3 › AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-014: getUserDetailByEmail returns the registration values of the same-named fields @AC-7 @type:functional @layer:api @P1 › And name, email, title, birth_month, birth_year, company, address1, address2, country, state, city, zipcode and mobile_number hold the registration values 
+
+    Error: [REQ AC-7] user.mobile_number holds the registration value
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "9800000000"
+    Received: "undefined"
+
+      345 |       const user = res.body?.user ?? {};
+      346 |       for (const f of REQ.SAME_NAMED_FIELDS) {
+    > 347 |         expect.soft(String(user[f]), `[REQ AC-7] user.${f} holds the registration value`).toBe(c.form[f]);
+          |                                                                                           ^
+      348 |       }
+      349 |     });
+      350 |   });
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:347:91)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:344:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] user.mobile_number holds the registration value
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "9800000000"
+    Received: "undefined"
+
+      345 |       const user = res.body?.user ?? {};
+      346 |       for (const f of REQ.SAME_NAMED_FIELDS) {
+    > 347 |         expect.soft(String(user[f]), `[REQ AC-7] user.${f} holds the registration value`).toBe(c.form[f]);
+          |                                                                                           ^
+      348 |       }
+      349 |     });
+      350 |   });
+        at body (D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:347:91)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\AE-2\tests\ae-2.spec.ts:344:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace AE-2\runs\01-harden\artifacts\AE-2-tests-ae-2-AE-2-Custo-02dd4-es-of-the-same-named-fields-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-015: getUserDetailByEmail returns the registration values of the renamed fields" classname="AE-2\tests\ae-2.spec.ts" time="1.147">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-016: getUserDetailByEmail never returns the password" classname="AE-2\tests\ae-2.spec.ts" time="1.078">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-017: getUserDetailByEmail for an unknown e-mail is refused" classname="AE-2\tests\ae-2.spec.ts" time="0.354">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-018: updateAccount changes only the fields sent" classname="AE-2\tests\ae-2.spec.ts" time="1.088">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-019: updateAccount with a wrong password is refused and changes nothing" classname="AE-2\tests\ae-2.spec.ts" time="1.063">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-020: deleteAccount with the correct credentials closes the account" classname="AE-2\tests\ae-2.spec.ts" time="1.277">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-021: deleteAccount with a wrong password is refused" classname="AE-2\tests\ae-2.spec.ts" time="0.742">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-022: After a refused deleteAccount the account remains usable" classname="AE-2\tests\ae-2.spec.ts" time="1.028">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-023: A customer created through the API signs in on the shop and sees their name" classname="AE-2\tests\ae-2.spec.ts" time="2.659">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-024: After a name change through updateAccount the shop header shows the new name" classname="AE-2\tests\ae-2.spec.ts" time="2.691">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-025: Shop sign-in with a wrong password is refused on the login page" classname="AE-2\tests\ae-2.spec.ts" time="2.205">
+</testcase>
+<testcase name="AE-2 Customer account lifecycle through the partner Account API, with shop sign-in › SCN-026: Shop sign-in for an account closed through deleteAccount is refused" classname="AE-2\tests\ae-2.spec.ts" time="2.536">
+</testcase>
+</testsuite>
+</testsuites>

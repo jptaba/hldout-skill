@@ -1,0 +1,1203 @@
+{
+  "key": "AE-2",
+  "verdict": "FAIL",
+  "reason": "3 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-5, AC-7. Awaiting reviewer confirmation.",
+  "finalRun": "03-eval",
+  "generatedAt": "2026-09-27T16:55:59.700Z",
+  "autId": "automation-exercise",
+  "aut": {
+    "name": "Automation Exercise (demo shop + practice API)",
+    "baseURL": "https://automationexercise.com",
+    "apiBaseURL": "https://automationexercise.com",
+    "testIdAttribute": "data-qa",
+    "healthcheck": [
+      "/",
+      "api:/api/productsList"
+    ],
+    "notes": "UI + form-encoded API under /api.",
+    "blockHosts": [
+      "googlesyndication.com",
+      "doubleclick.net",
+      "googleadservices.com",
+      "google-analytics.com",
+      "googletagmanager.com",
+      "fundingchoicesmessages.google.com",
+      "adservice.google.com"
+    ]
+  },
+  "summary": {
+    "total": 38,
+    "passed": 32,
+    "failed": 6,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "E-mail uniqueness is case-sensitive: an address differing only in letter case creates a second account",
+      "testType": "negative",
+      "source": "story.md#L32 (AC-3), account-api-contract.md §2.1 (email: compared case-insensitively)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-3"
+      ],
+      "tests": [
+        "SCN-004"
+      ],
+      "expected": "400",
+      "actual": "201",
+      "rationale": "AC-3 / contract §2.1 require e-mail uniqueness compared case-insensitively, refused with responseCode 400 'Email already exists!'. After creating hxconfirm.case.c1@example.com, createAccount with the upper-cased address answered responseCode 201 'User created!' and getUserDetailByEmail returns two distinct accounts (ids differ). Request well-formed (all required fields, declared endpoint); same behaviour in 3/3 hardening repeats and the eval run.",
+      "liveCheck": "Replayed live 2026-09-27 (tier 3, heldout api-probe --chain): evaluations/AE-2/runs/03-eval/confirm/case-and-email.md steps 1-4",
+      "steps": [
+        "Given a customer exists with a unique lower-case e-mail address",
+        "When the partner calls createAccount with the same e-mail address in upper case",
+        "Then the responseCode is 400",
+        "And the message is \"Email already exists!\""
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://automationexercise.com/api/createAccount",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": {
+            "name": "QA Customer jf39u7ta-2",
+            "email": "HXF39F540.MUJF39F6KJVH1@EXAMPLE.COM",
+            "password": "***redacted***",
+            "title": "Mrs",
+            "birth_date": "12",
+            "birth_month": "March",
+            "birth_year": "1991",
+            "firstname": "Asha",
+            "lastname": "Rao",
+            "company": "Acme QA",
+            "address1": "12 MG Road",
+            "address2": "Block B",
+            "country": "India",
+            "zipcode": "560001",
+            "state": "Karnataka",
+            "city": "Bengaluru",
+            "mobile_number": "9800000000"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 163,
+          "headers": {
+            "date": "Sun, 27 Sep 2026 06:08:04 GMT",
+            "content-type": "text/html; charset=utf-8",
+            "content-length": "49",
+            "connection": "keep-alive",
+            "vary": "Accept,Cookie",
+            "referrer-policy": "same-origin",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "allow": "OPTIONS, POST",
+            "x-powered-by": "Phusion Passenger(R) 6.1.8",
+            "status": "200 OK",
+            "server": "cloudflare",
+            "cf-cache-status": "DYNAMIC",
+            "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+            "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4V55d9rIxpfLzNxjWd00kWE9vgXufXGDYSPLjZLOP4WU35H1kL7DpbJOEvUnaoqHDKKCM%2FgAW9fsS%2Bf%2BZkXG39c4IWg2tokyE6kbKVATa5bG1ubnvtAKJ2lWoj9pMbKpFdZviREKgVCfNCJ8nr1LM8vR0j7u\"}]}",
+            "cf-ray": "a41854ed9dd7519b-EWR",
+            "alt-svc": "h3=\":443\"; ma=86400"
+          },
+          "body": {
+            "responseCode": 201,
+            "message": "User created!"
+          }
+        }
+      },
+      "screenshot": "evaluations/AE-2/runs/03-eval/artifacts/AE-2-tests-ae-2-AE-2-Custo-b5c52-y-in-letter-case-is-refused-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://automationexercise.com/api/createAccount",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "name": "QA Customer jf39u7ta-2",
+              "email": "HXF39F540.MUJF39F6KJVH1@EXAMPLE.COM",
+              "password": "***redacted***",
+              "title": "Mrs",
+              "birth_date": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "firstname": "Asha",
+              "lastname": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "zipcode": "560001",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "mobile_number": "9800000000"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 163,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:08:04 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "content-length": "49",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "OPTIONS, POST",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4V55d9rIxpfLzNxjWd00kWE9vgXufXGDYSPLjZLOP4WU35H1kL7DpbJOEvUnaoqHDKKCM%2FgAW9fsS%2Bf%2BZkXG39c4IWg2tokyE6kbKVATa5bG1ubnvtAKJ2lWoj9pMbKpFdZviREKgVCfNCJ8nr1LM8vR0j7u\"}]}",
+              "cf-ray": "a41854ed9dd7519b-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 201,
+              "message": "User created!"
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run AE-2 --label repro --grep \"SCN-004:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "createAccount accepts invalid e-mail addresses and creates the account",
+      "testType": "negative",
+      "source": "story.md#L34 (AC-5: \"for example it has no @\"), account-api-contract.md §2.1",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-5"
+      ],
+      "tests": [
+        "SCN-006",
+        "SCN-007.1",
+        "SCN-007.2"
+      ],
+      "expected": "400",
+      "actual": "201",
+      "rationale": "AC-5 / contract §2.1: an e-mail that is not a valid address (the AC's own example: no '@') must be refused with responseCode 400 and no account created. Live, createAccount answered responseCode 201 'User created!' for 'x.example.com' (no @), 'x@' (no domain) and '@x.example.com' (no local part), and getUserDetailByEmail finds the no-@ account. SCN-007 rows are @needs-clarification (shapes beyond the AC's example).",
+      "liveCheck": "Replayed live 2026-09-27 (tier 3, heldout api-probe --chain): evaluations/AE-2/runs/03-eval/confirm/case-and-email.md steps 5-8",
+      "steps": [
+        "Given a unique address without \"@\"",
+        "When the partner calls createAccount with all required fields and that address",
+        "Then the responseCode is 400",
+        "And getUserDetailByEmail for that address answers responseCode 404"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://automationexercise.com/api/createAccount",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": {
+            "name": "QA Customer jf3bgmg7-1",
+            "email": "hxf3bgk70.mujf3bgli2141.at.example.com",
+            "password": "***redacted***",
+            "title": "Mrs",
+            "birth_date": "12",
+            "birth_month": "March",
+            "birth_year": "1991",
+            "firstname": "Asha",
+            "lastname": "Rao",
+            "company": "Acme QA",
+            "address1": "12 MG Road",
+            "address2": "Block B",
+            "country": "India",
+            "zipcode": "560001",
+            "state": "Karnataka",
+            "city": "Bengaluru",
+            "mobile_number": "9800000000"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 329,
+          "headers": {
+            "date": "Sun, 27 Sep 2026 06:08:07 GMT",
+            "content-type": "text/html; charset=utf-8",
+            "content-length": "49",
+            "connection": "keep-alive",
+            "vary": "Accept,Cookie",
+            "referrer-policy": "same-origin",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "allow": "OPTIONS, POST",
+            "x-powered-by": "Phusion Passenger(R) 6.1.8",
+            "status": "200 OK",
+            "server": "cloudflare",
+            "cf-cache-status": "DYNAMIC",
+            "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+            "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=M28XcHMQHH%2FAvgqsXpdKdooBqJh4BlZigJUOrh45lOHj6lfADONJFUcMwLEwByg8Bc0Tuq7848CxFjXSlZunZQlVE2jfC5zv8xQR3HsP9EomOmeRNIVh3MnsbAWwjMkDnzAaKSWphXwsLN4PwjFMYwYKtUoY\"}]}",
+            "cf-ray": "a41854fbb9ee9608-EWR",
+            "alt-svc": "h3=\":443\"; ma=86400"
+          },
+          "body": {
+            "responseCode": 201,
+            "message": "User created!"
+          }
+        }
+      },
+      "screenshot": "evaluations/AE-2/runs/03-eval/artifacts/AE-2-tests-ae-2-AE-2-Custo-03816-refused-and-creates-nothing-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://automationexercise.com/api/createAccount",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "name": "QA Customer jf3bgmg7-1",
+              "email": "hxf3bgk70.mujf3bgli2141.at.example.com",
+              "password": "***redacted***",
+              "title": "Mrs",
+              "birth_date": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "firstname": "Asha",
+              "lastname": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "zipcode": "560001",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "mobile_number": "9800000000"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 329,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:08:07 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "content-length": "49",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "OPTIONS, POST",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=M28XcHMQHH%2FAvgqsXpdKdooBqJh4BlZigJUOrh45lOHj6lfADONJFUcMwLEwByg8Bc0Tuq7848CxFjXSlZunZQlVE2jfC5zv8xQR3HsP9EomOmeRNIVh3MnsbAWwjMkDnzAaKSWphXwsLN4PwjFMYwYKtUoY\"}]}",
+              "cf-ray": "a41854fbb9ee9608-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 201,
+              "message": "User created!"
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run AE-2 --label repro --grep \"SCN-006:\"",
+        "npm run heldout -- run AE-2 --label repro --grep \"SCN-007\\.1:\"",
+        "npm run heldout -- run AE-2 --label repro --grep \"SCN-007\\.2:\""
+      ]
+    },
+    {
+      "id": "APP-3",
+      "title": "getUserDetailByEmail omits mobile_number from the user object",
+      "testType": "contract",
+      "source": "story.md#L36 (AC-7), account-api-contract.md §2.3 (field list)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-7"
+      ],
+      "tests": [
+        "SCN-013",
+        "SCN-014"
+      ],
+      "expected": "[Array []]",
+      "actual": "[\"user.mobile_number is missing\"]",
+      "rationale": "AC-7 / contract §2.3 list mobile_number among the user object's fields, holding the registration value. The account was created with mobile_number=9800000000 (required field, accepted with 201), but the returned user object has no mobile_number key; all other 16 fields are present. SCN-014's failure is the same root cause (value read as undefined).",
+      "liveCheck": "Replayed live 2026-09-27 (tier 3, heldout api-probe --chain): evaluations/AE-2/runs/03-eval/confirm/case-and-email.md step 4 (user.mobile_number = undefined); evaluations/AE-2/hardening/api-lifecycle.md step 2 (full user object)",
+      "steps": [
+        "Given a customer exists with every registration field filled",
+        "When the partner calls getUserDetailByEmail with that e-mail",
+        "Then the responseCode is 200",
+        "And the user object has the fields id, name, email, title, birth_day, birth_month, birth_year, first_name, last_name, company, address1, address2, country, state, city, zipcode, mobile_number"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://automationexercise.com/api/getUserDetailByEmail?email=hxf3ese130.mujf3esfk5kk1%40example.com",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 154,
+          "headers": {
+            "date": "Sun, 27 Sep 2026 06:08:11 GMT",
+            "content-type": "text/html; charset=utf-8",
+            "transfer-encoding": "chunked",
+            "connection": "keep-alive",
+            "vary": "Accept,Cookie,Accept-Encoding",
+            "referrer-policy": "same-origin",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "allow": "PUT, POST, DELETE, OPTIONS, GET",
+            "x-powered-by": "Phusion Passenger(R) 6.1.8",
+            "status": "200 OK",
+            "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=U8UfL9V8n0Ztpge0mGt6%2BRq4uprHtHQ9qOEZsgz80JbdaSqqujDUGl7Lbe9KWUVZTbqdL0gO7CbGJTO5uPjEGgUZqaQ386lYOU4aZuSkzrBhNgiyGZxAN0Yg%2BL0NVXPNicgGb1cckQ4o7GRSdNYQhzRt5X7n\"}]}",
+            "server": "cloudflare",
+            "cf-cache-status": "DYNAMIC",
+            "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+            "content-encoding": "br",
+            "cf-ray": "a4185517bf1bfef2-EWR",
+            "alt-svc": "h3=\":443\"; ma=86400"
+          },
+          "body": {
+            "responseCode": 200,
+            "user": {
+              "id": 2937263,
+              "name": "QA Customer jf3esfqj-1",
+              "email": "hxf3ese130.mujf3esfk5kk1@example.com",
+              "title": "Mrs",
+              "birth_day": "12",
+              "birth_month": "March",
+              "birth_year": "1991",
+              "first_name": "Asha",
+              "last_name": "Rao",
+              "company": "Acme QA",
+              "address1": "12 MG Road",
+              "address2": "Block B",
+              "country": "India",
+              "state": "Karnataka",
+              "city": "Bengaluru",
+              "zipcode": "560001"
+            }
+          }
+        }
+      },
+      "screenshot": "evaluations/AE-2/runs/03-eval/artifacts/AE-2-tests-ae-2-AE-2-Custo-e3e65-every-field-of-the-contract-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://automationexercise.com/api/getUserDetailByEmail?email=hxf3ese130.mujf3esfk5kk1%40example.com",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 154,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 06:08:11 GMT",
+              "content-type": "text/html; charset=utf-8",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "vary": "Accept,Cookie,Accept-Encoding",
+              "referrer-policy": "same-origin",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "allow": "PUT, POST, DELETE, OPTIONS, GET",
+              "x-powered-by": "Phusion Passenger(R) 6.1.8",
+              "status": "200 OK",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=U8UfL9V8n0Ztpge0mGt6%2BRq4uprHtHQ9qOEZsgz80JbdaSqqujDUGl7Lbe9KWUVZTbqdL0gO7CbGJTO5uPjEGgUZqaQ386lYOU4aZuSkzrBhNgiyGZxAN0Yg%2BL0NVXPNicgGb1cckQ4o7GRSdNYQhzRt5X7n\"}]}",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "content-encoding": "br",
+              "cf-ray": "a4185517bf1bfef2-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "responseCode": 200,
+              "user": {
+                "id": 2937263,
+                "name": "QA Customer jf3esfqj-1",
+                "email": "hxf3ese130.mujf3esfk5kk1@example.com",
+                "title": "Mrs",
+                "birth_day": "12",
+                "birth_month": "March",
+                "birth_year": "1991",
+                "first_name": "Asha",
+                "last_name": "Rao",
+                "company": "Acme QA",
+                "address1": "12 MG Road",
+                "address2": "Block B",
+                "country": "India",
+                "state": "Karnataka",
+                "city": "Bengaluru",
+                "zipcode": "560001"
+              }
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run AE-2 --label repro --grep \"SCN-013:\"",
+        "npm run heldout -- run AE-2 --label repro --grep \"SCN-014:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 1,
+      "tests": 2,
+      "passed": 0,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-2"
+      ]
+    },
+    {
+      "type": "contract",
+      "scenarios": 3,
+      "tests": 3,
+      "passed": 2,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-3"
+      ]
+    },
+    {
+      "type": "functional",
+      "scenarios": 6,
+      "tests": 6,
+      "passed": 5,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-3"
+      ]
+    },
+    {
+      "type": "integration",
+      "scenarios": 2,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 13,
+      "tests": 24,
+      "passed": 22,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-1",
+        "APP-2"
+      ]
+    },
+    {
+      "type": "security",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "The system shall create a customer account when the partner calls createAccount with all required fields and an e-mail address not yet registered, answering responseCode 201 with the message \"User created!\".",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "The partner creates a customer with all required fields and a new e-mail",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L30 (AC-1), account-api-contract.md §2.1"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-002",
+          "title": "createAccount answers with the documented response envelope",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "account-api-contract.md §1.1 (R1), example §3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "The system shall refuse to create a second account for an e-mail address that is already registered, answering responseCode 400 with the message \"Email already exists!\".",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "A second account for an already registered e-mail is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L31 (AC-2), account-api-contract.md §2.1"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "The system shall treat e-mail addresses case-insensitively for uniqueness: registering an address that differs from an existing account's address only in letter case shall be refused exactly as in AC-2.",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "An e-mail that differs from a registered one only in letter case is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L32 (AC-3), account-api-contract.md §2.1 (email: compared case-insensitively)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "The system shall refuse createAccount when any required field of the contract is missing, answering responseCode 400 with the message naming the missing parameter, and shall not create the account.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "createAccount without a required field is refused and creates nothing",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L33 (AC-4), account-api-contract.md §2.1 (required fields, missing-field message)"
+          ],
+          "passed": 11,
+          "total": 11,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.3",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.4",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.5",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.6",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.7",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.8",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.9",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.10",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.11",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "The system shall refuse createAccount when the e-mail address is not a valid e-mail address (for example it has no \"@\"), answering responseCode 400, and shall not create the account.",
+      "scenarios": [
+        {
+          "id": "SCN-006",
+          "title": "createAccount with an e-mail that has no \"@\" is refused and creates nothing",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L34 (AC-5: \"for example it has no @\"), account-api-contract.md §2.1"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        },
+        {
+          "id": "SCN-007",
+          "title": "createAccount with an e-mail that has an \"@\" but is still invalid is refused and creates nothing",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md#L34 (AC-5: \"not a valid e-mail address\"), account-api-contract.md §2.1 (email: must be a valid e-mail address)"
+          ],
+          "passed": 0,
+          "total": 2,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-007.1",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-007.2",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "The system shall answer verifyLogin as the contract states: valid e-mail and password give responseCode 200 \"User exists!\"; a wrong password or an unknown e-mail give responseCode 404 \"User not found!\"; a missing e-mail or password gives responseCode 400 \"Bad request, email or password parameter is missing in POST request.\"; the DELETE method gives responseCode 405 \"This request method is not supported.\".",
+      "scenarios": [
+        {
+          "id": "SCN-008",
+          "title": "verifyLogin with a valid e-mail and password confirms the customer",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L35 (AC-6), account-api-contract.md §2.2"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-009",
+          "title": "verifyLogin with a wrong password is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L35 (AC-6), account-api-contract.md §2.2"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-010",
+          "title": "verifyLogin with an unknown e-mail is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L35 (AC-6), account-api-contract.md §2.2"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-011",
+          "title": "verifyLogin without the <missing> parameter is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L35 (AC-6), account-api-contract.md §2.2"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-011.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-012",
+          "title": "verifyLogin called with the DELETE method is not supported",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story.md#L35 (AC-6), account-api-contract.md §2.2 (Method DELETE used on /verifyLogin)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-012",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "The system shall return the customer's profile from getUserDetailByEmail with every field listed in the contract, holding the values given at registration, and shall never return the password; an unknown e-mail gives responseCode 404 \"Account not found with this email, try another email!\".",
+      "scenarios": [
+        {
+          "id": "SCN-013",
+          "title": "getUserDetailByEmail returns a user object with every field of the contract",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story.md#L36 (AC-7), account-api-contract.md §2.3 (field list)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-3"
+          ],
+          "tests": [
+            {
+              "id": "SCN-013",
+              "status": "failed",
+              "defect": "APP-3"
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "getUserDetailByEmail returns the registration values of the same-named fields",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L36 (AC-7: \"holding the values given at registration\"), account-api-contract.md §2.1, §2.3"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-3"
+          ],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "failed",
+              "defect": "APP-3"
+            }
+          ]
+        },
+        {
+          "id": "SCN-015",
+          "title": "getUserDetailByEmail returns the registration values of the renamed fields",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L36 (AC-7), account-api-contract.md §2.3 (\"some response names differ from the request names\"); mapping per G3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-015",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-016",
+          "title": "getUserDetailByEmail never returns the password",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md#L36 (AC-7: \"shall never return the password\"), account-api-contract.md §2.3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-016",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-017",
+          "title": "getUserDetailByEmail for an unknown e-mail is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L36 (AC-7), account-api-contract.md §2.3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-017",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "The system shall apply updateAccount as a partial update: with the correct e-mail and password, only the fields sent change (responseCode 200 \"User updated!\") and the change is visible through getUserDetailByEmail; with a wrong password the answer is responseCode 404 \"Account not found!\" and nothing changes.",
+      "scenarios": [
+        {
+          "id": "SCN-018",
+          "title": "updateAccount changes only the fields sent",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L37 (AC-8), account-api-contract.md §2.4 (partial update)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-018",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-019",
+          "title": "updateAccount with a wrong password is refused and changes nothing",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L37 (AC-8), account-api-contract.md §2.4"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-019",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-9",
+      "text": "The system shall close the account on deleteAccount with the correct e-mail and password (responseCode 200 \"Account deleted!\"), after which verifyLogin and getUserDetailByEmail answer 404 for that e-mail; with a wrong password the answer is responseCode 404 \"Account not found!\" and the account remains usable.",
+      "scenarios": [
+        {
+          "id": "SCN-020",
+          "title": "deleteAccount with the correct credentials closes the account",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L38 (AC-9), account-api-contract.md §2.5, §2.2, §2.3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-020",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-021",
+          "title": "deleteAccount with a wrong password is refused",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L38 (AC-9), account-api-contract.md §2.5"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-021",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-022",
+          "title": "After a refused deleteAccount the account remains usable",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L38 (AC-9: \"the account remains usable\"); reading per G4"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-022",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-10",
+      "text": "The system shall let a customer created through the API sign in on the shop's login page with the same e-mail and password; after sign-in the header shows \"Logged in as <name>\", where <name> is the account's current name (including a name changed through updateAccount).",
+      "scenarios": [
+        {
+          "id": "SCN-023",
+          "title": "A customer created through the API signs in on the shop and sees their name",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story.md#L17, #L25, #L39 (AC-10), account-api-contract.md §2.1 (name shown in the shop header)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-023",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-024",
+          "title": "After a name change through updateAccount the shop header shows the new name",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story.md#L39 (AC-10: \"including a name changed through updateAccount\")"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-024",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-11",
+      "text": "The system shall refuse shop sign-in with a wrong password, staying on the login page and showing \"Your email or password is incorrect!\".",
+      "scenarios": [
+        {
+          "id": "SCN-025",
+          "title": "Shop sign-in with a wrong password is refused on the login page",
+          "type": "negative",
+          "layer": "e2e",
+          "sources": [
+            "story.md#L25, #L40 (AC-11)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-025",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-12",
+      "text": "The system shall refuse shop sign-in for an account closed through deleteAccount, showing the same message as AC-11.",
+      "scenarios": [
+        {
+          "id": "SCN-026",
+          "title": "Shop sign-in for an account closed through deleteAccount is refused",
+          "type": "negative",
+          "layer": "e2e",
+          "sources": [
+            "story.md#L17, #L41 (AC-12)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-026",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "G5 — the contract states error answers that no acceptance criterion covers: getUserDetailByEmail without email (400 \"Bad request, email parameter is missing in GET request.\"), updateAccount without password (400 \"Bad request, password parameter is missing in PUT request.\"), deleteAccount without email or password (400 \"Bad request, <field> parameter is missing in DELETE request.\"). Are they in scope for this story?"
+  ],
+  "observations": [],
+  "verdictFile": "evaluations/AE-2/verdict.md"
+}

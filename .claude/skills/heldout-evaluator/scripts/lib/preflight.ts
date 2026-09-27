@@ -97,7 +97,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   }
   for (const ac of f.acs) {
     const covered = f.scenarios.some((s) => s.acs.includes(ac.id));
-    if (covered && !new RegExp(`\\[REQ [^\\]]*\\b${ac.id}\\b`).test(src)) err('ac-without-req-assertion', `${ac.id} has scenarios but no "[REQ ${ac.id}]" assertion in the spec`);
+    if (covered && !new RegExp(`\\[REQ [^\\]]*\\b${ac.id}\\b`).test(src)) err('ac-without-req-assertion', `${ac.id} has scenarios but no "[REQ ${ac.id}]" assertion in the spec — write the tag literally in each assertion message (a helper that builds it from a variable also hides the assertion from the integrity freeze)`);
   }
   const stubs = (src.match(/TODO\(scenario\)/g) ?? []).length + (fs.readFileSync(p.scenarios, 'utf8').match(/TODO\(scenario\)/g) ?? []).length;
   if (stubs) err('unfinished-scaffold', `${stubs} TODO(scenario) marker(s) from "heldout scaffold" remain in scenarios.feature / the spec — write the journeys and assertions`);

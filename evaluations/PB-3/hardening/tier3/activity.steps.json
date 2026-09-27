@@ -1,0 +1,32 @@
+[
+ {
+  "do": "goto",
+  "url": "index.htm"
+ },
+ {
+  "do": "fill",
+  "target": "locator('input[name=\"username\"]')",
+  "value": "pb3h512379"
+ },
+ {
+  "do": "fill",
+  "target": "locator('input[name=\"password\"]')",
+  "value": "${env:PB_USER_PASSWORD}"
+ },
+ {
+  "do": "click",
+  "target": "getByRole('button', { name: 'Log In' })"
+ },
+ {
+  "do": "wait",
+  "target": "getByRole('heading', { name: 'Accounts Overview' })"
+ },
+ {
+  "do": "goto",
+  "url": "activity.htm?id=39318"
+ },
+ {
+  "do": "wait",
+  "target": "locator('#transactionTable tbody tr')"
+ }
+]

@@ -1,0 +1,17 @@
+{
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-27T05:46:27.860Z",
+  "files": [
+    {
+      "file": "ae-1.spec.ts",
+      "draftAssertions": 18,
+      "currentAssertions": 18
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": []
+}

@@ -1,0 +1,28 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-27T00:00:00Z",
+  "contractHash": "73f953582794c513",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L30-L35", "note": "Quote, text, layer (ui) and outcomes all match the Gherkin scenario verbatim." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L37-L40", "note": "Quote and outcomes match; layer=api and endpoints (POST /transfer, GET /accounts/{accountId}) correctly cited." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L42-L46", "note": "Quote matches; layer=e2e is appropriate since it mixes a UI action with API and UI verification." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L48-L56", "note": "Both example rows (empty amount, 'abc') captured with exact messages; PO note (L91) about messages staying as written correctly cross-referenced." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L58-L66, story.md#L91", "note": "Both amounts (0, -10.00), 'page or service' phrasing, and the PO confirmation that refusal still applies are captured." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L68-L72 (original) superseded by story.md#L86-L89 (PO comment)", "note": "Correctly treats the PO comment as replacing the original scenario's 'refused/insufficient funds' outcome with 'completes, source goes negative, destination credited in full'; the conflict and resolution are recorded as gap G1 rather than silently picking one source." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "story.md#L74-L77", "note": "Status 400 and exact error text match; layer=api correct." },
+    { "ref": "R1", "verdict": "supported", "evidence": "story.md#L86, story.md#L88-L89", "note": "Overdraft-allowed rule, overdraft-agreement/end-of-day rationale, and 'replaces AC-6' all stated at the cited lines." },
+    { "ref": "R2", "verdict": "supported", "evidence": "story.md#L58-L66, story.md#L91", "note": "Zero/negative refusal and 'still applies after AC-6 change' both grounded." },
+    { "ref": "E1", "verdict": "supported", "evidence": "story.md#L55, story.md#L48-L51", "note": "Empty-amount message 'The amount cannot be empty.' matches the Examples table row exactly." },
+    { "ref": "E2", "verdict": "supported", "evidence": "story.md#L56, story.md#L48-L51", "note": "'abc' message 'Please enter a valid amount.' matches the Examples table row exactly." },
+    { "ref": "E3", "verdict": "supported", "evidence": "story.md#L58-L66", "note": "Correctly notes that message/status/body for zero/negative refusal are not stated anywhere in the sources, and ties this to gap G2 rather than inventing a value." },
+    { "ref": "E4", "verdict": "supported", "evidence": "story.md#L74-L77", "note": "Status 400 and body 'Could not find account number <A> and/or 99999999' match exactly." },
+    { "ref": "G1", "verdict": "supported", "evidence": "story.md#L68-L72, story.md#L86-L89", "note": "Real conflict between the original AC-6 (refused, insufficient funds) and the PO comment (completes, overdraws); resolution 'found-in-requirement' and the recorded value both match the PO comment." },
+    { "ref": "G2", "verdict": "supported", "evidence": "story.md#L58-L66, story.md#L91", "note": "The exact refusal message/status/body for zero and negative amounts is genuinely never stated in the sources; correctly left open rather than guessed." },
+    { "ref": "POST /transfer", "verdict": "supported", "evidence": "story.md#L17", "note": "Method and full path (/parabank/services/bank/transfer) with query parameters fromAccountId, toAccountId, amount appear at the cited line; success 200 corroborated at story.md#L39." },
+    { "ref": "GET /accounts/{accountId}", "verdict": "supported", "evidence": "story.md#L19", "note": "Path and Accept: application/json header stated at the cited line." },
+    { "ref": "GET /accounts/{accountId}/transactions", "verdict": "supported", "evidence": "story.md#L19", "note": "Path stated at the cited line alongside the sibling endpoint." }
+  ],
+  "missed": [],
+  "observations": [],
+  "summary": "The contract is tightly grounded in the evidence pack: every acceptance criterion, rule, error case, gap and endpoint checked traces to the cited lines without added, dropped or inverted conditions, and the AC-6/PO-comment conflict is handled correctly (recorded as gap G1 rather than silently favoring one source). No requirement-bearing line was found uncaptured, and no descriptive field (actors/context/auth/testData/outOfScope) states anything beyond the sources."
+}

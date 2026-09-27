@@ -1,0 +1,1646 @@
+{
+  "key": "PB-3",
+  "run": "04-harden-stability",
+  "generatedAt": "2026-09-27T12:59:49.693Z",
+  "summary": {
+    "total": 12,
+    "passed": 6,
+    "failed": 6,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The customer transfers 25.50 from A to B on the Transfer Funds page",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 2,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: The REST service transfers 12.34 from A to B",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 2,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: A transfer made on the page is listed as a transaction on both accounts",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 2,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: An empty or non-numeric amount keeps the Transfer Funds form on screen (amount \"\")",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium/test-failed-1.png",
+        "trace": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium/trace.zip",
+        "errorContext": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-eabcd-unds-form-on-screen-amount--chromium/error-context.md",
+        "seed": {
+          "tag": "hxtkay800",
+          "records": [
+            {
+              "label": "customer who owns accounts A and B (register + Open New Account)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "pb3-jtkayasz-4",
+                "A": "57411",
+                "B": "57522"
+              }
+            },
+            {
+              "label": "read balances before the action (GET /accounts/{accountId})",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                415.5,
+                100
+              ]
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57411",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 132,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:27 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa6bbe98f3418-EWR"
+              },
+              "body": {
+                "id": 57411,
+                "customerId": 32303,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57522",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 132,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:27 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa6bcdba63418-EWR"
+              },
+              "body": {
+                "id": 57522,
+                "customerId": 32303,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57522",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 132,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:53:27 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41aa6bcdba63418-EWR"
+            },
+            "body": {
+              "id": 57522,
+              "customerId": 32303,
+              "type": "CHECKING",
+              "balance": 100
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57411",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 249,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:16 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa6784f0b3418-EWR"
+              },
+              "body": {
+                "id": 57411,
+                "customerId": 32303,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57522",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 142,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:16 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa679391e3418-EWR"
+              },
+              "body": {
+                "id": 57522,
+                "customerId": 32303,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 2,
+          "failed": 2,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-4] message \"The amount cannot be empty.\" shown"
+          ]
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-4] Transfer Funds form stays on screen",
+          "reqTag": "AC-4",
+          "expected": "visible"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-4] message \"The amount cannot be empty.\" shown",
+        "reqTag": "AC-4",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "received": "hidden",
+        "locator": "getByText('The amount cannot be empty.', { exact: true })",
+        "message": "Error: [REQ AC-4] message \"The amount cannot be empty.\" shown\n\nexpect(locator).toBeVisible() failed\n\nLocator:  getByText('The amount cannot be empty.', { exact: true })\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-4] message \"The amount cannot be empty.\" shown getByText('The amount cannot be empty.', { exact: true }) with timeout 5000ms\n  - waiting for getByText('The amount cannot be empty.', { exact: true })\n    14 × locator resolved to <p class=\"error\" id=\"amount.errors\">↵⇆⇆⇆The amount cannot be empty. ↵⇆⇆</p>\n       - unexpected value \"hidden\"\n\n\n  273 |       await journey.step(`When I enter \"${row.amount}\" as the amount and press Transfer`, () => fillTransfer(page, row.amount, c.A, c.B));\n  274 |       await journey.step(`Then the Transfer Funds form stays on screen with the message \"${row.message}\"`, async () => {\n> 275 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message \"${row.message}\" shown`).toBeVisible();\n      |                                                                                                                      ^\n  276 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();\n  277 |       });\n  278 |       await journey.step('And the balances of A and B do not change', async () => {\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:275:118)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:331:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:274:7"
+      },
+      "failingStep": "Then the Transfer Funds form stays on screen with the message \"The amount cannot be empty.\"",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /parabank/services/bank/accounts/57522 → 200",
+          "Requirement assertion [REQ AC-4] failed.",
+          "Expected: visible",
+          "Received: hidden",
+          "Also failed: [REQ AC-4] Transfer Funds form stays on screen — expected visible, received undefined"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: An empty or non-numeric amount keeps the Transfer Funds form on screen (amount \"abc\")",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium/test-failed-1.png",
+        "trace": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium/trace.zip",
+        "errorContext": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-99fbe--form-on-screen-amount-abc--chromium/error-context.md",
+        "seed": {
+          "tag": "hxtkuss10",
+          "records": [
+            {
+              "label": "customer who owns accounts A and B (register + Open New Account)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "pb3-jtkusunq-1",
+                "A": "57744",
+                "B": "57855"
+              }
+            },
+            {
+              "label": "read balances before the action (GET /accounts/{accountId})",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                415.5,
+                100
+              ]
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57744",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 154,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:53 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa76149a94228-EWR"
+              },
+              "body": {
+                "id": 57744,
+                "customerId": 32525,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57855",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 142,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:53 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa7625a4f4228-EWR"
+              },
+              "body": {
+                "id": 57855,
+                "customerId": 32525,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57855",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 142,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:53:53 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41aa7625a4f4228-EWR"
+            },
+            "body": {
+              "id": 57855,
+              "customerId": 32525,
+              "type": "CHECKING",
+              "balance": 100
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57744",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 473,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:42 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa71c39c24228-EWR"
+              },
+              "body": {
+                "id": 57744,
+                "customerId": 32525,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/57855",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 138,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:53:42 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa71e0afd4228-EWR"
+              },
+              "body": {
+                "id": 57855,
+                "customerId": 32525,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 2,
+          "failed": 2,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-4] message \"Please enter a valid amount.\" shown"
+          ]
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-4] Transfer Funds form stays on screen",
+          "reqTag": "AC-4",
+          "expected": "visible"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-4] message \"Please enter a valid amount.\" shown",
+        "reqTag": "AC-4",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "received": "hidden",
+        "locator": "getByText('Please enter a valid amount.', { exact: true })",
+        "message": "Error: [REQ AC-4] message \"Please enter a valid amount.\" shown\n\nexpect(locator).toBeVisible() failed\n\nLocator:  getByText('Please enter a valid amount.', { exact: true })\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-4] message \"Please enter a valid amount.\" shown getByText('Please enter a valid amount.', { exact: true }) with timeout 5000ms\n  - waiting for getByText('Please enter a valid amount.', { exact: true })\n    14 × locator resolved to <p class=\"error\" id=\"amount.errors\">↵⇆⇆⇆Please enter a valid amount.↵⇆⇆</p>\n       - unexpected value \"hidden\"\n\n\n  273 |       await journey.step(`When I enter \"${row.amount}\" as the amount and press Transfer`, () => fillTransfer(page, row.amount, c.A, c.B));\n  274 |       await journey.step(`Then the Transfer Funds form stays on screen with the message \"${row.message}\"`, async () => {\n> 275 |         await expect.soft(page.getByText(row.message, { exact: true }), `[REQ AC-4] message \"${row.message}\" shown`).toBeVisible();\n      |                                                                                                                      ^\n  276 |         await expect.soft(page.getByRole('button', { name: 'Transfer', exact: true }), '[REQ AC-4] Transfer Funds form stays on screen').toBeVisible();\n  277 |       });\n  278 |       await journey.step('And the balances of A and B do not change', async () => {\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:275:118)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:331:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:274:7"
+      },
+      "failingStep": "Then the Transfer Funds form stays on screen with the message \"Please enter a valid amount.\"",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /parabank/services/bank/accounts/57855 → 200",
+          "Requirement assertion [REQ AC-4] failed.",
+          "Expected: visible",
+          "Received: hidden",
+          "Also failed: [REQ AC-4] Transfer Funds form stays on screen — expected visible, received undefined"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-005.1",
+      "title": "SCN-005.1: A zero or negative amount is refused on the Transfer Funds page (0)",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:boundary",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "boundary",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium/test-failed-1.png",
+        "trace": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium/trace.zip",
+        "errorContext": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-602d9--the-Transfer-Funds-page-0--chromium/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f4e1]:\n  - generic [ref=f4e2]:\n    - generic [ref=f4e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f4e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f4e5] [cursor=pointer]\n      - paragraph [ref=f4e6]: Experience the difference\n    - generic [ref=f4e7]:\n      - list [ref=f4e8]:\n        - listitem [ref=f4e9]: Solutions\n        - listitem [ref=f4e10]:\n          - link \"About Us\" [ref=f4e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f4e12]:\n          - link \"Services\" [ref=f4e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f4e14]:\n          - link \"Products\" [ref=f4e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f4e16]:\n          - link \"Locations\" [ref=f4e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f4e18]:\n          - link \"Admin Page\" [ref=f4e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f4e20]:\n        - listitem [ref=f4e21]:\n          - link \"home\" [ref=f4e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f4e23]:\n          - link \"about\" [ref=f4e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f4e25]:\n          - link \"contact\" [ref=f4e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f4e27]:\n      - generic [ref=f4e28]:\n        - paragraph [ref=f4e29]: Welcome Heldout Tester\n        - heading \"Account Services\" [level=2] [ref=f4e30]\n        - list [ref=f4e31]:\n          - listitem [ref=f4e32]:\n            - link \"Open New Account\" [ref=f4e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f4e34]:\n            - link \"Accounts Overview\" [ref=f4e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f4e36]:\n            - link \"Transfer Funds\" [ref=f4e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f4e38]:\n            - link \"Bill Pay\" [ref=f4e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f4e40]:\n            - link \"Find Transactions\" [ref=f4e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f4e42]:\n            - link \"Update Contact Info\" [ref=f4e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxtlf9i20",
+          "records": [
+            {
+              "label": "customer who owns accounts A and B (register + Open New Account)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "pb3-jtlf9koz-1",
+                "A": "58299",
+                "B": "58410"
+              }
+            },
+            {
+              "label": "read balances before the action (GET /accounts/{accountId})",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                415.5,
+                100
+              ]
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58299",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 156,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:10 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa7ca5bf89bb4-EWR"
+              },
+              "body": {
+                "id": 58299,
+                "customerId": 32747,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58410",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 131,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:10 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa7cb2e489bb4-EWR"
+              },
+              "body": {
+                "id": 58410,
+                "customerId": 32747,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58410",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 131,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:54:10 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41aa7cb2e489bb4-EWR"
+            },
+            "body": {
+              "id": 58410,
+              "customerId": 32747,
+              "type": "CHECKING",
+              "balance": 100
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58299",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 448,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:09 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa7c22f339bb4-EWR"
+              },
+              "body": {
+                "id": 58299,
+                "customerId": 32747,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58410",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 129,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:09 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa7c3fba69bb4-EWR"
+              },
+              "body": {
+                "id": 58410,
+                "customerId": 32747,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 2,
+          "failed": 2,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] page does not show \"Transfer Complete!\""
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] page does not show \"Transfer Complete!\"",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "false",
+        "received": "true",
+        "message": "Error: [REQ AC-5] page does not show \"Transfer Complete!\"\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: false\nReceived: true\n\n  292 |       await journey.step(`When I transfer ${amount} from A to B`, () => fillTransfer(page, amount, c.A, c.B));\n  293 |       await journey.step('Then the transfer is refused (the page does not show \"Transfer Complete!\") — bounded 5 s wait for the confirmation', async () => {\n> 294 |         expect.soft(await appears(page, REQ.AC5.COMPLETE), '[REQ AC-5] page does not show \"Transfer Complete!\"').toBe(false);\n      |                                                                                                                  ^\n  295 |       });\n  296 |       await journey.step('And the balances of A and B do not change', async () => {\n  297 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:294:114\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:331:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:293:7"
+      },
+      "failingStep": "Then the transfer is refused (the page does not show \"Transfer Complete!\") — bounded 5 s wait for the confirmation",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /parabank/services/bank/accounts/58410 → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: false",
+          "Received: true"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-005.2",
+      "title": "SCN-005.2: A zero or negative amount is refused on the Transfer Funds page (-10.00)",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:boundary",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "boundary",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium/test-failed-1.png",
+        "trace": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium/trace.zip",
+        "errorContext": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-bb4eb-Transfer-Funds-page--10-00--chromium/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f4e1]:\n  - generic [ref=f4e2]:\n    - generic [ref=f4e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f4e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f4e5] [cursor=pointer]\n      - paragraph [ref=f4e6]: Experience the difference\n    - generic [ref=f4e7]:\n      - list [ref=f4e8]:\n        - listitem [ref=f4e9]: Solutions\n        - listitem [ref=f4e10]:\n          - link \"About Us\" [ref=f4e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f4e12]:\n          - link \"Services\" [ref=f4e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f4e14]:\n          - link \"Products\" [ref=f4e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f4e16]:\n          - link \"Locations\" [ref=f4e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f4e18]:\n          - link \"Admin Page\" [ref=f4e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f4e20]:\n        - listitem [ref=f4e21]:\n          - link \"home\" [ref=f4e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f4e23]:\n          - link \"about\" [ref=f4e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f4e25]:\n          - link \"contact\" [ref=f4e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f4e27]:\n      - generic [ref=f4e28]:\n        - paragraph [ref=f4e29]: Welcome Heldout Tester\n        - heading \"Account Services\" [level=2] [ref=f4e30]\n        - list [ref=f4e31]:\n          - listitem [ref=f4e32]:\n            - link \"Open New Account\" [ref=f4e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f4e34]:\n            - link \"Accounts Overview\" [ref=f4e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f4e36]:\n            - link \"Transfer Funds\" [ref=f4e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f4e38]:\n            - link \"Bill Pay\" [ref=f4e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f4e40]:\n            - link \"Find Transactions\" [ref=f4e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f4e42]:\n            - link \"Update Contact Info\" [ref=f4e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxtls7430",
+          "records": [
+            {
+              "label": "customer who owns accounts A and B (register + Open New Account)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "pb3-jtls76g3-1",
+                "A": "58521",
+                "B": "58632"
+              }
+            },
+            {
+              "label": "read balances before the action (GET /accounts/{accountId})",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                415.5,
+                100
+              ]
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58521",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 144,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:26 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8302b62566e-EWR"
+              },
+              "body": {
+                "id": 58521,
+                "customerId": 32858,
+                "type": "CHECKING",
+                "balance": 425.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58632",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 144,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:26 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8312d55566e-EWR"
+              },
+              "body": {
+                "id": 58632,
+                "customerId": 32858,
+                "type": "CHECKING",
+                "balance": 90
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58632",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 144,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:54:26 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41aa8312d55566e-EWR"
+            },
+            "body": {
+              "id": 58632,
+              "customerId": 32858,
+              "type": "CHECKING",
+              "balance": 90
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58521",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 475,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:25 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8292c47566e-EWR"
+              },
+              "body": {
+                "id": 58521,
+                "customerId": 32858,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58632",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 129,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:25 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa82aeffe566e-EWR"
+              },
+              "body": {
+                "id": 58632,
+                "customerId": 32858,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 2,
+          "failed": 2,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] page does not show \"Transfer Complete!\""
+          ]
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-5] GET /accounts/<A> balance unchanged",
+          "reqTag": "AC-5",
+          "expected": "415.5",
+          "received": "425.5"
+        },
+        {
+          "headline": "[REQ AC-5] GET /accounts/<B> balance unchanged",
+          "reqTag": "AC-5",
+          "expected": "100",
+          "received": "90"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-5] page does not show \"Transfer Complete!\"",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "false",
+        "received": "true",
+        "message": "Error: [REQ AC-5] page does not show \"Transfer Complete!\"\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: false\nReceived: true\n\n  292 |       await journey.step(`When I transfer ${amount} from A to B`, () => fillTransfer(page, amount, c.A, c.B));\n  293 |       await journey.step('Then the transfer is refused (the page does not show \"Transfer Complete!\") — bounded 5 s wait for the confirmation', async () => {\n> 294 |         expect.soft(await appears(page, REQ.AC5.COMPLETE), '[REQ AC-5] page does not show \"Transfer Complete!\"').toBe(false);\n      |                                                                                                                  ^\n  295 |       });\n  296 |       await journey.step('And the balances of A and B do not change', async () => {\n  297 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:294:114\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:331:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:293:7"
+      },
+      "failingStep": "Then the transfer is refused (the page does not show \"Transfer Complete!\") — bounded 5 s wait for the confirmation",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /parabank/services/bank/accounts/58632 → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: false",
+          "Received: true",
+          "Also failed: [REQ AC-5] GET /accounts/<A> balance unchanged — expected 415.5, received 425.5",
+          "Also failed: [REQ AC-5] GET /accounts/<B> balance unchanged — expected 100, received 90"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.1",
+      "title": "SCN-006.1: A zero or negative amount is refused by the REST service (0)",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium/test-failed-1.png",
+        "trace": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium/trace.zip",
+        "errorContext": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-47981-used-by-the-REST-service-0--chromium/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f3e1]:\n  - generic [ref=f3e2]:\n    - generic [ref=f3e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f3e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f3e5] [cursor=pointer]\n      - paragraph [ref=f3e6]: Experience the difference\n    - generic [ref=f3e7]:\n      - list [ref=f3e8]:\n        - listitem [ref=f3e9]: Solutions\n        - listitem [ref=f3e10]:\n          - link \"About Us\" [ref=f3e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f3e12]:\n          - link \"Services\" [ref=f3e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f3e14]:\n          - link \"Products\" [ref=f3e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f3e16]:\n          - link \"Locations\" [ref=f3e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f3e18]:\n          - link \"Admin Page\" [ref=f3e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f3e20]:\n        - listitem [ref=f3e21]:\n          - link \"home\" [ref=f3e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f3e23]:\n          - link \"about\" [ref=f3e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f3e25]:\n          - link \"contact\" [ref=f3e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f3e27]:\n      - generic [ref=f3e28]:\n        - paragraph [ref=f3e29]: Welcome Heldout Tester\n        - heading \"Account Services\" [level=2] [ref=f3e30]\n        - list [ref=f3e31]:\n          - listitem [ref=f3e32]:\n            - link \"Open New Account\" [ref=f3e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f3e34]:\n            - link \"Accounts Overview\" [ref=f3e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f3e36]:\n            - link \"Transfer Funds\" [ref=f3e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f3e38]:\n            - link \"Bill Pay\" [ref=f3e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f3e40]:\n            - link \"Find Transactions\" [ref=f3e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f3e42]:\n            - link \"Update Contact Info\" [ref=f3e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxtm4r740",
+          "records": [
+            {
+              "label": "customer who owns accounts A and B (register + Open New Account)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "pb3-jtm4r98e-1",
+                "A": "58743",
+                "B": "58854"
+              }
+            },
+            {
+              "label": "read balances before the action (GET /accounts/{accountId})",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                415.5,
+                100
+              ]
+            }
+          ]
+        },
+        "apiCalls": 3,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/transfer?fromAccountId=58743&toAccountId=58854&amount=0",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 137,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:42 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8908cc6606a-EWR"
+              },
+              "body": "Successfully transferred $0 from account #58743 to account #58854"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58743",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 139,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:42 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8916f04606a-EWR"
+              },
+              "body": {
+                "id": 58743,
+                "customerId": 32969,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58854",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 154,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:42 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8926992606a-EWR"
+              },
+              "body": {
+                "id": 58854,
+                "customerId": 32969,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/transfer?fromAccountId=58743&toAccountId=58854&amount=0",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 137,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:54:42 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41aa8908cc6606a-EWR"
+            },
+            "body": "Successfully transferred $0 from account #58743 to account #58854"
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58743",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 303,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:41 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa88eaffa606a-EWR"
+              },
+              "body": {
+                "id": 58743,
+                "customerId": 32969,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58854",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 137,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:41 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa88faa76606a-EWR"
+              },
+              "body": {
+                "id": 58854,
+                "customerId": 32969,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 2,
+          "failed": 2,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] POST /transfer does not answer with the success confirmation"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] POST /transfer does not answer with the success confirmation",
+        "reqTag": "AC-5",
+        "matcher": "not.toMatch",
+        "expected": "not /^\\s*Successfully transferred/",
+        "received": "\"Successfully transferred $0 from account #58743 to account #58854\"",
+        "message": "Error: [REQ AC-5] POST /transfer does not answer with the success confirmation\n\nexpect(received).not.toMatch(expected)\n\nExpected pattern: not /^\\s*Successfully transferred/\nReceived string:      \"Successfully transferred $0 from account #58743 to account #58854\"\n\n  310 |       await journey.step(`When the service is called with fromAccountId A, toAccountId B and amount ${amount}`, async () => { res = await transfer(api, c.A, c.B, amount); });\n  311 |       await journey.step('Then the transfer is refused (the service does not answer with the success confirmation of AC-2)', async () => {\n> 312 |         expect.soft(res.text, '[REQ AC-5] POST /transfer does not answer with the success confirmation').not.toMatch(REQ.AC5.SUCCESS_PREFIX);\n      |                                                                                                              ^\n  313 |       });\n  314 |       await journey.step('And the balances of A and B do not change', async () => {\n  315 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:312:110)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:331:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:311:7"
+      },
+      "failingStep": "Then the transfer is refused (the service does not answer with the success confirmation of AC-2)",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /parabank/services/bank/transfer → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: not /^\\s*Successfully transferred/",
+          "Received: \"Successfully transferred $0 from account #58743 to account #58854\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.2",
+      "title": "SCN-006.2: A zero or negative amount is refused by the REST service (-10.00)",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium/test-failed-1.png",
+        "trace": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium/trace.zip",
+        "errorContext": "evaluations/PB-3/runs/04-harden-stability/artifacts/PB-3-tests-pb-3-PB-3-Trans-44d19-by-the-REST-service--10-00--chromium/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f3e1]:\n  - generic [ref=f3e2]:\n    - generic [ref=f3e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f3e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f3e5] [cursor=pointer]\n      - paragraph [ref=f3e6]: Experience the difference\n    - generic [ref=f3e7]:\n      - list [ref=f3e8]:\n        - listitem [ref=f3e9]: Solutions\n        - listitem [ref=f3e10]:\n          - link \"About Us\" [ref=f3e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f3e12]:\n          - link \"Services\" [ref=f3e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f3e14]:\n          - link \"Products\" [ref=f3e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f3e16]:\n          - link \"Locations\" [ref=f3e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f3e18]:\n          - link \"Admin Page\" [ref=f3e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f3e20]:\n        - listitem [ref=f3e21]:\n          - link \"home\" [ref=f3e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f3e23]:\n          - link \"about\" [ref=f3e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f3e25]:\n          - link \"contact\" [ref=f3e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f3e27]:\n      - generic [ref=f3e28]:\n        - paragraph [ref=f3e29]: Welcome Heldout Tester\n        - heading \"Account Services\" [level=2] [ref=f3e30]\n        - list [ref=f3e31]:\n          - listitem [ref=f3e32]:\n            - link \"Open New Account\" [ref=f3e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f3e34]:\n            - link \"Accounts Overview\" [ref=f3e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f3e36]:\n            - link \"Transfer Funds\" [ref=f3e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f3e38]:\n            - link \"Bill Pay\" [ref=f3e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f3e40]:\n            - link \"Find Transactions\" [ref=f3e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f3e42]:\n            - link \"Update Contact Info\" [ref=f3e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxtmgrw50",
+          "records": [
+            {
+              "label": "customer who owns accounts A and B (register + Open New Account)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "pb3-jtmgrx3o-1",
+                "A": "58965",
+                "B": "59076"
+              }
+            },
+            {
+              "label": "read balances before the action (GET /accounts/{accountId})",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                415.5,
+                100
+              ]
+            }
+          ]
+        },
+        "apiCalls": 3,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/transfer?fromAccountId=58965&toAccountId=59076&amount=-10.00",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 136,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8f4a8645e60-EWR"
+              },
+              "body": "Successfully transferred $-10.00 from account #58965 to account #59076"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58965",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 133,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8f5892a5e60-EWR"
+              },
+              "body": {
+                "id": 58965,
+                "customerId": 33080,
+                "type": "CHECKING",
+                "balance": 425.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/59076",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 132,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8f659be5e60-EWR"
+              },
+              "body": {
+                "id": 59076,
+                "customerId": 33080,
+                "type": "CHECKING",
+                "balance": 90
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/transfer?fromAccountId=58965&toAccountId=59076&amount=-10.00",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 136,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:54:58 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41aa8f4a8645e60-EWR"
+            },
+            "body": "Successfully transferred $-10.00 from account #58965 to account #59076"
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/58965",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 474,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:57 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8f1fe6d5e60-EWR"
+              },
+              "body": {
+                "id": 58965,
+                "customerId": 33080,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/59076",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 136,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:54:57 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41aa8f3bf9d5e60-EWR"
+              },
+              "body": {
+                "id": 59076,
+                "customerId": 33080,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "repeats": {
+          "runs": 2,
+          "failed": 2,
+          "causes": [
+            "APPLICATION_DEFECT: [REQ AC-5] POST /transfer does not answer with the success confirmation"
+          ]
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-5] GET /accounts/<A> balance unchanged",
+          "reqTag": "AC-5",
+          "expected": "415.5",
+          "received": "425.5"
+        },
+        {
+          "headline": "[REQ AC-5] GET /accounts/<B> balance unchanged",
+          "reqTag": "AC-5",
+          "expected": "100",
+          "received": "90"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-5] POST /transfer does not answer with the success confirmation",
+        "reqTag": "AC-5",
+        "matcher": "not.toMatch",
+        "expected": "not /^\\s*Successfully transferred/",
+        "received": "\"Successfully transferred $-10.00 from account #58965 to account #59076\"",
+        "message": "Error: [REQ AC-5] POST /transfer does not answer with the success confirmation\n\nexpect(received).not.toMatch(expected)\n\nExpected pattern: not /^\\s*Successfully transferred/\nReceived string:      \"Successfully transferred $-10.00 from account #58965 to account #59076\"\n\n  310 |       await journey.step(`When the service is called with fromAccountId A, toAccountId B and amount ${amount}`, async () => { res = await transfer(api, c.A, c.B, amount); });\n  311 |       await journey.step('Then the transfer is refused (the service does not answer with the success confirmation of AC-2)', async () => {\n> 312 |         expect.soft(res.text, '[REQ AC-5] POST /transfer does not answer with the success confirmation').not.toMatch(REQ.AC5.SUCCESS_PREFIX);\n      |                                                                                                              ^\n  313 |       });\n  314 |       await journey.step('And the balances of A and B do not change', async () => {\n  315 |         expect.soft(await balance(api, c.A), '[REQ AC-5] GET /accounts/<A> balance unchanged').toBeCloseTo(a0, 2);\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:312:110)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:331:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-3\\tests\\pb-3.spec.ts:311:7"
+      },
+      "failingStep": "Then the transfer is refused (the service does not answer with the success confirmation of AC-2)",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /parabank/services/bank/transfer → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: not /^\\s*Successfully transferred/",
+          "Received: \"Successfully transferred $-10.00 from account #58965 to account #59076\"",
+          "Also failed: [REQ AC-5] GET /accounts/<A> balance unchanged — expected 415.5, received 425.5",
+          "Also failed: [REQ AC-5] GET /accounts/<B> balance unchanged — expected 100, received 90"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: The REST service completes a transfer of 1000.00, more than the balance of A",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 2,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: The Transfer Funds page completes a transfer of 1000.00, more than the balance of A",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:boundary",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 2,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: The REST service refuses an unknown destination account",
+      "file": "PB-3/tests/pb-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 2,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    }
+  ]
+}

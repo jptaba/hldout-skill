@@ -69,4 +69,5 @@ main(() => {
   writeFile(path.join(dir, 'issue.json'), `${JSON.stringify(issue, null, 2)}\n`);
   writeFile(path.join(dir, 'ISSUE_VIEW.md'), renderIssueView(issue, `${cfg.jira.baseUrl}/browse/${key}`));
   console.log(`✔ mock Jira issue ${key} "${summary}" → ${rel(dir)}/ (${attachment.length} attachment(s))`);
+  console.log(`\nNext: npm run heldout -- fetch ${key}   (or ask Claude: "Run a held-out evaluation of ${key}")`);
 });

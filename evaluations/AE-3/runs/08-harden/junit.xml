@@ -1,0 +1,104 @@
+<testsuites id="" name="" tests="48" failures="0" skipped="0" errors="0" time="64.364284">
+<testsuite name="AE-3\tests\ae-3.spec.ts" timestamp="2026-09-27T12:15:52.319Z" hostname="chromium" tests="16" failures="0" skipped="0" time="38.359" errors="0">
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-001: The brands list has the agreed shape" classname="AE-3\tests\ae-3.spec.ts" time="1.312">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-002: Every brandsList entry names the brand of the product with that id" classname="AE-3\tests\ae-3.spec.ts" time="1.316">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.1: Unsupported methods on the brands list are refused in the body (PUT)" classname="AE-3\tests\ae-3.spec.ts" time="0.362">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.2: Unsupported methods on the brands list are refused in the body (POST)" classname="AE-3\tests\ae-3.spec.ts" time="0.354">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.3: Unsupported methods on the brands list are refused in the body (DELETE)" classname="AE-3\tests\ae-3.spec.ts" time="0.587">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-004: The Brands panel lists each brand once with its product count" classname="AE-3\tests\ae-3.spec.ts" time="1.502">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-005: The Brands panel matches the brands list of the API" classname="AE-3\tests\ae-3.spec.ts" time="1.929">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.1: A brand&apos;s page lists exactly that brand&apos;s products (Polo)" classname="AE-3\tests\ae-3.spec.ts" time="2.359">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.2: A brand&apos;s page lists exactly that brand&apos;s products (H&amp;M)" classname="AE-3\tests\ae-3.spec.ts" time="3.039">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.3: A brand&apos;s page lists exactly that brand&apos;s products (Mast &amp; Harbour)" classname="AE-3\tests\ae-3.spec.ts" time="2.342">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-007: The Contact Us form offers the mock-up&apos;s fields" classname="AE-3\tests\ae-3.spec.ts" time="1.091">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-008: The form is not sent while the mandatory Email is empty" classname="AE-3\tests\ae-3.spec.ts" time="6.113">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-009: The form is not sent with an e-mail that is not a valid address" classname="AE-3\tests\ae-3.spec.ts" time="6.322">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-010: The form can be sent with only a valid Email" classname="AE-3\tests\ae-3.spec.ts" time="1.332">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-011: Sending the form asks for confirmation, shows success and offers a Home button" classname="AE-3\tests\ae-3.spec.ts" time="2.182">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-012: Cancelling the confirmation keeps the form as filled" classname="AE-3\tests\ae-3.spec.ts" time="6.217">
+</testcase>
+</testsuite>
+<testsuite name="AE-3\tests\ae-3.spec.ts" timestamp="2026-09-27T12:15:52.319Z" hostname="chromium" tests="16" failures="0" skipped="0" time="37.092" errors="0">
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-001: The brands list has the agreed shape" classname="AE-3\tests\ae-3.spec.ts" time="0.76">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-002: Every brandsList entry names the brand of the product with that id" classname="AE-3\tests\ae-3.spec.ts" time="0.626">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.1: Unsupported methods on the brands list are refused in the body (PUT)" classname="AE-3\tests\ae-3.spec.ts" time="0.369">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.2: Unsupported methods on the brands list are refused in the body (POST)" classname="AE-3\tests\ae-3.spec.ts" time="0.358">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.3: Unsupported methods on the brands list are refused in the body (DELETE)" classname="AE-3\tests\ae-3.spec.ts" time="0.587">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-004: The Brands panel lists each brand once with its product count" classname="AE-3\tests\ae-3.spec.ts" time="1.284">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-005: The Brands panel matches the brands list of the API" classname="AE-3\tests\ae-3.spec.ts" time="2.172">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.1: A brand&apos;s page lists exactly that brand&apos;s products (Polo)" classname="AE-3\tests\ae-3.spec.ts" time="2.489">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.2: A brand&apos;s page lists exactly that brand&apos;s products (H&amp;M)" classname="AE-3\tests\ae-3.spec.ts" time="2.947">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.3: A brand&apos;s page lists exactly that brand&apos;s products (Mast &amp; Harbour)" classname="AE-3\tests\ae-3.spec.ts" time="2.352">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-007: The Contact Us form offers the mock-up&apos;s fields" classname="AE-3\tests\ae-3.spec.ts" time="1.139">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-008: The form is not sent while the mandatory Email is empty" classname="AE-3\tests\ae-3.spec.ts" time="6.14">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-009: The form is not sent with an e-mail that is not a valid address" classname="AE-3\tests\ae-3.spec.ts" time="6.103">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-010: The form can be sent with only a valid Email" classname="AE-3\tests\ae-3.spec.ts" time="1.315">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-011: Sending the form asks for confirmation, shows success and offers a Home button" classname="AE-3\tests\ae-3.spec.ts" time="2.106">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-012: Cancelling the confirmation keeps the form as filled" classname="AE-3\tests\ae-3.spec.ts" time="6.345">
+</testcase>
+</testsuite>
+<testsuite name="AE-3\tests\ae-3.spec.ts" timestamp="2026-09-27T12:15:52.319Z" hostname="chromium" tests="16" failures="0" skipped="0" time="37.561" errors="0">
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-001: The brands list has the agreed shape" classname="AE-3\tests\ae-3.spec.ts" time="0.7">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-002: Every brandsList entry names the brand of the product with that id" classname="AE-3\tests\ae-3.spec.ts" time="0.554">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.1: Unsupported methods on the brands list are refused in the body (PUT)" classname="AE-3\tests\ae-3.spec.ts" time="0.571">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.2: Unsupported methods on the brands list are refused in the body (POST)" classname="AE-3\tests\ae-3.spec.ts" time="0.604">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-003.3: Unsupported methods on the brands list are refused in the body (DELETE)" classname="AE-3\tests\ae-3.spec.ts" time="0.599">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-004: The Brands panel lists each brand once with its product count" classname="AE-3\tests\ae-3.spec.ts" time="1.681">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-005: The Brands panel matches the brands list of the API" classname="AE-3\tests\ae-3.spec.ts" time="1.865">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.1: A brand&apos;s page lists exactly that brand&apos;s products (Polo)" classname="AE-3\tests\ae-3.spec.ts" time="2.609">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.2: A brand&apos;s page lists exactly that brand&apos;s products (H&amp;M)" classname="AE-3\tests\ae-3.spec.ts" time="2.758">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-006.3: A brand&apos;s page lists exactly that brand&apos;s products (Mast &amp; Harbour)" classname="AE-3\tests\ae-3.spec.ts" time="2.46">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-007: The Contact Us form offers the mock-up&apos;s fields" classname="AE-3\tests\ae-3.spec.ts" time="1.077">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-008: The form is not sent while the mandatory Email is empty" classname="AE-3\tests\ae-3.spec.ts" time="6.071">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-009: The form is not sent with an e-mail that is not a valid address" classname="AE-3\tests\ae-3.spec.ts" time="6.088">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-010: The form can be sent with only a valid Email" classname="AE-3\tests\ae-3.spec.ts" time="1.343">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-011: Sending the form asks for confirmation, shows success and offers a Home button" classname="AE-3\tests\ae-3.spec.ts" time="2.218">
+</testcase>
+<testcase name="AE-3 Brands in the catalogue API and shop, and the Contact Us form › SCN-012: Cancelling the confirmation keeps the form as filled" classname="AE-3\tests\ae-3.spec.ts" time="6.363">
+</testcase>
+</testsuite>
+</testsuites>

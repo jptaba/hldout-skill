@@ -1,0 +1,32 @@
+[
+  {
+    "at": "2026-09-27T12:17:43.369Z",
+    "mode": "mock",
+    "verdict": "PASS_WITH_WARNINGS",
+    "attachment": "heldout-verdict-AE-3-202609271217.md",
+    "commentId": "20001",
+    "labels": [
+      "heldout-pass-with-warnings"
+    ]
+  },
+  {
+    "at": "2026-09-27T16:54:18.000Z",
+    "mode": "mock",
+    "verdict": "PASS_WITH_WARNINGS",
+    "attachment": "heldout-verdict-AE-3-202609271654.md",
+    "commentId": "20002",
+    "labels": [
+      "heldout-pass-with-warnings"
+    ]
+  },
+  {
+    "at": "2026-09-27T16:56:03.356Z",
+    "mode": "mock",
+    "verdict": "PASS_WITH_WARNINGS",
+    "attachment": "heldout-verdict-AE-3-202609271656.md",
+    "commentId": "20003",
+    "labels": [
+      "heldout-pass-with-warnings"
+    ]
+  }
+]

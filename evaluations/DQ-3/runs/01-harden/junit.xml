@@ -1,0 +1,1921 @@
+<testsuites id="" name="" tests="32" failures="9" skipped="0" errors="0" time="68.029727">
+<testsuite name="DQ-3\tests\dq-3.spec.ts" timestamp="2026-09-27T12:31:39.183Z" hostname="chromium" tests="32" failures="9" skipped="0" time="190.891" errors="0">
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-001: The Links page shows its heading, both sections and the api-call links in order" classname="DQ-3\tests\dq-3.spec.ts" time="2.217">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-002: The static Home link opens the home page in a new tab" classname="DQ-3\tests\dq-3.spec.ts" time="2.807">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-003: The dynamic Home link has a random suffix and opens the home page in a new tab" classname="DQ-3\tests\dq-3.spec.ts" time="3.786">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.1: Each diagnostic endpoint answers with its status code (Created: GET /created)" classname="DQ-3\tests\dq-3.spec.ts" time="3.447">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.2: Each diagnostic endpoint answers with its status code (No Content: GET /no-content)" classname="DQ-3\tests\dq-3.spec.ts" time="3.199">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.3: Each diagnostic endpoint answers with its status code (Moved: GET /moved)" classname="DQ-3\tests\dq-3.spec.ts" time="3.172">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.4: Each diagnostic endpoint answers with its status code (Bad Request: GET /bad-request)" classname="DQ-3\tests\dq-3.spec.ts" time="3.088">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.5: Each diagnostic endpoint answers with its status code (Unauthorized: GET /unauthorized)" classname="DQ-3\tests\dq-3.spec.ts" time="3.136">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.6: Each diagnostic endpoint answers with its status code (Forbidden: GET /forbidden)" classname="DQ-3\tests\dq-3.spec.ts" time="3.089">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-004.7: Each diagnostic endpoint answers with its status code (Not Found: GET /invalid-url)" classname="DQ-3\tests\dq-3.spec.ts" time="3.154">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-005.1: Diagnostic responses other than /moved carry no body (GET /created)" classname="DQ-3\tests\dq-3.spec.ts" time="3.126">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-005.2: Diagnostic responses other than /moved carry no body (GET /no-content)" classname="DQ-3\tests\dq-3.spec.ts" time="3.079">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-005.3: Diagnostic responses other than /moved carry no body (GET /bad-request)" classname="DQ-3\tests\dq-3.spec.ts" time="3.119">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-005.4: Diagnostic responses other than /moved carry no body (GET /unauthorized)" classname="DQ-3\tests\dq-3.spec.ts" time="3.085">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-005.5: Diagnostic responses other than /moved carry no body (GET /forbidden)" classname="DQ-3\tests\dq-3.spec.ts" time="3.129">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-005.6: Diagnostic responses other than /moved carry no body (GET /invalid-url)" classname="DQ-3\tests\dq-3.spec.ts" time="3.067">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-006: GET /moved answers 301 with a Location header pointing to the home page" classname="DQ-3\tests\dq-3.spec.ts" time="6.563">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] Location header present" type="expect.toBeTruthy">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:160:3 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-006: GET /moved answers 301 with a Location header pointing to the home page @AC-6 @type:contract @layer:api @P2 › And the response carries a Location header that points to the site home page https://demoqa.com/ 
+
+    Error: [REQ AC-6] Location header present
+
+    expect(received).toBeTruthy()
+
+    Received: undefined
+
+      166 |     await journey.step('And the response carries a Location header that points to the site home page https://demoqa.com/', async () => {
+      167 |       const location = res.headers['location'];
+    > 168 |       expect(location, '[REQ AC-6] Location header present').toBeTruthy();
+          |                                                              ^
+      169 |       expect(new URL(location ?? '', res.url).href, '[REQ AC-6] Location points to the home page').toBe(REQ.HOME_URL);
+      170 |     });
+      171 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:168:62)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:166:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] Location header present
+
+    expect(received).toBeTruthy()
+
+    Received: undefined
+
+      166 |     await journey.step('And the response carries a Location header that points to the site home page https://demoqa.com/', async () => {
+      167 |       const location = res.headers['location'];
+    > 168 |       expect(location, '[REQ AC-6] Location header present').toBeTruthy();
+          |                                                              ^
+      169 |       expect(new URL(location ?? '', res.url).href, '[REQ AC-6] Location points to the home page').toBe(REQ.HOME_URL);
+      170 |     });
+      171 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:168:62)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:166:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.1: Clicking a diagnostic link reports its result on the page (Created)" classname="DQ-3\tests\dq-3.spec.ts" time="14.824">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking Created" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.1: Clicking a diagnostic link reports its result on the page (Created) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 201 and status text Created" is shown 
+
+    Error: [REQ AC-7] message after clicking Created
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 201 and status text Created"
+    Received: "Link has responded with staus 201 and status text Created"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Created getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        11 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 201 and status text Created"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-created-link (text/yaml) ──────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Created" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Bo...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-201-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 201 and status text Created" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          -...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking Created
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 201 and status text Created"
+    Received: "Link has responded with staus 201 and status text Created"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Created getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 201 and status text Created"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-created-link (text/yaml) ──────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Created" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Bo...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-201-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 201 and status text Created" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          -...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.2: Clicking a diagnostic link reports its result on the page (No Content)" classname="DQ-3\tests\dq-3.spec.ts" time="14.559">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking No Content" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.2: Clicking a diagnostic link reports its result on the page (No Content) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 204 and status text No Content" is shown 
+
+    Error: [REQ AC-7] message after clicking No Content
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 204 and status text No Content"
+    Received: "Link has responded with staus 204 and status text No Content"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking No Content getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        11 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 204 and status text No Content"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-no-content-link (text/yaml) ───────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "No Content" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-204-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 204 and status text No Content" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+        ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking No Content
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 204 and status text No Content"
+    Received: "Link has responded with staus 204 and status text No Content"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking No Content getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 204 and status text No Content"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-no-content-link (text/yaml) ───────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "No Content" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-204-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 204 and status text No Content" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+        ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.3: Clicking a diagnostic link reports its result on the page (Moved)" classname="DQ-3\tests\dq-3.spec.ts" time="14.51">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking Moved" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.3: Clicking a diagnostic link reports its result on the page (Moved) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 301 and status text Moved Permanently" is shown 
+
+    Error: [REQ AC-7] message after clicking Moved
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 301 and status text Moved Permanently"
+    Received: "Link has responded with staus 301 and status text Moved Permanently"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Moved getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        11 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 301 and status text Moved Permanently"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-moved-link (text/yaml) ────────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Moved" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box"...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-301-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 301 and status text Moved Permanently" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-b...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking Moved
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 301 and status text Moved Permanently"
+    Received: "Link has responded with staus 301 and status text Moved Permanently"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Moved getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 301 and status text Moved Permanently"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-moved-link (text/yaml) ────────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Moved" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box"...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-301-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 301 and status text Moved Permanently" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-b...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.4: Clicking a diagnostic link reports its result on the page (Bad Request)" classname="DQ-3\tests\dq-3.spec.ts" time="14.427">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking Bad Request" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.4: Clicking a diagnostic link reports its result on the page (Bad Request) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 400 and status text Bad Request" is shown 
+
+    Error: [REQ AC-7] message after clicking Bad Request
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 400 and status text Bad Request"
+    Received: "Link has responded with staus 400 and status text Bad Request"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Bad Request getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        10 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 400 and status text Bad Request"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-bad-request-link (text/yaml) ──────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Bad Request" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Chec...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-400-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 400 and status text Bad Request" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+       ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking Bad Request
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 400 and status text Bad Request"
+    Received: "Link has responded with staus 400 and status text Bad Request"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Bad Request getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 400 and status text Bad Request"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-bad-request-link (text/yaml) ──────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Bad Request" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Chec...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-400-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 400 and status text Bad Request" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+       ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.5: Clicking a diagnostic link reports its result on the page (Unauthorized)" classname="DQ-3\tests\dq-3.spec.ts" time="14.734">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking Unauthorized" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.5: Clicking a diagnostic link reports its result on the page (Unauthorized) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 401 and status text Unauthorized" is shown 
+
+    Error: [REQ AC-7] message after clicking Unauthorized
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 401 and status text Unauthorized"
+    Received: "Link has responded with staus 401 and status text Unauthorized"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Unauthorized getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 401 and status text Unauthorized"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-unauthorized-link (text/yaml) ─────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Unauthorized" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Che...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-401-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 401 and status text Unauthorized" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+      ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking Unauthorized
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 401 and status text Unauthorized"
+    Received: "Link has responded with staus 401 and status text Unauthorized"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Unauthorized getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 401 and status text Unauthorized"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-unauthorized-link (text/yaml) ─────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Unauthorized" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Che...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-401-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 401 and status text Unauthorized" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+      ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.6: Clicking a diagnostic link reports its result on the page (Forbidden)" classname="DQ-3\tests\dq-3.spec.ts" time="14.789">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking Forbidden" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.6: Clicking a diagnostic link reports its result on the page (Forbidden) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 403 and status text Forbidden" is shown 
+
+    Error: [REQ AC-7] message after clicking Forbidden
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 403 and status text Forbidden"
+    Received: "Link has responded with staus 403 and status text Forbidden"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Forbidden getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        11 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 403 and status text Forbidden"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-forbidden-link (text/yaml) ────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Forbidden" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-403-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 403 and status text Forbidden" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+         ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking Forbidden
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 403 and status text Forbidden"
+    Received: "Link has responded with staus 403 and status text Forbidden"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Forbidden getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 403 and status text Forbidden"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-forbidden-link (text/yaml) ────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Forbidden" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-403-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 403 and status text Forbidden" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+         ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.7: Clicking a diagnostic link reports its result on the page (Not Found)" classname="DQ-3\tests\dq-3.spec.ts" time="14.849">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] message after clicking Not Found" type="expect.toHaveText">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:174:5 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-007.7: Clicking a diagnostic link reports its result on the page (Not Found) @AC-7 @type:functional @layer:ui @P1 › Then the message "Link has responded with status 404 and status text Not Found" is shown 
+
+    Error: [REQ AC-7] message after clicking Not Found
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 404 and status text Not Found"
+    Received: "Link has responded with staus 404 and status text Not Found"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Not Found getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 404 and status text Not Found"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-not-found-link (text/yaml) ────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Not Found" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-404-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 404 and status text Not Found" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+         ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] message after clicking Not Found
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText('Link has responded')
+    Expected: "Link has responded with status 404 and status text Not Found"
+    Received: "Link has responded with staus 404 and status text Not Found"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-7] message after clicking Not Found getByText('Link has responded') with timeout 5000ms
+      - waiting for getByText('Link has responded')
+        12 × locator resolved to <p id="linkResponse">…</p>
+           - unexpected value "Link has responded with staus 404 and status text Not Found"
+
+
+      176 |       await journey.step(`When I click the "${row.link}" link`, () => apiLink(page, row.link).click());
+      177 |       await journey.step(`Then the message "${REQ.message(row.code, row.text)}" is shown`, async () => {
+    > 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));
+          |                                                                                               ^
+      179 |       });
+      180 |     });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:178:95)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:177:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-click-the-not-found-link (text/yaml) ────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Not Found" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-the-message-link-has-responded-with-status-404-a (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then the message "Link has responded with status 404 and status text Not Found" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+         ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.1: The page reports the status its own GET request really received (Created)" classname="DQ-3\tests\dq-3.spec.ts" time="2.629">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.2: The page reports the status its own GET request really received (No Content)" classname="DQ-3\tests\dq-3.spec.ts" time="2.293">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.3: The page reports the status its own GET request really received (Moved)" classname="DQ-3\tests\dq-3.spec.ts" time="2.319">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.4: The page reports the status its own GET request really received (Bad Request)" classname="DQ-3\tests\dq-3.spec.ts" time="2.301">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.5: The page reports the status its own GET request really received (Unauthorized)" classname="DQ-3\tests\dq-3.spec.ts" time="2.519">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.6: The page reports the status its own GET request really received (Forbidden)" classname="DQ-3\tests\dq-3.spec.ts" time="2.528">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-008.7: The page reports the status its own GET request really received (Not Found)" classname="DQ-3\tests\dq-3.spec.ts" time="2.622">
+</testcase>
+<testcase name="DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-009: Only the latest diagnostic result is shown" classname="DQ-3\tests\dq-3.spec.ts" time="14.725">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-9] 201 Created message shown" type="expect.toBeVisible">
+<![CDATA[  [chromium] › DQ-3\tests\dq-3.spec.ts:211:3 › DQ-3 Links page - new-tab links and HTTP status diagnostic links › SCN-009: Only the latest diagnostic result is shown @AC-9 @type:functional @layer:ui @P2 › Then only one response message is shown, and it reports 201 Created 
+
+    Error: [REQ AC-9] 201 Created message shown
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByText('Link has responded with status 201 and status text Created')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-9] 201 Created message shown getByText('Link has responded with status 201 and status text Created') with timeout 5000ms
+      - waiting for getByText('Link has responded with status 201 and status text Created')
+
+
+      219 |     await journey.step('When I click the "Created" link', () => apiLink(page, created.link).click());
+      220 |     await journey.step('Then only one response message is shown, and it reports 201 Created', async () => {
+    > 221 |       await expect(page.getByText(REQ.message(created.code, created.text)), '[REQ AC-9] 201 Created message shown').toBeVisible();
+          |                                                                                                                     ^
+      222 |       await expect(responseMessages(page), '[REQ AC-9] only one response message').toHaveCount(1);
+      223 |     });
+      224 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:221:117)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:220:5
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-and-i-have-clicked-the-forbidden-link-and-its-message-is-sho (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: And I have clicked the "Forbidden" link and its message is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+     ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-when-i-click-the-created-link (text/yaml) ──────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Created" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Bo...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 04-failed-then-only-one-response-message-is-shown-and-it-report (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then only one response message is shown, and it reports 201 Created
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-9] 201 Created message shown
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByText('Link has responded with status 201 and status text Created')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-9] 201 Created message shown getByText('Link has responded with status 201 and status text Created') with timeout 5000ms
+      - waiting for getByText('Link has responded with status 201 and status text Created')
+
+
+      219 |     await journey.step('When I click the "Created" link', () => apiLink(page, created.link).click());
+      220 |     await journey.step('Then only one response message is shown, and it reports 201 Created', async () => {
+    > 221 |       await expect(page.getByText(REQ.message(created.code, created.text)), '[REQ AC-9] 201 Created message shown').toBeVisible();
+          |                                                                                                                     ^
+      222 |       await expect(responseMessages(page), '[REQ AC-9] only one response message').toHaveCount(1);
+      223 |     });
+      224 |   });
+        at body (D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:221:117)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:329:34
+        at D:\projects\hldout-skill\evaluations\DQ-3\tests\dq-3.spec.ts:220:5
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-links-page (text/yaml) ───────────────────────
+    # url: https://demoqa.com/links
+    # step: Given I am on the Links page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Box":...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-and-i-have-clicked-the-forbidden-link-and-its-message-is-sho (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: And I have clicked the "Forbidden" link and its message is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+     ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-when-i-click-the-created-link (text/yaml) ──────────────────────
+    # url: https://demoqa.com/links
+    # step: When I click the "Created" link
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: Text Box
+      - listitem:
+        - link "Check Bo...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 04-failed-then-only-one-response-message-is-shown-and-it-report (text/yaml) 
+    # url: https://demoqa.com/links
+    # step: FAILED Then only one response message is shown, and it reports 201 Created
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - list:
+      - listitem:
+        - link "Text Box":
+          - /url: /text-box
+          - img
+          - text: ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-3\runs\01-harden\artifacts\DQ-3-tests-dq-3-DQ-3-Links-51ab3--diagnostic-result-is-shown-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>

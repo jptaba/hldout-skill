@@ -1,0 +1,74 @@
+{
+  "key": "PB-2",
+  "run": "03-harden",
+  "label": "harden",
+  "startedAt": "2026-09-27T12:08:25.489Z",
+  "finishedAt": "2026-09-27T12:08:25.697Z",
+  "autId": "parabank",
+  "aut": {
+    "name": "ParaBank (Parasoft demo bank, UI + REST)",
+    "baseURL": "https://parabank.parasoft.com/parabank/",
+    "apiBaseURL": "https://parabank.parasoft.com/parabank/services/bank/"
+  },
+  "command": "npx playwright test evaluations/PB-2/tests/ --grep SCN-002|SCN-010 --workers 1",
+  "grep": "SCN-002|SCN-010",
+  "capture": true,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://parabank.parasoft.com/parabank/index.htm",
+        "ok": true,
+        "status": 429,
+        "ms": 230,
+        "samples": [
+          230,
+          195,
+          67
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://parabank.parasoft.com/parabank/services/bank/openapi.yaml",
+        "ok": true,
+        "status": 429,
+        "ms": 190,
+        "samples": [
+          172,
+          190,
+          70
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://parabank.parasoft.com/parabank/index.htm",
+        "ok": true,
+        "status": 429,
+        "ms": 59,
+        "samples": [
+          59,
+          56,
+          58
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://parabank.parasoft.com/parabank/services/bank/openapi.yaml",
+        "ok": true,
+        "status": 429,
+        "ms": 61,
+        "samples": [
+          50,
+          61,
+          52
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "skill": "3a59386487eca13b",
+  "exitCode": 255
+}

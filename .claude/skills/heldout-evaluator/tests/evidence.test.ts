@@ -68,6 +68,13 @@ describe('evidence pack and accountable lines', () => {
     assert.match(pack, /● L14 {2}\| - AC-1: Orders above 50 items/);
     assert.match(pack, / {2}L1 {3}\| ---/);
   });
+  it('states the project configuration without making it accountable', () => {
+    const dir = fixture();
+    const pack = evidencePack('ABC-1', dir, [], { profile: 'shop', name: 'Shop', baseURL: 'https://shop.test', apiBaseURL: 'https://api.shop.test' });
+    assert.match(pack, /AUT profile `shop` "Shop": web https:\/\/shop\.test, API https:\/\/api\.shop\.test/);
+    const accountable = (text: string) => text.split('\n').filter((l) => l.startsWith('●')).length;
+    assert.equal(accountable(pack), accountable(evidencePack('ABC-1', dir, [])));
+  });
 });
 
 describe('coverage ledger', () => {

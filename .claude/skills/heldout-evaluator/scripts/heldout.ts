@@ -18,7 +18,7 @@ const COMMANDS: Record<string, Command> = {
   status: { script: 'status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
   new: { script: 'mock-jira-create.ts', group: 'Requirement', args: 'KEY --from story.md [--attach file]…', about: 'create a story in the mock Jira (no Jira needed)' },
   fetch: { script: 'jira-fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch story + attachments; binds the story to an AUT profile' },
-  contract: { script: 'contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
+  contract: { script: 'contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --answer G2 --value … --by … | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
   scaffold: { script: 'scaffold.ts', group: 'Requirement', args: 'KEY', about: 'generate scenarios.feature + spec skeletons from the contract' },
   lint: { script: 'lint.ts', group: 'Tests', args: 'KEY [--fix-tags] [--allow-unhardened] [--no-health]', about: 'traceability lint + AUT healthcheck' },
   integrity: { script: 'integrity.ts', group: 'Tests', args: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]', about: 'freeze the draft / verify nothing expected changed' },

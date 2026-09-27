@@ -1,0 +1,350 @@
+{
+  "key": "AE-3",
+  "run": "09-eval",
+  "generatedAt": "2026-09-27T16:55:46.056Z",
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The brands list has the agreed shape",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Every brandsList entry names the brand of the product with that id",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:integration",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "integration",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.1",
+      "title": "SCN-003.1: Unsupported methods on the brands list are refused in the body (PUT)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.2",
+      "title": "SCN-003.2: Unsupported methods on the brands list are refused in the body (POST)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.3",
+      "title": "SCN-003.3: Unsupported methods on the brands list are refused in the body (DELETE)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: The Brands panel lists each brand once with its product count",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: The Brands panel matches the brands list of the API",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.1",
+      "title": "SCN-006.1: A brand's page lists exactly that brand's products (Polo)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.2",
+      "title": "SCN-006.2: A brand's page lists exactly that brand's products (H&M)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.3",
+      "title": "SCN-006.3: A brand's page lists exactly that brand's products (Mast & Harbour)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: The Contact Us form offers the mock-up's fields",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: The form is not sent while the mandatory Email is empty",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: The form is not sent with an e-mail that is not a valid address",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: The form can be sent with only a valid Email",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Sending the form asks for confirmation, shows success and offers a Home button",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: Cancelling the confirmation keeps the form as filled",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

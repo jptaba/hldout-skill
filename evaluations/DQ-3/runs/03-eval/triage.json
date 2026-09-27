@@ -1,0 +1,988 @@
+{
+  "key": "DQ-3",
+  "run": "03-eval",
+  "generatedAt": "2026-09-27T16:55:49.712Z",
+  "summary": {
+    "total": 32,
+    "passed": 24,
+    "failed": 8,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The Links page shows its heading, both sections and the api-call links in order",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: The static Home link opens the home page in a new tab",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: The dynamic Home link has a random suffix and opens the home page in a new tab",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: Each diagnostic endpoint answers with its status code (Created: GET /created)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: Each diagnostic endpoint answers with its status code (No Content: GET /no-content)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.3",
+      "title": "SCN-004.3: Each diagnostic endpoint answers with its status code (Moved: GET /moved)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.4",
+      "title": "SCN-004.4: Each diagnostic endpoint answers with its status code (Bad Request: GET /bad-request)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.5",
+      "title": "SCN-004.5: Each diagnostic endpoint answers with its status code (Unauthorized: GET /unauthorized)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.6",
+      "title": "SCN-004.6: Each diagnostic endpoint answers with its status code (Forbidden: GET /forbidden)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.7",
+      "title": "SCN-004.7: Each diagnostic endpoint answers with its status code (Not Found: GET /invalid-url)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.1",
+      "title": "SCN-005.1: Diagnostic responses other than /moved carry no body (GET /created)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.2",
+      "title": "SCN-005.2: Diagnostic responses other than /moved carry no body (GET /no-content)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.3",
+      "title": "SCN-005.3: Diagnostic responses other than /moved carry no body (GET /bad-request)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.4",
+      "title": "SCN-005.4: Diagnostic responses other than /moved carry no body (GET /unauthorized)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.5",
+      "title": "SCN-005.5: Diagnostic responses other than /moved carry no body (GET /forbidden)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005.6",
+      "title": "SCN-005.6: Diagnostic responses other than /moved carry no body (GET /invalid-url)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: GET /moved answers 301 with a Location header pointing to the home page",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-58e94-r-pointing-to-the-home-page-chromium-retry1/error-context.md",
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://demoqa.com/moved",
+              "headers": {},
+              "note": "redirects not followed"
+            },
+            "response": {
+              "status": 301,
+              "durationMs": 3057,
+              "headers": {
+                "server": "nginx/1.17.10 (Ubuntu)",
+                "date": "Sun, 27 Sep 2026 12:40:08 GMT",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "20",
+                "connection": "keep-alive",
+                "x-powered-by": "Express",
+                "etag": "W/\"14-G5HbgxTJ85j3qFcjvEfzEOKBtsI\""
+              },
+              "body": "{\"url\":\"demoqa.com\"}"
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://demoqa.com/moved",
+            "headers": {},
+            "note": "redirects not followed"
+          },
+          "response": {
+            "status": 301,
+            "durationMs": 3057,
+            "headers": {
+              "server": "nginx/1.17.10 (Ubuntu)",
+              "date": "Sun, 27 Sep 2026 12:40:08 GMT",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "20",
+              "connection": "keep-alive",
+              "x-powered-by": "Express",
+              "etag": "W/\"14-G5HbgxTJ85j3qFcjvEfzEOKBtsI\""
+            },
+            "body": "{\"url\":\"demoqa.com\"}"
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] Location header present",
+        "reqTag": "AC-6",
+        "matcher": "toBeTruthy",
+        "received": "undefined",
+        "message": "Error: [REQ AC-6] Location header present\n\nexpect(received).toBeTruthy()\n\nReceived: undefined\n\n  166 |     await journey.step('And the response carries a Location header that points to the site home page https://demoqa.com/', async () => {\n  167 |       const location = res.headers['location'];\n> 168 |       expect(location, '[REQ AC-6] Location header present').toBeTruthy();\n      |                                                              ^\n  169 |       expect(new URL(location ?? '', res.url).href, '[REQ AC-6] Location points to the home page').toBe(REQ.HOME_URL);\n  170 |     });\n  171 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:168:62)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:166:5"
+      },
+      "failingStep": "And the response carries a Location header that points to the site home page https://demoqa.com/",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /moved → 301",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: ?",
+          "Received: undefined"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "GET /moved answers 301 without a Location header",
+        "rationale": "AC-6 requires the 301 response to carry a Location header pointing to the site home page. The endpoint answers 301 Moved Permanently with no Location header at all (headers: connection, content-length, content-type, date, etag, server, x-powered-by); the target is only in a JSON body {\"url\":\"demoqa.com\"}. Status 301 itself matches AC-4/AC-6. G3 (relative vs absolute) is moot: no header exists.",
+        "evidence": "Replayed live 2026-09-27 (tier 3, api-probe GET moved → 301, no location header): runs/03-eval/confirm/api-moved.md; also hardening/api/api-moved.md",
+        "confirmedAt": "2026-09-27T12:41:15.190Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.1",
+      "title": "SCN-007.1: Clicking a diagnostic link reports its result on the page (Created)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d2d48-result-on-the-page-Created--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 201 and status text Created\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking Created",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 201 and status text Created\"",
+        "received": "\"Link has responded with staus 201 and status text Created\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking Created\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 201 and status text Created\"\nReceived: \"Link has responded with staus 201 and status text Created\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking Created getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 201 and status text Created\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 201 and status text Created\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 201 and status text Created\"",
+          "Received: \"Link has responded with staus 201 and status text Created\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:15.922Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.2",
+      "title": "SCN-007.2: Clicking a diagnostic link reports its result on the page (No Content)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-8e9f3-ult-on-the-page-No-Content--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 204 and status text No Content\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking No Content",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 204 and status text No Content\"",
+        "received": "\"Link has responded with staus 204 and status text No Content\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking No Content\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 204 and status text No Content\"\nReceived: \"Link has responded with staus 204 and status text No Content\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking No Content getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 204 and status text No Content\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 204 and status text No Content\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 204 and status text No Content\"",
+          "Received: \"Link has responded with staus 204 and status text No Content\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:16.634Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.3",
+      "title": "SCN-007.3: Clicking a diagnostic link reports its result on the page (Moved)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-05110-s-result-on-the-page-Moved--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 301 and status text Moved Permanently\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking Moved",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 301 and status text Moved Permanently\"",
+        "received": "\"Link has responded with staus 301 and status text Moved Permanently\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking Moved\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 301 and status text Moved Permanently\"\nReceived: \"Link has responded with staus 301 and status text Moved Permanently\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking Moved getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 301 and status text Moved Permanently\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 301 and status text Moved Permanently\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 301 and status text Moved Permanently\"",
+          "Received: \"Link has responded with staus 301 and status text Moved Permanently\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:17.350Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.4",
+      "title": "SCN-007.4: Clicking a diagnostic link reports its result on the page (Bad Request)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-50d81-lt-on-the-page-Bad-Request--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 400 and status text Bad Request\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking Bad Request",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 400 and status text Bad Request\"",
+        "received": "\"Link has responded with staus 400 and status text Bad Request\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking Bad Request\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 400 and status text Bad Request\"\nReceived: \"Link has responded with staus 400 and status text Bad Request\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking Bad Request getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 400 and status text Bad Request\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 400 and status text Bad Request\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 400 and status text Bad Request\"",
+          "Received: \"Link has responded with staus 400 and status text Bad Request\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:18.083Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.5",
+      "title": "SCN-007.5: Clicking a diagnostic link reports its result on the page (Unauthorized)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d6427-t-on-the-page-Unauthorized--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 401 and status text Unauthorized\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking Unauthorized",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 401 and status text Unauthorized\"",
+        "received": "\"Link has responded with staus 401 and status text Unauthorized\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking Unauthorized\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 401 and status text Unauthorized\"\nReceived: \"Link has responded with staus 401 and status text Unauthorized\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking Unauthorized getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 401 and status text Unauthorized\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 401 and status text Unauthorized\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 401 and status text Unauthorized\"",
+          "Received: \"Link has responded with staus 401 and status text Unauthorized\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:18.840Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.6",
+      "title": "SCN-007.6: Clicking a diagnostic link reports its result on the page (Forbidden)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-79185-sult-on-the-page-Forbidden--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 403 and status text Forbidden\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking Forbidden",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 403 and status text Forbidden\"",
+        "received": "\"Link has responded with staus 403 and status text Forbidden\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking Forbidden\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 403 and status text Forbidden\"\nReceived: \"Link has responded with staus 403 and status text Forbidden\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking Forbidden getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 403 and status text Forbidden\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 403 and status text Forbidden\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 403 and status text Forbidden\"",
+          "Received: \"Link has responded with staus 403 and status text Forbidden\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:19.568Z"
+      }
+    },
+    {
+      "scenario": "SCN-007.7",
+      "title": "SCN-007.7: Clicking a diagnostic link reports its result on the page (Not Found)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DQ-3/runs/03-eval/artifacts/DQ-3-tests-dq-3-DQ-3-Links-d91e6-sult-on-the-page-Not-Found--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://demoqa.com/links\n# step: FAILED Then the message \"Link has responded with status 404 and status text Not Found\" is shown\n- banner:\n  - link:\n    - /url: https://demoqa.com\n    - img\n- img\n- text: Elements\n- img\n- list:\n  - listitem:\n    - link \"Text Box\":\n      - /url: /text-box\n      - img\n      - text: Text Box\n  - listitem:\n    - link \"Check Box\":\n      - /url: /checkbox\n      - img\n      - text: Check Box\n  - listitem:\n    - link \"Radio Button\":\n      - /url: /radio-button\n      - img\n      - text: Radio Button\n  - listitem:\n    - link \"Web Tables\":\n      - /url: /webtables\n      - img\n      - text: Web Tables\n  - listitem:\n    - link \"Buttons\":\n      - /url: /buttons\n      - img\n      - text: Buttons\n  - listitem:\n    - link \"Links\":\n      - /url: /links\n      - img\n      - text: Links\n  - listitem:\n    - link \"Broken Links - Images\":\n      - /url: /broken\n      - img\n      - text: Broken Links - Images\n  - listitem:\n    - link \"Upload and Download\":\n      - /url: /upload-download\n      - img\n      - text: Upload and Download\n  - listitem:\n    - link \"Dynamic Properties\":\n      - /url: /dynamic-properties\n      - img\n      - text: Dynamic Properties\n- img\n- text: Forms\n- img\n- img\n- text: Alerts, Frame & Windows"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] message after clicking Not Found",
+        "reqTag": "AC-7",
+        "matcher": "toHaveText",
+        "expected": "\"Link has responded with status 404 and status text Not Found\"",
+        "received": "\"Link has responded with staus 404 and status text Not Found\"",
+        "locator": "getByText('Link has responded')",
+        "message": "Error: [REQ AC-7] message after clicking Not Found\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByText('Link has responded')\nExpected: \"Link has responded with status 404 and status text Not Found\"\nReceived: \"Link has responded with staus 404 and status text Not Found\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-7] message after clicking Not Found getByText('Link has responded') with timeout 5000ms\n  - waiting for getByText('Link has responded')\n    11 × locator resolved to <p id=\"linkResponse\">…</p>\n       - unexpected value \"Link has responded with staus 404 and status text Not Found\"\n\n\n  176 |       await journey.step(`When I click the \"${row.link}\" link`, () => apiLink(page, row.link).click());\n  177 |       await journey.step(`Then the message \"${REQ.message(row.code, row.text)}\" is shown`, async () => {\n> 178 |         await expect(responseMessages(page), `[REQ AC-7] message after clicking ${row.link}`).toHaveText(REQ.message(row.code, row.text));\n      |                                                                                               ^\n  179 |       });\n  180 |     });\n  181 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:178:95)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:329:34\n    at D:\\projects\\hldout-skill\\evaluations\\DQ-3\\tests\\dq-3.spec.ts:177:7"
+      },
+      "failingStep": "Then the message \"Link has responded with status 404 and status text Not Found\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"Link has responded with status 404 and status text Not Found\"",
+          "Received: \"Link has responded with staus 404 and status text Not Found\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Diagnostic response message misspells \"status\" as \"staus\"",
+        "rationale": "AC-7 requires the exact message 'Link has responded with status <code> and status text <text>'. The page shows 'Link has responded with staus <code> and status text <text>' — code and text are correct, the word 'status' is misspelled. Same root cause for all seven links.",
+        "evidence": "Replayed live 2026-09-27 (tier 3 inspect): Created → 'Link has responded with staus 201 and status text Created' (runs/03-eval/confirm/inspect-created.md), Not Found → 'staus 404 … Not Found' (confirm/inspect-notfound.md); tier 2 mcp-probe: 403 and 301 (hardening/tier2/links.md); tier 3 hardening: 204 (hardening/tier3/links.md)",
+        "confirmedAt": "2026-09-27T12:41:20.287Z"
+      }
+    },
+    {
+      "scenario": "SCN-008.1",
+      "title": "SCN-008.1: The page reports the status its own GET request really received (Created)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008.2",
+      "title": "SCN-008.2: The page reports the status its own GET request really received (No Content)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008.3",
+      "title": "SCN-008.3: The page reports the status its own GET request really received (Moved)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008.4",
+      "title": "SCN-008.4: The page reports the status its own GET request really received (Bad Request)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008.5",
+      "title": "SCN-008.5: The page reports the status its own GET request really received (Unauthorized)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008.6",
+      "title": "SCN-008.6: The page reports the status its own GET request really received (Forbidden)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008.7",
+      "title": "SCN-008.7: The page reports the status its own GET request really received (Not Found)",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Only the latest diagnostic result is shown",
+      "file": "DQ-3/tests/dq-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

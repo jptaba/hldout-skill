@@ -9,112 +9,154 @@
     {
       "file": "story.md",
       "read": true,
-      "contributes": "user story, context (Products page, API endpoints, out of scope), Gherkin AC-1..AC-11, PO clarification replacing AC-4"
+      "contributes": "user story, context (UI page, API endpoints, out of scope), Gherkin AC-1..AC-11, PO clarification replacing AC-4"
     }
   ],
-  "actors": ["shopper on Automation Exercise", "partner app using the public product API"],
-  "context": "The Products page (/products) shows the whole catalogue under \"All Products\" and has a search box (\"Search Product\") with a search button. The public product API on the same host takes form-encoded requests: GET /api/productsList (whole catalogue) and POST /api/searchProduct with the parameter search_product (matching products).",
+  "actors": [
+    "a shopper on Automation Exercise; a partner app using the public product API (story.md#L17)"
+  ],
+  "context": "Products page /products shows the whole catalogue under \"All Products\" with a \"Search Product\" search box and a search button; API on the same host with form-encoded requests: GET /api/productsList (whole catalogue) and POST /api/searchProduct with parameter search_product (story.md#L23-L26). Search terms are plain words or phrases, e.g. jean, top, dress, Men Tshirt (story.md#L27).",
+  "outOfScope": [
+    "punctuation and special characters in search terms (tracked separately) (story.md#L28)",
+    "sorting (story.md#L28)",
+    "pagination (story.md#L28)",
+    "cart (story.md#L28)",
+    "browsing by brand, which is AE-3 (story.md#L103)"
+  ],
   "acceptanceCriteria": [
     {
       "id": "AC-1",
-      "quote": "Scenario: AC-1 Catalogue is available through the API When a client calls GET /api/productsList Then the response lists the products of the catalogue in a \"products\" array And every product has an \"id\", a \"name\", a \"price\", a \"brand\" and a \"category\" And the category holds the audience (\"usertype\", e.g. Women, Men, Kids) and the category name And every price is written as \"Rs. \" followed by the amount, e.g. \"Rs. 500\"",
+      "quote": "Scenario: AC-1 Catalogue is available through the API\n    When a client calls GET /api/productsList\n    Then the response lists the products of the catalogue in a \"products\" array\n    And every product has an \"id\", a \"name\", a \"price\", a \"brand\" and a \"category\"\n    And the category holds the audience (\"usertype\", e.g. Women, Men, Kids) and the category name\n    And every price is written as \"Rs. \" followed by the amount, e.g. \"Rs. 500\"",
       "source": "story.md#L35",
       "text": "Catalogue is available through the API: GET /api/productsList lists the products of the catalogue in a \"products\" array; every product has an \"id\", a \"name\", a \"price\", a \"brand\" and a \"category\"; the category holds the audience (\"usertype\", e.g. Women, Men, Kids) and the category name; every price is written as \"Rs. \" followed by the amount, e.g. \"Rs. 500\".",
       "layer": "api",
-      "endpoints": ["GET /api/productsList"],
+      "endpoints": [
+        "GET /api/productsList"
+      ],
       "outcomes": [
         "the response lists the catalogue products in a \"products\" array",
         "every product has an \"id\", a \"name\", a \"price\", a \"brand\" and a \"category\"",
-        "every category holds the audience (\"usertype\", e.g. Women, Men, Kids) and the category name",
-        "every price is \"Rs. \" followed by the amount (e.g. \"Rs. 500\")"
+        "every category holds the audience \"usertype\" (e.g. Women, Men, Kids) and the category name",
+        "every price is \"Rs. \" followed by the amount, e.g. \"Rs. 500\""
       ],
-      "gaps": ["G6"]
+      "gaps": [
+        "G3"
+      ]
     },
     {
       "id": "AC-2",
-      "quote": "Scenario: AC-2 Search by a term through the API When a client posts search_product = \"jean\" to /api/searchProduct Then exactly these products are returned: \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\"",
+      "quote": "Scenario: AC-2 Search by a term through the API\n    When a client posts search_product = \"jean\" to /api/searchProduct\n    Then exactly these products are returned: \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\"",
       "source": "story.md#L42",
-      "text": "Search by a term through the API: posting search_product = \"jean\" to /api/searchProduct returns exactly \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\".",
+      "text": "Search by a term through the API: posting search_product = \"jean\" to /api/searchProduct returns exactly these products: \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\".",
       "layer": "api",
-      "endpoints": ["POST /api/searchProduct"],
+      "endpoints": [
+        "POST /api/searchProduct"
+      ],
       "outcomes": [
-        "exactly these products are returned: \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\"",
+        "search_product = \"jean\" returns exactly \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\"",
         "no other product is returned"
       ],
-      "gaps": ["G2", "G5"]
+      "gaps": [
+        "G4"
+      ]
     },
     {
       "id": "AC-3",
-      "quote": "Scenario: AC-3 Search ignores letter case When a client searches for \"TOP\" and for \"top\" Then both searches return the same products",
+      "quote": "Scenario: AC-3 Search ignores letter case\n    When a client searches for \"TOP\" and for \"top\"\n    Then both searches return the same products",
       "source": "story.md#L46",
       "text": "Search ignores letter case: searching for \"TOP\" and for \"top\" returns the same products.",
       "layer": "api",
-      "endpoints": ["POST /api/searchProduct"],
+      "endpoints": [
+        "POST /api/searchProduct"
+      ],
       "outcomes": [
         "searching \"TOP\" and searching \"top\" return the same products"
       ],
-      "gaps": ["G5"]
+      "gaps": [
+        "G4"
+      ]
     },
     {
       "id": "AC-4",
-      "quote": "Scenario: AC-4 Search matches product names When a client searches for \"dress\" Then every product returned has the term in its product name And every catalogue product whose name contains \"dress\" is returned",
+      "quote": "Scenario: AC-4 Search matches product names\n    When a client searches for \"dress\"\n    Then every product returned has the term in its product name\n    And every catalogue product whose name contains \"dress\" is returned",
       "source": "story.md#L50",
-      "text": "Search matches product names, as replaced by the Product Owner's clarification (G1): searching \"dress\" returns every product whose name contains \"dress\" plus every product in a \"Dress\" category, and nothing else; the brand is not a search field.",
+      "text": "Search matches the product name or its category name (AC-4 as replaced by the Product Owner clarification of 2026-09-26): searching \"dress\" returns every product whose name contains \"dress\" plus every product in a \"Dress\" category, even if the word is not in its name, and nothing else; the brand is not a search field.",
       "layer": "api",
-      "endpoints": ["POST /api/searchProduct", "GET /api/productsList"],
-      "outcomes": [
-        "every product returned for \"dress\" has \"dress\" in its product name or its category name (contains match, case-insensitive)",
-        "every catalogue product whose name contains \"dress\" is returned",
-        "every catalogue product in a \"Dress\" category is returned, even without the word in its name (e.g. \"Sleeves Top and Short - Blue & Pink\", Kids > Dress)",
-        "nothing else comes back",
-        "searching \"Polo\" only finds products with \"Polo\" in the name or category (the brand is not matched)"
+      "endpoints": [
+        "POST /api/searchProduct",
+        "GET /api/productsList"
       ],
-      "gaps": ["G1", "G5", "G6"]
+      "outcomes": [
+        "searching \"dress\" returns every catalogue product whose name contains \"dress\" (case-insensitive)",
+        "searching \"dress\" also returns every product in a \"Dress\" category, even if the word is not in its name, e.g. \"Sleeves Top and Short - Blue & Pink\" (Kids > Dress)",
+        "nothing else comes back: every product returned has \"dress\" in its name or its category name",
+        "searching \"Polo\" only finds products with \"Polo\" in the name or category (the brand is not a search field)"
+      ],
+      "gaps": [
+        "G1",
+        "G3",
+        "G4"
+      ]
     },
     {
       "id": "AC-5",
-      "quote": "Scenario: AC-5 Nothing matches When a client searches for \"zzqxv\" Then an empty product list is returned, not an error",
+      "quote": "Scenario: AC-5 Nothing matches\n    When a client searches for \"zzqxv\"\n    Then an empty product list is returned, not an error",
       "source": "story.md#L55",
       "text": "Nothing matches: searching for \"zzqxv\" returns an empty product list, not an error.",
       "layer": "api",
-      "endpoints": ["POST /api/searchProduct"],
+      "endpoints": [
+        "POST /api/searchProduct"
+      ],
       "outcomes": [
         "searching \"zzqxv\" returns an empty product list",
         "the response is not an error"
       ],
-      "gaps": ["G4", "G5"]
+      "gaps": [
+        "G4",
+        "G5"
+      ]
     },
     {
       "id": "AC-6",
-      "quote": "Scenario: AC-6 Search without a term (empty value) When a client posts search_product with an empty value Then the whole catalogue is returned, the same products as GET /api/productsList",
+      "quote": "Scenario: AC-6 Search without a term (empty value)\n    When a client posts search_product with an empty value\n    Then the whole catalogue is returned, the same products as GET /api/productsList",
       "source": "story.md#L59",
       "text": "Search without a term (empty value): posting search_product with an empty value returns the whole catalogue, the same products as GET /api/productsList.",
       "layer": "api",
-      "endpoints": ["POST /api/searchProduct", "GET /api/productsList"],
-      "outcomes": [
-        "posting search_product with an empty value returns the whole catalogue",
-        "the products returned are the same products as GET /api/productsList"
+      "endpoints": [
+        "POST /api/searchProduct",
+        "GET /api/productsList"
       ],
-      "gaps": ["G5"]
+      "outcomes": [
+        "search_product with an empty value returns the whole catalogue",
+        "the products are the same as GET /api/productsList returns"
+      ],
+      "gaps": [
+        "G4"
+      ]
     },
     {
       "id": "AC-7",
-      "quote": "Scenario: AC-7 Search without a term (parameter missing) When a client posts to /api/searchProduct without the search_product parameter Then the request is rejected with response code 400 And the message is \"Bad request, search_product parameter is missing in POST request.\"",
+      "quote": "Scenario: AC-7 Search without a term (parameter missing)\n    When a client posts to /api/searchProduct without the search_product parameter\n    Then the request is rejected with response code 400\n    And the message is \"Bad request, search_product parameter is missing in POST request.\"",
       "source": "story.md#L63",
       "text": "Search without a term (parameter missing): posting to /api/searchProduct without the search_product parameter is rejected with response code 400 and the message \"Bad request, search_product parameter is missing in POST request.\"",
       "layer": "api",
-      "endpoints": ["POST /api/searchProduct"],
+      "endpoints": [
+        "POST /api/searchProduct"
+      ],
       "outcomes": [
-        "the request is rejected with response code 400",
+        "response code 400",
         "message \"Bad request, search_product parameter is missing in POST request.\""
       ],
-      "gaps": ["G3", "G5"]
+      "gaps": [
+        "G2",
+        "G6"
+      ]
     },
     {
       "id": "AC-8",
-      "quote": "Scenario: AC-8 Search from the Products page Given a shopper on the Products page When they type \"jean\" in the search box and press the search button Then the product grid is headed \"Searched Products\" And the search box still shows \"jean\" And exactly the three jeans products listed in AC-2 are shown",
+      "quote": "Scenario: AC-8 Search from the Products page\n    Given a shopper on the Products page\n    When they type \"jean\" in the search box and press the search button\n    Then the product grid is headed \"Searched Products\"\n    And the search box still shows \"jean\"\n    And exactly the three jeans products listed in AC-2 are shown",
       "source": "story.md#L68",
-      "text": "Search from the Products page: typing \"jean\" in the search box and pressing the search button shows the product grid headed \"Searched Products\", the search box still shows \"jean\", and exactly the three jeans products listed in AC-2 are shown.",
+      "text": "Search from the Products page: a shopper on the Products page types \"jean\" in the search box and presses the search button; the product grid is headed \"Searched Products\", the search box still shows \"jean\", and exactly the three jeans products listed in AC-2 are shown.",
       "layer": "ui",
       "entryPoint": "Products page (/products)",
       "outcomes": [
@@ -122,49 +164,62 @@
         "the search box still shows \"jean\"",
         "exactly \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\" are shown"
       ],
-      "gaps": ["G2", "G7"]
+      "gaps": [
+        "G7"
+      ]
     },
     {
       "id": "AC-9",
-      "quote": "Scenario: AC-9 Searching from the Products page without a term Given a shopper on the Products page When they leave the search box empty and press the search button Then the grid is headed \"All Products\" And every product of the catalogue (GET /api/productsList) is shown",
+      "quote": "Scenario: AC-9 Searching from the Products page without a term\n    Given a shopper on the Products page\n    When they leave the search box empty and press the search button\n    Then the grid is headed \"All Products\"\n    And every product of the catalogue (GET /api/productsList) is shown",
       "source": "story.md#L75",
-      "text": "Searching from the Products page without a term: leaving the search box empty and pressing the search button shows the grid headed \"All Products\" with every product of the catalogue (GET /api/productsList).",
+      "text": "Searching from the Products page without a term: a shopper on the Products page leaves the search box empty and presses the search button; the grid is headed \"All Products\" and every product of the catalogue (GET /api/productsList) is shown.",
       "layer": "e2e",
       "entryPoint": "Products page (/products)",
-      "endpoints": ["GET /api/productsList"],
+      "endpoints": [
+        "GET /api/productsList"
+      ],
       "outcomes": [
         "the grid is headed \"All Products\"",
-        "every product of the catalogue (GET /api/productsList) is shown"
+        "every product GET /api/productsList returns is shown"
       ],
-      "gaps": ["G7"]
+      "gaps": [
+        "G7"
+      ]
     },
     {
       "id": "AC-10",
-      "quote": "Scenario Outline: AC-10 The shop and the API agree on search results When a shopper searches for \"<term>\" on the Products page Then the products shown are exactly the products POST /api/searchProduct returns for \"<term>\" Examples: | term | | top | | dress | | Men Tshirt |",
+      "quote": "Scenario Outline: AC-10 The shop and the API agree on search results\n    When a shopper searches for \"<term>\" on the Products page\n    Then the products shown are exactly the products POST /api/searchProduct returns for \"<term>\"\n\n    Examples:\n      | term       |\n      | top        |\n      | dress      |\n      | Men Tshirt |",
       "source": "story.md#L81",
-      "text": "The shop and the API agree on search results: for each term (top, dress, Men Tshirt), the products shown on the Products page are exactly the products POST /api/searchProduct returns for that term.",
+      "text": "The shop and the API agree on search results: when a shopper searches for \"<term>\" on the Products page, the products shown are exactly the products POST /api/searchProduct returns for \"<term>\", for the terms top, dress and Men Tshirt.",
       "layer": "e2e",
       "entryPoint": "Products page (/products)",
-      "endpoints": ["POST /api/searchProduct"],
-      "outcomes": [
-        "for \"top\", the products shown are exactly the products POST /api/searchProduct returns for \"top\"",
-        "for \"dress\", the products shown are exactly the products POST /api/searchProduct returns for \"dress\"",
-        "for \"Men Tshirt\", the products shown are exactly the products POST /api/searchProduct returns for \"Men Tshirt\""
+      "endpoints": [
+        "POST /api/searchProduct"
       ],
-      "gaps": ["G5", "G7"]
+      "outcomes": [
+        "for \"top\", the products shown are exactly those POST /api/searchProduct returns for \"top\"",
+        "for \"dress\", the products shown are exactly those POST /api/searchProduct returns for \"dress\"",
+        "for \"Men Tshirt\", the products shown are exactly those POST /api/searchProduct returns for \"Men Tshirt\""
+      ],
+      "gaps": [
+        "G4",
+        "G7"
+      ]
     },
     {
       "id": "AC-11",
-      "quote": "Scenario: AC-11 No results on the Products page When a shopper searches for \"zzqxv\" on the Products page Then the grid is headed \"Searched Products\" and no product is shown",
+      "quote": "Scenario: AC-11 No results on the Products page\n    When a shopper searches for \"zzqxv\" on the Products page\n    Then the grid is headed \"Searched Products\" and no product is shown",
       "source": "story.md#L91",
-      "text": "No results on the Products page: searching for \"zzqxv\" shows the grid headed \"Searched Products\" and no product.",
+      "text": "No results on the Products page: when a shopper searches for \"zzqxv\" on the Products page, the grid is headed \"Searched Products\" and no product is shown.",
       "layer": "ui",
       "entryPoint": "Products page (/products)",
       "outcomes": [
         "the grid is headed \"Searched Products\"",
         "no product is shown"
       ],
-      "gaps": ["G7"]
+      "gaps": [
+        "G7"
+      ]
     }
   ],
   "endpoints": [
@@ -173,22 +228,29 @@
       "path": "/api/productsList",
       "source": "story.md#L25",
       "auth": "none",
-      "request": "Same host as the shop; form-encoded requests (L24). Returns the whole catalogue in a \"products\" array (L37). Described as a public product API (L17)."
+      "success": "lists the products of the catalogue in a \"products\" array (story.md#L37)",
+      "request": "same host as the shop; form-encoded requests (story.md#L24); no parameters stated"
     },
     {
       "method": "POST",
       "path": "/api/searchProduct",
       "source": "story.md#L26",
       "auth": "none",
-      "requestFields": ["search_product"],
-      "request": "Form-encoded (L24), parameter search_product holding the search term (L26). Returns the products matching the term. Described as a public product API (L17)."
+      "requestFields": [
+        "search_product"
+      ],
+      "request": "same host as the shop; form-encoded body (story.md#L24) with the parameter search_product holding the search term (story.md#L26)"
     }
   ],
+  "auth": {
+    "mechanism": "none: the product API is described as public",
+    "source": "story.md#L17"
+  },
   "rules": [
     {
       "id": "R1",
-      "text": "Search matches the product name or its category name (the category under Women / Men / Kids, e.g. \"Dress\", \"Tops\", \"Tops & Shirts\", \"Tshirts\"). Searching \"dress\" returns every product whose name contains \"dress\" plus every product in a \"Dress\" category; nothing else comes back.",
-      "source": "story.md#L102"
+      "text": "Search matches the product name or its category name (the category under Women / Men / Kids, e.g. \"Dress\", \"Tops\", \"Tops & Shirts\", \"Tshirts\"); nothing else should come back. This replaces scenario AC-4 as written.",
+      "source": "story.md#L100-L102"
     },
     {
       "id": "R2",
@@ -202,166 +264,280 @@
     },
     {
       "id": "R4",
-      "text": "Search terms are plain words or phrases, for example jean, top, dress, Men Tshirt.",
-      "source": "story.md#L27"
+      "text": "Search terms are plain words or phrases, for example jean, top, dress, Men Tshirt; punctuation and special characters in search terms are out of scope.",
+      "source": "story.md#L27-L28"
     }
   ],
   "errorModel": [
     {
       "id": "E1",
       "case": "POST /api/searchProduct without the search_product parameter",
-      "status": 400,
+      "status": "400",
       "body": "Bad request, search_product parameter is missing in POST request.",
-      "source": "story.md#L63"
+      "source": "story.md#L63-L66"
     }
   ],
   "testData": {
-    "strategy": "None created: the story reads the existing catalogue (GET /api/productsList, the Products page); AC-2, AC-4 and AC-8 name products that already exist in the catalogue.",
-    "source": "story.md#L25"
+    "strategy": "none needed: read-only; every criterion searches or lists the existing catalogue, and nothing is created",
+    "constraints": [
+      "AC-2 and AC-8 rely on the catalogue containing \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\" and \"Grunt Blue Slim Fit Jeans\" (story.md#L44)",
+      "AC-4 relies on the catalogue containing \"Sleeves Top and Short - Blue & Pink\" in Kids > Dress (story.md#L102)"
+    ],
+    "source": "story.md#L44"
   },
-  "outOfScope": [
-    "punctuation and special characters in search terms (tracked separately) (story.md#L28)",
-    "sorting (story.md#L28)",
-    "pagination (story.md#L28)",
-    "cart (story.md#L28)",
-    "browsing by brand, which is AE-3 (story.md#L103)"
-  ],
   "gaps": [
     {
       "id": "G1",
-      "element": "fields the search matches: AC-4 as written (L52-L53) says product name only; the Product Owner's clarification (L100, L102-L104) says name or category name, not brand, contains match, case-insensitive",
+      "element": "what searching \"dress\" must return: AC-4 as written says only products with the term in their name; the Product Owner clarification says name or category name",
       "kind": "oracle",
       "required": true,
-      "affects": ["AC-4"],
+      "affects": [
+        "AC-4"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L52-L53: \"every product returned has the term in its product name\" / \"every catalogue product whose name contains \\\"dress\\\" is returned\"; L100: PO comment \"this replaces scenario AC-4 as written\"; L102: name or category name, e.g. \"Sleeves Top and Short - Blue & Pink\" (Kids > Dress) belongs in the \"dress\" results, nothing else; L103: brand not a search field; L104: contains match, case-insensitive"
+          "result": "L52-L53: every product returned has the term in its product name, and every product whose name contains \"dress\" is returned; L100: PO comment \"this replaces scenario AC-4 as written\"; L102: name or category name, plus every product in a \"Dress\" category, nothing else; L103: brand is not a search field; L104: contains match, case-insensitive"
         }
       ],
       "resolution": "found-in-requirement",
-      "value": "Search matches product name or category name (contains, case-insensitive); the brand is not matched. \"dress\" returns every product whose name contains \"dress\" plus every product in a \"Dress\" category, and nothing else.",
-      "evidence": "story.md#L100-L104 (PO comment explicitly replaces AC-4 as written, L50-L53)"
+      "value": "searching \"dress\" returns every product whose name contains \"dress\" plus every product in a \"Dress\" category (e.g. \"Sleeves Top and Short - Blue & Pink\", Kids > Dress), and nothing else; brand is not searched",
+      "evidence": "story.md#L100-L104 (PO clarification explicitly replaces AC-4 as written at L50-L53)"
     },
     {
       "id": "G2",
-      "element": "whether the exact \"jean\" result list of AC-2 (and AC-8) still stands under the clarified rule that search also matches the category name (L102); the clarification only says it replaces AC-4",
+      "element": "what \"response code 400\" refers to: the HTTP status of the response, or a response-code value carried in the response body",
       "kind": "oracle",
-      "required": false,
-      "affects": ["AC-2", "AC-8"],
+      "required": true,
+      "affects": [
+        "AC-7"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L44 fixes exactly three products for \"jean\"; L73 reuses them; L100 says the clarification replaces AC-4 only and does not amend AC-2; L102 widens matching to category names for search in general"
+          "result": "L65 says \"rejected with response code 400\" without saying whether this is the HTTP status line or a field in the body; no other line describes the response format of errors"
         }
       ],
       "resolution": "assumed",
-      "value": "AC-2 and AC-8 stand as written: exactly \"Soft Stretch Jeans\", \"Regular Fit Straight Jeans\", \"Grunt Blue Slim Fit Jeans\". Reason: the PO clarification names only AC-4 as replaced; if the catalogue has another product in a category containing \"jean\", the two statements conflict and the user must decide."
+      "value": "the HTTP status of the response is 400 (the usual meaning of \"response code\"). Alternative reading, not assumed: HTTP status is not constrained and a response-code value of 400 is carried in the body. Confirm with the Product Owner"
     },
     {
       "id": "G3",
-      "element": "what \"response code 400\" means for AC-7: the HTTP status of the response, or a response code carried in the response body",
-      "kind": "oracle",
+      "element": "field name that holds the category name inside a product's \"category\" (only \"usertype\" is named)",
+      "kind": "mechanics",
       "required": true,
-      "affects": ["AC-7"],
+      "affects": [
+        "AC-1",
+        "AC-4"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L65: \"rejected with response code 400\"; no source says whether this is the HTTP status or a field of the body"
+          "result": "L39 says the category holds the audience (\"usertype\") and the category name, but names no field for the category name"
         },
         {
-          "where": "user",
-          "result": "not asked: non-interactive run"
+          "where": "aut",
+          "result": "GET /api/productsList: each product has category = { usertype: { usertype: \"Women\" }, category: \"Tops\" }"
         }
       ],
-      "resolution": "open"
+      "resolution": "discovered-in-aut",
+      "value": "category name is product.category.category; audience is product.category.usertype.usertype",
+      "evidence": "evaluations/AE-1/hardening/api-productsList.md (tier 3 api-probe, 2026-09-27)"
     },
     {
       "id": "G4",
-      "element": "what makes a response \"not an error\" in AC-5 (HTTP status, a response code in the body, or both)",
-      "kind": "oracle",
-      "required": false,
-      "affects": ["AC-5"],
+      "element": "shape of the POST /api/searchProduct response: where the list of matching products is carried and how a product is identified when comparing result sets",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6",
+        "AC-10"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L57: \"an empty product list is returned, not an error\"; no success status or success code is stated anywhere in the story"
+          "result": "L26 says the endpoint returns the products matching the term; the \"products\" array is only stated for GET /api/productsList (L37)"
         },
         {
-          "where": "user",
-          "result": "not asked: non-interactive run"
+          "where": "aut",
+          "result": "POST /api/searchProduct (form search_product=jean) answers a JSON body { responseCode, products: [ {id,name,price,brand,category} ] } served as Content-Type text/html"
         }
       ],
-      "resolution": "open"
+      "resolution": "discovered-in-aut",
+      "value": "the matching products are in the body \"products\" array (same product shape as GET /api/productsList); a product is identified by \"id\"",
+      "evidence": "evaluations/AE-1/hardening/api-search-jean.md, api-search-nomatch.md (tier 3 api-probe)"
     },
     {
       "id": "G5",
-      "element": "response body shape of POST /api/searchProduct: the key holding the returned products, and the key holding the message of an error (AC-7)",
-      "kind": "mechanics",
-      "required": true,
-      "affects": ["AC-2", "AC-3", "AC-4", "AC-5", "AC-6", "AC-7", "AC-10"],
+      "element": "what makes the no-match response \"not an error\": no status code or body is stated for a successful search",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-5"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L26 only says it returns \"the products matching the term\"; the \"products\" array is stated for GET /api/productsList only (L37); L66 gives the message text but not where it appears"
+          "result": "L57 says \"an empty product list is returned, not an error\"; no success status is stated anywhere in the story"
         }
       ],
-      "resolution": "open"
+      "resolution": "assumed",
+      "value": "the response is a successful one carrying an empty product list: no error status and no error message (as in the AC-7 error case) is returned. No specific status code is asserted"
     },
     {
       "id": "G6",
-      "element": "JSON shape of a product's \"category\": how \"usertype\" is represented and which key holds the category name",
+      "element": "where the error message of AC-7 is carried in the response (body field name / format)",
       "kind": "mechanics",
       "required": true,
-      "affects": ["AC-1", "AC-4"],
+      "affects": [
+        "AC-7"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L39 says the category holds the audience (\"usertype\") and the category name, but not the key of the category name nor the shape of usertype"
+          "result": "L66 gives the message text but not the field or format carrying it"
+        },
+        {
+          "where": "aut",
+          "result": "POST /api/searchProduct without a body answers a JSON body { responseCode, message }"
         }
       ],
-      "resolution": "open"
+      "resolution": "discovered-in-aut",
+      "value": "the message is carried in the body field \"message\"",
+      "evidence": "evaluations/AE-1/hardening/api-search-missing.md (tier 3 api-probe)"
     },
     {
       "id": "G7",
-      "element": "Products page locators: the search box, the search button, the heading of the product grid and the names of the products shown",
+      "element": "UI locators on the Products page: search box, search button label, product grid heading and product cards (only the search box placeholder/label \"Search Product\" and the headings are stated)",
       "kind": "mechanics",
       "required": true,
-      "affects": ["AC-8", "AC-9", "AC-10", "AC-11"],
+      "affects": [
+        "AC-8",
+        "AC-9",
+        "AC-10",
+        "AC-11"
+      ],
       "tried": [
         {
           "where": "story",
-          "result": "L23 gives the route /products, the heading \"All Products\" and the search box label \"Search Product\"; the search button has no stated label, and the grid and product-name elements are not described"
+          "result": "L23: /products, heading \"All Products\", search box (\"Search Product\") with a search button; button label and product card structure not given"
+        },
+        {
+          "where": "aut",
+          "result": "/products: textbox \"Search Product\"; search button #submit_search (no accessible name, Enter does not submit); grid heading .features_items h2.title; product cards .features_items .productinfo p; search navigates to /products?search=<term>"
         }
       ],
-      "resolution": "open"
+      "resolution": "discovered-in-aut",
+      "value": "search box getByRole(textbox, \"Search Product\"); button #submit_search; heading .features_items h2.title; card names .features_items .productinfo p; submission navigates to /products?search=<term>",
+      "evidence": "evaluations/AE-1/hardening/inspect-products.md, inspect-search-*.md (tier 3), tier2/search-jean.md (tier 2)"
     }
   ],
   "coverage": [
-    { "lines": "story.md#L17-L19", "as": "context", "note": "User story: actors (shopper, partner app) and goal; L17 calls the product API public, which grounds auth \"none\" on the endpoints" },
-    { "lines": "story.md#L23", "as": "context", "note": "Products page route /products, heading \"All Products\" and search box \"Search Product\": used as entryPoint of AC-8..AC-11 and as outcome literals of AC-9; locators left to G7" },
-    { "lines": "story.md#L24", "as": "endpoint", "note": "same host, form-encoded requests" },
-    { "lines": "story.md#L25", "as": "endpoint" },
-    { "lines": "story.md#L26", "as": "endpoint" },
-    { "lines": "story.md#L27", "as": "R4" },
-    { "lines": "story.md#L28", "as": "out-of-scope" },
-    { "lines": "story.md#L32-L33", "as": "not-a-requirement", "note": "Opening of the gherkin code fence and the Feature title; the scenarios follow" },
-    { "lines": "story.md#L35-L40", "as": "AC-1" },
-    { "lines": "story.md#L42-L44", "as": "AC-2" },
-    { "lines": "story.md#L46-L48", "as": "AC-3" },
-    { "lines": "story.md#L50-L53", "as": "AC-4,G1", "note": "Replaced by the PO clarification L100-L104 (G1)" },
-    { "lines": "story.md#L55-L57", "as": "AC-5" },
-    { "lines": "story.md#L59-L61", "as": "AC-6" },
-    { "lines": "story.md#L63-L66", "as": "AC-7,E1" },
-    { "lines": "story.md#L68-L73", "as": "AC-8" },
-    { "lines": "story.md#L75-L79", "as": "AC-9" },
-    { "lines": "story.md#L81-L83", "as": "AC-10" },
-    { "lines": "story.md#L85-L89", "as": "AC-10", "note": "Examples table of the AC-10 Scenario Outline (top, dress, Men Tshirt)" },
-    { "lines": "story.md#L91-L93", "as": "AC-11" },
-    { "lines": "story.md#L94", "as": "not-a-requirement", "note": "Closing of the gherkin code fence" },
-    { "lines": "story.md#L100", "as": "G1", "note": "PO comment explicitly replaces AC-4 as written" },
-    { "lines": "story.md#L102", "as": "R1,AC-4,G1" },
-    { "lines": "story.md#L103", "as": "R2,AC-4,out-of-scope", "note": "Brand not a search field (R2, AC-4 outcome); browsing by brand is AE-3" },
-    { "lines": "story.md#L104", "as": "R3,AC-3,AC-4" }
+    {
+      "lines": "story.md#L17-L19",
+      "as": "context",
+      "note": "user story: actors (shopper, partner app using the public API) and goal; L17 also grounds auth none (public API)"
+    },
+    {
+      "lines": "story.md#L17",
+      "as": "auth"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "context,G7",
+      "note": "Products page route, heading and search box used as entry point of AC-8..AC-11"
+    },
+    {
+      "lines": "story.md#L24-L26",
+      "as": "endpoint"
+    },
+    {
+      "lines": "story.md#L27",
+      "as": "R4"
+    },
+    {
+      "lines": "story.md#L28",
+      "as": "out-of-scope,R4"
+    },
+    {
+      "lines": "story.md#L32",
+      "as": "not-a-requirement",
+      "note": "opening code fence of the Gherkin block"
+    },
+    {
+      "lines": "story.md#L33",
+      "as": "context",
+      "note": "Feature title of the Gherkin block; no testable statement"
+    },
+    {
+      "lines": "story.md#L35-L40",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L42-L44",
+      "as": "AC-2,test-data"
+    },
+    {
+      "lines": "story.md#L46-L48",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L50-L53",
+      "as": "AC-4,G1",
+      "note": "superseded as written by the PO clarification at L100-L104"
+    },
+    {
+      "lines": "story.md#L55-L57",
+      "as": "AC-5,G5"
+    },
+    {
+      "lines": "story.md#L59-L61",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L63-L66",
+      "as": "AC-7,E1,G2"
+    },
+    {
+      "lines": "story.md#L68-L73",
+      "as": "AC-8"
+    },
+    {
+      "lines": "story.md#L75-L79",
+      "as": "AC-9"
+    },
+    {
+      "lines": "story.md#L81-L89",
+      "as": "AC-10"
+    },
+    {
+      "lines": "story.md#L91-L93",
+      "as": "AC-11"
+    },
+    {
+      "lines": "story.md#L94",
+      "as": "not-a-requirement",
+      "note": "closing code fence of the Gherkin block"
+    },
+    {
+      "lines": "story.md#L100",
+      "as": "G1,R1"
+    },
+    {
+      "lines": "story.md#L102",
+      "as": "R1,G1,AC-4,test-data"
+    },
+    {
+      "lines": "story.md#L103",
+      "as": "R2,AC-4,out-of-scope"
+    },
+    {
+      "lines": "story.md#L104",
+      "as": "R3,AC-4"
+    }
   ]
 }

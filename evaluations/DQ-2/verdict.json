@@ -1,0 +1,566 @@
+{
+  "key": "DQ-2",
+  "verdict": "PASS",
+  "reason": "Every scenario passed and every acceptance criterion is covered.",
+  "finalRun": "04-rerun",
+  "generatedAt": "2026-09-27T16:56:14.257Z",
+  "autId": "demoqa",
+  "aut": {
+    "name": "DemoQA Book Store (React UI + JSON API)",
+    "baseURL": "https://demoqa.com",
+    "apiBaseURL": "https://demoqa.com",
+    "testIdAttribute": "id",
+    "healthcheck": [
+      "/books",
+      "api:/BookStore/v1/Books"
+    ],
+    "notes": "Users can be deleted via the API.",
+    "blockHosts": [
+      "googlesyndication.com",
+      "doubleclick.net",
+      "googleadservices.com",
+      "google-analytics.com",
+      "googletagmanager.com",
+      "fundingchoicesmessages.google.com",
+      "adservice.google.com"
+    ]
+  },
+  "summary": {
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [],
+  "scriptDefectsRepaired": [
+    {
+      "run": "01-harden",
+      "scenario": "SCN-011",
+      "action": "Take a fresh token (seed.step) after the UI sign-in and in user cleanup; integrity PRESERVED; 02-harden 84/84."
+    },
+    {
+      "run": "03-eval",
+      "scenario": "SCN-011",
+      "action": "Precondition waits for /profile up to 20 s (SCN-009 and SCN-011); integrity PRESERVED; full re-run."
+    }
+  ],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "contract",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "functional",
+      "scenarios": 6,
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "idempotency",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "integration",
+      "scenarios": 3,
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 4,
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "security",
+      "scenarios": 1,
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "GET /BookStore/v1/Books returns 200 with a books list; every entry carries all catalogue fields listed in the contract (isbn, title, subTitle, author, publish_date, publisher, pages, description, website).",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "The catalogue API returns every book with all catalogue fields",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-1, api-contract.md §Book object"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-002",
+          "title": "Every catalogue entry has the field types of the Book object",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story AC-1, api-contract.md#L28-L38 (R2 field types)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "Looking up one book with GET /BookStore/v1/Book?ISBN=<isbn> returns 200 with the same data as that book's entry in the catalogue.",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "Looking up one book returns the same data as its catalogue entry",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-2, story.md#L31 (example ISBNs)"
+          ],
+          "passed": 3,
+          "total": 3,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-003.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-003.3",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "The Book Store page /books lists every book returned by the catalogue API, each with its title, author and publisher.",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "The Book Store page lists every catalogue book with title, author and publisher",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story AC-3, story Context (/books)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "The search box on /books (placeholder \"Type to search\") filters the list while typing, case-insensitively, on title, author or publisher. Examples: \"javascript\" shows exactly Learning JavaScript Design Patterns, Speaking JavaScript, Programming JavaScript Applications and Eloquent JavaScript, Second Edition; \"zakas\" shows only Understanding ECMAScript 6; \"No Starch\" shows only Eloquent JavaScript, Second Edition and Understanding ECMAScript 6. A term that matches no book leaves no book rows in the list.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "Searching filters the list while typing, case-insensitively",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-4"
+          ],
+          "passed": 4,
+          "total": 4,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.3",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.4",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-006",
+          "title": "A search term that matches no book leaves no book rows",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story AC-4 (no-match term)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "Clicking a book title on /books opens that book's detail page, showing its ISBN, title, sub title, author, publisher and total pages as in the catalogue.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "Clicking a book title opens its detail page with the catalogue values",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-5"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "Adding books to a user's collection with POST /BookStore/v1/Books returns 201 and echoes the added ISBNs; GET /Account/v1/User/{UUID} then lists those books in the user's books.",
+      "scenarios": [
+        {
+          "id": "SCN-008",
+          "title": "Adding books to my collection returns 201, echoes the ISBNs and lists them on my account",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-6, api-contract.md §POST /BookStore/v1/Books"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "A book added through the API appears on the Profile page after the user signs in on /login, with its title, author and publisher.",
+      "scenarios": [
+        {
+          "id": "SCN-009",
+          "title": "A book added through the API appears on the Profile page after signing in",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story AC-7"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "Adding a book that is already in the user's collection is rejected with the \"already present\" error from the contract; the collection still contains that book exactly once.",
+      "scenarios": [
+        {
+          "id": "SCN-010",
+          "title": "Adding a book already in my collection is rejected and the book stays once",
+          "type": "idempotency",
+          "layer": "api",
+          "sources": [
+            "story AC-8, api-contract.md#L24"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-9",
+      "text": "On the Profile page, deleting one book (the row's delete icon, then confirming \"Do you want to delete this book?\" with OK) removes that row only; the other books remain. Afterwards the user's collection in the API no longer contains the deleted book and still contains the others.",
+      "scenarios": [
+        {
+          "id": "SCN-011",
+          "title": "Deleting one book on the Profile page removes only that book",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story AC-9"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-10",
+      "text": "DELETE /BookStore/v1/Book removes one book from the collection and returns 204; the other books remain. Removing a book that is not in the collection is rejected with the \"not in user's collection\" error from the contract.",
+      "scenarios": [
+        {
+          "id": "SCN-012",
+          "title": "Deleting one book through the API returns 204 and keeps the others",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-10, api-contract.md §DELETE /BookStore/v1/Book"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-012",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-013",
+          "title": "Deleting a book that is not in my collection is rejected",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-10, api-contract.md#L23"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-013",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-11",
+      "text": "An ISBN that is not in the catalogue is rejected with the \"not available in Books Collection\" error from the contract, both for the lookup (GET /BookStore/v1/Book) and when adding it to a collection; nothing is added.",
+      "scenarios": [
+        {
+          "id": "SCN-014",
+          "title": "Looking up an ISBN that is not in the catalogue is rejected",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-11, api-contract.md#L22, #L46"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-015",
+          "title": "Adding an ISBN that is not in the catalogue is rejected and nothing is added",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-11, api-contract.md#L51"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-015",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-12",
+      "text": "Collection calls without a valid token are refused with the \"not authorized\" error from the contract: adding, deleting and reading a user's collection without a token, and reading or adding to another user's collection with one's own token.",
+      "scenarios": [
+        {
+          "id": "SCN-016",
+          "title": "Collection calls without a valid token are refused",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-12, api-contract.md#L21, #L51, #L55, #L62"
+          ],
+          "passed": 8,
+          "total": 8,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-016.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.3",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.4",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.5",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.6",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.7",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-016.8",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "G6 — no acceptance criterion covers DELETE /BookStore/v1/Books?UserId={UUID} (remove all books of the user); is it in scope, and what must it do beyond 204?"
+  ],
+  "observations": [],
+  "verdictFile": "evaluations/DQ-2/verdict.md"
+}

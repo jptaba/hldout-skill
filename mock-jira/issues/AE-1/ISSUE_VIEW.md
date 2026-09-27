@@ -3,7 +3,7 @@
 
 | Type | Status | Priority | Labels |
 | --- | --- | --- | --- |
-| Story | Ready for QA | High | - |
+| Story | Ready for QA | High | `heldout-pass-with-warnings` |
 
 ## Description
 
@@ -88,7 +88,10 @@ Feature: Product catalogue and search
 
 ## Attachments
 
-_None_
+- 📎 [heldout-verdict-AE-1-202609270548.md](attachments/heldout-verdict-AE-1-202609270548.md) — text/markdown, 19876 B, by Held-out Evaluator (bot) on 2026-09-27T05:48:43.826Z
+- 📎 [heldout-verdict-AE-1-202609270549.md](attachments/heldout-verdict-AE-1-202609270549.md) — text/markdown, 16937 B, by Held-out Evaluator (bot) on 2026-09-27T05:49:54.130Z
+- 📎 [heldout-verdict-AE-1-202609271654.md](attachments/heldout-verdict-AE-1-202609271654.md) — text/markdown, 16620 B, by Held-out Evaluator (bot) on 2026-09-27T16:54:15.570Z
+- 📎 [heldout-verdict-AE-1-202609271655.md](attachments/heldout-verdict-AE-1-202609271655.md) — text/markdown, 16620 B, by Held-out Evaluator (bot) on 2026-09-27T16:55:58.472Z
 
 ## Activity — Comments
 
@@ -99,5 +102,121 @@ Clarification after refinement with the catalogue team — this replaces scenari
 - Search matches the product **name or its category name** (the category under Women / Men / Kids, e.g. "Dress", "Tops", "Tops & Shirts", "Tshirts"). So searching "dress" must return every product whose name contains "dress" **plus** every product in a "Dress" category, even if the word is not in its name — e.g. "Sleeves Top and Short - Blue & Pink" (Kids > Dress) belongs in the "dress" results. Nothing else should come back.
 - The **brand** is not a search field: searching "Polo" only finds products with "Polo" in the name or category. Browsing by brand is AE-3.
 - Matching is a "contains" match, case-insensitive, as in AC-3.
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T05:48:43.829Z
+
+### 🧪 Held-out evaluation: FAIL (recommendation)
+
+> **ERROR:** 1 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-7. Awaiting reviewer confirmation.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 19/20 passed, 1 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 1 | 1 | 0 | - |
+| contract | 2 | 2 | 0 | - |
+| functional | 8 | 8 | 0 | - |
+| integration | 4 | 4 | 0 | - |
+| negative | 5 | 4 | 1 | APP-1 |
+
+#### Findings for review (1)
+
+| **ID** | **Suggested severity** | **Criteria** | **Type** | **Finding** | **Expected (requirement)** | **Actual (AUT)** |
+| --- | --- | --- | --- | --- | --- | --- |
+| APP-1 | Minor | AC-7 | negative | Missing search_product parameter answers HTTP 200 (response code 400 only in the body) — contradicts assumption G2 | 400 | 200 |
+
+_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._
+
+- Full report attached: `heldout-verdict-AE-1-202609270548.md`
+- Final run: 04-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T05:49:54.133Z
+
+### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
+
+> **WARNING:** Every requirement-backed scenario passed, with warnings: 1 assumption(s) the application contradicts (ask the owner).
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 19/20 passed, 1 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 1 | 1 | 0 | - |
+| contract | 2 | 2 | 0 | - |
+| functional | 8 | 8 | 0 | - |
+| integration | 4 | 4 | 0 | - |
+| negative | 5 | 4 | 1 | - |
+
+- Full report attached: `heldout-verdict-AE-1-202609270549.md`
+- Final run: 04-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T16:54:15.574Z
+
+### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
+
+> **WARNING:** Every requirement-backed scenario passed, with warnings: 1 assumption(s) the application contradicts (ask the owner).
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 19/20 passed, 1 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 1 | 1 | 0 | - |
+| contract | 2 | 2 | 0 | - |
+| functional | 8 | 8 | 0 | - |
+| integration | 4 | 4 | 0 | - |
+| negative | 5 | 4 | 1 | - |
+
+- Full report attached: `heldout-verdict-AE-1-202609271654.md`
+- Final run: 04-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T16:55:58.476Z
+
+### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
+
+> **WARNING:** Every requirement-backed scenario passed, with warnings: 1 assumption(s) the application contradicts (ask the owner).
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 19/20 passed, 1 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 1 | 1 | 0 | - |
+| contract | 2 | 2 | 0 | - |
+| functional | 8 | 8 | 0 | - |
+| integration | 4 | 4 | 0 | - |
+| negative | 5 | 4 | 1 | - |
+
+- Full report attached: `heldout-verdict-AE-1-202609271655.md`
+- Final run: 04-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
 
 ---

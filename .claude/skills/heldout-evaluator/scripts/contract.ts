@@ -6,13 +6,15 @@
  *   heldout contract KEY                  check: anchoring, coverage ledger, literal grounding, review status → requirement-contract.md
  *   heldout contract KEY --review-prompt  the independent reviewer's instructions (for the heldout-contract-reviewer subagent)
  *   heldout contract KEY --questions      open oracle gaps to ask the user (JSON)
+ *   heldout contract KEY --resolve G1 --value "…" --evidence "hardening/api-x.md"   a mechanics gap found in the application
+ *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the user's answer to an oracle gap (re-review)
  *   … --allow-unreviewed  accept a contract without an independent review (warning instead of error)
  *
  * --pack never overwrites an existing contract; it always refreshes the evidence pack.
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { SKILL_DIR, assertIssueKey, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
+import { SKILL_DIR, assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
 import { CONTRACT_FILE, checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './lib/contract';
 import { REVIEW_FILE, checkReview, contractHash, evidencePack, readReview, reviewRefs, type ContractReview } from './lib/evidence';
 
@@ -57,7 +59,7 @@ main(async () => {
   if (flags.pack) {
     const contract = skeletonContract(key, p.requirement);
     const binaries = requirementFiles(p.requirement).filter((f) => BINARY.test(f));
-    writeFile(packFile, evidencePack(key, p.requirement, binaries));
+    writeFile(packFile, evidencePack(key, p.requirement, binaries, { profile: cfg.autId, name: cfg.aut.name, baseURL: cfg.aut.baseURL, apiBaseURL: cfg.aut.apiBaseURL }));
     const untranscribed = binaries.filter((b) => !fs.existsSync(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`)));
     if (fs.existsSync(file)) console.log(`= ${rel(file)} exists — not overwritten`);
     else { writeFile(file, `${JSON.stringify(contract, null, 2)}\n`); console.log(`✔ empty contract bound to this requirement revision → ${rel(file)}`); }
@@ -75,6 +77,29 @@ main(async () => {
   if (flags.questions) {
     console.log(JSON.stringify(openQuestions(c).map((g) => ({ id: g.id, required: g.required, affects: g.affects, question: g.element, tried: g.tried })), null, 2));
     return;
+  }
+  // --resolve G<n>: a mechanics gap found in the application (no re-review). --answer G<n>: the user's answer to an
+  // oracle gap (changes the oracle, so the contract goes back to the reviewer).
+  const gapFlag = flagStr(flags, 'resolve') ? 'resolve' : flagStr(flags, 'answer') ? 'answer' : undefined;
+  if (gapFlag) {
+    const g = c.gaps.find((x) => x.id === flagStr(flags, gapFlag));
+    if (!g) throw new Error(`No gap ${flagStr(flags, gapFlag)} in ${rel(file)} — gaps: ${c.gaps.map((x) => x.id).join(', ') || 'none'}`);
+    const value = flagStr(flags, 'value');
+    if (!value) throw new Error(`--${gapFlag} ${g.id} needs --value "<what was found / answered>"`);
+    if (gapFlag === 'resolve') {
+      if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Ask the user, then: heldout contract ${key} --answer ${g.id} --value "…" --by "<who>"`);
+      const evidence = flagStr(flags, 'evidence');
+      if (!evidence) throw new Error(`--resolve ${g.id} needs --evidence "<probe report or run that shows it>"`);
+      Object.assign(g, { resolution: 'discovered-in-aut', value, evidence });
+      g.tried = [...g.tried.filter((t) => t.where !== 'aut'), { where: 'aut', result: value }];
+    } else {
+      const by = flagStr(flags, 'by');
+      if (!by) throw new Error(`--answer ${g.id} needs --by "<who answered>"`);
+      Object.assign(g, { resolution: 'provided-by-user', value, evidence: `${by}, ${new Date().toISOString().slice(0, 10)}` });
+      g.tried = [...g.tried.filter((t) => t.where !== 'user'), { where: 'user', result: value }];
+    }
+    writeFile(file, `${JSON.stringify(c, null, 2)}\n`);
+    console.log(`✔ ${g.id} → ${g.resolution}: ${value}${gapFlag === 'answer' ? '\n  The oracle changed: have the heldout-contract-reviewer subagent review the contract again.' : ''}\n`);
   }
   const findings = checkContract(c, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL) });
   if (flags['review-prompt']) {

@@ -2,7 +2,7 @@
 
 _Built by the evaluator from the story and its attachments. Every criterion is quoted from a cited line, every source line is accounted for, every expected value is grounded in the sources, and an independent reviewer checked it._
 
-**Independent review:** ⚠️ not reviewed
+**Independent review:** ✅ all items supported — heldout-contract-reviewer (Claude Sonnet 5), 2026-09-26T00:00
 
 ## Sources read
 

@@ -18,7 +18,9 @@ most: where each scenario's data comes from, and where each journey starts.
    test; the outcome is recorded in the seed ledger, and `heldout run` lists every failed cleanup so the data
    can be removed. `HELDOUT_KEEP_DATA=1` keeps data for debugging. Many applications revoke earlier tokens when
    the user signs in again (a UI sign-in in the same test, another `GenerateToken`): a cleanup, or a later
-   seed step, that reuses a token taken before that point gets 401. Take a fresh token inside the cleanup.
+   seed step, that reuses a token taken before that point gets 401. In the cleanup, try the token you have and take
+   a fresh one only when the call answers 401. A fresh token on every cleanup costs one sign-in per record, which
+   on applications with slow sign-in (password hashing) can double the suite's time.
 6. **Tag everything.** Use `unique()` names and `seed.tag`, so leftovers are identifiable and sweepable
    on shared environments.
 7. **Evidence.** The seed ledger (what was created, and whether it was cleaned up) is attached to each

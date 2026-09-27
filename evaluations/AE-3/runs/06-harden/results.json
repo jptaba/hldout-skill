@@ -1,0 +1,246 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/AE-3/tests/",
+      "--grep",
+      "SCN-01[01]",
+      "--workers",
+      "4"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/AE-3/runs/06-harden/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\06-harden\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\06-harden\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\AE-3\\runs\\06-harden\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "AE-3\\tests\\ae-3.spec.ts",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AE-3 Brands in the catalogue API and shop, and the Contact Us form",
+          "file": "AE-3/tests/ae-3.spec.ts",
+          "line": 118,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-010: The form can be sent with only a valid Email",
+              "ok": true,
+              "tags": [
+                "AC-6",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6513,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1294
+                        },
+                        {
+                          "title": "And I filled only Email with a unique valid address",
+                          "duration": 37
+                        },
+                        {
+                          "title": "When I click \"Submit\" and confirm with OK",
+                          "duration": 5007
+                        },
+                        {
+                          "title": "Then the success message is shown",
+                          "duration": 25
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:13:47.730Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8b5464c117c10a688bba-1d6e526d827c8a340baa",
+              "file": "AE-3/tests/ae-3.spec.ts",
+              "line": 315,
+              "column": 3
+            },
+            {
+              "title": "SCN-011: Sending the form asks for confirmation, shows success and offers a Home button",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 7359,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Contact Us page",
+                          "duration": 1305
+                        },
+                        {
+                          "title": "And I filled Name, Email, Subject and Message with unique valid values",
+                          "duration": 87
+                        },
+                        {
+                          "title": "When I click \"Submit\"",
+                          "duration": 5011
+                        },
+                        {
+                          "title": "Then a browser confirmation \"Press OK to proceed!\" is shown",
+                          "duration": 4
+                        },
+                        {
+                          "title": "When I confirm with OK",
+                          "duration": 0
+                        },
+                        {
+                          "title": "Then the message \"Success! Your details have been submitted successfully.\" is shown",
+                          "duration": 13
+                        },
+                        {
+                          "title": "And the form is replaced by a \"Home\" button",
+                          "duration": 15
+                        },
+                        {
+                          "title": "When I click \"Home\"",
+                          "duration": 647
+                        },
+                        {
+                          "title": "Then I am on the home page",
+                          "duration": 31
+                        }
+                      ],
+                      "startTime": "2026-09-27T12:13:47.715Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8b5464c117c10a688bba-dce9ca4d99dc3239d797",
+              "file": "AE-3/tests/ae-3.spec.ts",
+              "line": 324,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-27T12:13:46.729Z",
+    "duration": 8683.067,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

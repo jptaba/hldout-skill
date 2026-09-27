@@ -1,0 +1,11 @@
+[
+  { "tool": "browser_navigate", "url": "login" },
+  { "tool": "browser_wait_for", "text": "Login in Book Store" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Login", "exact": true } },
+  { "snapshot": "after empty Login click" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "UserName", "exact": true }, "text": "${env:HARDEN_USER}" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Password", "exact": true }, "text": "Wrong-${env:HARDEN_USER}-9#" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Login", "exact": true } },
+  { "tool": "browser_wait_for", "text": "Invalid username or password!" },
+  { "snapshot": "after wrong password" }
+]

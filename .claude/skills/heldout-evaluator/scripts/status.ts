@@ -53,7 +53,13 @@ main(() => {
   const cfg = loadConfig();
   const dir = path.join(ROOT, cfg.evaluationsDir);
   const keys = _[0] ? [_[0]] : fs.existsSync(dir) ? fs.readdirSync(dir).filter((k) => /^[A-Z][A-Z0-9_]+-\d+$/.test(k)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })) : [];
-  if (!keys.length) { console.log(`No evaluations yet. Start with: ${H} fetch ABC-123   (or ${H} new ABC-1 --from story.md for the mock Jira)`); return; }
+  if (!keys.length) {
+    const mockIssues = path.join(ROOT, cfg.jira.mockRoot ?? 'mock-jira', 'issues');
+    const waiting = cfg.jira.mode === 'mock' && fs.existsSync(mockIssues) ? fs.readdirSync(mockIssues).filter((k) => /^[A-Z][A-Z0-9_]+-\d+$/.test(k)) : [];
+    if (waiting.length) console.log(`No evaluations yet. In the mock Jira, not fetched: ${waiting.join(', ')}. Start with: ${H} fetch ${waiting[0]}`);
+    else console.log(`No evaluations yet. Start with: ${H} fetch ABC-123   (or ${H} new ABC-1 --from story.md for the mock Jira)`);
+    return;
+  }
   if (_[0]) {
     const phases = phasesOf(cfg, _[0]);
     console.log(`${_[0]}`);

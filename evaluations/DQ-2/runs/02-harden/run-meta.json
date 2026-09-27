@@ -1,0 +1,82 @@
+{
+  "key": "DQ-2",
+  "run": "02-harden",
+  "label": "harden",
+  "startedAt": "2026-09-27T12:20:17.792Z",
+  "finishedAt": "2026-09-27T12:26:31.569Z",
+  "autId": "demoqa",
+  "aut": {
+    "name": "DemoQA Book Store (React UI + JSON API)",
+    "baseURL": "https://demoqa.com",
+    "apiBaseURL": "https://demoqa.com"
+  },
+  "command": "npx playwright test evaluations/DQ-2/tests/ --workers 2 --repeat-each 3",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://demoqa.com/books",
+        "ok": true,
+        "status": 200,
+        "ms": 714,
+        "samples": [
+          714,
+          609,
+          120
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://demoqa.com/BookStore/v1/Books",
+        "ok": true,
+        "status": 200,
+        "ms": 694,
+        "samples": [
+          694,
+          126,
+          129
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://demoqa.com/books",
+        "ok": true,
+        "status": 200,
+        "ms": 653,
+        "samples": [
+          653,
+          636,
+          124
+        ],
+        "slow": false
+      },
+      {
+        "url": "https://demoqa.com/BookStore/v1/Books",
+        "ok": true,
+        "status": 200,
+        "ms": 657,
+        "samples": [
+          657,
+          126,
+          127
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "skill": "6a1aadd4ddf7a79d",
+  "exitCode": 0,
+  "stats": {
+    "startTime": "2026-09-27T12:20:18.416Z",
+    "duration": 368529.174,
+    "expected": 84,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

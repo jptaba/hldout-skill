@@ -3,7 +3,11 @@
  *
  *   heldout api-probe [--key KEY | --aut <profile>] <METHOD> <path>
  *       [--data '<json>' | --data-file body.json | --raw-data '<string>' | --form 'a=1&b=2' or --form '{"a":1}']   (values support ${env:NAME})
- *   heldout api-probe [--key KEY] --chain chain.json [--out repro.md]   (multi-call sequence; see runChain)
+ *   heldout api-probe [--key KEY] --chain chain.json [--out repro.md]   multi-call sequence, chain.json =
+ *       { "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "token": "data.token" },
+ *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt"],
+ *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true } ] }
+ *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (redacted in the report)
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
  *       [--repeat N] [--out report.md] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)

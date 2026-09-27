@@ -1,0 +1,8 @@
+[
+  {"do":"fill","target":"getByRole('textbox', { name: 'UserName' })","value":"qa-dq2-walk-1790511350"},
+  {"do":"fill","target":"getByRole('textbox', { name: 'Password' })","value":"${env:DQ_USER_PASSWORD}"},
+  {"do":"click","target":"getByRole('button', { name: 'Login', exact: true })"},
+  {"do":"wait","target":"getByRole('link', { name: 'Git Pocket Guide', exact: true })"},
+  {"do":"click","target":"getByRole('row').filter({ has: page.getByRole('link', { name: 'Git Pocket Guide', exact: true }) }).getByTitle('Delete')"},
+  {"do":"wait","target":"getByText('Do you want to delete this book?')"}
+]

@@ -1,0 +1,17 @@
+{
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-27T05:59:03.358Z",
+  "files": [
+    {
+      "file": "dq-1.spec.ts",
+      "draftAssertions": 49,
+      "currentAssertions": 49
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": []
+}

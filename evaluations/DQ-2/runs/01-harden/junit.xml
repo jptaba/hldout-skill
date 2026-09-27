@@ -1,0 +1,411 @@
+<testsuites id="" name="" tests="28" failures="1" skipped="0" errors="0" time="79.548852">
+<testsuite name="DQ-2\tests\dq-2.spec.ts" timestamp="2026-09-27T12:17:25.796Z" hostname="chromium" tests="28" failures="1" skipped="0" time="290.823" errors="0">
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-001: The catalogue API returns every book with all catalogue fields" classname="DQ-2\tests\dq-2.spec.ts" time="3.335">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-002: Every catalogue entry has the field types of the Book object" classname="DQ-2\tests\dq-2.spec.ts" time="3.264">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-003.1: Looking up one book returns the same data as its catalogue entry (9781449325862)" classname="DQ-2\tests\dq-2.spec.ts" time="3.471">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-003.2: Looking up one book returns the same data as its catalogue entry (9781593277574)" classname="DQ-2\tests\dq-2.spec.ts" time="3.451">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-003.3: Looking up one book returns the same data as its catalogue entry (9781449331818)" classname="DQ-2\tests\dq-2.spec.ts" time="3.264">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-004: The Book Store page lists every catalogue book with title, author and publisher" classname="DQ-2\tests\dq-2.spec.ts" time="5.914">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-005.1: Searching filters the list while typing, case-insensitively (javascript)" classname="DQ-2\tests\dq-2.spec.ts" time="2.43">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-005.2: Searching filters the list while typing, case-insensitively (zakas)" classname="DQ-2\tests\dq-2.spec.ts" time="2.306">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-005.3: Searching filters the list while typing, case-insensitively (No Starch)" classname="DQ-2\tests\dq-2.spec.ts" time="2.297">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-005.4: Searching filters the list while typing, case-insensitively (JAVASCRIPT)" classname="DQ-2\tests\dq-2.spec.ts" time="2.462">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-006: A search term that matches no book leaves no book rows" classname="DQ-2\tests\dq-2.spec.ts" time="2.579">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-007: Clicking a book title opens its detail page with the catalogue values" classname="DQ-2\tests\dq-2.spec.ts" time="5.721">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-008: Adding books to my collection returns 201, echoes the ISBNs and lists them on my account" classname="DQ-2\tests\dq-2.spec.ts" time="7.552">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-009: A book added through the API appears on the Profile page after signing in" classname="DQ-2\tests\dq-2.spec.ts" time="17.154">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-010: Adding a book already in my collection is rejected and the book stays once" classname="DQ-2\tests\dq-2.spec.ts" time="16.059">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-011: Deleting one book on the Profile page removes only that book" classname="DQ-2\tests\dq-2.spec.ts" time="51.444">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="read my collection (GET /Account/v1/User/{UUID})" type="expect.toBe">
+<![CDATA[  [chromium] › DQ-2\tests\dq-2.spec.ts:290:3 › DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-011: Deleting one book on the Profile page removes only that book @AC-9 @type:integration @layer:e2e @P1 › And GET /Account/v1/User/{UUID} no longer lists 9781449325862 and still lists 9781593277574 
+
+    Error: read my collection (GET /Account/v1/User/{UUID})
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+      88 | async function collectionIsbns(api: Api, user: User): Promise<string[]> {
+      89 |   const r = await api.get<{ books?: { isbn: string }[] }>(EP.accountUserByUUID(user.userId), { headers: bearer(user.token) });
+    > 90 |   expect(r.status, 'read my collection (GET /Account/v1/User/{UUID})').toBe(200);
+         |                                                                        ^
+      91 |   return (r.body.books ?? []).map((b) => b.isbn);
+      92 | }
+      93 |
+        at collectionIsbns (D:\projects\hldout-skill\evaluations\DQ-2\tests\dq-2.spec.ts:90:72)
+        at D:\projects\hldout-skill\evaluations\DQ-2\tests\dq-2.spec.ts:315:14
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:327:28
+        at D:\projects\hldout-skill\evaluations\DQ-2\tests\dq-2.spec.ts:314:5
+
+    attachment #4: aria-snapshot 03-and-i-signed-in-on-login-and-i-am-on-the-profile-page (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: And I signed in on /login and I am on the Profile page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - img
+    - text: I...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 04-when-i-click-the-delete-icon-of-the-git-pocket-guide-row (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: When I click the delete icon of the "Git Pocket Guide" row
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - img
+    - tex...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 05-then-the-confirmation-do-you-want-to-delete-this-book-is-sho (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: Then the confirmation "Do you want to delete this book?" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - im...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 06-when-i-confirm-with-ok (text/yaml) ─────────────────────────────
+    # url: https://demoqa.com/profile
+    # step: When I confirm with OK
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - img
+    - text: Interactions
+    - img
+    - img
+    - text: ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: aria-snapshot 07-then-the-git-pocket-guide-row-is-removed-and-understanding-e (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: Then the "Git Pocket Guide" row is removed and "Understanding ECMAScript 6" remains
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 08-failed-and-get-account-v1-user-uuid-no-longer-lists-97814493 (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: FAILED And GET /Account/v1/User/{UUID} no longer lists 9781449325862 and still lists 9781593277574
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\error-context.md
+
+    attachment #15: trace (application/zip) ────────────────────────────────────────────────────────
+    DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: read my collection (GET /Account/v1/User/{UUID})
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+      88 | async function collectionIsbns(api: Api, user: User): Promise<string[]> {
+      89 |   const r = await api.get<{ books?: { isbn: string }[] }>(EP.accountUserByUUID(user.userId), { headers: bearer(user.token) });
+    > 90 |   expect(r.status, 'read my collection (GET /Account/v1/User/{UUID})').toBe(200);
+         |                                                                        ^
+      91 |   return (r.body.books ?? []).map((b) => b.isbn);
+      92 | }
+      93 |
+        at collectionIsbns (D:\projects\hldout-skill\evaluations\DQ-2\tests\dq-2.spec.ts:90:72)
+        at D:\projects\hldout-skill\evaluations\DQ-2\tests\dq-2.spec.ts:315:14
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:327:28
+        at D:\projects\hldout-skill\evaluations\DQ-2\tests\dq-2.spec.ts:314:5
+
+    attachment #4: aria-snapshot 03-and-i-signed-in-on-login-and-i-am-on-the-profile-page (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: And I signed in on /login and I am on the Profile page
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - img
+    - text: I...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: aria-snapshot 04-when-i-click-the-delete-icon-of-the-git-pocket-guide-row (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: When I click the delete icon of the "Git Pocket Guide" row
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - img
+    - tex...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: aria-snapshot 05-then-the-confirmation-do-you-want-to-delete-this-book-is-sho (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: Then the confirmation "Do you want to delete this book?" is shown
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - im...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: aria-snapshot 06-when-i-confirm-with-ok (text/yaml) ─────────────────────────────
+    # url: https://demoqa.com/profile
+    # step: When I confirm with OK
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: Widgets
+    - img
+    - img
+    - text: Interactions
+    - img
+    - img
+    - text: ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: aria-snapshot 07-then-the-git-pocket-guide-row-is-removed-and-understanding-e (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: Then the "Git Pocket Guide" row is removed and "Understanding ECMAScript 6" remains
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img
+    - img
+    - text: ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: aria-snapshot 08-failed-and-get-account-v1-user-uuid-no-longer-lists-97814493 (text/yaml) 
+    # url: https://demoqa.com/profile
+    # step: FAILED And GET /Account/v1/User/{UUID} no longer lists 9781449325862 and still lists 9781593277574
+    - banner:
+      - link:
+        - /url: https://demoqa.com
+        - img
+    - img
+    - text: Elements
+    - img
+    - img
+    - text: Forms
+    - img
+    - img
+    - text: Alerts, Frame & Windows
+    - img...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\error-context.md
+
+    attachment #15: trace (application/zip) ────────────────────────────────────────────────────────
+    DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DQ-2\runs\01-harden\artifacts\DQ-2-tests-dq-2-DQ-2-Perso-04148-page-removes-only-that-book-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-012: Deleting one book through the API returns 204 and keeps the others" classname="DQ-2\tests\dq-2.spec.ts" time="10.893">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-013: Deleting a book that is not in my collection is rejected" classname="DQ-2\tests\dq-2.spec.ts" time="15.417">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-014: Looking up an ISBN that is not in the catalogue is rejected" classname="DQ-2\tests\dq-2.spec.ts" time="3.325">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-015: Adding an ISBN that is not in the catalogue is rejected and nothing is added" classname="DQ-2\tests\dq-2.spec.ts" time="11.189">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.1: Collection calls without a valid token are refused (POST /BookStore/v1/Books for my user without a token)" classname="DQ-2\tests\dq-2.spec.ts" time="16.575">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.2: Collection calls without a valid token are refused (DELETE /BookStore/v1/Book for my user without a token)" classname="DQ-2\tests\dq-2.spec.ts" time="13.445">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.3: Collection calls without a valid token are refused (GET /Account/v1/User/{my UUID} without a token)" classname="DQ-2\tests\dq-2.spec.ts" time="13.309">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.4: Collection calls without a valid token are refused (POST /BookStore/v1/Books for my user with an invalid token)" classname="DQ-2\tests\dq-2.spec.ts" time="18.097">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.5: Collection calls without a valid token are refused (DELETE /BookStore/v1/Book for my user with an invalid token)" classname="DQ-2\tests\dq-2.spec.ts" time="16.636">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.6: Collection calls without a valid token are refused (GET /Account/v1/User/{my UUID} with an invalid token)" classname="DQ-2\tests\dq-2.spec.ts" time="17.184">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.7: Collection calls without a valid token are refused (GET /Account/v1/User/{other user&apos;s UUID} with my own token)" classname="DQ-2\tests\dq-2.spec.ts" time="12.421">
+</testcase>
+<testcase name="DQ-2 Personal book collection - browse the catalogue and manage my books › SCN-016.8: Collection calls without a valid token are refused (POST /BookStore/v1/Books for the other userId with my own token)" classname="DQ-2\tests\dq-2.spec.ts" time="9.629">
+</testcase>
+</testsuite>
+</testsuites>

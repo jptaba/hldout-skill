@@ -1,0 +1,10 @@
+{
+  "vars": { "u": "qa-dq1-confirm6-${uid}" },
+  "steps": [
+    { "name": "P1 create account", "method": "POST", "path": "Account/v1/User", "json": { "userName": "${u}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "id": "userID" }, "expect": 201, "setup": true },
+    { "name": "AC-6 GenerateToken, wrong password (expect 401)", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${u}", "password": "${env:DQ_USER_PASSWORD}-Wrong9" }, "expect": 401 },
+    { "name": "AC-6 GenerateToken, unknown user name (expect 401)", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${u}-unknown", "password": "${env:DQ_USER_PASSWORD}" }, "expect": 401 },
+    { "name": "cleanup token", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${u}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "tok": "token" }, "show": ["status"], "setup": true },
+    { "name": "cleanup delete", "method": "DELETE", "path": "Account/v1/User/${id}", "headers": { "Authorization": "Bearer ${tok}" }, "expect": 204, "setup": true }
+  ]
+}

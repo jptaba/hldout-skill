@@ -1,0 +1,393 @@
+{
+  "key": "DQ-3",
+  "title": "Links page - new-tab links and HTTP status diagnostic links",
+  "revision": {
+    "story": "87bfbb6af9fe593d",
+    "attachments": {}
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "user story, page route /links, diagnostic endpoints (plain GET, same host, no parameters, no authentication), AC-1..AC-9 (Gherkin), public/no-account note, PO correction of the Not Found endpoint to /invalid-url"
+    }
+  ],
+  "actors": [
+    "a QA trainee practising on the Elements section of the site (story.md#L17)"
+  ],
+  "context": "A Links page under Elements > Links (/links) shows ordinary links that open in a new tab and diagnostic links that call a small HTTP endpoint and report what it answered, so a QA trainee can learn how link behaviour and HTTP status codes look from the browser and from the API (story.md#L17-L22). Everything on the page is public (story.md#L104).",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "Scenario: AC-1 Page layout Given I open the Links page Then the page heading reads \"Links\" And a section captioned \"Following links will open new tab\" is shown And a section captioned \"Following links will send an api call\" is shown And the api-call section contains exactly these links, in this order: | Created | No Content | Moved | Bad Request | Unauthorized | Forbidden | Not Found | And no response message is shown before any api-call link has been clicked",
+      "source": "story.md#L29",
+      "text": "Page layout: the Links page shows the heading \"Links\", a section captioned \"Following links will open new tab\", a section captioned \"Following links will send an api call\" containing exactly the links Created, No Content, Moved, Bad Request, Unauthorized, Forbidden, Not Found in this order, and no response message before any api-call link has been clicked",
+      "layer": "ui",
+      "entryPoint": "/links (Elements > Links)",
+      "outcomes": [
+        "the page heading reads \"Links\"",
+        "a section captioned \"Following links will open new tab\" is shown",
+        "a section captioned \"Following links will send an api call\" is shown",
+        "the api-call section contains exactly the links Created, No Content, Moved, Bad Request, Unauthorized, Forbidden, Not Found, in this order",
+        "no response message is shown before any api-call link has been clicked"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "Scenario: AC-2 Static home link opens in a new tab Given I am on the Links page When I click the link labelled \"Home\" Then the site home page (https://demoqa.com/) opens in a new browser tab And the original tab stays on the Links page",
+      "source": "story.md#L38",
+      "text": "Static home link opens in a new tab: clicking the link labelled \"Home\" on the Links page opens the site home page (https://demoqa.com/) in a new browser tab and the original tab stays on the Links page",
+      "layer": "ui",
+      "entryPoint": "/links (Elements > Links)",
+      "outcomes": [
+        "clicking the link labelled \"Home\" opens https://demoqa.com/ in a new browser tab",
+        "the original tab stays on the Links page"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "Scenario: AC-3 Dynamic home link Given I am on the Links page Then the second link in the new-tab section has a label that starts with \"Home\" followed by a random suffix And the suffix is different after the page is reloaded When I click that link Then the site home page opens in a new browser tab",
+      "source": "story.md#L44",
+      "text": "Dynamic home link: the second link in the new-tab section has a label that starts with \"Home\" followed by a random suffix, the suffix is different after the page is reloaded, and clicking that link opens the site home page in a new browser tab",
+      "layer": "ui",
+      "entryPoint": "/links (Elements > Links)",
+      "outcomes": [
+        "the second link in the new-tab section has a label that starts with \"Home\" followed by a suffix",
+        "the suffix is different after the page is reloaded",
+        "clicking that link opens the site home page (https://demoqa.com/, story.md#L41) in a new browser tab"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "Scenario Outline: AC-4 Diagnostic endpoints answer with their status code When a client sends GET <path> Then the response status is <code> <text> Examples: | link | path | code | text | | Created | /created | 201 | Created | | No Content | /no-content | 204 | No Content | | Moved | /moved | 301 | Moved Permanently | | Bad Request | /bad-request | 400 | Bad Request | | Unauthorized | /unauthorized | 401 | Unauthorized | | Forbidden | /forbidden | 403 | Forbidden | | Not Found | /not-found | 404 | Not Found |",
+      "source": "story.md#L51",
+      "text": "Diagnostic endpoints answer with their status code: GET /created -> 201 Created, GET /no-content -> 204 No Content, GET /moved -> 301 Moved Permanently, GET /bad-request -> 400 Bad Request, GET /unauthorized -> 401 Unauthorized, GET /forbidden -> 403 Forbidden, GET /invalid-url -> 404 Not Found (the PO comment replaces /not-found with /invalid-url)",
+      "layer": "api",
+      "endpoints": [
+        "GET /created",
+        "GET /no-content",
+        "GET /moved",
+        "GET /bad-request",
+        "GET /unauthorized",
+        "GET /forbidden",
+        "GET /invalid-url"
+      ],
+      "outcomes": [
+        "GET /created -> 201 Created",
+        "GET /no-content -> 204 No Content",
+        "GET /moved -> 301 Moved Permanently",
+        "GET /bad-request -> 400 Bad Request",
+        "GET /unauthorized -> 401 Unauthorized",
+        "GET /forbidden -> 403 Forbidden",
+        "GET /invalid-url -> 404 Not Found (story.md#L110-L112, G1)"
+      ],
+      "gaps": [
+        "G1",
+        "G2"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "Scenario: AC-5 Diagnostic responses carry no body When a client sends GET to any of the endpoints above except /moved Then the response body is empty",
+      "source": "story.md#L65",
+      "text": "Diagnostic responses carry no body: GET to any of the diagnostic endpoints except /moved returns an empty response body (this applies to /invalid-url as well)",
+      "layer": "api",
+      "endpoints": [
+        "GET /created",
+        "GET /no-content",
+        "GET /bad-request",
+        "GET /unauthorized",
+        "GET /forbidden",
+        "GET /invalid-url"
+      ],
+      "outcomes": [
+        "the response body of GET /created, /no-content, /bad-request, /unauthorized and /forbidden is empty",
+        "the response body of GET /invalid-url is empty (story.md#L112)"
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "quote": "Scenario: AC-6 Moved endpoint tells the client where to go When a client sends GET /moved Then the response status is 301 And the response carries a Location header that points to the site home page",
+      "source": "story.md#L69",
+      "text": "Moved endpoint tells the client where to go: GET /moved responds 301 with a Location header that points to the site home page",
+      "layer": "api",
+      "endpoints": [
+        "GET /moved"
+      ],
+      "outcomes": [
+        "GET /moved (redirect not followed) -> 301",
+        "the response carries a Location header that points to the site home page (https://demoqa.com/, story.md#L41)"
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "quote": "Scenario Outline: AC-7 Clicking a diagnostic link reports the result on the page Given I am on the Links page When I click the \"<link>\" link Then the message \"Link has responded with status <code> and status text <text>\" is shown below the links Examples: | link | code | text | | Created | 201 | Created | | No Content | 204 | No Content | | Moved | 301 | Moved Permanently | | Bad Request | 400 | Bad Request | | Unauthorized | 401 | Unauthorized | | Forbidden | 403 | Forbidden | | Not Found | 404 | Not Found |",
+      "source": "story.md#L74",
+      "text": "Clicking a diagnostic link reports the result on the page: clicking the \"<link>\" link shows the message \"Link has responded with status <code> and status text <text>\" below the links, for Created 201 Created, No Content 204 No Content, Moved 301 Moved Permanently, Bad Request 400 Bad Request, Unauthorized 401 Unauthorized, Forbidden 403 Forbidden, Not Found 404 Not Found",
+      "layer": "ui",
+      "entryPoint": "/links (Elements > Links)",
+      "outcomes": [
+        "message \"Link has responded with status <code> and status text <text>\" is shown below the links after clicking the \"<link>\" link",
+        "Created -> <code> 201, <text> Created",
+        "No Content -> <code> 204, <text> No Content",
+        "Moved -> <code> 301, <text> Moved Permanently",
+        "Bad Request -> <code> 400, <text> Bad Request",
+        "Unauthorized -> <code> 401, <text> Unauthorized",
+        "Forbidden -> <code> 403, <text> Forbidden",
+        "Not Found -> <code> 404, <text> Not Found"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "quote": "Scenario: AC-8 The page reports what the endpoint really answered Given I am on the Links page When I click any diagnostic link Then the browser sends one GET request to that link's endpoint And the status code shown in the message equals the HTTP status of that request And the browser stays on the Links page (no navigation, no new tab)",
+      "source": "story.md#L89",
+      "text": "The page reports what the endpoint really answered: clicking any diagnostic link makes the browser send one GET request to that link's endpoint, the status code shown in the message equals the HTTP status of that request, and the browser stays on the Links page (no navigation, no new tab)",
+      "layer": "e2e",
+      "entryPoint": "/links (Elements > Links)",
+      "endpoints": [
+        "GET /created",
+        "GET /no-content",
+        "GET /moved",
+        "GET /bad-request",
+        "GET /unauthorized",
+        "GET /forbidden",
+        "GET /invalid-url"
+      ],
+      "outcomes": [
+        "clicking a diagnostic link sends exactly one GET request to that link's endpoint (link -> endpoint per R1)",
+        "the status code shown in the message equals the HTTP status of that request",
+        "the browser stays on the Links page: no navigation, no new tab",
+        "the Not Found link's endpoint is /invalid-url (story.md#L110-L112)"
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-9",
+      "quote": "Scenario: AC-9 Only the latest result is shown Given I have clicked the \"Forbidden\" link and its message is shown When I click the \"Created\" link Then only one response message is shown, and it reports 201 Created",
+      "source": "story.md#L96",
+      "text": "Only the latest result is shown: after clicking the \"Forbidden\" link and seeing its message, clicking the \"Created\" link leaves only one response message, reporting 201 Created",
+      "layer": "ui",
+      "entryPoint": "/links (Elements > Links)",
+      "outcomes": [
+        "after clicking \"Forbidden\" and then \"Created\", only one response message is shown",
+        "that message reports 201 Created"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/created",
+      "source": "story.md#L57",
+      "auth": "none",
+      "success": "201 Created, empty body",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22)"
+    },
+    {
+      "method": "GET",
+      "path": "/no-content",
+      "source": "story.md#L58",
+      "auth": "none",
+      "success": "204 No Content, empty body",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22)"
+    },
+    {
+      "method": "GET",
+      "path": "/moved",
+      "source": "story.md#L59",
+      "auth": "none",
+      "success": "301 Moved Permanently with a Location header pointing to the site home page",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22)"
+    },
+    {
+      "method": "GET",
+      "path": "/bad-request",
+      "source": "story.md#L60",
+      "auth": "none",
+      "success": "400 Bad Request, empty body (the intended diagnostic answer)",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22)"
+    },
+    {
+      "method": "GET",
+      "path": "/unauthorized",
+      "source": "story.md#L61",
+      "auth": "none",
+      "success": "401 Unauthorized, empty body (the intended diagnostic answer)",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22)"
+    },
+    {
+      "method": "GET",
+      "path": "/forbidden",
+      "source": "story.md#L62",
+      "auth": "none",
+      "success": "403 Forbidden, empty body (the intended diagnostic answer)",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22)"
+    },
+    {
+      "method": "GET",
+      "path": "/invalid-url",
+      "source": "story.md#L111",
+      "auth": "none",
+      "success": "404 Not Found, empty body (the intended diagnostic answer)",
+      "request": "plain GET on the same host as the page, no parameters, no authentication (story.md#L21-L22); replaces /not-found from the AC-4 table (story.md#L110-L112)"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "Each diagnostic link calls its own endpoint: Created -> /created, No Content -> /no-content, Moved -> /moved, Bad Request -> /bad-request, Unauthorized -> /unauthorized, Forbidden -> /forbidden, Not Found -> /invalid-url (corrected from /not-found by the PO).",
+      "source": "story.md#L56-L63, story.md#L110-L112"
+    },
+    {
+      "id": "R2",
+      "text": "The diagnostic endpoints are plain GET endpoints on the same host as the page and take no parameters and no authentication.",
+      "source": "story.md#L21-L22"
+    }
+  ],
+  "errorModel": [],
+  "auth": {
+    "mechanism": "none: the diagnostic endpoints take no authentication and no account is needed; everything on the page is public",
+    "source": "story.md#L22, story.md#L104"
+  },
+  "testData": {
+    "strategy": "none needed: the page and endpoints are public and need no account; nothing is created",
+    "source": "story.md#L104"
+  },
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "endpoint behind the Not Found link: the AC-4 table says /not-found, the PO comment says /invalid-url",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-4",
+        "AC-5",
+        "AC-8"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L63: Not Found -> /not-found -> 404; L110-L112: PO correction \"the endpoint behind the Not Found link is /invalid-url, not /not-found\", /not-found was a placeholder, GET /invalid-url must answer 404 Not Found, and AC-5 / AC-8 apply to /invalid-url as well; explicitly supersedes L63"
+        }
+      ],
+      "resolution": "found-in-requirement",
+      "value": "/invalid-url (GET /invalid-url -> 404 Not Found; AC-5 and AC-8 apply to it)",
+      "evidence": "story.md#L110-L112 (Product Owner comment supersedes the AC-4 table row at story.md#L63)"
+    },
+    {
+      "id": "G2",
+      "element": "AC-4 \"the response status is <code> <text>\": must the HTTP reason phrase of the response equal <text> (a reason phrase is not transmitted at all over HTTP/2), or is <text> only the standard name of <code> so that the status code alone is checked?",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-4"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L53 and L56-L63 pair each code with a text but do not say whether the text is checked on the wire; no comment clarifies it"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G3",
+      "element": "AC-6 Location header \"points to the site home page\": does a relative reference to the site root satisfy it, or must the header hold the absolute home page URL?",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L72 says only \"points to the site home page\"; L41 names the home page https://demoqa.com/ but not the form of the Location value"
+        }
+      ],
+      "resolution": "open"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17-L19",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L21-L22",
+      "as": "context, R2, endpoint, auth",
+      "note": "page route /links (entry point of the UI ACs); diagnostic endpoints are plain GET, same host, no parameters, no authentication"
+    },
+    {
+      "lines": "story.md#L26",
+      "as": "not-a-requirement",
+      "note": "opening ```gherkin code fence"
+    },
+    {
+      "lines": "story.md#L27",
+      "as": "context",
+      "note": "Feature title of the Gherkin block"
+    },
+    {
+      "lines": "story.md#L29-L36",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L38-L42",
+      "as": "AC-2"
+    },
+    {
+      "lines": "story.md#L44-L49",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L51-L62",
+      "as": "AC-4, R1, endpoint"
+    },
+    {
+      "lines": "story.md#L63",
+      "as": "AC-4, G1",
+      "note": "the /not-found path is superseded by story.md#L110-L112"
+    },
+    {
+      "lines": "story.md#L65-L67",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L69-L72",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L74-L87",
+      "as": "AC-7"
+    },
+    {
+      "lines": "story.md#L89-L94",
+      "as": "AC-8"
+    },
+    {
+      "lines": "story.md#L96-L99",
+      "as": "AC-9"
+    },
+    {
+      "lines": "story.md#L100",
+      "as": "not-a-requirement",
+      "note": "closing code fence"
+    },
+    {
+      "lines": "story.md#L104",
+      "as": "auth, test-data"
+    },
+    {
+      "lines": "story.md#L110-L112",
+      "as": "G1, R1, endpoint"
+    }
+  ]
+}

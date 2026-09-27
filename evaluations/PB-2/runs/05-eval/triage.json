@@ -1,0 +1,1562 @@
+{
+  "key": "PB-2",
+  "run": "05-eval",
+  "generatedAt": "2026-09-27T12:19:48.524Z",
+  "summary": {
+    "total": 13,
+    "passed": 9,
+    "failed": 4,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The Open New Account page offers CHECKING and SAVINGS, the customer's accounts and the minimum deposit",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Opening a SAVINGS account on the page confirms it and links to its details",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: After opening a CHECKING account on the page, Accounts Overview and the service show both balances",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@AC-6",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3",
+        "AC-6"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: POST /createAccount opens a CHECKING account and GET /accounts/{id} returns it",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--0e60c--GET-accounts-id-returns-it-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--0e60c--GET-accounts-id-returns-it-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--0e60c--GET-accounts-id-returns-it-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f3e1]:\n  - generic [ref=f3e2]:\n    - generic [ref=f3e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f3e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f3e5] [cursor=pointer]\n      - paragraph [ref=f3e6]: Experience the difference\n    - generic [ref=f3e7]:\n      - list [ref=f3e8]:\n        - listitem [ref=f3e9]: Solutions\n        - listitem [ref=f3e10]:\n          - link \"About Us\" [ref=f3e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f3e12]:\n          - link \"Services\" [ref=f3e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f3e14]:\n          - link \"Products\" [ref=f3e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f3e16]:\n          - link \"Locations\" [ref=f3e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f3e18]:\n          - link \"Admin Page\" [ref=f3e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f3e20]:\n        - listitem [ref=f3e21]:\n          - link \"home\" [ref=f3e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f3e23]:\n          - link \"about\" [ref=f3e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f3e25]:\n          - link \"contact\" [ref=f3e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f3e27]:\n      - generic [ref=f3e28]:\n        - paragraph [ref=f3e29]: Welcome Heldout Tester\n        - heading \"Account Services\" [level=2] [ref=f3e30]\n        - list [ref=f3e31]:\n          - listitem [ref=f3e32]:\n            - link \"Open New Account\" [ref=f3e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f3e34]:\n            - link \"Accounts Overview\" [ref=f3e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f3e36]:\n            - link \"Transfer Funds\" [ref=f3e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f3e38]:\n            - link \"Bill Pay\" [ref=f3e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f3e40]:\n            - link \"Find Transactions\" [ref=f3e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f3e42]:\n            - link \"Update Contact Info\" [ref=f3e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxs4bo210",
+          "records": [
+            {
+              "label": "new customer (register.htm)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "hxmujs4bo3sq7q",
+                "customerId": 16652,
+                "firstAccountId": 24333
+              }
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/createAccount?customerId=16652&newAccountType=0&fromAccountId=24333",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 295,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:12:50 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a6b3f6a2de5d0-EWR"
+              },
+              "body": {
+                "id": 24444,
+                "customerId": 16652,
+                "type": "CHECKING",
+                "balance": 0
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/24444",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 126,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:12:50 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a6b404c9be5d0-EWR"
+              },
+              "body": {
+                "id": 24444,
+                "customerId": 16652,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/24444",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 126,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:12:50 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41a6b404c9be5d0-EWR"
+            },
+            "body": {
+              "id": 24444,
+              "customerId": 16652,
+              "type": "CHECKING",
+              "balance": 100
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-4] GET returns the same values",
+          "reqTag": "AC-4",
+          "expected": "{ \"balance\": 0, \"customerId\": 16652, \"id\": 24444, \"type\": \"CHECKING\" }",
+          "received": "{ \"balance\": 10000, \"customerId\": 16652, \"id\": 24444, \"type\": \"CHECKING\" }"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-4] body balance 100.00",
+        "reqTag": "AC-4",
+        "matcher": "toBe",
+        "expected": "10000",
+        "received": "0",
+        "message": "Error: [REQ AC-4] body balance 100.00\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 10000\nReceived: 0\n\n  311 |       expect.soft(Number(res.body?.customerId), '[REQ AC-4] body customerId').toBe(cust.customerId);\n  312 |       expect.soft(res.body?.type, '[REQ AC-4] body type CHECKING').toBe('CHECKING');\n> 313 |       expect.soft(cents(res.body?.balance), '[REQ AC-4] body balance 100.00').toBe(cents(REQ.OPENING_DEPOSIT));\n      |                                                                               ^\n  314 |     });\n  315 |     await journey.step('When I GET /accounts/{id} for the returned id', async () => { got = await getAccount(api, Number(res.body?.id)); });\n  316 |     await journey.step('Then the response status is 200', async () => {\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:313:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:308:5"
+      },
+      "failingStep": "And the body is the new account with an id, the customer's customerId, type CHECKING and balance 100.00",
+      "auto": {
+        "category": "SCRIPT_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /parabank/services/bank/accounts/24444 → 200",
+          "GET /parabank/services/bank/accounts/24444 is not an endpoint the requirement declares (POST /createAccount, GET /customers/{customerId}/accounts, GET /accounts/{accountId}, GET /accounts/{accountId}/transactions, POST /transfer).",
+          "Also failed: [REQ AC-4] GET returns the same values — expected { \"balance\": 0, \"customerId\": 16652, \"id\": 24444, \"type\": \"CHECKING\" }, received { \"balance\": 10000, \"customerId\": 16652, \"id\": 24444, \"type\": \"CHECKING\" }"
+        ],
+        "next": "The test called the wrong endpoint/method. Align it with the declared contract (HOW only), probe it, re-run."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "POST /createAccount returns the new account with balance 0 instead of its opening balance 100.00",
+        "rationale": "Auto-triage called this a SCRIPT_DEFECT because it matched GET /parabank/services/bank/accounts/{id} against the declared GET /accounts/{accountId} without the API base path; the endpoint is declared. The failing assertion is on the POST /createAccount body: balance 0 where AC-4/R6 require the opening balance 100.00. The account itself is funded: GET /accounts/{id} right after returns balance 100, so the 'same values' check fails from the same root cause. id, customerId and type are correct.",
+        "evidence": "Replayed live 2026-09-27 (tier 3, api-probe --chain, evaluations/PB-2/runs/05-eval/confirm/api-chain-confirm.md steps 3-4): POST createAccount → 200 {type CHECKING, balance 0}; GET /accounts/28107 → balance 100. Also hardening/api-chain-mechanics.md steps 3-4 (SAVINGS).",
+        "confirmedAt": "2026-09-27T12:20:31.338Z"
+      }
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Opening through the service records the transfer on both accounts",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: Opening on the page records the transfer on both accounts",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: The service takes the opening deposit from the funding account the customer chose",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: The page takes the opening deposit from the funding account the customer chose",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009.1",
+      "title": "SCN-009.1: The service opens an account only from a funding account holding at least 100.00 (100.00)",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009.2",
+      "title": "SCN-009.2: The service opens an account only from a funding account holding at least 100.00 (99.99)",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--4e633-ding-at-least-100-00-99-99--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--4e633-ding-at-least-100-00-99-99--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--4e633-ding-at-least-100-00-99-99--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [ref=f7e3]:\n  - banner [ref=f7e4]:\n    - heading \"Error 1015\" [level=1] [ref=f7e5]\n    - generic [ref=f7e6]: \"Ray ID: a41a712bdb5442cb •\"\n    - generic [ref=f7e7]: 2026-09-27 12:16:53 UTC\n    - heading \"You are being rate limited\" [level=2] [ref=f7e8]\n  - generic [ref=f7e10]:\n    - heading \"What happened?\" [level=2] [ref=f7e11]\n    - paragraph [ref=f7e12]: The owner of this website (parabank.parasoft.com) has banned you temporarily from accessing this website.\n    - paragraph [ref=f7e13]:\n      - text: Please see\n      - link \"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1015/\" [ref=f7e14] [cursor=pointer]:\n        - /url: https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1015/\n      - text: for more details.\n  - generic [ref=f7e16]:\n    - text: Was this page helpful?\n    - button \"Yes\" [ref=f7e17] [cursor=pointer]\n    - button \"No\" [ref=f7e18] [cursor=pointer]\n  - paragraph [ref=f7e20]:\n    - generic [ref=f7e21]:\n      - text: \"Cloudflare Ray ID:\"\n      - strong [ref=f7e22]: a41a712bdb5442cb\n    - text: •\n    - generic [ref=f7e23]:\n      - text: \"Your IP:\"\n      - button \"Click to reveal\" [ref=f7e24] [cursor=pointer]\n      - text: •\n    - generic [ref=f7e25]:\n      - text: Performance & security by\n      - link \"Cloudflare\" [ref=f7e26] [cursor=pointer]:\n        - /url: https://www.cloudflare.com/5xx-error-landing\n",
+        "seed": {
+          "tag": "hxs50uf30",
+          "records": [
+            {
+              "label": "new customer (register.htm)",
+              "kind": "data",
+              "cleanup": "none",
+              "error": "locator.fill: Timeout 10000ms exceeded."
+            }
+          ]
+        },
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[SEED] new customer (register.htm): precondition could not be established — locator.fill: Timeout 10000ms exceeded.",
+        "locator": "locator('[id=\"customer.firstName\"]')",
+        "message": "Error: [SEED] new customer (register.htm): precondition could not be established — locator.fill: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator('[id=\"customer.firstName\"]')\n\n\n   at ..\\heldout-support\\fixtures.ts:238\n\n  236 |       } catch (err) {\n  237 |         rec.error = (err as Error).message.split('\\n')[0];\n> 238 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);\n      |               ^\n  239 |       }\n  240 |     };\n  241 |     await use({\n    at pre (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:238:15)\n    at Object.create (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:245:25)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:409:16\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:408:7"
+      },
+      "failingStep": "[SEED] new customer (register.htm)",
+      "auto": {
+        "category": "BLOCKED",
+        "confidence": "high",
+        "signals": [
+          "Blocked: depends on SCN-004 (failed) — resolve that scenario first; this one was not evaluated.",
+          "Precondition data could not be seeded, so the scenario was not evaluated: [SEED] new customer (register.htm): precondition could not be established — locator.fill: Timeout 10000ms exceeded."
+        ],
+        "next": "Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one."
+      },
+      "final": {
+        "category": "ENVIRONMENT_ISSUE",
+        "rationale": "Seed step hit Cloudflare 'Error 1015 You are being rate limited' on register.htm in both attempts (the shared sandbox bans bursts, also from other clients); the scenario was not evaluated. The same rule on the service was reproduced live separately (see SCN-010.2 evidence), but the test must re-run.",
+        "evidence": "runs/05-eval/snapshots/SCN-009.2/retry1/01-failed-*.yml (heading 'Error 1015')",
+        "confirmedAt": "2026-09-27T12:20:33.661Z"
+      }
+    },
+    {
+      "scenario": "SCN-010.1",
+      "title": "SCN-010.1: The page opens an account only from a funding account holding at least 100.00 (100.00)",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:boundary",
+        "@layer:e2e",
+        "@P1",
+        "@needs-clarification"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1,
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010.2",
+      "title": "SCN-010.2: The page opens an account only from a funding account holding at least 100.00 (99.99)",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:boundary",
+        "@layer:e2e",
+        "@P1",
+        "@needs-clarification"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--c36af-ding-at-least-100-00-99-99--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--c36af-ding-at-least-100-00-99-99--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--c36af-ding-at-least-100-00-99-99--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://parabank.parasoft.com/parabank/openaccount.htm\n# step: FAILED And the customer's accounts are the same as before\n- link:\n  - /url: admin.htm\n  - img\n- link \"ParaBank\":\n  - /url: index.htm\n  - img \"ParaBank\"\n- paragraph: Experience the difference\n- list:\n  - listitem: Solutions\n  - listitem:\n    - link \"About Us\":\n      - /url: about.htm\n  - listitem:\n    - link \"Services\":\n      - /url: services.htm\n  - listitem:\n    - link \"Products\":\n      - /url: http://www.parasoft.com/jsp/products.jsp\n  - listitem:\n    - link \"Locations\":\n      - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n  - listitem:\n    - link \"Admin Page\":\n      - /url: admin.htm\n- list:\n  - listitem:\n    - link \"home\":\n      - /url: index.htm\n  - listitem:\n    - link \"about\":\n      - /url: about.htm\n  - listitem:\n    - link \"contact\":\n      - /url: contact.htm\n- paragraph: Welcome Heldout Tester\n- heading \"Account Services\" [level=2]\n- list:\n  - listitem:\n    - link \"Open New Account\":\n      - /url: openaccount.htm\n  - listitem:\n    - link \"Accounts Overview\":\n      - /url: overview.htm\n  - listitem:\n    - link \"Transfer Funds\":\n      - /url: transfer.htm\n  - listitem:\n    - link \"Bill Pay\":\n      - /url: billpay.htm\n  - listitem:\n    - link \"Find Transactions\":\n      - /url: findtrans.htm\n  - listitem:\n    - link \"Update Contact Info\":\n      - /url: updateprofile.htm\n  - listitem:\n    - link \"Request Loan\":\n      - /url: requestloan.htm",
+        "seed": {
+          "tag": "hxsby5950",
+          "records": [
+            {
+              "label": "new customer (register.htm)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "hxmujsby5bbsun",
+                "customerId": 17984,
+                "firstAccountId": 27108
+              }
+            },
+            {
+              "label": "second account holding exactly 99.99",
+              "kind": "data",
+              "cleanup": "none",
+              "created": 27219
+            },
+            {
+              "label": "number of accounts before",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": 2
+            }
+          ]
+        },
+        "apiCalls": 11,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 135,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:57 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a7435cb7dde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 167,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:57 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74379f33de9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 149,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a743a2c5fde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 142,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a743e3cebde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 146,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:00 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74456f2fde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 131,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:01 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a744caf5ede9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 137,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:02 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a7453cfe6de9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 133,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:03 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a745af8cbde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 136,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:04 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a746229e1de9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 145,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:05 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a7469597fde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 142,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:07 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a747078dcde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": -0.01
+                },
+                {
+                  "id": 27330,
+                  "customerId": 17984,
+                  "type": "SAVINGS",
+                  "balance": 100
+                }
+              ]
+            }
+          }
+        ],
+        "apiRelevantIndex": 10,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 142,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:19:07 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41a747078dcde9c-EWR"
+            },
+            "body": [
+              {
+                "id": 27108,
+                "customerId": 17984,
+                "type": "CHECKING",
+                "balance": 415.51
+              },
+              {
+                "id": 27219,
+                "customerId": 17984,
+                "type": "CHECKING",
+                "balance": -0.01
+              },
+              {
+                "id": 27330,
+                "customerId": 17984,
+                "type": "SAVINGS",
+                "balance": 100
+              }
+            ]
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/createAccount?customerId=17984&newAccountType=0&fromAccountId=27108",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 294,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:46 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a73ef8a80de9c-EWR"
+              },
+              "body": {
+                "id": 27219,
+                "customerId": 17984,
+                "type": "CHECKING",
+                "balance": 0
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/27219",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 139,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:46 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a73f07ccdde9c-EWR"
+              },
+              "body": {
+                "id": 27219,
+                "customerId": 17984,
+                "type": "CHECKING",
+                "balance": 100
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/transfer?fromAccountId=27219&toAccountId=27108&amount=0.01",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 129,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:46 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a73f14e57de9c-EWR"
+              },
+              "body": "Successfully transferred $0.01 from account #27219 to account #27108"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/27219",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 130,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:46 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a73f2280fde9c-EWR"
+              },
+              "body": {
+                "id": 27219,
+                "customerId": 17984,
+                "type": "CHECKING",
+                "balance": 99.99
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/17984/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 136,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:18:46 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a73f3099cde9c-EWR"
+              },
+              "body": [
+                {
+                  "id": 27108,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 415.51
+                },
+                {
+                  "id": 27219,
+                  "customerId": 17984,
+                  "type": "CHECKING",
+                  "balance": 99.99
+                }
+              ]
+            }
+          }
+        ],
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-6] R5: funding 99.99 → no \"Account Opened!\"",
+          "reqTag": "AC-6",
+          "expected": "hidden",
+          "received": "visible"
+        },
+        {
+          "headline": "[REQ AC-6] R5: accounts the same as before",
+          "reqTag": "AC-6",
+          "expected": "2",
+          "received": "3"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-6] R5: funding 99.99 → an error is shown",
+        "reqTag": "AC-6",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "received": "hidden",
+        "locator": "getByText(/error/i).first()",
+        "message": "Error: [REQ AC-6] R5: funding 99.99 → an error is shown\n\nexpect(locator).toBeVisible() failed\n\nLocator:  getByText(/error/i).first()\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-6] R5: funding 99.99 → an error is shown getByText(/error/i).first() with timeout 5000ms\n  - waiting for getByText(/error/i).first()\n    13 × locator resolved to <h1 class=\"title\">Error!</h1>\n       - unexpected value \"hidden\"\n\n\n  440 |         } else {\n  441 |           // G6: the error's wording is not stated — only that an error is shown instead of the opening.\n> 442 |           await expect.soft(page.getByText(/error/i).first(), '[REQ AC-6] R5: funding 99.99 → an error is shown').toBeVisible(); // G6: no stated wording; the page showed no error to locate (observed deviation)\n      |                                                                                                                   ^\n  443 |           await expect.soft(page.getByText(REQ.OPENED_TITLE, { exact: true }), '[REQ AC-6] R5: funding 99.99 → no \"Account Opened!\"').toBeHidden();\n  444 |         }\n  445 |       });\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:442:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:437:7"
+      },
+      "failingStep": "Then the page shows an error instead of the opening",
+      "auto": {
+        "category": "SCRIPT_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Note: depends on SCN-004 (failed), but this scenario's preconditions succeeded and its own action ran — its failure stands on its own.",
+          "Last API exchange: GET /parabank/services/bank/customers/17984/accounts → 200",
+          "GET /parabank/services/bank/customers/17984/accounts is not an endpoint the requirement declares (POST /createAccount, GET /customers/{customerId}/accounts, GET /accounts/{accountId}, GET /accounts/{accountId}/transactions, POST /transfer).",
+          "Also failed: [REQ AC-6] R5: funding 99.99 → no \"Account Opened!\" — expected hidden, received visible",
+          "Also failed: [REQ AC-6] R5: accounts the same as before — expected 2, received 3"
+        ],
+        "next": "The test called the wrong endpoint/method. Align it with the declared contract (HOW only), probe it, re-run."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Critical",
+        "title": "An account is opened from a funding account holding less than 100.00 (R5 not enforced)",
+        "rationale": "Precondition verified (funding account at exactly 99.99 via GET /accounts/{id}). Opening SAVINGS from it on openaccount.htm shows 'Account Opened!' and no error; R5 says the account is not opened and the customer gets an error. The accounts/balance steps fail from the same root cause. Auto SCRIPT_DEFECT was wrong: the page shows the success confirmation, there is no error element to locate.",
+        "evidence": "Observed live in runs/04-harden and runs/05-eval (snapshot 04-then-the-page-shows-an-error-instead-of-the-opening.yml: heading 'Account Opened!', new account link). Service side reproduced with api-probe (evaluations/PB-2/runs/05-eval/confirm/api-chain-confirm.md steps 3,5): funding 99.99 → 200, new account opened, funding balance -0.01.",
+        "confirmedAt": "2026-09-27T12:20:32.125Z"
+      }
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: The service does not fund a new account from another customer's account",
+      "file": "PB-2/tests/pb-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:security",
+        "@layer:api",
+        "@P1",
+        "@needs-clarification"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--fc1fe--another-customer-s-account-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--fc1fe--another-customer-s-account-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-2/runs/05-eval/artifacts/PB-2-tests-pb-2-PB-2-Open--fc1fe--another-customer-s-account-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f7e1]:\n  - generic [ref=f7e2]:\n    - generic [ref=f7e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f7e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f7e5] [cursor=pointer]\n      - paragraph [ref=f7e6]: Experience the difference\n    - generic [ref=f7e7]:\n      - list [ref=f7e8]:\n        - listitem [ref=f7e9]: Solutions\n        - listitem [ref=f7e10]:\n          - link \"About Us\" [ref=f7e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f7e12]:\n          - link \"Services\" [ref=f7e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f7e14]:\n          - link \"Products\" [ref=f7e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f7e16]:\n          - link \"Locations\" [ref=f7e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f7e18]:\n          - link \"Admin Page\" [ref=f7e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f7e20]:\n        - listitem [ref=f7e21]:\n          - link \"home\" [ref=f7e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f7e23]:\n          - link \"about\" [ref=f7e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f7e25]:\n          - link \"contact\" [ref=f7e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f7e27]:\n      - generic [ref=f7e28]:\n        - paragraph [ref=f7e29]: Welcome Heldout Tester\n        - heading \"Account Services\" [level=2] [ref=f7e30]\n        - list [ref=f7e31]:\n          - listitem [ref=f7e32]:\n            - link \"Open New Account\" [ref=f7e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f7e34]:\n            - link \"Accounts Overview\" [ref=f7e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f7e36]:\n            - link \"Transfer Funds\" [ref=f7e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f7e38]:\n            - link \"Bill Pay\" [ref=f7e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f7e40]:\n            - link \"Find Transactions\" [ref=f7e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f7e42]:\n            - link \"Update Contact Info\" [ref=f7e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxscm2m70",
+          "records": [
+            {
+              "label": "customer B (register.htm)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "hxmujscm2nwmhs",
+                "customerId": 18317,
+                "firstAccountId": 27774
+              }
+            },
+            {
+              "label": "customer A (register.htm)",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "username": "hxmujscnffw6gk",
+                "customerId": 18428,
+                "firstAccountId": 27885
+              }
+            },
+            {
+              "label": "customer A account count",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": 1
+            },
+            {
+              "label": "customer B balance",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": 515.5
+            }
+          ]
+        },
+        "apiCalls": 3,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/createAccount?customerId=18428&newAccountType=0&fromAccountId=27774",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 141,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:19 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74bc2d41d826-EWR"
+              },
+              "body": {
+                "id": 27996,
+                "customerId": 18428,
+                "type": "CHECKING",
+                "balance": 0
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/18428/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 135,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:19 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74bd1f47d826-EWR"
+              },
+              "body": [
+                {
+                  "id": 27885,
+                  "customerId": 18428,
+                  "type": "CHECKING",
+                  "balance": 515.5
+                },
+                {
+                  "id": 27996,
+                  "customerId": 18428,
+                  "type": "CHECKING",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/27774",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 144,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:19 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74be0942d826-EWR"
+              },
+              "body": {
+                "id": 27774,
+                "customerId": 18317,
+                "type": "CHECKING",
+                "balance": 415.5
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 2,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/27774",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 144,
+            "headers": {
+              "date": "Sun, 27 Sep 2026 12:19:19 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "cf-cache-status": "DYNAMIC",
+              "x-content-type-options": "nosniff",
+              "content-encoding": "br",
+              "cf-ray": "a41a74be0942d826-EWR"
+            },
+            "body": {
+              "id": 27774,
+              "customerId": 18317,
+              "type": "CHECKING",
+              "balance": 415.5
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/customers/18428/accounts",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 322,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:18 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74ba4a37d826-EWR"
+              },
+              "body": [
+                {
+                  "id": 27885,
+                  "customerId": 18428,
+                  "type": "CHECKING",
+                  "balance": 515.5
+                }
+              ]
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://parabank.parasoft.com/parabank/services/bank/accounts/27774",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 139,
+              "headers": {
+                "date": "Sun, 27 Sep 2026 12:19:19 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "cf-cache-status": "DYNAMIC",
+                "x-content-type-options": "nosniff",
+                "content-encoding": "br",
+                "cf-ray": "a41a74bb4bc0d826-EWR"
+              },
+              "body": {
+                "id": 27774,
+                "customerId": 18317,
+                "type": "CHECKING",
+                "balance": 515.5
+              }
+            }
+          }
+        ],
+        "dependsOn": [
+          {
+            "scenario": "SCN-004",
+            "status": "failed"
+          }
+        ]
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-6] R4: another customer's account is not debited",
+          "reqTag": "AC-6",
+          "expected": "51550",
+          "received": "41550"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-6] R4: no account opened from another customer's account",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "1",
+        "received": "2",
+        "message": "Error: [REQ AC-6] R4: no account opened from another customer's account\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 1\nReceived: 2\n\n  469 |     await journey.step('Then no new account is opened for customer A', async () => {\n  470 |       const r = await listAccounts(api, a.customerId);\n> 471 |       expect.soft(Array.isArray(r.body) ? r.body.length : -1, '[REQ AC-6] R4: no account opened from another customer\\'s account').toBe(aCountBefore);\n      |                                                                                                                                    ^\n  472 |     });\n  473 |     await journey.step('And customer B\\'s account balance is unchanged', async () => {\n  474 |       expect.soft(cents(await balanceOf(api, b.firstAccountId)), '[REQ AC-6] R4: another customer\\'s account is not debited').toBe(cents(bBefore));\n    at D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:471:132\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-2\\tests\\pb-2.spec.ts:469:5"
+      },
+      "failingStep": "Then no new account is opened for customer A",
+      "auto": {
+        "category": "SCRIPT_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Note: depends on SCN-004 (failed), but this scenario's preconditions succeeded and its own action ran — its failure stands on its own.",
+          "Last API exchange: GET /parabank/services/bank/accounts/27774 → 200",
+          "GET /parabank/services/bank/accounts/27774 is not an endpoint the requirement declares (POST /createAccount, GET /customers/{customerId}/accounts, GET /accounts/{accountId}, GET /accounts/{accountId}/transactions, POST /transfer).",
+          "Also failed: [REQ AC-6] R4: another customer's account is not debited — expected 51550, received 41550"
+        ],
+        "next": "The test called the wrong endpoint/method. Align it with the declared contract (HOW only), probe it, re-run."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Critical",
+        "title": "POST /createAccount funds a new account from another customer's account (R4)",
+        "rationale": "R4: the opening deposit is moved from one existing account of the same customer. The service opened an account for customer A funded from customer B's account and debited B by 100.00. The exact refusal response is open (G7, @needs-clarification), but no reading of R4 allows debiting another customer's account. Auto SCRIPT_DEFECT (undeclared endpoint) was wrong: GET /accounts/{accountId} is declared.",
+        "evidence": "Replayed live 2026-09-27 (tier 3, api-probe --chain, evaluations/PB-2/runs/05-eval/confirm/api-chain-confirm.md steps 6-9): account 24444 belongs to customer 16652 (balance 100); POST createAccount?customerId=14099&fromAccountId=24444 → 200 new account 28218; account 24444 balance → 0; customer 14099 accounts 3 → 4.",
+        "confirmedAt": "2026-09-27T12:20:32.866Z"
+      }
+    }
+  ]
+}

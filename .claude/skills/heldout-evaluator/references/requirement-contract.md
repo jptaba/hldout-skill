@@ -84,7 +84,8 @@ Walk the ladder in order and log each step in `tried[]`:
    published API docs (`/swagger.json`, `/openapi.json`, `/docs`). → `discovered-in-aut`, evidence = the probe output.
 3. **Project config**, e.g. the AUT profile. → `found-in-config`.
 4. **The user, for oracle gaps**: one `AskUserQuestion` call with at most 4 questions, required first.
-   → `provided-by-user`, value plus who and when. If you can't ask, use `assumed` (it must appear as
+   → `provided-by-user`, value plus who and when: `heldout contract KEY --answer G<n> --value "…" --by "<who>"`,
+   then a fresh review (the oracle changed). If you can't ask, use `assumed` (it must appear as
    `# ASSUMPTION: G<n> …`) or leave it `open` (`@needs-clarification` on the affected scenarios, or
    `# OPEN-QUESTION: G<n> …` when the criterion can still be tested without the answer).
 

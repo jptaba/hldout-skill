@@ -1,0 +1,57 @@
+# url: https://automationexercise.com/contact_us
+# step: FAILED Then the success message is shown
+- banner:
+  - link "Website for automation practice":
+    - /url: /
+    - img "Website for automation practice"
+  - list:
+    - listitem:
+      - link " Home":
+        - /url: /
+    - listitem:
+      - link " Products":
+        - /url: /products
+    - listitem:
+      - link " Cart":
+        - /url: /view_cart
+    - listitem:
+      - link " Signup / Login":
+        - /url: /login
+    - listitem:
+      - link " Test Cases":
+        - /url: /test_cases
+    - listitem:
+      - link " API Testing":
+        - /url: /api_list
+    - listitem:
+      - link " Video Tutorials":
+        - /url: https://www.youtube.com/c/AutomationExercise
+    - listitem:
+      - link " Contact us":
+        - /url: /contact_us
+- heading "Contact Us" [level=2]:
+  - text: Contact
+  - strong: Us
+- text: "Note: Below contact form is for testing purpose."
+- heading "Get In Touch" [level=2]
+- textbox "Name"
+- textbox "Email": qa jrxa5o2u-1@example.com
+- textbox "Subject"
+- textbox "Your Message Here"
+- button "Choose File"
+- button "Submit"
+- heading "Feedback For Us" [level=2]
+- paragraph: We really appreciate your response to our website.
+- paragraph:
+  - text: Kindly share your feedback with us at
+  - link "feedback@automationexercise.com":
+    - /url: mailto:feedback@automationexercise.com
+  - text: .
+- paragraph: If you have any suggestion areas or improvements, do let us know. We will definitely work on it.
+- paragraph: Thank you
+- contentinfo:
+  - heading "Subscription" [level=2]
+  - textbox "Your email address"
+  - button ""
+  - paragraph: Get the most recent updates from our site and be updated your self...
+  - paragraph: Copyright © 2021 All rights reserved

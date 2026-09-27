@@ -1,0 +1,282 @@
+{
+  "id": "10003",
+  "key": "DQ-3",
+  "self": "https://your-domain.atlassian.net/rest/api/3/issue/DQ-3",
+  "fields": {
+    "summary": "Links page - new-tab links and HTTP status diagnostic links",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [],
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "As a QA trainee practising on the Elements section of the site, I want a "
+            },
+            {
+              "type": "text",
+              "text": "Links",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " page that shows me both"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "ordinary links that open in a new tab and links that call a small HTTP endpoint and tell me what that endpoint"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "answered, so that I can learn how link behaviour and HTTP status codes look from the browser and from the API."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "The page lives under "
+            },
+            {
+              "type": "text",
+              "text": "Elements > Links",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " ("
+            },
+            {
+              "type": "text",
+              "text": "/links",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "). The diagnostic endpoints are plain "
+            },
+            {
+              "type": "text",
+              "text": "GET",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " endpoints on the"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "same host and take no parameters and no authentication."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Acceptance criteria"
+            }
+          ]
+        },
+        {
+          "type": "codeBlock",
+          "attrs": {
+            "language": "gherkin"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Feature: Links page\n\n  Scenario: AC-1 Page layout\n    Given I open the Links page\n    Then the page heading reads \"Links\"\n    And a section captioned \"Following links will open new tab\" is shown\n    And a section captioned \"Following links will send an api call\" is shown\n    And the api-call section contains exactly these links, in this order:\n      | Created | No Content | Moved | Bad Request | Unauthorized | Forbidden | Not Found |\n    And no response message is shown before any api-call link has been clicked\n\n  Scenario: AC-2 Static home link opens in a new tab\n    Given I am on the Links page\n    When I click the link labelled \"Home\"\n    Then the site home page (https://demoqa.com/) opens in a new browser tab\n    And the original tab stays on the Links page\n\n  Scenario: AC-3 Dynamic home link\n    Given I am on the Links page\n    Then the second link in the new-tab section has a label that starts with \"Home\" followed by a random suffix\n    And the suffix is different after the page is reloaded\n    When I click that link\n    Then the site home page opens in a new browser tab\n\n  Scenario Outline: AC-4 Diagnostic endpoints answer with their status code\n    When a client sends GET <path>\n    Then the response status is <code> <text>\n\n    Examples:\n      | link         | path          | code | text              |\n      | Created      | /created      | 201  | Created           |\n      | No Content   | /no-content   | 204  | No Content        |\n      | Moved        | /moved        | 301  | Moved Permanently |\n      | Bad Request  | /bad-request  | 400  | Bad Request       |\n      | Unauthorized | /unauthorized | 401  | Unauthorized      |\n      | Forbidden    | /forbidden    | 403  | Forbidden         |\n      | Not Found    | /not-found    | 404  | Not Found         |\n\n  Scenario: AC-5 Diagnostic responses carry no body\n    When a client sends GET to any of the endpoints above except /moved\n    Then the response body is empty\n\n  Scenario: AC-6 Moved endpoint tells the client where to go\n    When a client sends GET /moved\n    Then the response status is 301\n    And the response carries a Location header that points to the site home page\n\n  Scenario Outline: AC-7 Clicking a diagnostic link reports the result on the page\n    Given I am on the Links page\n    When I click the \"<link>\" link\n    Then the message \"Link has responded with status <code> and status text <text>\" is shown below the links\n\n    Examples:\n      | link         | code | text              |\n      | Created      | 201  | Created           |\n      | No Content   | 204  | No Content        |\n      | Moved        | 301  | Moved Permanently |\n      | Bad Request  | 400  | Bad Request       |\n      | Unauthorized | 401  | Unauthorized      |\n      | Forbidden    | 403  | Forbidden         |\n      | Not Found    | 404  | Not Found         |\n\n  Scenario: AC-8 The page reports what the endpoint really answered\n    Given I am on the Links page\n    When I click any diagnostic link\n    Then the browser sends one GET request to that link's endpoint\n    And the status code shown in the message equals the HTTP status of that request\n    And the browser stays on the Links page (no navigation, no new tab)\n\n  Scenario: AC-9 Only the latest result is shown\n    Given I have clicked the \"Forbidden\" link and its message is shown\n    When I click the \"Created\" link\n    Then only one response message is shown, and it reports 201 Created"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Notes"
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "No account is needed; everything on this page is public."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "attachment": [],
+    "comment": {
+      "comments": [
+        {
+          "id": "30000",
+          "author": {
+            "displayName": "Priya Nair (Product Owner)"
+          },
+          "body": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Correction to the AC-4 table: the endpoint behind the "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Not Found",
+                    "marks": [
+                      {
+                        "type": "strong"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " link is "
+                  },
+                  {
+                    "type": "text",
+                    "text": "/invalid-url",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": ", not "
+                  },
+                  {
+                    "type": "text",
+                    "text": "/not-found",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "."
+                  },
+                  {
+                    "type": "hardBreak"
+                  },
+                  {
+                    "type": "text",
+                    "text": "/not-found",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " was a placeholder from the first draft. Everything else in the table stands, i.e. "
+                  },
+                  {
+                    "type": "text",
+                    "text": "GET /invalid-url",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "hardBreak"
+                  },
+                  {
+                    "type": "text",
+                    "text": "must answer 404 Not Found, and AC-5 / AC-8 apply to "
+                  },
+                  {
+                    "type": "text",
+                    "text": "/invalid-url",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " as well."
+                  }
+                ]
+              }
+            ]
+          },
+          "created": "2026-09-27T03:22:00.308Z"
+        }
+      ],
+      "total": 1
+    }
+  }
+}

@@ -1,0 +1,418 @@
+{
+  "key": "AE-3",
+  "run": "01-harden",
+  "generatedAt": "2026-09-27T12:07:39.798Z",
+  "summary": {
+    "total": 16,
+    "passed": 13,
+    "failed": 3,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The brands list has the agreed shape",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Every brandsList entry names the brand of the product with that id",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:integration",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "integration",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.1",
+      "title": "SCN-003.1: Unsupported methods on the brands list are refused in the body (PUT)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.2",
+      "title": "SCN-003.2: Unsupported methods on the brands list are refused in the body (POST)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.3",
+      "title": "SCN-003.3: Unsupported methods on the brands list are refused in the body (DELETE)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: The Brands panel lists each brand once with its product count",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: The Brands panel matches the brands list of the API",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.1",
+      "title": "SCN-006.1: A brand's page lists exactly that brand's products (Polo)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.2",
+      "title": "SCN-006.2: A brand's page lists exactly that brand's products (H&M)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.3",
+      "title": "SCN-006.3: A brand's page lists exactly that brand's products (Mast & Harbour)",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: The Contact Us form offers the mock-up's fields",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: The form is not sent while the mandatory Email is empty",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: The form is not sent with an e-mail that is not a valid address",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: The form can be sent with only a valid Email",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-b4249-ent-with-only-a-valid-Email-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://automationexercise.com/contact_us\n# step: FAILED Then the success message is shown\n- banner:\n  - link \"Website for automation practice\":\n    - /url: /\n    - img \"Website for automation practice\"\n  - list:\n    - listitem:\n      - link \" Home\":\n        - /url: /\n    - listitem:\n      - link \" Products\":\n        - /url: /products\n    - listitem:\n      - link \" Cart\":\n        - /url: /view_cart\n    - listitem:\n      - link \" Signup / Login\":\n        - /url: /login\n    - listitem:\n      - link \" Test Cases\":\n        - /url: /test_cases\n    - listitem:\n      - link \" API Testing\":\n        - /url: /api_list\n    - listitem:\n      - link \" Video Tutorials\":\n        - /url: https://www.youtube.com/c/AutomationExercise\n    - listitem:\n      - link \" Contact us\":\n        - /url: /contact_us\n- heading \"Contact Us\" [level=2]:\n  - text: Contact\n  - strong: Us\n- text: \"Note: Below contact form is for testing purpose.\"\n- heading \"Get In Touch\" [level=2]\n- textbox \"Name\"\n- textbox \"Email\": qa jrxa5o2u-1@example.com\n- textbox \"Subject\"\n- textbox \"Your Message Here\"\n- button \"Choose File\"\n- button \"Submit\"\n- heading \"Feedback For Us\" [level=2]\n- paragraph: We really appreciate your response to our website.\n- paragraph:\n  - text: Kindly share your feedback with us at\n  - link \"feedback@automationexercise.com\":\n    - /url: mailto:feedback@automationexercise.com\n  - text: .\n- paragraph: If you have any suggestion areas or improvements, do let us know. We will definitely work on it.\n- paragraph: Thank you\n- contentinfo:\n  - heading \"Subscription\" [level=2]\n  - textbox \"Your email address\"\n  - button \"\"\n  - paragraph: Get the most recent updates from our site and be updated your self...\n  - paragraph: Copyright © 2021 All rights reserved\n"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] optional fields empty: the form is sent (success message)",
+        "reqTag": "AC-6",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('Success! Your details have been submitted successfully.')",
+        "message": "Error: [REQ AC-6] optional fields empty: the form is sent (success message)\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('Success! Your details have been submitted successfully.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-6] optional fields empty: the form is sent (success message) getByText('Success! Your details have been submitted successfully.') with timeout 5000ms\n  - waiting for getByText('Success! Your details have been submitted successfully.')\n\n\n  315 |     await journey.step('When I click \"Submit\" and confirm with OK', async () => { await submitForm(page, (d) => d.accept()); });\n  316 |     await journey.step('Then the success message is shown', async () => {\n> 317 |       await expect(contact.success(page), '[REQ AC-6] optional fields empty: the form is sent (success message)').toBeVisible();\n      |                                                                                                                   ^\n  318 |     });\n  319 |   });\n  320 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:317:115)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:34\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:316:5"
+      },
+      "failingStep": "Then the success message is shown",
+      "auto": {
+        "category": "NEEDS_INVESTIGATION",
+        "confidence": "low",
+        "signals": [
+          "Target not found: getByText('Success! Your details have been submitted successfully.')",
+          "Target text \"Success! Your details have been submitted successfully.\" is absent from the failure-time snapshot."
+        ],
+        "next": "Replay the journey live to this step. If the page is in the expected state but the element is simply named/structured differently → SCRIPT. If the app never reached the state or the required element/feature is absent → APPLICATION."
+      }
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Sending the form asks for confirmation, shows success and offers a Home button",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-2c820-ss-and-offers-a-Home-button-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [ref=e1]:\n  - banner [ref=e2]:\n    - generic [ref=e5]:\n      - link [ref=e8] [cursor=pointer]:\n        - /url: /\n        - img \"Website for automation practice\" [ref=e9]\n      - list [ref=e12]:\n        - listitem [ref=e13]:\n          - link \" Home\" [ref=e14] [cursor=pointer]:\n            - /url: /\n            - generic [ref=e15]: \n            - text: Home\n        - listitem [ref=e16]:\n          - link \" Products\" [ref=e17] [cursor=pointer]:\n            - /url: /products\n            - generic [ref=e18]: \n            - text: Products\n        - listitem [ref=e19]:\n          - link \" Cart\" [ref=e20] [cursor=pointer]:\n            - /url: /view_cart\n            - generic [ref=e21]: \n            - text: Cart\n        - listitem [ref=e22]:\n          - link \" Signup / Login\" [ref=e23] [cursor=pointer]:\n            - /url: /login\n            - generic [ref=e24]: \n            - text: Signup / Login\n        - listitem [ref=e25]:\n          - link \" Test Cases\" [ref=e26] [cursor=pointer]:\n            - /url: /test_cases\n            - generic [ref=e27]: \n            - text: Test Cases\n        - listitem [ref=e28]:\n          - link \" API Testing\" [ref=e29] [cursor=pointer]:\n            - /url: /api_list\n            - generic [ref=e30]: \n            - text: API Testing\n        - listitem [ref=e31]:\n          - link \" Video Tutorials\" [ref=e32] [cursor=pointer]:\n            - /url: https://www.youtube.com/c/AutomationExercise\n            - generic [ref=e33]: \n            - text: Video Tutorials\n        - listitem [ref=e34]:\n          - link \" Contact us\" [ref=e35] [cursor=pointer]:\n            - /url: /contact_us\n            - generic [ref=e36]: \n            - text: Contact us\n  - generic [ref=e37]:\n    - heading [level=2] [ref=e41]:\n      - text: Contact\n      - strong [ref=e42]: Us\n    - generic [ref=e43]:\n      - generic [ref=e45]:\n        - generic [ref=e46]: \"Note: Below contact form is for testing purpose.\"\n        - heading \"Get In Touch\" [level=2] [ref=e47]\n        - generic [ref=e49]:\n          - textbox \"Name\" [ref=e51]: QA qa jrxaaabz-1\n          - textbox \"Email\" [active] [ref=e53]: qa jrxaaabz-1@example.com\n          - textbox \"Subject\" [ref=e55]: QA subject qa jrxaaabz-1\n          - textbox \"Your Message Here\" [ref=e57]: QA held-out message qa jrxaaabz-1"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] a browser confirmation is shown",
+        "reqTag": "AC-7",
+        "matcher": "toBe",
+        "expected": "\"confirm\"",
+        "received": "\"no dialog\"",
+        "message": "Error: [REQ AC-7] a browser confirmation is shown\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"confirm\"\nReceived: \"no dialog\"\n\n  333 |     await journey.step('Then a browser confirmation \"Press OK to proceed!\" is shown', async () => {\n  334 |       const d = await dialogShown.catch(() => null);\n> 335 |       expect(d?.type() ?? 'no dialog', '[REQ AC-7] a browser confirmation is shown').toBe(REQ.CONFIRM_TYPE);\n      |                                                                                      ^\n  336 |       expect.soft(d?.message(), '[REQ AC-7] confirmation text').toBe(REQ.CONFIRM_TEXT);\n  337 |     });\n  338 |     await journey.step('When I confirm with OK', async () => { resolveOk(); seen = await pending!; });\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:335:86\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:28\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:333:5"
+      },
+      "failingStep": "Then a browser confirmation \"Press OK to proceed!\" is shown",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: \"confirm\"",
+          "Received: \"no dialog\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: Cancelling the confirmation keeps the form as filled",
+      "file": "AE-3/tests/ae-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-09582-on-keeps-the-form-as-filled-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-09582-on-keeps-the-form-as-filled-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/AE-3/runs/01-harden/artifacts/AE-3-tests-ae-3-AE-3-Brand-09582-on-keeps-the-form-as-filled-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [ref=e1]:\n  - banner [ref=e2]:\n    - generic [ref=e5]:\n      - link [ref=e8] [cursor=pointer]:\n        - /url: /\n        - img \"Website for automation practice\" [ref=e9]\n      - list [ref=e12]:\n        - listitem [ref=e13]:\n          - link \" Home\" [ref=e14] [cursor=pointer]:\n            - /url: /\n            - generic [ref=e15]: \n            - text: Home\n        - listitem [ref=e16]:\n          - link \" Products\" [ref=e17] [cursor=pointer]:\n            - /url: /products\n            - generic [ref=e18]: \n            - text: Products\n        - listitem [ref=e19]:\n          - link \" Cart\" [ref=e20] [cursor=pointer]:\n            - /url: /view_cart\n            - generic [ref=e21]: \n            - text: Cart\n        - listitem [ref=e22]:\n          - link \" Signup / Login\" [ref=e23] [cursor=pointer]:\n            - /url: /login\n            - generic [ref=e24]: \n            - text: Signup / Login\n        - listitem [ref=e25]:\n          - link \" Test Cases\" [ref=e26] [cursor=pointer]:\n            - /url: /test_cases\n            - generic [ref=e27]: \n            - text: Test Cases\n        - listitem [ref=e28]:\n          - link \" API Testing\" [ref=e29] [cursor=pointer]:\n            - /url: /api_list\n            - generic [ref=e30]: \n            - text: API Testing\n        - listitem [ref=e31]:\n          - link \" Video Tutorials\" [ref=e32] [cursor=pointer]:\n            - /url: https://www.youtube.com/c/AutomationExercise\n            - generic [ref=e33]: \n            - text: Video Tutorials\n        - listitem [ref=e34]:\n          - link \" Contact us\" [ref=e35] [cursor=pointer]:\n            - /url: /contact_us\n            - generic [ref=e36]: \n            - text: Contact us\n  - generic [ref=e37]:\n    - heading [level=2] [ref=e41]:\n      - text: Contact\n      - strong [ref=e42]: Us\n    - generic [ref=e43]:\n      - generic [ref=e45]:\n        - generic [ref=e46]: \"Note: Below contact form is for testing purpose.\"\n        - heading \"Get In Touch\" [level=2] [ref=e47]\n        - generic [ref=e49]:\n          - textbox \"Name\" [ref=e51]: QA qa jrx9gc6j-1\n          - textbox \"Email\" [active] [ref=e53]: qa jrx9gc6j-1@example.com\n          - textbox \"Subject\" [ref=e55]: QA subject qa jrx9gc6j-1\n          - textbox \"Your Message Here\" [ref=e57]: QA held-out message qa jrx9gc6j-1"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "a confirmation was shown to cancel (precondition)",
+        "reqTag": "AC-8",
+        "matcher": "toBeGreaterThan",
+        "expected": "> 0",
+        "received": "0",
+        "message": "Error: a confirmation was shown to cancel (precondition)\n\nexpect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n\n  357 |     await journey.step('When I click \"Submit\" and cancel the confirmation', async () => {\n  358 |       const seen = await submitForm(page, (d) => d.dismiss());\n> 359 |       expect(seen.dialogs.length, 'a confirmation was shown to cancel (precondition)').toBeGreaterThan(0);\n      |                                                                                        ^\n  360 |     });\n  361 |     await journey.step('Then no success message is shown', async () => {\n  362 |       await expect.soft(contact.success(page), '[REQ AC-8] no success message after Cancel').toHaveCount(0);\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:359:88\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:327:28\n    at D:\\projects\\hldout-skill\\evaluations\\AE-3\\tests\\ae-3.spec.ts:357:5"
+      },
+      "failingStep": "When I click \"Submit\" and cancel the confirmation",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-8] failed on a located element.",
+          "Expected: > 0",
+          "Received: 0"
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      }
+    }
+  ]
+}

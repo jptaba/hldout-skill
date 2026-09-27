@@ -1,0 +1,12 @@
+{ "vars": { "acct": "18561" },
+  "steps": [
+    { "name": "read the first account (no credentials)", "method": "GET", "path": "accounts/${acct}", "save": { "cust": "customerId", "bal0": "balance" }, "show": ["id","customerId","type","balance"] },
+    { "name": "list the customer's accounts", "method": "GET", "path": "customers/${cust}/accounts", "show": ["length"] },
+    { "name": "open SAVINGS with newAccountType=1", "method": "POST", "path": "createAccount?customerId=${cust}&newAccountType=1&fromAccountId=${acct}", "save": { "newid": "id" }, "show": ["id","customerId","type","balance"] },
+    { "name": "read it back", "method": "GET", "path": "accounts/${newid}", "show": ["id","customerId","type","balance"] },
+    { "name": "funding account after", "method": "GET", "path": "accounts/${acct}", "show": ["balance"] },
+    { "name": "transactions of new account", "method": "GET", "path": "accounts/${newid}/transactions" },
+    { "name": "transactions of funding account", "method": "GET", "path": "accounts/${acct}/transactions" },
+    { "name": "transfer 0.01 back to funding (seed mechanic)", "method": "POST", "path": "transfer?fromAccountId=${newid}&toAccountId=${acct}&amount=0.01" },
+    { "name": "new account after transfer", "method": "GET", "path": "accounts/${newid}", "show": ["balance"] }
+  ] }

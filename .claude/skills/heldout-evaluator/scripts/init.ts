@@ -1,7 +1,7 @@
 /**
  * Setup — scaffold everything a project needs to run held-out evaluations (idempotent; never overwrites).
  *
- *   heldout init --base-url https://aut.example.com [--api-base-url …] [--name "My App"] [--profile app]
+ *   heldout init --base-url https://aut.example.com [--api-base-url …] [--name "My App"] [--profile <id>]
  *                [--test-id-attr data-testid] [--healthcheck "/,api:/health"]
  *                [--jira mock|cloud] [--jira-url https://<site>.atlassian.net] [--ac-field customfield_10035]
  *                [--install] [--ci]
@@ -11,12 +11,14 @@
  * heldout-support/fixtures.ts, tsconfig.json, .mcp.json (Playwright MCP = tier 2), .env + .env.example,
  * package.json (the `heldout` npm script and dev dependencies), .gitignore entries, mock-jira/, evaluations/.
  * --install runs `npm install` and installs Chromium. --ci adds .github/workflows/heldout.yml.
+ * Unless given, the profile id comes from the host name, and one visit of the start page supplies the name (page
+ * title), the test-id attribute and blockHosts (the ad/analytics networks the page loads).
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, SKILL_DIR, flagStr, main, parseArgs, rel, unmangleMsysPath, type Flags } from './lib/config';
-import { describeCounts, detectTestIdAttribute } from './lib/detect';
+import { appNameFrom, describeCounts, discoverApp, profileIdFor } from './lib/detect';
 
 const FILES: [template: string, target: string][] = [
   ['heldout.config.json', 'heldout.config.json'],
@@ -37,7 +39,7 @@ function profileFrom(flags: Flags, base: Record<string, unknown> = {}) {
   const hc = flagStr(flags, 'healthcheck');
   return {
     ...base,
-    name: flagStr(flags, 'name') ?? base.name ?? 'Application Under Test',
+    name: flagStr(flags, 'name') ?? (baseURL ? profileIdFor(baseURL) : base.name),
     baseURL,
     // A new --base-url implies the API lives there too unless --api-base-url says otherwise.
     apiBaseURL: flagStr(flags, 'api-base-url') ?? (flagStr(flags, 'base-url') ? baseURL : (base.apiBaseURL ?? baseURL)),
@@ -46,22 +48,28 @@ function profileFrom(flags: Flags, base: Record<string, unknown> = {}) {
   };
 }
 
-/** Without --test-id-attr, look at the rendered page and record the test-id attribute it actually uses. */
-async function detectTestId(configFile: string, id: string, flags: Flags): Promise<void> {
-  if (flagStr(flags, 'test-id-attr')) return;
+/** Visit the start page once and fill in what the flags didn't give: name, test-id attribute, blockHosts. */
+async function discover(configFile: string, id: string, flags: Flags): Promise<void> {
   const cfg = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   const profile = cfg.auts[id];
   if (!profile) return;
-  const d = await detectTestIdAttribute(profile.baseURL);
-  if (!d.attribute) {
-    say('•', `test-id attribute: none found on ${profile.baseURL} (${d.error ?? describeCounts(d)}) — keeping "${profile.testIdAttribute}"; tests will use roles and labels`);
-    return;
+  const d = await discoverApp(profile.baseURL);
+  if (d.error) { say('•', `could not open ${profile.baseURL} (${d.error}) — profile left as configured; heldout doctor re-checks it`); return; }
+  const name = appNameFrom(d.title, id);
+  if (!flagStr(flags, 'name') && name) {
+    profile.name = name;
+    say('✔', `name: "${name}" (from the page title, shown in verdicts; --name overrides)`);
   }
-  if (d.attribute !== profile.testIdAttribute) {
+  if (flagStr(flags, 'test-id-attr')) { /* given */ } else if (d.attribute) {
     profile.testIdAttribute = d.attribute;
-    fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
+    say('✔', `test-id attribute: ${d.attribute} (on ${profile.baseURL}: ${describeCounts(d)}${d.via === 'html' ? '; served HTML only — install Chromium for a rendered check' : ''})`);
+  } else say('•', `test-id attribute: none on the start page — keeping "${profile.testIdAttribute}"; tests will use roles and labels`);
+  const block = d.adDomains.filter((h) => !(profile.blockHosts ?? []).includes(h));
+  if (block.length) {
+    profile.blockHosts = [...(profile.blockHosts ?? []), ...block];
+    say('✔', `blockHosts: ${block.join(', ')} (ad/analytics networks on the start page; they inject content and make tests flaky)`);
   }
-  say('✔', `test-id attribute: ${d.attribute} (on ${profile.baseURL}: ${describeCounts(d)}${d.via === 'html' ? '; served HTML only — install Chromium for a rendered check' : ''})`);
+  fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
 }
 
 const schemaRef = () => rel(path.join(SKILL_DIR, 'templates', 'heldout.config.schema.json'));
@@ -107,7 +115,7 @@ main(async () => {
     cfg.auts[addAut] = profileFrom(flags);
     fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
     say('✔', `added AUT profile "${addAut}". Stories bind to it with: heldout fetch KEY --aut ${addAut}`);
-    await detectTestId(configFile, addAut, flags);
+    await discover(configFile, addAut, flags);
     return;
   }
 
@@ -118,7 +126,7 @@ main(async () => {
     if (tpl === 'heldout.config.json') {
       if (!flagStr(flags, 'base-url')) throw new Error('--base-url is required the first time (the web address of the application to evaluate). Add --api-base-url if the API lives elsewhere.');
       const cfg = JSON.parse(content);
-      const id = flagStr(flags, 'profile') ?? cfg.defaultAut;
+      const id = flagStr(flags, 'profile') ?? profileIdFor(flagStr(flags, 'base-url')!);
       const tplProfile = cfg.auts[cfg.defaultAut];
       delete cfg.auts[cfg.defaultAut];
       cfg.auts[id] = profileFrom(flags, tplProfile);
@@ -172,7 +180,7 @@ main(async () => {
     console.log('\n▶ npm install'); if (npm(['install', '--no-fund', '--no-audit']).status !== 0) throw new Error('npm install failed — see the output above');
     console.log('▶ npx playwright install chromium'); if (npx(['playwright', 'install', 'chromium']).status !== 0) throw new Error('Chromium install failed — see the output above');
   }
-  if (flagStr(flags, 'base-url')) await detectTestId(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags);
+  if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags);
 
   console.log('\nNext:');
   if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');

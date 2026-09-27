@@ -1,0 +1,17 @@
+# url: https://parabank.parasoft.com/parabank/register.htm
+# step: FAILED Given a customer is registered with a fresh user name, a full address and a Phone #
+- main:
+  - img "Icon for parabank.parasoft.com"
+  - heading "parabank.parasoft.com" [level=1]
+  - heading "Performing security verification" [level=2]
+  - paragraph: This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
+- contentinfo:
+  - text: "Ray ID:"
+  - code: a4183458fb6c72b6
+  - text: Performance and Security by
+  - link "Cloudflare, opens in a new tab":
+    - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=m
+    - text: Cloudflare
+  - link "Privacy, opens in a new tab":
+    - /url: https://www.cloudflare.com/privacypolicy/
+    - text: Privacy

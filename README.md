@@ -13,13 +13,25 @@ Jira story + attachments + comments
   → verdict.md (traceability, reproduction steps, evidence) → Jira comment + attachment → you decide
 ```
 
-## Adopt it in another project (about 2 minutes)
+## Adopt it in another project (about 1 minute)
 
-1. Copy `.claude/skills/heldout-evaluator/` into your repository.
-2. `npx tsx .claude/skills/heldout-evaluator/scripts/heldout.ts init --base-url https://your-app [--api-base-url https://api.your-app] --install`
-3. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents and secrets. Every problem comes with the command that fixes it.
-4. Restart Claude Code once, so the Playwright MCP server and the two subagents load.
-5. Ask Claude: **"Run a held-out evaluation of ABC-123"**. No Jira yet? Run `npm run heldout -- new ABC-1 --from story.md` first.
+From the root of your repository, one line fetches the skill and sets everything up:
+
+```bash
+npx -y degit jptaba/hldout-skill/.claude/skills/heldout-evaluator .claude/skills/heldout-evaluator && npx -y tsx .claude/skills/heldout-evaluator/scripts/heldout.ts init --base-url https://your-app --install
+```
+
+`init` visits your app once and fills in the profile for you:
+- the profile id, from the host name;
+- the app's name, from its page title (shown in verdicts);
+- the test-id attribute the app renders;
+- `blockHosts`, the ad and analytics networks the page loads.
+
+Add `--api-base-url` if the API lives elsewhere. Then:
+
+1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents and secrets. Every problem comes with the command that fixes it.
+2. Restart Claude Code once, so the Playwright MCP server and the two subagents load.
+3. Ask Claude: **"Run a held-out evaluation of ABC-123"**. No Jira yet? Run `npm run heldout -- new ABC-1 --from story.md` first.
 
 Or just ask Claude to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer, then runs the steps above.
 

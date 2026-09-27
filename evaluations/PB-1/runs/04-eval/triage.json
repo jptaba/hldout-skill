@@ -1,0 +1,532 @@
+{
+  "key": "PB-1",
+  "run": "04-eval",
+  "generatedAt": "2026-09-27T05:59:01.207Z",
+  "summary": {
+    "total": 14,
+    "passed": 8,
+    "failed": 5,
+    "flaky": 1,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: Submitting an empty registration form shows a required message next to every required field",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Registering with a Confirm that differs from Password shows \"Passwords did not match.\"",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: A registration rejected for mismatched passwords creates no customer",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: A complete, valid registration welcomes the new customer and signs them in",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Registering with a user name that is already taken shows \"This username already exists.\"",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: A duplicate registration does not change the existing customer",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: Signing in with a wrong password shows the \"Error!\" page",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://parabank.parasoft.com/parabank/login.htm;jsessionid=20B51B9927E478A116BAAA123CD01B28\n# step: FAILED And it says \"The username and password could not be verified.\"\n- link:\n  - /url: admin.htm\n  - img\n- link \"ParaBank\":\n  - /url: index.htm\n  - img \"ParaBank\"\n- paragraph: Experience the difference\n- list:\n  - listitem: Solutions\n  - listitem:\n    - link \"About Us\":\n      - /url: about.htm\n  - listitem:\n    - link \"Services\":\n      - /url: services.htm\n  - listitem:\n    - link \"Products\":\n      - /url: http://www.parasoft.com/jsp/products.jsp\n  - listitem:\n    - link \"Locations\":\n      - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n  - listitem:\n    - link \"Admin Page\":\n      - /url: admin.htm\n- list:\n  - listitem:\n    - link \"home\":\n      - /url: index.htm\n  - listitem:\n    - link \"about\":\n      - /url: about.htm\n  - listitem:\n    - link \"contact\":\n      - /url: contact.htm\n- heading \"Customer Login\" [level=2]\n- paragraph: Username\n- textbox\n- paragraph: Password\n- textbox\n- button \"Log In\"\n- paragraph:\n  - link \"Forgot login info?\":\n    - /url: lookup.htm\n- paragraph:\n  - link \"Register\":\n    - /url: register.htm\n- heading \"Error!\" [level=1]\n- paragraph: An internal error has occurred and has been logged.\n- list:\n  - listitem:\n    - link \"Home\":\n      - /url: index.htm\n    - text: \"|\"\n  - listitem:\n    - link \"About Us\":\n      - /url: about.htm\n    - text: \"|\"\n  - listitem:",
+        "seed": {
+          "tag": "hxep6yy10",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "firstName": "Hana",
+                "lastName": "Heldoutyy10",
+                "street": "12 Heldout Lane",
+                "city": "Testville",
+                "state": "CA",
+                "zipCode": "94016",
+                "phoneNumber": "5551234567",
+                "ssn": "123-45-6789",
+                "username": "pb1hxep6yy101xjp",
+                "password": "***redacted***"
+              }
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] could not be verified",
+        "reqTag": "AC-5",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('The username and password could not be verified.')",
+        "message": "Error: [REQ AC-5] could not be verified\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\n  - waiting for getByText('The username and password could not be verified.')\n\n\n  326 |     });\n  327 |     await journey.step('And it says \"The username and password could not be verified.\"', async () => {\n> 328 |       await expect(page.getByText(REQ.AC5_NOT_VERIFIED), '[REQ AC-5] could not be verified').toBeVisible();\n      |                                                                                              ^\n  329 |     });\n  330 |   });\n  331 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:328:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:327:5"
+      },
+      "failingStep": "And it says \"The username and password could not be verified.\"",
+      "auto": {
+        "category": "NEEDS_INVESTIGATION",
+        "confidence": "low",
+        "signals": [
+          "Target not found: getByText('The username and password could not be verified.')",
+          "Target text \"The username and password could not be verified.\" is absent from the failure-time snapshot."
+        ],
+        "next": "Replay the journey live to this step. If the page is in the expected state but the element is simply named/structured differently → SCRIPT. If the app never reached the state or the required element/feature is absent → APPLICATION."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Wrong-password sign-in shows an internal-error message instead of 'The username and password could not be verified.'",
+        "rationale": "The Customer Login panel reaches the 'Error!' page as AC-5 requires, but the page text is 'An internal error has occurred and has been logged.' instead of the required 'The username and password could not be verified.'. Locators are verified (heading Error! found; the required text is absent from the page). Same result in 01-harden, 02-harden, 03-harden (all repeats) and 04-eval, so it is deterministic, not environmental. The REST login for the same credentials correctly answers 400 'Invalid username and/or password', so the customer exists and the password is really wrong.",
+        "evidence": "Replayed live 2026-09-27 (tier 3, heldout inspect): registered customer + wrong password on index.htm → heading 'Error!', text 'An internal error has occurred and has been logged.', required text 0 matches (runs/04-eval/confirm/SCN-007-wrong-password.md); REST cross-check 400 (runs/04-eval/confirm/SCN-007-rest-wrong-password.md)",
+        "confirmedAt": "2026-09-27T05:59:36.826Z"
+      }
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: Signing in with both fields empty asks for a user name and password",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Signing in opens the Accounts Overview and Log Out returns to the home page",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: REST login with valid credentials returns the registered customer as JSON",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-b5574-registered-customer-as-JSON-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-b5574-registered-customer-as-JSON-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-b5574-registered-customer-as-JSON-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f1e1]:\n  - main [ref=f1e2]:\n    - generic [ref=f1e3]:\n      - heading \"parabank.parasoft.com\" [level=1] [ref=f1e5]\n      - heading \"Performing security verification\" [level=2] [ref=f1e6]\n      - paragraph [ref=f1e7]: This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.\n  - contentinfo [ref=f1e12]:\n    - generic [ref=f1e14]:\n      - generic [ref=f1e16]:\n        - text: \"Ray ID:\"\n        - code [ref=f1e17]: a41845719be743fa\n      - generic [ref=f1e18]:\n        - generic [ref=f1e19]:\n          - text: Performance and Security by\n          - link \"Cloudflare, opens in a new tab\" [ref=f1e20] [cursor=pointer]:\n            - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=m\n            - text: Cloudflare\n        - link \"Privacy, opens in a new tab\" [ref=f1e22] [cursor=pointer]:\n          - /url: https://www.cloudflare.com/privacypolicy/\n          - text: Privacy\n",
+        "seed": {
+          "tag": "hxepnno30",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "error": "registration succeeded (precondition)"
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('Your account was created successfully. You are now logged in.')",
+        "message": "Error: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('Your account was created successfully. You are now logged in.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - registration succeeded (precondition) getByText('Your account was created successfully. You are now logged in.') with timeout 5000ms\n  - waiting for getByText('Your account was created successfully. You are now logged in.')\n\n\n   at ..\\heldout-support\\fixtures.ts:237\n\n  235 |       } catch (err) {\n  236 |         rec.error = (err as Error).message.split('\\n')[0];\n> 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);\n      |               ^\n  238 |       }\n  239 |     };\n  240 |     await use({\n    at pre (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:237:15)\n    at Object.create (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:244:25)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:378:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:377:5"
+      },
+      "failingStep": "[SEED] customer registered via register.htm",
+      "auto": {
+        "category": "BLOCKED",
+        "confidence": "high",
+        "signals": [
+          "Precondition data could not be seeded, so the scenario was not evaluated: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)"
+        ],
+        "next": "Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one."
+      }
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: REST login without Accept: application/json returns XML with a customer root element",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-7",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-78588-ith-a-customer-root-element-chromium/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-78588-ith-a-customer-root-element-chromium/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-78588-ith-a-customer-root-element-chromium/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f1e1]:\n  - main [ref=f1e2]:\n    - generic [ref=f1e3]:\n      - heading \"parabank.parasoft.com\" [level=1] [ref=f1e5]\n      - heading \"Performing security verification\" [level=2] [ref=f1e6]\n      - paragraph [ref=f1e7]: This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.\n  - contentinfo [ref=f1e12]:\n    - generic [ref=f1e14]:\n      - generic [ref=f1e16]:\n        - text: \"Ray ID:\"\n        - code [ref=f1e17]: a41845a80abd42f4\n      - generic [ref=f1e18]:\n        - generic [ref=f1e19]:\n          - text: Performance and Security by\n          - link \"Cloudflare, opens in a new tab\" [ref=f1e20] [cursor=pointer]:\n            - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=m\n            - text: Cloudflare\n        - link \"Privacy, opens in a new tab\" [ref=f1e22] [cursor=pointer]:\n          - /url: https://www.cloudflare.com/privacypolicy/\n          - text: Privacy\n",
+        "seed": {
+          "tag": "hxepuc840",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "error": "registration succeeded (precondition)"
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('Your account was created successfully. You are now logged in.')",
+        "message": "Error: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('Your account was created successfully. You are now logged in.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - registration succeeded (precondition) getByText('Your account was created successfully. You are now logged in.') with timeout 5000ms\n  - waiting for getByText('Your account was created successfully. You are now logged in.')\n\n\n   at ..\\heldout-support\\fixtures.ts:237\n\n  235 |       } catch (err) {\n  236 |         rec.error = (err as Error).message.split('\\n')[0];\n> 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);\n      |               ^\n  238 |       }\n  239 |     };\n  240 |     await use({\n    at pre (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:237:15)\n    at Object.create (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:244:25)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:409:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:408:5"
+      },
+      "failingStep": "[SEED] customer registered via register.htm",
+      "auto": {
+        "category": "BLOCKED",
+        "confidence": "high",
+        "signals": [
+          "Precondition data could not be seeded, so the scenario was not evaluated: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)"
+        ],
+        "next": "Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one."
+      }
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: REST login with a wrong password answers 400 \"Invalid username and/or password\"",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-d7574-d-username-and-or-password--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-d7574-d-username-and-or-password--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-d7574-d-username-and-or-password--chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f1e1]:\n  - main [ref=f1e2]:\n    - generic [ref=f1e3]:\n      - heading \"parabank.parasoft.com\" [level=1] [ref=f1e5]\n      - heading \"Performing security verification\" [level=2] [ref=f1e6]\n      - paragraph [ref=f1e7]: This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.\n  - contentinfo [ref=f1e12]:\n    - generic [ref=f1e14]:\n      - generic [ref=f1e16]:\n        - text: \"Ray ID:\"\n        - code [ref=f1e17]: a418461dbe6e659d\n      - generic [ref=f1e18]:\n        - generic [ref=f1e19]:\n          - text: Performance and Security by\n          - link \"Cloudflare, opens in a new tab\" [ref=f1e20] [cursor=pointer]:\n            - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=m\n            - text: Cloudflare\n        - link \"Privacy, opens in a new tab\" [ref=f1e22] [cursor=pointer]:\n          - /url: https://www.cloudflare.com/privacypolicy/\n          - text: Privacy\n",
+        "seed": {
+          "tag": "hxeq8w260",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "error": "registration succeeded (precondition)"
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('Your account was created successfully. You are now logged in.')",
+        "message": "Error: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('Your account was created successfully. You are now logged in.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - registration succeeded (precondition) getByText('Your account was created successfully. You are now logged in.') with timeout 5000ms\n  - waiting for getByText('Your account was created successfully. You are now logged in.')\n\n\n   at ..\\heldout-support\\fixtures.ts:237\n\n  235 |       } catch (err) {\n  236 |         rec.error = (err as Error).message.split('\\n')[0];\n> 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);\n      |               ^\n  238 |       }\n  239 |     };\n  240 |     await use({\n    at pre (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:237:15)\n    at Object.create (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:244:25)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:427:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:28\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:426:5"
+      },
+      "failingStep": "[SEED] customer registered via register.htm",
+      "auto": {
+        "category": "BLOCKED",
+        "confidence": "high",
+        "signals": [
+          "Precondition data could not be seeded, so the scenario was not evaluated: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)"
+        ],
+        "next": "Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one."
+      }
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: The customer and accounts services return the customer registered through the page",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-9",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f1e1]:\n  - main [ref=f1e2]:\n    - generic [ref=f1e3]:\n      - heading \"parabank.parasoft.com\" [level=1] [ref=f1e5]\n      - heading \"Performing security verification\" [level=2] [ref=f1e6]\n      - paragraph [ref=f1e7]: This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.\n  - contentinfo [ref=f1e12]:\n    - generic [ref=f1e14]:\n      - generic [ref=f1e16]:\n        - text: \"Ray ID:\"\n        - code [ref=f1e17]: a41846898ddbf580\n      - generic [ref=f1e18]:\n        - generic [ref=f1e19]:\n          - text: Performance and Security by\n          - link \"Cloudflare, opens in a new tab\" [ref=f1e20] [cursor=pointer]:\n            - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=m\n            - text: Cloudflare\n        - link \"Privacy, opens in a new tab\" [ref=f1e22] [cursor=pointer]:\n          - /url: https://www.cloudflare.com/privacypolicy/\n          - text: Privacy\n",
+        "seed": {
+          "tag": "hxeqm8380",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "error": "registration succeeded (precondition)"
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('Your account was created successfully. You are now logged in.')",
+        "message": "Error: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('Your account was created successfully. You are now logged in.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - registration succeeded (precondition) getByText('Your account was created successfully. You are now logged in.') with timeout 5000ms\n  - waiting for getByText('Your account was created successfully. You are now logged in.')\n\n\n   at ..\\heldout-support\\fixtures.ts:237\n\n  235 |       } catch (err) {\n  236 |         rec.error = (err as Error).message.split('\\n')[0];\n> 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);\n      |               ^\n  238 |       }\n  239 |     };\n  240 |     await use({\n    at pre (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:237:15)\n    at Object.create (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:244:25)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:444:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:28\n    at registeredWithOverview (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:443:5)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:465:30"
+      },
+      "failingStep": "[SEED] customer registered via register.htm",
+      "auto": {
+        "category": "BLOCKED",
+        "confidence": "high",
+        "signals": [
+          "Precondition data could not be seeded, so the scenario was not evaluated: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)"
+        ],
+        "next": "Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one."
+      }
+    },
+    {
+      "scenario": "SCN-014",
+      "title": "SCN-014: The customer and accounts services match the login response and the Accounts Overview exactly",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-9",
+        "@type:integration",
+        "@layer:e2e",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-eca54-e-Accounts-Overview-exactly-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-eca54-e-Accounts-Overview-exactly-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/PB-1/runs/04-eval/artifacts/PB-1-tests-pb-1-PB-1-Custo-eca54-e-Accounts-Overview-exactly-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f2e1]:\n  - generic [ref=f2e2]:\n    - generic [ref=f2e3]:\n      - link:\n        - /url: admin.htm\n        - img [ref=f2e4] [cursor=pointer]\n      - link \"ParaBank\":\n        - /url: index.htm\n        - img \"ParaBank\" [ref=f2e5] [cursor=pointer]\n      - paragraph [ref=f2e6]: Experience the difference\n    - generic [ref=f2e7]:\n      - list [ref=f2e8]:\n        - listitem [ref=f2e9]: Solutions\n        - listitem [ref=f2e10]:\n          - link \"About Us\" [ref=f2e11] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f2e12]:\n          - link \"Services\" [ref=f2e13] [cursor=pointer]:\n            - /url: services.htm\n        - listitem [ref=f2e14]:\n          - link \"Products\" [ref=f2e15] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/products.jsp\n        - listitem [ref=f2e16]:\n          - link \"Locations\" [ref=f2e17] [cursor=pointer]:\n            - /url: http://www.parasoft.com/jsp/pr/contacts.jsp\n        - listitem [ref=f2e18]:\n          - link \"Admin Page\" [ref=f2e19] [cursor=pointer]:\n            - /url: admin.htm\n      - list [ref=f2e20]:\n        - listitem [ref=f2e21]:\n          - link \"home\" [ref=f2e22] [cursor=pointer]:\n            - /url: index.htm\n        - listitem [ref=f2e23]:\n          - link \"about\" [ref=f2e24] [cursor=pointer]:\n            - /url: about.htm\n        - listitem [ref=f2e25]:\n          - link \"contact\" [ref=f2e26] [cursor=pointer]:\n            - /url: contact.htm\n    - generic [ref=f2e27]:\n      - generic [ref=f2e28]:\n        - paragraph [ref=f2e29]: Welcome Hana Heldouta100\n        - heading \"Account Services\" [level=2] [ref=f2e30]\n        - list [ref=f2e31]:\n          - listitem [ref=f2e32]:\n            - link \"Open New Account\" [ref=f2e33] [cursor=pointer]:\n              - /url: openaccount.htm\n          - listitem [ref=f2e34]:\n            - link \"Accounts Overview\" [ref=f2e35] [cursor=pointer]:\n              - /url: overview.htm\n          - listitem [ref=f2e36]:\n            - link \"Transfer Funds\" [ref=f2e37] [cursor=pointer]:\n              - /url: transfer.htm\n          - listitem [ref=f2e38]:\n            - link \"Bill Pay\" [ref=f2e39] [cursor=pointer]:\n              - /url: billpay.htm\n          - listitem [ref=f2e40]:\n            - link \"Find Transactions\" [ref=f2e41] [cursor=pointer]:\n              - /url: findtrans.htm\n          - listitem [ref=f2e42]:\n            - link \"Update Contact Info\" [ref=f2e43] [cursor=pointer]:",
+        "seed": {
+          "tag": "hxeqzma100",
+          "records": [
+            {
+              "label": "customer registered via register.htm",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "firstName": "Hana",
+                "lastName": "Heldouta100",
+                "street": "12 Heldout Lane",
+                "city": "Testville",
+                "state": "CA",
+                "zipCode": "94016",
+                "phoneNumber": "5551234567",
+                "ssn": "123-45-6789",
+                "username": "pb1hxeqzma1001tjl",
+                "password": "***redacted***"
+              }
+            },
+            {
+              "label": "read account numbers from Accounts Overview",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "error": "account numbers rendered (precondition)"
+            }
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[SEED] read account numbers from Accounts Overview: precondition could not be established — account numbers rendered (precondition)",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "locator('#accountTable tbody a').first()",
+        "message": "Error: [SEED] read account numbers from Accounts Overview: precondition could not be established — account numbers rendered (precondition)\n\nexpect(locator).toBeVisible() failed\n\nLocator: locator('#accountTable tbody a').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - account numbers rendered (precondition) locator('#accountTable tbody a').first() with timeout 5000ms\n  - waiting for locator('#accountTable tbody a').first()\n\n\n   at ..\\heldout-support\\fixtures.ts:237\n\n  235 |       } catch (err) {\n  236 |         rec.error = (err as Error).message.split('\\n')[0];\n> 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);\n      |               ^\n  238 |       }\n  239 |     };\n  240 |     await use({\n    at pre (D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:237:15)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:447:15\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:28\n    at registeredWithOverview (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:446:5)\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:490:30"
+      },
+      "failingStep": "[SEED] read account numbers from Accounts Overview",
+      "auto": {
+        "category": "BLOCKED",
+        "confidence": "high",
+        "signals": [
+          "Precondition data could not be seeded, so the scenario was not evaluated: [SEED] read account numbers from Accounts Overview: precondition could not be established — account numbers rendered (precondition)"
+        ],
+        "next": "Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one."
+      }
+    }
+  ]
+}

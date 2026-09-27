@@ -1,0 +1,127 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "GET /api/brandsList returns responseCode 200 and a brands array; every entry has an id and a brand. For every entry, the product with that id in GET /api/productsList has exactly that brand.",
+      "outcomes": [
+        "HTTP status 200 (R2)",
+        "body responseCode 200",
+        "body has a \"brands\" array",
+        "every entry has an \"id\" and a \"brand\"",
+        "for every entry, the product with that id in GET /api/productsList has exactly that brand",
+        "one entry per catalogue product (R1, story.md#L21)"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "PUT /api/brandsList is not supported: the HTTP status stays 200 and the JSON body is responseCode 405 with message \"This request method is not supported.\". POST and DELETE on /api/brandsList answer the same way.",
+      "outcomes": [
+        "PUT /api/brandsList: HTTP status 200, body responseCode 405 and message \"This request method is not supported.\"",
+        "POST /api/brandsList: HTTP status 200, body responseCode 405 and message \"This request method is not supported.\"",
+        "DELETE /api/brandsList: HTTP status 200, body responseCode 405 and message \"This request method is not supported.\""
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "The \"Brands\" panel on the Products page lists every brand exactly once, each followed by the number of its products in parentheses, e.g. \"(6)\".",
+      "outcomes": [
+        "the \"Brands\" panel in the left-hand sidebar of /products lists every brand",
+        "no brand is listed more than once",
+        "each brand is followed by the number of its products in parentheses, e.g. \"(6)\""
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "The brands in the sidebar are exactly the distinct brand names in GET /api/brandsList, and the number shown next to each brand equals the number of brandsList entries with that brand.",
+      "outcomes": [
+        "the set of brands in the sidebar equals the set of distinct brand names in GET /api/brandsList (none missing, none extra)",
+        "the number shown next to each brand equals the number of brandsList entries with that brand"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "Clicking a brand in the sidebar opens that brand's page headed \"Brand - <brand> Products\" (e.g. \"Brand - Polo Products\") that lists only that brand's products: exactly the products that GET /api/productsList gives that brand. Check at least Polo, H&M and Mast & Harbour.",
+      "outcomes": [
+        "clicking a brand in the sidebar opens a page headed \"Brand - <brand> Products\" (e.g. \"Brand - Polo Products\")",
+        "the page lists exactly the products that GET /api/productsList gives that brand (none missing, none extra)",
+        "checked for at least Polo, H&M and Mast & Harbour"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "The Contact Us form offers the fields shown in the mock-up (Name, Email, Subject, Message; the Attachment field is not part of this story); the mandatory field marked in the mock-up (Email) must be filled for the form to be sent, and an e-mail that is not a valid address stops the form from being sent. Fields marked optional (Name, Subject, Message) may be left empty.",
+      "outcomes": [
+        "the form offers the fields Name (placeholder \"Name\"), Email (placeholder \"Email\"), Subject (placeholder \"Subject\") and Message (multi-line, placeholder \"Your Message Here\"), and a \"Submit\" button",
+        "with Email empty, the form is not sent",
+        "with an e-mail that is not a valid address, the form is not sent",
+        "with a valid Email and Name, Subject and Message left empty, the form can be sent"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "Sending the form follows the mock-up: the customer is asked to confirm (browser confirmation \"Press OK to proceed!\"); after confirming, the message \"Success! Your details have been submitted successfully.\" is shown and the form is replaced by a \"Home\" button that returns to the home page.",
+      "outcomes": [
+        "clicking \"Submit\" on a valid form opens a browser confirmation \"Press OK to proceed!\"",
+        "after OK, the message \"Success! Your details have been submitted successfully.\" is shown (mock-up: green banner above the form)",
+        "after OK, the form is replaced by a \"Home\" button",
+        "clicking \"Home\" returns to the home page"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "If the customer cancels the confirmation, no success message is shown and the form stays on the page with what they typed.",
+      "outcomes": [
+        "after Cancel on the \"Press OK to proceed!\" confirmation, no success message is shown",
+        "the form stays on the page",
+        "every field still holds what was typed"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "GET /api/brandsList returns one entry per catalogue product: the entry id is the product id and brand is that product's brand. A brand appears once per product it has; the distinct brand names are our brands."
+    },
+    {
+      "id": "R2",
+      "text": "The public catalogue API, brandsList included, always answers with HTTP status 200 and reports the outcome in the responseCode field of its JSON body."
+    },
+    {
+      "id": "R3",
+      "text": "In the Brands panel of the Products page sidebar, each brand links to a page listing that brand's products."
+    },
+    {
+      "id": "R4",
+      "text": "Contact Us form: Email is mandatory (red asterisk); Name, Subject and Message are optional. The form must not be sent while a mandatory field is empty or the e-mail is not a valid address."
+    },
+    {
+      "id": "R5",
+      "text": "Submit flow: Submit → browser confirmation \"Press OK to proceed!\" → OK shows the green success banner above the form and replaces the form with a \"Home\" button; Cancel keeps the form as filled, no banner."
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "PUT, POST or DELETE on /api/brandsList (method not supported)",
+      "status": 200,
+      "body": "responseCode 405 with message \"This request method is not supported.\""
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G4",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G5",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G6",
+      "resolution": "open",
+      "value": null
+    }
+  ]
+}

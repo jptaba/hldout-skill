@@ -2,8 +2,25 @@
   "key": "PB-1",
   "aut": "parabank",
   "writtenAt": "2026-09-27 (before evaluation)",
-  "expectedVerdict": "PASS",
-  "defects": [],
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": [
+        "AC-5"
+      ],
+      "origin": "aut-drift",
+      "keywords": [
+        "internal error",
+        "could not be verified",
+        "wrong password",
+        "sign-in",
+        "login"
+      ],
+      "description": "Signing in with a wrong password shows \"An internal error has occurred and has been logged.\" instead of AC-5 message \"The username and password could not be verified.\" (the demo app changed after the key was written; see revisions).",
+      "evidence": "heldout inspect --aut parabank --url index.htm with a wrong-credential login step, 2026-09-27."
+    }
+  ],
   "seededScriptDefects": [],
   "traps": [
     "User-name length: ParaBank answers 'This username already exists.' for ANY user name longer than 20 characters (probed: qa-author-kkkkkk0051 = 20 chars registers, qa-author-kkkkkkk0051 = 21 chars is refused as 'already exists'). A test that builds a long unique name (e.g. prefix + full timestamp + random) will see AC-3/AC-4/AC-6 break; that is a script/test-data problem for this story (the story sets no length rule), not a deviation of AC-4. Keep generated user names <= 20 characters.",
@@ -27,5 +44,13 @@
     "AC-7: 200; JSON {id, firstName, lastName, address{street,city,state,zipCode}, phoneNumber, ssn}; XML root <customer> by default (probed).",
     "AC-8: 400 'Invalid username and/or password' (probed).",
     "AC-9: /customers/{id} returns the same customer, /customers/{id}/accounts returns the account shown in the overview (probed)."
+  ],
+  "revisions": [
+    {
+      "date": "2026-09-27",
+      "by": "test lead (not the evaluator)",
+      "change": "expectedVerdict PASS -> FAIL, defect D1 added",
+      "reason": "The shared ParaBank demo changed behaviour after the key was written: a failed sign-in (wrong password, and also an unknown user name) now shows \"Error!\" with \"An internal error has occurred and has been logged.\" instead of \"The username and password could not be verified.\". Re-probed independently of the evaluation with heldout inspect (index.htm, sign-in as nosuchuser9x / wrongpass1 -> title \"ParaBank | Error\", paragraph \"An internal error has occurred and has been logged.\"). The requirement (AC-5) is unchanged, so the app now deviates from it."
+    }
   ]
 }

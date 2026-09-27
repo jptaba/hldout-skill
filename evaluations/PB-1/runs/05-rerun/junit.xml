@@ -1,0 +1,291 @@
+<testsuites id="" name="" tests="14" failures="2" skipped="0" errors="0" time="66.919129">
+<testsuite name="PB-1\tests\pb-1.spec.ts" timestamp="2026-09-27T05:59:47.237Z" hostname="chromium" tests="14" failures="2" skipped="0" time="56.648" errors="0">
+<testcase name="PB-1 Customer registration and sign-in › SCN-001: Submitting an empty registration form shows a required message next to every required field" classname="PB-1\tests\pb-1.spec.ts" time="1.825">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-002: Registering with a Confirm that differs from Password shows &quot;Passwords did not match.&quot;" classname="PB-1\tests\pb-1.spec.ts" time="1.418">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-003: A registration rejected for mismatched passwords creates no customer" classname="PB-1\tests\pb-1.spec.ts" time="1.696">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-004: A complete, valid registration welcomes the new customer and signs them in" classname="PB-1\tests\pb-1.spec.ts" time="1.284">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-005: Registering with a user name that is already taken shows &quot;This username already exists.&quot;" classname="PB-1\tests\pb-1.spec.ts" time="2.249">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-006: A duplicate registration does not change the existing customer" classname="PB-1\tests\pb-1.spec.ts" time="2.75">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-007: Signing in with a wrong password shows the &quot;Error!&quot; page" classname="PB-1\tests\pb-1.spec.ts" time="14.773">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] could not be verified" type="expect.toBeVisible">
+<![CDATA[  [chromium] › PB-1\tests\pb-1.spec.ts:311:3 › PB-1 Customer registration and sign-in › SCN-007: Signing in with a wrong password shows the "Error!" page @AC-5 @type:negative @layer:ui @P1 › And it says "The username and password could not be verified." 
+
+    Error: [REQ AC-5] could not be verified
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByText('The username and password could not be verified.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms
+      - waiting for getByText('The username and password could not be verified.')
+
+
+      326 |     });
+      327 |     await journey.step('And it says "The username and password could not be verified."', async () => {
+    > 328 |       await expect(page.getByText(REQ.AC5_NOT_VERIFIED), '[REQ AC-5] could not be verified').toBeVisible();
+          |                                                                                              ^
+      329 |     });
+      330 |   });
+      331 |
+        at body (D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:328:94)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:327:5
+
+    attachment #1: aria-snapshot 05-failed-and-it-says-the-username-and-password-could-not-be-ve (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/login.htm;jsessionid=8022CD89A029986222A4BC5219D558B7
+    # step: FAILED And it says "The username and password could not be verified."
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] could not be verified
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByText('The username and password could not be verified.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms
+      - waiting for getByText('The username and password could not be verified.')
+
+
+      326 |     });
+      327 |     await journey.step('And it says "The username and password could not be verified."', async () => {
+    > 328 |       await expect(page.getByText(REQ.AC5_NOT_VERIFIED), '[REQ AC-5] could not be verified').toBeVisible();
+          |                                                                                              ^
+      329 |     });
+      330 |   });
+      331 |
+        at body (D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:328:94)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:34
+        at D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:327:5
+
+    attachment #1: aria-snapshot 05-failed-and-it-says-the-username-and-password-could-not-be-ve (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/login.htm;jsessionid=DC6E9AAB1BCF41A9C4F53E0F3C9F8E2E
+    # step: FAILED And it says "The username and password could not be verified."
+    - link:
+      - /url: admin.htm
+      - img
+    - link "ParaBank":
+      - /url: index.htm
+      - img "ParaBank"
+    - paragraph: Experience the ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-008: Signing in with both fields empty asks for a user name and password" classname="PB-1\tests\pb-1.spec.ts" time="1.221">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-009: Signing in opens the Accounts Overview and Log Out returns to the home page" classname="PB-1\tests\pb-1.spec.ts" time="2.933">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-010: REST login with valid credentials returns the registered customer as JSON" classname="PB-1\tests\pb-1.spec.ts" time="8.006">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-b5574-registered-customer-as-JSON-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-b5574-registered-customer-as-JSON-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-b5574-registered-customer-as-JSON-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-011: REST login without Accept: application/json returns XML with a customer root element" classname="PB-1\tests\pb-1.spec.ts" time="1.549">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-012: REST login with a wrong password answers 400 &quot;Invalid username and/or password&quot;" classname="PB-1\tests\pb-1.spec.ts" time="1.564">
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-013: The customer and accounts services return the customer registered through the page" classname="PB-1\tests\pb-1.spec.ts" time="12.722">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)" type="expect.toBeVisible">
+<![CDATA[  [chromium] › PB-1\tests\pb-1.spec.ts:463:3 › PB-1 Customer registration and sign-in › SCN-013: The customer and accounts services return the customer registered through the page @AC-9 @type:integration @layer:e2e @P1 › Given a customer is registered through the registration page with a fresh user name › [SEED] customer registered via register.htm 
+
+    Error: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByText('Your account was created successfully. You are now logged in.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - registration succeeded (precondition) getByText('Your account was created successfully. You are now logged in.') with timeout 5000ms
+      - waiting for getByText('Your account was created successfully. You are now logged in.')
+
+
+       at ..\heldout-support\fixtures.ts:237
+
+      235 |       } catch (err) {
+      236 |         rec.error = (err as Error).message.split('\n')[0];
+    > 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      238 |       }
+      239 |     };
+      240 |     await use({
+        at pre (D:\projects\hldout-skill\heldout-support\fixtures.ts:237:15)
+        at Object.create (D:\projects\hldout-skill\heldout-support\fixtures.ts:244:25)
+        at D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:444:7
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:28
+        at registeredWithOverview (D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:443:5)
+        at D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:465:30
+
+    attachment #1: aria-snapshot 01-failed-given-a-customer-is-registered-through-the-registrati (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/register.htm
+    # step: FAILED Given a customer is registered through the registration page with a fresh user name
+    - main:
+      - heading "parabank.parasoft.com" [level=1]
+      - heading "Performing security verification" [level=2]
+      - paragraph: This website use...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [SEED] customer registered via register.htm: precondition could not be established — registration succeeded (precondition)
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByText('Your account was created successfully. You are now logged in.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - registration succeeded (precondition) getByText('Your account was created successfully. You are now logged in.') with timeout 5000ms
+      - waiting for getByText('Your account was created successfully. You are now logged in.')
+
+
+       at ..\heldout-support\fixtures.ts:237
+
+      235 |       } catch (err) {
+      236 |         rec.error = (err as Error).message.split('\n')[0];
+    > 237 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      238 |       }
+      239 |     };
+      240 |     await use({
+        at pre (D:\projects\hldout-skill\heldout-support\fixtures.ts:237:15)
+        at Object.create (D:\projects\hldout-skill\heldout-support\fixtures.ts:244:25)
+        at D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:444:7
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:326:28
+        at registeredWithOverview (D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:443:5)
+        at D:\projects\hldout-skill\evaluations\PB-1\tests\pb-1.spec.ts:465:30
+
+    attachment #1: aria-snapshot 01-failed-given-a-customer-is-registered-through-the-registrati (text/yaml) 
+    # url: https://parabank.parasoft.com/parabank/register.htm
+    # step: FAILED Given a customer is registered through the registration page with a fresh user name
+    - main:
+      - heading "parabank.parasoft.com" [level=1]
+      - heading "Performing security verification" [level=2]
+      - paragraph: This website use...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace PB-1\runs\05-rerun\artifacts\PB-1-tests-pb-1-PB-1-Custo-a28c3-registered-through-the-page-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="PB-1 Customer registration and sign-in › SCN-014: The customer and accounts services match the login response and the Accounts Overview exactly" classname="PB-1\tests\pb-1.spec.ts" time="2.658">
+</testcase>
+</testsuite>
+</testsuites>

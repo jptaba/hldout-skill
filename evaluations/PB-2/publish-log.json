@@ -1,0 +1,32 @@
+[
+  {
+    "at": "2026-09-27T12:26:40.831Z",
+    "mode": "mock",
+    "verdict": "FAIL",
+    "attachment": "heldout-verdict-PB-2-202609271226.md",
+    "commentId": "20001",
+    "labels": [
+      "heldout-fail"
+    ]
+  },
+  {
+    "at": "2026-09-27T16:54:20.408Z",
+    "mode": "mock",
+    "verdict": "FAIL",
+    "attachment": "heldout-verdict-PB-2-202609271654.md",
+    "commentId": "20002",
+    "labels": [
+      "heldout-fail"
+    ]
+  },
+  {
+    "at": "2026-09-27T16:56:08.193Z",
+    "mode": "mock",
+    "verdict": "FAIL",
+    "attachment": "heldout-verdict-PB-2-202609271656.md",
+    "commentId": "20003",
+    "labels": [
+      "heldout-fail"
+    ]
+  }
+]

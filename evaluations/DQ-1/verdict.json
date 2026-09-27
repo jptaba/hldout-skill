@@ -1,0 +1,841 @@
+{
+  "key": "DQ-1",
+  "verdict": "FAIL",
+  "reason": "2 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-6, AC-7. Awaiting reviewer confirmation.",
+  "finalRun": "03-eval",
+  "generatedAt": "2026-09-27T16:56:11.846Z",
+  "autId": "demoqa",
+  "aut": {
+    "name": "DemoQA Book Store (React UI + JSON API)",
+    "baseURL": "https://demoqa.com",
+    "apiBaseURL": "https://demoqa.com",
+    "testIdAttribute": "id",
+    "healthcheck": [
+      "/books",
+      "api:/BookStore/v1/Books"
+    ],
+    "notes": "Users can be deleted via the API.",
+    "blockHosts": [
+      "googlesyndication.com",
+      "doubleclick.net",
+      "googleadservices.com",
+      "google-analytics.com",
+      "googletagmanager.com",
+      "fundingchoicesmessages.google.com",
+      "adservice.google.com"
+    ]
+  },
+  "summary": {
+    "total": 27,
+    "passed": 24,
+    "failed": 3,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Access token (JWT) contains the user's cleartext password",
+      "testType": "security",
+      "source": "story.md#L57 (AC-7)",
+      "confirmed": true,
+      "severity": "Critical",
+      "criteria": [
+        "AC-7"
+      ],
+      "tests": [
+        "SCN-007"
+      ],
+      "expected": "0",
+      "actual": "1",
+      "rationale": "AC-7: decoding the token must not reveal the password in any part. The token returned by POST /Account/v1/GenerateToken is a JWT whose payload (base64url, not encrypted) carries the claims userName, password and iat; the password claim equals the account's password in cleartext. Anyone holding the token (logs, browser storage, proxies) can read the password. The test decoded the token correctly (3 parts, header JSON with alg/typ), so this is not a script defect.",
+      "liveCheck": "Replayed live 2026-09-27 with a black-box decode script (evaluations/DQ-1/hardening/confirm-ac7.ts): runs/03-eval/confirm/scn-007-jwt-decode.md - payload claims userName, password (= the password), iat; header and signature clean. Password value never printed.",
+      "steps": [
+        "Given a user was created through the API",
+        "When I POST /Account/v1/GenerateToken with the correct user name and password",
+        "Then the token decodes as a JWT",
+        "And no part of the token or of its decoded header, payload and signature contains the password"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://demoqa.com/Account/v1/GenerateToken",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "userName": "qa-dq1-hxesvps60-mujesvpt1",
+            "password": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 1783,
+          "headers": {
+            "server": "nginx/1.17.10 (Ubuntu)",
+            "date": "Sun, 27 Sep 2026 06:00:06 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "302",
+            "connection": "keep-alive",
+            "x-powered-by": "Express",
+            "etag": "W/\"12e-OFXwZvAHOOxfLOnPc/j+HhLD66o\""
+          },
+          "body": {
+            "token": "***redacted***",
+            "expires": "2026-10-04T06:00:04.544Z",
+            "status": "Success",
+            "result": "User authorized successfully."
+          }
+        }
+      },
+      "screenshot": "evaluations/DQ-1/runs/03-eval/artifacts/DQ-1-tests-dq-1-DQ-1-Book--eba10-isclose-the-user-s-password-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://demoqa.com/Account/v1/GenerateToken",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "userName": "qa-dq1-hxesvps60-mujesvpt1",
+              "password": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 1783,
+            "headers": {
+              "server": "nginx/1.17.10 (Ubuntu)",
+              "date": "Sun, 27 Sep 2026 06:00:06 GMT",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "302",
+              "connection": "keep-alive",
+              "x-powered-by": "Express",
+              "etag": "W/\"12e-OFXwZvAHOOxfLOnPc/j+HhLD66o\""
+            },
+            "body": {
+              "token": "***redacted***",
+              "expires": "2026-10-04T06:00:04.544Z",
+              "status": "Success",
+              "result": "User authorized successfully."
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run DQ-1 --label repro --grep \"SCN-007:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "GenerateToken refusal answers 200 instead of 401 Unauthorized",
+      "testType": "negative",
+      "source": "story.md#L55 (AC-6), story.md#L75 (PO clarification: 401 for a wrong password or an unknown user name)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-006.1",
+        "SCN-006.2"
+      ],
+      "expected": "401",
+      "actual": "200",
+      "rationale": "The PO clarification (story.md#L75) requires POST /Account/v1/GenerateToken with a wrong password or an unknown user name to answer 401 Unauthorized. The request was well-formed (fields userName/password confirmed in hardening, G6), the declared endpoint answered, and the body matches AC-6 exactly (token/expires null, status Failed, result 'User authorization failed.') - only the HTTP status is 200 instead of 401. Not a mechanics issue.",
+      "liveCheck": "Replayed live 2026-09-27 (tier 3, api-probe --chain): runs/03-eval/confirm/scn-006-api-probe.md steps 2 (wrong password) and 3 (unknown user name) both -> 200 with the AC-6 body; same result in runs 01-harden, 02-harden (x3) and 03-eval.",
+      "steps": [
+        "Given a user was created through the API",
+        "When I POST /Account/v1/GenerateToken with <credentials>",
+        "Then the response status is 401",
+        "And token is null",
+        "And expires is null",
+        "And the status is \"Failed\"",
+        "And the result is \"User authorization failed.\""
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://demoqa.com/Account/v1/GenerateToken",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "userName": "qa-dq1-hxesmdn50-mujesmdn1",
+            "password": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 3951,
+          "headers": {
+            "server": "nginx/1.17.10 (Ubuntu)",
+            "date": "Sun, 27 Sep 2026 05:59:56 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "85",
+            "connection": "keep-alive",
+            "x-powered-by": "Express",
+            "etag": "W/\"55-uDqoBYBzbvMfwcbBiE9kdrLOtHY\""
+          },
+          "body": {
+            "token": null,
+            "expires": null,
+            "status": "Failed",
+            "result": "User authorization failed."
+          }
+        }
+      },
+      "screenshot": "evaluations/DQ-1/runs/03-eval/artifacts/DQ-1-tests-dq-1-DQ-1-Book--bc0ed--name-and-a-wrong-password--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://demoqa.com/Account/v1/GenerateToken",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "userName": "qa-dq1-hxesmdn50-mujesmdn1",
+              "password": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 3951,
+            "headers": {
+              "server": "nginx/1.17.10 (Ubuntu)",
+              "date": "Sun, 27 Sep 2026 05:59:56 GMT",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "85",
+              "connection": "keep-alive",
+              "x-powered-by": "Express",
+              "etag": "W/\"55-uDqoBYBzbvMfwcbBiE9kdrLOtHY\""
+            },
+            "body": {
+              "token": null,
+              "expires": null,
+              "status": "Failed",
+              "result": "User authorization failed."
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run DQ-1 --label repro --grep \"SCN-006\\.1:\"",
+        "npm run heldout -- run DQ-1 --label repro --grep \"SCN-006\\.2:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 1,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "contract",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "functional",
+      "scenarios": 5,
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "integration",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 8,
+      "tests": 15,
+      "passed": 13,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-2"
+      ]
+    },
+    {
+      "type": "security",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    },
+    {
+      "type": "usability",
+      "scenarios": 2,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "Creating a user with POST /Account/v1/User and a JSON body { \"userName\", \"password\" } whose password satisfies the policy returns 201 Created. The body contains the new user's id (userID, a UUID), username equal to the requested user name, and an empty books list.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "A client creates a user with a policy-compliant password and gets 201 with the new user",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L45 (AC-1), story.md#L32-L33 (accounts and data)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "The 8-character minimum length is enforced exactly at the boundary",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md#L34 (R1 \"at least 8 characters\"), story.md#L47 (AC-2), story.md#L45 (AC-1)"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-014.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "A password that does not satisfy the policy (too short, or missing an uppercase letter, a lowercase letter, a digit or a special character) is rejected with 400, error code \"1300\" and the message \"Passwords must have at least one non alphanumeric character, one digit ('0'-'9'), one uppercase ('A'-'Z'), one lowercase ('a'-'z'), one special character and Password must be eight characters or longer.\" No account is created (a token cannot be obtained for it).",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "A password that breaks the policy is rejected and no account is created",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L47 (AC-2), story.md#L34 (password policy)"
+          ],
+          "passed": 5,
+          "total": 5,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.3",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.4",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.5",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "The 8-character minimum length is enforced exactly at the boundary",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md#L34 (R1 \"at least 8 characters\"), story.md#L47 (AC-2), story.md#L45 (AC-1)"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-014.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "Creating a user whose user name already exists is rejected with 406, error code \"1204\" and the message \"User exists!\".",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "Creating a user whose user name already exists is rejected with 406",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L49 (AC-3)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "Creating a user without a user name or without a password is rejected with 400, error code \"1200\" and the message \"UserName and Password required.\"",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "Creating a user without a user name or without a password is rejected with 400",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L51 (AC-4)"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-004.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-015",
+          "title": "An empty user name or empty password counts as missing and is rejected with 400",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L51 (AC-4), contract G7 (assumed: an empty string also counts as \"without\")"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-015.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-015.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "POST /Account/v1/GenerateToken with the correct user name and password returns 200 with a non-empty token, status \"Success\", result \"User authorized successfully.\" and an expires timestamp 7 days after the moment the token was issued.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "GenerateToken with the correct credentials returns a token",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L53 (AC-5)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-016",
+          "title": "The token expires 7 days after it was issued",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story.md#L53 (AC-5), contract G3 (assumed tolerance and time format)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-016",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "POST /Account/v1/GenerateToken with a wrong password issues no token: token and expires are null, status is \"Failed\" and result is \"User authorization failed.\"",
+      "scenarios": [
+        {
+          "id": "SCN-006",
+          "title": "GenerateToken with wrong credentials issues no token and answers 401",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L55 (AC-6), story.md#L75 (PO clarification: 401 for a wrong password or an unknown user name)"
+          ],
+          "passed": 0,
+          "total": 2,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-006.1",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-006.2",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "The token must not disclose the user's password: decoding the token (a JWT) must not reveal the password in any part of it.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "The issued token does not disclose the user's password",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md#L57 (AC-7)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "POST /Account/v1/Authorized with { \"userName\", \"password\" } returns false for a newly created user who has not been issued a token yet, and true once a token has been generated for that user. With a wrong password it never returns true; it answers with the message \"User not found!\".",
+      "scenarios": [
+        {
+          "id": "SCN-008",
+          "title": "Authorized is false before a token is issued and true afterwards",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L59 (AC-8)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-017",
+          "title": "Authorized with a wrong password never answers true",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L59 (AC-8), contract G4 (no status asserted)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-017",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-9",
+      "text": "On the login page (/login), signing in with an account created through the API opens the profile page (/profile), which shows \"User Name :\" followed by that user's name. After this sign-in, POST /Account/v1/Authorized returns true for the account.",
+      "scenarios": [
+        {
+          "id": "SCN-009",
+          "title": "Signing in on the web site with an API-created account opens the profile",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story.md#L61 (AC-9)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-10",
+      "text": "Signing in with a wrong password keeps the user on the login page and shows the message \"Invalid username or password!\" in red below the form.",
+      "scenarios": [
+        {
+          "id": "SCN-010",
+          "title": "Signing in with a wrong password keeps the user on the login page with an error",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story.md#L63 (AC-10)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-018",
+          "title": "The wrong-credentials message is shown in red",
+          "type": "usability",
+          "layer": "ui",
+          "sources": [
+            "story.md#L63 (AC-10), contract G8 (assumed meaning of \"in red\")"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-018",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-11",
+      "text": "Clicking \"Login\" with an empty user name and an empty password does not sign in; both fields are highlighted as invalid.",
+      "scenarios": [
+        {
+          "id": "SCN-011",
+          "title": "Clicking Login with both fields empty does not sign in",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story.md#L65 (AC-11)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-019",
+          "title": "Both empty fields are highlighted as invalid after clicking Login",
+          "type": "usability",
+          "layer": "ui",
+          "sources": [
+            "story.md#L65 (AC-11), contract G8 (assumed meaning of \"highlighted as invalid\")"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-019",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-12",
+      "text": "Clicking \"Logout\" on the profile page signs the user out and returns to the login page. Opening /profile afterwards no longer shows the user name and shows \"Currently you are not logged into the Book Store application, please visit the login page to enter or register page to register yourself.\"",
+      "scenarios": [
+        {
+          "id": "SCN-012",
+          "title": "Logging out returns to the login page and the profile no longer shows the user",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L67 (AC-12)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-012",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-13",
+      "text": "DELETE /Account/v1/User/{UUID}, authorized with the user's token, deletes the account and returns 204 No Content. Afterwards POST /Account/v1/GenerateToken for that user name returns status \"Failed\".",
+      "scenarios": [
+        {
+          "id": "SCN-013",
+          "title": "Deleting the account with the user's token returns 204 and the account can no longer get a token",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L69 (AC-13)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-013",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "OQ-1 — what DELETE /Account/v1/User/{UUID} answers without a token or with another user's token is not stated; not tested"
+  ],
+  "observations": [],
+  "verdictFile": "evaluations/DQ-1/verdict.md"
+}

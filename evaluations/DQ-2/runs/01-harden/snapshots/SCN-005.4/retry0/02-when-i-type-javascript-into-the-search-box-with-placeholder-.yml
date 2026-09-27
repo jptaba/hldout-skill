@@ -1,0 +1,93 @@
+# url: https://demoqa.com/books
+# step: When I type "JAVASCRIPT" into the search box with placeholder "Type to search" without submitting
+- banner:
+  - link:
+    - /url: https://demoqa.com
+    - img
+- img
+- text: Elements
+- img
+- img
+- text: Forms
+- img
+- img
+- text: Alerts, Frame & Windows
+- img
+- img
+- text: Widgets
+- img
+- img
+- text: Interactions
+- img
+- img
+- text: Book Store Application
+- img
+- list:
+  - listitem:
+    - link "Login":
+      - /url: /login
+      - img
+      - text: Login
+  - listitem:
+    - link "Book Store":
+      - /url: /books
+      - img
+      - text: Book Store
+  - listitem:
+    - link "Profile":
+      - /url: /profile
+      - img
+      - text: Profile
+  - listitem:
+    - link "Book Store API":
+      - /url: /swagger
+      - img
+      - text: Book Store API
+- textbox "Type to search": JAVASCRIPT
+- button:
+  - img
+- button "Login"
+- table:
+  - rowgroup:
+    - row "Image Title Author Publisher":
+      - columnheader "Image"
+      - columnheader "Title"
+      - columnheader "Author"
+      - columnheader "Publisher"
+  - rowgroup:
+    - row "book-image Learning JavaScript Design Patterns Addy Osmani O'Reilly Media":
+      - cell "book-image":
+        - img "book-image"
+      - cell "Learning JavaScript Design Patterns":
+        - link "Learning JavaScript Design Patterns":
+          - /url: /books?search=9781449331818
+      - cell "Addy Osmani"
+      - cell "O'Reilly Media"
+    - row "book-image Speaking JavaScript Axel Rauschmayer O'Reilly Media":
+      - cell "book-image":
+        - img "book-image"
+      - cell "Speaking JavaScript":
+        - link "Speaking JavaScript":
+          - /url: /books?search=9781449365035
+      - cell "Axel Rauschmayer"
+      - cell "O'Reilly Media"
+    - row "book-image Programming JavaScript Applications Eric Elliott O'Reilly Media":
+      - cell "book-image":
+        - img "book-image"
+      - cell "Programming JavaScript Applications":
+        - link "Programming JavaScript Applications":
+          - /url: /books?search=9781491950296
+      - cell "Eric Elliott"
+      - cell "O'Reilly Media"
+    - row "book-image Eloquent JavaScript, Second Edition Marijn Haverbeke No Starch Press":
+      - cell "book-image":
+        - img "book-image"
+      - cell "Eloquent JavaScript, Second Edition":
+        - link "Eloquent JavaScript, Second Edition":
+          - /url: /books?search=9781593275846
+      - cell "Marijn Haverbeke"
+      - cell "No Starch Press"
+- button "Previous" [disabled]
+- text: Page 1 of 1
+- button "Next" [disabled]
+- contentinfo: © 2013-2026 TOOLSQA.COM | ALL RIGHTS RESERVED.

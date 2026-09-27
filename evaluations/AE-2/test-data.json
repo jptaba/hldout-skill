@@ -1,0 +1,23 @@
+{
+  "customer": {
+    "password": "${env:AE_USER_PASSWORD}",
+    "emailDomain": "example.com",
+    "profile": {
+      "title": "Mrs",
+      "birth_date": "12",
+      "birth_month": "March",
+      "birth_year": "1991",
+      "firstname": "Asha",
+      "lastname": "Rao",
+      "company": "Acme QA",
+      "address1": "12 MG Road",
+      "address2": "Block B",
+      "country": "India",
+      "zipcode": "560001",
+      "state": "Karnataka",
+      "city": "Bengaluru",
+      "mobile_number": "9800000000"
+    },
+    "update": { "city": "Mysuru" }
+  }
+}

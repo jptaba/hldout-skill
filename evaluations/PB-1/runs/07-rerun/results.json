@@ -1,0 +1,1352 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/PB-1/tests/",
+      "--workers",
+      "1"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/PB-1/runs/07-rerun/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "PB-1\\tests\\pb-1.spec.ts",
+      "file": "PB-1/tests/pb-1.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "PB-1 Customer registration and sign-in",
+          "file": "PB-1/tests/pb-1.spec.ts",
+          "line": 188,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001: Submitting an empty registration form shows a required message next to every required field",
+              "ok": true,
+              "tags": [
+                "AC-1",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1350,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the registration page register.htm",
+                          "duration": 842
+                        },
+                        {
+                          "title": "When I submit the registration form with every field empty",
+                          "duration": 289
+                        },
+                        {
+                          "title": "Then I am still on the registration form",
+                          "duration": 17
+                        },
+                        {
+                          "title": "And \"First name is required.\" is shown next to First Name",
+                          "duration": 12
+                        },
+                        {
+                          "title": "And \"Last name is required.\" is shown next to Last Name",
+                          "duration": 8
+                        },
+                        {
+                          "title": "And \"Address is required.\" is shown next to Address",
+                          "duration": 11
+                        },
+                        {
+                          "title": "And \"City is required.\" is shown next to City",
+                          "duration": 9
+                        },
+                        {
+                          "title": "And \"State is required.\" is shown next to State",
+                          "duration": 7
+                        },
+                        {
+                          "title": "And \"Zip Code is required.\" is shown next to Zip Code",
+                          "duration": 10
+                        },
+                        {
+                          "title": "And \"Social Security Number is required.\" is shown next to SSN",
+                          "duration": 6
+                        },
+                        {
+                          "title": "And \"Username is required.\" is shown next to Username",
+                          "duration": 5
+                        },
+                        {
+                          "title": "And \"Password is required.\" is shown next to Password",
+                          "duration": 4
+                        },
+                        {
+                          "title": "And \"Password confirmation is required.\" is shown next to Confirm",
+                          "duration": 5
+                        },
+                        {
+                          "title": "And no message is shown for Phone #",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:03:53.663Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-c95079babeaa4d37bf86",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 194,
+              "column": 3
+            },
+            {
+              "title": "SCN-002: Registering with a Confirm that differs from Password shows \"Passwords did not match.\"",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1319,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the registration page register.htm",
+                          "duration": 776
+                        },
+                        {
+                          "title": "When I submit a complete registration with a fresh user name whose Confirm differs from Password",
+                          "duration": 445
+                        },
+                        {
+                          "title": "Then the form shows \"Passwords did not match.\"",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:03:55.122Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-9b4b771f1187c2a02849",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 216,
+              "column": 3
+            },
+            {
+              "title": "SCN-003: A registration rejected for mismatched passwords creates no customer",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:integration",
+                "layer:e2e",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1707,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I submitted a complete registration with a fresh user name whose Confirm differs from Password",
+                          "duration": 1305,
+                          "steps": [
+                            {
+                              "title": "[SEED] registration with mismatched Confirm submitted via register.htm",
+                              "duration": 1304
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /login/{username}/{password} with that user name and the Password I entered",
+                          "duration": 294
+                        },
+                        {
+                          "title": "Then the call does not answer 200 with a customer",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:03:56.451Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 GET /parabank/services/bank/login/pb1hxexyhv002d3w/***redacted*** → 400",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXh5aHYwMDJkM3cvKioqcmVkYWN0ZWQqKioiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MDAsCiAgICAiZHVyYXRpb25NcyI6IDI4OCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTdW4sIDI3IFNlcCAyMDI2IDA2OjAzOjU4IEdNVCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04IiwKICAgICAgImNvbnRlbnQtbGVuZ3RoIjogIjMyIiwKICAgICAgImNvbm5lY3Rpb24iOiAia2VlcC1hbGl2ZSIsCiAgICAgICJzZXJ2ZXIiOiAiY2xvdWRmbGFyZSIsCiAgICAgICJjZi1jYWNoZS1zdGF0dXMiOiAiRFlOQU1JQyIsCiAgICAgICJ4LWNvbnRlbnQtdHlwZS1vcHRpb25zIjogIm5vc25pZmYiLAogICAgICAiY2YtcmF5IjogImE0MTg0ZWU4ZGQ4YmRlMGUtRVdSIgogICAgfSwKICAgICJib2R5IjogIkludmFsaWQgdXNlcm5hbWUgYW5kL29yIHBhc3N3b3JkIgogIH0KfQ=="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleHlodjAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInJlZ2lzdHJhdGlvbiB3aXRoIG1pc21hdGNoZWQgQ29uZmlybSBzdWJtaXR0ZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogInByZS1zdGVwIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIKICAgIH0KICBdCn0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-4acc30ce7f4ca21e7751",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 231,
+              "column": 3
+            },
+            {
+              "title": "SCN-004: A complete, valid registration welcomes the new customer and signs them in",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1334,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the registration page register.htm",
+                          "duration": 727
+                        },
+                        {
+                          "title": "When I submit a complete, valid registration with a fresh user name",
+                          "duration": 479
+                        },
+                        {
+                          "title": "Then the page shows the heading \"Welcome <username>\"",
+                          "duration": 6
+                        },
+                        {
+                          "title": "And the page shows \"Your account was created successfully. You are now logged in.\"",
+                          "duration": 5
+                        },
+                        {
+                          "title": "And the left panel greets me with \"Welcome <first name> <last name>\"",
+                          "duration": 5
+                        },
+                        {
+                          "title": "And the left panel shows the Account Services menu",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:03:58.171Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-7a09eafe36392984277e",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 251,
+              "column": 3
+            },
+            {
+              "title": "SCN-005: Registering with a user name that is already taken shows \"This username already exists.\"",
+              "ok": true,
+              "tags": [
+                "AC-4",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2582,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1408,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1408
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I am on the registration page register.htm as a new visitor",
+                          "duration": 594
+                        },
+                        {
+                          "title": "When I submit a complete registration with the same user name and a different first and last name",
+                          "duration": 441
+                        },
+                        {
+                          "title": "Then \"This username already exists.\" is shown next to Username",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:03:59.516Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleTB2YzAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHZjMDAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleTB2YzAwNGFvaiIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-cdb97e6811ebd16d19c7",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 275,
+              "column": 3
+            },
+            {
+              "title": "SCN-006: A duplicate registration does not change the existing customer",
+              "ok": true,
+              "tags": [
+                "AC-4",
+                "type:integration",
+                "layer:e2e",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2699,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1336,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1336
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And a second registration with the same user name and a different first and last name was submitted",
+                          "duration": 995,
+                          "steps": [
+                            {
+                              "title": "[SEED] duplicate registration submitted via register.htm",
+                              "duration": 994
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /login/{username}/{password} for the existing customer",
+                          "duration": 262
+                        },
+                        {
+                          "title": "Then the response returns the original first and last name",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:02.112Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 GET /parabank/services/bank/login/pb1hxey2v6005r55/***redacted*** → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXkydjYwMDVyNTUvKioqcmVkYWN0ZWQqKioiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiAyMDAsCiAgICAiZHVyYXRpb25NcyI6IDI2MCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTdW4sIDI3IFNlcCAyMDI2IDA2OjA0OjA0IEdNVCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIsCiAgICAgICJ0cmFuc2Zlci1lbmNvZGluZyI6ICJjaHVua2VkIiwKICAgICAgImNvbm5lY3Rpb24iOiAia2VlcC1hbGl2ZSIsCiAgICAgICJzZXJ2ZXIiOiAiY2xvdWRmbGFyZSIsCiAgICAgICJjZi1jYWNoZS1zdGF0dXMiOiAiRFlOQU1JQyIsCiAgICAgICJ4LWNvbnRlbnQtdHlwZS1vcHRpb25zIjogIm5vc25pZmYiLAogICAgICAiY29udGVudC1lbmNvZGluZyI6ICJiciIsCiAgICAgICJjZi1yYXkiOiAiYTQxODRmMTI2OTMzNWU2ZC1FV1IiCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJpZCI6IDE0ODc2LAogICAgICAiZmlyc3ROYW1lIjogIkhhbmEiLAogICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHY2MDAiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIjEyIEhlbGRvdXQgTGFuZSIsCiAgICAgICAgImNpdHkiOiAiVGVzdHZpbGxlIiwKICAgICAgICAic3RhdGUiOiAiQ0EiLAogICAgICAgICJ6aXBDb2RlIjogIjk0MDE2IgogICAgICB9LAogICAgICAicGhvbmVOdW1iZXIiOiAiNTU1MTIzNDU2NyIsCiAgICAgICJzc24iOiAiMTIzLTQ1LTY3ODkiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleTJ2NjAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHY2MDAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleTJ2NjAwNXI1NSIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9LAogICAgewogICAgICAibGFiZWwiOiAiZHVwbGljYXRlIHJlZ2lzdHJhdGlvbiBzdWJtaXR0ZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogInByZS1zdGVwIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIKICAgIH0KICBdCn0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-ba56e6d0039fbdead84c",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 294,
+              "column": 3
+            },
+            {
+              "title": "SCN-007: Signing in with a wrong password shows the \"Error!\" page",
+              "ok": false,
+              "tags": [
+                "AC-5",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7421,
+                      "error": {
+                        "message": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n",
+                        "stack": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                          "column": 94,
+                          "line": 336
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 334 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 335 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And it says \"The username and password could not be verified.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 336 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC5_NOT_VERIFIED\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] could not be verified'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 337 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 338 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 339 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                            "column": 94,
+                            "line": 336
+                          },
+                          "message": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n\n\n  334 |     });\n  335 |     await journey.step('And it says \"The username and password could not be verified.\"', async () => {\n> 336 |       await expect(page.getByText(REQ.AC5_NOT_VERIFIED), '[REQ AC-5] could not be verified').toBeVisible();\n      |                                                                                              ^\n  337 |     });\n  338 |   });\n  339 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1184,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1184
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I am on the home page as a signed-out visitor",
+                          "duration": 572
+                        },
+                        {
+                          "title": "When I sign in on the Customer Login panel with that user name and a wrong password",
+                          "duration": 417
+                        },
+                        {
+                          "title": "Then an \"Error!\" page is shown",
+                          "duration": 6
+                        },
+                        {
+                          "title": "And it says \"The username and password could not be verified.\"",
+                          "duration": 5050,
+                          "error": {
+                            "message": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n",
+                            "stack": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                              "column": 94,
+                              "line": 336
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 334 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 335 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And it says \"The username and password could not be verified.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 336 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC5_NOT_VERIFIED\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] could not be verified'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 337 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 338 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 339 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:04.823Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 05-failed-and-it-says-the-username-and-password-could-not-be-ve",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcGFyYWJhbmsucGFyYXNvZnQuY29tL3BhcmFiYW5rL2xvZ2luLmh0bTtqc2Vzc2lvbmlkPTFFOTA1MEZGMTUyNTkzMTQ0N0FGQzJCN0E3MzJCQkU1CiMgc3RlcDogRkFJTEVEIEFuZCBpdCBzYXlzICJUaGUgdXNlcm5hbWUgYW5kIHBhc3N3b3JkIGNvdWxkIG5vdCBiZSB2ZXJpZmllZC4iCi0gbGluazoKICAtIC91cmw6IGFkbWluLmh0bQogIC0gaW1nCi0gbGluayAiUGFyYUJhbmsiOgogIC0gL3VybDogaW5kZXguaHRtCiAgLSBpbWcgIlBhcmFCYW5rIgotIHBhcmFncmFwaDogRXhwZXJpZW5jZSB0aGUgZGlmZmVyZW5jZQotIGxpc3Q6CiAgLSBsaXN0aXRlbTogU29sdXRpb25zCiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiQWJvdXQgVXMiOgogICAgICAtIC91cmw6IGFib3V0Lmh0bQogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIlNlcnZpY2VzIjoKICAgICAgLSAvdXJsOiBzZXJ2aWNlcy5odG0KICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJQcm9kdWN0cyI6CiAgICAgIC0gL3VybDogaHR0cDovL3d3dy5wYXJhc29mdC5jb20vanNwL3Byb2R1Y3RzLmpzcAogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIkxvY2F0aW9ucyI6CiAgICAgIC0gL3VybDogaHR0cDovL3d3dy5wYXJhc29mdC5jb20vanNwL3ByL2NvbnRhY3RzLmpzcAogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIkFkbWluIFBhZ2UiOgogICAgICAtIC91cmw6IGFkbWluLmh0bQotIGxpc3Q6CiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiaG9tZSI6CiAgICAgIC0gL3VybDogaW5kZXguaHRtCiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiYWJvdXQiOgogICAgICAtIC91cmw6IGFib3V0Lmh0bQogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgImNvbnRhY3QiOgogICAgICAtIC91cmw6IGNvbnRhY3QuaHRtCi0gaGVhZGluZyAiQ3VzdG9tZXIgTG9naW4iIFtsZXZlbD0yXQotIHBhcmFncmFwaDogVXNlcm5hbWUKLSB0ZXh0Ym94Ci0gcGFyYWdyYXBoOiBQYXNzd29yZAotIHRleHRib3gKLSBidXR0b24gIkxvZyBJbiIKLSBwYXJhZ3JhcGg6CiAgLSBsaW5rICJGb3Jnb3QgbG9naW4gaW5mbz8iOgogICAgLSAvdXJsOiBsb29rdXAuaHRtCi0gcGFyYWdyYXBoOgogIC0gbGluayAiUmVnaXN0ZXIiOgogICAgLSAvdXJsOiByZWdpc3Rlci5odG0KLSBoZWFkaW5nICJFcnJvciEiIFtsZXZlbD0xXQotIHBhcmFncmFwaDogQW4gaW50ZXJuYWwgZXJyb3IgaGFzIG9jY3VycmVkIGFuZCBoYXMgYmVlbiBsb2dnZWQuCi0gbGlzdDoKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJIb21lIjoKICAgICAgLSAvdXJsOiBpbmRleC5odG0KICAgIC0gdGV4dDogInwiCiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiQWJvdXQgVXMiOgogICAgICAtIC91cmw6IGFib3V0Lmh0bQogICAgLSB0ZXh0OiAifCIKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJTZXJ2aWNlcyI6CiAgICAgIC0gL3VybDogc2VydmljZXMuaHRtCiAgICAtIHRleHQ6ICJ8IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIlByb2R1Y3RzIjoKICAgICAgLSAvdXJsOiBodHRwOi8vd3d3LnBhcmFzb2Z0LmNvbS9qc3AvcHJvZHVjdHMuanNwCiAgICAtIHRleHQ6ICJ8IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIkxvY2F0aW9ucyI6CiAgICAgIC0gL3VybDogaHR0cDovL3d3dy5wYXJhc29mdC5jb20vanNwL3ByL2NvbnRhY3RzLmpzcAogICAgLSB0ZXh0OiAifCIKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJGb3J1bSI6CiAgICAgIC0gL3VybDogaHR0cDovL2ZvcnVtcy5wYXJhc29mdC5jb20vCiAgICAtIHRleHQ6ICJ8IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIlNpdGUgTWFwIjoKICAgICAgLSAvdXJsOiBzaXRlbWFwLmh0bQogICAgLSB0ZXh0OiAifCIKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJDb250YWN0IFVzIjoKICAgICAgLSAvdXJsOiBjb250YWN0Lmh0bQotIHBhcmFncmFwaDogwqkgUGFyYXNvZnQuIEFsbCByaWdodHMgcmVzZXJ2ZWQuCi0gbGlzdDoKICAtIGxpc3RpdGVtOiAiVmlzaXQgdXMgYXQ6IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgInd3dy5wYXJhc29mdC5jb20iOgogICAgICAtIC91cmw6IGh0dHA6Ly93d3cucGFyYXNvZnQuY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\artifacts\\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleTR5bjAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHluMDAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleTR5bjAwNjFzeCIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\artifacts\\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\artifacts\\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                        "column": 94,
+                        "line": 336
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7690,
+                      "error": {
+                        "message": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n",
+                        "stack": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                          "column": 94,
+                          "line": 336
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 334 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 335 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And it says \"The username and password could not be verified.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 336 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC5_NOT_VERIFIED\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] could not be verified'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 337 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 338 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 339 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                            "column": 94,
+                            "line": 336
+                          },
+                          "message": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n\n\n  334 |     });\n  335 |     await journey.step('And it says \"The username and password could not be verified.\"', async () => {\n> 336 |       await expect(page.getByText(REQ.AC5_NOT_VERIFIED), '[REQ AC-5] could not be verified').toBeVisible();\n      |                                                                                              ^\n  337 |     });\n  338 |   });\n  339 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1374,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1374
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I am on the home page as a signed-out visitor",
+                          "duration": 635
+                        },
+                        {
+                          "title": "When I sign in on the Customer Login panel with that user name and a wrong password",
+                          "duration": 403
+                        },
+                        {
+                          "title": "Then an \"Error!\" page is shown",
+                          "duration": 7
+                        },
+                        {
+                          "title": "And it says \"The username and password could not be verified.\"",
+                          "duration": 5042,
+                          "error": {
+                            "message": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n",
+                            "stack": "Error: [REQ AC-5] could not be verified\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The username and password could not be verified.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-5] could not be verified getByText('The username and password could not be verified.') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The username and password could not be verified.')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:336:94)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:326:34\n    at D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts:335:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                              "column": 94,
+                              "line": 336
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 334 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 335 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And it says \"The username and password could not be verified.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 336 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC5_NOT_VERIFIED\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] could not be verified'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 337 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 338 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 339 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:14.157Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 05-failed-and-it-says-the-username-and-password-could-not-be-ve",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcGFyYWJhbmsucGFyYXNvZnQuY29tL3BhcmFiYW5rL2xvZ2luLmh0bTtqc2Vzc2lvbmlkPUQ0RDU3MUVBREQ0NzkzRDVCRjY2OERBQUNFMERFRDA4CiMgc3RlcDogRkFJTEVEIEFuZCBpdCBzYXlzICJUaGUgdXNlcm5hbWUgYW5kIHBhc3N3b3JkIGNvdWxkIG5vdCBiZSB2ZXJpZmllZC4iCi0gbGluazoKICAtIC91cmw6IGFkbWluLmh0bQogIC0gaW1nCi0gbGluayAiUGFyYUJhbmsiOgogIC0gL3VybDogaW5kZXguaHRtCiAgLSBpbWcgIlBhcmFCYW5rIgotIHBhcmFncmFwaDogRXhwZXJpZW5jZSB0aGUgZGlmZmVyZW5jZQotIGxpc3Q6CiAgLSBsaXN0aXRlbTogU29sdXRpb25zCiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiQWJvdXQgVXMiOgogICAgICAtIC91cmw6IGFib3V0Lmh0bQogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIlNlcnZpY2VzIjoKICAgICAgLSAvdXJsOiBzZXJ2aWNlcy5odG0KICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJQcm9kdWN0cyI6CiAgICAgIC0gL3VybDogaHR0cDovL3d3dy5wYXJhc29mdC5jb20vanNwL3Byb2R1Y3RzLmpzcAogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIkxvY2F0aW9ucyI6CiAgICAgIC0gL3VybDogaHR0cDovL3d3dy5wYXJhc29mdC5jb20vanNwL3ByL2NvbnRhY3RzLmpzcAogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIkFkbWluIFBhZ2UiOgogICAgICAtIC91cmw6IGFkbWluLmh0bQotIGxpc3Q6CiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiaG9tZSI6CiAgICAgIC0gL3VybDogaW5kZXguaHRtCiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiYWJvdXQiOgogICAgICAtIC91cmw6IGFib3V0Lmh0bQogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgImNvbnRhY3QiOgogICAgICAtIC91cmw6IGNvbnRhY3QuaHRtCi0gaGVhZGluZyAiQ3VzdG9tZXIgTG9naW4iIFtsZXZlbD0yXQotIHBhcmFncmFwaDogVXNlcm5hbWUKLSB0ZXh0Ym94Ci0gcGFyYWdyYXBoOiBQYXNzd29yZAotIHRleHRib3gKLSBidXR0b24gIkxvZyBJbiIKLSBwYXJhZ3JhcGg6CiAgLSBsaW5rICJGb3Jnb3QgbG9naW4gaW5mbz8iOgogICAgLSAvdXJsOiBsb29rdXAuaHRtCi0gcGFyYWdyYXBoOgogIC0gbGluayAiUmVnaXN0ZXIiOgogICAgLSAvdXJsOiByZWdpc3Rlci5odG0KLSBoZWFkaW5nICJFcnJvciEiIFtsZXZlbD0xXQotIHBhcmFncmFwaDogQW4gaW50ZXJuYWwgZXJyb3IgaGFzIG9jY3VycmVkIGFuZCBoYXMgYmVlbiBsb2dnZWQuCi0gbGlzdDoKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJIb21lIjoKICAgICAgLSAvdXJsOiBpbmRleC5odG0KICAgIC0gdGV4dDogInwiCiAgLSBsaXN0aXRlbToKICAgIC0gbGluayAiQWJvdXQgVXMiOgogICAgICAtIC91cmw6IGFib3V0Lmh0bQogICAgLSB0ZXh0OiAifCIKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJTZXJ2aWNlcyI6CiAgICAgIC0gL3VybDogc2VydmljZXMuaHRtCiAgICAtIHRleHQ6ICJ8IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIlByb2R1Y3RzIjoKICAgICAgLSAvdXJsOiBodHRwOi8vd3d3LnBhcmFzb2Z0LmNvbS9qc3AvcHJvZHVjdHMuanNwCiAgICAtIHRleHQ6ICJ8IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIkxvY2F0aW9ucyI6CiAgICAgIC0gL3VybDogaHR0cDovL3d3dy5wYXJhc29mdC5jb20vanNwL3ByL2NvbnRhY3RzLmpzcAogICAgLSB0ZXh0OiAifCIKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJGb3J1bSI6CiAgICAgIC0gL3VybDogaHR0cDovL2ZvcnVtcy5wYXJhc29mdC5jb20vCiAgICAtIHRleHQ6ICJ8IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgIlNpdGUgTWFwIjoKICAgICAgLSAvdXJsOiBzaXRlbWFwLmh0bQogICAgLSB0ZXh0OiAifCIKICAtIGxpc3RpdGVtOgogICAgLSBsaW5rICJDb250YWN0IFVzIjoKICAgICAgLSAvdXJsOiBjb250YWN0Lmh0bQotIHBhcmFncmFwaDogwqkgUGFyYXNvZnQuIEFsbCByaWdodHMgcmVzZXJ2ZWQuCi0gbGlzdDoKICAtIGxpc3RpdGVtOiAiVmlzaXQgdXMgYXQ6IgogIC0gbGlzdGl0ZW06CiAgICAtIGxpbmsgInd3dy5wYXJhc29mdC5jb20iOgogICAgICAtIC91cmw6IGh0dHA6Ly93d3cucGFyYXNvZnQuY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\artifacts\\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleWM5NTEwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dDk1MTAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleWM5NTEwMTA1cyIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\artifacts\\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\runs\\07-rerun\\artifacts\\PB-1-tests-pb-1-PB-1-Custo-3d9b6-ssword-shows-the-Error-page-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\PB-1\\tests\\pb-1.spec.ts",
+                        "column": 94,
+                        "line": 336
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-bd77b75a26193d13e542",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 319,
+              "column": 3
+            },
+            {
+              "title": "SCN-008: Signing in with both fields empty asks for a user name and password",
+              "ok": true,
+              "tags": [
+                "AC-5",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1187,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the home page as a signed-out visitor",
+                          "duration": 745
+                        },
+                        {
+                          "title": "When I sign in on the Customer Login panel with both fields empty",
+                          "duration": 286
+                        },
+                        {
+                          "title": "Then the page says \"Please enter a username and password.\"",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:23.830Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-89bb41b4b358575b0aab",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 340,
+              "column": 3
+            },
+            {
+              "title": "SCN-009: Signing in opens the Accounts Overview and Log Out returns to the home page",
+              "ok": true,
+              "tags": [
+                "AC-6",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3289,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1289,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1289
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I am on the home page as a signed-out visitor",
+                          "duration": 727
+                        },
+                        {
+                          "title": "When I sign in on the Customer Login panel with that user name and password",
+                          "duration": 547
+                        },
+                        {
+                          "title": "Then the Accounts Overview page opens",
+                          "duration": 9
+                        },
+                        {
+                          "title": "And it lists at least one account",
+                          "duration": 116
+                        },
+                        {
+                          "title": "When I click \"Log Out\"",
+                          "duration": 473
+                        },
+                        {
+                          "title": "Then I am on the home page with the Customer Login panel",
+                          "duration": 14
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:25.132Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleWttaTIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dG1pMjAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleWttaTIwMTRsbiIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-f2a955117f24d3a12e30",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 354,
+              "column": 3
+            },
+            {
+              "title": "SCN-010: REST login with valid credentials returns the registered customer as JSON",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:api",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1781,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name, a full address and a Phone #",
+                          "duration": 1379,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1379
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /login/{username}/{password} with Accept: application/json",
+                          "duration": 308
+                        },
+                        {
+                          "title": "Then the response status is 200",
+                          "duration": 1
+                        },
+                        {
+                          "title": "And the body is JSON",
+                          "duration": 1
+                        },
+                        {
+                          "title": "And it contains the customer's id",
+                          "duration": 1
+                        },
+                        {
+                          "title": "And firstName, lastName, address (street, city, state, zipCode) and phoneNumber equal the values entered at registration",
+                          "duration": 4
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:28.432Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 GET /parabank/services/bank/login/pb1hxeyn64202hsr/***redacted*** → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXluNjQyMDJoc3IvKioqcmVkYWN0ZWQqKioiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiAyMDAsCiAgICAiZHVyYXRpb25NcyI6IDMwNCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTdW4sIDI3IFNlcCAyMDI2IDA2OjA0OjMwIEdNVCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIsCiAgICAgICJ0cmFuc2Zlci1lbmNvZGluZyI6ICJjaHVua2VkIiwKICAgICAgImNvbm5lY3Rpb24iOiAia2VlcC1hbGl2ZSIsCiAgICAgICJzZXJ2ZXIiOiAiY2xvdWRmbGFyZSIsCiAgICAgICJjZi1jYWNoZS1zdGF0dXMiOiAiRFlOQU1JQyIsCiAgICAgICJ4LWNvbnRlbnQtdHlwZS1vcHRpb25zIjogIm5vc25pZmYiLAogICAgICAiY29udGVudC1lbmNvZGluZyI6ICJiciIsCiAgICAgICJjZi1yYXkiOiAiYTQxODRmYjEzYWJjMGYzZC1FV1IiCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJpZCI6IDE1MzIwLAogICAgICAiZmlyc3ROYW1lIjogIkhhbmEiLAogICAgICAibGFzdE5hbWUiOiAiSGVsZG91dDY0MjAiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIjEyIEhlbGRvdXQgTGFuZSIsCiAgICAgICAgImNpdHkiOiAiVGVzdHZpbGxlIiwKICAgICAgICAic3RhdGUiOiAiQ0EiLAogICAgICAgICJ6aXBDb2RlIjogIjk0MDE2IgogICAgICB9LAogICAgICAicGhvbmVOdW1iZXIiOiAiNTU1MTIzNDU2NyIsCiAgICAgICJzc24iOiAiMTIzLTQ1LTY3ODkiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleW42NDIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dDY0MjAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleW42NDIwMmhzciIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-12380545887a2771c1d4",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 382,
+              "column": 3
+            },
+            {
+              "title": "SCN-011: REST login without Accept: application/json returns XML with a customer root element",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:contract",
+                "layer:api",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1522,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1189,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1189
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /login/{username}/{password} without Accept: application/json",
+                          "duration": 243
+                        },
+                        {
+                          "title": "Then the response status is 200",
+                          "duration": 1
+                        },
+                        {
+                          "title": "And the body is XML with a customer root element",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:30.224Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 GET /parabank/services/bank/login/pb1hxeyojw203lj3/***redacted*** → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXlvancyMDNsajMvKioqcmVkYWN0ZWQqKioiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiKi8qIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMCwKICAgICJkdXJhdGlvbk1zIjogMjQyLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlN1biwgMjcgU2VwIDIwMjYgMDY6MDQ6MzEgR01UIiwKICAgICAgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi94bWwiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb25uZWN0aW9uIjogImtlZXAtYWxpdmUiLAogICAgICAic2VydmVyIjogImNsb3VkZmxhcmUiLAogICAgICAiY2YtY2FjaGUtc3RhdHVzIjogIkRZTkFNSUMiLAogICAgICAieC1jb250ZW50LXR5cGUtb3B0aW9ucyI6ICJub3NuaWZmIiwKICAgICAgImNvbnRlbnQtZW5jb2RpbmciOiAiYnIiLAogICAgICAiY2YtcmF5IjogImE0MTg0ZmJhZDg1OTQzNmUtRVdSIgogICAgfSwKICAgICJib2R5IjogIjw/eG1sIHZlcnNpb249XCIxLjBcIiBlbmNvZGluZz1cIlVURi04XCIgc3RhbmRhbG9uZT1cInllc1wiPz48Y3VzdG9tZXI+PGlkPjE1NDMxPC9pZD48Zmlyc3ROYW1lPkhhbmE8L2ZpcnN0TmFtZT48bGFzdE5hbWU+SGVsZG91dGp3MjA8L2xhc3ROYW1lPjxhZGRyZXNzPjxzdHJlZXQ+MTIgSGVsZG91dCBMYW5lPC9zdHJlZXQ+PGNpdHk+VGVzdHZpbGxlPC9jaXR5PjxzdGF0ZT5DQTwvc3RhdGU+PHppcENvZGU+OTQwMTY8L3ppcENvZGU+PC9hZGRyZXNzPjxwaG9uZU51bWJlcj41NTUxMjM0NTY3PC9waG9uZU51bWJlcj48c3NuPjEyMy00NS02Nzg5PC9zc24+PC9jdXN0b21lcj4iCiAgfQp9"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleW9qdzIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dGp3MjAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleW9qdzIwM2xqMyIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-7c1466ad1e0ec7feeca2",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 413,
+              "column": 3
+            },
+            {
+              "title": "SCN-012: REST login with a wrong password answers 400 \"Invalid username and/or password\"",
+              "ok": true,
+              "tags": [
+                "AC-8",
+                "type:negative",
+                "layer:api",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1545,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered with a fresh user name",
+                          "duration": 1191,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1191
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /login/{username}/{password} with a wrong password",
+                          "duration": 258
+                        },
+                        {
+                          "title": "Then the response status is 400",
+                          "duration": 0
+                        },
+                        {
+                          "title": "And the body is \"Invalid username and/or password\"",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:31.756Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 GET /parabank/services/bank/login/pb1hxeypqj204l3o/Wr0ngPw-hx71 → 400",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXlwcWoyMDRsM28vV3IwbmdQdy1oeDcxIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9CiAgfSwKICAicmVzcG9uc2UiOiB7CiAgICAic3RhdHVzIjogNDAwLAogICAgImR1cmF0aW9uTXMiOiAyNTYsCiAgICAiaGVhZGVycyI6IHsKICAgICAgImRhdGUiOiAiU3VuLCAyNyBTZXAgMjAyNiAwNjowNDozMyBHTVQiLAogICAgICAiY29udGVudC10eXBlIjogInRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCIsCiAgICAgICJjb250ZW50LWxlbmd0aCI6ICIzMiIsCiAgICAgICJjb25uZWN0aW9uIjogImtlZXAtYWxpdmUiLAogICAgICAic2VydmVyIjogImNsb3VkZmxhcmUiLAogICAgICAiY2YtY2FjaGUtc3RhdHVzIjogIkRZTkFNSUMiLAogICAgICAieC1jb250ZW50LXR5cGUtb3B0aW9ucyI6ICJub3NuaWZmIiwKICAgICAgImNmLXJheSI6ICJhNDE4NGZjNDhmZDk3YzhlLUVXUiIKICAgIH0sCiAgICAiYm9keSI6ICJJbnZhbGlkIHVzZXJuYW1lIGFuZC9vciBwYXNzd29yZCIKICB9Cn0="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleXBxajIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHFqMjAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleXBxajIwNGwzbyIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-332a3a7e74483e73f754",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 431,
+              "column": 3
+            },
+            {
+              "title": "SCN-013: The customer and accounts services return the customer registered through the page",
+              "ok": true,
+              "tags": [
+                "AC-9",
+                "type:integration",
+                "layer:e2e",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2365,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered through the registration page with a fresh user name",
+                          "duration": 1295,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1294
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I noted the account numbers shown in the Accounts Overview",
+                          "duration": 423,
+                          "steps": [
+                            {
+                              "title": "[SEED] read account numbers from Accounts Overview",
+                              "duration": 422
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I obtained the customer id from GET /login/{username}/{password}",
+                          "duration": 258,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer id from GET /login/{username}/{password}",
+                              "duration": 257
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /customers/{id}",
+                          "duration": 138
+                        },
+                        {
+                          "title": "Then it returns the customer with the same id, first name and last name as the login response",
+                          "duration": 6
+                        },
+                        {
+                          "title": "When I call GET /customers/{id}/accounts",
+                          "duration": 137
+                        },
+                        {
+                          "title": "Then every account number shown in the Accounts Overview is returned",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:33.312Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] GET /parabank/services/bank/login/pb1hxeyqxt20524d/***redacted*** → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXlxeHQyMDUyNGQvKioqcmVkYWN0ZWQqKioiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiAyMDAsCiAgICAiZHVyYXRpb25NcyI6IDI1MCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTdW4sIDI3IFNlcCAyMDI2IDA2OjA0OjM1IEdNVCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIsCiAgICAgICJ0cmFuc2Zlci1lbmNvZGluZyI6ICJjaHVua2VkIiwKICAgICAgImNvbm5lY3Rpb24iOiAia2VlcC1hbGl2ZSIsCiAgICAgICJzZXJ2ZXIiOiAiY2xvdWRmbGFyZSIsCiAgICAgICJjZi1jYWNoZS1zdGF0dXMiOiAiRFlOQU1JQyIsCiAgICAgICJ4LWNvbnRlbnQtdHlwZS1vcHRpb25zIjogIm5vc25pZmYiLAogICAgICAiY29udGVudC1lbmNvZGluZyI6ICJiciIsCiAgICAgICJjZi1yYXkiOiAiYTQxODRmZDE5ZDc0NDBhZS1FV1IiCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJpZCI6IDE1NjUzLAogICAgICAiZmlyc3ROYW1lIjogIkhhbmEiLAogICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHh0MjAiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIjEyIEhlbGRvdXQgTGFuZSIsCiAgICAgICAgImNpdHkiOiAiVGVzdHZpbGxlIiwKICAgICAgICAic3RhdGUiOiAiQ0EiLAogICAgICAgICJ6aXBDb2RlIjogIjk0MDE2IgogICAgICB9LAogICAgICAicGhvbmVOdW1iZXIiOiAiNTU1MTIzNDU2NyIsCiAgICAgICJzc24iOiAiMTIzLTQ1LTY3ODkiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 02 GET /parabank/services/bank/customers/15653 → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2N1c3RvbWVycy8xNTY1MyIsCiAgICAiaGVhZGVycyI6IHsKICAgICAgIkFjY2VwdCI6ICJhcHBsaWNhdGlvbi9qc29uIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMCwKICAgICJkdXJhdGlvbk1zIjogMTM1LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlN1biwgMjcgU2VwIDIwMjYgMDY6MDQ6MzUgR01UIiwKICAgICAgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29ubmVjdGlvbiI6ICJrZWVwLWFsaXZlIiwKICAgICAgInNlcnZlciI6ICJjbG91ZGZsYXJlIiwKICAgICAgImNmLWNhY2hlLXN0YXR1cyI6ICJEWU5BTUlDIiwKICAgICAgIngtY29udGVudC10eXBlLW9wdGlvbnMiOiAibm9zbmlmZiIsCiAgICAgICJjb250ZW50LWVuY29kaW5nIjogImJyIiwKICAgICAgImNmLXJheSI6ICJhNDE4NGZkMjdlNTA0MGFlLUVXUiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImlkIjogMTU2NTMsCiAgICAgICJmaXJzdE5hbWUiOiAiSGFuYSIsCiAgICAgICJsYXN0TmFtZSI6ICJIZWxkb3V0eHQyMCIsCiAgICAgICJhZGRyZXNzIjogewogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiCiAgICAgIH0sCiAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgInNzbiI6ICIxMjMtNDUtNjc4OSIKICAgIH0KICB9Cn0="
+                        },
+                        {
+                          "name": "api-exchange 03 GET /parabank/services/bank/customers/15653/accounts → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2N1c3RvbWVycy8xNTY1My9hY2NvdW50cyIsCiAgICAiaGVhZGVycyI6IHsKICAgICAgIkFjY2VwdCI6ICJhcHBsaWNhdGlvbi9qc29uIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMCwKICAgICJkdXJhdGlvbk1zIjogMTM1LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlN1biwgMjcgU2VwIDIwMjYgMDY6MDQ6MzUgR01UIiwKICAgICAgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29ubmVjdGlvbiI6ICJrZWVwLWFsaXZlIiwKICAgICAgInNlcnZlciI6ICJjbG91ZGZsYXJlIiwKICAgICAgImNmLWNhY2hlLXN0YXR1cyI6ICJEWU5BTUlDIiwKICAgICAgIngtY29udGVudC10eXBlLW9wdGlvbnMiOiAibm9zbmlmZiIsCiAgICAgICJjb250ZW50LWVuY29kaW5nIjogImJyIiwKICAgICAgImNmLXJheSI6ICJhNDE4NGZkMzVmMDQ0MGFlLUVXUiIKICAgIH0sCiAgICAiYm9keSI6IFsKICAgICAgewogICAgICAgICJpZCI6IDE2Nzg1LAogICAgICAgICJjdXN0b21lcklkIjogMTU2NTMsCiAgICAgICAgInR5cGUiOiAiQ0hFQ0tJTkciLAogICAgICAgICJiYWxhbmNlIjogNTAwMDAwLjUKICAgICAgfQogICAgXQogIH0KfQ=="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleXF4dDIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHh0MjAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleXF4dDIwNTI0ZCIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9LAogICAgewogICAgICAibGFiZWwiOiAicmVhZCBhY2NvdW50IG51bWJlcnMgZnJvbSBBY2NvdW50cyBPdmVydmlldyIsCiAgICAgICJraW5kIjogInByZS1zdGVwIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogWwogICAgICAgICIxNjc4NSIKICAgICAgXQogICAgfSwKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIGlkIGZyb20gR0VUIC9sb2dpbi97dXNlcm5hbWV9L3twYXNzd29yZH0iLAogICAgICAia2luZCI6ICJwcmUtc3RlcCIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiLAogICAgICAiY3JlYXRlZCI6IHsKICAgICAgICAiaWQiOiAxNTY1MywKICAgICAgICAiZmlyc3ROYW1lIjogIkhhbmEiLAogICAgICAgICJsYXN0TmFtZSI6ICJIZWxkb3V0eHQyMCIsCiAgICAgICAgImFkZHJlc3MiOiB7CiAgICAgICAgICAic3RyZWV0IjogIjEyIEhlbGRvdXQgTGFuZSIsCiAgICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICAgInN0YXRlIjogIkNBIiwKICAgICAgICAgICJ6aXBDb2RlIjogIjk0MDE2IgogICAgICAgIH0sCiAgICAgICAgInBob25lTnVtYmVyIjogIjU1NTEyMzQ1NjciLAogICAgICAgICJzc24iOiAiMTIzLTQ1LTY3ODkiCiAgICAgIH0KICAgIH0KICBdCn0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-7ce15000406ea40b4d53",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 471,
+              "column": 3
+            },
+            {
+              "title": "SCN-014: The customer and accounts services match the login response and the Accounts Overview exactly",
+              "ok": true,
+              "tags": [
+                "AC-9",
+                "type:integration",
+                "layer:e2e",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2419,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer is registered through the registration page with a fresh user name",
+                          "duration": 1291,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer registered via register.htm",
+                              "duration": 1291
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I noted the account numbers shown in the Accounts Overview",
+                          "duration": 506,
+                          "steps": [
+                            {
+                              "title": "[SEED] read account numbers from Accounts Overview",
+                              "duration": 506
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I obtained the customer id from GET /login/{username}/{password}",
+                          "duration": 260,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer id from GET /login/{username}/{password}",
+                              "duration": 258
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I call GET /customers/{id}",
+                          "duration": 136
+                        },
+                        {
+                          "title": "Then its id, firstName, lastName, address (street, city, state, zipCode) and phoneNumber equal the login response",
+                          "duration": 1
+                        },
+                        {
+                          "title": "When I call GET /customers/{id}/accounts",
+                          "duration": 132
+                        },
+                        {
+                          "title": "Then the account ids returned are exactly the account numbers shown in the Accounts Overview",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-27T06:04:35.687Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] GET /parabank/services/bank/login/pb1hxeysrq20676l/***redacted*** → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2xvZ2luL3BiMWh4ZXlzcnEyMDY3NmwvKioqcmVkYWN0ZWQqKioiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiAyMDAsCiAgICAiZHVyYXRpb25NcyI6IDI1MCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTdW4sIDI3IFNlcCAyMDI2IDA2OjA0OjM3IEdNVCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIsCiAgICAgICJ0cmFuc2Zlci1lbmNvZGluZyI6ICJjaHVua2VkIiwKICAgICAgImNvbm5lY3Rpb24iOiAia2VlcC1hbGl2ZSIsCiAgICAgICJzZXJ2ZXIiOiAiY2xvdWRmbGFyZSIsCiAgICAgICJjZi1jYWNoZS1zdGF0dXMiOiAiRFlOQU1JQyIsCiAgICAgICJ4LWNvbnRlbnQtdHlwZS1vcHRpb25zIjogIm5vc25pZmYiLAogICAgICAiY29udGVudC1lbmNvZGluZyI6ICJiciIsCiAgICAgICJjZi1yYXkiOiAiYTQxODRmZTBlZTdlNGJhNS1FV1IiCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJpZCI6IDE1NzY0LAogICAgICAiZmlyc3ROYW1lIjogIkhhbmEiLAogICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHJxMjAiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIjEyIEhlbGRvdXQgTGFuZSIsCiAgICAgICAgImNpdHkiOiAiVGVzdHZpbGxlIiwKICAgICAgICAic3RhdGUiOiAiQ0EiLAogICAgICAgICJ6aXBDb2RlIjogIjk0MDE2IgogICAgICB9LAogICAgICAicGhvbmVOdW1iZXIiOiAiNTU1MTIzNDU2NyIsCiAgICAgICJzc24iOiAiMTIzLTQ1LTY3ODkiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 02 GET /parabank/services/bank/customers/15764 → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2N1c3RvbWVycy8xNTc2NCIsCiAgICAiaGVhZGVycyI6IHsKICAgICAgIkFjY2VwdCI6ICJhcHBsaWNhdGlvbi9qc29uIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMCwKICAgICJkdXJhdGlvbk1zIjogMTMzLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlN1biwgMjcgU2VwIDIwMjYgMDY6MDQ6MzggR01UIiwKICAgICAgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29ubmVjdGlvbiI6ICJrZWVwLWFsaXZlIiwKICAgICAgInNlcnZlciI6ICJjbG91ZGZsYXJlIiwKICAgICAgImNmLWNhY2hlLXN0YXR1cyI6ICJEWU5BTUlDIiwKICAgICAgIngtY29udGVudC10eXBlLW9wdGlvbnMiOiAibm9zbmlmZiIsCiAgICAgICJjb250ZW50LWVuY29kaW5nIjogImJyIiwKICAgICAgImNmLXJheSI6ICJhNDE4NGZlMWRmYzI0YmE1LUVXUiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImlkIjogMTU3NjQsCiAgICAgICJmaXJzdE5hbWUiOiAiSGFuYSIsCiAgICAgICJsYXN0TmFtZSI6ICJIZWxkb3V0cnEyMCIsCiAgICAgICJhZGRyZXNzIjogewogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiCiAgICAgIH0sCiAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgInNzbiI6ICIxMjMtNDUtNjc4OSIKICAgIH0KICB9Cn0="
+                        },
+                        {
+                          "name": "api-exchange 03 GET /parabank/services/bank/customers/15764/accounts → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL3BhcmFiYW5rLnBhcmFzb2Z0LmNvbS9wYXJhYmFuay9zZXJ2aWNlcy9iYW5rL2N1c3RvbWVycy8xNTc2NC9hY2NvdW50cyIsCiAgICAiaGVhZGVycyI6IHsKICAgICAgIkFjY2VwdCI6ICJhcHBsaWNhdGlvbi9qc29uIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMCwKICAgICJkdXJhdGlvbk1zIjogMTMxLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlN1biwgMjcgU2VwIDIwMjYgMDY6MDQ6MzggR01UIiwKICAgICAgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29ubmVjdGlvbiI6ICJrZWVwLWFsaXZlIiwKICAgICAgInNlcnZlciI6ICJjbG91ZGZsYXJlIiwKICAgICAgImNmLWNhY2hlLXN0YXR1cyI6ICJEWU5BTUlDIiwKICAgICAgIngtY29udGVudC10eXBlLW9wdGlvbnMiOiAibm9zbmlmZiIsCiAgICAgICJjb250ZW50LWVuY29kaW5nIjogImJyIiwKICAgICAgImNmLXJheSI6ICJhNDE4NGZlMmE5Mjk0YmE1LUVXUiIKICAgIH0sCiAgICAiYm9keSI6IFsKICAgICAgewogICAgICAgICJpZCI6IDE2ODk2LAogICAgICAgICJjdXN0b21lcklkIjogMTU3NjQsCiAgICAgICAgInR5cGUiOiAiQ0hFQ0tJTkciLAogICAgICAgICJiYWxhbmNlIjogNTAwMDAwLjUKICAgICAgfQogICAgXQogIH0KfQ=="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhleXNycTIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIHJlZ2lzdGVyZWQgdmlhIHJlZ2lzdGVyLmh0bSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0TmFtZSI6ICJIYW5hIiwKICAgICAgICAibGFzdE5hbWUiOiAiSGVsZG91dHJxMjAiLAogICAgICAgICJzdHJlZXQiOiAiMTIgSGVsZG91dCBMYW5lIiwKICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICJzdGF0ZSI6ICJDQSIsCiAgICAgICAgInppcENvZGUiOiAiOTQwMTYiLAogICAgICAgICJwaG9uZU51bWJlciI6ICI1NTUxMjM0NTY3IiwKICAgICAgICAic3NuIjogIjEyMy00NS02Nzg5IiwKICAgICAgICAidXNlcm5hbWUiOiAicGIxaHhleXNycTIwNjc2bCIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9LAogICAgewogICAgICAibGFiZWwiOiAicmVhZCBhY2NvdW50IG51bWJlcnMgZnJvbSBBY2NvdW50cyBPdmVydmlldyIsCiAgICAgICJraW5kIjogInByZS1zdGVwIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogWwogICAgICAgICIxNjg5NiIKICAgICAgXQogICAgfSwKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIGlkIGZyb20gR0VUIC9sb2dpbi97dXNlcm5hbWV9L3twYXNzd29yZH0iLAogICAgICAia2luZCI6ICJwcmUtc3RlcCIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiLAogICAgICAiY3JlYXRlZCI6IHsKICAgICAgICAiaWQiOiAxNTc2NCwKICAgICAgICAiZmlyc3ROYW1lIjogIkhhbmEiLAogICAgICAgICJsYXN0TmFtZSI6ICJIZWxkb3V0cnEyMCIsCiAgICAgICAgImFkZHJlc3MiOiB7CiAgICAgICAgICAic3RyZWV0IjogIjEyIEhlbGRvdXQgTGFuZSIsCiAgICAgICAgICAiY2l0eSI6ICJUZXN0dmlsbGUiLAogICAgICAgICAgInN0YXRlIjogIkNBIiwKICAgICAgICAgICJ6aXBDb2RlIjogIjk0MDE2IgogICAgICAgIH0sCiAgICAgICAgInBob25lTnVtYmVyIjogIjU1NTEyMzQ1NjciLAogICAgICAgICJzc24iOiAiMTIzLTQ1LTY3ODkiCiAgICAgIH0KICAgIH0KICBdCn0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a4a389b22483c91ca3b8-7b6e840ef61378ece4d9",
+              "file": "PB-1/tests/pb-1.spec.ts",
+              "line": 496,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-27T06:03:52.720Z",
+    "duration": 46628.841,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

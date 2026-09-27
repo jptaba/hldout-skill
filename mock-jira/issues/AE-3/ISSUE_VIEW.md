@@ -3,7 +3,7 @@
 
 | Type | Status | Priority | Labels |
 | --- | --- | --- | --- |
-| Story | Ready for QA | High | - |
+| Story | Ready for QA | High | `heldout-pass-with-warnings` |
 
 ## Description
 
@@ -33,7 +33,92 @@
 ## Attachments
 
 - 📎 [contact-us-mockup.png](attachments/contact-us-mockup.png) — image/png, 27971 B, by Product Owner on 2026-09-27T00:53:23.449Z
+- 📎 [heldout-verdict-AE-3-202609271217.md](attachments/heldout-verdict-AE-3-202609271217.md) — text/markdown, 14855 B, by Held-out Evaluator (bot) on 2026-09-27T12:17:43.361Z
+- 📎 [heldout-verdict-AE-3-202609271654.md](attachments/heldout-verdict-AE-3-202609271654.md) — text/markdown, 14963 B, by Held-out Evaluator (bot) on 2026-09-27T16:54:17.991Z
+- 📎 [heldout-verdict-AE-3-202609271656.md](attachments/heldout-verdict-AE-3-202609271656.md) — text/markdown, 14963 B, by Held-out Evaluator (bot) on 2026-09-27T16:56:03.346Z
 
 ## Activity — Comments
 
-_No comments yet_
+### 💬 Held-out Evaluator (bot) — 2026-09-27T12:17:43.364Z
+
+### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
+
+> **WARNING:** All scenarios passed, with warnings: 2 scenario(s) needing clarification, 4 open question(s) not tested.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 16/16 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| contract | 1 | 1 | 0 | - |
+| functional | 4 | 4 | 0 | - |
+| integration | 5 | 5 | 0 | - |
+| negative | 6 | 6 | 0 | - |
+
+**Open questions (not tested):** G4 — which e-mail values count as "not a valid address" (which malformed values must be refused). Only "not-an-email" (no "@"), invalid under any reading, is tested; other malformed values are not tested · G5 — what observably shows that the form was not sent: no browser confirmation, no success message, a validation message (its text is not stated), or several of these. Tested literally in SCN-008 and SCN-009 (@needs-clarification): after attempting to send (Submit, accepting any confirmation), no success message is shown and the form stays on the page · G6 — whether AC-6 requires the mock-up's labels and markers to appear literally ("Name"/"Subject"/"Message" followed by "(optional)", "Email" with a red "*", the legend) or only that the fields exist; the mock-up is marked "not to scale". Only the fields (by their mock-up placeholders) and the Submit button are asserted · found during hardening (not an acceptance criterion, not tested) — sending the Contact Us form makes no request to the server: after OK the success message and "Home" button are rendered in place and no form data leaves the browser (hardening/tier3/ae3-net.mjs, hardening/hardening-log.md). No AC states that the message must be delivered, but the story's goal is "anyone can reach us through the Contact Us form": must the form actually deliver the message, and how can that be observed?
+
+- Full report attached: `heldout-verdict-AE-3-202609271217.md`
+- Final run: 09-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T16:54:17.994Z
+
+### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
+
+> **WARNING:** All scenarios passed, with warnings: 2 scenario(s) needing clarification, 4 open question(s) not tested.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 16/16 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| contract | 1 | 1 | 0 | - |
+| functional | 4 | 4 | 0 | - |
+| integration | 5 | 5 | 0 | - |
+| negative | 6 | 6 | 0 | - |
+
+**Open questions (not tested):** G4 — which e-mail values count as "not a valid address" (which malformed values must be refused). Only "not-an-email" (no "@"), invalid under any reading, is tested; other malformed values are not tested · G5 — what observably shows that the form was not sent: no browser confirmation, no success message, a validation message (its text is not stated), or several of these. Tested literally in SCN-008 and SCN-009 (@needs-clarification): after attempting to send (Submit, accepting any confirmation), no success message is shown and the form stays on the page · G6 — whether AC-6 requires the mock-up's labels and markers to appear literally ("Name"/"Subject"/"Message" followed by "(optional)", "Email" with a red "*", the legend) or only that the fields exist; the mock-up is marked "not to scale". Only the fields (by their mock-up placeholders) and the Submit button are asserted · found during hardening (not an acceptance criterion, not tested) — sending the Contact Us form makes no request to the server: after OK the success message and "Home" button are rendered in place and no form data leaves the browser (hardening/tier3/ae3-net.mjs, hardening/hardening-log.md). No AC states that the message must be delivered, but the story's goal is "anyone can reach us through the Contact Us form": must the form actually deliver the message, and how can that be observed?
+
+- Full report attached: `heldout-verdict-AE-3-202609271654.md`
+- Final run: 09-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-27T16:56:03.350Z
+
+### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
+
+> **WARNING:** All scenarios passed, with warnings: 2 scenario(s) needing clarification, 4 open question(s) not tested.
+
+**AUT:** Automation Exercise (demo shop + practice API) (https://automationexercise.com)
+
+**Tests:** 16/16 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| contract | 1 | 1 | 0 | - |
+| functional | 4 | 4 | 0 | - |
+| integration | 5 | 5 | 0 | - |
+| negative | 6 | 6 | 0 | - |
+
+**Open questions (not tested):** G4 — which e-mail values count as "not a valid address" (which malformed values must be refused). Only "not-an-email" (no "@"), invalid under any reading, is tested; other malformed values are not tested · G5 — what observably shows that the form was not sent: no browser confirmation, no success message, a validation message (its text is not stated), or several of these. Tested literally in SCN-008 and SCN-009 (@needs-clarification): after attempting to send (Submit, accepting any confirmation), no success message is shown and the form stays on the page · G6 — whether AC-6 requires the mock-up's labels and markers to appear literally ("Name"/"Subject"/"Message" followed by "(optional)", "Email" with a red "*", the legend) or only that the fields exist; the mock-up is marked "not to scale". Only the fields (by their mock-up placeholders) and the Submit button are asserted · found during hardening (not an acceptance criterion, not tested) — sending the Contact Us form makes no request to the server: after OK the success message and "Home" button are rendered in place and no form data leaves the browser (hardening/tier3/ae3-net.mjs, hardening/hardening-log.md). No AC states that the message must be delivered, but the story's goal is "anyone can reach us through the Contact Us form": must the form actually deliver the message, and how can that be observed?
+
+- Full report attached: `heldout-verdict-AE-3-202609271656.md`
+- Final run: 09-eval
+
+_Posted automatically by the heldout-evaluator Claude skill._
+
+---

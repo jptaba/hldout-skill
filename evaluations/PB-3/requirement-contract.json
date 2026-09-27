@@ -1,0 +1,545 @@
+{
+  "key": "PB-3",
+  "title": "Transfer funds between my own accounts",
+  "revision": {
+    "story": "b8db68d6c98cfee2",
+    "attachments": {}
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "user story, page and REST service, read-back endpoints and Accept header, test data, Gherkin AC-1..AC-7, out of scope, PO clarification replacing AC-6"
+    }
+  ],
+  "actors": [
+    "a signed-in ParaBank customer moving money between their own accounts (story.md#L17)"
+  ],
+  "context": "A signed-in customer moves money between their own accounts on the \"Transfer Funds\" page (transfer.htm) or through the REST service POST /parabank/services/bank/transfer?fromAccountId=…&toAccountId=…&amount=… (story.md#L17). Balances are read on Accounts Overview and the account details page (Account Activity), or with GET /accounts/{accountId} and GET /accounts/{accountId}/transactions (JSON with Accept: application/json) (story.md#L19). Each scenario registers its own customer, who owns account A (the first account) and B (opened with \"Open New Account\") (story.md#L21, L26-L28). The PO comment of 2026-09-26 replaces AC-6: transfers between own accounts may overdraw the source account (story.md#L86-L89); nothing else changes (story.md#L91).",
+  "outOfScope": [
+    "transfers to other customers' accounts (a separate \"Pay someone\" story) (story.md#L80)"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "Scenario: AC-1 Transfer on the Transfer Funds page\n    When the customer transfers 25.50 from A to B on the Transfer Funds page\n    Then the page shows \"Transfer Complete!\"\n    And the page shows \"$25.50 has been transferred from account #<A> to account #<B>.\"\n    And Accounts Overview shows the balance of A lower by $25.50 and the balance of B higher by $25.50\n    And the total shown on Accounts Overview is unchanged",
+      "source": "story.md#L30",
+      "text": "Transfer on the Transfer Funds page: when the customer transfers 25.50 from A to B on the Transfer Funds page, the page shows \"Transfer Complete!\" and \"$25.50 has been transferred from account #<A> to account #<B>.\"; Accounts Overview shows the balance of A lower by $25.50 and the balance of B higher by $25.50, and the total shown on Accounts Overview is unchanged.",
+      "layer": "ui",
+      "entryPoint": "Transfer Funds page (transfer.htm), as a signed-in customer who owns accounts A and B",
+      "needsData": true,
+      "outcomes": [
+        "the page shows \"Transfer Complete!\"",
+        "the page shows \"$25.50 has been transferred from account #<A> to account #<B>.\"",
+        "Accounts Overview shows the balance of A lower by $25.50 than before",
+        "Accounts Overview shows the balance of B higher by $25.50 than before",
+        "the total shown on Accounts Overview is unchanged"
+      ],
+      "gaps": [
+        "G5",
+        "G6"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "Scenario: AC-2 Transfer through the REST service\n    When the service is called with fromAccountId A, toAccountId B and amount 12.34\n    Then it answers 200 with the text \"Successfully transferred $12.34 from account #<A> to account #<B>\"\n    And GET /accounts/<A> returns a balance lower by 12.34 and GET /accounts/<B> a balance higher by 12.34",
+      "source": "story.md#L37",
+      "text": "Transfer through the REST service: called with fromAccountId A, toAccountId B and amount 12.34, the service answers 200 with the text \"Successfully transferred $12.34 from account #<A> to account #<B>\"; GET /accounts/<A> returns a balance lower by 12.34 and GET /accounts/<B> a balance higher by 12.34.",
+      "layer": "api",
+      "needsData": true,
+      "endpoints": [
+        "POST /transfer",
+        "GET /accounts/{accountId}"
+      ],
+      "outcomes": [
+        "the service answers 200",
+        "the body is the text \"Successfully transferred $12.34 from account #<A> to account #<B>\"",
+        "GET /accounts/<A> returns a balance lower by 12.34 than before",
+        "GET /accounts/<B> returns a balance higher by 12.34 than before"
+      ],
+      "gaps": [
+        "G3",
+        "G4",
+        "G6",
+        "G7"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "Scenario: AC-3 Transfers are listed as transactions on both accounts\n    Given the customer transferred 25.50 from A to B on the Transfer Funds page\n    Then GET /accounts/<A>/transactions contains a \"Debit\" of 25.50 described \"Funds Transfer Sent\"\n    And GET /accounts/<B>/transactions contains a \"Credit\" of 25.50 described \"Funds Transfer Received\"\n    And the Account Activity of A on the web page lists \"Funds Transfer Sent\" with $25.50 in the Debit (-) column",
+      "source": "story.md#L42",
+      "text": "Transfers are listed as transactions on both accounts: after the customer transferred 25.50 from A to B on the Transfer Funds page, GET /accounts/<A>/transactions contains a \"Debit\" of 25.50 described \"Funds Transfer Sent\", GET /accounts/<B>/transactions contains a \"Credit\" of 25.50 described \"Funds Transfer Received\", and the Account Activity of A on the web page lists \"Funds Transfer Sent\" with $25.50 in the Debit (-) column.",
+      "layer": "e2e",
+      "entryPoint": "Transfer Funds page (transfer.htm), as a signed-in customer who owns accounts A and B",
+      "needsData": true,
+      "endpoints": [
+        "GET /accounts/{accountId}/transactions"
+      ],
+      "outcomes": [
+        "GET /accounts/<A>/transactions contains a \"Debit\" of 25.50 described \"Funds Transfer Sent\"",
+        "GET /accounts/<B>/transactions contains a \"Credit\" of 25.50 described \"Funds Transfer Received\"",
+        "the Account Activity of A on the web page lists \"Funds Transfer Sent\" with $25.50 in the Debit (-) column"
+      ],
+      "gaps": [
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "Scenario Outline: AC-4 Amount missing or not a number on the Transfer Funds page\n    When the customer enters \"<amount>\" as the amount and presses Transfer\n    Then the Transfer Funds form stays on screen with the message \"<message>\"\n    And no balance changes\n\n    Examples:\n      | amount | message                      |\n      |        | The amount cannot be empty.  |\n      | abc    | Please enter a valid amount. |",
+      "source": "story.md#L48",
+      "text": "Amount missing or not a number on the Transfer Funds page: when the customer enters \"<amount>\" as the amount and presses Transfer, the Transfer Funds form stays on screen with the message \"<message>\" and no balance changes (empty amount: \"The amount cannot be empty.\"; abc: \"Please enter a valid amount.\"). The PO comment confirms the input messages stay as written (story.md#L91).",
+      "layer": "ui",
+      "entryPoint": "Transfer Funds page (transfer.htm), as a signed-in customer who owns accounts A and B",
+      "needsData": true,
+      "outcomes": [
+        "empty amount: the Transfer Funds form stays on screen with the message \"The amount cannot be empty.\"",
+        "amount abc: the Transfer Funds form stays on screen with the message \"Please enter a valid amount.\"",
+        "no balance changes (A and B keep their balances)"
+      ],
+      "gaps": [
+        "G5",
+        "G6"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "Scenario Outline: AC-5 Zero or negative amounts are refused\n    When the customer transfers <amount> from A to B on the Transfer Funds page or through the service\n    Then the transfer is refused\n    And the balances of A and B do not change\n\n    Examples:\n      | amount |\n      | 0      |\n      | -10.00 |",
+      "source": "story.md#L58",
+      "text": "Zero or negative amounts are refused: when the customer transfers 0 or -10.00 from A to B on the Transfer Funds page or through the service, the transfer is refused and the balances of A and B do not change. The PO comment confirms zero and negative amounts must still be refused (story.md#L91).",
+      "layer": "e2e",
+      "entryPoint": "Transfer Funds page (transfer.htm), as a signed-in customer who owns accounts A and B",
+      "needsData": true,
+      "endpoints": [
+        "POST /transfer",
+        "GET /accounts/{accountId}"
+      ],
+      "outcomes": [
+        "amount 0 on the Transfer Funds page: the transfer is refused (the page does not show \"Transfer Complete!\")",
+        "amount -10.00 on the Transfer Funds page: the transfer is refused (the page does not show \"Transfer Complete!\")",
+        "amount 0 through the service: the transfer is refused (the service does not answer with the success confirmation of AC-2)",
+        "amount -10.00 through the service: the transfer is refused (the service does not answer with the success confirmation of AC-2)",
+        "the balances of A and B do not change"
+      ],
+      "gaps": [
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "quote": "Scenario: AC-6 Amount larger than the balance of the source account\n    Given the balance of A is lower than 1000.00\n    When the customer transfers 1000.00 from A to B through the service\n    Then the transfer is refused because of insufficient funds\n    And the balances of A and B do not change",
+      "source": "story.md#L68",
+      "text": "Amount larger than the balance of the source account, as replaced by the Product Owner comment of 2026-09-26 (story.md#L86-L89): given the balance of A is lower than 1000.00, a transfer of 1000.00 from A to B completes like any other transfer (same confirmation on the page, 200 from the service); the balance of A then goes negative by the difference and B is credited with the full amount.",
+      "layer": "e2e",
+      "entryPoint": "Transfer Funds page (transfer.htm), as a signed-in customer who owns accounts A and B",
+      "needsData": true,
+      "endpoints": [
+        "POST /transfer",
+        "GET /accounts/{accountId}"
+      ],
+      "outcomes": [
+        "precondition: the balance of A is lower than 1000.00",
+        "through the service: a transfer of 1000.00 from A to B completes with 200 and the same confirmation text as any other transfer (the AC-2 confirmation, for the amount 1000.00)",
+        "on the Transfer Funds page: a transfer of 1000.00 from A to B completes with the same confirmation as any other transfer (\"Transfer Complete!\")",
+        "the balance of A goes negative by the difference (previous balance of A minus 1000.00)",
+        "B is credited with the full amount (balance of B higher by 1000.00)"
+      ],
+      "gaps": [
+        "G1",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "quote": "Scenario: AC-7 Unknown destination account\n    When the service is called with fromAccountId A, toAccountId 99999999 and amount 5.00\n    Then it answers 400 with the text \"Could not find account number <A> and/or 99999999\"\n    And the balance of A does not change",
+      "source": "story.md#L74",
+      "text": "Unknown destination account: called with fromAccountId A, toAccountId 99999999 and amount 5.00, the service answers 400 with the text \"Could not find account number <A> and/or 99999999\" and the balance of A does not change.",
+      "layer": "api",
+      "needsData": true,
+      "endpoints": [
+        "POST /transfer",
+        "GET /accounts/{accountId}"
+      ],
+      "outcomes": [
+        "the service answers 400",
+        "the body is the text \"Could not find account number <A> and/or 99999999\"",
+        "the balance of A does not change"
+      ],
+      "gaps": [
+        "G3",
+        "G4",
+        "G6",
+        "G7"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/transfer",
+      "source": "story.md#L17",
+      "success": "200",
+      "requestFields": [
+        "fromAccountId",
+        "toAccountId",
+        "amount"
+      ],
+      "request": "Full path /parabank/services/bank/transfer with query parameters fromAccountId, toAccountId and amount (story.md#L17: `?fromAccountId=…&toAccountId=…&amount=…`). Success answers 200 with a text body (story.md#L39)."
+    },
+    {
+      "method": "GET",
+      "path": "/accounts/{accountId}",
+      "source": "story.md#L19",
+      "request": "Under the REST service base /parabank/services/bank (G3). Send Accept: application/json for JSON (story.md#L19). Returns the account's balance (story.md#L40)."
+    },
+    {
+      "method": "GET",
+      "path": "/accounts/{accountId}/transactions",
+      "source": "story.md#L19",
+      "request": "Under the REST service base /parabank/services/bank (G3). Send Accept: application/json for JSON (story.md#L19)."
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "Transfers between a customer's own accounts are allowed to overdraw the source account; the overdraft is covered by the customer's overdraft agreement and settled at end of day. A transfer larger than the balance of the source account completes like any other transfer (same confirmation on the page, 200 from the service); the source account's balance then goes negative by the difference, and the destination account is credited with the full amount. This replaces AC-6 as written.",
+      "source": "story.md#L86, story.md#L88-L89"
+    },
+    {
+      "id": "R2",
+      "text": "Zero and negative amounts are refused, on the Transfer Funds page and through the service, and the balances of A and B do not change; this still applies after the AC-6 change.",
+      "source": "story.md#L58-L66, story.md#L91"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "Transfer Funds page, amount empty: the form stays on screen, no balance changes",
+      "body": "The amount cannot be empty.",
+      "source": "story.md#L55, story.md#L48-L51"
+    },
+    {
+      "id": "E2",
+      "case": "Transfer Funds page, amount not a number (abc): the form stays on screen, no balance changes",
+      "body": "Please enter a valid amount.",
+      "source": "story.md#L56, story.md#L48-L51"
+    },
+    {
+      "id": "E3",
+      "case": "Amount 0 or -10.00, on the page or through the service: the transfer is refused and the balances do not change (message, status and body not stated, G2)",
+      "source": "story.md#L58-L66"
+    },
+    {
+      "id": "E4",
+      "case": "Service called with an unknown destination account (toAccountId 99999999): the balance of A does not change",
+      "status": "400",
+      "body": "Could not find account number <A> and/or 99999999",
+      "source": "story.md#L74-L77"
+    }
+  ],
+  "auth": {
+    "mechanism": "UI: a signed-in customer (each scenario registers its own customer first). REST: the sources state no authentication scheme for the service (G4).",
+    "credentials": "unique user name per scenario; password from the environment variable PB_USER_PASSWORD",
+    "source": "story.md#L17, story.md#L21"
+  },
+  "testData": {
+    "strategy": "each scenario registers its own customer (unique user name, password from the environment variable PB_USER_PASSWORD) and opens a second account with \"Open New Account\", so the customer owns account A (the first account) and B (the newly opened one); the balances of A and B are read before the action",
+    "constraints": [
+      "the shared demo database may be reset at any time",
+      "a fresh, unique user name per scenario",
+      "password from the environment variable PB_USER_PASSWORD, never hard-coded",
+      "A is the customer's first account, B the account opened with \"Open New Account\"",
+      "AC-6 needs the balance of A to be lower than 1000.00 (starting balance not stated, G8)"
+    ],
+    "source": "story.md#L21, story.md#L26-L28, story.md#L69"
+  },
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "AC-6 as written (story.md#L68-L72: a transfer larger than the balance is refused because of insufficient funds, balances unchanged) conflicts with the PO comment (story.md#L86-L89: it completes, the source goes negative, the destination is credited in full)",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L68-L72: refused because of insufficient funds; L86: PO comment of 2026-09-26 \"please treat scenario AC-6 as replaced by this\"; L88-L89: completes, same confirmation on the page, 200 from the service, source negative by the difference, destination credited with the full amount; L91: nothing else changes"
+        }
+      ],
+      "resolution": "found-in-requirement",
+      "value": "the transfer completes (same confirmation on the page, 200 from the service); A goes negative by the difference and B is credited with the full 1000.00",
+      "evidence": "story.md#L86-L89 (Product Owner comment explicitly replaces AC-6)"
+    },
+    {
+      "id": "G2",
+      "element": "what \"the transfer is refused\" looks like for amount 0 and -10.00: the message on the Transfer Funds page, and the HTTP status and body from the service",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L60: \"the transfer is refused\"; L91: \"must still be refused\"; no message, status or body anywhere (AC-4 messages cover only an empty and a non-numeric amount)"
+        },
+        {
+          "where": "attachments",
+          "result": "none"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G3",
+      "element": "whether GET /accounts/{accountId} and GET /accounts/{accountId}/transactions sit under the same REST service base /parabank/services/bank as the transfer service, and how the transfer parameters are sent (query string as written, or form body)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-3",
+        "AC-5",
+        "AC-6",
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L17 gives POST /parabank/services/bank/transfer?fromAccountId=…&toAccountId=…&amount=…; L19 gives the GET endpoints without a base"
+        },
+        {
+          "where": "aut",
+          "result": "Published OpenAPI (GET /parabank/services/bank/openapi.yaml): servers /parabank/services/bank; /transfer takes fromAccountId, toAccountId, amount as query parameters; /accounts/{accountId} and /accounts/{accountId}/transactions are under the same base. Probed POST transfer?fromAccountId&toAccountId&amount -> 200 text body"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "all three endpoints under the REST base /parabank/services/bank (the profile's apiBaseURL); transfer parameters sent in the query string",
+      "evidence": "hardening/tier3/api-openapi.md, hardening/tier3/api-transfer.md, hardening/tier3/api-get-account.md"
+    },
+    {
+      "id": "G4",
+      "element": "authentication for the REST service calls (POST transfer and the GET read-backs): whether credentials are needed and how they are sent",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-3",
+        "AC-5",
+        "AC-6",
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L17 says the customer is signed in (UI); L19 names only the Accept header; no REST auth scheme is stated"
+        },
+        {
+          "where": "aut",
+          "result": "OpenAPI declares no securitySchemes; GET accounts/{id}, GET accounts/{id}/transactions and POST transfer answered 200 without any credentials or cookie"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "no credentials are needed for the REST calls (sent without auth)",
+      "evidence": "hardening/tier3/api-get-account.md, hardening/tier3/api-transactions.md, hardening/tier3/api-transfer.md"
+    },
+    {
+      "id": "G5",
+      "element": "UI mechanics: registration page and fields, signing in, the \"Open New Account\" controls, the Transfer Funds form controls (amount, from and to accounts, the Transfer button), the Accounts Overview route and how balances and the total are shown, and the Account Activity page with its Debit (-) column",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L17 gives the Transfer Funds page transfer.htm; L19 names Accounts Overview and the account details page (Account Activity); L21 names \"Open New Account\"; L49 names the Transfer button; no routes, labels or field names beyond these"
+        },
+        {
+          "where": "aut",
+          "result": "inspect (tier 3) and mcp-probe (tier 2) walks: register.htm fields have ids customer.firstName, customer.lastName, customer.address.street/city/state/zipCode, customer.phoneNumber, customer.ssn, customer.username, customer.password, #repeatedPassword, button Register; success text 'Your account was created successfully' (signed in). openaccount.htm: #type, #fromAccountId (loaded async), button 'Open New Account', new number in #newAccountId. transfer.htm: #amount, #fromAccountId, #toAccountId (loaded async), button 'Transfer'; result heading. overview.htm: table #accountTable (Account, Balance*, Available Amount; last row 'Total'). activity.htm?id=<account>: table #transactionTable with columns Date, Transaction, Debit (-), Credit (+)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "register.htm (ids customer.*), openaccount.htm (#fromAccountId, 'Open New Account', #newAccountId), transfer.htm (#amount, #fromAccountId, #toAccountId, 'Transfer'), overview.htm (#accountTable with a Total row), activity.htm?id=<account> (#transactionTable)",
+      "evidence": "hardening/tier2/register.md, hardening/tier3/inspect-register.md, hardening/tier3/inspect-overview.md, hardening/tier3/inspect-openaccount-result.md, hardening/tier3/inspect-transfer.md, hardening/tier3/inspect-transfer-result.md, hardening/tier3/inspect-activity.md"
+    },
+    {
+      "id": "G6",
+      "element": "how a scenario obtains the account numbers of A and B (and any customer id) for the customer it registered",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6",
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L21: A is the first account, B the one opened with \"Open New Account\"; no source states how their numbers are read"
+        },
+        {
+          "where": "aut",
+          "result": "after registration Accounts Overview (#accountTable) lists the customer's single first account as a link; 'Open New Account' shows the new account number in #newAccountId"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "A = the first account link on Accounts Overview right after registration; B = #newAccountId after 'Open New Account'",
+      "evidence": "hardening/tier3/inspect-overview.md, hardening/tier3/inspect-openaccount-result.md"
+    },
+    {
+      "id": "G7",
+      "element": "JSON field names: the balance in GET /accounts/{accountId}, and the type (\"Debit\"/\"Credit\"), amount and description in GET /accounts/{accountId}/transactions",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-3",
+        "AC-5",
+        "AC-6",
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19 names the endpoints and the Accept header; L40 and L44-L45 give the values but no field names"
+        },
+        {
+          "where": "aut",
+          "result": "OpenAPI schemas Account {id, customerId, type, balance:number} and Transaction {id, accountId, type: Credit|Debit, date, amount:number, description}; probes confirm the JSON (Accept: application/json)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "GET /accounts/{accountId} -> balance; GET /accounts/{accountId}/transactions -> array of {type, amount, description}",
+      "evidence": "hardening/tier3/api-openapi.md, hardening/tier3/api-get-account.md, hardening/tier3/api-transactions.md"
+    },
+    {
+      "id": "G8",
+      "element": "how to make sure the balance of A is lower than 1000.00 for AC-6 (a newly registered customer's starting balance, and what opening B moves, are not stated)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L69 requires the balance of A to be lower than 1000.00; L21 and L27-L28 say only that the balances are known"
+        },
+        {
+          "where": "aut",
+          "result": "a newly registered customer's first account showed a balance below 1000.00 (Accounts Overview after registration); opening B moves $100.00 from A ('Funds Transfer Sent' $100.00 on A's activity, B credited 100). Tests check 'balance of A < 1000.00' as a precondition before the AC-6 transfer instead of relying on a fixed value"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "no extra step needed: A's balance after registration and opening B is below 1000.00; the test asserts it as a precondition (BLOCKED otherwise)",
+      "evidence": "hardening/tier3/inspect-overview.md, hardening/tier3/inspect-activity.md, hardening/tier3/api-transactions.md"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17",
+      "as": "context, endpoint, auth, G3, G5",
+      "note": "user story: signed-in customer, Transfer Funds page transfer.htm, POST transfer service with its parameters"
+    },
+    {
+      "lines": "story.md#L19",
+      "as": "endpoint, context, G3, G7",
+      "note": "Accounts Overview, Account Activity, GET account and transactions endpoints, Accept: application/json"
+    },
+    {
+      "lines": "story.md#L21",
+      "as": "test-data, auth, G6, G8"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "not-a-requirement",
+      "note": "opening code fence of the Gherkin block"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "context",
+      "note": "Gherkin feature title, same as the story summary"
+    },
+    {
+      "lines": "story.md#L26-L28",
+      "as": "test-data, context",
+      "note": "Background shared by AC-1..AC-7: a newly registered customer owning A and B with known balances"
+    },
+    {
+      "lines": "story.md#L30-L35",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L37-L40",
+      "as": "AC-2"
+    },
+    {
+      "lines": "story.md#L42-L46",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L48-L56",
+      "as": "AC-4, E1, E2"
+    },
+    {
+      "lines": "story.md#L58-L66",
+      "as": "AC-5, R2, E3, G2"
+    },
+    {
+      "lines": "story.md#L68-L72",
+      "as": "AC-6, G1, G8"
+    },
+    {
+      "lines": "story.md#L74-L77",
+      "as": "AC-7, E4"
+    },
+    {
+      "lines": "story.md#L78",
+      "as": "not-a-requirement",
+      "note": "closing code fence of the Gherkin block"
+    },
+    {
+      "lines": "story.md#L80",
+      "as": "out-of-scope"
+    },
+    {
+      "lines": "story.md#L86",
+      "as": "G1, R1",
+      "note": "PO comment: own-account transfers may overdraw the source (captured in R1); AC-6 is replaced (G1). The reason given, that the overdraft \"is covered by the customer's overdraft agreement and settled at end of day\", is recorded in R1 as rationale; no criterion checks the agreement or the end-of-day settlement, which happens outside a scenario and has no stated observable outcome"
+    },
+    {
+      "lines": "story.md#L88-L89",
+      "as": "R1, AC-6, G1"
+    },
+    {
+      "lines": "story.md#L91",
+      "as": "G1, R2, AC-4, AC-5",
+      "note": "nothing else changes: AC-5 refusals and AC-4 messages stay as written"
+    }
+  ]
+}

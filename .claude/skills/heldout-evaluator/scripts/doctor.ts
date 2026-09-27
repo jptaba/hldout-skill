@@ -8,12 +8,14 @@
  *
  * Exit 1 when any check fails (warnings don't fail).
  */
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { ROOT, SKILL_DIR, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './lib/config';
-import { describeCounts, detectTestIdAttribute } from './lib/detect';
+import { describeCounts, discoverApp } from './lib/detect';
 import { createTracker } from './lib/jira';
+import { safeToScrub } from './lib/redact';
 
 type Level = 'ok' | 'warn' | 'fail';
 const results: { level: Level; area: string; msg: string; fix?: string }[] = [];
@@ -87,6 +89,27 @@ main(async () => {
   if (fs.existsSync(mcp) && /playwright\/mcp/.test(fs.readFileSync(mcp, 'utf8'))) check('ok', 'browser tiers', 'Playwright MCP configured (.mcp.json) — tier 2 after a Claude Code restart');
   else check('warn', 'browser tiers', 'Playwright MCP not configured — hardening falls back to the bundled inspector', `${H} init`);
 
+  /**
+   * Secret values from .env that appear in files git would commit (tracked, or untracked and not ignored). Values a
+   * story itself publishes (a sandbox's documented demo password, found under evaluations/<KEY>/requirement/) are not
+   * secrets and are skipped, as are weak values (plain words) that can't be told apart from ordinary text.
+   */
+  function committableLeaks(evalDir: string): Map<string, string[]> {
+    const git = spawnSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    if (git.status !== 0) return new Map();
+    const files = git.stdout.split('\0').filter(Boolean);
+    const read = (f: string) => { try { return fs.statSync(path.join(ROOT, f)).size < 5_000_000 ? fs.readFileSync(path.join(ROOT, f), 'utf8') : ''; } catch { return ''; } };
+    const published = files.filter((f) => f.startsWith(`${rel(evalDir)}/`) && f.split('/')[2] === 'requirement').map(read).join('\n');
+    const secrets = Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safeToScrub(v) && !published.includes(v)) as [string, string][];
+    const leaks = new Map<string, string[]>();
+    if (!secrets.length) return leaks;
+    for (const f of files) {
+      const text = read(f);
+      for (const [name, v] of secrets) if (text.includes(v)) leaks.set(name, [...(leaks.get(name) ?? []), f]);
+    }
+    return leaks;
+  }
+
   // ---- secrets referenced by evaluations ----------------------------------------------------------
   if (cfg) {
     const evalDir = path.join(ROOT, cfg.evaluationsDir);
@@ -98,6 +121,9 @@ main(async () => {
     }
     for (const [name, keys] of missing) check('fail', 'secrets', `${name} is referenced by ${[...new Set(keys)].join(', ')} but not set`, `add ${name}=… to .env`);
     if (!missing.size) check('ok', 'secrets', 'every ${env:…} referenced by test data is set');
+    const leaks = committableLeaks(evalDir);
+    for (const [name, files] of leaks) check('fail', 'secrets', `the value of ${name} is in ${files.length} file(s) git would commit: ${files.slice(0, 4).join(', ')}${files.length > 4 ? ', …' : ''}`, `replace it with \${env:${name}} or a made-up value; if it was already pushed, change the secret`);
+    if (!leaks.size) check('ok', 'secrets', 'no .env secret value in files git would commit');
   }
 
   // ---- network: AUTs and Jira ---------------------------------------------------------------------
@@ -113,8 +139,8 @@ main(async () => {
         ...(p.healthcheck ?? []).map(resolve)].map(norm))];
       return Promise.all(targets.map(async (url) => (url.startsWith('invalid') ? { url: `auts.${id}.healthcheck`, ok: false, detail: url } : { url, ...(await reachable(url)) })));
     }));
-    // Rendering each app is slow, so the test-id attribute is checked for one profile (a single-app project or --aut).
-    const testIds = ids.length === 1 && cfg.auts[ids[0]] ? { [ids[0]]: await detectTestIdAttribute(cfg.auts[ids[0]].baseURL) } : {};
+    // Rendering each app is slow, so the start page is checked for one profile (a single-app project or --aut).
+    const testIds = ids.length === 1 && cfg.auts[ids[0]] ? { [ids[0]]: await discoverApp(cfg.auts[ids[0]].baseURL) } : {};
     ids.forEach((id, i) => {
       for (const r of perAut[i]) check(r.ok ? 'ok' : 'fail', `AUT ${id}`, `${r.url} → ${r.detail}`, r.ok ? undefined : 'check the URL in heldout.config.json, VPN/proxy, or whether the environment is up');
       const d = testIds[id];
@@ -123,6 +149,8 @@ main(async () => {
       if (!d.attribute) check('ok', `AUT ${id}`, 'no test-id attributes on the start page — tests will locate by role and label');
       else if (d.attribute === configured) check('ok', `AUT ${id}`, `test-id attribute ${configured} is used by the app (${describeCounts(d)})`);
       else check('warn', `AUT ${id}`, `testIdAttribute is "${configured}" but the app renders ${describeCounts(d)}`, `set auts.${id}.testIdAttribute to "${d.attribute}" in heldout.config.json`);
+      const unblocked = d.adDomains.filter((h) => !(cfg!.auts[id]?.blockHosts ?? []).includes(h));
+      if (unblocked.length) check('warn', `AUT ${id}`, `the start page loads ad/analytics networks that are not blocked: ${unblocked.join(', ')}`, `add them to auts.${id}.blockHosts in heldout.config.json (they inject content and make tests flaky)`);
     });
     if (cfg.jira.mode === 'cloud') {
       for (const v of ['JIRA_EMAIL', 'JIRA_API_TOKEN']) if (!process.env[v]) check('fail', 'Jira', `${v} is not set`, `add ${v}=… to .env (token: https://id.atlassian.com/manage-profile/security/api-tokens)`);

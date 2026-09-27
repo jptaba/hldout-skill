@@ -1,0 +1,6 @@
+[
+  { "do": "goto", "url": "links" },
+  { "do": "wait", "target": "getByRole('link', { name: 'Created', exact: true })" },
+  { "do": "click", "target": "getByRole('link', { name: 'Created', exact: true })" },
+  { "do": "wait", "target": "getByText('Link has responded')" }
+]

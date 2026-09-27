@@ -1,0 +1,61 @@
+# url: https://demoqa.com/books
+# step: When I type a term that matches no book into the search box with placeholder "Type to search"
+- banner:
+  - link:
+    - /url: https://demoqa.com
+    - img
+- img
+- text: Elements
+- img
+- img
+- text: Forms
+- img
+- img
+- text: Alerts, Frame & Windows
+- img
+- img
+- text: Widgets
+- img
+- img
+- text: Interactions
+- img
+- img
+- text: Book Store Application
+- img
+- list:
+  - listitem:
+    - link "Login":
+      - /url: /login
+      - img
+      - text: Login
+  - listitem:
+    - link "Book Store":
+      - /url: /books
+      - img
+      - text: Book Store
+  - listitem:
+    - link "Profile":
+      - /url: /profile
+      - img
+      - text: Profile
+  - listitem:
+    - link "Book Store API":
+      - /url: /swagger
+      - img
+      - text: Book Store API
+- textbox "Type to search": qzxv no such book
+- button:
+  - img
+- button "Login"
+- table:
+  - rowgroup:
+    - row "Image Title Author Publisher":
+      - columnheader "Image"
+      - columnheader "Title"
+      - columnheader "Author"
+      - columnheader "Publisher"
+  - rowgroup
+- button "Previous" [disabled]
+- text: Page 1 of 0
+- button "Next" [disabled]
+- contentinfo: © 2013-2026 TOOLSQA.COM | ALL RIGHTS RESERVED.

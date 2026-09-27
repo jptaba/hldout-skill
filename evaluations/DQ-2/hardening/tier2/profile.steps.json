@@ -1,0 +1,10 @@
+[
+  { "tool": "browser_navigate", "url": "login" },
+  { "tool": "browser_wait_for", "text": "Login in Book Store" },
+  { "snapshot": "login page" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "UserName" }, "text": "${var:name}" },
+  { "tool": "browser_type", "find": { "role": "textbox", "name": "Password" }, "text": "${env:DQ_USER_PASSWORD}" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Login", "exact": true } },
+  { "tool": "browser_wait_for", "text": "Git Pocket Guide" },
+  { "snapshot": "profile page" }
+]

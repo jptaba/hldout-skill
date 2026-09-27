@@ -1,0 +1,129 @@
+# url: https://parabank.parasoft.com/parabank/index.htm
+# step: Given I am on the home page as a signed-out visitor
+- link:
+  - /url: admin.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+  - img
+- link "ParaBank":
+  - /url: index.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+  - img "ParaBank"
+- paragraph: Experience the difference
+- list:
+  - listitem: Solutions
+  - listitem:
+    - link "About Us":
+      - /url: about.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+  - listitem:
+    - link "Services":
+      - /url: services.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+  - listitem:
+    - link "Products":
+      - /url: http://www.parasoft.com/jsp/products.jsp
+  - listitem:
+    - link "Locations":
+      - /url: http://www.parasoft.com/jsp/pr/contacts.jsp
+  - listitem:
+    - link "Admin Page":
+      - /url: admin.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- list:
+  - listitem:
+    - link "home":
+      - /url: index.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+  - listitem:
+    - link "about":
+      - /url: about.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+  - listitem:
+    - link "contact":
+      - /url: contact.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- heading "Customer Login" [level=2]
+- paragraph: Username
+- textbox
+- paragraph: Password
+- textbox
+- button "Log In"
+- paragraph:
+  - link "Forgot login info?":
+    - /url: lookup.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- paragraph:
+  - link "Register":
+    - /url: register.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- list:
+  - listitem: ATM Services
+  - listitem:
+    - link "Withdraw Funds":
+      - /url: services/ParaBank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?wsdl
+  - listitem:
+    - link "Transfer Funds":
+      - /url: services/ParaBank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?wsdl
+  - listitem:
+    - link "Check Balances":
+      - /url: services/ParaBank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?wsdl
+  - listitem:
+    - link "Make Deposits":
+      - /url: services/ParaBank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?wsdl
+- list:
+  - listitem: Online Services
+  - listitem:
+    - link "Bill Pay":
+      - /url: services/bank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?_wadl&_type=xml
+  - listitem:
+    - link "Account History":
+      - /url: services/bank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?_wadl&_type=xml
+  - listitem:
+    - link "Transfer Funds":
+      - /url: services/bank;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA?_wadl&_type=xml
+- paragraph:
+  - link "Read More":
+    - /url: services.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- heading "Latest News" [level=4]
+- list:
+  - listitem: 09/27/2026
+  - listitem:
+    - link "ParaBank Is Now Re-Opened":
+      - /url: news.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA#6
+  - listitem:
+    - link "New! Online Bill Pay":
+      - /url: news.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA#5
+  - listitem:
+    - link "New! Online Account Transfers":
+      - /url: news.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA#4
+- paragraph:
+  - link "Read More":
+    - /url: news.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- list:
+  - listitem:
+    - link "Home":
+      - /url: index.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+    - text: "|"
+  - listitem:
+    - link "About Us":
+      - /url: about.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+    - text: "|"
+  - listitem:
+    - link "Services":
+      - /url: services.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+    - text: "|"
+  - listitem:
+    - link "Products":
+      - /url: http://www.parasoft.com/jsp/products.jsp
+    - text: "|"
+  - listitem:
+    - link "Locations":
+      - /url: http://www.parasoft.com/jsp/pr/contacts.jsp
+    - text: "|"
+  - listitem:
+    - link "Forum":
+      - /url: http://forums.parasoft.com/
+    - text: "|"
+  - listitem:
+    - link "Site Map":
+      - /url: sitemap.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+    - text: "|"
+  - listitem:
+    - link "Contact Us":
+      - /url: contact.htm;jsessionid=AA8E5D817868F3144F0DFE1D8D8B99EA
+- paragraph: © Parasoft. All rights reserved.
+- list:
+  - listitem: "Visit us at:"
+  - listitem:
+    - link "www.parasoft.com":
+      - /url: http://www.parasoft.com/

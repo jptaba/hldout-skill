@@ -1,0 +1,66 @@
+# url: https://demoqa.com/profile
+# step: Then the profile page /profile is open
+- banner:
+  - link:
+    - /url: https://demoqa.com
+    - img
+- img
+- text: Elements
+- img
+- img
+- text: Forms
+- img
+- img
+- text: Alerts, Frame & Windows
+- img
+- img
+- text: Widgets
+- img
+- img
+- text: Interactions
+- img
+- img
+- text: Book Store Application
+- img
+- list:
+  - listitem:
+    - link "Login":
+      - /url: /login
+      - img
+      - text: Login
+  - listitem:
+    - link "Book Store":
+      - /url: /books
+      - img
+      - text: Book Store
+  - listitem:
+    - link "Profile":
+      - /url: /profile
+      - img
+      - text: Profile
+  - listitem:
+    - link "Book Store API":
+      - /url: /swagger
+      - img
+      - text: Book Store API
+- text: "Books : User Name : qa-dq1-hxehdsr70-mujehdss1"
+- button "Logout"
+- textbox "Type to search"
+- button:
+  - img
+- table:
+  - rowgroup:
+    - row "Image Title Author Publisher Action":
+      - columnheader "Image"
+      - columnheader "Title"
+      - columnheader "Author"
+      - columnheader "Publisher"
+      - columnheader "Action"
+  - rowgroup
+- button "Previous" [disabled]
+- text: Page 1 of 0
+- button "Next" [disabled]
+- button "Go To Book Store"
+- button "Delete Account"
+- button "Delete All Books"
+- contentinfo: © 2013-2026 TOOLSQA.COM | ALL RIGHTS RESERVED.

@@ -1,0 +1,5 @@
+[
+  { "tool": "browser_navigate", "url": "register.htm" },
+  { "tool": "browser_wait_for", "text": "Signing up is easy!" },
+  { "snapshot": "register form" }
+]
