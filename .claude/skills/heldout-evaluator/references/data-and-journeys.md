@@ -100,7 +100,9 @@ twice (a second user) gets the next account of its share. Existing accounts are 
 to them stays unless the test removes it: undo it with `seed.track(…)`, or reset the account in a `seed.step`.
 
 **Signing in.** `token` signs an account in over the API (`token` is where the answer carries it; `id`, optionally,
-where it carries the account id). `signIn` is the UI sign-in. Both come from what hardening already probed: an
+where it carries the account id). When the sign-in answer has no id, `lookup` is a call made after signing in (a
+"who am I", with the auth header) whose `id` is where its answer carries it; in a probe chain, a step saving `id`
+after the step saving `token` becomes the lookup. `signIn` is the UI sign-in. Both come from what hardening already probed: an
 `api-probe --chain` whose sign-in step saves `token` (`heldout accounts --from-chain`), and the `inspect` steps of the
 login form (`--sign-in-json … --sign-in-path /login --sign-in-done url:/profile`).
 

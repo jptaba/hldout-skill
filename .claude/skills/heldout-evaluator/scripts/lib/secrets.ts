@@ -11,6 +11,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { loadEnv } from './config';
 
 export const VAULT_REF = /\$\{vault:([^}#]+)#([^}]+)\}/g;
 export const ENV_REF = /\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g;
@@ -62,6 +63,7 @@ async function vaultToken(s: VaultSettings): Promise<string> {
  * could not be read (the path, the field and why — never a value). Nothing to do when there are no references.
  */
 export async function loadVaultSecrets(values: unknown[], env: NodeJS.ProcessEnv = process.env): Promise<string[]> {
+  if (env === process.env) loadEnv(); // VAULT_ADDR and friends may live in .env, whatever the command loaded so far
   const refs = values.flatMap(vaultRefsIn).filter((r) => !loaded.has(r));
   if (!refs.length) return [];
   const s = vaultSettings(env);

@@ -80,6 +80,15 @@ describe('existing accounts in the config', () => {
 });
 
 describe('an api-probe chain that signs in as an existing account', () => {
+  it('takes a step saving "id" after the sign-in as the account-id lookup', () => {
+    const r = recipeFromChain({ steps: [
+      { method: 'POST', path: 'api/token', json: { userName: 'qa1', password: '${env:APP_PW}' }, save: { token: 'token' } },
+      { method: 'POST', path: 'api/login', json: { userName: 'qa1', password: '${env:APP_PW}' }, save: { id: 'userId' } },
+    ] });
+    assert.deepEqual(r.existing, [{ username: 'qa1', password: '${env:APP_PW}' }]);
+    assert.deepEqual(r.lookup, { method: 'POST', path: '/api/login', body: { userName: '${username}', password: '${password}' }, id: 'userId' });
+    assert.equal(r.create, undefined);
+  });
   it('becomes the sign-in recipe plus that account', () => {
     const r = recipeFromChain({ steps: [
       { method: 'POST', path: 'api/login', json: { userName: '${env:APP_USER}', password: '${vault:secret/qa/app#password1}' }, save: { token: 'token', id: 'userId' } },

@@ -47,6 +47,8 @@ export interface AccountRecipe {
   existing?: ExistingAccount[];
   /** Signs in over the API; `token` is the dotted path of the token in the response body, `id` optionally of the account id. */
   token?: RecipeCall & { token: string; id?: string };
+  /** Reads the account id after signing in (a "who am I" call, with the auth header); `id` is where the answer carries it. */
+  lookup?: RecipeCall & { id: string };
   /** Header that authenticates API calls. Default "Authorization: Bearer ${token}". */
   authHeader?: string;
   /** Deletes the account after the test (a 401/403 answer gets a fresh token and one retry). */
@@ -176,6 +178,7 @@ export function validateConfig(raw: unknown): string[] {
       }
       if (typeof acc.password === 'string' && !/^\$\{(env|vault):[^}]+\}$/.test(acc.password)) out.push(`auts.${id}.accounts.password must be "\${env:NAME}" or "\${vault:path#field}", never the password itself`);
       if (acc.token !== undefined && (!call('token') || typeof (acc.token as Record<string, unknown>).token !== 'string')) out.push(`auts.${id}.accounts.token needs method, path and token (the dotted path of the token in the response)`);
+      if (acc.lookup !== undefined && (!call('lookup') || typeof (acc.lookup as Record<string, unknown>).id !== 'string')) out.push(`auts.${id}.accounts.lookup needs method, path and id (the dotted path of the account id in the answer)`);
       if (acc.delete !== undefined && !call('delete')) out.push(`auts.${id}.accounts.delete needs method and path`);
     }
     if (prof.minTestIntervalMs !== undefined && !(Number.isInteger(prof.minTestIntervalMs) && (prof.minTestIntervalMs as number) >= 0)) out.push(`auts.${id}.minTestIntervalMs must be a whole number of milliseconds`);

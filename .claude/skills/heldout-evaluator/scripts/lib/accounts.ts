@@ -34,8 +34,12 @@ interface InspectStep { do: string; target?: string; value?: string }
  * (${var:…} → ${username}, secret references → ${password}).
  */
 export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: string; steps: InspectStep[]; done?: string }): AccountRecipe {
-  const create = chain.steps.find((s) => s.save && 'id' in s.save && !('token' in s.save));
-  const token = chain.steps.find((s) => s.save && 'token' in s.save);
+  const tokenAt = chain.steps.findIndex((s) => s.save && 'token' in s.save);
+  const token = tokenAt >= 0 ? chain.steps[tokenAt] : undefined;
+  // A step saving "id" before signing in creates the account; one after it looks the account's id up.
+  const idAt = chain.steps.findIndex((s, i) => s.save && 'id' in s.save && !('token' in s.save) && i !== tokenAt);
+  const create = idAt >= 0 && (tokenAt < 0 || idAt < tokenAt) ? chain.steps[idAt] : undefined;
+  const lookup = idAt >= 0 && !create ? chain.steps[idAt] : undefined;
   const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE');
   if (!create && !token) throw new Error('the chain neither creates an account (a step saving "id") nor signs in (a step saving "token")');
   const source = create ?? token!;
@@ -54,6 +58,7 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
   return {
     ...(create ? { password, ...(username ? { username } : {}), create: { ...call(create), id: create.save!.id } } : { existing: [{ username: username!, password }] }),
     ...(token ? { token: { ...call(token), token: token.save!.token, ...(token.save!.id ? { id: token.save!.id } : {}) } } : {}),
+    ...(lookup ? { lookup: { ...call(lookup), id: lookup.save!.id } } : {}),
     ...(authLine ? { authHeader: `${authLine[0]}: ${authLine[1]}` } : {}),
     ...(del && create ? { delete: call(del) } : {}),
     ...(signIn ? { signIn: { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value) } : { click: s.target! })) } } : {}),
@@ -99,7 +104,12 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
       const unresolved = [a.username, a.password].filter((v) => /\$\{(env|vault):/.test(String(fill(v, {}))));
       if (unresolved.length) { out.push({ step: `account ${a.username}`, ok: false, detail: `not set: ${unresolved.join(', ')}` }); continue; }
       if (!r.token) { out.push({ step: `account ${a.username}`, ok: true, detail: 'credentials set; the UI sign-in is checked by the first test that signs in' }); continue; }
-      await signInOverApi(vars, a.username);
+      const token = await signInOverApi(vars, a.username);
+      if (token && !vars.id && r.lookup) {
+        const l = await send(r.lookup, vars, token);
+        const id = dig(l.json, r.lookup.id);
+        out.push({ step: `id of ${a.username}`, ok: id !== undefined && id !== null, detail: id !== undefined && id !== null ? `${l.status}, ${r.lookup.id} found` : `${l.status}, no "${r.lookup.id}" in the answer` });
+      }
     }
     return out;
   }

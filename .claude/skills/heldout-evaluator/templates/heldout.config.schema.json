@@ -206,6 +206,31 @@
                     }
                   }
                 }
+              },
+              "lookup": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path",
+                  "id"
+                ],
+                "description": "A call made after signing in (a \"who am I\", with the auth header) to read the account id, when the sign-in answer doesn't carry it",
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Dotted path of the account id in the answer"
+                  }
+                }
               }
             },
             "anyOf": [

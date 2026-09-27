@@ -156,7 +156,7 @@ interface RecipeCall { method: string; path: string; body?: Json; form?: Record<
 interface AccountRecipe {
   password?: string; username?: string; authHeader?: string;
   create?: RecipeCall & { id: string }; existing?: { username: string; password: string; id?: string }[];
-  token?: RecipeCall & { token: string; id?: string }; delete?: RecipeCall;
+  token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall;
   signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
 }
 const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
@@ -422,6 +422,12 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
             },
           });
           await account.refresh();
+          if (!account.id && r?.lookup) {
+            const l = await send(r.lookup, account.token);
+            const id = dig(l.body, r.lookup.id);
+            if (id === undefined || id === null || id === '') throw new Error(`${r.lookup.method} ${r.lookup.path} → ${l.status}, but the answer has no "${r.lookup.id}"`);
+            account.id = vars.id = String(id);
+          }
           return account;
         };
         if (r && !r.create) {
