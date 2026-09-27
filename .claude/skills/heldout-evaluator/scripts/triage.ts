@@ -7,7 +7,7 @@
  *   heldout triage <KEY> --carry-from <run|auto>
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
  *
- *   heldout triage <KEY> --set SCN-002 --category APPLICATION_DEFECT --severity Major \
+ *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
  *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."]
  *        → records the evaluator's *confirmed* classification after live re-investigation.
  *
@@ -200,17 +200,22 @@ main(() => {
   const setId = flagStr(flags, 'set');
   if (setId) {
     const report = readJson<TriageReport>(triageJson);
-    const entry = report.entries.find((e) => e.scenario === setId);
-    if (!entry) throw new Error(`${setId} not in ${rel(triageJson)} (have: ${report.entries.filter((e) => e.error).map((e) => e.scenario).join(', ')})`);
+    // One decision per root cause: "SCN-007.1,SCN-007.2", or an outline's base id "SCN-007" for all its failing rows.
+    const entries = setId.split(',').map((x) => x.trim()).flatMap((id) => {
+      const hit = report.entries.filter((e) => e.scenario === id || (e.error && baseScenarioId(e.scenario) === id));
+      if (!hit.length) throw new Error(`${id} not in ${rel(triageJson)} (have: ${report.entries.filter((e) => e.error).map((e) => e.scenario).join(', ')})`);
+      return hit;
+    });
     const category = flagStr(flags, 'category') as Category;
     if (!CATEGORIES.includes(category)) throw new Error(`--category must be one of ${CATEGORIES.join(', ')}`);
     const rationale = flagStr(flags, 'rationale');
     if (!rationale) throw new Error('--rationale is required (explain the evidence).');
-    entry.final = { category, severity: flagStr(flags, 'severity'), title: flagStr(flags, 'title'), rationale,
+    const decision = { category, severity: flagStr(flags, 'severity'), title: flagStr(flags, 'title'), rationale,
       evidence: flagStr(flags, 'evidence'), action: flagStr(flags, 'action'), confirmedAt: new Date().toISOString() };
+    for (const e of entries) e.final = { ...decision };
     writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
     writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
-    console.log(`✔ ${setId} confirmed as ${category} in ${rel(triageJson)}`);
+    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category} in ${rel(triageJson)}`);
     return;
   }
 
