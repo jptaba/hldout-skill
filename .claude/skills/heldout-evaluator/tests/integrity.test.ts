@@ -105,3 +105,19 @@ test('SCN-002: b', async () => {
     assert.equal(checkIntegrity(path.join(dropped, 'tests'), path.join(dropped, 'draft'), undefined, ORACLE).status, 'VIOLATED');
   });
 });
+
+describe('messages with other quotes inside', () => {
+  const Q = `
+test('SCN-007: q', async () => {
+  await expect(page.locator('#m'), \`[REQ AC-7] "\${row.link}" shows its message\`).toHaveText(REQ.MSG);
+  await expect.soft(page.locator('#n'), "[REQ AC-8] 'Home' opens a tab").toBeVisible();
+  await expect.poll(() => shown(page), { message: \`[REQ AC-4] "\${term}" matches\` }).toEqual(expected);
+  expectResponse(res, { status: 400 }, \`[REQ AC-5] GET "\${p}"\`);
+});
+`;
+  it('are recognised and frozen', () => {
+    assert.equal(reqAssertions(Q).size, 4);
+    const weakened = workspace(Q, Q.replace(".toHaveText(REQ.MSG)", ".toContainText('x')"));
+    assert.equal(checkIntegrity(path.join(weakened, 'tests'), path.join(weakened, 'draft'), undefined, ORACLE).status, 'VIOLATED');
+  });
+});

@@ -45,7 +45,9 @@ labels, request fields, an endpoint the story doesn't name) is recorded as an op
 during hardening, where the evaluator records it as `discovered-in-aut` with evidence, with no re-review. WHAT is
 correct is never discovered: open **oracle** gaps are the questions for the user (`heldout contract KEY` lists both).
 The dividing line: where to find something (a response field's name, a locator, a route) is mechanics; the value it
-must have (a status, a message, a count, whether an error is an HTTP status or a code in the body) is oracle.
+must have (a status, a message, a count, whether an error is an HTTP status or a code in the body) is oracle. When the
+sources themselves disagree (a comment corrects the story's path or status), that is an oracle gap resolved
+`found-in-requirement` by the later, explicit statement.
 
 Non-text attachments (images, PDFs, office files): open them with the Read tool and transcribe what they say into
 `requirement/transcripts/<file>.md`. The first line is `transcribedFrom: attachments/<file>`, followed by a faithful
@@ -72,7 +74,7 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | `rules[]` | `{ "id": "R1", "text", "source" }` (`source` may cite several places: `story.md#L34, story.md#L27-L28`): business rules, boundaries and validation tables the sources state |
 | `errorModel[]` | `{ "id": "E1", "case", "status"?, "body"?, "source" }`: each error case the sources state. `body` is the message, or the whole body as the sources give it (`{"error": "Invalid credentials"}`) |
 | `auth` | `{ "mechanism", "credentials"?, "source" }`. Required when an endpoint has `auth: "required"` |
-| `testData` | `{ "strategy", "constraints"? (list of strings), "cleanup"?, "source"? }`: how the evaluation gets its data ("tests register their own customer via POST /users/register", "none stated: the criteria only read the catalogue"). State only what the sources or the project say |
+| `testData` | `{ "strategy", "constraints"? (list of strings), "cleanup"?, "source"? }`: how the evaluation gets its data ("tests register their own customer via POST /users/register", "none stated: the criteria only read the catalogue"). State only what the sources or the project say; when they say nothing about data, write "not stated in the sources" (the evaluator decides the seeding) |
 | `actors` (list of strings), `context` (string), `nonFunctional[]` (`{ id, text, source }`), `outOfScope[]` (list of strings) | Optional; only what the sources say |
 | `gaps[]` | `{ "id": "G1", "element", "kind": "mechanics" \| "oracle", "required", "affects": ["AC-2"] or ["*"], "tried": [{ "where": "story" \| "attachments" \| "aut" \| "config" \| "user", "result" }], "resolution", "value"?, "evidence"? }`. `resolution` is `found-in-requirement`, `found-in-config`, `discovered-in-aut` (mechanics only), `provided-by-user`, `assumed` or `open`. Omit `value` while open. `required` means the affected ACs can't be evaluated without it |
 | `coverage[]` | `{ "lines": "story.md#L20-L22", "as", "note"? }`. `as` holds one or more refs, separated by commas: item ids (`AC-1`, `R2`, `E1`, `G3`, `NFR-1`) or the kinds `endpoint`, `error-model`, `auth`, `test-data`, `context`, `out-of-scope`, `non-functional`, `example`, `duplicate`, `not-a-requirement` (needs a note saying why). Every ● line must be covered, and every AC referenced by some entry |

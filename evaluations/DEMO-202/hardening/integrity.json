@@ -1,25 +1,18 @@
 {
-  "status": "AMENDED",
-  "checkedAt": "2026-09-26T18:13:50.076Z",
+  "status": "VIOLATED",
+  "checkedAt": "2026-09-27T22:03:08.404Z",
   "files": [
     {
       "file": "demo-202.spec.ts",
-      "draftAssertions": 43,
-      "currentAssertions": 43
+      "draftAssertions": 45,
+      "currentAssertions": 45
     }
   ],
   "removed": [],
   "changed": [],
-  "amended": [
-    {
-      "assertion": "demo-202.spec.ts: [REQ AC-3] validation errors mention ${field}",
-      "draft": ".toContainText(new RegExp(`\\\\b${field}\\\\b`, 'i'))",
-      "current": ".toContainText(new RegExp(field, 'i'))",
-      "reason": "Assertion implementation bug: the AUT renders the error list without separators between messages (\"…blankEmail may not be blank…\"), so the \\b word-boundary pattern could never match even though every field is mentioned. The requirement (AC-3: errors mention each of the five fields) is unchanged; only the word boundaries were removed, still case-insensitive per field name.",
-      "approvedAt": "2026-09-26T15:14:07.107Z"
-    }
-  ],
+  "amended": [],
   "added": [],
   "constantsChanged": [],
-  "unhardenedMarkers": []
+  "unhardenedMarkers": [],
+  "contractChanged": true
 }

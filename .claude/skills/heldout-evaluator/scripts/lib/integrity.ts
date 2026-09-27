@@ -59,12 +59,13 @@ export function reqAssertions(source: string): Map<string, string> {
   };
   // The subject may not cross a statement boundary (`;`) — otherwise a lazy match starting at an
   // earlier non-REQ expect( would swallow unrelated code up to the next [REQ …] message.
-  const plain = /expect(?:\.soft)?\(\s*([^;]*?),\s*(['"`])(\[REQ [^\]]+\][^'"`]*)\2\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
+  // A message runs to the closing quote of its own kind: other quotes inside it (`[REQ AC-7] "Home" shown`) are text.
+  const plain = /expect(?:\.soft)?\(\s*([^;]*?),\s*(['"`])(\[REQ [^\]]+\](?:(?!\2)[^\\\n]|\\.)*)\2\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
   for (const m of source.matchAll(plain)) add(m[3], m[1], m[4]);
   // expectResponse(res, { status, body }, '[REQ …]') from the fixtures: the expected status and body are the oracle.
-  const response = /expectResponse\(\s*([^;]*?),\s*(\{[\s\S]*?\}),\s*(['"`])(\[REQ [^\]]+\][^'"`]*)\3\s*\)\s*;/g;
+  const response = /expectResponse\(\s*([^;]*?),\s*(\{[\s\S]*?\}),\s*(['"`])(\[REQ [^\]]+\](?:(?!\3)[^\\\n]|\\.)*)\3\s*\)\s*;/g;
   for (const m of source.matchAll(response)) add(m[4], m[1], `expectResponse ${m[2]}`);
-  const poll = /expect\.poll\(((?:(?!expect[.(])[\s\S])*?)message:\s*(['"`])(\[REQ [^\]]+\][^'"`]*)\2[\s\S]*?\}\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
+  const poll = /expect\.poll\(((?:(?!expect[.(])[\s\S])*?)message:\s*(['"`])(\[REQ [^\]]+\](?:(?!\2)[^\\\n]|\\.)*)\2[\s\S]*?\}\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
   for (const m of source.matchAll(poll)) add(m[3], m[1], m[4]);
   return map;
 }

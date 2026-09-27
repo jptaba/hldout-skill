@@ -1,11 +1,11 @@
 {
   "status": "PRESERVED",
-  "checkedAt": "2026-09-27T05:46:27.860Z",
+  "checkedAt": "2026-09-27T22:03:03.565Z",
   "files": [
     {
       "file": "ae-1.spec.ts",
-      "draftAssertions": 18,
-      "currentAssertions": 18
+      "draftAssertions": 27,
+      "currentAssertions": 27
     }
   ],
   "removed": [],
