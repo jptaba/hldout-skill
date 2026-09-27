@@ -3,9 +3,11 @@
  *   1. Traceability lint — requirement ⇄ scenarios ⇄ tests ⇄ [REQ] assertions are consistent.
  *   2. AUT healthcheck   — the target is reachable, so environment noise never reaches triage.
  */
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { evalPaths, rel, resolveUrl, type HeldoutConfig } from './config';
+import { ROOT, evalPaths, rel, resolveUrl, type HeldoutConfig } from './config';
 import { checkContract, checkFeatureAgainstContract, readContract } from './contract';
 import { checkReview, readReview } from './evidence';
 import { TEST_TYPES, baseScenarioId, normaliseTestType, readFeature } from './gherkin';
@@ -65,6 +67,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
       // An assumed oracle value that the feature already surfaces as "# ASSUMPTION: G<n>" needs no further warning.
       const gap = x.code === 'oracle-assumed' ? x.message.match(/^(G\d+):/)?.[1] : undefined;
       if (gap && f.assumptions.some((a) => a.startsWith(gap))) continue;
+      // An open oracle question the feature already surfaces (OPEN-QUESTION line, or every affected scenario tagged
+      // @needs-clarification) is handled.
+      const open = x.code === 'oracle-gap-open' ? contract.gaps.find((g) => x.message.startsWith(`${g.id} `)) : undefined;
+      if (open && (f.openQuestions.some((q) => q.startsWith(open.id)) || f.scenarios.filter((s) => s.acs.some((a) => open.affects.includes(a))).every((s) => s.needsClarification))) continue;
       out.push({ ...x, code: `contract/${x.code}` });
     }
     // Independent review: required, current (hash-bound) and without findings.
@@ -72,6 +78,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     for (const x of checkReview(contract, readReview(p.base), { requireReview: true }).filter((f) => f.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
     out.push(...checkFeatureAgainstContract(contract, f));
   }
+  for (const e of typeErrors(p.tests)) err('spec-type-error', e);
   for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any scenario`);
 
   const specs = specFiles(p.tests);
@@ -208,4 +215,21 @@ export async function healthcheck(cfg: HeldoutConfig, samples = 3): Promise<Heal
 export function printFindings(findings: Finding[]): void {
   if (!findings.length) { console.log('  ✔ traceability lint clean'); return; }
   for (const f of findings) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
+}
+
+/**
+ * TypeScript errors in one story's specs (a draft that doesn't compile can't be frozen or run). Checks only those files,
+ * with the project's compiler options, through a temporary tsconfig that extends the project's.
+ */
+export function typeErrors(testsDir: string): string[] {
+  const tsc = path.join(ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
+  const project = path.join(ROOT, 'tsconfig.json');
+  const files = specFiles(testsDir);
+  if (!files.length || !fs.existsSync(tsc) || !fs.existsSync(project)) return [];
+  const tmp = path.join(os.tmpdir(), `heldout-tsc-${process.pid}-${Date.now()}.json`);
+  fs.writeFileSync(tmp, JSON.stringify({ extends: project, compilerOptions: { noEmit: true }, include: [], files }));
+  try {
+    const r = spawnSync(process.execPath, [tsc, '-p', tmp], { encoding: 'utf8', cwd: ROOT });
+    return (r.stdout ?? '').split(/\r?\n/).filter((l) => /error TS\d+/.test(l)).map((l) => l.replace(ROOT + path.sep, '').trim()).slice(0, 10);
+  } finally { fs.rmSync(tmp, { force: true }); }
 }

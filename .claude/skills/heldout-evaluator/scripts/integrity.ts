@@ -13,6 +13,7 @@
 import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
 import { oracleDigest, readContract } from './lib/contract';
 import { checkIntegrity, readAmendments, snapshotDraft } from './lib/integrity';
+import { typeErrors } from './lib/preflight';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -26,6 +27,9 @@ main(() => {
   const oracle = oracleDigest(contract);
 
   if (flags.snapshot) {
+    // What gets frozen must compile: a broken draft would be frozen and then "repaired" outside the audit.
+    const broken = typeErrors(p.tests);
+    if (broken.length) throw new Error(`The draft doesn't compile — fix it before freezing:\n  ${broken.join('\n  ')}`);
     const refreezeLog = path.join(p.hardening, 'refreeze-log.json');
     if (fs.existsSync(p.draft) && fs.readdirSync(p.draft).length) {
       // Re-freeze (e.g. requirement revision added scenarios): audited, never silent.
