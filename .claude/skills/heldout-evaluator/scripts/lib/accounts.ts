@@ -14,6 +14,40 @@ function fill(value: unknown, vars: Record<string, string | undefined>): unknown
 }
 const dig = (o: unknown, dotted: string): unknown => dotted.split('.').reduce<unknown>((a, k) => (a && typeof a === 'object' ? (a as Record<string, unknown>)[k] : undefined), o);
 
+interface ChainStep { method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; save?: Record<string, string> }
+interface InspectStep { do: string; target?: string; value?: string }
+
+/**
+ * An accounts recipe from an api-probe chain that made an account: the step saving `id` creates it, the step saving
+ * `token` signs in, a DELETE removes it. The value holding ${uid} becomes ${username}, the ${env:…} one ${password}.
+ * Optional UI sign-in from inspect steps (fill/click; ${var:…} → ${username}, ${env:…} → ${password}).
+ */
+export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: string; steps: InspectStep[]; done?: string }): AccountRecipe {
+  const create = chain.steps.find((s) => s.save && 'id' in s.save);
+  if (!create) throw new Error('no chain step saves "id" (the new account\'s id), e.g. "save": { "id": "userID" }');
+  const token = chain.steps.find((s) => s.save && 'token' in s.save);
+  const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE');
+  const flat = JSON.stringify(create.json ?? create.form ?? {});
+  const password = flat.match(/\$\{env:\w+\}/)?.[0];
+  if (!password) throw new Error('the create step\'s body has no ${env:NAME} password');
+  const username = [...flat.matchAll(/"([^"]*\$\{uid\}[^"]*)"/g)][0]?.[1];
+  const swap = (v: unknown): unknown => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)
+    .split(password).join('${password}').split(username ?? '\u0000').join('${username}')));
+  const call = (s: ChainStep): RecipeCall => ({ method: (s.method ?? 'GET').toUpperCase(), path: `/${s.path.replace(/^\/+/, '')}`,
+    ...(s.json !== undefined ? { body: swap(s.json) } : {}), ...(s.form ? { form: swap(s.form) as Record<string, string> } : {}) });
+  const authLine = Object.entries(del?.headers ?? {}).find(([, v]) => v.includes('${token}'));
+  const toUi = (v = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{env:\w+\}/g, '${password}');
+  return {
+    password,
+    ...(username ? { username } : {}),
+    create: { ...call(create), id: create.save!.id },
+    ...(token ? { token: { ...call(token), token: token.save!.token } } : {}),
+    ...(authLine ? { authHeader: `${authLine[0]}: ${authLine[1]}` } : {}),
+    ...(del ? { delete: call(del) } : {}),
+    ...(signIn ? { signIn: { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value) } : { click: s.target! })) } } : {}),
+  };
+}
+
 export interface RecipeStep { step: string; ok: boolean; detail: string }
 
 export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string): Promise<RecipeStep[]> {

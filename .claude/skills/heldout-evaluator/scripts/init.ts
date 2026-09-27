@@ -71,7 +71,11 @@ function installSkillFrom(source: string): void {
   fs.writeFileSync(path.join(PROJECT_SKILL, 'SOURCE.json'), `${JSON.stringify(info, null, 2)}\n`);
   const was = before ? (JSON.parse(before) as { commit?: string }).commit : undefined;
   say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} (from ${info.remote ?? source})`);
-  for (const [tpl, target] of refresh) { fs.copyFileSync(path.join(PROJECT_SKILL, 'templates', tpl), path.join(ROOT, target)); say('✔', `refreshed ${target}`); }
+  for (const [tpl, target] of refresh) {
+    if (read(path.join(ROOT, target)) === read(path.join(PROJECT_SKILL, 'templates', tpl))) continue; // unchanged in this version
+    fs.copyFileSync(path.join(PROJECT_SKILL, 'templates', tpl), path.join(ROOT, target));
+    say('✔', `refreshed ${target} (new in this version of the skill)`);
+  }
   for (const [tpl, target] of edited) say('⚠', `kept ${target} (changed in this project) — compare it with ${rel(path.join(PROJECT_SKILL, 'templates', tpl))}`);
 }
 

@@ -351,3 +351,36 @@ describe('generated secrets', () => {
     }
   });
 });
+
+describe('accounts recipe from an api-probe chain', () => {
+  it('maps the saved id/token steps, the DELETE, the ${uid} user name, the password and the UI sign-in steps', async () => {
+    const { recipeFromChain } = await import('../scripts/lib/accounts');
+    const chain = { steps: [
+      { method: 'POST', path: 'Account/v1/User', json: { userName: 'qa-${uid}', password: '${env:APP_PW}' }, save: { id: 'userID' } },
+      { method: 'POST', path: 'Account/v1/GenerateToken', json: { userName: 'qa-${uid}', password: '${env:APP_PW}' }, save: { token: 'token' } },
+      { method: 'DELETE', path: 'Account/v1/User/${id}', headers: { Authorization: 'Bearer ${token}' } },
+    ] };
+    const signIn = { path: '/login', done: 'url:/profile', steps: [
+      { do: 'fill', target: "getByPlaceholder('UserName')", value: '${var:user}' },
+      { do: 'fill', target: "getByPlaceholder('Password')", value: '${env:APP_PW}' },
+      { do: 'click', target: "getByRole('button', { name: 'Login' })" },
+      { do: 'wait', target: "getByText('Books')" },
+    ] };
+    assert.deepEqual(recipeFromChain(chain as never, signIn), {
+      password: '${env:APP_PW}', username: 'qa-${uid}',
+      create: { method: 'POST', path: '/Account/v1/User', body: { userName: '${username}', password: '${password}' }, id: 'userID' },
+      token: { method: 'POST', path: '/Account/v1/GenerateToken', body: { userName: '${username}', password: '${password}' }, token: 'token' },
+      authHeader: 'Authorization: Bearer ${token}',
+      delete: { method: 'DELETE', path: '/Account/v1/User/${id}' },
+      signIn: { path: '/login', done: 'url:/profile', steps: [
+        { fill: "getByPlaceholder('UserName')", value: '${username}' },
+        { fill: "getByPlaceholder('Password')", value: '${password}' },
+        { click: "getByRole('button', { name: 'Login' })" },
+      ] },
+    });
+  });
+  it('refuses a chain that never saves the new id', async () => {
+    const { recipeFromChain } = await import('../scripts/lib/accounts');
+    assert.throws(() => recipeFromChain({ steps: [{ method: 'POST', path: 'users', json: { p: '${env:X}' } }] }), /saves "id"/);
+  });
+});
