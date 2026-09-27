@@ -29,6 +29,8 @@ If `heldout.config.json` is missing, set the project up before anything else:
    - the web app URL
    - the API URL (if different)
    - Jira: mock (no subscription) or cloud (site URL)
+   - test accounts: the tests create their own / existing accounts with passwords in `.env` or CI variables /
+     existing accounts in HashiCorp Vault / none needed
 2. Run:
 
 ```bash
@@ -55,6 +57,15 @@ them, one visit of the start page fills in the profile: its id (from the host), 
 `blockHosts` (ad/analytics networks).
 
 More applications: `npm run heldout -- add-aut <id> --base-url <url>`.
+
+**Test accounts** (record the answer; never ask for or handle a password yourself):
+- *Existing, `.env`/CI:* `$H accounts --add-existing --username <user> --password-env APP_PASSWORD_1`, then tell the user to
+  run `npm run heldout -- secret APP_PASSWORD_1 --ask` in a terminal of their own (hidden prompt), or to set it as a CI variable.
+- *Existing, Vault:* put `VAULT_ADDR` in `.env`; the user runs `vault login` once (or sets `VAULT_TOKEN` / AppRole). Then
+  `$H accounts --add-existing --username-vault <path#field> --password-vault <path#field>`.
+- *Created by the tests:* nothing now; the recipe is saved while hardening the first story that needs users.
+Repeat `--add-existing` for more accounts: each parallel worker needs its own, and runs use no more workers than
+there are accounts. `$H accounts --check` (and `doctor`) signs each one in.
 
 Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptance-criteria custom field. See
 [references/jira.md](references/jira.md). Tell the user to restart Claude Code once so `.mcp.json` and the subagents load.

@@ -29,15 +29,24 @@ export interface AutProfile {
 /** An HTTP call of an account recipe. Strings may use ${username}, ${password}, ${id}, ${token}, ${env:NAME}. */
 export interface RecipeCall { method: string; path: string; body?: unknown; form?: Record<string, string> }
 
+/** An account that already exists in the AUT. Secrets as ${env:NAME} or ${vault:path#field}, never literal. */
+export interface ExistingAccount { username: string; password: string; id?: string }
+
+/**
+ * How tests get accounts on this AUT. Either the tests create them (`create`, with `delete` when the application
+ * allows it), or they use accounts that already exist (`existing`), shared out among parallel workers.
+ */
 export interface AccountRecipe {
-  /** Password for every test account, normally "${env:NAME}" (a strong value, so artifacts can be scrubbed of it). */
-  password: string;
-  /** User-name template; ${uid} is unique per account. Default "qa-${uid}". */
+  /** Password for the accounts the tests create, normally "${env:NAME}" (a strong value, so artifacts can be scrubbed). */
+  password?: string;
+  /** User-name template for created accounts; ${uid} is unique per account. Default "qa-${uid}". */
   username?: string;
   /** Creates the account; `id` is the dotted path of the new account's id in the response body. */
-  create: RecipeCall & { id: string };
-  /** Signs in over the API; `token` is the dotted path of the token in the response body. */
-  token?: RecipeCall & { token: string };
+  create?: RecipeCall & { id: string };
+  /** Accounts that already exist (someone made them; the tests never create or delete them). */
+  existing?: ExistingAccount[];
+  /** Signs in over the API; `token` is the dotted path of the token in the response body, `id` optionally of the account id. */
+  token?: RecipeCall & { token: string; id?: string };
   /** Header that authenticates API calls. Default "Authorization: Bearer ${token}". */
   authHeader?: string;
   /** Deletes the account after the test (a 401/403 answer gets a fresh token and one retry). */
@@ -150,8 +159,22 @@ export function validateConfig(raw: unknown): string[] {
     const acc = prof.accounts as Record<string, Record<string, unknown> | string | undefined> | undefined;
     if (acc !== undefined) {
       const call = (k: string) => typeof acc[k] === 'object' && typeof (acc[k] as Record<string, unknown>).method === 'string' && typeof (acc[k] as Record<string, unknown>).path === 'string';
-      if (typeof acc.password !== 'string') out.push(`auts.${id}.accounts.password is required (e.g. "\${env:APP_USER_PASSWORD}")`);
-      if (!call('create') || typeof (acc.create as Record<string, unknown>).id !== 'string') out.push(`auts.${id}.accounts.create needs method, path and id (the dotted path of the new account's id in the response)`);
+      const existing = acc.existing as unknown;
+      if (acc.create === undefined && existing === undefined) out.push(`auts.${id}.accounts needs "create" (tests make their accounts) or "existing" (accounts that already exist)`);
+      if (acc.create !== undefined) {
+        if (!call('create') || typeof (acc.create as Record<string, unknown>).id !== 'string') out.push(`auts.${id}.accounts.create needs method, path and id (the dotted path of the new account's id in the response)`);
+        if (typeof acc.password !== 'string') out.push(`auts.${id}.accounts.password is required with create (e.g. "\${env:APP_USER_PASSWORD}")`);
+      }
+      if (existing !== undefined) {
+        const list = Array.isArray(existing) ? existing as Record<string, unknown>[] : [];
+        if (!list.length) out.push(`auts.${id}.accounts.existing must be a list of { username, password }`);
+        list.forEach((a, i) => {
+          if (typeof a?.username !== 'string' || typeof a?.password !== 'string') out.push(`auts.${id}.accounts.existing[${i}] needs a username and a password`);
+          // This file is committed: a password must be a reference to .env / the environment or to Vault.
+          else if (!/^\$\{(env|vault):[^}]+\}$/.test(a.password)) out.push(`auts.${id}.accounts.existing[${i}].password must be "\${env:NAME}" or "\${vault:path#field}", never the password itself (heldout.config.json is committed)`);
+        });
+      }
+      if (typeof acc.password === 'string' && !/^\$\{(env|vault):[^}]+\}$/.test(acc.password)) out.push(`auts.${id}.accounts.password must be "\${env:NAME}" or "\${vault:path#field}", never the password itself`);
       if (acc.token !== undefined && (!call('token') || typeof (acc.token as Record<string, unknown>).token !== 'string')) out.push(`auts.${id}.accounts.token needs method, path and token (the dotted path of the token in the response)`);
       if (acc.delete !== undefined && !call('delete')) out.push(`auts.${id}.accounts.delete needs method and path`);
     }

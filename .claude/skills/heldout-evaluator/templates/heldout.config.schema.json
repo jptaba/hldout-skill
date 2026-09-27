@@ -3,52 +3,318 @@
   "title": "Held-out evaluator configuration",
   "description": "Everything application-specific the held-out evaluator needs. One profile per application; bind a story to a profile with evaluations/<KEY>/evaluation.json.",
   "type": "object",
-  "required": ["auts"],
+  "required": [
+    "auts"
+  ],
   "properties": {
-    "$schema": { "type": "string" },
-    "defaultAut": { "type": "string", "description": "Profile used when a story has no evaluation.json binding." },
+    "$schema": {
+      "type": "string"
+    },
+    "defaultAut": {
+      "type": "string",
+      "description": "Profile used when a story has no evaluation.json binding."
+    },
     "auts": {
       "type": "object",
       "minProperties": 1,
       "description": "Named AUT profiles.",
       "additionalProperties": {
         "type": "object",
-        "required": ["baseURL"],
+        "required": [
+          "baseURL"
+        ],
         "properties": {
-          "name": { "type": "string", "description": "Human-readable name shown in verdicts." },
-          "baseURL": { "type": "string", "pattern": "^https?://", "description": "Web UI origin (Playwright baseURL)." },
-          "apiBaseURL": { "type": "string", "pattern": "^https?://", "description": "API origin for the api fixture and api-probe. Defaults to baseURL." },
-          "blockHosts": { "type": "array", "items": { "type": "string" }, "description": "Third-party hosts (ads, analytics, consent) whose requests the browser aborts, e.g. [\"googlesyndication.com\", \"doubleclick.net\"]. They are not part of the application and make pages flaky" },
-          "minTestIntervalMs": { "type": "integer", "minimum": 0, "description": "Minimum gap between test starts in ms, across workers and worker restarts: for hosts that ban bursts of traffic (e.g. 12000)" },
-          "accounts": {"type": "object", "description": "How to make a test account on this AUT (mechanics, found while hardening the first story). Used by seed.account() (create, token, delete after the test) and signIn(page, account). Strings may use ${username}, ${password}, ${id}, ${token}, ${env:NAME}. `heldout doctor` runs it live.", "required": ["password", "create"], "properties": {"password": {"type": "string", "description": "Password of every test account, normally \"${env:NAME}\""}, "username": {"type": "string", "description": "User-name template; ${uid} is unique per account. Default \"qa-${uid}\""}, "create": {"type": "object", "required": ["method", "path", "id"], "properties": {"method": {"type": "string"}, "path": {"type": "string"}, "body": {}, "form": {"type": "object", "additionalProperties": {"type": "string"}}, "id": {"type": "string", "description": "Dotted path of the new account's id in the response body, e.g. \"userID\""}}}, "token": {"type": "object", "required": ["method", "path", "token"], "properties": {"method": {"type": "string"}, "path": {"type": "string"}, "body": {}, "form": {"type": "object", "additionalProperties": {"type": "string"}}, "token": {"type": "string", "description": "Dotted path of the token in the response body"}}}, "authHeader": {"type": "string", "description": "Default \"Authorization: Bearer ${token}\""}, "delete": {"type": "object", "required": ["method", "path"], "properties": {"method": {"type": "string"}, "path": {"type": "string"}, "body": {}, "form": {"type": "object", "additionalProperties": {"type": "string"}}}}, "signIn": {"type": "object", "required": ["path", "steps"], "properties": {"path": {"type": "string"}, "steps": {"type": "array", "items": {"type": "object", "properties": {"fill": {"type": "string"}, "click": {"type": "string"}, "value": {"type": "string"}}}}, "done": {"type": "string", "description": "\"url:/profile\" or a page-locator expression that appears once signed in"}}}}},
-          "maxWorkers": { "type": "integer", "minimum": 1, "description": "Most parallel test workers the host tolerates: set it for shared sandboxes behind rate limits or bot protection (e.g. 1). Caps --workers" },
-          "testIdAttribute": { "type": "string", "description": "Attribute used by getByTestId(): data-testid, data-test, data-qa…", "default": "data-testid" },
-          "healthcheck": { "type": "array", "items": { "type": "string" }, "description": "Checked before every run. UI paths resolve against baseURL, \"api:/path\" against apiBaseURL.", "default": ["/"] },
-          "healthSlowMs": { "type": "number", "description": "Slowest healthcheck sample above this (ms) = degraded AUT; the run is refused.", "default": 5000 },
-          "notes": { "type": "string" }
+          "name": {
+            "type": "string",
+            "description": "Human-readable name shown in verdicts."
+          },
+          "baseURL": {
+            "type": "string",
+            "pattern": "^https?://",
+            "description": "Web UI origin (Playwright baseURL)."
+          },
+          "apiBaseURL": {
+            "type": "string",
+            "pattern": "^https?://",
+            "description": "API origin for the api fixture and api-probe. Defaults to baseURL."
+          },
+          "blockHosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Third-party hosts (ads, analytics, consent) whose requests the browser aborts, e.g. [\"googlesyndication.com\", \"doubleclick.net\"]. They are not part of the application and make pages flaky"
+          },
+          "minTestIntervalMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Minimum gap between test starts in ms, across workers and worker restarts: for hosts that ban bursts of traffic (e.g. 12000)"
+          },
+          "accounts": {
+            "type": "object",
+            "description": "How tests get accounts on this AUT, written once and used by seed.account() and signIn() in every story: accounts the tests create (\"create\", plus \"delete\" when the application allows it), or accounts that already exist (\"existing\", shared out among parallel workers, never deleted). Secrets are \"${env:NAME}\" (.env or the environment) or \"${vault:path#field}\" (HashiCorp Vault), never literal. Other strings may use ${username}, ${password}, ${id}, ${token}, ${uid}. `heldout accounts` writes it; `heldout doctor` checks it live.",
+            "properties": {
+              "password": {
+                "type": "string",
+                "pattern": "^\\$\\{(env|vault):[^}]+\\}$",
+                "description": "Password of the accounts the tests create: \"${env:NAME}\" or \"${vault:path#field}\""
+              },
+              "username": {
+                "type": "string",
+                "description": "User-name template; ${uid} is unique per account. Default \"qa-${uid}\""
+              },
+              "create": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path",
+                  "id"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Dotted path of the new account's id in the response body, e.g. \"userID\""
+                  }
+                }
+              },
+              "token": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path",
+                  "token"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "Dotted path of the token in the response body"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Dotted path of the account id in the sign-in answer (for existing accounts)"
+                  }
+                }
+              },
+              "authHeader": {
+                "type": "string",
+                "description": "Default \"Authorization: Bearer ${token}\""
+              },
+              "delete": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "signIn": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "steps"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fill": {
+                          "type": "string"
+                        },
+                        "click": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "done": {
+                    "type": "string",
+                    "description": "\"url:/profile\" or a page-locator expression that appears once signed in"
+                  }
+                }
+              },
+              "existing": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Accounts someone already made. Each parallel worker gets its own share; the tests never create or delete them.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "username",
+                    "password"
+                  ],
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "description": "The user name, or \"${env:NAME}\" / \"${vault:path#field}\""
+                    },
+                    "password": {
+                      "type": "string",
+                      "pattern": "^\\$\\{(env|vault):[^}]+\\}$",
+                      "description": "\"${env:NAME}\" or \"${vault:path#field}\""
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The account id, when tests need it and the sign-in answer doesn't carry it"
+                    }
+                  }
+                }
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "create",
+                  "password"
+                ]
+              },
+              {
+                "required": [
+                  "existing"
+                ]
+              }
+            ]
+          },
+          "maxWorkers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Most parallel test workers the host tolerates: set it for shared sandboxes behind rate limits or bot protection (e.g. 1). Caps --workers"
+          },
+          "testIdAttribute": {
+            "type": "string",
+            "description": "Attribute used by getByTestId(): data-testid, data-test, data-qa…",
+            "default": "data-testid"
+          },
+          "healthcheck": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Checked before every run. UI paths resolve against baseURL, \"api:/path\" against apiBaseURL.",
+            "default": [
+              "/"
+            ]
+          },
+          "healthSlowMs": {
+            "type": "number",
+            "description": "Slowest healthcheck sample above this (ms) = degraded AUT; the run is refused.",
+            "default": 5000
+          },
+          "notes": {
+            "type": "string"
+          }
         }
       }
     },
     "jira": {
       "type": "object",
       "properties": {
-        "mode": { "enum": ["mock", "cloud"], "description": "mock = file-backed Jira in ./mock-jira; cloud = Jira Cloud REST v3 (JIRA_EMAIL / JIRA_API_TOKEN in .env).", "default": "mock" },
-        "mockRoot": { "type": "string", "default": "mock-jira" },
-        "baseUrl": { "type": "string", "description": "https://<site>.atlassian.net" },
-        "acceptanceCriteriaField": { "type": "string", "pattern": "^(customfield_\\d+)?$", "description": "Custom field holding acceptance criteria, if your Jira uses one. Find it with: heldout doctor --jira" },
-        "verdictLabelPrefix": { "type": "string", "default": "heldout-" }
+        "mode": {
+          "enum": [
+            "mock",
+            "cloud"
+          ],
+          "description": "mock = file-backed Jira in ./mock-jira; cloud = Jira Cloud REST v3 (JIRA_EMAIL / JIRA_API_TOKEN in .env).",
+          "default": "mock"
+        },
+        "mockRoot": {
+          "type": "string",
+          "default": "mock-jira"
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "https://<site>.atlassian.net"
+        },
+        "acceptanceCriteriaField": {
+          "type": "string",
+          "pattern": "^(customfield_\\d+)?$",
+          "description": "Custom field holding acceptance criteria, if your Jira uses one. Find it with: heldout doctor --jira"
+        },
+        "verdictLabelPrefix": {
+          "type": "string",
+          "default": "heldout-"
+        }
       }
     },
-    "evaluationsDir": { "type": "string", "default": "evaluations" },
+    "evaluationsDir": {
+      "type": "string",
+      "default": "evaluations"
+    },
     "run": {
       "type": "object",
       "properties": {
-        "retries": { "type": "integer", "minimum": 0, "default": 1 },
-        "workers": { "type": "integer", "minimum": 1 },
-        "headless": { "type": "boolean", "default": true },
-        "actionTimeoutMs": { "type": "integer", "minimum": 0 },
-        "expectTimeoutMs": { "type": "integer", "minimum": 0 },
-        "testTimeoutMs": { "type": "integer", "minimum": 0 }
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1
+        },
+        "workers": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "headless": {
+          "type": "boolean",
+          "default": true
+        },
+        "actionTimeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expectTimeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "testTimeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     }
   }

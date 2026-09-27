@@ -32,6 +32,7 @@ import path from 'node:path';
 import { evalPaths, flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './lib/config';
 import { McpStdioClient, nodeFor, refFor } from './lib/mcp-client';
 import { redactSnapshot, secretValuesFor } from './lib/redact';
+import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 
 interface Match { role: string; name?: string; exact?: boolean }
 interface Find { role?: string; name?: string; exact?: boolean; nth?: number; ref?: string }
@@ -41,13 +42,16 @@ interface Step {
 }
 
 const vars: Record<string, string> = {};
-const env = (s = '') => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => {
-  if (process.env[n] === undefined) throw new Error(`\${env:${n}} is not set (.env)`);
-  return process.env[n]!;
-}).replace(/\$\{var:(\w+)\}/g, (_, n: string) => {
-  if (vars[n] === undefined) throw new Error(`\${var:${n}} has no --var ${n}=…`);
-  return vars[n];
-});
+/** ${env:NAME}, ${vault:path#field} (read at the start) and ${var:name} (--var name=value) → their values. */
+const env = (s = '') => {
+  const out = expandSecrets(s);
+  const missing = out.match(/\$\{(env|vault):[^}]+\}/)?.[0];
+  if (missing) throw new Error(`${missing} is not set (.env, the environment or Vault)`);
+  return out.replace(/\$\{var:(\w+)\}/g, (_, n: string) => {
+    if (vars[n] === undefined) throw new Error(`\${var:${n}} has no --var ${n}=…`);
+    return vars[n];
+  });
+};
 const describe = (f: Find) => `${f.role}${f.name !== undefined ? ` "${f.name}"` : ''}`;
 /** Pull the YAML snapshot out of an MCP tool response (Playwright MCP embeds it in a ```yaml block). */
 const yamlOf = (text: string) => text.match(/```yaml\r?\n([\s\S]*?)```/)?.[1] ?? '';
@@ -57,6 +61,7 @@ main(async () => {
   for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const stepsFile = flagStr(flags, 'steps');
+  await requireVaultSecrets([process.argv.slice(2).join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
   const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8')) : JSON.parse(flagStr(flags, 'steps-json') ?? '[]');
   // MCP writes large snapshots/screenshots to its output dir — keep that out of the project.
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-mcp-'));
@@ -81,7 +86,7 @@ main(async () => {
   };
   /** Values typed from ${env:…} or into secret-looking fields — never written to the report (snapshots echo field values). */
   const key = flagStr(flags, 'key');
-  const secrets: string[] = key ? secretValuesFor(evalPaths(cfg, key).testData, process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)).values : [];
+  const secrets: string[] = key ? secretValuesFor(evalPaths(cfg, key).testData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(loadedVaultSecrets())].filter(Boolean)).values : [];
   const refresh = async () => { snapshot = redactSnapshot(snapshotFrom((await client.call('browser_snapshot')).text), secrets); return snapshot; };
   /** Web-first: poll the snapshot until `found(snapshot)` or the timeout. */
   const poll = async (found: (snap: string) => boolean, timeoutMs = 10_000) => {

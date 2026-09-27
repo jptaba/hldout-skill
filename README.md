@@ -53,9 +53,9 @@ then runs the steps above.
 | What | Where |
 | --- | --- |
 | Applications (UI URL, API URL, test-id attribute (detected by `init`), healthcheck, `blockHosts` for ads/analytics, `maxWorkers` and `minTestIntervalMs` for rate-limited hosts) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
-| Test accounts (how to create, sign in and delete a user on this app, written once; `seed.account()` and `signIn()` use it in every story) | `auts.<id>.accounts` in heldout.config.json — [data-and-journeys.md §4a](.claude/skills/heldout-evaluator/references/data-and-journeys.md) |
+| Test accounts, written once per app and used by `seed.account()` / `signIn()` in every story: existing accounts (passwords in `.env`, CI variables or HashiCorp Vault), or accounts the tests create (deleted afterwards when the app allows it) | `npm run heldout -- accounts --add-existing …` · `auts.<id>.accounts` — [data-and-journeys.md §4a](.claude/skills/heldout-evaluator/references/data-and-journeys.md) |
+| Secrets | `.env` (git-ignored), real environment variables (CI; they win over `.env`), or Vault: `${env:NAME}` / `${vault:path#field}` wherever a secret is referenced; `VAULT_ADDR` + `vault login` (or `VAULT_TOKEN`, AppRole) |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (writes `evaluations/KEY/evaluation.json`) |
-| Secrets used by tests | `.env` → referenced from `evaluations/<KEY>/test-data.json` as `${env:NAME}` |
 | Jira | `JIRA_MODE=mock` (file-based, [mock-jira/](mock-jira/)) or `cloud` + `JIRA_BASE_URL/JIRA_EMAIL/JIRA_API_TOKEN`; `doctor --jira` finds your acceptance-criteria custom field |
 | Browser tier 2 (Playwright MCP) | [.mcp.json](.mcp.json) |
 | Subagents (contract extractor, independent reviewer) | [.claude/agents/](.claude/agents/) |
@@ -68,13 +68,13 @@ Everything goes through one entry point: `npm run heldout -- <command>`. `npm ru
 | Command | Purpose |
 | --- | --- |
 | `init`, `add-aut`, `doctor`, `status [KEY]` | set up (and update the skill), check the setup, see where each story is and the next step |
-| `secret NAME --generate` | a strong random test password written to `.env`, never shown |
+| `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
+| `accounts --add-existing …` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault) or created by the tests; checked live |
 | `new KEY --from story.md [--attach f] [--ac-from f] [--comment-from f]` | write a story into the mock Jira |
 | `fetch KEY [--aut id]` | story, attachments and comments; binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | feature header and test stubs generated from the contract |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
-| `accounts --from-chain chain.json` · `accounts --check` | save how to make a test user on this app (from the probe you already ran), check it live |
 | `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira Cloud) · TypeScript |
 

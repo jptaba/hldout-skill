@@ -17,6 +17,7 @@ import { describeCounts, discoverApp } from './lib/detect';
 import { createTracker } from './lib/jira';
 import { safeToScrub } from './lib/redact';
 import { checkAccountRecipe, envNamesIn } from './lib/accounts';
+import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './lib/secrets';
 
 type Level = 'ok' | 'warn' | 'fail';
 const results: { level: Level; area: string; msg: string; fix?: string }[] = [];
@@ -109,7 +110,8 @@ main(async () => {
     const files = git.stdout.split('\0').filter(Boolean);
     const read = (f: string) => { try { return fs.statSync(path.join(ROOT, f)).size < 5_000_000 ? fs.readFileSync(path.join(ROOT, f), 'utf8') : ''; } catch { return ''; } };
     const published = files.filter((f) => f.startsWith(`${rel(evalDir)}/`) && f.split('/')[2] === 'requirement').map(read).join('\n');
-    const secrets = Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safeToScrub(v) && !published.includes(v)) as [string, string][];
+    const secrets = [...Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safeToScrub(v) && !published.includes(v)) as [string, string][],
+      ...Object.entries(loadedVaultSecrets()).filter(([, v]) => safeToScrub(v) && !published.includes(v)).map(([ref, v]) => [`${'$'}{vault:${ref}}`, v] as [string, string])];
     const leaks = new Map<string, string[]>();
     if (!secrets.length) return leaks;
     for (const f of files) {
@@ -130,8 +132,23 @@ main(async () => {
     }
     // The accounts recipes' secrets too (seed.account() reads them in every test that makes an account).
     for (const [id, prof] of Object.entries(cfg.auts)) for (const n of envNamesIn(prof.accounts)) if (!process.env[n]) missing.set(n, [...(missing.get(n) ?? []), `auts.${id}.accounts`]);
-    for (const [name, keys] of missing) check('fail', 'secrets', `${name} is referenced by ${[...new Set(keys)].join(', ')} but not set`, `${H} secret ${name} --generate   (accounts the tests create), or add ${name}=… to .env (an existing account)`);
-    if (!missing.size) check('ok', 'secrets', 'every ${env:…} referenced by test data is set');
+    // An existing account's password is typed in (hidden); one for accounts the tests create can be generated.
+    const existingNames = new Set(Object.values(cfg.auts).flatMap((prof) => envNamesIn(prof.accounts?.existing)));
+    for (const [name, keys] of missing) check('fail', 'secrets', `${name} is referenced by ${[...new Set(keys)].join(', ')} but not set`,
+      existingNames.has(name) ? `in a terminal of your own: ${H} secret ${name} --ask   (or set it as an environment / CI variable)` : `${H} secret ${name} --generate   (accounts the tests create), or ${H} secret ${name} --ask (an existing account)`);
+    if (!missing.size) check('ok', 'secrets', 'every ${env:…} referenced by test data and accounts is set');
+
+    // HashiCorp Vault: every ${vault:…} reference in test data and accounts recipes resolves.
+    const testData = fs.existsSync(evalDir) ? fs.readdirSync(evalDir).map((k) => path.join(evalDir, k, 'test-data.json')).filter((f) => fs.existsSync(f)).map((f) => fs.readFileSync(f, 'utf8')) : [];
+    const vaultUsers = [...testData, ...Object.values(cfg.auts).map((prof) => prof.accounts)];
+    const refs = vaultUsers.flatMap(vaultRefsIn);
+    if (refs.length && flags.offline) check('warn', 'vault', `${refs.length} ${'$'}{vault:…} reference(s) not checked (--offline)`);
+    else if (refs.length) {
+      const vs = vaultSettings();
+      const problems = await loadVaultSecrets(vaultUsers);
+      if (problems.length) for (const pr of problems) check('fail', 'vault', pr, !vs.addr ? 'add VAULT_ADDR=https://… to .env' : !vs.tokenSource ? 'run `vault login` once (the token is picked up), or set VAULT_TOKEN, or VAULT_ROLE_ID + VAULT_SECRET_ID for AppRole' : 'check the path and field with: vault kv get <path>');
+      else check('ok', 'vault', `${refs.length} reference(s) read from ${vs.addr}${vs.namespace ? ` (namespace ${vs.namespace})` : ''} with the token from ${vs.tokenSource}`);
+    }
     const leaks = committableLeaks(evalDir);
     for (const [name, files] of leaks) check('fail', 'secrets', `the value of ${name} is in ${files.length} file(s) git would commit: ${files.slice(0, 4).join(', ')}${files.length > 4 ? ', …' : ''}`, `replace it with \${env:${name}} or a made-up value; if it was already pushed, change the secret`);
     if (!leaks.size) check('ok', 'secrets', 'no .env secret value in files git would commit');

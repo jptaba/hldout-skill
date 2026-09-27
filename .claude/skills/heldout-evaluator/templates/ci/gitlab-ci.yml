@@ -7,7 +7,9 @@
 #
 # Start it from Build → Pipelines → Run pipeline with the variable HELDOUT_KEY=ABC-123 (optionally
 # AUT_BASE_URL to point at another environment), or from a schedule or pipeline trigger that sets HELDOUT_KEY.
-# Secrets referenced from evaluations/<KEY>/test-data.json as ${env:NAME}: add them as masked CI/CD variables.
+# Secrets: every ${env:NAME} in test-data.json or the profile's accounts is a masked CI/CD variable of that name
+# (they win over .env). For ${vault:path#field} references, give the job VAULT_ADDR and a token: VAULT_TOKEN (e.g. from
+# GitLab's id_tokens + Vault JWT login), or VAULT_ROLE_ID + VAULT_SECRET_ID for AppRole; `heldout run` reads Vault itself.
 
 heldout:
   image: node:22-bookworm

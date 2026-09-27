@@ -9,8 +9,8 @@
  *                attached to the report as `api-exchange NN …` (secrets redacted) — triage and the
  *                verdict use it as evidence.
  *  - `unique()`: collision-free values for shared/sandbox AUTs.
- *  - `seed.account()` / `signIn()`: a test account made by the AUT profile's `accounts` recipe (created, signed in over
- *                the API, deleted after the test) and the UI sign-in for it — no per-story seeding code.
+ *  - `seed.account()` / `signIn()`: a test account from the AUT profile's `accounts` recipe (created by the test and
+ *                deleted if the app allows it, or one of the existing accounts) and the UI sign-in for it.
  *
  * Assertion convention: every assertion that encodes a requirement carries a message tagged
  * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics.
@@ -65,11 +65,19 @@ export interface Api {
   delete<T = unknown>(urlPath: string, options?: ApiCallOptions): Promise<ApiResponse<T>>;
 }
 
+/** Vault values `heldout run` read before the tests started (never written to disk). */
+const vaultValues = (): Record<string, string> => { try { return JSON.parse(process.env.HELDOUT_VAULT_SECRETS ?? '{}') as Record<string, string>; } catch { return {}; } };
+
+/** ${env:NAME} (.env or the environment) and ${vault:path#field} (HashiCorp Vault, read by `heldout run`). */
 function resolveEnv(value: Json): Json {
   if (typeof value === 'string') {
     return value.replace(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, name: string) => {
       const v = process.env[name];
-      if (v === undefined) throw new Error(`test-data.json references \${env:${name}} but it is not set (.env)`);
+      if (v === undefined) throw new Error(`\${env:${name}} is not set (.env or the environment)`);
+      return v;
+    }).replace(/\$\{vault:([^}#]+)#([^}]+)\}/g, (_, p: string, f: string) => {
+      const v = vaultValues()[`${p.trim()}#${f.trim()}`];
+      if (v === undefined) throw new Error(`\${vault:${p}#${f}} was not read — start the tests with "heldout run", which reads Vault first`);
       return v;
     });
   }
@@ -129,8 +137,9 @@ export interface Seed {
   /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). */
   track<T>(label: string, created: T, cleanup: (created: T) => Promise<unknown>): T;
   /**
-   * A test account made by the AUT profile's `accounts` recipe: created (unique user name), signed in over the API
-   * when the recipe has a `token` call, and deleted after the test. A failure is BLOCKED, like any precondition.
+   * A test account from the AUT profile's `accounts` recipe, signed in over the API when the recipe has a `token` call.
+   * Created (unique user name, deleted after the test when the recipe has `delete`), or one of the `existing` accounts:
+   * each parallel worker gets its own share, and each call in a test the next one (never deleted). A failure is BLOCKED.
    */
   account(label?: string, options?: { username?: string }): Promise<Account>;
 }
@@ -145,8 +154,9 @@ export interface Account {
 
 interface RecipeCall { method: string; path: string; body?: Json; form?: Record<string, string> }
 interface AccountRecipe {
-  password: string; username?: string; authHeader?: string;
-  create: RecipeCall & { id: string }; token?: RecipeCall & { token: string }; delete?: RecipeCall;
+  password?: string; username?: string; authHeader?: string;
+  create?: RecipeCall & { id: string }; existing?: { username: string; password: string; id?: string }[];
+  token?: RecipeCall & { token: string; id?: string }; delete?: RecipeCall;
   signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
 }
 const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
@@ -334,6 +344,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
     void api;
     const ledger: SeedRecord[] = [];
     const cleanups: { rec: SeedRecord; run: () => Promise<unknown> }[] = [];
+    let accountsTaken = 0; // existing accounts handed out in this test
     const tag = `hx${Date.now().toString(36).slice(-5)}${testInfo.workerIndex}${testInfo.repeatEachIndex}`;
     /** Run a precondition in the [seed] phase with ledger + BLOCKED semantics. */
     const pre = async <T,>(rec: SeedRecord, run: () => Promise<T>): Promise<T> => {
@@ -390,34 +401,53 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       },
       async account(label = 'account', options = {}): Promise<Account> {
         const r = accountRecipe();
-        const vars: Record<string, string | undefined> = { uid: uniqueId('').replace(/^-/, ''), password: r ? String(resolveEnv(r.password)) : undefined };
+        const vars: Record<string, string | undefined> = { uid: uniqueId('').replace(/^-/, '') };
         const send = async (c: RecipeCall, token?: string) => api.call(c.method, String(fillRecipe(c.path, { ...vars, token })), {
           ...(c.body !== undefined ? { data: fillRecipe(c.body, { ...vars, token }) } : {}),
           ...(c.form ? { form: fillRecipe(c.form, { ...vars, token }) as Record<string, string> } : {}),
           ...(token ? { headers: authHeader(r!, token) } : {}),
         });
         const account = {} as Account;
+        const ready = async () => {
+          Object.assign(account, {
+            id: vars.id, username: vars.username, password: vars.password!, headers: {},
+            async refresh() {
+              if (!r?.token) return;
+              const t = await send(r.token);
+              const token = dig(t.body, r.token.token);
+              if (typeof token !== 'string' || !token) throw new Error(`${r.token.method} ${r.token.path} → ${t.status}, but the response has no "${r.token.token}"${t.status === 400 || t.status === 401 ? ' (wrong user name or password?)' : ''}`);
+              account.token = token;
+              account.headers = authHeader(r, token);
+              if (!account.id && r.token.id) { const id = dig(t.body, r.token.id); if (id !== undefined && id !== null) account.id = String(id); }
+            },
+          });
+          await account.refresh();
+          return account;
+        };
+        if (r && !r.create) {
+          // Existing accounts: this worker's share of the list, one per call within a test; never created or deleted.
+          return seedApi.create(label, async () => {
+            const pool = r.existing ?? [];
+            const workers = Math.max(1, testInfo.config.workers);
+            const mine = pool.filter((_, i) => i % workers === testInfo.parallelIndex);
+            const a = mine[accountsTaken++];
+            if (!a) throw new Error(`this test needs ${accountsTaken} account(s), but worker ${testInfo.parallelIndex + 1} of ${workers} has ${mine.length} of the ${pool.length} existing account(s) — add accounts to the profile's accounts.existing (heldout accounts --add-existing …) or run fewer workers`);
+            vars.username = String(resolveEnv(a.username));
+            vars.password = String(resolveEnv(a.password));
+            vars.id = a.id ? String(resolveEnv(a.id)) : undefined;
+            return ready();
+          });
+        }
         return seedApi.create(label, async () => {
-          if (!r) throw new Error(NO_RECIPE);
+          if (!r?.create) throw new Error(NO_RECIPE);
+          vars.password = String(resolveEnv(r.password ?? ''));
           vars.username = options.username ?? String(fillRecipe(r.username ?? 'qa-${uid}', vars));
           const res = await send(r.create);
           if (!res.ok) throw new Error(`${r.create.method} ${r.create.path} → ${res.status} ${res.text.slice(0, 200)}`);
           const id = dig(res.body, r.create.id);
           if (id === undefined || id === null || id === '') throw new Error(`${r.create.method} ${r.create.path} → ${res.status}, but the response has no "${r.create.id}"`);
           vars.id = String(id);
-          Object.assign(account, {
-            id: vars.id, username: vars.username, password: vars.password!, headers: {},
-            async refresh() {
-              if (!r.token) return;
-              const t = await send(r.token);
-              const token = dig(t.body, r.token.token);
-              if (typeof token !== 'string' || !token) throw new Error(`${r.token.method} ${r.token.path} → ${t.status}, but the response has no "${r.token.token}"`);
-              account.token = token;
-              account.headers = authHeader(r, token);
-            },
-          });
-          await account.refresh();
-          return account;
+          return ready();
         }, r?.delete ? async () => {
           let res = await send(r.delete!, account.token);
           // A sign-in during the test (UI or API) may have revoked the token: take a fresh one and retry once.

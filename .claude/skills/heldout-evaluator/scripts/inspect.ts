@@ -10,13 +10,14 @@
  *
  * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait, target?, value?, url? }
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
- *   value, target, url = support ${env:NAME} (secrets) and ${var:name} (from --var name=value, per-run data)
+ *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
  *   A "wait" step with a target waits until its first match is in the DOM.
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './lib/config';
 import { redactSnapshot } from './lib/redact';
+import { expandSecrets, requireVaultSecrets } from './lib/secrets';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -25,8 +26,8 @@ interface Candidate {
 }
 
 const vars: Record<string, string> = {};
-/** ${env:NAME} from .env (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
-const env = (s = '') => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => process.env[n] ?? '').replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+/** ${env:NAME} (.env or the environment) and ${vault:path#field} (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
+const env = (s = '') => expandSecrets(s).replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
 
 function locate(page: Page, expr: string): Locator {
   // Deliberately evaluates a locator expression authored by the evaluator (local tool, trusted input).
@@ -62,6 +63,7 @@ main(async () => {
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
   const stepsFile = flagStr(flags, 'steps');
+  await requireVaultSecrets([process.argv.slice(2).join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
   const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8'))
     : flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) : [];
 

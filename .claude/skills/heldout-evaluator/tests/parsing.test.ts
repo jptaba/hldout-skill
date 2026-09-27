@@ -381,6 +381,6 @@ describe('accounts recipe from an api-probe chain', () => {
   });
   it('refuses a chain that never saves the new id', async () => {
     const { recipeFromChain } = await import('../scripts/lib/accounts');
-    assert.throws(() => recipeFromChain({ steps: [{ method: 'POST', path: 'users', json: { p: '${env:X}' } }] }), /saves "id"/);
+    assert.throws(() => recipeFromChain({ steps: [{ method: 'POST', path: 'users', json: { p: '${env:X}' } }] }), /a step saving "id"/);
   });
 });

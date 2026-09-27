@@ -43,7 +43,7 @@ most: where each scenario's data comes from, and where each journey starts.
 | Reference data | product catalogue, country list | Read-only; assert against the requirement, don't create |
 | Per-test entity | a booking, an enquiry, a cart line | `seed.create` in the Given (+ cleanup), or `seed.track` when the When-step creates it |
 | "Must not exist" id | unknown booking id for a 404 test | Seed it: create, then delete, and use that id. Never guess ids on shared environments |
-| Test account | "each run creates its own user" | `seed.account()` from the profile's accounts recipe (§4a): created, signed in over the API, deleted after the test |
+| Test account | "a signed-in customer" | `seed.account()` from the profile's accounts (§4a): created per test, or one of the existing accounts (.env, CI variables, Vault) |
 | Signed-in state | "Given I am signed in" | `signIn(page, account)` from the recipe; API login + cookie/`storageState` when the UI isn't needed |
 | Expensive shared setup | a merchant account with configuration | Worker-scoped fixture (Playwright `{ scope: 'worker' }`), created once per worker, tagged, cleaned at worker end |
 
@@ -70,21 +70,48 @@ test('SCN-004: …', { tag: ['@AC-4', '@type:functional', '@layer:api'] }, async
 seed.track('booking', res.body.bookingid, (id) => api.delete(`/booking/${id}`, { headers: auth(data) }));
 ```
 
-## 4a. Test accounts: write the recipe once per application
+## 4a. Test accounts: set up once per application
 
-Most stories need a user of their own. Describe **how** to make one on this application once, in the AUT profile
-(`heldout.config.json` → `auts.<id>.accounts`). It's mechanics, so it's found while hardening the first story that
-needs accounts (`heldout api-probe --chain` for the calls, `heldout inspect` for the sign-in form). Every later story on
-the same application then needs no seeding code for users:
+Most stories need a signed-in user. How tests get one is written once, in the AUT profile
+(`heldout.config.json` → `auts.<id>.accounts`), and `seed.account()` / `signIn()` use it in every story on that
+application. Pick the way that fits the application and your permissions:
+
+| The application… | Accounts | Set up |
+| --- | --- | --- |
+| lets tests create and delete users | created per test, deleted afterwards | saved while hardening the first story: `heldout accounts --key KEY --from-chain <probe chain>` |
+| lets tests create users, but not delete them | created per test, kept (tagged `qa-…` by name) | the same, from a chain without a DELETE step |
+| can't create users, or you may not | **existing** accounts someone already made | `heldout accounts --add-existing …`, once per account |
+
+**Existing accounts.** The user name may be literal. A password is always a reference, because the config file is
+committed:
+
+```bash
+# password in .env (git-ignored) or a CI variable
+npm run heldout -- accounts --aut <profile> --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1
+npm run heldout -- secret APP_PASSWORD_1 --ask          # the user types it at a hidden prompt, in their own terminal
+
+# both in HashiCorp Vault (VAULT_ADDR in .env; `vault login` once, or VAULT_TOKEN, or AppRole)
+npm run heldout -- accounts --aut <profile> --add-existing --username-vault secret/qa/app#user1 --password-vault secret/qa/app#password1
+```
+
+Add as many as the suite needs. Each parallel worker gets its own share, so no two tests use the same account at
+the same time, and `heldout run` never starts more workers than there are accounts. A test that calls `seed.account()`
+twice (a second user) gets the next account of its share. Existing accounts are never deleted, and data a test adds
+to them stays unless the test removes it: undo it with `seed.track(…)`, or reset the account in a `seed.step`.
+
+**Signing in.** `token` signs an account in over the API (`token` is where the answer carries it; `id`, optionally,
+where it carries the account id). `signIn` is the UI sign-in. Both come from what hardening already probed: an
+`api-probe --chain` whose sign-in step saves `token` (`heldout accounts --from-chain`), and the `inspect` steps of the
+login form (`--sign-in-json … --sign-in-path /login --sign-in-done url:/profile`).
 
 ```json
 "accounts": {
-  "password": "${env:APP_USER_PASSWORD}",
-  "username": "qa-${uid}",
-  "create": { "method": "POST", "path": "/api/users", "body": { "userName": "${username}", "password": "${password}" }, "id": "userID" },
-  "token":  { "method": "POST", "path": "/api/token", "body": { "userName": "${username}", "password": "${password}" }, "token": "token" },
+  "existing": [
+    { "username": "qa.user1@example.com", "password": "${env:APP_PASSWORD_1}" },
+    { "username": "${vault:secret/qa/app#user2}", "password": "${vault:secret/qa/app#password2}" }
+  ],
+  "token":  { "method": "POST", "path": "/api/login", "body": { "userName": "${username}", "password": "${password}" }, "token": "token", "id": "userId" },
   "authHeader": "Authorization: Bearer ${token}",
-  "delete": { "method": "DELETE", "path": "/api/users/${id}" },
   "signIn": { "path": "/login", "steps": [
     { "fill": "getByLabel('User name')", "value": "${username}" },
     { "fill": "getByLabel('Password')", "value": "${password}" },
@@ -92,18 +119,24 @@ the same application then needs no seeding code for users:
 }
 ```
 
-`id` and `token` are dotted paths into the response body. Strings may use `${username}`, `${password}`, `${id}`,
-`${token}`, `${uid}` and `${env:NAME}`. Only `password` and `create` are required. `heldout doctor` runs the recipe live
-(create → token → delete), and `heldout run` scrubs its password from the run artifacts like any other secret.
+For accounts the tests create, the recipe instead has `password` (a reference), an optional `username` template
+(`${uid}` is unique), `create` (`id` is where the answer carries the new account's id) and, if the application
+allows it, `delete`. Strings may use `${username}`, `${password}`, `${id}`, `${token}`, `${uid}`, `${env:NAME}` and
+`${vault:path#field}`.
+
+`heldout accounts --check` and `heldout doctor` check the recipe live. They sign each existing account in, or
+create → sign in → delete. With no `delete`, nothing is created unless `--check --create`. `heldout run` reads
+Vault once before the tests, hands the values to the test process in memory only, and scrubs every account secret
+from the run artifacts.
 
 ```ts
-const me = await seed.account();                         // BLOCKED if it fails; deleted after the test
+const me = await seed.account();                         // BLOCKED if it fails
 await api.get(`/api/users/${me.id}`, { headers: me.headers });
 await signIn(page, me);                                  // UI sign-in, as a precondition ([SEED] … on failure)
 await me.refresh();                                      // new API token, if the UI sign-in revoked the old one
 ```
 
-The cleanup reuses the account's token and takes a fresh one only when the delete answers 401 or 403. Any cleanup
+A created account's cleanup reuses its token and takes a fresh one only when the delete answers 401 or 403. A cleanup
 that returns an HTTP error answer is recorded as failed, and `heldout run` lists it as data left behind. When the
 account itself is the subject of the story (registration, sign-in rules), call the endpoints in the test instead.
 

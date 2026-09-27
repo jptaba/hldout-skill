@@ -22,6 +22,7 @@ import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
 import { scrubDir, secretValuesFor } from './lib/redact';
 import { failedTests } from './lib/triage-model';
 import { envNamesIn } from './lib/accounts';
+import { loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
@@ -85,6 +86,12 @@ main(async () => {
     console.log('');
   }
 
+  // Secrets from HashiCorp Vault (${vault:…} in test-data.json or the accounts recipe): read once, before any run
+  // folder exists, and handed to the test process in memory only.
+  const testDataRaw = fs.existsSync(p.testData) ? JSON.parse(fs.readFileSync(p.testData, 'utf8')) as unknown : {};
+  await requireVaultSecrets([testDataRaw, cfg.aut.accounts]);
+  const vaultValues = loadedVaultSecrets();
+
   const runs = listRuns(p.runs);
   const next = runs.length ? Number(runs.at(-1)!.split('-')[0]) + 1 : 1;
   const runName = `${String(next).padStart(2, '0')}-${label}`;
@@ -95,11 +102,13 @@ main(async () => {
   const grep = flagStr(flags, 'grep');
   if (grep) args.push('--grep', grep);
   // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
-  const cap = cfg.aut.maxWorkers;
+  // Existing accounts are shared out among workers, so there are never more workers than accounts.
+  const pool = cfg.aut.accounts && !cfg.aut.accounts.create ? cfg.aut.accounts.existing?.length : undefined;
+  const cap = [cfg.aut.maxWorkers, pool].filter((x): x is number => Boolean(x)).reduce<number | undefined>((a, b) => (a === undefined ? b : Math.min(a, b)), undefined);
   const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
   const workers = cap ? Math.min(asked ?? cap, cap) : asked;
   if (workers) args.push('--workers', String(workers));
-  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap} by the "${cfg.autId}" profile's maxWorkers)`);
+  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap}: ${cap === pool ? `${pool} existing test account(s) in the "${cfg.autId}" profile` : `the "${cfg.autId}" profile's maxWorkers`})`);
   // Stability check during hardening: run each test N times to expose races that one green run hides.
   if (flagStr(flags, 'repeat-each')) args.push('--repeat-each', flagStr(flags, 'repeat-each')!);
 
@@ -108,6 +117,7 @@ main(async () => {
     ...autEnv(cfg),
     HELDOUT_KEY: key,
     HELDOUT_RUN_DIR: runDir,
+    ...(Object.keys(vaultValues).length ? { HELDOUT_VAULT_SECRETS: JSON.stringify(vaultValues) } : {}),
     ...(flags.capture ? { HELDOUT_CAPTURE: '1' } : {}),
     ...(flags.headed ? { HELDOUT_HEADED: '1' } : {}),
     ...(flagStr(flags, 'retries') !== undefined ? { HELDOUT_RETRIES: flagStr(flags, 'retries') } : {}),
@@ -124,7 +134,7 @@ main(async () => {
   const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: quiet ? ['inherit', 'pipe', 'pipe'] : 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
   if (quiet) writeFile(path.join(runDir, 'console.log'), `${res.stdout ?? ''}${res.stderr ?? ''}`);
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
-  const secrets = secretValuesFor(p.testData, process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean));
+  const secrets = secretValuesFor(p.testData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(vaultValues)].filter(Boolean));
   const scrubbed = scrubDir(runDir, secrets.values);
   if (scrubbed.files) console.log(`
   🔒 scrubbed secret values from ${scrubbed.files} run artifact(s)`);

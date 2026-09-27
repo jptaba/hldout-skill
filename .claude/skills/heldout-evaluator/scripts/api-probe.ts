@@ -20,18 +20,23 @@
 import fs from 'node:fs';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './lib/config';
 import { redact, redactHeaders, shapeOf } from './lib/redact';
+import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 
-const env = (s: string) => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => {
-  if (process.env[n] === undefined) throw new Error(`\${env:${n}} is not set (.env)`);
-  return process.env[n]!;
-});
+/** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
+const env = (s: string) => {
+  const out = expandSecrets(s);
+  const missing = out.match(/\$\{(env|vault):[^}]+\}/)?.[0];
+  if (missing) throw new Error(`${missing} is not set (.env, the environment or Vault)`);
+  return out;
+};
 
-/** A path with ${env:NAME}: the value is URL-encoded into the request, and shown as *** in every report. */
-const envPath = (s: string) => s.replace(/\$\{env:(\w+)\}/g, (m) => encodeURIComponent(env(m)));
-const maskEnv = (s: string) => s.replace(/\$\{env:\w+\}/g, '***');
-/** Last line of defence: the values of every ${env:NAME} the input mentions never reach a report, raw or encoded. */
+/** A path with a secret reference: the value is URL-encoded into the request, and shown as *** in every report. */
+const envPath = (s: string) => s.replace(/\$\{(?:env|vault):[^}]+\}/g, (m) => encodeURIComponent(env(m)));
+const maskEnv = (s: string) => s.replace(/\$\{(?:env|vault):[^}]+\}/g, '***');
+/** Last line of defence: the value of every secret reference the input mentions never reaches a report, raw or encoded. */
 function scrubEnv(report: string, input: string): string {
-  const values = [...new Set([...input.matchAll(/\$\{env:(\w+)\}/g)].map((m) => process.env[m[1]]).filter((v): v is string => Boolean(v && v.length >= 3)))];
+  const values = [...new Set([...[...input.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
+    ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
   return values.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), report);
 }
 
@@ -133,6 +138,7 @@ main(async () => {
   const { _, flags } = parseArgs();
   const bodyLimit = Number(flagStr(flags, 'body-limit') ?? 4000);
   const chainFile = flagStr(flags, 'chain');
+  await requireVaultSecrets([process.argv.slice(2).join(' '), chainFile && fs.existsSync(chainFile) ? fs.readFileSync(chainFile, 'utf8') : '']);
   if (chainFile) {
     const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
     await runChain(chainFile, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, flagStr(flags, 'out'));

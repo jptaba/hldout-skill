@@ -252,5 +252,9 @@ main(async () => {
   if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');
   console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor          checks config, AUT reachability, Jira, browser`);
   console.log(`  ${needInstall && !flags.install ? '3' : '2'}. Ask Claude: "Run a held-out evaluation of ABC-123"   (no Jira? npm run heldout -- new ABC-1 --from story.md)`);
+  console.log('  Test users, when stories need them (Claude asks when it gets there):');
+  console.log('     accounts that already exist  npm run heldout -- accounts --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1');
+  console.log('                                  (password in .env: npm run heldout -- secret APP_PASSWORD_1 --ask; or in Vault: --password-vault secret/qa/app#password)');
+  console.log('     accounts the tests create    saved while hardening the first story that needs them (npm run heldout -- accounts --from-chain …)');
   console.log('  Restart Claude Code once so it loads .mcp.json (Playwright MCP, browser tier 2).');
 });
