@@ -10,6 +10,8 @@ export interface VerdictInputs {
   flaky: number;
   uncoveredAcs: number;
   clarifications: number;
+  /** Failures whose expectation rested only on an assumed oracle value (@assumes:G<n>): questions, not defects. */
+  contradictedAssumptions?: number;
   openQuestions: number;
 }
 
@@ -27,9 +29,9 @@ export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: str
   if (i.skipped) {
     return { verdict: 'INCONCLUSIVE', reason: `${i.skipped} scenario(s) did not run (skipped), so the requirement is not fully evaluated.` };
   }
-  if (i.flaky || i.uncoveredAcs || i.clarifications || i.openQuestions) {
-    const why = [i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} scenario(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`].filter(Boolean).join(', ');
-    return { verdict: 'PASS_WITH_WARNINGS', reason: `All scenarios passed, with warnings: ${why}.` };
+  if (i.flaky || i.uncoveredAcs || i.clarifications || i.openQuestions || i.contradictedAssumptions) {
+    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} assumption(s) the application contradicts (ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} scenario(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`].filter(Boolean).join(', ');
+    return { verdict: 'PASS_WITH_WARNINGS', reason: `${i.contradictedAssumptions ? 'Every requirement-backed scenario passed' : 'All scenarios passed'}, with warnings: ${why}.` };
   }
   return { verdict: 'PASS', reason: 'Every scenario passed and every acceptance criterion is covered.' };
 }

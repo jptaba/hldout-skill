@@ -2,7 +2,7 @@
  * Phase 5 — Execute the held-out suite for one story against its AUT profile.
  *
  *   heldout run <KEY> [--label eval] [--grep SCN-003] [--capture]
- *       [--retries N] [--workers N] [--repeat-each N] [--headed] [--aut <profile>] [--skip-preflight] [--allow-degraded]
+ *       [--retries N] [--workers N] [--repeat-each N] [--headed] [--aut <profile>] [--skip-preflight] [--allow-degraded] [--wait-healthy <seconds>]
  *   --repeat-each N: stability check during hardening (exposes races that a single green run hides)
  *
  * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden*)
@@ -14,6 +14,7 @@
  * Exit code is 0 whenever a results.json was produced — failing tests are data for triage, not a crash.
  */
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { assertIssueKey, autEnv, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
@@ -21,6 +22,36 @@ import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
 import { scrubDir, secretValuesFor } from './lib/redact';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
+
+/** "<test title>: <label> (<created>)" for every seed record whose cleanup failed, from the seed-ledger attachments. */
+function failedCleanups(results: unknown): string[] {
+  const out: string[] = [];
+  const walk = (v: unknown, title: string): void => {
+    if (Array.isArray(v)) { v.forEach((x) => walk(x, title)); return; }
+    if (!v || typeof v !== 'object') return;
+    const o = v as Record<string, unknown>;
+    const t = typeof o.title === 'string' && Array.isArray(o.tests) ? o.title : title;
+    if (o.name === 'seed-ledger' && typeof o.body === 'string') {
+      try {
+        const ledger = JSON.parse(Buffer.from(o.body, 'base64').toString('utf8')) as { records?: { label: string; cleanup?: string; created?: unknown }[] };
+        for (const r of ledger.records ?? []) if (r.cleanup === 'failed') out.push(`${t}: ${r.label} (${JSON.stringify(r.created ?? null).slice(0, 120)})`);
+      } catch { /* not a ledger */ }
+    }
+    for (const x of Object.values(o)) walk(x, t);
+  };
+  walk(results, '');
+  return [...new Set(out)];
+}
+
+/** Hash of the skill's scripts and the test support code, so two runs can be told apart if the skill changed between them. */
+function skillFingerprint(): string {
+  const files = fs.readdirSync(import.meta.dirname, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.ts')).sort()
+    .map((f) => path.join(import.meta.dirname, f));
+  const support = path.resolve('heldout-support', 'fixtures.ts');
+  const h = createHash('sha256');
+  for (const f of [...files, ...(fs.existsSync(support) ? [support] : [])]) h.update(fs.readFileSync(f));
+  return h.digest('hex').slice(0, 16);
+}
 
 main(async () => {
   const { _, flags } = parseArgs();
@@ -36,6 +67,13 @@ main(async () => {
     const findings = lintEvaluation(cfg, key, { allowUnhardened: label.startsWith('harden') });
     printFindings(findings);
     health = await healthcheck(cfg);
+    // --wait-healthy S: a shared sandbox restarting or rate-limiting us usually recovers within minutes; poll, don't fail.
+    const waitUntil = Date.now() + Number(flagStr(flags, 'wait-healthy') ?? 0) * 1000;
+    while (health.some((h) => !h.ok) && Date.now() < waitUntil) {
+      console.log(`  … AUT not healthy (${health.filter((h) => !h.ok).map((h) => h.status ?? h.error).join(', ')}), checking again in 30 s`);
+      await new Promise((r) => setTimeout(r, 30_000));
+      health = await healthcheck(cfg);
+    }
     for (const h of health) console.log(`  ${h.ok && !h.slow ? '✔' : h.ok ? '⚠' : '✖'} health ${h.url} → ${h.status ?? h.error} (slowest ${h.ms} ms${h.samples ? ` of ${h.samples.join('/')}` : ''})`);
     if (findings.some((f) => f.level === 'error')) throw new Error('Traceability lint failed — fix the errors above (or --skip-preflight to override).');
     if (health.some((h) => !h.ok)) throw new Error('ENVIRONMENT: AUT healthcheck failed — not running tests against an unavailable AUT.');
@@ -54,7 +92,12 @@ main(async () => {
   const args = ['playwright', 'test', rel(p.tests) + '/'];
   const grep = flagStr(flags, 'grep');
   if (grep) args.push('--grep', grep);
-  if (flagStr(flags, 'workers')) args.push('--workers', flagStr(flags, 'workers')!);
+  // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
+  const cap = cfg.aut.maxWorkers;
+  const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
+  const workers = cap ? Math.min(asked ?? cap, cap) : asked;
+  if (workers) args.push('--workers', String(workers));
+  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap} by the "${cfg.autId}" profile's maxWorkers)`);
   // Stability check during hardening: run each test N times to expose races that one green run hides.
   if (flagStr(flags, 'repeat-each')) args.push('--repeat-each', flagStr(flags, 'repeat-each')!);
 
@@ -70,7 +113,10 @@ main(async () => {
 
   const startedAt = new Date().toISOString();
   console.log(`▶ ${key} run ${runName} against ${cfg.aut.name} (UI ${cfg.aut.baseURL}${cfg.aut.apiBaseURL !== cfg.aut.baseURL ? `, API ${cfg.aut.apiBaseURL}` : ''})\n  npx ${args.join(' ')}\n`);
-  const res = spawnSync('npx', args, { stdio: 'inherit', env, shell: process.platform === 'win32' });
+  // Playwright's CLI straight through node, no shell: arguments such as --grep "SCN-01|SCN-00[89]" reach it intact.
+  const cli = path.resolve('node_modules', '@playwright', 'test', 'cli.js');
+  if (!fs.existsSync(cli)) throw new Error('@playwright/test is not installed in this project — run: npm run heldout -- init --install (or npm i -D @playwright/test)');
+  const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: 'inherit', env });
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
   const secrets = secretValuesFor(p.testData);
   const scrubbed = scrubDir(runDir, secrets.values);
@@ -89,6 +135,7 @@ main(async () => {
     command: `npx ${args.join(' ')}`, grep: grep ?? null, capture: Boolean(flags.capture),
     preflight: flags['skip-preflight'] ? 'skipped' : { health },
     postflight: { health: postHealth },
+    skill: skillFingerprint(),
     exitCode: res.status, stats,
   };
   writeFile(path.join(runDir, 'run-meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
@@ -97,5 +144,12 @@ main(async () => {
   console.log(`\n■ ${runName}: passed ${stats!.expected}, failed ${stats!.unexpected}, flaky ${stats!.flaky}, skipped ${stats!.skipped}`);
   console.log(`  run dir: ${rel(runDir)}`);
   console.log(`  html:    npx playwright show-report ${rel(path.join(runDir, 'html'))}`);
+  // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
+  const leftovers = failedCleanups(readJson<unknown>(resultsFile));
+  if (leftovers.length) {
+    console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
+    for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);
+    console.log('  Remove it (api-probe --chain) and fix the cleanup: re-authenticate inside it rather than reuse a token the test may have revoked.');
+  }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
 });

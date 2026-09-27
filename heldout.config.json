@@ -101,7 +101,49 @@
         "/",
         "api:/api/productsList"
       ],
-      "notes": "UI + form-encoded API under /api. Third-party ads and consent overlays on the UI."
+      "notes": "UI + form-encoded API under /api.",
+      "blockHosts": [
+        "googlesyndication.com",
+        "doubleclick.net",
+        "googleadservices.com",
+        "google-analytics.com",
+        "googletagmanager.com",
+        "fundingchoicesmessages.google.com",
+        "adservice.google.com"
+      ]
+    },
+    "parabank": {
+      "name": "ParaBank (Parasoft demo bank, UI + REST)",
+      "baseURL": "https://parabank.parasoft.com/parabank/",
+      "apiBaseURL": "https://parabank.parasoft.com/parabank/services/bank/",
+      "testIdAttribute": "data-testid",
+      "healthcheck": [
+        "/index.htm",
+        "api:/openapi.yaml"
+      ],
+      "notes": "Shared demo DB that anyone can reset; register your own customer per test run. Behind Cloudflare: bursts of traffic are rate limited (Error 1015) or challenged, so tests run one worker at a time, at least 12 s apart.",
+      "maxWorkers": 1,
+      "minTestIntervalMs": 12000
+    },
+    "demoqa": {
+      "name": "DemoQA Book Store (React UI + JSON API)",
+      "baseURL": "https://demoqa.com",
+      "apiBaseURL": "https://demoqa.com",
+      "testIdAttribute": "id",
+      "healthcheck": [
+        "/books",
+        "api:/BookStore/v1/Books"
+      ],
+      "notes": "Users can be deleted via the API.",
+      "blockHosts": [
+        "googlesyndication.com",
+        "doubleclick.net",
+        "googleadservices.com",
+        "google-analytics.com",
+        "googletagmanager.com",
+        "fundingchoicesmessages.google.com",
+        "adservice.google.com"
+      ]
     }
   },
   "jira": {

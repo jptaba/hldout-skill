@@ -40,12 +40,20 @@ Evidence comes from the failure-time ARIA snapshot, the `[REQ …]` assertion me
 | Regex expectation matches once `\b`/anchors are relaxed | SCRIPT_DEFECT (over-strict implementation → amend) |
 | `[REQ]` failed on a located element / declared endpoint with a different value | APPLICATION_DEFECT (high) |
 
+**Scenarios tagged `@assumes:G<n>`** (the expected value is an assumption, not the requirement): triage them like any other
+scenario. If the application really behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it
+under "assumptions the application contradicts" (a question for the owner), not as a defect.
+
 ## Confirming each failure (mandatory)
 
 1. Read `triage.md`: failing step, expected vs received, API exchanges, screenshot, snapshot, trace
    (`npx playwright show-trace …`).
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json`;
-   replay API requests with `heldout api-probe`. Save the output under `runs/NN/confirm/`.
+   replay API requests with `heldout api-probe`. Save the output under `runs/NN/confirm/`. For a leak finding,
+   a chain step checks it without printing the secret: `"show": ["token|jwt"]` decodes a token, and
+   `"notContains": [{"field": "token", "decode": "jwt", "value": "${env:PASSWORD}"}]` reports which part holds it.
+   Write the test's leak assertion the same way, as a list, e.g. `expect(partsContaining).toEqual([])`, so the
+   verdict reads `[] → ["payload"]` rather than `0 → 1`.
 3. Decide:
 
 ```

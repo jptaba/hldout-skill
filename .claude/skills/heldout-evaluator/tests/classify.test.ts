@@ -17,6 +17,10 @@ describe('parseError', () => {
     assert.equal(e.received, '"Epic sadface: Sorry"');
     assert.equal(e.locator, "getByRole('alert')");
   });
+  it('takes the [REQ] tag from the failing assertion only, not from the code frame around it', () => {
+    const e = parseError(pw(['Error: a confirmation was shown (precondition)', '', '  41 |   expect(dialogs).toHaveLength(1);', '> 42 |   await expect(msg, "[REQ AC-8] no success message").toHaveCount(0);']));
+    assert.equal(e.reqTag, undefined);
+  });
   it('strips ANSI colour codes', () => {
     assert.equal(parseError('\u001b[31mError: boom\u001b[39m').headline, 'boom');
   });
@@ -100,6 +104,9 @@ describe('relevantExchange', () => {
   const seq = [exchange('POST', 'https://x.test/api/booking', 500), exchange('GET', 'https://x.test/api/booking?q=1', 200)];
   it('picks the exchange whose status is the failing received value, not the last one', () => {
     assert.equal(relevantExchange(seq, parseError(pw(['Error: [REQ AC-6] missing → 400', 'Expected: 400', 'Received: 500']))), 0);
+  });
+  it('picks the call the assertion names for a body value', () => {
+    assert.equal(relevantExchange(seq, parseError(pw(['Error: [REQ AC-4] POST /booking returns the balance', 'Expected: 100', 'Received: 0']))), 0);
   });
   it('falls back to the last exchange for non-status assertions', () => {
     assert.equal(relevantExchange(seq, parseError(pw(['Error: [REQ AC-6] not stored', 'Expected: []', 'Received: [1]']))), 1);

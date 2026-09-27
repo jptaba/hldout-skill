@@ -23,7 +23,7 @@ exactly.
 # Source: <KEY> — <story summary>
 # Attachments used: <file> (what it contributed), …
 #
-# Acceptance criteria (verbatim — one line each; this list drives coverage and traceability):
+# Acceptance criteria (each AC's `text` from the contract, one line each; this list drives coverage and traceability):
 # AC-1: <criterion text exactly as written>
 # AC-2: …
 #
@@ -64,7 +64,7 @@ Feature: <story summary>
 
 | Element | Required | Meaning |
 | --- | --- | --- |
-| `# AC-n: …` | yes | Acceptance criteria, verbatim. Uncovered ACs downgrade the verdict |
+| `# AC-n: …` | yes | Acceptance criteria, copied from the contract's `text` (`heldout scaffold` writes them; lint checks they match). Uncovered ACs downgrade the verdict |
 | `@SCN-nnn` | yes | Unique scenario id. Outline rows become tests `SCN-nnn.1 … .n` |
 | `@AC-n` | yes (≥1) | Which criteria the scenario proves |
 | `@type:<t>` | yes (exactly 1) | Test type, from the taxonomy below |
@@ -73,6 +73,8 @@ Feature: <story summary>
 | `@priority:P1..P3` | recommended | P1: core journey / money / security; P3: cosmetic |
 | `# ENDPOINT: METHOD /path/{param}` | for API stories | The declared contract. Triage flags calls to undeclared endpoints as script defects |
 | `# ASSUMPTION:` / `# OPEN-QUESTION:` / `@needs-clarification` | when needed | Surfaced in the verdict |
+| `# OBSERVATION:` | when needed | Something seen during evaluation that the story's goal implies but no AC states (e.g. "the form sends no request"). Listed in the verdict for the owner; it doesn't change the verdict. May be added after the freeze |
+| `@assumes:G<n>` | on every scenario whose expected value comes from an assumed oracle gap, not from the requirement | A confirmed failure there is listed as "an assumption the application contradicts" (a question for the owner, verdict at most PASS_WITH_WARNINGS), never as a defect. Keep requirement-backed checks in separate scenarios so they still count. An assumption that only leaves something unasserted ("no status is asserted") has no expectation to tag: write `# ASSUMPTION: G<n> … (not asserted)` and tag nothing |
 
 ### Test-type taxonomy (`@type:`)
 

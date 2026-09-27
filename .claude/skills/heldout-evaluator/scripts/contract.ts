@@ -58,9 +58,10 @@ main(async () => {
     const contract = skeletonContract(key, p.requirement);
     const binaries = requirementFiles(p.requirement).filter((f) => BINARY.test(f));
     writeFile(packFile, evidencePack(key, p.requirement, binaries));
+    const untranscribed = binaries.filter((b) => !fs.existsSync(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`)));
     if (fs.existsSync(file)) console.log(`= ${rel(file)} exists — not overwritten`);
     else { writeFile(file, `${JSON.stringify(contract, null, 2)}\n`); console.log(`✔ empty contract bound to this requirement revision → ${rel(file)}`); }
-    console.log(`✔ evidence pack → ${rel(packFile)} (${contract.sourcesRead.length} source(s)${binaries.length ? `; ${binaries.length} non-text attachment(s) to transcribe first` : ''})`);
+    console.log(`✔ evidence pack → ${rel(packFile)} (${contract.sourcesRead.length} source(s)${untranscribed.length ? `; ${untranscribed.length} non-text attachment(s) to transcribe first` : binaries.length ? `; ${binaries.length} transcript(s)` : ''})`);
     console.log('\nNext:');
     console.log(`  1. Build the contract from the evidence pack — delegate to the heldout-contract-extractor subagent, or follow ${rel(path.join(SKILL_DIR, 'references', 'requirement-contract.md'))}`);
     console.log(`  2. heldout contract ${key}                  (anchoring, coverage, grounded literals)`);
@@ -98,16 +99,16 @@ main(async () => {
   const all = [...findings, ...reviewFindings];
   console.log(`Requirement contract ${key}: ${c.acceptanceCriteria.length} AC(s), ${c.endpoints.length} endpoint(s), ${c.rules.length} rule(s), ${c.errorModel.length} error case(s), ${c.gaps.length} gap(s), ${c.coverage.length} coverage entr(ies) · hash ${contractHash(c)}`);
   for (const f of all.filter((x) => !listed.has(x.code))) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
-  if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored, fully covered, grounded${review ? ' and independently reviewed' : ''}`);
+  if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored, fully covered, grounded${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : ' (review pending)'}`);
   const questions = openQuestions(c);
   if (questions.length) {
     console.log(`\nQuestions for the user (${questions.length}) — ask with AskUserQuestion; unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
-    for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ')}`);
+    for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);
   }
   const discover = toDiscover(c);
   if (discover.length) {
     console.log(`\nTo discover from the application during hardening (${discover.length}) — record each as discovered-in-aut with evidence:`);
-    for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ')}`);
+    for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);
   }
   if (!review && !findings.some((f) => f.level === 'error')) console.log(`\nNext: independent review — heldout-contract-reviewer subagent (instructions: heldout contract ${key} --review-prompt)`);
   writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));

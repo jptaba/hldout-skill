@@ -5,12 +5,13 @@
  *   heldout inspect [--key KEY | --aut <profile>] [--url login]   (path relative to the AUT base URL, or a full URL)
  *       [--steps steps.json | --steps-json '[{"do":"fill","target":"getByLabel(\'Email\')","value":"a@b.c"}]']
  *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
- *       [--wait-for "<locator>"]   wait for an element before inspecting (SPAs); network idle is always awaited (≤10 s)
- *       [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
+ *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
+ *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
  *
  * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait, target?, value?, url? }
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
- *   value  = supports ${env:NAME}
+ *   value, target, url = support ${env:NAME} (secrets) and ${var:name} (from --var name=value, per-run data)
+ *   A "wait" step with a target waits until its first match is in the DOM.
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
@@ -23,7 +24,9 @@ interface Candidate {
   type: string; visible: boolean; text: string;
 }
 
-const env = (s = '') => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => process.env[n] ?? '');
+const vars: Record<string, string> = {};
+/** ${env:NAME} from .env (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
+const env = (s = '') => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => process.env[n] ?? '').replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
 
 function locate(page: Page, expr: string): Locator {
   // Deliberately evaluates a locator expression authored by the evaluator (local tool, trusted input).
@@ -34,9 +37,9 @@ function locate(page: Page, expr: string): Locator {
 }
 
 async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
-  const t = () => locate(page, s.target ?? '');
+  const t = () => locate(page, env(s.target ?? ''));
   switch (s.do) {
-    case 'goto': await page.goto(autUrl(baseURL, s.url ?? s.value)); break;
+    case 'goto': await page.goto(autUrl(baseURL, env(s.url ?? s.value))); break;
     case 'fill': await t().fill(env(s.value)); break;
     case 'click': await t().click(); break;
     case 'press': await (s.target ? t().press(s.value ?? 'Enter') : page.keyboard.press(s.value ?? 'Enter')); break;
@@ -44,7 +47,8 @@ async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
     case 'check': await t().check(); break;
     case 'uncheck': await t().uncheck(); break;
     case 'hover': await t().hover(); break;
-    case 'wait': await (s.target ? t().waitFor() : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
+    // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
+    case 'wait': await (s.target ? t().first().waitFor({ state: 'attached' }) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
     default: throw new Error(`Unknown step "${s.do}"`);
   }
 }
@@ -53,6 +57,7 @@ const q = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 
 main(async () => {
   const { flags } = parseArgs();
+  for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
@@ -65,6 +70,8 @@ main(async () => {
   const context = await browser.newContext({ baseURL: cfg.aut.baseURL });
   // tsx/esbuild wraps named functions with __name(); functions shipped to page.evaluate need the helper too.
   await context.addInitScript('globalThis.__name = globalThis.__name || ((fn) => fn);');
+  const blocked = (cfg.aut.blockHosts ?? []).map((h) => h.toLowerCase());
+  if (blocked.length) await context.route((u) => blocked.some((h) => u.hostname === h || u.hostname.endsWith(`.${h}`)), (r) => r.abort());
   const page = await context.newPage();
   const out: string[] = [];
   try {
@@ -79,7 +86,8 @@ main(async () => {
     }
     await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
     const waitFor = flagStr(flags, 'wait-for');
-    if (waitFor) await locate(page, waitFor).first().waitFor({ timeout: 15_000 });
+    // "attached", not "visible": some elements are never visible (<option>, hidden inputs) yet prove the page is ready.
+    if (waitFor) await locate(page, waitFor).first().waitFor({ state: 'attached', timeout: 15_000 });
 
     out.push(`# AUT inspection (tier 3 — bundled inspector)`, '',
       `- AUT: ${cfg.aut.name} (profile \`${cfg.autId}\`) — ${cfg.aut.baseURL}`,
@@ -122,7 +130,12 @@ main(async () => {
         const inputLike = el as HTMLInputElement;
         const type = (el.getAttribute('type') ?? '').toLowerCase();
         const label = labelOf(el);
-        const text = (h.innerText ?? '').trim().replace(/\s+/g, ' ').slice(0, 80);
+        // textContent, not innerText: accessible names ignore CSS text-transform (innerText would say "ALL PRODUCTS").
+        // Text nodes joined with spaces, as accessible names are: <span>(6)</span>Polo reads "(6) Polo".
+        const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+        const parts: string[] = [];
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) if (n.textContent?.trim()) parts.push(n.textContent.trim());
+        const text = parts.join(' ').replace(/\s+/g, ' ').slice(0, 80);
         const name = (el.getAttribute('aria-label') ?? label ?? '') || (['submit', 'button'].includes(type) ? inputLike.value : '')
           || text || el.getAttribute('title') || el.getAttribute('alt') || el.getAttribute('placeholder') || '';
         const rect = h.getBoundingClientRect();
@@ -142,13 +155,19 @@ main(async () => {
       if (c.label) options.push(`getByLabel(${q(c.label)}, { exact: true })`);
       if (c.placeholder) options.push(`getByPlaceholder(${q(c.placeholder)}, { exact: true })`);
       if (c.testId) options.push(`getByTestId(${q(c.testId)})`);
-      if (c.id) options.push(`locator(${q(`#${c.id}`)})`);
+      // "#customer.firstName" would mean id=customer + class=firstName: ids that aren't plain CSS identifiers use [id="…"].
+      if (c.id) options.push(`locator(${q(/^[A-Za-z_][\w-]*$/.test(c.id) ? `#${c.id}` : `[id="${c.id.replace(/"/g, '\\"')}"]`)})`);
       let best = ''; let count = 0;
       for (const o of options) {
         count = await locate(page, o).count().catch(() => 0);
         if (count === 1) { best = o; break; }
       }
-      if (!best && options[0]) { best = `${options[0]} ⚠ matches ${count}`; }
+      // No unique candidate: offer the non-exact role locator when it matches, never one that matches nothing.
+      if (!best && c.role && c.name) {
+        const loose = `getByRole(${q(c.role)}, { name: ${q(c.name)} })`;
+        const n = await locate(page, loose).count().catch(() => 0);
+        if (n) best = n === 1 ? loose : `${loose} ⚠ matches ${n}: add .nth() or scope it`;
+      }
       rows.push(`| ${c.role || c.tag} | ${c.name.replace(/\|/g, '\\|') || '-'} | ${c.testId || '-'} | ${c.type || '-'} | \`${best || '(no stable locator)'}\` |`);
     }
     out.push('## Visible interactive / test-id elements (best unique locator)', '',

@@ -141,6 +141,9 @@ export function maskVolatile(s?: string): string | undefined {
     .replace(/\b\d{4,}\b/g, '<n>');
 }
 
-/** Failure signature used to decide whether a confirmed decision still applies to a later run. */
-export const signature = (e: TriageEntry) => JSON.stringify([e.error?.reqTag, maskVolatile(e.error?.headline), maskVolatile(e.error?.expected), maskVolatile(e.error?.received), maskVolatile(e.error?.locator),
-  e.evidence.api ? `${e.evidence.api.request.method} ${e.evidence.api.response.status}` : null]);
+/**
+ * Failure signature used to decide whether a confirmed decision still applies to a later run: the failure itself
+ * (assertion, expected, received, locator), never what triage derived from it — a better triage must not drop a
+ * human's confirmed decision.
+ */
+export const signature = (e: TriageEntry) => JSON.stringify([e.error?.reqTag, maskVolatile(e.error?.headline), maskVolatile(e.error?.expected), maskVolatile(e.error?.received), maskVolatile(e.error?.locator)]);

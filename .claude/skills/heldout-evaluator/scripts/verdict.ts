@@ -41,6 +41,10 @@ main(() => {
   const NON_EVAL = NON_EVAL_RUN;
   const finalRun = flagStr(flags, 'run') ?? runs.filter((r) => !NON_EVAL.test(r)).at(-1) ?? runs.at(-1);
   if (!finalRun) throw new Error('No triaged run found. Run: heldout run KEY, then heldout triage KEY.');
+  // Runs are numbered 01, 02…; a missing number means a run was deleted, and its result with it.
+  const numbers = listRuns(p.runs).map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
+  const missingRuns = numbers.length ? Array.from({ length: Math.max(...numbers) }, (_, i) => i + 1).filter((n) => !numbers.includes(n)) : [];
+  if (missingRuns.length) console.log(`⚠ run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} are missing from runs/: the verdict says so`);
 
   const tri = readJson<TriageReport>(path.join(p.runs, finalRun, 'triage.json'));
   const meta = readJson<{ startedAt: string; finishedAt: string; autId?: string; stats?: { duration: number }; preflight?: unknown }>(path.join(p.runs, finalRun, 'run-meta.json'));
@@ -53,11 +57,14 @@ main(() => {
   const link = (projRel?: string) => (projRel ? path.relative(p.base, path.join(ROOT, projRel)).split(path.sep).join('/') : '');
 
   const failures = tri.entries.filter((e) => e.status === 'failed');
-  const appDefects = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT')
+  // A confirmed failure whose expectation rests only on an assumed oracle value is a question for the owner, not a defect.
+  const assumesOf = (id: string) => feature.scenarios.find((x) => x.id === baseScenarioId(id))?.assumes ?? [];
+  const contradicted = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && e.final && assumesOf(e.scenario).length);
+  const appDefects = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && !contradicted.includes(e))
     .sort((a, b) => SEVERITY_ORDER.indexOf(a.final?.severity ?? 'Minor') - SEVERITY_ORDER.indexOf(b.final?.severity ?? 'Minor') || a.scenario.localeCompare(b.scenario, undefined, { numeric: true }));
   const confirmedApp = appDefects.filter((e) => e.final);
   const flaky = tri.entries.filter((e) => e.status === 'flaky');
-  const other = failures.filter((e) => cat(e) !== 'APPLICATION_DEFECT' || !e.final);
+  const other = failures.filter((e) => (cat(e) !== 'APPLICATION_DEFECT' || !e.final) && !contradicted.includes(e));
   const covered = new Set(feature.scenarios.flatMap((s) => s.acs));
   const uncovered = feature.acs.filter((a) => !covered.has(a.id));
   const clarifications = feature.scenarios.filter((s) => s.needsClarification);
@@ -71,14 +78,22 @@ main(() => {
   const appIds = new Map<TriageEntry, string>();
   [...groups.values()].forEach((g, i) => g.forEach((e) => appIds.set(e, `APP-${i + 1}`)));
 
-  // Script defects discovered and repaired in earlier non-harden runs (evidence the triage loop worked).
-  const repaired = runs.filter((r) => r < finalRun && !NON_EVAL.test(r)).flatMap((r) => readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries
+  // Script defects confirmed in any earlier run, hardening included (evidence the triage loop worked).
+  const repaired = runs.filter((r) => r < finalRun).flatMap((r) => readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries
     .filter((e) => e.final?.category === 'SCRIPT_DEFECT').map((e) => ({ run: r, e, now: tri.entries.find((x) => x.scenario === e.scenario)?.status ?? 'n/a' })));
 
+  // An open question only about something no criterion requires (non-required oracle gaps affecting no AC) is for
+  // the owner's information: acceptance of the story doesn't wait on it. Any other open question is a warning.
+  const informational = (q: string) => {
+    const ids = q.match(/\bG\d+\b/g) ?? [];
+    return ids.length > 0 && ids.every((id) => contract.gaps.some((g) => g.id === id && g.kind === 'oracle' && !g.required && !g.affects.length));
+  };
+  const blockingQuestions = feature.openQuestions.filter((q) => !informational(q));
+  const infoQuestions = feature.openQuestions.filter(informational);
   const { verdict, reason } = decideVerdict({
     integrity: integrity.status,
     confirmedAppDefects: [...groups.values()].filter((g) => g.some((e) => e.final)).map((g) => ({ refs: [...new Set(g.flatMap((e) => e.requirementRefs))] })),
-    failures: failures.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: clarifications.length, openQuestions: feature.openQuestions.length,
+    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: clarifications.length, openQuestions: blockingQuestions.length,
   });
 
   const acText = (id: string) => feature.acs.find((a) => a.id === id)?.text ?? '';
@@ -111,7 +126,10 @@ main(() => {
   const stepsOf = (id: string) => [...feature.background, ...(feature.scenarios.find((s) => s.id === baseScenarioId(id))?.steps ?? [])];
   const durationS = meta.stats ? Math.round(meta.stats.duration / 1000) : Math.round((Date.parse(meta.finishedAt) - Date.parse(meta.startedAt)) / 1000);
   const reqCount = integrity.files.reduce((n, f) => n + f.currentAssertions, 0);
-  const tierLine = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8').match(/^\*\*Tiers? used:\*\*\s*(.+)$/m)?.[1] : undefined;
+  const tiersUsed = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8').match(/^\*\*Tiers? used:\*\*\s*(.+)$/m)?.[1] : undefined;
+  // A table cell: the first sentence, capped; the full account stays in the hardening log.
+  const firstSentence = tiersUsed?.replace(/`/g, '').split(/(?<=\.)\s/)[0]; // no code spans: a cut must not break markdown
+  const tierLine = firstSentence && firstSentence.length > 160 ? `${firstSentence.slice(0, 160).replace(/\s+\S*$/, '')}… (see hardening log)` : firstSentence;
   const s = tri.summary;
   const integrityCell = {
     PRESERVED: `✅ PRESERVED — ${reqCount} requirement assertions identical to the pre-hardening draft`,
@@ -131,6 +149,7 @@ main(() => {
     `| Held-out integrity | ${integrityCell} |`,
     ...(meta.preflight === 'skipped' ? ['| ⚠️ Preflight | **skipped** for the final run (--skip-preflight): the traceability lint and AUT healthcheck were not enforced |'] : []),
     `| Hardening | ${esc(tierLine ?? 'see hardening log')} |`,
+    ...(missingRuns.length ? [`| ⚠️ Run history | run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} were deleted: their results are not part of this record |`] : []),
     `| Evaluator | ${esc(flagStr(flags, 'evaluator') ?? 'Claude Code — heldout-evaluator skill')} |`,
     `| Generated | ${new Date().toISOString()} |`, '',
   ];
@@ -180,7 +199,7 @@ main(() => {
   }
 
   md.push(`## Script defects found and repaired (${repaired.length})`, '');
-  if (!repaired.length) md.push('_None in the evaluation runs (mechanics fixed during hardening are in the hardening log)._', '');
+  if (!repaired.length) md.push('_None confirmed with triage (other mechanics fixed during hardening are in the hardening log)._', '');
   else {
     md.push('| Found in run | Test | Symptom | Diagnosis | Fix applied | Final run |', '| --- | --- | --- | --- | --- | --- |',
       ...repaired.map(({ run, e, now }) => `| \`${run}\` | ${e.scenario} | ${esc(e.error?.headline.slice(0, 120))} | ${esc(e.final!.rationale)} | ${esc(e.final!.action ?? '-')} | ${now === 'passed' ? '✅ passed' : now} |`), '');
@@ -260,7 +279,7 @@ main(() => {
     ...coverageByType.map((c) => `| ${c.type} | ${c.scenarios} | ${c.tests} | ${c.passed} | ${c.failed} | ${c.flaky} | ${c.defects.join(', ') || '-'} |`), '');
 
   const contractGaps = contract.gaps;
-  if (feature.openQuestions.length || clarifications.length || feature.assumptions.length || contractGaps.length) {
+  if (feature.openQuestions.length || clarifications.length || feature.assumptions.length || contractGaps.length || contradicted.length) {
     md.push('## Requirement gaps, assumptions and open questions', '');
     if (contractGaps.length) {
       const how: Record<string, string> = { 'found-in-requirement': 'found elsewhere in the requirement', 'found-in-config': 'project configuration', 'discovered-in-aut': 'discovered from the AUT (mechanics only)', 'provided-by-user': 'answered by the user', assumed: 'assumed', open: '❓ open' };
@@ -268,10 +287,19 @@ main(() => {
         '| Gap | Missing element | Kind | Affects | Resolution |', '| --- | --- | --- | --- | --- |',
         ...contractGaps.map((g) => `| ${g.id} | ${esc(g.element)} | ${g.kind === 'oracle' ? 'expected behaviour' : 'how to exercise'} | ${g.affects.join(', ')} | ${how[g.resolution] ?? g.resolution}${g.value ? `: ${esc(g.value)}` : ''} |`), '');
     }
-    if (feature.openQuestions.length) md.push('**Open questions (not tested; need an answer from the PO):**', '', ...feature.openQuestions.map((q) => `- ❓ ${q}`), '');
+    if (blockingQuestions.length) md.push('**Open questions for the PO** (untested unless a scenario needing clarification below covers it):', '', ...blockingQuestions.map((q) => `- ❓ ${q}`), '');
+    if (infoQuestions.length) md.push('**For the owner\'s information** (about things no acceptance criterion requires; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
     if (clarifications.length) md.push('**Scenarios needing clarification:**', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');
+    if (contradicted.length) md.push('**Assumptions the application contradicts** (the requirement does not state these values; not reported as defects, the owner decides):', '',
+      '| Test | Assumption | Expected (assumed) | Actual |', '| --- | --- | --- | --- |',
+      ...contradicted.map((e) => `| ${e.scenario} | ${assumesOf(e.scenario).join(', ')} | ${esc(e.error?.expected ?? '-')} | ${esc(actualOf(e))} |`), '');
     if (fs.existsSync(p.requirementReview)) md.push('Full review: [requirement-review.md](requirement-review.md)', '');
+  }
+  if (feature.observations.length) {
+    md.push('## Observations outside the acceptance criteria', '',
+      'Seen while evaluating; no criterion states them, so they do not affect the verdict. The owner decides whether they matter:', '',
+      ...feature.observations.map((o) => `- 🔎 ${o}`), '');
   }
 
   md.push('## How this verdict was produced', '',
@@ -279,7 +307,7 @@ main(() => {
     '2. Playwright TypeScript tests (UI and API) were written from the scenarios **only**, with no access to the AUT source or developer tests. Expected values were copied verbatim from the requirement.',
     '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only. Expected outcomes were never aligned with AUT behaviour (integrity check above).',
     '4. Preflight gates (traceability lint and an AUT healthcheck) passed before the run. Every failure was triaged automatically, then re-investigated live before being classified as an application defect.',
-    '5. Script defects were repaired (mechanics only) and the full suite re-run. This verdict reflects the final run.', '',
+    ...(repaired.length ? ['5. Script defects were repaired (mechanics only) and the full suite re-run. This verdict reflects the final run.', ''] : ['5. No script defect needed repairing after hardening. This verdict reflects the final run.', '']),
     '| Run | Passed | Failed | Flaky |', '| --- | --- | --- | --- |',
     ...allRuns.map((r) => {
       const st = readJson<{ stats?: { expected: number; unexpected: number; flaky: number } }>(path.join(p.runs, r, 'run-meta.json')).stats;
@@ -315,6 +343,7 @@ main(() => {
     coverageByType,
     traceability,
     openQuestions: feature.openQuestions,
+    observations: feature.observations,
     verdictFile: rel(p.verdictMd),
   };
   writeFile(p.verdictJson, `${JSON.stringify(json, null, 2)}\n`);

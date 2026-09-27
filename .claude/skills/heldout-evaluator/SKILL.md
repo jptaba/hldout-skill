@@ -66,7 +66,7 @@ Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptanc
 | 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 4) or *oracle* (WHAT: found in the requirement, or a question for the user); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean. **Ask the user** the oracle questions it lists (`AskUserQuestion`, interactive sessions); record answers as `provided-by-user` and re-review | `requirement-contract.json`, `requirement-contract.review.json` — [requirement-contract](references/requirement-contract.md) |
 | 2 | **Review + scenarios** | `$H scaffold KEY` writes the feature header (ACs verbatim, endpoints, assumptions, open questions) and test stubs from the contract. Write the testability review and the scenarios: one `@type`, the `@AC-n` tags and a `# from` source per scenario | `requirement-review.md`, `scenarios.feature`, `test-data.json` — [scenario-format](references/scenario-format.md) |
 | 3 | **Draft tests** | Translate the scenarios 1:1 into Playwright TS (UI via `page`, API via `api`). **Seed every data precondition** with `seed.*` (API first, with cleanup). Deep-link to the page the AC names (`gotoPage`). Guessed locators get `// TODO(harden)` | `tests/*.spec.ts`, then `$H lint KEY --fix-tags --allow-unhardened` — [test-authoring](references/test-authoring.md), [data-and-journeys](references/data-and-journeys.md) |
-| 4 | **Freeze + harden** | Freeze the draft together with the contract's oracle, then make the mechanics work against the live AUT. Complete each open mechanics gap in the contract (`discovered-in-aut` + evidence; the endpoints it found, `requestFields`, `envelope`, entry points). This changes no reviewed content. Prove stability with `$H run KEY --label harden --repeat-each 3 --workers 2` | `$H integrity KEY --snapshot` → harden → `$H integrity KEY` — [hardening](references/hardening.md) |
+| 4 | **Freeze + harden** | Freeze the draft together with the contract's oracle, then make the mechanics work against the live AUT. Complete each open mechanics gap in the contract (`discovered-in-aut` + evidence; the endpoints it found, `requestFields`, `envelope`, entry points). This changes no reviewed content. Prove stability with `$H run KEY --label harden --repeat-each 3 --workers 2` (on a profile with `maxWorkers`, the workers are capped; for a rate-limited host use `--repeat-each 2` on the failing and timing-sensitive scenarios only) | `$H integrity KEY --snapshot` → harden → `$H integrity KEY` — [hardening](references/hardening.md) |
 | 5 | **Run** | Full suite. Preflight (lint, contract and review, 3-sample healthcheck) runs automatically; a down or **degraded** AUT aborts the run (`--allow-degraded` overrides) | `$H run KEY --label eval` → `runs/NN-eval/` |
 | 6 | **Triage** | Auto-classify, then **reproduce each failure live** (`$H api-probe --chain`, `$H inspect`) and record the decision. Repair script defects (HOW only) and re-run everything | `$H triage KEY` · `--set …` · `--carry-from auto` — [triage](references/triage.md) |
 | 7 | **Verdict** | Render the recommendation with traceability, reproduction and evidence | `$H verdict KEY` → `verdict.md`, `verdict.json` — [verdict-and-publish](references/verdict-and-publish.md) |
@@ -110,6 +110,10 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   finding. Never create, transition or assign Jira issues.
 - **Bounded repair loop.** At most 3 repair → full re-run cycles. Whatever is still unexplained
   stays NEEDS_INVESTIGATION (verdict INCONCLUSIVE).
+- **Runs are history.** Never delete, rename or renumber a run folder, including a broken or superseded one. The
+  verdict lists every run; a gap in it would hide an earlier result.
+- **Observations outside the criteria** (something the story's goal implies but no AC states) go in the feature as
+  `# OBSERVATION: …`. The verdict lists them for the owner, and they don't change it.
 - **Evidence, not recall.** The requirement contract is built by a model but must be proven. Each criterion is quoted from cited lines; every source line is accounted for; every expected literal (status, number, message, path) exists in the sources or in an answered gap. An independent reviewer subagent confirms each item, and its review is bound to the contract hash. The builder never writes its own review.
 - **Gaps: find, then ask; never read the oracle off the AUT.** A missing element about HOW to exercise the AUT is discovered from it during hardening, with evidence. A missing element about WHAT is correct (status, message, limit) comes from the requirement or the user, or stays an explicit assumption or open question. Ask the user with `AskUserQuestion` when a session is interactive.
 - **Surface ambiguity; don't resolve it silently.** Use `# ASSUMPTION:`, `# OPEN-QUESTION:` and
@@ -121,7 +125,8 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   story's secrets from every text artifact after each run (`heldout scrub KEY` does this retroactively). Use test
   secrets that aren't plain words: a word like `password` can't be scrubbed without rewriting the evidence.
   Traces and the HTML report stay local.
-- **Shared environments:** create data with `unique()` names, and keep traffic modest.
+- **Shared environments:** create data with `unique()` names (`uniqueId()` where spaces aren't allowed: e-mails,
+  user names, slugs), and keep traffic modest.
 
 ## Output layout (per story)
 

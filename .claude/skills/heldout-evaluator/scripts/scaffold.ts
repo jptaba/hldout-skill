@@ -7,6 +7,7 @@
  *   scenarios.feature   header with every AC verbatim, ENDPOINT lines, ASSUMPTION / OPEN-QUESTION lines from the
  *                       contract's gaps, and one scenario stub per AC (tags, "# from" source, Then lines from the
  *                       AC's outcomes). Given/When lines are TODO(scenario): you write the journeys.
+ *   test-data.json      the values the specs read via `data`; the contract's test-user secret as ${env:NAME}
  *   tests/<key>.spec.ts imports, an empty @req-constants block, typed endpoint helpers, and one test stub per
  *                       scenario with its tags. Stubs are TODO(scenario) — the lint refuses them until implemented.
  */
@@ -14,8 +15,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, assertIssueKey, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
 import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint } from './lib/contract';
+import { TEST_TYPES } from './lib/gherkin';
 
-const TYPE_FOR: Record<string, string> = { ui: 'functional', api: 'functional', e2e: 'integration' };
 
 /** "/api/articles/{slug}/comments/{id}" → { name: "articleComment", params: ["slug", "id"] } */
 function endpointHelper(e: ContractEndpoint): { name: string; params: string[]; body: string } {
@@ -62,7 +63,9 @@ main(() => {
       const open = openQuestions(c).some((g) => g.required && g.affects.includes(ac.id));
       lines.push(
         `  # from ${ac.source}`,
-        `  @SCN-${String(i + 1).padStart(3, '0')} @${ac.id} @priority:P1 @type:${TYPE_FOR[ac.layer] ?? 'functional'} @layer:${ac.layer}${open ? ' @needs-clarification' : ''}`,
+        // The test type is a judgement about the scenario you write (a refusal is negative, a limit is boundary…): no default.
+        `  # TODO(scenario) add @type:<${TEST_TYPES.join('|')}>; split the AC into one scenario per type`,
+        `  @SCN-${String(i + 1).padStart(3, '0')} @${ac.id} @priority:P1 @layer:${ac.layer}${open ? ' @needs-clarification' : ''}`,
         `  Scenario: ${shortTitle(ac)}`,
         `    Given TODO(scenario) ${ac.layer === 'api' ? 'the preconditions (seeded via the API)' : `I am on ${ac.entryPoint ?? 'the page where the journey starts'}`}`,
         '    When TODO(scenario) the action under test',
@@ -73,6 +76,14 @@ main(() => {
     lines.push('  # Add scenarios per test type: negative, boundary, security, idempotency… (one @type each; see references/scenario-format.md)', '');
     writeFile(p.scenarios, lines.join('\n'));
     console.log(`✔ created ${rel(p.scenarios)} — ${c.acceptanceCriteria.length} scenario stub(s); write the Given/When lines and add scenarios per test type`);
+  }
+
+  // Test data the specs read through the `data` fixture; secrets as ${env:NAME}, never literal.
+  if (!fs.existsSync(p.testData)) {
+    // The secret the contract names for test users (auth.credentials / testData), e.g. "password from PB_USER_PASSWORD".
+    const secret = JSON.stringify([c.auth, c.testData]).match(/\b[A-Z][A-Z0-9]*_(?:[A-Z0-9]+_)*(?:PASSWORD|PASS|TOKEN|SECRET)\b/)?.[0];
+    writeFile(p.testData, `${JSON.stringify(secret ? { password: `\${env:${secret}}` } : {}, null, 2)}\n`);
+    console.log(`✔ created ${rel(p.testData)}${secret ? ` (password → \${env:${secret}})` : ''} — add the values your scenarios need`);
   }
 
   const discover = toDiscover(c);
@@ -119,7 +130,7 @@ main(() => {
     '',
     `test.describe('${key} ${c.title.replace(/'/g, "\\'")}', () => {`,
     ...c.acceptanceCriteria.flatMap((ac, i) => [
-      `  test('SCN-${String(i + 1).padStart(3, '0')}: ${shortTitle(ac).replace(/'/g, "\\'")}', { tag: ['@${ac.id}', '@type:${TYPE_FOR[ac.layer] ?? 'functional'}', '@layer:${ac.layer}'] }, async ({ ${ac.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`,
+      `  test('SCN-${String(i + 1).padStart(3, '0')}: ${shortTitle(ac).replace(/'/g, "\\'")}', { tag: ['@${ac.id}', '@layer:${ac.layer}'] }, async ({ ${ac.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`,
       '    // TODO(scenario) one journey.step per Gherkin line; seed preconditions with seed.*; assert with "[REQ ' + ac.id + '] …" messages',
       '  });',
       '',

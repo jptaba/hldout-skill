@@ -27,7 +27,7 @@ Or just ask Claude to "set up held-out evaluation for https://your-app". The ski
 
 | What | Where |
 | --- | --- |
-| Applications (UI URL, API URL, test-id attribute, healthcheck) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
+| Applications (UI URL, API URL, test-id attribute (detected by `init`), healthcheck, `blockHosts` for ads/analytics, `maxWorkers` and `minTestIntervalMs` for rate-limited hosts) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (writes `evaluations/KEY/evaluation.json`) |
 | Secrets used by tests | `.env` → referenced from `evaluations/<KEY>/test-data.json` as `${env:NAME}` |
 | Jira | `JIRA_MODE=mock` (file-based, [mock-jira/](mock-jira/)) or `cloud` + `JIRA_BASE_URL/JIRA_EMAIL/JIRA_API_TOKEN`; `doctor --jira` finds your acceptance-criteria custom field |
@@ -74,20 +74,23 @@ never as the requirement failing. Strategy:
 
 ## Demos and evaluator testing
 
-Seven stories across five AUTs, each with a machine-readable answer key written before evaluation
-([demo/answer-keys/](demo/answer-keys/)). **Result: 7/7 verdicts correct, 26/26 findings, 0 false positives,
-4/4 seeded script defects caught.** See [demo/SCORECARD.md](demo/SCORECARD.md) (`npx tsx demo/score.ts`)
-and the full [evaluator test report](demo/EVALUATOR-TEST-REPORT.md).
+Nine stories across three AUTs (three each, mixing UI and API), each with a machine-readable answer key written
+by a separate author agent before evaluation ([demo/answer-keys/](demo/answer-keys/)). Each was evaluated **blind**:
+a fresh agent with only the skill and the story. **Result: 8/9 verdicts as expected, 12/12 defects found, 1 disputed
+false positive.** See [demo/SCORECARD.md](demo/SCORECARD.md) (`npx tsx demo/score.ts`) and the full
+[evaluator test report](demo/EVALUATOR-TEST-REPORT.md).
 
 | Story | AUT | Designed to test | Verdict |
 | --- | --- | --- | --- |
-| [DEMO-101](evaluations/DEMO-101/verdict.md) | saucedemo (UI) | UI journeys, a rule in an attachment | ❌ FAIL (3) |
-| [DEMO-202](evaluations/DEMO-202/verdict.md) | Shady Meadows B&B (UI + API) | 16 ACs, boundaries, security, a11y, idempotency, requirement revision, seeding, API pre-steps | ❌ FAIL (9) |
-| [DEMO-303](evaluations/DEMO-303/verdict.md) | restful-booker (API) | cookie/Basic auth, write methods, a seeded defect masking a real one, pre-step chains | ❌ FAIL (6) |
-| [DEMO-404](evaluations/DEMO-404/verdict.md) | the-internet (UI) | false-positive resistance under mechanics traps | ✅ PASS |
-| [DEMO-505](evaluations/DEMO-505/verdict.md) | the-internet (UI) | ambiguity and open questions | ⚠️ PASS WITH WARNINGS |
-| [DEMO-606](evaluations/DEMO-606/verdict.md) | the-internet (UI) | an intermittent defect found by sampling | ❌ FAIL (1) |
-| [DEMO-707](evaluations/DEMO-707/verdict.md) | Conduit (UI + API, JWT) | requirement-contract intake, per-user visibility, a seeded defect the AUT answers with 500 | ❌ FAIL (7) |
+| [AE-1](evaluations/AE-1/verdict.md) | Automation Exercise | search API + UI, a loosely worded status | ⚠️ PASS WITH WARNINGS |
+| [AE-2](evaluations/AE-2/verdict.md) | Automation Exercise | account API with in-body result codes + sign-in UI | ❌ FAIL (3) |
+| [AE-3](evaluations/AE-3/verdict.md) | Automation Exercise | brands API ↔ UI, a form specified by an image mock-up | ⚠️ PASS WITH WARNINGS |
+| [PB-1](evaluations/PB-1/verdict.md) | ParaBank | registration, sign-in, customer REST | ❌ FAIL (1) |
+| [PB-2](evaluations/PB-2/verdict.md) | ParaBank | opening accounts, rules in a CSV attachment | ❌ FAIL (3) |
+| [PB-3](evaluations/PB-3/verdict.md) | ParaBank | transfers, a PO comment replacing an AC | ❌ FAIL (2) |
+| [DQ-1](evaluations/DQ-1/verdict.md) | DemoQA | token API, a PO status override, a JWT leak | ❌ FAIL (2) |
+| [DQ-2](evaluations/DQ-2/verdict.md) | DemoQA | Book Store API + UI, a 401 matrix | ✅ PASS |
+| [DQ-3](evaluations/DQ-3/verdict.md) | DemoQA | new-tab and status links, a PO path correction | ❌ FAIL (2) |
 
 Robustness checks (tampering, AUT down or degraded, malformed evaluation, Jira Cloud adapter, pre-step failure, contract gates):
 [demo/robustness/](demo/robustness/). Simulated Jira results are in `mock-jira/issues/<KEY>/ISSUE_VIEW.md`, and the

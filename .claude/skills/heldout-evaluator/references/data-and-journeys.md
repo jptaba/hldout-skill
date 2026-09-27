@@ -15,7 +15,10 @@ most: where each scenario's data comes from, and where each journey starts.
 4. **Seed failures are not requirement failures.** `seed.create` re-throws as `[SEED] …`, and triage
    classifies it **BLOCKED** (scenario not evaluated), never APPLICATION_DEFECT for the AC under test.
 5. **Clean up what you create** (reverse order, even when the test failed). Cleanup never fails a
-   test; the outcome is recorded in the seed ledger. `HELDOUT_KEEP_DATA=1` keeps data for debugging.
+   test; the outcome is recorded in the seed ledger, and `heldout run` lists every failed cleanup so the data
+   can be removed. `HELDOUT_KEEP_DATA=1` keeps data for debugging. Many applications revoke earlier tokens when
+   the user signs in again (a UI sign-in in the same test, another `GenerateToken`): a cleanup, or a later
+   seed step, that reuses a token taken before that point gets 401. Take a fresh token inside the cleanup.
 6. **Tag everything.** Use `unique()` names and `seed.tag`, so leftovers are identifiable and sweepable
    on shared environments.
 7. **Evidence.** The seed ledger (what was created, and whether it was cleaned up) is attached to each

@@ -19,4 +19,6 @@ with the errors it printed: the builder must fix them first. Otherwise follow th
   don't use general knowledge of how such apps usually behave.
 - Cite line numbers from the pack for every verdict.
 - Write the review JSON to the path the instructions give, with the contract hash they give. Don't modify the contract.
+  Then run `npm run heldout -- contract KEY`: it confirms the review is accepted (no `review-*` errors) and brings
+  `requirement-contract.md` up to date with it.
 - End with the one-line tally the instructions ask for.

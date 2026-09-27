@@ -4,7 +4,7 @@
  *   # AC-n: <text>                 acceptance criteria (verbatim)
  *   # ENDPOINT: METHOD /path/{id}  API endpoints declared by the requirement
  *   # SEED-ENDPOINT: METHOD /path    plumbing-only endpoints used to seed / clean up data
- *   # ASSUMPTION: … / # OPEN-QUESTION: …  surfaced in the verdict
+ *   # ASSUMPTION: … / # OPEN-QUESTION: … / # OBSERVATION: …  surfaced in the verdict
  *   @SCN-nnn @AC-n @type:<t> …     scenario tags; Scenario Outline + Examples → tests SCN-nnn.1 … .n
  *   # from <source> …              requirement source(s) of the next scenario (story section / attachment)
  */
@@ -39,13 +39,15 @@ export interface Scenario {
   sources: string[];
   steps: string[];
   needsClarification: boolean;
+  /** @assumes:G<n> — the expectation rests on an assumed oracle value (a contract gap), not on the requirement. */
+  assumes: string[];
   outline: boolean;
   /** Examples rows (header first) for Scenario Outlines. */
   examples: string[][];
 }
 export interface FeatureDoc {
   feature: string; story?: string;
-  acs: AcceptanceCriterion[]; endpoints: Endpoint[]; seedEndpoints: Endpoint[]; assumptions: string[]; openQuestions: string[];
+  acs: AcceptanceCriterion[]; endpoints: Endpoint[]; seedEndpoints: Endpoint[]; assumptions: string[]; openQuestions: string[]; observations: string[];
   background: string[]; scenarios: Scenario[];
 }
 
@@ -56,7 +58,7 @@ export const SCENARIO_ID_RE = /^(SCN-\d+(?:\.\d+)?)/;
 const cells = (line: string) => line.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
 
 export function readFeature(file: string): FeatureDoc {
-  const doc: FeatureDoc = { feature: '', acs: [], endpoints: [], seedEndpoints: [], assumptions: [], openQuestions: [], background: [], scenarios: [] };
+  const doc: FeatureDoc = { feature: '', acs: [], endpoints: [], seedEndpoints: [], assumptions: [], openQuestions: [], observations: [], background: [], scenarios: [] };
   if (!fs.existsSync(file)) return doc;
   let pendingTags: string[] = [];
   let current: Scenario | undefined;
@@ -76,6 +78,8 @@ export function readFeature(file: string): FeatureDoc {
     if (as) { doc.assumptions.push(as[1]); continue; }
     const oq = line.match(/^#\s*OPEN-QUESTION:\s*(.+)$/);
     if (oq) { doc.openQuestions.push(oq[1]); continue; }
+    const ob = line.match(/^#\s*OBSERVATION:\s*(.+)$/);
+    if (ob) { doc.observations.push(ob[1]); continue; }
     const src = line.match(/^#\s*from\s+(.+)$/i);
     if (src) { pendingSources.push(src[1].trim()); continue; }
     if (!line || line.startsWith('#')) continue;
@@ -105,6 +109,7 @@ export function readFeature(file: string): FeatureDoc {
         sources: pendingSources,
         steps: [],
         needsClarification: pendingTags.includes('@needs-clarification'),
+        assumes: pendingTags.filter((t) => /^@assumes:G\d+$/.test(t)).map((t) => t.slice(9)),
         outline: Boolean(scn[1]),
         examples: [],
       };
@@ -125,9 +130,15 @@ export function readFeature(file: string): FeatureDoc {
   return doc;
 }
 
-/** Match "/api/room/7" against declared templates like "/api/room/{id}". */
-export function matchEndpoint(endpoints: Endpoint[], method: string, pathname: string): Endpoint | undefined {
+/**
+ * Match "/api/room/7" against declared templates like "/api/room/{id}". Declared paths may be relative to the API
+ * base URL: with basePath "/shop/services", "/shop/services/rooms/7" also matches "/rooms/{id}".
+ */
+export function matchEndpoint(endpoints: Endpoint[], method: string, pathname: string, basePath = ''): Endpoint | undefined {
   const norm = (p: string) => p.replace(/\/+$/, '') || '/';
-  return endpoints.find((e) => e.method === method.toUpperCase()
-    && new RegExp(`^${norm(e.path).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\\?\{[^}]+\\?\}|:[A-Za-z_]+/g, '[^/]+')}$`).test(norm(pathname)));
+  const full = norm(pathname);
+  const base = norm(basePath);
+  const candidates = [full, ...(base !== '/' && full.startsWith(`${base}/`) ? [full.slice(base.length)] : [])];
+  return endpoints.find((e) => e.method === method.toUpperCase() && candidates.some((c) =>
+    new RegExp(`^${norm(e.path).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\\?\{[^}]+\\?\}|:[A-Za-z_]+/g, '[^/]+')}$`).test(c)));
 }

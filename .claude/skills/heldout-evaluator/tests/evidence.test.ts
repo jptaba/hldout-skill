@@ -104,6 +104,20 @@ describe('literal grounding', () => {
     const v = inventedLiterals(c, dir).map((x) => `${x.kind} ${x.literal}`);
     assert.deepEqual(v.sort(), ['path /orders/{id}/history', 'status 400', 'text "order too large"'].sort()); // literals are compared (and reported) normalised
   });
+  it('grounds one step of a stated decimal precision past a boundary, and no more', () => {
+    const dir = fixture();
+    fs.appendFileSync(path.join(dir, 'story.md'), '\nA deposit of at least 100.00 is required.\n');
+    const c = contract(dir);
+    c.acceptanceCriteria[0].outcomes.push('deposit 99.99 rejected', 'deposit 99.98 rejected');
+    assert.deepEqual(inventedLiterals(c, dir).map((x) => x.literal), ['99.98']);
+  });
+  it('grounds a path composed from a stated base URL and a relative path, and nothing else under it', () => {
+    const dir = fixture();
+    fs.appendFileSync(path.join(dir, 'story.md'), '\nBase URL: https://shop.example.com/api/v2\n');
+    const c = contract(dir);
+    c.endpoints.push({ method: 'POST', path: '/api/v2/orders', source: 'story.md#L10' }, { method: 'GET', path: '/api/v2/refunds', source: 'story.md#L10' });
+    assert.deepEqual(inventedLiterals(c, dir).map((x) => x.literal), ['/api/v2/refunds']);
+  });
   it('flags expected values that exist only in what was discovered from the app', () => {
     const dir = fixture();
     const c = contract(dir);

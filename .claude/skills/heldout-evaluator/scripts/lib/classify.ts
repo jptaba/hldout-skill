@@ -18,7 +18,7 @@ export interface ApiExchange {
 export interface AutoClassification { category: Category; confidence: 'high' | 'medium' | 'low'; signals: string[]; next: string }
 /** Request shape the requirement contract declares for an endpoint (top-level envelope, e.g. {"article": …}). */
 export interface RequestContract { method: string; path: string; envelope?: string; fields?: string[] }
-export interface ClassifyContext { snapshot?: string; flaky?: boolean; api?: ApiExchange; endpoints?: Endpoint[]; requestContracts?: RequestContract[] }
+export interface ClassifyContext { snapshot?: string; flaky?: boolean; api?: ApiExchange; endpoints?: Endpoint[]; requestContracts?: RequestContract[]; /** Path of the API base URL: declared endpoints are relative to it. */ apiBasePath?: string }
 
 export const stripAnsi = (s = '') => s.replace(/\u001b\[[0-9;]*m/g, '');
 const norm = (s = '') => s.replace(/^["'`/]|["'`/]$/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -54,7 +54,8 @@ export function parseError(raw: string): ParsedError {
   const diff = parseDiff(message);
   return {
     headline,
-    reqTag: message.match(/\[REQ ([^\]]+)\]/)?.[1],
+    // Only the failing assertion's own message counts: the code frame below it can show a neighbouring [REQ …].
+    reqTag: headline.match(/\[REQ ([^\]]+)\]/)?.[1],
     matcher: line(/expect\([^)]*\)\.((?:not\.)?to\w+)/),
     expected: line(/^\s*Expected(?: [a-z ]+)?:\s*(.*)$/m) ?? diff?.expected,
     received: line(/^\s*Received(?: [a-z ]+)?:\s*(.*)$/m) ?? diff?.received,
@@ -88,6 +89,17 @@ export function relevantExchange(sequence: ApiExchange[], e?: ParsedError): numb
   const status = /^\[?\s*\d{3}(\s*,\s*\d{3})*\s*\]?$/.test(received) ? Number(received.match(/\d{3}/)![0]) : NaN;
   if (Number.isInteger(status) && status >= 100 && status <= 599) {
     for (let i = sequence.length - 1; i >= 0; i--) if (sequence[i].response.status === status) return i;
+  }
+  // The assertion names its call ("[REQ AC-4] POST /createAccount returns the balance"): the latest call it names.
+  const named = e?.headline.match(/\b(GET|POST|PUT|PATCH|DELETE)\s+(\/[^\s"'`,)]*)/i);
+  if (named) {
+    const [, m, p] = named;
+    const tail = p.replace(/\{[^}]+\}|:[A-Za-z_]+/g, '[^/]+').replace(/[.?+*()|]/g, (c) => (c === '.' ? '\\.' : c));
+    for (let i = sequence.length - 1; i >= 0; i--) {
+      let pathname = sequence[i].request.url;
+      try { pathname = new URL(pathname).pathname; } catch { /* relative */ }
+      if (sequence[i].request.method.toUpperCase() === m.toUpperCase() && new RegExp(`${tail}/?$`).test(pathname)) return i;
+    }
   }
   return sequence.length - 1;
 }
@@ -126,6 +138,12 @@ export function classify(e: ParsedError, ctx: ClassifyContext = {}): AutoClassif
     return { category: 'ENVIRONMENT_ISSUE', confidence: 'high', signals: ['Network / browser / connectivity error in failure message.'],
       next: 'Check the AUT is up (open base URL / healthcheck), then re-run. Not attributable to app logic or the script.' };
   }
+  // Bot protection / rate limiting in front of the AUT (Cloudflare, Akamai, generic WAFs) answered instead of the app.
+  const waf = /performing security verification|checking your browser|just a moment\.\.\.|attention required|error 1015|you are being rate limited|too many requests|verify you are human|request unsuccessful\. incapsula|access denied.{0,40}reference #/i;
+  if (waf.test(snapshot) || waf.test(m) || ctx.api?.response?.status === 429) {
+    return { category: 'ENVIRONMENT_ISSUE', confidence: 'high', signals: ['A bot-protection or rate-limit page answered instead of the application (WAF interstitial / HTTP 429).'],
+      next: 'Wait for the limit to lift and re-run with fewer workers (--workers 1) and without --repeat-each; set the profile\'s "workers" if the host is always protected.' };
+  }
   if (/\b(TypeError|ReferenceError|SyntaxError)\b|is not a function|Cannot read propert|is not defined/.test(m) && !/page\.evaluate/.test(m)) {
     return { category: 'SCRIPT_DEFECT', confidence: 'high', signals: ['JavaScript error raised by the test code itself.'], next: 'Fix the test code; re-run.' };
   }
@@ -142,14 +160,14 @@ export function classify(e: ParsedError, ctx: ClassifyContext = {}): AutoClassif
     try { pathname = new URL(url).pathname; } catch { /* relative */ }
     signals.push(`Last API exchange: ${method} ${pathname} → ${status}`);
     const endpoints = ctx.endpoints ?? [];
-    if (endpoints.length && !matchEndpoint(endpoints, method, pathname)) {
+    if (endpoints.length && !matchEndpoint(endpoints, method, pathname, ctx.apiBasePath)) {
       signals.push(`${method} ${pathname} is not an endpoint the requirement declares (${endpoints.map((x) => `${x.method} ${x.path}`).join(', ')}).`);
       return { category: 'SCRIPT_DEFECT', confidence: 'high', signals,
         next: 'The test called the wrong endpoint/method. Align it with the declared contract (HOW only), probe it, re-run.' };
     }
     // A request that breaks the declared request contract says nothing about the AC, whatever the AUT answered —
     // even a 5xx (a server that crashes on malformed input is a separate robustness observation, not this AC).
-    const rc = ctx.requestContracts?.length ? (matchEndpoint(ctx.requestContracts, method, pathname) as RequestContract | undefined) : undefined;
+    const rc = ctx.requestContracts?.length ? (matchEndpoint(ctx.requestContracts, method, pathname, ctx.apiBasePath) as RequestContract | undefined) : undefined;
     const body = ctx.api.request.body;
     if (e.reqTag && rc?.envelope && body && typeof body === 'object' && !Array.isArray(body) && !(rc.envelope in body)) {
       signals.push(`The request body lacks the "${rc.envelope}" envelope the requirement contract declares for ${rc.method} ${rc.path} (top-level keys sent: ${Object.keys(body).join(', ') || 'none'}).`);

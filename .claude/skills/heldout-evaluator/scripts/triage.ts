@@ -50,7 +50,7 @@ function deepestFailingStep(steps: PwStep[] = []): string | undefined {
 const attachmentText = (a?: PwAttachment) => (!a ? '' : a.body ? Buffer.from(a.body, 'base64').toString('utf8')
   : a.path && fs.existsSync(a.path) ? fs.readFileSync(a.path, 'utf8') : '');
 
-function buildReport(key: string, runName: string, resultsFile: string, scenarioFile: string): TriageReport {
+function buildReport(key: string, runName: string, resultsFile: string, scenarioFile: string, apiBasePath: string): TriageReport {
   const results = readJson<{ suites: PwSuite[] }>(resultsFile);
   const feature = readFeature(scenarioFile);
   const requests = requestContracts(readContract(path.dirname(scenarioFile)));
@@ -97,9 +97,14 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
           .filter((x): x is ApiExchange => Boolean(x));
         if (sequence.length) {
           entry.evidence.apiSequence = sequence;
-          const idx = relevantExchange(sequence, entry.error);
-          entry.evidence.apiRelevantIndex = idx;
-          entry.evidence.api = sequence[idx];
+          // A failing assertion on a page element is about the page: the API calls are context, none of them
+          // "the one that contradicts the requirement" (unless the assertion names its call).
+          const onPage = Boolean(entry.error.locator) && !/\b(GET|POST|PUT|PATCH|DELETE)\s+\//.test(entry.error.headline);
+          if (!onPage) {
+            const idx = relevantExchange(sequence, entry.error);
+            entry.evidence.apiRelevantIndex = idx;
+            entry.evidence.api = sequence[idx];
+          }
         }
         // Precondition calls (API pre-steps) — kept separately so the verdict can show them as "run these first".
         const preSeq = (failedAttempt.attachments ?? []).filter((a) => a.name.startsWith('api-exchange ') && /\[seed\]/.test(a.name))
@@ -108,7 +113,7 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
         if (preSeq.length) entry.evidence.preSequence = preSeq;
         // A BLOCKED precondition that went through the API: the relevant exchange is the last seed call.
         if (!entry.evidence.api && preSeq.length && /\[SEED\]/.test(entry.error.message)) entry.evidence.api = preSeq.at(-1);
-        entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...feature.seedEndpoints], requestContracts: requests });
+        entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...feature.seedEndpoints], requestContracts: requests, apiBasePath });
         for (const o of entry.otherFailures) {
           entry.auto.signals.push(`Also failed: ${o.headline}${o.expected !== undefined ? ` — expected ${o.expected}, received ${o.received}` : ''}`);
         }
@@ -201,7 +206,7 @@ main(() => {
     return;
   }
 
-  const report = buildReport(key, runName, path.join(runDir, 'results.json'), p.scenarios);
+  const report = buildReport(key, runName, path.join(runDir, 'results.json'), p.scenarios, new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
   if (fs.existsSync(triageJson)) { // keep previously confirmed decisions for unchanged failures
     const prev = readJson<TriageReport>(triageJson);
     for (const e of report.entries) {
@@ -231,7 +236,9 @@ main(() => {
 
   console.log(`Triage ${key} / ${runName}: ${report.summary.passed}/${report.summary.total} passed, ${report.summary.failed} failed, ${report.summary.flaky} flaky\n`);
   for (const e of report.entries.filter((x) => x.auto)) {
-    console.log(`  ${e.scenario.padEnd(10)} ${e.auto!.category.padEnd(20)} (${e.auto!.confidence.padEnd(6)}) ${e.final ? '✔ confirmed ' : '⏳ pending   '}${e.error!.headline.slice(0, 80)}`);
+    // A confirmed decision is what counts: show it, not the automatic suggestion it replaced.
+    const shown = e.final ? `${e.final.category.padEnd(20)} ✔ confirmed  ` : `${e.auto!.category.padEnd(20)} (${e.auto!.confidence.padEnd(6)}) ⏳ pending `;
+    console.log(`  ${e.scenario.padEnd(10)} ${shown} ${e.error!.headline.slice(0, 80)}`);
   }
   console.log(`\n  ${rel(path.join(runDir, 'triage.md'))}`);
   if (report.entries.some((x) => x.auto && !x.final)) console.log('\nNext: investigate each pending failure live (references/triage.md), then confirm with --set.');

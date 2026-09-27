@@ -5,7 +5,7 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
   checkContract, checkFeatureAgainstContract, locateQuote, normaliseText, openQuestions, oracleDigest,
-  requirementRevision, skeletonContract, toDiscover, type RequirementContract,
+  requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
 } from '../scripts/lib/contract';
 import { checkIntegrity, snapshotDraft } from '../scripts/lib/integrity';
 
@@ -112,6 +112,18 @@ describe('requirement contract', () => {
     assert.deepEqual(checkFeatureAgainstContract(c, feature), []);
   });
 
+  it('an assumption that asserts nothing needs no @assumes tag when marked "(not asserted)"', () => {
+    const dir = fixture();
+    const c = goodContract(dir);
+    c.gaps.push({ id: 'G3', element: 'status of a rejected widget', kind: 'oracle', required: false, affects: ['AC-1'], tried: [{ where: 'attachments', result: 'silent' }, { where: 'story', result: 'silent' }], resolution: 'assumed', value: 'no status asserted' });
+    assert.ok(!codes(checkContract(c, dir)).includes('gap-ladder-order')); // story and attachments are one rung
+    const feature = { acs: c.acceptanceCriteria.map((a) => ({ id: a.id, text: a.text })), endpoints: [{ method: 'POST', path: '/api/widgets' }], openQuestions: [] as string[],
+      assumptions: ['G3: no status is asserted'], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
+    assert.ok(codes(checkFeatureAgainstContract(c, feature)).includes('assumption-not-tagged'));
+    feature.assumptions = ['G3: no status is asserted (not asserted)'];
+    assert.deepEqual(checkFeatureAgainstContract(c, feature), []);
+  });
+
   it('open mechanics gaps are discovered from the application, never asked of the user', () => {
     const dir = fixture();
     const c = goodContract(dir);
@@ -183,5 +195,15 @@ describe('non-text attachments', () => {
     const f = checkContract(c, dir);
     assert.deepEqual(f.filter((x) => x.level === 'error'), []);
     assert.ok(codes(f).includes('quote-from-transcript'));
+  });
+});
+
+describe('contract shape', () => {
+  it('reports a wrongly typed field instead of crashing', () => {
+    const c = { acceptanceCriteria: [], endpoints: [], rules: [], errorModel: [], gaps: [], coverage: [], sourcesRead: [], testData: { strategy: 'x', constraints: 'one string' } } as unknown as RequirementContract;
+    assert.deepEqual(shapeFindings(c).map((f) => f.message), ['testData.constraints must be a list (JSON array), got string']);
+  });
+  it('matches quotes across HTML entities', () => {
+    assert.equal(normaliseText('Welcome &lt;username&gt;'), normaliseText('Welcome <username>'));
   });
 });

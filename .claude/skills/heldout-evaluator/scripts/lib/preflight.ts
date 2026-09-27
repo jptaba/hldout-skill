@@ -5,7 +5,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { evalPaths, resolveUrl, type HeldoutConfig } from './config';
+import { evalPaths, rel, resolveUrl, type HeldoutConfig } from './config';
 import { checkContract, checkFeatureAgainstContract, readContract } from './contract';
 import { checkReview, readReview } from './evidence';
 import { TEST_TYPES, baseScenarioId, normaliseTestType, readFeature } from './gherkin';
@@ -68,7 +68,8 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
       out.push({ ...x, code: `contract/${x.code}` });
     }
     // Independent review: required, current (hash-bound) and without findings.
-    for (const x of checkReview(contract, readReview(p.base), { requireReview: true })) out.push({ ...x, code: `contract/${x.code}` });
+    // Reviewer observations are notes for the contract's builder (shown by `heldout contract`), not test-suite problems.
+    for (const x of checkReview(contract, readReview(p.base), { requireReview: true }).filter((f) => f.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
     out.push(...checkFeatureAgainstContract(contract, f));
   }
   for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any scenario`);
@@ -76,6 +77,12 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const specs = specFiles(p.tests);
   if (!specs.length) { err('no-tests', `No *.spec.ts under tests/`); return out; }
   const src = specs.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
+  // A control character in source (a "\b" that became a backspace through a shell edit) silently changes a regex.
+  for (const s of specs) {
+    const lines = fs.readFileSync(s, 'utf8').split('\n');
+    const bad = lines.map((l, i) => (/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(l) ? i + 1 : 0)).filter(Boolean);
+    if (bad.length) err('control-character', `${rel(s)} line(s) ${bad.slice(0, 5).join(', ')} contain a control character — likely an escape (\\b, \\t) mangled by a shell edit`);
+  }
   const testIds = testIdsIn(src);
   for (const s of f.scenarios) if (!testIds.has(s.id)) err('scenario-without-test', `${s.id} "${s.title}" has no test`);
   for (const id of testIds) if (!f.scenarios.some((s) => s.id === baseScenarioId(id))) err('test-without-scenario', `Test ${id} has no scenario in scenarios.feature`);
@@ -105,7 +112,9 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     if (!/^Given\b/.test(first)) warn('no-entry-point', `${s.id} starts with "${first.slice(0, 50)}" — state the entry point / preconditions as a Given (deep-link to the page under test unless navigation is part of the AC)`);
   }
   // Data preconditions ("Given … exists / I am signed in / I created …") should be seeded, not assumed.
-  const needsData = f.scenarios.filter((x) => [...f.background, ...x.steps].some((st) => /^(Given|And)\b.*\b(exists?|created|signed in|have added|know (the|an) id|registered)\b/i.test(st)));
+  // Only the Given block counts: an "And" after a Then is an outcome ("And the list shows Created"), not a precondition.
+  const givens = (steps: string[]) => { const out: string[] = []; let inGiven = false; for (const st of steps) { if (/^Given\b/.test(st)) inGiven = true; else if (/^(When|Then)\b/.test(st)) inGiven = false; if (inGiven && /^(Given|And|But)\b/.test(st)) out.push(st); } return out; };
+  const needsData = f.scenarios.filter((x) => givens([...f.background, ...x.steps]).some((st) => /\b(exists?|created|signed in|have added|know (the|an) id|registered)\b/i.test(st)));
   // Lookups ("I know the id of …") are satisfied by seed.step; data by seed.create/track; auth by seed.once.
   if (needsData.length && !/\bseed\.(create|track|step|once|until)\(/.test(src)) {
     warn('no-seeding', `${needsData.length} scenario(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but the spec never uses seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
@@ -155,7 +164,8 @@ async function probeOnce(url: string, timeoutMs: number): Promise<{ ok: boolean;
   const started = Date.now();
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), redirect: 'follow' });
-    return { ok: res.status < 500, status: res.status, ms: Date.now() - started };
+    // 429 = the host is rate-limiting us: tests would fail on the limit, not on the application.
+    return { ok: res.status < 500 && res.status !== 429, status: res.status, ms: Date.now() - started, ...(res.status === 429 ? { error: `rate limited (429${res.headers.get('retry-after') ? `, retry after ${res.headers.get('retry-after')} s` : ''}) — wait, then run again` } : {}) };
   } catch (e) {
     const cause = (e as { cause?: { code?: string; message?: string } }).cause;
     return { ok: false, ms: Date.now() - started, error: `${(e as Error).message}${cause ? ` (${cause.code ?? cause.message})` : ''}` };

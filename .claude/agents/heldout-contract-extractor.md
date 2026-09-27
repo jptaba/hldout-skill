@@ -19,7 +19,9 @@ Inputs, for story KEY (given in your task):
 Do this:
 1. If the pack lists non-text attachments that aren't transcribed yet, open each with Read and write
    `requirement/transcripts/<file>.md`. The first line is `transcribedFrom: attachments/<file>`, followed by a faithful
-   transcription with no interpretation. Then run `npm run heldout -- contract KEY --pack` again.
+   transcription with no interpretation. Then run `npm run heldout -- contract KEY --pack` again. A transcript that
+   already exists is evidence like any other: open the image and check it line by line; correct it only where it
+   differs from the image.
 2. Fill in the contract as the reference describes. `quote` is verbatim. `source` / `lines` cite line numbers from the
    pack. Every ● line goes in `coverage`. HOW to exercise the app that the story doesn't say (routes, labels, an
    unnamed endpoint, request fields) is an open **mechanics** gap for the evaluator to discover later. WHAT is correct

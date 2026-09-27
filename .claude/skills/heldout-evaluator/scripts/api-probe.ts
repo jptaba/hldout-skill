@@ -2,11 +2,11 @@
  * API probe — hardening + live confirmation tool for API scenarios (the API counterpart of inspect.ts).
  *
  *   heldout api-probe [--key KEY | --aut <profile>] <METHOD> <path>
- *       [--data '<json>' | --data-file body.json | --raw-data '<string>' | --form 'a=1&b=2']   (values support ${env:NAME})
+ *       [--data '<json>' | --data-file body.json | --raw-data '<string>' | --form 'a=1&b=2' or --form '{"a":1}']   (values support ${env:NAME})
  *   heldout api-probe [--key KEY] --chain chain.json [--out repro.md]   (multi-call sequence; see runChain)
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
- *       [--repeat N] [--out report.md] [--json]
+ *       [--repeat N] [--out report.md] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)
  *
  * Paths resolve against the profile's apiBaseURL. Under Git Bash omit the leading "/" (api/room), or
  * set MSYS_NO_PATHCONV=1 — MSYS rewrites "/…" arguments into Windows paths.
@@ -21,6 +21,15 @@ const env = (s: string) => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => {
   if (process.env[n] === undefined) throw new Error(`\${env:${n}} is not set (.env)`);
   return process.env[n]!;
 });
+
+/** A path with ${env:NAME}: the value is URL-encoded into the request, and shown as *** in every report. */
+const envPath = (s: string) => s.replace(/\$\{env:(\w+)\}/g, (m) => encodeURIComponent(env(m)));
+const maskEnv = (s: string) => s.replace(/\$\{env:\w+\}/g, '***');
+/** Last line of defence: the values of every ${env:NAME} the input mentions never reach a report, raw or encoded. */
+function scrubEnv(report: string, input: string): string {
+  const values = [...new Set([...input.matchAll(/\$\{env:(\w+)\}/g)].map((m) => process.env[m[1]]).filter((v): v is string => Boolean(v && v.length >= 3)))];
+  return values.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), report);
+}
 
 interface Login { method?: string; path: string; data?: unknown; extract: string; as: string }
 
@@ -45,21 +54,38 @@ const dig = (obj: unknown, dotted: string) => dotted.split('.').reduce<unknown>(
  * --chain chain.json: a reproducible multi-call sequence (pre-steps + the call under test), e.g. for live
  * confirmation of a finding. Values `${name}` come from "vars", from earlier steps' "save", from `${env:NAME}`,
  * and `${uid}` (unique per chain run). "form" sends application/x-www-form-urlencoded; "setup": true marks
- * pre-steps (listed, but not the evidence). "expect" (status or list) marks each step ✔/✖.
- *   { "vars": {...}, "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "var": "dotted.path" }, "expect"?: 201, "setup"?: true, "show"?: ["total", "data.length"] } ] }
+ * pre-steps (listed, but not the evidence). "expect" (status or list) marks each step ✔/✖; "expectBody"
+ * ({ "dotted.path": value }) does the same for body fields — for APIs that answer HTTP 200 and put the outcome
+ * in the body (e.g. { "responseCode": 400 }).
+ *   { "vars": {...}, "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "var": "dotted.path" }, "expect"?: 201, "setup"?: true, "show"?: ["total", "data.length", "token|jwt"] } ] }
+ * "field|jwt" / "field|base64" decodes a field before showing it (secret-named keys stay redacted).
+ * "notContains": [{ "field": "token", "decode"?: "jwt", "value": "${env:PASSWORD}" }] checks a value does NOT appear
+ * in a field (a leak check) without ever printing the value; a hit marks the step ✖.
  */
-interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; raw?: string; save?: Record<string, string>; expect?: number | number[]; setup?: boolean; show?: string[] }
+interface NotContains { field: string; decode?: 'jwt' | 'base64'; value: string }
+interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; raw?: string; save?: Record<string, string>; expect?: number | number[]; expectBody?: Record<string, unknown>; setup?: boolean; show?: string[]; notContains?: NotContains[] }
+
+const b64 = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+const parsed = (s: string): unknown => { try { return JSON.parse(s); } catch { return s; } };
+/** A JWT as its decoded parts (the signature is left encoded); anything else decoded as base64. */
+function decode(v: unknown, how?: string): unknown {
+  if (typeof v !== 'string' || !how) return v;
+  if (how === 'jwt') { const [h, p, sig] = v.split('.'); return { header: parsed(b64(h ?? '')), payload: parsed(b64(p ?? '')), signature: sig ?? '' }; }
+  return parsed(b64(v));
+}
 async function runChain(file: string, base: string, cfgName: string, outFile?: string): Promise<void> {
   const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, string>; steps: ChainStep[] };
   const vars: Record<string, string> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
-  const interp = (s: string): string => env(s).replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
+  const interpVars = (s: string): string => s.replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
+  const interp = (s: string): string => interpVars(env(s));
   const deep = (v: unknown): unknown => (typeof v === 'string' ? interp(v) : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
   for (const [k, v] of Object.entries(chain.vars ?? {})) vars[k] = interp(v);
   const lines = [`# API chain — ${file}`, '', `- AUT: ${cfgName} · ${base} · captured ${new Date().toISOString()}`, ''];
   let failed = 0;
   for (const [i, s] of chain.steps.entries()) {
     const method = (s.method ?? 'GET').toUpperCase();
-    const url = resolveUrl(base, interp(s.path));
+    const url = resolveUrl(base, envPath(interpVars(s.path)));
+    const shownUrl = new URL(resolveUrl(base, maskEnv(interpVars(s.path))));
     const headers: Record<string, string> = { Accept: 'application/json', ...(deep(s.headers ?? {}) as Record<string, string>) };
     let body: string | undefined;
     if (s.json !== undefined) { body = JSON.stringify(deep(s.json)); headers['Content-Type'] ??= 'application/json'; }
@@ -68,23 +94,40 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     const r = await send(url, method, headers, body);
     for (const [name, dotted] of Object.entries(s.save ?? {})) { const v = dig(r.json, dotted); if (v !== undefined) vars[name] = String(v); }
     const exp = s.expect === undefined ? undefined : ([] as number[]).concat(s.expect);
-    const ok = !exp || exp.includes(r.status);
+    const checks = (s.notContains ?? []).map((c) => {
+      const d = decode(dig(r.json, c.field), c.decode);
+      const parts = d && typeof d === 'object' && c.decode === 'jwt' ? Object.entries(d as Record<string, unknown>) : [['value', d] as const];
+      const secret = interp(c.value);
+      const hits = secret ? parts.filter(([, x]) => JSON.stringify(x ?? '').includes(secret)).map(([k]) => k) : [];
+      return `\`${c.field}\`${c.decode ? ` (${c.decode})` : ''} ${hits.length ? `✖ contains ${c.value} in: ${hits.join(', ')}` : `does not contain ${c.value} ✔`}`;
+    });
+    const bodyMisses = Object.entries(s.expectBody ?? {}).filter(([f, want]) => JSON.stringify(dig(r.json, f)) !== JSON.stringify(deep(want)))
+      .map(([f, want]) => `\`${f}\` ✖ expected ${JSON.stringify(redact(deep(want)))}, got ${JSON.stringify(redact(dig(r.json, f)))}`);
+    if (s.expectBody && !bodyMisses.length) checks.push(`body ${Object.keys(s.expectBody).map((f) => `\`${f}\``).join(', ')} as expected ✔`);
+    checks.push(...bodyMisses);
+    const ok = (!exp || exp.includes(r.status)) && !checks.some((l) => l.includes('✖'));
     if (!ok) failed++;
     let shownBody = body ?? '';
     try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body))) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''))); } catch { /* raw */ }
     const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : r.text;
-    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${new URL(url).pathname}${new URL(url).search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''} → **${r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
+    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''} → **${r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.
-    if (s.show?.length) lines.push(`   ${s.show.map((f) => { const v = f.endsWith('.length') ? (dig(r.json, f.slice(0, -7)) as unknown[] | undefined)?.length : dig(r.json, f); return `\`${f}\` = \`${JSON.stringify(redact(v))}\``; }).join(' · ')}`);
+    if (s.show?.length) lines.push(`   ${s.show.map((f) => {
+      const [field, how] = f.split('|');
+      const v = field.endsWith('.length') ? (dig(r.json, field.slice(0, -7)) as unknown[] | undefined)?.length : decode(dig(r.json, field), how);
+      return `\`${f}\` = \`${JSON.stringify(redact(v))}\``;
+    }).join(' · ')}`);
     else lines.push(`   \`${resp.replace(/\s+/g, ' ').slice(0, 300).replace(/`/g, "'")}\``);
+    if (checks.length) lines.push(`   ${checks.join(' · ')}`);
   }
-  lines.push('', failed ? `**${failed} step(s) did not return the expected status.**` : 'All expectations held.', '');
-  const out = lines.join('\n');
+  lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**` : 'All expectations held.', '');
+  const out = scrubEnv(lines.join('\n'), fs.readFileSync(file, 'utf8'));
   if (outFile) { writeFile(outFile, out); console.log(`✔ chain of ${chain.steps.length} call(s) → ${outFile}${failed ? ` (${failed} unexpected)` : ''}`); } else console.log(out);
 }
 
 main(async () => {
   const { _, flags } = parseArgs();
+  const bodyLimit = Number(flagStr(flags, 'body-limit') ?? 4000);
   const chainFile = flagStr(flags, 'chain');
   if (chainFile) {
     const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
@@ -96,7 +139,8 @@ main(async () => {
   const method = methodArg.toUpperCase();
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const base = cfg.aut.apiBaseURL ?? cfg.aut.baseURL;
-  const url = resolveUrl(base, pathArg);
+  const url = resolveUrl(base, envPath(pathArg));
+  const shownUrl = resolveUrl(base, maskEnv(pathArg));
 
   const headers: Record<string, string> = { Accept: 'application/json' };
   for (const h of flagList(flags, 'header')) { const i = h.indexOf(':'); headers[h.slice(0, i).trim()] = env(h.slice(i + 1).trim()); }
@@ -132,25 +176,26 @@ main(async () => {
   const results = [];
   for (let i = 0; i < repeat; i++) results.push(await send(url, method, headers, body));
   const r = results.at(-1)!;
+  const input = [...process.argv.slice(2), dataFile ? fs.readFileSync(dataFile, 'utf8') : ''].join(' ');
 
   if (flags.json) {
-    console.log(JSON.stringify({ request: { method, url, headers: redactHeaders(headers), body: body && redactBody(body, headers['Content-Type']) }, response: { status: r.status, ms: r.ms, headers: redactHeaders(r.headers), body: r.json !== undefined ? redact(r.json) : r.text } }, null, 2));
+    console.log(scrubEnv(JSON.stringify({ request: { method, url: shownUrl, headers: redactHeaders(headers), body: body && redactBody(body, headers['Content-Type']) }, response: { status: r.status, ms: r.ms, headers: redactHeaders(r.headers), body: r.json !== undefined ? redact(r.json) : r.text } }, null, 2), input));
     return;
   }
   let reqBody = body ?? '';
   if (body !== undefined) { const b = redactBody(body, headers['Content-Type']); reqBody = typeof b === 'string' ? b : JSON.stringify(b, null, 2); }
   const pretty = r.json !== undefined ? JSON.stringify(redact(r.json), null, 2) : r.text;
-  const out = [
-    `# API probe — ${method} ${url}`, '',
+  const out = scrubEnv([
+    `# API probe — ${method} ${shownUrl}`, '',
     `- AUT: ${cfg.aut.name} (profile \`${cfg.autId}\`) · captured ${new Date().toISOString()}`,
     `- Status: **${r.status}**${repeat > 1 ? ` (all runs: ${results.map((x) => x.status).join(', ')})` : ''}`,
     `- Time: ${r.ms} ms${repeat > 1 ? ` (min ${Math.min(...results.map((x) => x.ms))} / max ${Math.max(...results.map((x) => x.ms))})` : ''}`,
     `- Content-Type: ${r.headers['content-type'] ?? '-'}`, '',
     ...(body !== undefined ? ['## Request body', '', '```json', reqBody, '```', ''] : []),
     '## Response headers (redacted)', '', '```json', JSON.stringify(redactHeaders(r.headers), null, 2), '```', '',
-    '## Response body (redacted, first 4000 chars)', '', '```json', pretty.slice(0, 4000), '```', '',
+    `## Response body (redacted${pretty.length > bodyLimit ? `, first ${bodyLimit} of ${pretty.length} chars; --body-limit N for more` : ''})`, '', '```json', pretty.slice(0, bodyLimit), '```', '',
     ...(r.json !== undefined ? ['## Shape (types only)', '', '```json', JSON.stringify(shapeOf(r.json), null, 2), '```', ''] : []),
-  ].join('\n');
+  ].join('\n'), input);
   const file = flagStr(flags, 'out');
-  if (file) { writeFile(file, out); console.log(`✔ ${method} ${url} → ${r.status} (${r.ms} ms) — written to ${file}`); } else console.log(out);
+  if (file) { writeFile(file, out); console.log(`✔ ${method} ${shownUrl} → ${r.status} (${r.ms} ms) — written to ${file}`); } else console.log(out);
 });

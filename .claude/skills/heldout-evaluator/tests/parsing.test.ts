@@ -14,6 +14,7 @@ const FEATURE = `# AC-1: First criterion
 # ENDPOINT: GET /api/room/{id} — room detail
 # ASSUMPTION: something assumed
 # OPEN-QUESTION: something open
+# OBSERVATION: the form sends no request
 @story:ABC-1
 Feature: Demo
   # from story AC-1, rules.csv
@@ -22,7 +23,7 @@ Feature: Demo
     Given x
     Then y
 
-  @SCN-002 @AC-2 @type:boundary
+  @SCN-002 @AC-2 @type:boundary @assumes:G2
   Scenario Outline: Two
     When <v>
     Then z
@@ -41,6 +42,7 @@ describe('readFeature', () => {
     assert.deepEqual(f.endpoints, [{ method: 'GET', path: '/api/room/{id}', note: 'room detail' }]);
     assert.equal(f.assumptions.length, 1);
     assert.equal(f.openQuestions.length, 1);
+    assert.deepEqual(f.observations, ["the form sends no request"]);
   });
   it('reads scenario tags, normalised type, layer, sources and outline examples', () => {
     const [a, b] = f.scenarios;
@@ -48,6 +50,8 @@ describe('readFeature', () => {
     assert.equal(a.layer, 'ui');
     assert.deepEqual(a.sources, ['story AC-1, rules.csv']);
     assert.equal(b.outline, true);
+    assert.deepEqual(a.assumes, []);
+    assert.deepEqual(b.assumes, ['G2']);
     assert.equal(b.examples.length, 3);
     assert.deepEqual(b.sources, []);
   });
@@ -64,6 +68,11 @@ describe('helpers', () => {
     assert.ok(matchEndpoint(eps, 'GET', '/api/room/7'));
     assert.equal(matchEndpoint(eps, 'GET', '/api/rooms/7'), undefined);
     assert.equal(matchEndpoint(eps, 'POST', '/api/room/7'), undefined);
+  });
+  it('matchEndpoint accepts declared paths relative to the API base path', () => {
+    const eps = [{ method: 'GET', path: '/accounts/{accountId}' }];
+    assert.ok(matchEndpoint(eps, 'GET', '/bank/services/accounts/20004', '/bank/services/'));
+    assert.equal(matchEndpoint(eps, 'GET', '/other/accounts/20004', '/bank/services/'), undefined);
   });
   it('testIdsIn / testTagsIn read static and template-literal tests', () => {
     const src = "test('SCN-001: a', { tag: ['@AC-1', '@type:functional'] }, async () => {});\n  test(`SCN-004.${i + 1}: b`, { tag: ['@AC-4'] }, async () => {});";
@@ -100,6 +109,7 @@ describe('decideVerdict', () => {
   it('confirmed defects → FAIL', () => assert.equal(decideVerdict({ ...base, confirmedAppDefects: [{ refs: ['AC-1'] }], failures: 1 }).verdict, 'FAIL'));
   it('unexplained failures → INCONCLUSIVE', () => assert.equal(decideVerdict({ ...base, failures: 1 }).verdict, 'INCONCLUSIVE'));
   it('warnings → PASS_WITH_WARNINGS', () => assert.equal(decideVerdict({ ...base, openQuestions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
+  it('a failure resting only on an assumption → PASS_WITH_WARNINGS, not FAIL', () => assert.equal(decideVerdict({ ...base, contradictedAssumptions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
   it('clean → PASS', () => assert.equal(decideVerdict(base).verdict, 'PASS'));
   it('amended integrity still allows PASS', () => assert.equal(decideVerdict({ ...base, integrity: 'AMENDED' }).verdict, 'PASS'));
 });
@@ -210,6 +220,16 @@ describe('failure signatures across runs', () => {
     assert.equal(maskVolatile('2026-09-26T19:08:35.136Z'), '<ts>');
     assert.equal(maskVolatile('[REQ AC-10] 401 vs 403'), '[REQ AC-10] 401 vs 403');
     assert.notEqual(maskVolatile('"Your account has been locked."'), maskVolatile('"Epic sadface: Sorry"'));
+  });
+  it('depend on the failure only, not on the evidence triage picked for it', async () => {
+    const { signature } = await import('../scripts/lib/triage-model');
+    const error = { headline: '[REQ AC-6] an error is shown', reqTag: 'AC-6', received: 'hidden', message: '' };
+    const exchange = (method: string, status: number) => ({ request: { method, url: 'https://x.test/a' }, response: { status } });
+    const a = { scenario: 'SCN-1', status: 'failed', error, evidence: { api: exchange('GET', 200) } };
+    const b = { scenario: 'SCN-1', status: 'failed', error, evidence: {} };
+    const c = { scenario: 'SCN-1', status: 'failed', error, evidence: { api: exchange('POST', 500) } };
+    assert.equal(signature(a as never), signature(b as never));
+    assert.equal(signature(a as never), signature(c as never));
   });
 });
 

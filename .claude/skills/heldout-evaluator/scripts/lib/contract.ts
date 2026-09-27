@@ -21,7 +21,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkCoverage, checkLiterals, type CoverageEntry } from './evidence';
+import { checkCoverage, checkLiterals, decodeEntities, parseRange, type CoverageEntry } from './evidence';
 
 export const CONTRACT_FILE = 'requirement-contract.json';
 export type Layer = 'ui' | 'api' | 'e2e';
@@ -120,7 +120,7 @@ export function requirementRevision(reqDir: string): RequirementContract['revisi
 
 /** Normalise text for quote matching: markdown/table punctuation, quotes, dashes and whitespace. */
 export function normaliseText(s: string): string {
-  return s.toLowerCase()
+  return decodeEntities(s).toLowerCase()
     .replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-')
     // Emphasis/code markers vanish ("(**201**)" ≡ "(201)"); structural ones (headings, quotes, table pipes) separate words.
     .replace(/[*_`]+/g, '').replace(/[#>|]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -170,14 +170,41 @@ export function skeletonContract(key: string, reqDir: string): RequirementContra
 // ---- validation ---------------------------------------------------------------------------------
 
 const epKey = (e: { method: string; path: string }) => `${e.method.toUpperCase()} ${e.path.replace(/\/+$/, '') || '/'}`;
-const LADDER_ORDER: LadderStep[] = ['story', 'attachments', 'aut', 'config', 'user'];
+/** Rung of each ladder step: the requirement (story, attachments) first, then the AUT and the project config in either
+ * order (the builder reads config in phase 1b, hardening probes the AUT later), and the user last. */
+const LADDER_RUNG: Record<LadderStep, number> = { story: 0, attachments: 0, aut: 1, config: 1, user: 2 };
 
 export interface CheckOptions {
   /** The AUT profile has an API origin (required when any AC is api/e2e). */
   hasApiBase?: boolean;
 }
 
+/** Field types the checks rely on; a wrong type is reported as a finding instead of crashing a check. */
+export function shapeFindings(c: RequirementContract): ContractFinding[] {
+  const out: ContractFinding[] = [];
+  const list = (where: string, v: unknown, optional = false) => {
+    if (v === undefined && optional) return;
+    if (!Array.isArray(v)) out.push({ level: 'error', code: 'contract-shape', message: `${where} must be a list (JSON array)${v === undefined ? ', and it is missing' : `, got ${typeof v}`}` });
+  };
+  for (const k of ['sourcesRead', 'acceptanceCriteria', 'endpoints', 'rules', 'errorModel', 'gaps', 'coverage'] as const) list(k, c[k]);
+  list('actors', c.actors, true);
+  list('outOfScope', c.outOfScope, true);
+  list('nonFunctional', c.nonFunctional, true);
+  list('testData.constraints', c.testData?.constraints, true);
+  if (c.context !== undefined && typeof c.context !== 'string') out.push({ level: 'error', code: 'contract-shape', message: 'context must be a string' });
+  if (Array.isArray(c.acceptanceCriteria)) for (const a of c.acceptanceCriteria) {
+    list(`${a.id}.outcomes`, a.outcomes);
+    list(`${a.id}.endpoints`, a.endpoints, true);
+    list(`${a.id}.gaps`, a.gaps, true);
+  }
+  if (Array.isArray(c.gaps)) for (const g of c.gaps) { list(`${g.id}.tried`, g.tried); list(`${g.id}.affects`, g.affects); }
+  if (Array.isArray(c.endpoints)) for (const e of c.endpoints) list(`endpoint ${e.method} ${e.path} requestFields`, e.requestFields, true);
+  return out;
+}
+
 export function checkContract(c: RequirementContract, reqDir: string, opts: CheckOptions = {}): ContractFinding[] {
+  const shape = shapeFindings(c);
+  if (shape.length) return shape;
   const out: ContractFinding[] = [];
   const err = (code: string, message: string) => out.push({ level: 'error', code, message });
   const warn = (code: string, message: string) => out.push({ level: 'warn', code, message });
@@ -254,6 +281,20 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
     else if (itemIds.has(e.id)) err('error-duplicate', `${e.id} appears twice`);
     itemIds.add(e.id);
   }
+  // Citations: "<file>#L<n>[-L<m>]", several separated by commas; an endpoint may instead cite the gap that found it.
+  const cites = (where: string, ref: string | undefined, allowGap = false) => {
+    if (!ref) return;
+    for (const part of ref.split(/\s*[,;]\s*/).filter(Boolean)) {
+      if (allowGap && gapIds.has(part)) continue;
+      const r = parseRange(part);
+      if (!r) warn('citation-format', `${where} cites "${part}" — use <file>#L<n> or <file>#L<n>-L<m>, several separated by commas`);
+      else if (!fs.existsSync(path.join(reqDir, r.file))) err('citation-file', `${where} cites ${r.file}, which does not exist under requirement/`);
+    }
+  };
+  for (const r of c.rules ?? []) cites(r.id, r.source);
+  for (const e of c.errorModel ?? []) cites(e.id, e.source);
+  for (const n of c.nonFunctional ?? []) cites(n.id, n.source);
+  for (const e of c.endpoints ?? []) cites(`endpoint ${epKey(e)}`, e.source, true);
 
   // Gaps: ladder, oracle/mechanics rule, resolution evidence.
   for (const g of c.gaps ?? []) {
@@ -263,8 +304,8 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
     }
     if (g.kind === 'oracle' && tried.includes('aut')) warn('oracle-probed', `${g.id}: probing the AUT for expected behaviour is not a valid source — observations may only inform the question you ask`);
     if (!tried.includes('story') && !tried.includes('attachments')) err('gap-ladder', `${g.id}: the requirement (story/attachments) was not searched before resolving "${g.element}"`);
-    const order = tried.map((t) => LADDER_ORDER.indexOf(t));
-    if (order.some((v, i) => i > 0 && v < order[i - 1])) warn('gap-ladder-order', `${g.id}: ladder walked out of order (${tried.join(' → ')}); expected requirement → AUT → config → user`);
+    const order = tried.map((t) => LADDER_RUNG[t] ?? -1);
+    if (order.some((v, i) => i > 0 && v < order[i - 1])) warn('gap-ladder-order', `${g.id}: ladder walked out of order (${tried.join(' → ')}); expected the requirement, then the AUT or config, then the user`);
     if (g.resolution === 'discovered-in-aut' && !g.evidence) err('gap-evidence', `${g.id}: discovered-in-aut needs evidence (probe command / output file)`);
     if (g.resolution === 'provided-by-user' && (!g.value || !g.evidence)) err('gap-evidence', `${g.id}: provided-by-user needs the answer (value) and evidence (who / when)`);
     if (g.resolution === 'provided-by-user' && !tried.includes('user')) err('gap-ladder', `${g.id}: resolved by the user but "user" is not in tried[]`);
@@ -319,7 +360,7 @@ export function readContract(evalDir: string): RequirementContract | undefined {
 /** Cross-check scenarios.feature against the contract (called by the traceability lint). */
 export function checkFeatureAgainstContract(c: RequirementContract, feature: {
   acs: { id: string; text: string }[]; endpoints: { method: string; path: string }[];
-  openQuestions: string[]; assumptions: string[]; scenarios: { id: string; acs: string[]; needsClarification: boolean }[];
+  openQuestions: string[]; assumptions: string[]; scenarios: { id: string; acs: string[]; needsClarification: boolean; assumes?: string[] }[];
 }): ContractFinding[] {
   const out: ContractFinding[] = [];
   const cAcs = new Map((c.acceptanceCriteria ?? []).map((a) => [a.id, a]));
@@ -338,6 +379,9 @@ export function checkFeatureAgainstContract(c: RequirementContract, feature: {
   }
   for (const g of (c.gaps ?? []).filter((x) => x.resolution === 'assumed' && x.kind === 'oracle')) {
     if (!feature.assumptions.some((a) => a.includes(g.id))) out.push({ level: 'error', code: 'assumption-not-surfaced', message: `${g.id} is an assumed oracle value but no # ASSUMPTION mentions ${g.id}` });
+    // An assumption that only drops an assertion ("no status asserted") has no expectation to tag: "(not asserted)".
+    const notAsserted = feature.assumptions.some((a) => a.includes(g.id) && /\(not asserted\)/i.test(a));
+    if (g.affects.length && !notAsserted && !feature.scenarios.some((s) => s.assumes?.includes(g.id))) out.push({ level: 'warn', code: 'assumption-not-tagged', message: `tag the scenarios whose expectation rests on ${g.id} with @assumes:${g.id}, so a failure there reads as a question for the owner, not a defect` });
   }
   return out;
 }

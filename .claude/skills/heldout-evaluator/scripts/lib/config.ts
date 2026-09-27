@@ -15,6 +15,12 @@ export interface AutProfile {
   testIdAttribute?: string;
   /** Paths checked before a run: UI paths resolve against baseURL, "api:" paths against apiBaseURL. */
   healthcheck?: string[];
+  /** Third-party hosts (ads, analytics, consent) the browser blocks: not part of the AUT, and a source of flakiness. */
+  blockHosts?: string[];
+  /** Most parallel workers the host tolerates (shared sandboxes behind rate limits / bot protection); caps --workers. */
+  maxWorkers?: number;
+  /** Minimum gap between test starts (ms), across workers: for hosts that ban bursts of traffic. */
+  minTestIntervalMs?: number;
   notes?: string;
 }
 
@@ -117,6 +123,9 @@ export function validateConfig(raw: unknown): string[] {
     const prof = p as Record<string, unknown>;
     if (!isUrl(prof.baseURL)) out.push(`auts.${id}.baseURL must be an http(s) URL (got ${JSON.stringify(prof.baseURL)})`);
     if (prof.apiBaseURL !== undefined && !isUrl(prof.apiBaseURL)) out.push(`auts.${id}.apiBaseURL must be an http(s) URL (got ${JSON.stringify(prof.apiBaseURL)})`);
+    if (prof.blockHosts !== undefined && (!Array.isArray(prof.blockHosts) || prof.blockHosts.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.blockHosts must be a list of host names, e.g. ["doubleclick.net"]`);
+    if (prof.minTestIntervalMs !== undefined && !(Number.isInteger(prof.minTestIntervalMs) && (prof.minTestIntervalMs as number) >= 0)) out.push(`auts.${id}.minTestIntervalMs must be a whole number of milliseconds`);
+    if (prof.maxWorkers !== undefined && !(Number.isInteger(prof.maxWorkers) && (prof.maxWorkers as number) >= 1)) out.push(`auts.${id}.maxWorkers must be a whole number ≥ 1`);
     if (prof.healthcheck !== undefined && (!Array.isArray(prof.healthcheck) || prof.healthcheck.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.healthcheck must be a list of paths, e.g. ["/", "api:/health"]`);
     else for (const h of (prof.healthcheck as string[] | undefined) ?? []) {
       if (!/^(\/|api:\/|https?:\/\/)/.test(h) && h !== '') out.push(`auts.${id}.healthcheck entry ${JSON.stringify(h)} must start with "/", "api:/" or http(s):// (a Windows path here usually means Git Bash rewrote the argument)`);
@@ -151,6 +160,8 @@ export function autEnv(cfg: HeldoutConfig): Record<string, string> {
     AUT_BASE_URL: cfg.aut.baseURL,
     AUT_API_BASE_URL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL,
     AUT_TEST_ID_ATTRIBUTE: cfg.aut.testIdAttribute ?? 'data-testid',
+    AUT_BLOCK_HOSTS: (cfg.aut.blockHosts ?? []).join(','),
+    AUT_MIN_TEST_INTERVAL_MS: String(cfg.aut.minTestIntervalMs ?? 0),
   };
 }
 

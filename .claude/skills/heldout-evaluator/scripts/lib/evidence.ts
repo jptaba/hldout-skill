@@ -30,8 +30,9 @@ export function textSources(reqDir: string): string[] {
 /**
  * Lines that carry content and must be accounted for in the coverage ledger. Structure the fetch itself adds to
  * story.md (front matter, title, section headings, attachment index, comment author lines), blank lines, table
- * separators and markdown headings are not accountable.
+ * separators and header rows, and markdown headings are not accountable.
  */
+const SEPARATOR = /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$/;
 export function sourceLines(reqDir: string): SourceLine[] {
   const out: SourceLine[] = [];
   for (const file of textSources(reqDir)) {
@@ -43,7 +44,10 @@ export function sourceLines(reqDir: string): SourceLine[] {
       let accountable = true;
       if (file === 'story.md' && /^## Attachments$/.test(t)) inAttachmentIndex = true;
       if (inFront) { accountable = false; if (i > 0 && t === '---') inFront = false; }
-      else if (!t || /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$/.test(t) || /^#{1,6}\s/.test(t) || /^-{3,}$/.test(t)) accountable = false;
+      // Code fences (```gherkin) and a Gherkin "Feature:" title are structure, like a heading.
+      else if (!t || SEPARATOR.test(t) || /^#{1,6}\s/.test(t) || /^-{3,}$/.test(t) || /^(`{3,}|~{3,})[\w-]*$/.test(t) || /^Feature:/.test(t)) accountable = false;
+      // A table header row only names the columns; the rows under it carry the content.
+      else if (t.startsWith('|') && SEPARATOR.test(lines[i + 1]?.trim() ?? '')) accountable = false;
       else if (file === 'story.md') {
         if (inAttachmentIndex || /^_\(?(none|empty)\)?_$/i.test(t) || /^\*\*.+\*\* — \d{4}-\d{2}-\d{2}:$/.test(t)) accountable = false;
       } else if (file.startsWith('transcripts/') && /^transcribedFrom:/.test(t)) accountable = false;
@@ -122,13 +126,19 @@ export function checkCoverage(c: RequirementContract, reqDir: string): ContractF
 
 const NUMBER_WORDS: Record<string, number> = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, twenty: 20, thirty: 30, hundred: 100,
   first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7, eighth: 8, ninth: 9, tenth: 10, once: 1, twice: 2 };
-const norm = (s: string) => s.toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[*_`]+/g, '').replace(/\s+/g, ' ');
+/** HTML entities that stories copied from web pages or wiki markup carry (&lt;username&gt; reads as <username>). */
+export const decodeEntities = (s: string) => s.replace(/&(lt|gt|amp|quot|apos|nbsp|#39);/g, (_m, k: string) => ({ lt: '<', gt: '>', amp: '&', quot: '"', apos: "'", nbsp: ' ', '#39': "'" } as Record<string, string>)[k]);
+const norm = (s: string) => decodeEntities(s).toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[*_`]+/g, '').replace(/\s+/g, ' ');
 
 function numbersIn(text: string): Set<number> {
   const out = new Set<number>();
   for (const m of norm(text).matchAll(/(?<![\w.])(\d+(?:\.\d+)?)(?:st|nd|rd|th)?(?![\w.]*\d)/g)) out.add(Number(m[1]));
   for (const m of norm(text).matchAll(/\b([a-z]+)\b/g)) if (NUMBER_WORDS[m[1]] !== undefined) out.add(NUMBER_WORDS[m[1]]);
   return out;
+}
+/** Stated decimals with the step their precision implies ("100.00" → 0.01): one step outside is a boundary value. */
+function decimalSteps(text: string): [number, number][] {
+  return [...norm(text).matchAll(/(?<![\w.])(\d+)\.(\d+)(?![\w.]*\d)/g)].map((m) => [Number(`${m[1]}.${m[2]}`), 10 ** -m[2].length]);
 }
 
 export interface LiteralViolation { where: string; literal: string; kind: 'status' | 'number' | 'text' | 'path'; fromAutOnly?: boolean }
@@ -142,9 +152,15 @@ export interface LiteralViolation { where: string; literal: string; kind: 'statu
 export function inventedLiterals(c: RequirementContract, reqDir: string): LiteralViolation[] {
   const sourceText = norm(textSources(reqDir).map((f) => fs.readFileSync(path.join(reqDir, f), 'utf8')).join('\n'));
   const sourceNumbers = numbersIn(sourceText);
+  const sourceSteps = decimalSteps(sourceText);
   const answered = (c.gaps ?? []).filter((g) => ['found-in-requirement', 'found-in-config', 'provided-by-user', 'assumed'].includes(g.resolution)).map((g) => norm(`${g.value ?? ''} ${g.evidence ?? ''}`)).join('\n');
   const fromAut = (c.gaps ?? []).filter((g) => g.resolution === 'discovered-in-aut').map((g) => norm(`${g.value ?? ''}`)).join('\n');
   const answeredNumbers = numbersIn(answered);
+  // A spec that states a base URL (https://host/api) and paths relative to it grounds the composed path (/api/x).
+  const bases = [...new Set([...sourceText.matchAll(/https?:\/\/[^\s/"'`)<>]+(\/[a-z0-9_\-./]*[a-z0-9_\-])/g)].map((m) => m[1].replace(/\/+$/, '')))];
+  const params = (s: string) => s.replace(/\{[^}]+\}|<[^>]+>|:[a-z_]+/g, '{}');
+  const paramSources = params(sourceText);
+  const pathInSources = (p: string) => sourceText.includes(p) || paramSources.includes(params(p));
   const out: LiteralViolation[] = [];
   const check = (where: string, text: string | undefined, opts: { mechanics?: boolean } = {}) => {
     if (!text) return;
@@ -156,8 +172,8 @@ export function inventedLiterals(c: RequirementContract, reqDir: string): Litera
     }
     for (const m of [...rest.matchAll(/(?<![\w/])(\/[a-z0-9_\-.{}:<>/]*[a-z0-9_}>])/g)]) { // paths
       const p = m[1];
-      const bare = p.replace(/\{[^}]+\}|<[^>]+>|:[a-z_]+/g, '{}');
-      const grounded = sourceText.includes(p) || sourceText.replace(/\{[^}]+\}|<[^>]+>|:[a-z_]+/g, '{}').includes(bare) || answered.includes(p) || (opts.mechanics && fromAut.includes(p));
+      const underBase = bases.some((b) => p.startsWith(`${b}/`) && pathInSources(p.slice(b.length)));
+      const grounded = pathInSources(p) || underBase || answered.includes(p) || (opts.mechanics && fromAut.includes(p));
       if (!grounded) out.push({ where, literal: p, kind: 'path', fromAutOnly: fromAut.includes(p) });
       rest = rest.replace(p, ' ');
     }
@@ -166,7 +182,8 @@ export function inventedLiterals(c: RequirementContract, reqDir: string): Litera
     const statuses = new Set([...rest.matchAll(/(?:→|->|\bstatus(?: code)?|\brespon(?:ds?|se)(?: with)?|\breturns?|\bcode|\bhttp|\banswer(?:s|ed)?(?: with)?)\s*(\d{3})\b/g)].map((m) => Number(m[1])));
     if (/^\s*\d{3}\s*$/.test(rest)) statuses.add(Number(rest.trim()));
     for (const n of numbersIn(rest)) {
-      const ok = sourceNumbers.has(n) || answeredNumbers.has(n) || (!statuses.has(n) && (sourceNumbers.has(n - 1) || sourceNumbers.has(n + 1)));
+      const ok = sourceNumbers.has(n) || answeredNumbers.has(n) || (!statuses.has(n) && (sourceNumbers.has(n - 1) || sourceNumbers.has(n + 1)
+        || sourceSteps.some(([v, step]) => Math.abs(Math.abs(n - v) - step) < step / 1000)));
       if (!ok) out.push({ where, literal: String(n), kind: n >= 100 && n <= 599 && Number.isInteger(n) ? 'status' : 'number', fromAutOnly: numbersIn(fromAut).has(n) });
     }
   };
@@ -257,7 +274,7 @@ export function checkReview(c: RequirementContract, review: ContractReview | und
     return out;
   }
   if (review.contractHash !== contractHash(c)) {
-    out.push({ level: 'error', code: 'review-stale', message: `The review (${review.reviewedAt}) was for another version of the contract (hash ${review.contractHash} ≠ ${contractHash(c)}) — the contract changed after review; run the reviewer again` });
+    out.push({ level: opts.requireReview ? 'error' : 'warn', code: 'review-stale', message: `The review (${review.reviewedAt}) was for another version of the contract (hash ${review.contractHash} ≠ ${contractHash(c)}) — the contract changed after review; run the reviewer again` });
     return out;
   }
   const byRef = new Map(review.items.map((i) => [i.ref, i]));

@@ -18,7 +18,7 @@ grounded in the sources:
 | --- | --- | --- |
 | Anchoring | invented or paraphrased criteria | each AC's `quote` must appear verbatim at its cited lines |
 | Coverage ledger | omissions | every ● line of the evidence pack must be in `coverage`, captured or dismissed with a reason |
-| Literal grounding | invented facts | every status code, number, quoted message and path in the expected behaviour must appear in the sources, or in a gap answered by the requirement, config, user or an explicit assumption. One step outside a stated boundary is allowed (1–99 grounds 0 and 100). A literal found only in what was discovered from the app is rejected |
+| Literal grounding | invented facts | every status code, number, quoted message and path in the expected behaviour must appear in the sources, or in a gap answered by the requirement, config, user or an explicit assumption. One step outside a stated boundary is allowed (1–99 grounds 0 and 100). A path under a base URL the sources state is grounded by that URL plus the relative path (`https://host/api` and `/login` ground `/api/login`). A literal found only in what was discovered from the app is rejected |
 | Independent review | misreadings, subtle omissions | a fresh subagent (`heldout-contract-reviewer`) checks every item against the evidence pack and writes a verdict, bound to the hash of what the story requires (criteria, rules, error model, oracle gaps, stated endpoints, coverage). Any edit to those makes the review stale; completing mechanics does not |
 
 ## Procedure
@@ -64,16 +64,16 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | · `outcomes` | Observable pass/fail facts, **worded with the source's literals** (the status, the message in quotes, the number). No outcome the source doesn't state; a derived boundary only one step outside a stated range |
 | · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API) |
 | · `endpoints` | `"METHOD /path"` keys of every endpoint the AC's journey calls, including pre-steps; each must be in `endpoints[]`. Needed for api/e2e ACs, unless a mechanics gap in `gaps` stands for the missing one |
-| · `entryPoint`, `needsData` | Where a UI journey starts; whether the AC needs pre-existing data (→ seeding) |
+| · `entryPoint`, `needsData` | Where a UI journey starts; `needsData`: the AC needs data the tests must create first (→ seeding). Read-only data that already exists (a catalogue) is not seeded: list it in `testData.constraints` |
 | · `gaps` | Ids of the gaps that affect this AC |
-| `endpoints[]` | `{ "method", "path", "source", "auth"?: "required" \| "optional" \| "none", "success"?, "envelope"?, "requestFields"?, "request"? }`. `source` is the cited line, or the id of the mechanics gap that discovered it. `envelope` (the wrapper key: `{"article": {…}}` → `"article"`) and `requestFields` (`["product_id", "quantity"]`) let triage tell a malformed test request from an application defect; `request` is free text for people |
-| `rules[]` | `{ "id": "R1", "text", "source" }`: business rules, boundaries and validation tables the sources state |
+| `endpoints[]` | `{ "method", "path", "source", "auth"?: "required" \| "optional" \| "none", "success"?, "envelope"?, "requestFields"?, "request"? }`. `source` is the cited line (a heading that names the endpoint is fine), or the id of the mechanics gap that discovered it. Set `auth` only when a source states it; unstated protection is left out (and, if a test depends on it, a mechanics gap), never `"none"` by default. `envelope` (the wrapper key of the **request** body: `{"article": {…}}` → `"article"`) and `requestFields` (`["product_id", "quantity"]`) let triage tell a malformed test request from an application defect; `request` is free text for people |
+| `rules[]` | `{ "id": "R1", "text", "source" }` (`source` may cite several places: `story.md#L34, story.md#L27-L28`): business rules, boundaries and validation tables the sources state |
 | `errorModel[]` | `{ "id": "E1", "case", "status"?, "body"?, "source" }`: each error case the sources state. `body` is the message, or the whole body as the sources give it (`{"error": "Invalid credentials"}`) |
 | `auth` | `{ "mechanism", "credentials"?, "source" }`. Required when an endpoint has `auth: "required"` |
-| `testData` | `{ "strategy", "constraints"?, "cleanup"?, "source"? }`: how the evaluation gets its data ("tests register their own customer via POST /users/register", "none needed: read-only catalogue"). State only what the sources or the project say |
-| `actors`, `context`, `nonFunctional[]` (`{ id, text, source }`), `outOfScope[]` | Optional; only what the sources say |
+| `testData` | `{ "strategy", "constraints"? (list of strings), "cleanup"?, "source"? }`: how the evaluation gets its data ("tests register their own customer via POST /users/register", "none needed: read-only catalogue"). State only what the sources or the project say |
+| `actors` (list of strings), `context` (string), `nonFunctional[]` (`{ id, text, source }`), `outOfScope[]` (list of strings) | Optional; only what the sources say |
 | `gaps[]` | `{ "id": "G1", "element", "kind": "mechanics" \| "oracle", "required", "affects": ["AC-2"] or ["*"], "tried": [{ "where": "story" \| "attachments" \| "aut" \| "config" \| "user", "result" }], "resolution", "value"?, "evidence"? }`. `resolution` is `found-in-requirement`, `found-in-config`, `discovered-in-aut` (mechanics only), `provided-by-user`, `assumed` or `open`. Omit `value` while open. `required` means the affected ACs can't be evaluated without it |
-| `coverage[]` | `{ "lines": "story.md#L20-L22", "as", "note"? }`. `as` holds one or more comma-separated refs: item ids (`AC-1`, `R2`, `E1`, `G3`, `NFR-1`) or the kinds `endpoint`, `error-model`, `auth`, `test-data`, `context`, `out-of-scope`, `non-functional`, `example`, `duplicate`, `not-a-requirement` (needs a note saying why). Every ● line must be covered, and every AC referenced by some entry |
+| `coverage[]` | `{ "lines": "story.md#L20-L22", "as", "note"? }`. `as` holds one or more refs, separated by commas: item ids (`AC-1`, `R2`, `E1`, `G3`, `NFR-1`) or the kinds `endpoint`, `error-model`, `auth`, `test-data`, `context`, `out-of-scope`, `non-functional`, `example`, `duplicate`, `not-a-requirement` (needs a note saying why). Every ● line must be covered, and every AC referenced by some entry |
 
 ## Gaps: find, then ask. Never read expected behaviour off the app
 
@@ -97,6 +97,40 @@ Walk the ladder in order and log each step in `tried[]`:
 for a missing cart → 404" next to a specific one "deleting a deleted cart → 204"): record an oracle gap naming both.
 Resolve it as `found-in-requirement` only if one source explicitly supersedes the other (a later clarification by
 the owner, "not X as stated above"). Otherwise it's `assumed` (say which reading and why) or `open` for the user.
+
+**A need no criterion covers** (the user story says "discover articles by tag", the API lists a `tag` parameter, but no AC
+says what it must do): don't write an AC for it. Record a non-required oracle gap ("no acceptance criterion covers
+filtering by tag; is it in scope, and what must it return?") with `affects: []`, and cover the lines with that gap.
+
+**Loose wording for a status** ("response code 400" when the API may put a code in the body and answer HTTP 200): an oracle
+gap. Name both readings; if you assume one, the scenarios that rest on it carry `@assumes:G<n>`.
+
+**A clarification that adds to a criterion** (a comment gives the status an AC left out): the value is
+`found-in-requirement`; add it to the outcomes of every AC the comment names or clearly covers, and cite the comment.
+
+**A header every call sends** ("clients send Accept: application/json"): mechanics the story states. Note it in each
+endpoint's `request` and cover the line as `endpoint`.
+
+**Endpoints written several ways** (a full path in one place, a path relative to a service base in another,
+`{id}` here and `{accountId}` there): one entry per endpoint, its path relative to the profile's API base
+(`apiBaseURL`) — that is how tests call it — with the parameter name the most specific source uses. A path under a
+base URL the sources state is grounded as is; cite the line that gives each part.
+
+**A statement that applies across criteria** (a Background line, "one entry per product"): it is a rule. Add it to
+an AC's outcomes only when that AC's check depends on it, citing the rule's line as well as the AC's.
+
+**HTML entities** (`&lt;brand&gt;`): quote the line as the pack shows it or as it reads (`<brand>`); the checks
+treat both the same.
+
+**Scenario Outlines** (`"status <code> and status text <text>"` with an Examples table): keep the template as the
+quoted literal and list each Examples row as its own outcome (`Created → code 201, text "Created"`). A row
+substituted into the template is not a literal the story states.
+
+**Quoting part of a stated message**: an outcome quotes a message whole or not at all. `"Successfully
+transferred …"` is a new literal the checks reject; write "the confirmation AC-2 states" instead.
+
+**Money and other decimals at a boundary**: a stated `100.00` grounds one step of its precision on either side
+(`99.99`, `100.01`), as `1–99` grounds `0` and `100`.
 
 **A story that points elsewhere** ("same criteria as ABC-12", "see the linked spec"): the contract is built from this
 story's sources only. If the criteria are restated here, capture them and cover the pointer as `context`. If they are

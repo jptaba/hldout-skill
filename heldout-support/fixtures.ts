@@ -14,6 +14,7 @@
  * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics.
  */
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test as base, expect, request as pwRequest, type APIRequestContext } from '@playwright/test';
 
@@ -33,10 +34,13 @@ export interface ApiCallOptions {
   data?: unknown;
   /** Form fields sent as application/x-www-form-urlencoded (APIs that do not take JSON). */
   form?: Record<string, string | number | boolean>;
-  headers?: Record<string, string>;
+  /** null drops a header the fixture would send (e.g. { Accept: null } for "a request without Accept"). */
+  headers?: Record<string, string | null>;
   params?: Record<string, string | number | boolean>;
   /** Cookie header shortcut, e.g. { token: '…' }. */
   cookies?: Record<string, string>;
+  /** Redirects are followed by default; 0 returns the 3xx itself (to assert a redirect's status and Location). */
+  maxRedirects?: number;
 }
 
 export interface ApiResponse<T = unknown> {
@@ -89,6 +93,8 @@ export function unique(prefix = 'heldout'): string {
   uniqueCounter += 1;
   return `${prefix} ${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}-${uniqueCounter}`;
 }
+/** unique() without spaces, for e-mails, user names and slugs: uniqueId('qa') → "qa-k3x9q2-1". Keep prefixes short where the AUT limits length. */
+export const uniqueId = (prefix = 'qa'): string => unique(prefix).replace(/\s+/g, '-');
 
 // ---- data seeding -------------------------------------------------------------------------------
 
@@ -128,11 +134,18 @@ const onceCache = new Map<string, { value: unknown; at: number }>();
 /**
  * A path in a test is relative to the AUT profile's URL, including any path prefix: with baseURL
  * https://host/app/, '/login' is https://host/app/login (plain Playwright would go to https://host/login).
- * Full URLs pass through unchanged. ,  and the  client all resolve paths this way.
+ * Full URLs pass through unchanged. `page.goto`, `gotoPage` and the `api` client all resolve paths this way.
  */
 export function autUrl(base: string | undefined, target: string): string {
   if (!base || /^[a-z][a-z0-9+.-]*:/i.test(target)) return target;
-  return new URL(target.replace(/^/+/, ''), base.endsWith('/') ? base : ).toString();
+  return new URL(target.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).toString();
+}
+
+/** Abort requests to the profile's blockHosts (ads, analytics, consent banners): they are not the AUT and inject content. */
+export async function blockThirdParty(context: import('@playwright/test').BrowserContext, hosts = ''): Promise<void> {
+  const list = hosts.split(',').map((h) => h.trim().toLowerCase()).filter(Boolean);
+  if (!list.length) return;
+  await context.route((url) => list.some((h) => url.hostname === h || url.hostname.endsWith(`.${h}`)), (route) => route.abort());
 }
 
 /**
@@ -202,11 +215,38 @@ const redactHeaders = (h: Record<string, string>) =>
   Object.fromEntries(Object.entries(h).map(([k, v]) => [k, SECRET_HEADER.test(k) || SECRET_VALUE.test(String(v)) ? '***redacted***' : v]));
 const clip = (s: string, n = 4000) => (s.length > n ? `${s.slice(0, n)}… (${s.length - n} more chars)` : s);
 
-export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed }>({
-  // Paths resolve against the profile URL including its path prefix (see autUrl).
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Seconds a 429 asks us to wait (Retry-After header, or a retry_after field some WAFs put in the body). */
+const retryAfter = (header: string | undefined, body = '') => Math.min(Number(header ?? body.match(/retry_after\D{0,5}(\d+)/i)?.[1] ?? 10) || 10, 120);
+
+export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed; pace: void }>({
+  // The profile's minTestIntervalMs: tests start at least that far apart, across workers and worker restarts, so a
+  // host that bans bursts of traffic (shared sandboxes behind a WAF) never sees one.
+  pace: [async ({}, use) => {
+    const interval = Number(process.env.AUT_MIN_TEST_INTERVAL_MS ?? 0);
+    if (interval > 0) {
+      const stamp = path.join(os.tmpdir(), `heldout-pace-${new URL(process.env.AUT_BASE_URL ?? 'http://aut').host.replace(/[^\w.-]/g, '_')}`);
+      const last = Number(fs.existsSync(stamp) ? fs.readFileSync(stamp, 'utf8') : 0) || 0;
+      const wait = last + interval - Date.now();
+      if (wait > 0) await sleep(Math.min(wait, interval));
+      fs.writeFileSync(stamp, String(Date.now()));
+    }
+    await use();
+  }, { auto: true }],
+
+  // Paths resolve against the profile URL including its path prefix (see autUrl). A 429 page (rate limit) is the
+  // environment, not the application: wait as told and load again, twice at most.
   page: async ({ page }, use) => {
+    await blockThirdParty(page.context(), process.env.AUT_BLOCK_HOSTS);
     const goto = page.goto.bind(page);
-    page.goto = (url, options) => goto(autUrl(process.env.AUT_BASE_URL, url), options);
+    page.goto = async (url, options) => {
+      let res = await goto(autUrl(process.env.AUT_BASE_URL, url), options);
+      for (let attempt = 0; res?.status() === 429 && attempt < 2; attempt++) {
+        await sleep(retryAfter(res.headers()['retry-after'], await res.text().catch(() => '')) * 1000);
+        res = await goto(autUrl(process.env.AUT_BASE_URL, url), options);
+      }
+      return res;
+    };
     await use(page);
   },
 
@@ -336,18 +376,26 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   api: async ({ apiContext }, use, testInfo) => {
     let n = 0;
     const call = async <T,>(method: string, urlPath: string, o: ApiCallOptions = {}): Promise<ApiResponse<T>> => {
-      const headers: Record<string, string> = { Accept: 'application/json', ...o.headers };
+      const headers = Object.fromEntries(Object.entries({ Accept: 'application/json', ...o.headers })
+        .filter((kv): kv is [string, string] => kv[1] !== null));
       if (o.cookies) headers.Cookie = Object.entries(o.cookies).map(([k, v]) => `${k}=${v}`).join('; ');
       const raw = typeof o.data === 'string';
       if (o.data !== undefined) headers['Content-Type'] ??= 'application/json';
       const formBody = o.form ? new URLSearchParams(Object.entries(o.form).map(([k, v]) => [k, String(v)])).toString() : undefined;
       if (formBody !== undefined) headers['Content-Type'] ??= 'application/x-www-form-urlencoded';
-      const started = Date.now();
-      const res = await apiContext.fetch(autUrl(process.env.AUT_API_BASE_URL ?? process.env.AUT_BASE_URL, urlPath), {
-        method, headers, params: o.params,
+      const send = () => apiContext.fetch(autUrl(process.env.AUT_API_BASE_URL ?? process.env.AUT_BASE_URL, urlPath), {
+        method, headers, params: o.params, ...(o.maxRedirects !== undefined ? { maxRedirects: o.maxRedirects } : {}),
         ...(o.data !== undefined ? { data: raw ? (o.data as string) : JSON.stringify(o.data) } : formBody !== undefined ? { data: formBody } : {}),
         failOnStatusCode: false,
       });
+      let started = Date.now();
+      let res = await send();
+      // A shared host rate-limiting us (429) is the environment, not the answer under test: wait as told, twice at most.
+      for (let attempt = 0; res.status() === 429 && attempt < 2; attempt++) {
+        await sleep(retryAfter(res.headers()['retry-after'], await res.text().catch(() => '')) * 1000);
+        started = Date.now();
+        res = await send();
+      }
       const durationMs = Date.now() - started;
       const text = await res.text();
       let body: unknown = text;

@@ -14,7 +14,7 @@ The verdict uses the latest run whose label doesn't start with `harden` (overrid
 | `INCONCLUSIVE` | integrity VIOLATED (the oracle changed without an amendment or re-freeze) |
 | `FAIL` | ≥ 1 application defect reproduced by the evaluator |
 | `INCONCLUSIVE` | failures remain that are unconfirmed, script, environment or needs-investigation |
-| `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications or open questions remain |
+| `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications, contradicted assumptions or open questions remain. An open question only about non-required oracle gaps that affect no AC is listed "for the owner's information" and doesn't downgrade a PASS |
 | `PASS` | all passed and every AC is covered |
 
 ## What `verdict.md` contains (written for a reviewer)

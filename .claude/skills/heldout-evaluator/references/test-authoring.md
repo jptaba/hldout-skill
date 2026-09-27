@@ -55,7 +55,8 @@ test.describe('<KEY> <summary>', () => {
 | `journey.step(gherkinLine, fn)` | One Gherkin line = one step. Captures an ARIA snapshot on failure (and after every step with `--capture`) |
 | `api.get/post/put/patch/delete(path, { data, headers, params, cookies })` | HTTP client on the profile's `apiBaseURL`. Returns `{ status, body, text, headers, durationMs }`. Every exchange is attached, redacted, as triage and verdict evidence (replayable as curl). A string `data` is sent raw (e.g. malformed JSON) |
 | `data` | `test-data.json`, with `${env:NAME}` resolved |
-| `unique(prefix)` | Collision-free values for shared AUTs |
+| `unique(prefix)` | Collision-free values for shared AUTs (`"QA k3x9q2-1"`, with a space) |
+| `uniqueId(prefix)` | The same without spaces, for e-mails, user names and slugs (`` `${uniqueId('qa')}@example.com` ``) |
 | `checkShape(value, schema, label)` | Contract check returning readable violations: `expect(checkShape(body, ROOM), '[REQ AC-11] schema').toEqual([])` |
 
 ## Conventions (triage, integrity, lint and verdict depend on them)
@@ -66,6 +67,8 @@ test.describe('<KEY> <summary>', () => {
 | Tags `@AC-n`, `@type:<t>`, `@layer:<l>` matching the scenario (`heldout lint KEY --fix-tags` syncs them) | Results trace to requirement and test type; lint enforces it |
 | One `journey.step` per Gherkin line, with the Gherkin text verbatim | Failing step reported in requirement language |
 | Every requirement check: `expect(x, '[REQ AC-n] <what>')` | Triage: a failing `[REQ]` on a located element or declared endpoint is an application-defect candidate |
+| An API body check names its call: `'[REQ AC-4] POST /createAccount returns balance 100.00'` | Triage and the verdict's reproduction pick that call as the evidence, not the last call made |
+| Money and other decimals compared as the requirement writes them (`expect(Number(body.balance)).toBeCloseTo(100, 2)`), not converted to cents | The verdict shows `100 → 0`, readable to the owner |
 | `[REQ AC-n strict]` when the locator itself is the requirement (accessible name, role, alt text) | Integrity freezes subject + matcher, and triage treats "not found" as an application candidate |
 | Expected values in `@req-constants` or literal in `[REQ]` matchers | Frozen by the integrity check |
 | Endpoints exactly as declared in `# ENDPOINT:` lines (keep them in one `EP` map) | Triage flags calls to undeclared endpoints as script defects |
@@ -83,6 +86,20 @@ test.describe('<KEY> <summary>', () => {
 - Assert at the precision the requirement states, nothing more. Extra assertions create false defects.
 - `test.only`, `test.fixme` and `.skip` are forbidden (lint error). An unimplemented feature is a
   failing test, not a skipped one.
+- **Native dialogs** (`alert`, `confirm`, `prompt`): the action that opens one does not return while it is open.
+  Register a handler before the action that records the dialog and answers it, then assert the record:
+
+  ```ts
+  const dialogs: { type: string; message: string }[] = [];
+  page.on('dialog', (d) => { dialogs.push({ type: d.type(), message: d.message() }); void d.accept(); }); // d.dismiss() for Cancel
+  await journey.step('When I submit the form', () => page.getByRole('button', { name: 'Submit' }).click());
+  expect(dialogs, '[REQ AC-7] confirmation shown').toEqual([{ type: 'confirm', message: 'Press OK to proceed!' }]);
+  ```
+- **Something must NOT happen after an action** ("the form is not sent", "no message appears"): an immediate
+  `toHaveCount(0)` passes before the app has had time to react. First wait for a positive sign that the app
+  handled the action (a validation message, a request, the form re-rendered) — or, when there is none, a bounded
+  wait for the unwanted outcome (`await expect(success).toBeVisible({ timeout: 5_000 })` expected to fail, via
+  `expect.poll` over the window) — and say which in the step title.
 
 ## Data seeding and entry points
 
@@ -90,7 +107,7 @@ Full strategy: [data-and-journeys.md](data-and-journeys.md).
 
 | Helper | Use |
 | --- | --- |
-| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence |
+| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. When the application offers no way to delete the data, omit `cleanup`: the ledger records `none`; use unique names so leftovers never collide |
 | `seed.track(label, created, cleanup)` | Register cleanup for data the scenario itself created (the POST under test, or data the AUT wrongly accepted) |
 | `seed.tag` | Per-test tag for naming seeded data (sweepable) |
 | `gotoPage(page, path)` | Entry-point navigation: DOMContentLoaded + bounded `load` settle |

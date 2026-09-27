@@ -79,12 +79,13 @@ export function nodeFor(snapshot: string, role: string, name?: string, exact = f
   return undefined;
 }
 
-/** Ref of the first matching node that HAS a ref (required to act on it). */
-export function refFor(snapshot: string, role: string, name?: string, exact = false): string | undefined {
+/** Ref of the nth (1-based) matching node that HAS a ref (required to act on it). */
+export function refFor(snapshot: string, role: string, name?: string, exact = false, nth = 1): string | undefined {
+  let seen = 0;
   for (const line of snapshot.split('\n')) {
     if (!/\[ref=/.test(line)) continue;
     const hit = nodeFor(line, role, name, exact);
-    if (hit?.ref) return hit.ref;
+    if (hit?.ref && ++seen === nth) return hit.ref;
   }
   return undefined;
 }

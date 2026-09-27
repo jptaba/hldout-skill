@@ -15,7 +15,7 @@ npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → dra
 | --- | --- | --- | --- | --- |
 | 1 IDE browser tool | host IDE exposes browser tools | navigate / read page / act step by step | the tool's network view, if any | tier-3 probe |
 | 2 Playwright MCP | `mcp__playwright__*` present | `browser_navigate` → `browser_snapshot` → `browser_click`/`browser_type` | `browser_network_requests` | tier-3 probe |
-| 3 bundled | always | `heldout inspect --key KEY [--url path] [--steps-json …] [--wait-for "<loc>"]`, `heldout run KEY --label harden --capture` | `heldout api-probe --key KEY METHOD path [--data …] [--login …]` | `heldout inspect --probe "<expr>"` (exactly 1 match); `heldout api-probe` status/shape |
+| 3 bundled | always | `heldout inspect --key KEY [--url path] [--steps steps.json] [--wait-for "<loc>"] [--out report.md]`, `heldout run KEY --label harden --capture` | `heldout api-probe --key KEY METHOD path [--data …] [--login …]` | `heldout inspect --probe "<expr>"` (exactly 1 match); `heldout api-probe` status/shape |
 
 ## 1a. Complete the contract's mechanics
 
@@ -24,10 +24,26 @@ endpoint or request field the story doesn't name. Discover each one with the tie
 then record it in `requirement-contract.json`: add `{ "where": "aut", "result": "<what you found>" }` to `tried`, set
 `"resolution": "discovered-in-aut"`, `"value"` and `"evidence"` (the probe command or its output file), and add what it
 unlocks (the endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`). This is
-mechanics only, so the review stays valid. If what you find contradicts the requirement (the story's endpoint doesn't
+mechanics only, so the review stays valid. For example:
+
+```json
+{ "id": "G1", "element": "request fields of POST /Account/v1/User", "kind": "mechanics", "required": true, "affects": ["AC-6"],
+  "tried": [{ "where": "story", "result": "not stated" }, { "where": "aut", "result": "published API docs name userName, password" }],
+  "resolution": "discovered-in-aut", "value": "JSON body {userName, password}", "evidence": "hardening/api-user.md" }
+```
+
+and on the endpoint: `{ "method": "POST", "path": "/Account/v1/User", "source": "story.md#L42", "requestFields": ["userName", "password"] }`;
+on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement (the story's endpoint doesn't
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
 
 ## 1b. Tier notes
+
+Third-party ads, analytics or consent banners that inject text or overlays make tests flaky and are not the AUT: list
+their hosts in the profile's `blockHosts` (`heldout.config.json`). The fixtures and `heldout inspect` abort those
+requests. A `--repeat-each` run exposes this kind of noise.
+
+The Playwright MCP server is one browser per Claude Code session. When several agents evaluate stories in parallel,
+they would drive the same page: use `heldout mcp-probe` (its own server per call) or tier 3 instead.
 
 If a tier's tools are missing or fail, fall to the next one and say so in the log. Never report a
 tier you did not use. Under Git Bash, pass paths without a leading `/` (`--url cart`, `api/room`):
@@ -46,7 +62,9 @@ MSYS rewrites `/…` arguments into Windows paths.
   ```
 
   Steps resolve elements by **role + accessible name** from the live MCP snapshot (`{"find": {"role": "button", "name": "Login"}}`),
-  and support `expect` / `expectAbsent` / `expectText` checks.
+  and support `expect` / `expectAbsent` / `expectText` checks. Secrets come from `${env:NAME}` and are redacted
+  everywhere in the report; per-run data (a user created a moment ago) comes from `--var name=value` as
+  `${var:name}` and stays readable as evidence.
 - **Every MCP action returns the Playwright code it ran**, which is a free locator suggestion (e.g.
   `page.locator('#table1').getByRole('columnheader', { name: 'Last Name' })`). Still verify it with a probe.
 - **SPAs:** after `browser_navigate`, always `browser_wait_for` a text that proves the page rendered. MCP can
@@ -55,8 +73,8 @@ MSYS rewrites `/…` arguments into Windows paths.
   from a snapshot that may not have rendered. `heldout mcp-probe` enforces this: `expectAbsent` fails unless a wait
   anchor was seen or the snapshot has substantial content. Pair every absence check with a positive control
   on the same page (e.g. the other form fields *are* exposed).
-- Large snapshots are written to files (`[Snapshot](….yml)`). `heldout mcp-probe` reads them and keeps MCP output
-  in a temp directory. When MCP runs natively, add `.playwright-mcp/` to `.gitignore`.
+- Large snapshots are written to files (`[Snapshot](….yml)`). `heldout mcp-probe` reads them, keeps MCP output
+  in its own temp directory and deletes it when the walk ends. When MCP runs natively, add `.playwright-mcp/` to `.gitignore`.
 
 ## 2. Walk each scenario
 
@@ -67,10 +85,17 @@ dialogs, empty live regions that shadow `role=alert`, and so on.
 
 API: probe each declared endpoint with `heldout api-probe`. Verify the path, the auth mechanism (cookie
 vs header, token field), content type, and the body *shape* (`## Shape`). Fix plumbing only. Status
-codes and values come from the requirement, never from the probe.
+codes and values come from the requirement, never from the probe. When the application publishes an OpenAPI or
+Swagger document, read it for request mechanics (parameter names, encodings) with
+`api-probe … --body-limit 200000 --out …`: the report clips bodies at 4000 characters by default. A shared host
+that answers 429 is rate-limiting you: the `api` fixture waits and retries (twice, as `Retry-After` says) and
+the preflight refuses to run while it happens. Page loads answered with 429 are retried the same way. For a host that
+bans bursts, set the profile's `maxWorkers` (e.g. 1) and `minTestIntervalMs` (e.g. 12000: tests start at least that
+far apart), and pace your probes.
 
 ```bash
-npm run heldout -- inspect --key KEY --steps-json '[{"do":"fill","target":"getByLabel(\"Email\")","value":"${env:AUT_USER}"}]' --probe "getByRole('heading', { name: 'Dashboard' })"
+# steps in a file (write it with your file tool: shell quoting mangles locators and regexes)
+npm run heldout -- inspect --key KEY --steps evaluations/KEY/hardening/tier3/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })" --out evaluations/KEY/hardening/tier3/login.md
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 
@@ -105,6 +130,12 @@ npm run heldout -- integrity KEY --amend "<file>: [REQ AC-3] <message>" --reason
 Integrity becomes AMENDED and the verdict lists the amendment. Never use an amendment to align
 with AUT behaviour.
 
+The test: after the amendment, does the assertion still fail for every application that violates **its own**
+criterion, and pass for every one that meets it? Then it is an implementation fix. Typical cases: a regex stricter than
+the wording; one AC's assertion re-checking another AC's oracle (AC-9 "one message remains" asserting AC-7's exact
+message text — the text stays AC-7's check, AC-9 asserts only what AC-9 states). Loosening an assertion because the
+application answers differently is never one. Say in `--reason` if you noticed it while looking at the live app.
+
 ### Requirement revision → audited re-freeze
 
 When `jira-fetch` reports a revision, update the review and scenarios, draft the new tests
@@ -121,7 +152,7 @@ The old draft is archived under `hardening/draft-history/`, and the absorbed cha
 
 ```markdown
 # Hardening log — KEY
-**Tiers used:** <tiers actually used, and why others were not>
+**Tiers used:** <one sentence: the tiers actually used (the verdict shows it)>. <then why others were not>
 **AUT profile:** <id> — <urls> · **Date:** <iso> · **Draft frozen:** draft/<file>
 
 ## UI locators
