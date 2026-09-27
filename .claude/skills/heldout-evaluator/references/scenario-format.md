@@ -72,7 +72,7 @@ Feature: <story summary>
 | `@layer:ui\|api\|e2e` | recommended | Which layer the test drives |
 | `@priority:P1..P3` | recommended | P1: core journey / money / security; P3: cosmetic |
 | `# ENDPOINT: METHOD /path/{param}` | for API stories | The declared contract. Triage flags calls to undeclared endpoints as script defects |
-| `# ASSUMPTION:` / `# OPEN-QUESTION:` / `@needs-clarification` | when needed | Surfaced in the verdict |
+| `# ASSUMPTION:` / `# OPEN-QUESTION:` / `@needs-clarification` | when needed | Surfaced in the verdict. A `@needs-clarification` scenario tests the literal reading of an open question: a confirmed failure is a question for the owner (verdict at most PASS_WITH_WARNINGS), never a defect |
 | `# OBSERVATION:` | when needed | Something seen during evaluation that the story's goal implies but no AC states (e.g. "the form sends no request"). Listed in the verdict for the owner; it doesn't change the verdict. May be added after the freeze |
 | `@assumes:G<n>` | on every scenario whose expected value comes from an assumed oracle gap, not from the requirement | A confirmed failure there is listed as "an assumption the application contradicts" (a question for the owner, verdict at most PASS_WITH_WARNINGS), never as a defect. Keep requirement-backed checks in separate scenarios so they still count. An assumption that only leaves something unasserted ("no status is asserted") has no expectation to tag: write `# ASSUMPTION: G<n> … (not asserted)` and tag nothing |
 

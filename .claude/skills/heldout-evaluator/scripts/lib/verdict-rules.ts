@@ -30,7 +30,7 @@ export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: str
     return { verdict: 'INCONCLUSIVE', reason: `${i.skipped} scenario(s) did not run (skipped), so the requirement is not fully evaluated.` };
   }
   if (i.flaky || i.uncoveredAcs || i.clarifications || i.openQuestions || i.contradictedAssumptions) {
-    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} assumption(s) the application contradicts (ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} scenario(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`].filter(Boolean).join(', ');
+    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} reading(s) the application contradicts (an assumed value or an open question: ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} scenario(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`].filter(Boolean).join(', ');
     return { verdict: 'PASS_WITH_WARNINGS', reason: `${i.contradictedAssumptions ? 'Every requirement-backed scenario passed' : 'All scenarios passed'}, with warnings: ${why}.` };
   }
   return { verdict: 'PASS', reason: 'Every scenario passed and every acceptance criterion is covered.' };

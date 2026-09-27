@@ -5,7 +5,6 @@
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { ROOT, evalPaths, rel, resolveUrl, type HeldoutConfig } from './config';
 import { checkContract, checkFeatureAgainstContract, readContract } from './contract';
@@ -226,7 +225,7 @@ export function typeErrors(testsDir: string): string[] {
   const project = path.join(ROOT, 'tsconfig.json');
   const files = specFiles(testsDir);
   if (!files.length || !fs.existsSync(tsc) || !fs.existsSync(project)) return [];
-  const tmp = path.join(os.tmpdir(), `heldout-tsc-${process.pid}-${Date.now()}.json`);
+  const tmp = path.join(ROOT, `.heldout-tsc-${process.pid}.json`); // beside the project config: type roots resolve from there
   fs.writeFileSync(tmp, JSON.stringify({ extends: project, compilerOptions: { noEmit: true }, include: [], files }));
   try {
     const r = spawnSync(process.execPath, [tsc, '-p', tmp], { encoding: 'utf8', cwd: ROOT });

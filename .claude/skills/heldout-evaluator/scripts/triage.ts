@@ -119,6 +119,9 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
           entry.evidence.apiRelevantIndex = preSeq.length - 1;
         }
         entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...feature.seedEndpoints], requestContracts: requests, apiBasePath });
+        if (entry.auto.category === 'APPLICATION_DEFECT' && (scn?.needsClarification || scn?.assumes.length)) {
+          entry.auto.signals.push(`${scn.id} rests on an unsettled reading (${scn.assumes.length ? `assumed ${scn.assumes.join(', ')}` : '@needs-clarification: the literal reading of an open question'}). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect.`);
+        }
         for (const o of entry.otherFailures) {
           entry.auto.signals.push(`Also failed: ${o.headline}${o.expected !== undefined ? ` — expected ${o.expected}, received ${o.received}` : ''}`);
         }

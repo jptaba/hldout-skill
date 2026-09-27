@@ -57,8 +57,15 @@ main(() => {
   const link = (projRel?: string) => (projRel ? path.relative(p.base, path.join(ROOT, projRel)).split(path.sep).join('/') : '');
 
   const failures = tri.entries.filter((e) => e.status === 'failed');
-  // A confirmed failure whose expectation rests only on an assumed oracle value is a question for the owner, not a defect.
-  const assumesOf = (id: string) => feature.scenarios.find((x) => x.id === baseScenarioId(id))?.assumes ?? [];
+  // A confirmed failure whose expectation rests on an unsettled reading is a question for the owner, not a defect: an
+  // assumed oracle value (@assumes:G<n>), or the literal reading of an open question (@needs-clarification).
+  const assumesOf = (id: string): string[] => {
+    const sc = feature.scenarios.find((x) => x.id === baseScenarioId(id));
+    if (!sc) return [];
+    if (sc.assumes.length) return sc.assumes;
+    const open = contract.gaps.filter((g) => g.kind === 'oracle' && g.resolution === 'open' && g.affects.some((a) => sc.acs.includes(a))).map((g) => g.id);
+    return sc.needsClarification ? (open.length ? open.map((g) => `${g} (literal reading)`) : ['literal reading (@needs-clarification)']) : [];
+  };
   const contradicted = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && e.final && assumesOf(e.scenario).length);
   const appDefects = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && !contradicted.includes(e))
     .sort((a, b) => SEVERITY_ORDER.indexOf(a.final?.severity ?? 'Minor') - SEVERITY_ORDER.indexOf(b.final?.severity ?? 'Minor') || a.scenario.localeCompare(b.scenario, undefined, { numeric: true }));
@@ -291,8 +298,8 @@ main(() => {
     if (infoQuestions.length) md.push('**For the owner\'s information** (about things no acceptance criterion requires; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
     if (clarifications.length) md.push('**Scenarios needing clarification:**', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');
-    if (contradicted.length) md.push('**Assumptions the application contradicts** (the requirement does not state these values; not reported as defects, the owner decides):', '',
-      '| Test | Assumption | Expected (assumed) | Actual |', '| --- | --- | --- | --- |',
+    if (contradicted.length) md.push('**Readings the application contradicts** (the requirement does not settle these: an assumed value, or the literal reading of an open question; not reported as defects, the owner decides):', '',
+      '| Test | Rests on | Expected (by that reading) | Actual |', '| --- | --- | --- | --- |',
       ...contradicted.map((e) => `| ${e.scenario} | ${assumesOf(e.scenario).join(', ')} | ${esc(e.error?.expected ?? '-')} | ${esc(actualOf(e))} |`), '');
     if (fs.existsSync(p.requirementReview)) md.push('Full review: [requirement-review.md](requirement-review.md)', '');
   }
