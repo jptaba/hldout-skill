@@ -19,11 +19,13 @@ Get the skill once, from wherever your team keeps it (GitLab, GitHub, a file sha
 root of the project that will hold the evaluations:
 
 ```bash
-git clone --depth 1 <skill-repository-url> "$HOME/heldout-skill"
+git clone --depth 1 --filter=blob:none --sparse <skill-repository-url> "$HOME/heldout-skill"
+git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluator
 npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install
 ```
 
-The same two lines work in bash, zsh and PowerShell. `init` copies the skill into `.claude/skills/heldout-evaluator/`
+The same lines work in bash, zsh and PowerShell. The sparse clone fetches only the skill (about 2 MB, a few seconds),
+not the demo evaluations stored beside it. `init` copies the skill into `.claude/skills/heldout-evaluator/`
 and scaffolds the project. Then it visits your app once and fills in the profile:
 - the profile id, from the host name;
 - the app's name, from its page title (shown in verdicts);

@@ -63,7 +63,10 @@ function installSkillFrom(source: string): void {
   fs.rmSync(PROJECT_SKILL, { recursive: true, force: true });
   fs.cpSync(source, PROJECT_SKILL, { recursive: true, filter: (f) => !path.relative(source, f).split(/[\\/]/).some((p) => p === 'node_modules' || p === '.git') });
   const commit = git(source, 'rev-parse', '--short', 'HEAD');
-  const info = { from: source, remote: git(source, 'remote', 'get-url', 'origin'), commit, installedAt: new Date().toISOString() };
+  // Where to pull from and what to run again to update (paths in the form the local git prints them).
+  const repo = git(source, 'rev-parse', '--show-toplevel');
+  const info = { from: repo ?? source, update: `${repo ? `git -C "${repo}" pull, then ` : ''}npx -y tsx "${path.join(source, 'scripts', 'heldout.ts')}" init`,
+    remote: git(source, 'remote', 'get-url', 'origin'), commit, installedAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PROJECT_SKILL, 'SOURCE.json'), `${JSON.stringify(info, null, 2)}\n`);
   const was = before ? (JSON.parse(before) as { commit?: string }).commit : undefined;
   say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} (from ${info.remote ?? source})`);
@@ -206,7 +209,7 @@ main(async () => {
     const remote = git(ROOT, 'remote', 'get-url', 'origin') ?? '';
     const ci = flagStr(flags, 'ci') ?? (fs.existsSync(path.join(ROOT, '.gitlab-ci.yml')) ? 'gitlab' : /github\.com/.test(remote) || fs.existsSync(path.join(ROOT, '.github')) ? 'github' : 'gitlab');
     if (ci !== 'gitlab' && ci !== 'github') throw new Error(`--ci takes gitlab or github, not "${ci}"`);
-    const target = ci === 'github' ? path.join('.github', 'workflows', 'heldout.yml') : path.join('.gitlab', 'heldout.gitlab-ci.yml');
+    const target = ci === 'github' ? '.github/workflows/heldout.yml' : '.gitlab/heldout.gitlab-ci.yml';
     const dest = path.join(ROOT, target);
     if (fs.existsSync(dest)) say('•', `keep    ${target}`);
     else {

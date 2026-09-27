@@ -41,8 +41,8 @@ main(async () => {
   // ---- skill --------------------------------------------------------------------------------------
   const sourceFile = path.join(SKILL_DIR, 'SOURCE.json');
   if (fs.existsSync(sourceFile)) {
-    const s = JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { from: string; remote?: string; commit?: string; installedAt: string };
-    const update = fs.existsSync(s.from) ? `git -C "${s.from}" pull, then run its init again from this folder` : `clone ${s.remote ?? 'the skill repository'} and run its init from this folder`;
+    const s = JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { from: string; update: string; remote?: string; commit?: string; installedAt: string };
+    const update = fs.existsSync(s.from) ? `${s.update} (from this folder)` : `clone ${s.remote ?? 'the skill repository'} (README "Adopt it") and run its init from this folder`;
     check('ok', 'skill', `installed ${s.installedAt.slice(0, 10)} from ${s.remote ?? s.from}${s.commit ? ` @ ${s.commit}` : ''} — to update: ${update}`);
   }
 
