@@ -1,0 +1,224 @@
+# url: https://practicesoftwaretesting.com/
+# step: When I choose "Price (Low - High)"
+- text: View the
+- link "Documentation":
+  - /url: https://testsmith-io.github.io/practice-software-testing/#/
+- text: for this application. Practice Black Box Testing & Bug Hunting
+- button "Testing Guide"
+- button "🐛 Bug Hunting"
+- navigation:
+  - link "Practice Software Testing - Toolshop":
+    - /url: /
+    - img
+  - menubar "Main menu":
+    - menuitem "Home":
+      - link "Home":
+        - /url: /
+    - menuitem "Categories":
+      - button "Categories"
+    - menuitem "Contact":
+      - link "Contact":
+        - /url: /contact
+    - menuitem "Sign in":
+      - link "Sign in":
+        - /url: /auth/login
+  - button "Select language": EN
+- paragraph:
+  - img "Banner"
+- separator
+- heading "Sort" [level=4]
+- separator
+- combobox "sort":
+  - option
+  - option "Name (A - Z)"
+  - option "Name (Z - A)"
+  - option "Price (High - Low)"
+  - option "Price (Low - High)" [selected]
+  - option "CO₂ Rating (A - E)"
+  - option "CO₂ Rating (E - A)"
+- heading "Price Range" [level=4]
+- separator
+- slider "ngx-slider"
+- slider "ngx-slider-max"
+- text: 0 200 1 100
+- heading "Search" [level=4]
+- separator
+- text: Search
+- textbox "Search"
+- button "X"
+- button "Search"
+- heading "Filters" [level=4]
+- separator
+- heading "By category:" [level=4]
+- group "Categories":
+  - text: Categories
+  - checkbox "Hand Tools"
+  - text: Hand Tools
+  - list:
+    - group "Categories":
+      - text: Categories
+      - checkbox "Hammer"
+      - text: Hammer
+      - checkbox "Hand Saw"
+      - text: Hand Saw
+      - checkbox "Wrench"
+      - text: Wrench
+      - checkbox "Screwdriver"
+      - text: Screwdriver
+      - checkbox "Pliers"
+      - text: Pliers
+      - checkbox "Chisels"
+      - text: Chisels
+      - checkbox "Measures"
+      - text: Measures
+  - checkbox "Power Tools"
+  - text: Power Tools
+  - list:
+    - group "Categories":
+      - text: Categories
+      - checkbox "Grinder"
+      - text: Grinder
+      - checkbox "Sander"
+      - text: Sander
+      - checkbox "Saw"
+      - text: Saw
+      - checkbox "Drill"
+      - text: Drill
+  - checkbox "Other"
+  - text: Other
+  - list:
+    - group "Categories":
+      - text: Categories
+      - checkbox "Tool Belts"
+      - text: Tool Belts
+      - checkbox "Storage Solutions"
+      - text: Storage Solutions
+      - checkbox "Workbench"
+      - text: Workbench
+      - checkbox "Safety Gear"
+      - text: Safety Gear
+      - checkbox "Fasteners"
+      - text: Fasteners
+- heading "By brand:" [level=4]
+- group "Brands":
+  - text: Brands
+  - checkbox "ForgeFlex Tools"
+  - text: ForgeFlex Tools
+  - checkbox "MightyCraft Hardware"
+  - text: MightyCraft Hardware
+  - checkbox "some name"
+  - text: some name
+  - checkbox "Marca 0da41408"
+  - text: Marca 0da41408
+  - checkbox "Marca f62735af"
+  - text: Marca f62735af
+  - checkbox "Marca Atualizada"
+  - text: Marca Atualizada
+  - checkbox "Marca Teste"
+  - text: Marca Teste
+  - checkbox "some name"
+  - text: some name
+  - checkbox "Marca 8d1726c1"
+  - text: Marca 8d1726c1
+  - checkbox "Marca 41fbfc1a"
+  - text: Marca 41fbfc1a
+  - checkbox "Marca bedf09c1"
+  - text: Marca bedf09c1
+  - checkbox "some name"
+  - text: some name
+- heading "Sustainability:" [level=4]
+- group "Eco-Friendly Products":
+  - text: Eco-Friendly Products
+  - checkbox "Show only eco-friendly products"
+  - text: Show only eco-friendly products
+- 'link "Washers Compare Washers CO₂: A B C D E $3.55"':
+  - /url: /product/01M3FVQJP4HFA2Q1S15RQD142A
+  - img "Washers"
+  - button "Compare"
+  - heading "Washers" [level=5]
+  - text: "CO₂: A B C D E $3.55"
+- 'link "Flat-Head Wood Screws Compare Flat-Head Wood Screws CO₂: A B C D E $3.95"':
+  - /url: /product/01M3FVQJNAXND3AY6D9M5BKTGZ
+  - img "Flat-Head Wood Screws"
+  - button "Compare"
+  - heading "Flat-Head Wood Screws" [level=5]
+  - text: "CO₂: A B C D E $3.95"
+- 'link "M4 Nuts Compare M4 Nuts CO₂: A B C D E $4.65"':
+  - /url: /product/01M3FVQJNHVKRNT4BWXB316RFH
+  - img "M4 Nuts"
+  - button "Compare"
+  - heading "M4 Nuts" [level=5]
+  - text: "CO₂: A B C D E $4.65"
+- 'link "Phillips Screwdriver Compare Phillips Screwdriver CO₂: A B C D E $4.92"':
+  - /url: /product/01M3FVQJJ6BQ6Z7JTZCPXMFJ9R
+  - img "Phillips Screwdriver"
+  - button "Compare"
+  - heading "Phillips Screwdriver" [level=5]
+  - text: "CO₂: A B C D E $4.92"
+- 'link "Nuts and bolts Compare Nuts and bolts CO₂: A B C D E $5.55"':
+  - /url: /product/01M3FVQJMWJGCSE3E8CGWPV1KW
+  - img "Nuts and bolts"
+  - button "Compare"
+  - heading "Nuts and bolts" [level=5]
+  - text: "CO₂: A B C D E $5.55"
+- 'link "Screws Compare Screws CO₂: A B C D E $6.25"':
+  - /url: /product/01M3FVQJMTRYZZCTR495TW4JWD
+  - img "Screws"
+  - button "Compare"
+  - heading "Screws" [level=5]
+  - text: "CO₂: A B C D E $6.25"
+- 'link "Tape Measure 7.5m Compare Tape Measure 7.5m CO₂: A B C D E $7.23"':
+  - /url: /product/01M3FVQJJWQQ0Z8AYCMYZ2SF2R
+  - img "Tape Measure 7.5m"
+  - button "Compare"
+  - heading "Tape Measure 7.5m" [level=5]
+  - text: "CO₂: A B C D E $7.23"
+- 'link "Cross-head screws Compare Cross-head screws CO₂: A B C D E $7.99"':
+  - /url: /product/01M3FVQJMZDTQ5S7R5CDSF1N3H
+  - img "Cross-head screws"
+  - button "Compare"
+  - heading "Cross-head screws" [level=5]
+  - text: "CO₂: A B C D E $7.99"
+- 'link "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17"':
+  - /url: /product/01M3FVQJGYBHTFYFS5TGXVNGH0
+  - img "Slip Joint Pliers"
+  - button "Compare"
+  - heading "Slip Joint Pliers" [level=5]
+  - text: "CO₂: A B C D E $9.17"
+- navigation:
+  - list:
+    - listitem:
+      - button "Previous"
+    - listitem:
+      - button "Page-1": "1"
+    - listitem:
+      - button "Page-2": "2"
+    - listitem:
+      - button "Page-3": "3"
+    - listitem:
+      - button "Page-4": "4"
+    - listitem:
+      - button "Page-5": "5"
+    - listitem:
+      - button "Next"
+- contentinfo:
+  - text: Learn & Explore
+  - link "Learn Test Automation Hands-on courses for Playwright, Robot Framework, APIs and more":
+    - /url: https://onlinecourses.testsmith.io
+  - link "API Spector Open-source API testing, mocking and contract testing":
+    - /url: https://api-spector.dev
+  - link "GitHub Source code, issues and contributions":
+    - /url: https://github.com/testsmith-io/practice-software-testing
+  - text: This is a DEMO application, used for software testing training purpose. |
+  - link "Privacy Policy":
+    - /url: /privacy
+  - text: "| Banner photo by"
+  - link "Barn Images":
+    - /url: https://unsplash.com/@barnimages
+  - text: "on"
+  - link "Unsplash":
+    - /url: https://unsplash.com/photos/t5YUoHW6zRo
+  - text: . v2.5 | Built 2026-09-09 | Angular 20.0.5
+- button "Open chat":
+  - img
+- button "Show live shop activity"

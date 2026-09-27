@@ -1,0 +1,26 @@
+{
+  "key": "AE-2",
+  "title": "Customer account lifecycle through the partner Account API, with shop sign-in",
+  "revision": {
+    "story": "30b736da151c50e4",
+    "attachments": {
+      "account-api-contract.md": "fe9356ea52a6f000"
+    }
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": false
+    },
+    {
+      "file": "attachments/account-api-contract.md",
+      "read": false
+    }
+  ],
+  "acceptanceCriteria": [],
+  "endpoints": [],
+  "rules": [],
+  "errorModel": [],
+  "gaps": [],
+  "coverage": []
+}

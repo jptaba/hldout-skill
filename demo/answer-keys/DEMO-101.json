@@ -1,0 +1,10 @@
+{
+  "key": "DEMO-101", "aut": "swag-labs", "writtenAt": "2026-09-26 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-2"], "origin": "embedded", "keywords": ["locked"], "description": "locked-account message wording" },
+    { "id": "D2", "criteria": ["AC-3"], "origin": "embedded", "keywords": ["clear"], "description": "credential fields not cleared" },
+    { "id": "D3", "criteria": ["AC-7"], "origin": "embedded (attachment)", "keywords": ["tax", "10%"], "description": "10% tax rule vs 8% charged" }
+  ],
+  "seededScriptDefects": [{ "id": "S1", "keywords": ["link", "button", "checkout"], "description": "Checkout located as a link instead of a button" }]
+}

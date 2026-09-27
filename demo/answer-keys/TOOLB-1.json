@@ -1,0 +1,6 @@
+{ "key": "TOOLB-1", "aut": "toolshop-rc", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["per_page", "12", "9", "page"], "description": "9 products per page, not 12" }
+  ],
+  "seededScriptDefects": [],
+  "traps": ["same criteria as TOOL-1 but a different build: AC-7 (empty search returns all) PASSES here while it fails on stable", "the RC web app uses hash routes (/#/…) and numeric ids — tests reused from TOOL-1 need mechanics repairs, which are script defects, not app defects"] }

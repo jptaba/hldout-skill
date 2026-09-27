@@ -1,0 +1,17 @@
+{
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-26T18:14:00.865Z",
+  "files": [
+    {
+      "file": "demo-606.spec.ts",
+      "draftAssertions": 2,
+      "currentAssertions": 2
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": []
+}

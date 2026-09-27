@@ -1,0 +1,17 @@
+# url: https://the-internet.herokuapp.com/hovers
+# step: Then I see "name: user2" and a "View profile" link
+- link "Fork me on GitHub":
+  - /url: https://github.com/tourdedave/the-internet
+  - img "Fork me on GitHub"
+- heading "Hovers" [level=3]
+- paragraph: Hover over the image for additional information
+- img "User Avatar"
+- img "User Avatar"
+- 'heading "name: user2" [level=5]'
+- link "View profile":
+  - /url: /users/2
+- img "User Avatar"
+- separator
+- text: Powered by
+- link "Elemental Selenium":
+  - /url: http://elementalselenium.com/

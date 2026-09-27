@@ -1,0 +1,147 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-26T22:35:02.000Z",
+  "contractHash": "5c54195f9fc65679",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "story.md#L21",
+      "note": "Unchanged from the prior contract; quote, text, layer and outcomes match L21."
+    },
+    {
+      "ref": "AC-2",
+      "verdict": "supported",
+      "evidence": "story.md#L22",
+      "note": "Unchanged; quote/text match L22, boundary outcomes (1, 99) follow from the same line."
+    },
+    {
+      "ref": "AC-3",
+      "verdict": "supported",
+      "evidence": "story.md#L23",
+      "note": "Unchanged; quote/text match L23, outcomes follow from it."
+    },
+    {
+      "ref": "AC-4",
+      "verdict": "supported",
+      "evidence": "story.md#L24",
+      "note": "Unchanged; quote/text match L24, layer ui matches the table."
+    },
+    {
+      "ref": "AC-5",
+      "verdict": "supported",
+      "evidence": "story.md#L25",
+      "note": "Unchanged; quote/text match L25, all five outcomes map onto its clauses."
+    },
+    {
+      "ref": "AC-6",
+      "verdict": "supported",
+      "evidence": "story.md#L26",
+      "note": "Unchanged; quote/text match L26, outcomes follow from it."
+    },
+    {
+      "ref": "AC-7",
+      "verdict": "supported",
+      "evidence": "story.md#L27",
+      "note": "Unchanged; quote/text match L27 exactly including 'is idempotent'; gaps still G1, G3, G4, G7, consistent with the narrowed G7."
+    },
+    {
+      "ref": "AC-8",
+      "verdict": "supported",
+      "evidence": "story.md#L28",
+      "note": "Quote/text unchanged from L28. Outcomes and endpoints were updated to add DELETE /carts/{id} ('delete cart') alongside read/add/remove, and gaps now include G3 (the delete-endpoint discovery) — this follows directly from G7's narrowed resolution, which assigns every DELETE /carts/{id} on a cart id that never existed to AC-8's 404, reserving only the already-deleted-cart case for AC-7. Fully grounded, no invention."
+    },
+    {
+      "ref": "R1",
+      "verdict": "supported",
+      "evidence": "story.md#L17",
+      "note": "Unchanged; verbatim substring of L17."
+    },
+    {
+      "ref": "R2",
+      "verdict": "supported",
+      "evidence": "story.md#L22-L23",
+      "note": "Fixed from the prior review: source now cites both L22 (1-99 accepted) and L23 (outside 1-99 rejected, cart unchanged), matching both halves of the stated rule."
+    },
+    {
+      "ref": "R3",
+      "verdict": "supported",
+      "evidence": "story.md#L17, story.md#L30",
+      "note": "Fixed from the prior review: source now cites both L17 ('guests (not signed in)') and L30 ('carts are anonymous'), matching both clauses of the rule."
+    },
+    {
+      "ref": "E1",
+      "verdict": "supported",
+      "evidence": "story.md#L23",
+      "note": "Unchanged; 422 and 'an error for the quantity field' match L23."
+    },
+    {
+      "ref": "E2",
+      "verdict": "supported",
+      "evidence": "story.md#L28",
+      "note": "Case text now adds 'including deleting a cart id that never existed', consistent with the narrowed G7; status 404 and body 'Cart not found' still match L28 exactly."
+    },
+    {
+      "ref": "G7",
+      "verdict": "supported",
+      "evidence": "story.md#L27-L28",
+      "note": "Fixed from the prior review's noted scope nuance: the gap is now explicitly narrowed to 'deleting a cart that was already deleted' (the case L27 literally states), and its value now explicitly says a cart id that never existed is governed by L28's general 404 rule instead of silently folding into the 204 case. The conflict is real, both lines are cited, and the resolution's reasoning is stated."
+    },
+    {
+      "ref": "G8",
+      "verdict": "supported",
+      "evidence": "story.md#L24",
+      "note": "Unchanged; correctly flagged as an assumed oracle gap."
+    },
+    {
+      "ref": "G9",
+      "verdict": "supported",
+      "evidence": "story.md#L25",
+      "note": "Unchanged; correctly flagged as an assumed oracle gap."
+    },
+    {
+      "ref": "G10",
+      "verdict": "supported",
+      "evidence": "story.md#L22-L23",
+      "note": "Unchanged; correctly left open and marked not required."
+    },
+    {
+      "ref": "POST /carts",
+      "verdict": "supported",
+      "evidence": "story.md#L21",
+      "note": "Method and path appear verbatim at L21."
+    },
+    {
+      "ref": "POST /carts/{id}",
+      "verdict": "supported",
+      "evidence": "story.md#L22",
+      "note": "Method and path appear verbatim at L22."
+    },
+    {
+      "ref": "DELETE /carts/{id}/product/{productId}",
+      "verdict": "supported",
+      "evidence": "story.md#L26",
+      "note": "Method and path appear verbatim at L26."
+    },
+    {
+      "ref": "GET /carts/{id}",
+      "verdict": "supported",
+      "evidence": "G2",
+      "note": "Not named in the story; source is gap G2 (published API docs, discovered-in-aut), as permitted."
+    },
+    {
+      "ref": "DELETE /carts/{id}",
+      "verdict": "supported",
+      "evidence": "G3",
+      "note": "Not named in the story; source is gap G3 (published API docs, discovered-in-aut). G3's affects list now correctly includes AC-8 alongside AC-7, matching its added use there."
+    },
+    {
+      "ref": "GET /products/search",
+      "verdict": "supported",
+      "evidence": "G6",
+      "note": "Not named in the story; source is gap G6 (published API docs, discovered-in-aut)."
+    }
+  ],
+  "missed": [],
+  "summary": "All three previously flagged findings are resolved: R2 and R3 now cite both source lines each of their two-clause rules actually draws from (L22-L23 and L17+L30 respectively), and G7 is narrowed to the literal already-deleted case with its resolution now explicitly stating that a cart id that never existed falls under AC-8's general 404 (reflected consistently in AC-8's outcomes/endpoints/gaps, G3's affects list, and the error-model's second entry). Re-checking everything these changes touch (AC-7, AC-8, G3, G7, both error-model entries, and all six endpoints) finds no new invention, misreading, or coverage gaps; the contract is fully grounded against the evidence pack."
+}

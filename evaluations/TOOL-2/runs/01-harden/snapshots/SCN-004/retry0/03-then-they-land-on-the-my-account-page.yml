@@ -1,0 +1,51 @@
+# url: https://practicesoftwaretesting.com/account
+# step: Then they land on the "My account" page
+- text: View the
+- link "Documentation":
+  - /url: https://testsmith-io.github.io/practice-software-testing/#/
+- text: for this application. Practice Black Box Testing & Bug Hunting
+- button "Testing Guide"
+- button "🐛 Bug Hunting"
+- navigation:
+  - link "Practice Software Testing - Toolshop":
+    - /url: /
+    - img
+  - menubar "Main menu":
+    - menuitem "Home":
+      - link "Home":
+        - /url: /
+    - menuitem "Categories":
+      - button "Categories"
+    - menuitem "Contact":
+      - link "Contact":
+        - /url: /contact
+    - menuitem "Qa Heldmuiz1d9jm2x2":
+      - button "Qa Heldmuiz1d9jm2x2"
+  - button "Select language": EN
+- heading "My account" [level=1]
+- paragraph: Here you can manage your profile, favorites and orders.
+- button "Favorites"
+- button "Profile"
+- button "Invoices"
+- button "Messages"
+- contentinfo:
+  - text: Learn & Explore
+  - link "Learn Test Automation Hands-on courses for Playwright, Robot Framework, APIs and more":
+    - /url: https://onlinecourses.testsmith.io
+  - link "API Spector Open-source API testing, mocking and contract testing":
+    - /url: https://api-spector.dev
+  - link "GitHub Source code, issues and contributions":
+    - /url: https://github.com/testsmith-io/practice-software-testing
+  - text: This is a DEMO application, used for software testing training purpose. |
+  - link "Privacy Policy":
+    - /url: /privacy
+  - text: "| Banner photo by"
+  - link "Barn Images":
+    - /url: https://unsplash.com/@barnimages
+  - text: "on"
+  - link "Unsplash":
+    - /url: https://unsplash.com/photos/t5YUoHW6zRo
+  - text: . v2.5 | Built 2026-09-09 | Angular 20.0.5
+- button "Open chat":
+  - img
+- button "Show live shop activity"

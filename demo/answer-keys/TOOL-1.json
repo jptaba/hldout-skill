@@ -1,0 +1,9 @@
+{ "key": "TOOL-1", "aut": "toolshop", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["per_page", "12", "9", "page"], "description": "9 products per page, not 12 (web shop and API)" },
+    { "id": "D2", "criteria": ["AC-7"], "origin": "embedded", "keywords": ["empty", "all products", "total 0", "no term"], "description": "empty search returns no products instead of all" }
+  ],
+  "seededScriptDefects": [
+    { "id": "S6", "keywords": ["search-title", "caption", "locator", "test id"], "description": "caption assertion uses a wrong test id (search-title); element not found must not be reported as the app missing the caption" }
+  ],
+  "traps": ["shared sandbox: other users create brands/products; tests must not rely on counts beyond the search term"] }

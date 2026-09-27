@@ -1,0 +1,320 @@
+{
+  "key": "DEMO-101",
+  "run": "03-rerun",
+  "generatedAt": "2026-09-26T14:24:38.700Z",
+  "summary": {
+    "total": 12,
+    "passed": 9,
+    "failed": 3,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: Standard shopper signs in and sees the full catalogue",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Locked shopper cannot sign in and is told the account is locked",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-2",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "# url: https://www.saucedemo.com/\n# step: FAILED Then I see the error \"Your account has been locked. Please contact customer support.\"\n- text: Swag Labs\n- main:\n  - form \"Login\":\n    - textbox \"Username\": locked_out_user\n    - textbox \"Password\": password\n    - alert:\n      - button \"Dismiss error\"\n      - text: \"Epic sadface: Sorry, this user has been locked out.\"\n    - button \"Login\"\n  - heading \"Accepted usernames are:\" [level=4]\n  - text: standard_user locked_out_user problem_user performance_glitch_user error_user visual_user\n  - heading \"Password for all users:\" [level=4]\n  - text: password\n"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-2] locked-account error message",
+        "reqTag": "AC-2",
+        "matcher": "toHaveText",
+        "expected": "\"Your account has been locked. Please contact customer support.\"",
+        "received": "\"Epic sadface: Sorry, this user has been locked out.\"",
+        "locator": "getByRole('alert')",
+        "message": "Error: [REQ AC-2] locked-account error message\n\nexpect(locator).toHaveText(expected) failed\n\nLocator:  getByRole('alert')\nExpected: \"Your account has been locked. Please contact customer support.\"\nReceived: \"Epic sadface: Sorry, this user has been locked out.\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\n  - waiting for getByRole('alert')\n    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\n       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\n\n\n  103 |     });\n  104 |     await journey.step('Then I see the error \"Your account has been locked. Please contact customer support.\"', async () => {\n> 105 |       await expect(ui(page).error, '[REQ AC-2] locked-account error message').toHaveText(REQ.AC2_LOCKED_MESSAGE);\n      |                                                                               ^\n  106 |     });\n  107 |     await journey.step('And I am still on the sign-in page', async () => {\n  108 |       await expect(ui(page).signIn, '[REQ AC-2] stays on the sign-in page').toBeVisible();\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:76:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5"
+      },
+      "failingStep": "Then I see the error \"Your account has been locked. Please contact customer support.\"",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-2] failed on a located element.",
+          "Expected: \"Your account has been locked. Please contact customer support.\"",
+          "Received: \"Epic sadface: Sorry, this user has been locked out.\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Locked-account error message does not match the required wording",
+        "rationale": "The alert is located and visible, the shopper correctly stays on the sign-in page (that part of AC-2 passes), but the message text differs from the verbatim wording AC-2 mandates. Behaviour (blocking the locked account) is correct; the communicated message is not. (Confirmed in run 02-eval; identical failure signature in 03-rerun.)",
+        "evidence": "Reproduced live on 2026-09-26 (tier 3): signing in as locked_out_user shows the alert 'Epic sadface: Sorry, this user has been locked out.' — see runs/02-eval/confirm/SCN-002.png",
+        "confirmedAt": "2026-09-26T14:23:21.836Z"
+      }
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: Wrong password shows the credentials error",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: Wrong password clears the credential fields for security",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-3",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1/error-context.md"
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-3] Password field cleared",
+          "reqTag": "AC-3",
+          "expected": "\"\"",
+          "received": "\"wrong_password\""
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-3] Username field cleared",
+        "reqTag": "AC-3",
+        "matcher": "toHaveValue",
+        "expected": "\"\"",
+        "received": "\"standard_user\"",
+        "locator": "getByRole('textbox', { name: 'Username', exact: true })",
+        "message": "Error: [REQ AC-3] Username field cleared\n\nexpect(locator).toHaveValue(expected) failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \"\"\nReceived: \"standard_user\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\n  - waiting for getByRole('textbox', { name: 'Username', exact: true })\n    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\n       - unexpected value \"standard_user\"\n\n\n  125 |     });\n  126 |     await journey.step('Then the Username field is empty', async () => {\n> 127 |       await expect.soft(ui(page).username, '[REQ AC-3] Username field cleared').toHaveValue('');\n      |                                                                                 ^\n  128 |     });\n  129 |     await journey.step('And the Password field is empty', async () => {\n  130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:76:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5"
+      },
+      "failingStep": "Then the Username field is empty",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-3] failed on a located element.",
+          "Expected: \"\"",
+          "Received: \"standard_user\"",
+          "Also failed: [REQ AC-3] Password field cleared — expected \"\", received \"wrong_password\""
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Credential fields are not cleared after a failed sign-in",
+        "rationale": "Both textboxes are located; after the wrong-password error is displayed they still contain the typed username and password. AC-3 requires both to be cleared for security. The error message part of AC-3 passes (SCN-003), so the fault is isolated to field clearing. (Confirmed in run 02-eval; identical failure signature in 03-rerun.)",
+        "evidence": "Reproduced live on 2026-09-26 (tier 3): after the error, Username='standard_user' and Password='wrong_password' remain — see runs/02-eval/confirm/SCN-004.png",
+        "confirmedAt": "2026-09-26T14:23:24.218Z"
+      }
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Sorting by price low to high orders products by ascending price",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: Adding products increases the cart badge by one each time",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: Removing products decreases the cart badge and hides it when empty",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: Checkout requires a First Name",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Checkout requires a Last Name and a Postal Code",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@P3"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: Checkout overview totals follow the pricing rules",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-101/runs/03-rerun/artifacts/DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [ref=e3]:\n  - generic [ref=e4]:\n    - banner [ref=e5]:\n      - generic [ref=e6]:\n        - generic [ref=e7]:\n          - button \"Open Menu\" [ref=e8] [cursor=pointer]\n          - img \"Open Menu\" [ref=e9]\n        - generic [ref=e10]: Swag Labs\n        - button \"Cart, 2 items\" [ref=e13]:\n          - generic [ref=e14]: \"2\"\n      - generic [ref=e15]: \"Checkout: Overview\"\n    - main [ref=e17]:\n      - generic [ref=e18]:\n        - generic [ref=e19]:\n          - generic [ref=e20]: QTY\n          - generic [ref=e21]: Description\n          - generic [ref=e22]:\n            - generic [ref=e23]: \"1\"\n            - generic [ref=e24]:\n              - button \"View details for Sauce Labs Backpack\" [ref=e25] [cursor=pointer]:\n                - generic [ref=e26]: Sauce Labs Backpack\n              - generic [ref=e27]: carry.allTheThings() with the sleek, streamlined Sly Pack that melds uncompromising style with unequaled laptop and tablet protection.\n              - generic [ref=e28]: $29.99\n          - generic [ref=e30]:\n            - generic [ref=e31]: \"1\"\n            - generic [ref=e32]:\n              - button \"View details for Sauce Labs Bike Light\" [ref=e33] [cursor=pointer]:\n                - generic [ref=e34]: Sauce Labs Bike Light\n              - generic [ref=e35]: A red light isn't the desired state in testing but it sure helps when riding your bike at night. Water-resistant with 3 lighting modes, 1 AAA battery included.\n              - generic [ref=e36]: $9.99\n        - generic [ref=e38]:\n          - generic [ref=e39]: \"Payment Information:\"\n          - generic [ref=e40]: \"SauceCard #31337\"\n          - generic [ref=e41]: \"Shipping Information:\"\n          - generic [ref=e42]: Free Pony Express Delivery!\n          - generic [ref=e43]: Price Total\n          - generic [ref=e44]: \"Item total: $39.98\"\n          - generic [ref=e45]: \"Tax: $3.20\"\n          - generic [ref=e46]: \"Total: $43.18\"\n          - generic [ref=e47]:\n            - button \"Cancel\" [ref=e48] [cursor=pointer]\n            - button \"Finish\" [ref=e49] [cursor=pointer]\n  - contentinfo [ref=e50]:\n    - list [ref=e51]:\n      - listitem [ref=e52]:\n        - link \"X\" [ref=e53] [cursor=pointer]:\n          - /url: https://x.com/saucelabs\n      - listitem [ref=e54]:\n        - link \"Facebook\" [ref=e55] [cursor=pointer]:\n          - /url: https://www.facebook.com/saucelabs\n      - listitem [ref=e56]:\n        - link \"LinkedIn\" [ref=e57] [cursor=pointer]:\n          - /url: https://www.linkedin.com/company/sauce-labs/\n    - generic [ref=e58]: © 2026 Sauce Labs. All Rights Reserved. Terms of Service | Privacy Policy\n"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)",
+        "reqTag": "AC-7",
+        "matcher": "toBeCloseTo",
+        "expected": "4",
+        "received": "3.2",
+        "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\nexpect(received).toBeCloseTo(expected, precision)\n\nExpected: 4\nReceived: 3.2\n\nExpected precision:    2\nExpected difference: < 0.005\nReceived difference:   0.7999999999999998\n\n  260 |     });\n  261 |     await journey.step('And the Tax equals 10% of the Item total rounded half-up to 2 decimals', async () => {\n> 262 |       expect.soft(tax, '[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)').toBeCloseTo(round2(itemTotal * REQ.AC7_TAX_RATE), 2);\n      |                                                                                 ^\n  263 |     });\n  264 |     await journey.step('And the Total equals the Item total plus the Tax', async () => {\n  265 |       expect.soft(total, '[REQ AC-7] Total = Item total + Tax').toBeCloseTo(round2(itemTotal + tax), 2);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:76:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5"
+      },
+      "failingStep": "And the Tax equals 10% of the Item total rounded half-up to 2 decimals",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-7] failed on a located element.",
+          "Expected: 4",
+          "Received: 3.2"
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Critical",
+        "title": "Sales tax charged at 8% instead of the 10% in pricing-rules.md",
+        "rationale": "Item total ($39.98 = $29.99 + $9.99) and Total = Item total + Tax both hold, isolating the fault to the tax rate: $3.20 is 8.0% of $39.98, while pricing-rules.md (attached to the story, owned by Finance) requires 10% → $4.00. Money is computed wrongly on every order. (Confirmed in run 02-eval; identical failure signature in 03-rerun.)",
+        "evidence": "Reproduced live on 2026-09-26 (tier 3) with the first two catalogue products: 'Item total: $39.98', 'Tax: $3.20', 'Total: $43.18' — see runs/02-eval/confirm/SCN-010.png",
+        "confirmedAt": "2026-09-26T14:23:26.609Z"
+      }
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Finishing the order confirms it and empties the cart",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: Logging out returns to sign-in and protects the Products page",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

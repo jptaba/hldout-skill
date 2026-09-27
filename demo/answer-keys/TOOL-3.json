@@ -1,0 +1,9 @@
+{ "key": "TOOL-3", "aut": "toolshop", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-7"], "origin": "embedded", "keywords": ["idempot", "already deleted", "second", "404"], "description": "deleting an already deleted cart responds 404, not 204" },
+    { "id": "D2", "criteria": ["AC-8"], "origin": "genuine", "keywords": ["Cart doesnt exists", "message", "Cart not found"], "description": "DELETE of a missing cart says \"Cart doesnt exists\" instead of \"Cart not found\"" }
+  ],
+  "seededScriptDefects": [
+    { "id": "S7", "keywords": ["productId", "product_id", "field", "payload", "contract"], "description": "the add-to-cart test (AC-2) sends productId instead of the declared product_id → 422, which looks like an app validation defect" }
+  ],
+  "traps": ["Laravel answers validation errors with a 302 redirect unless Accept: application/json is sent"] }

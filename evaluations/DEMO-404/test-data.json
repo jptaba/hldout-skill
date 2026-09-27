@@ -1,0 +1,6 @@
+{
+  "trainee": { "username": "tomsmith", "password": "${env:TRAINEE_PASSWORD}" },
+  "unknownUsername": "not-a-trainee",
+  "wrongPassword": "wrong-password",
+  "promptText": "held out"
+}

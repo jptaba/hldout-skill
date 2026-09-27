@@ -1,0 +1,38 @@
+{
+  "key": "CL-4",
+  "aut": "contact-list",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-7"],
+      "origin": "genuine",
+      "keywords": ["patch", "owner", "reassign", "another", "contact", "200"],
+      "description": "AC-7 requires that the owner of an existing contact cannot be changed. PATCH /contacts/{id} with {\"owner\": \"<B's _id>\"} by user A answers 200 with owner = B's _id; afterwards A gets 404 for the contact and B's GET /contacts (and GET /contacts/{id}) returns it. A user can push a contact into another user's list (mass assignment of 'owner'). PUT ignores 'owner' correctly and POST ignores it too.",
+      "evidence": "User A PATCH /contacts/6ab868233e5f3d001527c246 {\"owner\":\"6ab866833e5f3d001527c205\"} -> 200 {...\"owner\":\"6ab866833e5f3d001527c205\"}; A GET /contacts/{id} -> 404; B GET /contacts -> [..., {\"_id\":\"6ab868233e5f3d001527c246\",\"lastName\":\"Sec\",\"owner\":\"6ab866833e5f3d001527c205\"}]; B GET /contacts/{id} -> 200 (reproduced twice with two different contacts). Controls: PUT with owner=B -> 200 owner still A; POST with owner=B -> 201 owner=A."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "POST /users/logout invalidates ALL tokens of that user, not only the one sent (verified with two separate logins). After the AC-3 scenario, user A must sign in again before other scenarios; tests that reuse A's old token elsewhere get 401 - script/ordering defect, not an app defect. The story does not specify per-session logout, so this is not a deviation.",
+    "Two logins within the same second return the identical token (the JWT only carries _id and iat), so 'two sessions' need at least a second between logins.",
+    "The AUT also accepts the raw token without the 'Bearer ' prefix; the story does not forbid that, so it is not a deviation.",
+    "AC-7 has two examples: the PUT row PASSES (owner ignored, 200 with owner A); only the PATCH row fails. AC-6 (POST with owner) PASSES.",
+    "For AC-7, B's _id comes from the sign-up response (user._id) or GET /users/me.",
+    "Cross-user access answers 404 with an empty body (not 403) - that is what AC-4/AC-5 require (met).",
+    "401 bodies are exactly {\"error\":\"Please authenticate.\"} for missing, made-up, altered (signature-swapped) and logged-out tokens, on every contacts endpoint including POST and malformed ids (auth is checked first).",
+    "UI (AC-8): the list is fetched with the token from the 'token' cookie; B sees only 'Bella Bee'. No data-testid attributes; rows are tr.contactTableBodyRow.",
+    "Background: after the D1 reproduction 'Secret Sam' belongs to B; a test suite that runs AC-7 before AC-4/AC-5 on the same contact gets confusing results - use a fresh contact per scenario."
+  ],
+  "expectations": [
+    "AC-1 PASS: all six endpoint/method combinations without a token -> 401 {\"error\":\"Please authenticate.\"}, nothing changed.",
+    "AC-2 PASS: made-up or altered token -> 401 with the same body.",
+    "AC-3 PASS: POST /users/logout -> 200 (empty body); the same token then gets 401 on GET /contacts and GET /users/me.",
+    "AC-4 PASS: B GET A's contact -> 404; not in B's list.",
+    "AC-5 PASS: B PUT/PATCH/DELETE on A's contact -> 404; A still reads it unchanged.",
+    "AC-6 PASS: POST with owner=B -> 201 owner=A; listed for A only.",
+    "AC-7 FAIL (D1) for PATCH; the PUT example passes.",
+    "AC-8 PASS: B signed in on the login page sees 'Bella Bee' and not 'Secret Sam'."
+  ]
+}

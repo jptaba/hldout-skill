@@ -1,0 +1,302 @@
+<testsuites id="" name="" tests="14" failures="6" skipped="0" errors="0" time="15.201177">
+<testsuite name="TOOL-3\tests\tool-3.spec.ts" timestamp="2026-09-26T22:44:06.982Z" hostname="chromium" tests="14" failures="6" skipped="0" time="31.135" errors="0">
+<testcase name="TOOL-3 Shopping cart for guests › SCN-001: Creating a cart" classname="TOOL-3\tests\tool-3.spec.ts" time="1.698">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-002.1: Adding a product with quantity 1" classname="TOOL-3\tests\tool-3.spec.ts" time="2.176">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] add quantity 1 → 200" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:87:5 › TOOL-3 Shopping cart for guests › SCN-002.1: Adding a product with quantity 1 @AC-2 @type:boundary @layer:api › Then the response status is 200 
+
+    Error: [REQ AC-2] add quantity 1 → 200
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 422
+
+      89 |       await journey.step('Given an empty cart and an in-stock product', async () => { product = await inStockProduct(seed, api); cartId = await newCart(seed, api); });
+      90 |       await journey.step(`When I add the product with quantity ${quantity}`, async () => { r = await api.post(EP.cart(cartId), { data: { productId: product.id, quantity } }); });
+    > 91 |       await journey.step('Then the response status is 200', async () => { expect(r.status, `[REQ AC-2] add quantity ${quantity} → 200`).toBe(REQ.STATUS.OK); });
+         |                                                                                                                                         ^
+      92 |       await journey.step(`And the cart lists the product with quantity ${quantity}`, async () => { expect(quantityOf(await items(api, cartId), product.id), `[REQ AC-2] cart holds quantity ${quantity}`).toEqual([quantity]); });
+      93 |     });
+      94 |   });
+        at body (D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:91:137)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:34
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:91:7
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-1d937-g-a-product-with-quantity-1-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-002.2: Adding a product with quantity 99" classname="TOOL-3\tests\tool-3.spec.ts" time="2.132">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] add quantity 99 → 200" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:87:5 › TOOL-3 Shopping cart for guests › SCN-002.2: Adding a product with quantity 99 @AC-2 @type:boundary @layer:api › Then the response status is 200 
+
+    Error: [REQ AC-2] add quantity 99 → 200
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 422
+
+      89 |       await journey.step('Given an empty cart and an in-stock product', async () => { product = await inStockProduct(seed, api); cartId = await newCart(seed, api); });
+      90 |       await journey.step(`When I add the product with quantity ${quantity}`, async () => { r = await api.post(EP.cart(cartId), { data: { productId: product.id, quantity } }); });
+    > 91 |       await journey.step('Then the response status is 200', async () => { expect(r.status, `[REQ AC-2] add quantity ${quantity} → 200`).toBe(REQ.STATUS.OK); });
+         |                                                                                                                                         ^
+      92 |       await journey.step(`And the cart lists the product with quantity ${quantity}`, async () => { expect(quantityOf(await items(api, cartId), product.id), `[REQ AC-2] cart holds quantity ${quantity}`).toEqual([quantity]); });
+      93 |     });
+      94 |   });
+        at body (D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:91:137)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:34
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:91:7
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-51e59--a-product-with-quantity-99-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity" classname="TOOL-3\tests\tool-3.spec.ts" time="2.969">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.1: A quantity of 0 is rejected" classname="TOOL-3\tests\tool-3.spec.ts" time="3.318">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.2: A quantity of 100 is rejected" classname="TOOL-3\tests\tool-3.spec.ts" time="3.204">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-005: Adding to the cart from a product page" classname="TOOL-3\tests\tool-3.spec.ts" time="3.551">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-006: The cart page lists quantity, unit price, line total and cart total" classname="TOOL-3\tests\tool-3.spec.ts" time="3.739">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-007: Removing a product from the cart" classname="TOOL-3\tests\tool-3.spec.ts" time="3.239">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-008: Deleting a cart is idempotent" classname="TOOL-3\tests\tool-3.spec.ts" time="2.194">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] deleting it again → 204 (G7)" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:155:3 › TOOL-3 Shopping cart for guests › SCN-008: Deleting a cart is idempotent @AC-7 @type:idempotency @layer:api › And deleting the same cart again responds 204 
+
+    Error: [REQ AC-7] deleting it again → 204 (G7)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 204
+    Received: 404
+
+      160 |     await journey.step('And deleting the same cart again responds 204', async () => {
+      161 |       second = await api.delete(EP.cart(cartId));
+    > 162 |       expect.soft(second.status, '[REQ AC-7] deleting it again → 204 (G7)').toBe(REQ.STATUS.NO_CONTENT);
+          |                                                                             ^
+      163 |     });
+      164 |   });
+      165 |
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:162:77
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:28
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:160:5
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-c4f82-leting-a-cart-is-idempotent-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-009.1: a read for a cart that never existed" classname="TOOL-3\tests\tool-3.spec.ts" time="0.656">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] a read message" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:173:5 › TOOL-3 Shopping cart for guests › SCN-009.1: a read for a cart that never existed @AC-8 @type:negative @layer:api › Then the response status is 404 with the message "Cart not found" 
+
+    Error: [REQ AC-8] a read message
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Requested item not found"
+
+      177 |       await journey.step('Then the response status is 404 with the message "Cart not found"', async () => {
+      178 |         expect.soft(r.status, `[REQ AC-8] ${request} on a missing cart → 404`).toBe(REQ.STATUS.NOT_FOUND);
+    > 179 |         expect.soft(r.body?.message, `[REQ AC-8] ${request} message`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                       ^
+      180 |       });
+      181 |     });
+      182 |   });
+        at body (D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:179:71)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:34
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:177:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-2c74d-r-a-cart-that-never-existed-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-009.2: an add product for a cart that never existed" classname="TOOL-3\tests\tool-3.spec.ts" time="0.543">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-009.3: a remove product for a cart that never existed" classname="TOOL-3\tests\tool-3.spec.ts" time="0.585">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] a remove product message" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:173:5 › TOOL-3 Shopping cart for guests › SCN-009.3: a remove product for a cart that never existed @AC-8 @type:negative @layer:api › Then the response status is 404 with the message "Cart not found" 
+
+    Error: [REQ AC-8] a remove product message
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Cart doesnt exists"
+
+      177 |       await journey.step('Then the response status is 404 with the message "Cart not found"', async () => {
+      178 |         expect.soft(r.status, `[REQ AC-8] ${request} on a missing cart → 404`).toBe(REQ.STATUS.NOT_FOUND);
+    > 179 |         expect.soft(r.body?.message, `[REQ AC-8] ${request} message`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                       ^
+      180 |       });
+      181 |     });
+      182 |   });
+        at body (D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:179:71)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:34
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:177:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-b953f-r-a-cart-that-never-existed-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-009.4: a delete cart for a cart that never existed" classname="TOOL-3\tests\tool-3.spec.ts" time="1.131">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] a delete cart message" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:173:5 › TOOL-3 Shopping cart for guests › SCN-009.4: a delete cart for a cart that never existed @AC-8 @type:negative @layer:api › Then the response status is 404 with the message "Cart not found" 
+
+    Error: [REQ AC-8] a delete cart message
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Cart doesnt exists"
+
+      177 |       await journey.step('Then the response status is 404 with the message "Cart not found"', async () => {
+      178 |         expect.soft(r.status, `[REQ AC-8] ${request} on a missing cart → 404`).toBe(REQ.STATUS.NOT_FOUND);
+    > 179 |         expect.soft(r.body?.message, `[REQ AC-8] ${request} message`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                       ^
+      180 |       });
+      181 |     });
+      182 |   });
+        at body (D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:179:71)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:34
+        at D:\projects\hldout-skill\evaluations\TOOL-3\tests\tool-3.spec.ts:177:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\02-harden\artifacts\TOOL-3-tests-tool-3-TOOL-3-9e0c6-r-a-cart-that-never-existed-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>

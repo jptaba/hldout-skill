@@ -1,0 +1,57 @@
+{
+  "key": "DEMO-606",
+  "run": "01-harden",
+  "label": "harden",
+  "startedAt": "2026-09-26T18:05:59.675Z",
+  "finishedAt": "2026-09-26T18:06:16.093Z",
+  "autId": "the-internet",
+  "aut": {
+    "name": "The Internet (UI test playground)",
+    "baseURL": "https://the-internet.herokuapp.com",
+    "apiBaseURL": "https://the-internet.herokuapp.com"
+  },
+  "command": "npx playwright test evaluations/DEMO-606/tests/ --workers 2",
+  "grep": null,
+  "capture": true,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://the-internet.herokuapp.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 352,
+        "samples": [
+          352,
+          242,
+          70
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://the-internet.herokuapp.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 81,
+        "samples": [
+          73,
+          64,
+          81
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-26T18:06:01.130Z",
+    "duration": 14645.381,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

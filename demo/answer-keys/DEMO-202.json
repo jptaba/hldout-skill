@@ -1,0 +1,16 @@
+{
+  "key": "DEMO-202", "aut": "shady-meadows", "writtenAt": "2026-09-26 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-8"], "origin": "genuine", "keywords": ["authentication", "token", "401"], "description": "messages readable without auth" },
+    { "id": "D2", "criteria": ["AC-1"], "origin": "genuine", "keywords": ["label"], "description": "Message label not associated" },
+    { "id": "D3", "criteria": ["AC-4", "AC-6"], "origin": "embedded", "keywords": ["name length", "2–50", "2-50"], "description": "name length rule not enforced" },
+    { "id": "D4", "criteria": ["AC-7"], "origin": "genuine", "keywords": ["malformed", "json"], "description": "malformed JSON → 500" },
+    { "id": "D5", "criteria": ["AC-12"], "origin": "genuine", "keywords": ["unknown room", "404"], "description": "unknown room → 500" },
+    { "id": "D6", "criteria": ["AC-14"], "origin": "genuine", "keywords": ["alt"], "description": "all images alt 'Single Room'" },
+    { "id": "D7", "criteria": ["AC-16"], "origin": "embedded", "keywords": ["idempotency", "twice", "duplicate"], "description": "Idempotency-Key ignored" },
+    { "id": "D8", "criteria": ["AC-5"], "origin": "embedded", "keywords": ["201"], "description": "create returns 200 not 201" },
+    { "id": "D9", "criteria": ["AC-4", "AC-6"], "origin": "embedded", "keywords": ["top-level", "tld", "e-mail", "email"], "description": "email without TLD accepted" }
+  ],
+  "seededScriptDefects": [{ "id": "S2", "keywords": ["/api/messages", "plural", "does not declare"], "description": "undeclared endpoint /api/messages" }]
+}

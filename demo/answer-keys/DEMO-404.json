@@ -1,0 +1,13 @@
+{
+  "key": "DEMO-404", "aut": "the-internet", "writtenAt": "2026-09-26 (before evaluation)",
+  "expectedVerdict": "PASS",
+  "defects": [],
+  "seededScriptDefects": [],
+  "traps": [
+    "page 'load' event can hang on third-party assets (waitForURL/goto with default waitUntil may time out) → script defect, not app",
+    "table sorter attaches after DOMContentLoaded; an early click is ignored → race/script defect, not app",
+    "JS dialogs need handlers registered before the click",
+    "dynamic loading renders after ~5 s → needs web-first waiting",
+    "flash messages include a trailing × close icon"
+  ]
+}

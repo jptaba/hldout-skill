@@ -1,0 +1,1193 @@
+<testsuites id="" name="" tests="41" failures="11" skipped="0" errors="0" time="82.2264">
+<testsuite name="DEMO-202\tests\demo-202.spec.ts" timestamp="2026-09-26T17:56:47.942Z" hostname="chromium" tests="41" failures="11" skipped="0" time="114.095" errors="0">
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-001: Contact form offers every field with an accessible label" classname="DEMO-202\tests\demo-202.spec.ts" time="15.787">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-1 strict] Message field has an accessible label" type="expect.toBeVisible">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:152:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-001: Contact form offers every field with an accessible label @AC-1 @type:accessibility @layer:ui @P2 › And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name 
+
+    Error: [REQ AC-1 strict] Message field has an accessible label
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-1 strict] Message field has an accessible label getByRole('textbox', { name: 'Message', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Message', exact: true })
+
+
+      157 |     await journey.step('And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name', async () => {
+      158 |       for (const field of REQ.FIELDS) {
+    > 159 |         await expect.soft(page.getByRole('textbox', { name: field, exact: true }), `[REQ AC-1 strict] ${field} field has an accessible label`).toBeVisible();
+          |                                                                                                                                                ^
+      160 |       }
+      161 |     });
+      162 |     await journey.step('And I see a "Submit" button', async () => {
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:159:144
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:157:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-1 strict] Message field has an accessible label
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-1 strict] Message field has an accessible label getByRole('textbox', { name: 'Message', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Message', exact: true })
+
+
+      157 |     await journey.step('And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name', async () => {
+      158 |       for (const field of REQ.FIELDS) {
+    > 159 |         await expect.soft(page.getByRole('textbox', { name: field, exact: true }), `[REQ AC-1 strict] ${field} field has an accessible label`).toBeVisible();
+          |                                                                                                                                                ^
+      160 |       }
+      161 |     });
+      162 |     await journey.step('And I see a "Submit" button', async () => {
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:159:144
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:157:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-002: A valid enquiry shows the personalised confirmation" classname="DEMO-202\tests\demo-202.spec.ts" time="5.497">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-003: An empty submission keeps the form and reports every field" classname="DEMO-202\tests\demo-202.spec.ts" time="1.261">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-004.1: The UI rejects a value one character outside a boundary (Phone 10)" classname="DEMO-202\tests\demo-202.spec.ts" time="3.281">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-004.2: The UI rejects a value one character outside a boundary (Subject 101)" classname="DEMO-202\tests\demo-202.spec.ts" time="3.409">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-004.3: The UI rejects a value one character outside a boundary (Message 19)" classname="DEMO-202\tests\demo-202.spec.ts" time="3.323">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-005: Creating a valid enquiry returns 201 Created" classname="DEMO-202\tests\demo-202.spec.ts" time="3.277">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-5] create enquiry → 201 Created" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:220:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-005: Creating a valid enquiry returns 201 Created @AC-5 @type:functional @layer:api @P1 › Then the response status is 201 
+
+    Error: [REQ AC-5] create enquiry → 201 Created
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 200
+
+      226 |     });
+      227 |     await journey.step('Then the response status is 201', async () => {
+    > 228 |       expect.soft(res.status, '[REQ AC-5] create enquiry → 201 Created').toBe(REQ.STATUS.CREATED);
+          |                                                                          ^
+      229 |     });
+      230 |     await journey.step('And the response body is {"success": true}', async () => {
+      231 |       expect.soft(res.body, '[REQ AC-5] create enquiry body').toEqual(REQ.CREATE_BODY);
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:228:74)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:227:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-5] create enquiry → 201 Created
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 200
+
+      226 |     });
+      227 |     await journey.step('Then the response status is 201', async () => {
+    > 228 |       expect.soft(res.status, '[REQ AC-5] create enquiry → 201 Created').toBe(REQ.STATUS.CREATED);
+          |                                                                          ^
+      229 |     });
+      230 |     await journey.step('And the response body is {"success": true}', async () => {
+      231 |       expect.soft(res.body, '[REQ AC-5] create enquiry body').toEqual(REQ.CREATE_BODY);
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:228:74)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:227:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.1: The API enforces field boundaries (name 1 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="3.598">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] name 1 characters is rejected with 400" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:237:5 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.1: The API enforces field boundaries (name 1 characters → rejected) @AC-4 @AC-6 @type:boundary @layer:api @P1 @boundary › Then the enquiry is rejected 
+
+    Error: [REQ AC-6] name 1 characters is rejected with 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      248 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');
+      249 |         } else {
+    > 250 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                                       ^
+      251 |         }
+      252 |       });
+      253 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:250:87)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:245:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] name 1 characters is rejected with 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      248 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');
+      249 |         } else {
+    > 250 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                                       ^
+      251 |         }
+      252 |       });
+      253 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:250:87)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:245:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.2: The API enforces field boundaries (name 2 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.251">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.3: The API enforces field boundaries (name 50 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.512">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.4: The API enforces field boundaries (name 51 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="2.971">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] name 51 characters is rejected with 400" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:237:5 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.4: The API enforces field boundaries (name 51 characters → rejected) @AC-4 @AC-6 @type:boundary @layer:api @P1 @boundary › Then the enquiry is rejected 
+
+    Error: [REQ AC-6] name 51 characters is rejected with 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      248 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');
+      249 |         } else {
+    > 250 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                                       ^
+      251 |         }
+      252 |       });
+      253 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:250:87)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:245:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] name 51 characters is rejected with 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      248 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');
+      249 |         } else {
+    > 250 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                                       ^
+      251 |         }
+      252 |       });
+      253 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:250:87)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:245:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.5: The API enforces field boundaries (phone 10 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.087">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.6: The API enforces field boundaries (phone 11 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.184">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.7: The API enforces field boundaries (phone 21 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.167">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.8: The API enforces field boundaries (phone 22 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="0.947">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.9: The API enforces field boundaries (subject 4 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="0.967">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.10: The API enforces field boundaries (subject 5 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.281">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.11: The API enforces field boundaries (subject 100 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.098">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.12: The API enforces field boundaries (subject 101 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="0.936">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.13: The API enforces field boundaries (message 19 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="0.974">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.14: The API enforces field boundaries (message 20 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.215">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.15: The API enforces field boundaries (message 2000 characters → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.231">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.16: The API enforces field boundaries (message 2001 characters → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="0.939">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.17: The API enforces field boundaries (email &quot;guest@example&quot; → rejected)" classname="DEMO-202\tests\demo-202.spec.ts" time="2.981">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] email &quot;guest@example&quot; is rejected with 400" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:237:5 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.17: The API enforces field boundaries (email "guest@example" → rejected) @AC-4 @AC-6 @type:boundary @layer:api @P1 @boundary › Then the enquiry is rejected 
+
+    Error: [REQ AC-6] email "guest@example" is rejected with 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      248 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');
+      249 |         } else {
+    > 250 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                                       ^
+      251 |         }
+      252 |       });
+      253 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:250:87)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:245:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] email "guest@example" is rejected with 400
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      248 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');
+      249 |         } else {
+    > 250 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                                       ^
+      251 |         }
+      252 |       });
+      253 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:250:87)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:245:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-006.18: The API enforces field boundaries (email &quot;guest@example.com&quot; → accepted)" classname="DEMO-202\tests\demo-202.spec.ts" time="1.346">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-007: A rejected enquiry is not stored" classname="DEMO-202\tests\demo-202.spec.ts" time="1.338">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-008: A malformed JSON body is a client error" classname="DEMO-202\tests\demo-202.spec.ts" time="1.249">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] malformed JSON → 400 (never 5xx)" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:278:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-008: A malformed JSON body is a client error @AC-7 @type:negative @layer:api @P2 › Then the response status is 400 
+
+    Error: [REQ AC-7] malformed JSON → 400 (never 5xx)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+      282 |     });
+      283 |     await journey.step('Then the response status is 400', async () => {
+    > 284 |       expect(status, '[REQ AC-7] malformed JSON → 400 (never 5xx)').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                     ^
+      285 |     });
+      286 |   });
+      287 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:284:69)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:283:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] malformed JSON → 400 (never 5xx)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+      282 |     });
+      283 |     await journey.step('Then the response status is 400', async () => {
+    > 284 |       expect(status, '[REQ AC-7] malformed JSON → 400 (never 5xx)').toBe(REQ.STATUS.BAD_REQUEST);
+          |                                                                     ^
+      285 |     });
+      286 |   });
+      287 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:284:69)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:283:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-009: Listing enquiries without a staff token is refused" classname="DEMO-202\tests\demo-202.spec.ts" time="1.627">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] message list without token → 401" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:288:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-009: Listing enquiries without a staff token is refused @AC-8 @type:security @layer:api @P1 @security 
+
+    Error: [REQ AC-8] message list without token → 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      290 |     await journey.step('When I GET /api/message without a token', async () => { res = await api.get(EP.message); });
+      291 |     await journey.step('Then the response status is 401', async () => {
+    > 292 |       expect.soft(res.status, '[REQ AC-8] message list without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                              ^
+      293 |     });
+      294 |     await journey.step('And the response contains no message data', async () => {
+      295 |       expect.soft(res.text, '[REQ AC-8] no message data without token').not.toContain('"messages"');
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:292:78)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:291:5
+
+    Error: [REQ AC-8] no message data without token
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "\"messages\""
+    Received string:        "{\"messages\":[{\"id\":1,\"name\":\"James Dean\",\"read\":false,\"subject\":\"Booking enquiry\"},{\"id\":2,\"name\":\"ttt ttt\",\"read\":false,\"subject\":\"You have a new booking!\"}]}"
+
+      293 |     });
+      294 |     await journey.step('And the response contains no message data', async () => {
+    > 295 |       expect.soft(res.text, '[REQ AC-8] no message data without token').not.toContain('"messages"');
+          |                                                                             ^
+      296 |     });
+      297 |   });
+      298 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:295:77)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:294:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-8] message list without token → 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      290 |     await journey.step('When I GET /api/message without a token', async () => { res = await api.get(EP.message); });
+      291 |     await journey.step('Then the response status is 401', async () => {
+    > 292 |       expect.soft(res.status, '[REQ AC-8] message list without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                              ^
+      293 |     });
+      294 |     await journey.step('And the response contains no message data', async () => {
+      295 |       expect.soft(res.text, '[REQ AC-8] no message data without token').not.toContain('"messages"');
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:292:78)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:291:5
+
+    Error: [REQ AC-8] no message data without token
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "\"messages\""
+    Received string:        "{\"messages\":[{\"id\":1,\"name\":\"James Dean\",\"read\":false,\"subject\":\"Booking enquiry\"},{\"id\":2,\"name\":\"ttt ttt\",\"read\":false,\"subject\":\"You have a new booking!\"}]}"
+
+      293 |     });
+      294 |     await journey.step('And the response contains no message data', async () => {
+    > 295 |       expect.soft(res.text, '[REQ AC-8] no message data without token').not.toContain('"messages"');
+          |                                                                             ^
+      296 |     });
+      297 |   });
+      298 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:295:77)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:294:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-010: Reading an enquiry without a staff token is refused" classname="DEMO-202\tests\demo-202.spec.ts" time="4.085">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] message detail without token → 401" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:299:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-010: Reading an enquiry without a staff token is refused @AC-8 @type:security @layer:api @P1 @security 
+
+    Error: [REQ AC-8] message detail without token → 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      316 |     await journey.step('When I GET /api/message/{id} without a token', async () => { res = await api.get(EP.messageById(id)); });
+      317 |     await journey.step('Then the response status is 401', async () => {
+    > 318 |       expect.soft(res.status, '[REQ AC-8] message detail without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                                ^
+      319 |     });
+      320 |     await journey.step('And the response contains no personal data', async () => {
+      321 |       const leaked = REQ.PERSONAL_DATA_KEYS.filter((k) => res.text.includes(`"${k}"`));
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:318:80)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:317:5
+
+    Error: [REQ AC-8] no personal data without token
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "email",
+    +   "phone",
+    +   "description",
+    + ]
+
+      320 |     await journey.step('And the response contains no personal data', async () => {
+      321 |       const leaked = REQ.PERSONAL_DATA_KEYS.filter((k) => res.text.includes(`"${k}"`));
+    > 322 |       expect.soft(leaked, '[REQ AC-8] no personal data without token').toEqual([]);
+          |                                                                        ^
+      323 |     });
+      324 |   });
+      325 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:322:72)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:320:5
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-8] message detail without token → 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+      316 |     await journey.step('When I GET /api/message/{id} without a token', async () => { res = await api.get(EP.messageById(id)); });
+      317 |     await journey.step('Then the response status is 401', async () => {
+    > 318 |       expect.soft(res.status, '[REQ AC-8] message detail without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                                ^
+      319 |     });
+      320 |     await journey.step('And the response contains no personal data', async () => {
+      321 |       const leaked = REQ.PERSONAL_DATA_KEYS.filter((k) => res.text.includes(`"${k}"`));
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:318:80)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:317:5
+
+    Error: [REQ AC-8] no personal data without token
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "email",
+    +   "phone",
+    +   "description",
+    + ]
+
+      320 |     await journey.step('And the response contains no personal data', async () => {
+      321 |       const leaked = REQ.PERSONAL_DATA_KEYS.filter((k) => res.text.includes(`"${k}"`));
+    > 322 |       expect.soft(leaked, '[REQ AC-8] no personal data without token').toEqual([]);
+          |                                                                        ^
+      323 |     });
+      324 |   });
+      325 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:322:72)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:320:5
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-011: Staff can list enquiries with a valid token" classname="DEMO-202\tests\demo-202.spec.ts" time="0.891">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-012: Valid staff credentials return a token" classname="DEMO-202\tests\demo-202.spec.ts" time="0.504">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-013: Invalid staff credentials are refused" classname="DEMO-202\tests\demo-202.spec.ts" time="0.51">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-014: An enquiry sent from the UI is readable by staff through the API" classname="DEMO-202\tests\demo-202.spec.ts" time="3.947">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-015: The rooms list follows the Room schema" classname="DEMO-202\tests\demo-202.spec.ts" time="0.76">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-016: An existing room can be fetched by id" classname="DEMO-202\tests\demo-202.spec.ts" time="0.651">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-017: An unknown room id returns 404" classname="DEMO-202\tests\demo-202.spec.ts" time="1.765">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-12] unknown room → 404" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:414:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-017: An unknown room id returns 404 @AC-12 @type:negative @layer:api @P2 › Then the response status is 404 
+
+    Error: [REQ AC-12] unknown room → 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 404
+    Received: 500
+
+      420 |     await journey.step('When I GET /api/room/{id}', async () => { status = (await api.get(EP.roomById(unknownId))).status; });
+      421 |     await journey.step('Then the response status is 404', async () => {
+    > 422 |       expect(status, '[REQ AC-12] unknown room → 404').toBe(REQ.STATUS.NOT_FOUND);
+          |                                                        ^
+      423 |     });
+      424 |   });
+      425 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:422:56)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:421:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-12] unknown room → 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 404
+    Received: 500
+
+      420 |     await journey.step('When I GET /api/room/{id}', async () => { status = (await api.get(EP.roomById(unknownId))).status; });
+      421 |     await journey.step('Then the response status is 404', async () => {
+    > 422 |       expect(status, '[REQ AC-12] unknown room → 404').toBe(REQ.STATUS.NOT_FOUND);
+          |                                                        ^
+      423 |     });
+      424 |   });
+      425 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:422:56)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:421:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-018: Every API room is shown with its type and nightly price" classname="DEMO-202\tests\demo-202.spec.ts" time="2.154">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-019: Room card images name their own room type" classname="DEMO-202\tests\demo-202.spec.ts" time="24.774">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-14] Double card image alt text" type="expect.toHaveAccessibleName">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:442:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-019: Room card images name their own room type @AC-14 @type:accessibility @layer:e2e @P2 › Then each room card's image has the alternative text "<Type> Room" for that card's type 
+
+    Error: [REQ AC-14] Double card image alt text
+
+    expect(locator).toHaveAccessibleName(expected) failed
+
+    Locator:  locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()
+    Expected: "Double Room"
+    Received: "Single Room"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-14] Double card image alt text locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first() with timeout 5000ms
+      - waiting for locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()
+        14 × locator resolved to <img alt="Single Room" class="card-img-top" src="/images/room2.jpg"/>
+           - unexpected value "Single Room"
+
+
+      446 |     await journey.step('Then each room card\'s image has the alternative text "<Type> Room" for that card\'s type', async () => {
+      447 |       for (const room of list) {
+    > 448 |         await expect.soft(ui(page).roomCard(room.type).first().getByRole('img').first(), `[REQ AC-14] ${room.type} card image alt text`).toHaveAccessibleName(REQ.ALT_TEXT(room.type));
+          |                                                                                                                                          ^
+      449 |       }
+      450 |     });
+      451 |   });
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:448:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:446:5
+
+    Error: [REQ AC-14] Suite card image alt text
+
+    expect(locator).toHaveAccessibleName(expected) failed
+
+    Locator:  locator('.room-card').filter({ has: getByRole('heading', { name: 'Suite', exact: true }) }).first().getByRole('img').first()
+    Expected: "Suite Room"
+    Received: "Single Room"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-14] Suite card image alt text locator('.room-card').filter({ has: getByRole('heading', { name: 'Suite', exact: true }) }).first().getByRole('img').first() with timeout 5000ms
+      - waiting for locator('.room-card').filter({ has: getByRole('heading', { name: 'Suite', exact: true }) }).first().getByRole('img').first()
+        14 × locator resolved to <img alt="Single Room" class="card-img-top" src="/images/room3.jpg"/>
+           - unexpected value "Single Room"
+
+
+      446 |     await journey.step('Then each room card\'s image has the alternative text "<Type> Room" for that card\'s type', async () => {
+      447 |       for (const room of list) {
+    > 448 |         await expect.soft(ui(page).roomCard(room.type).first().getByRole('img').first(), `[REQ AC-14] ${room.type} card image alt text`).toHaveAccessibleName(REQ.ALT_TEXT(room.type));
+          |                                                                                                                                          ^
+      449 |       }
+      450 |     });
+      451 |   });
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:448:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:446:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-14] Double card image alt text
+
+    expect(locator).toHaveAccessibleName(expected) failed
+
+    Locator:  locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()
+    Expected: "Double Room"
+    Received: "Single Room"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-14] Double card image alt text locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first() with timeout 5000ms
+      - waiting for locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()
+        14 × locator resolved to <img alt="Single Room" class="card-img-top" src="/images/room2.jpg"/>
+           - unexpected value "Single Room"
+
+
+      446 |     await journey.step('Then each room card\'s image has the alternative text "<Type> Room" for that card\'s type', async () => {
+      447 |       for (const room of list) {
+    > 448 |         await expect.soft(ui(page).roomCard(room.type).first().getByRole('img').first(), `[REQ AC-14] ${room.type} card image alt text`).toHaveAccessibleName(REQ.ALT_TEXT(room.type));
+          |                                                                                                                                          ^
+      449 |       }
+      450 |     });
+      451 |   });
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:448:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:446:5
+
+    Error: [REQ AC-14] Suite card image alt text
+
+    expect(locator).toHaveAccessibleName(expected) failed
+
+    Locator:  locator('.room-card').filter({ has: getByRole('heading', { name: 'Suite', exact: true }) }).first().getByRole('img').first()
+    Expected: "Suite Room"
+    Received: "Single Room"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-14] Suite card image alt text locator('.room-card').filter({ has: getByRole('heading', { name: 'Suite', exact: true }) }).first().getByRole('img').first() with timeout 5000ms
+      - waiting for locator('.room-card').filter({ has: getByRole('heading', { name: 'Suite', exact: true }) }).first().getByRole('img').first()
+        14 × locator resolved to <img alt="Single Room" class="card-img-top" src="/images/room3.jpg"/>
+           - unexpected value "Single Room"
+
+
+      446 |     await journey.step('Then each room card\'s image has the alternative text "<Type> Room" for that card\'s type', async () => {
+      447 |       for (const room of list) {
+    > 448 |         await expect.soft(ui(page).roomCard(room.type).first().getByRole('img').first(), `[REQ AC-14] ${room.type} card image alt text`).toHaveAccessibleName(REQ.ALT_TEXT(room.type));
+          |                                                                                                                                          ^
+      449 |       }
+      450 |     });
+      451 |   });
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:448:138
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:446:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-020: The rooms list responds quickly" classname="DEMO-202\tests\demo-202.spec.ts" time="1.424">
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-021: A retried enquiry with the same Idempotency-Key is stored only once" classname="DEMO-202\tests\demo-202.spec.ts" time="4.633">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-16] retried enquiry stored only once" type="expect.toBe">
+<![CDATA[  [chromium] › DEMO-202\tests\demo-202.spec.ts:464:3 › DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-021: A retried enquiry with the same Idempotency-Key is stored only once @AC-16 @type:idempotency @layer:api @P1 › And the authenticated message list contains that subject exactly once 
+
+    Error: [REQ AC-16] retried enquiry stored only once
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 2
+
+      480 |     await journey.step('And the authenticated message list contains that subject exactly once', async () => {
+      481 |       const stored = (await staffMessages(api, token)).filter((m) => m.subject === enquiry.subject).length;
+    > 482 |       expect.soft(stored, '[REQ AC-16] retried enquiry stored only once').toBe(REQ.IDEMPOTENCY.EXPECTED_STORED);
+          |                                                                           ^
+      483 |     });
+      484 |   });
+      485 |
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:482:75
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:480:5
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-16] retried enquiry stored only once
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 2
+
+      480 |     await journey.step('And the authenticated message list contains that subject exactly once', async () => {
+      481 |       const stored = (await staffMessages(api, token)).filter((m) => m.subject === enquiry.subject).length;
+    > 482 |       expect.soft(stored, '[REQ AC-16] retried enquiry stored only once').toBe(REQ.IDEMPOTENCY.EXPECTED_STORED);
+          |                                                                           ^
+      483 |     });
+      484 |   });
+      485 |
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:482:75
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:28
+        at D:\projects\hldout-skill\evaluations\DEMO-202\tests\demo-202.spec.ts:480:5
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-202\runs\07-presteps\artifacts\DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-202 Guest enquiries — contact form, rooms catalogue and messages API › SCN-022: Repeating GET /api/room/{id} returns an identical body" classname="DEMO-202\tests\demo-202.spec.ts" time="1.263">
+</testcase>
+</testsuite>
+</testsuites>

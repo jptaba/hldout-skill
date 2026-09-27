@@ -1,0 +1,612 @@
+{
+  "key": "DEMO-404",
+  "run": "02-harden-stability",
+  "generatedAt": "2026-09-26T16:26:54.744Z",
+  "summary": {
+    "total": 15,
+    "passed": 5,
+    "failed": 0,
+    "flaky": 10,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The trainee signs in to the Secure Area",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f1e1]:\n  - generic [ref=f1e4]:\n    - text:  You logged into a secure area!\n    - link \"×\" [ref=f1e5] [cursor=pointer]:\n      - /url: \"#\"\n  - generic [ref=f1e6]:\n    - link \"Fork me on GitHub\":\n      - /url: https://github.com/tourdedave/the-internet\n      - img \"Fork me on GitHub\" [ref=f1e7] [cursor=pointer]\n    - generic [ref=f1e9]:\n      - heading \"Secure Area\" [level=2] [ref=f1e10]\n      - heading \"Welcome to the Secure Area. When you are done click logout below.\" [level=4] [ref=f1e11]\n      - link \"Logout\" [ref=f1e12] [cursor=pointer]:\n        - /url: /logout\n  - generic [ref=f1e14]:\n    - separator [ref=f1e15]\n    - generic [ref=f1e16]:\n      - text: Powered by\n      - link \"Elemental Selenium\" [ref=f1e17] [cursor=pointer]:\n        - /url: http://elementalselenium.com/\n",
+        "repeats": {
+          "runs": 8,
+          "failed": 2,
+          "causes": [
+            "SCRIPT_DEFECT: [REQ AC-1] \"Secure Area\" heading",
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/login"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-1] \"Secure Area\" heading",
+        "reqTag": "AC-1",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByRole('heading', { name: 'Secure Area', exact: true })",
+        "message": "Error: [REQ AC-1] \"Secure Area\" heading\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Secure Area', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-1] \"Secure Area\" heading getByRole('heading', { name: 'Secure Area', exact: true }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Secure Area', exact: true })\n\n\n  79 |     await journey.step('Then I am on the Secure Area with the heading \"Secure Area\"', async () => {\n  80 |       await expect(page, '[REQ AC-1] Secure Area URL').toHaveURL(/\\/secure$/);\n> 81 |       await expect(ui(page).heading(REQ.SECURE_HEADING), '[REQ AC-1] \"Secure Area\" heading').toBeVisible();\n     |                                                                                              ^\n  82 |     });\n  83 |     await journey.step('And I see \"You logged into a secure area!\"', async () => {\n  84 |       await expect(ui(page).message, '[REQ AC-1] sign-in message').toContainText(REQ.MSG.SIGNED_IN);\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:81:94\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:79:5"
+      },
+      "failingStep": "Then I am on the Secure Area with the heading \"Secure Area\"",
+      "auto": {
+        "category": "FLAKY",
+        "confidence": "medium",
+        "signals": [
+          "Failed 2 of 8 repeats — nondeterministic.",
+          "Failure cause seen: SCRIPT_DEFECT: [REQ AC-1] \"Secure Area\" heading",
+          "Failure cause seen: ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/login"
+        ],
+        "next": "Decide per cause: ENVIRONMENT (network/5xx under load) → re-run; missing synchronisation → SCRIPT (fix and repeat); the app itself intermittently wrong → APPLICATION."
+      }
+    },
+    {
+      "scenario": "SCN-002.1",
+      "title": "SCN-002.1: Wrong credentials are refused with a specific message (an unknown username)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 8,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002.2",
+      "title": "SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-repeat2/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-repeat2/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-repeat2/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 1,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/login"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/login",
+        "message": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/login\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/login\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:90:78)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:90:7"
+      },
+      "failingStep": "Given I am on the Login page",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 1 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/login"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: Logging out returns to the Login page",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 8,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: The Secure Area is not reachable while signed out",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-3",
+        "@type:security",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "security",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium-repeat4/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium-repeat4/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium-repeat4/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 1,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/secure"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/secure",
+        "message": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/secure\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/secure\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:111:86)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:111:5"
+      },
+      "failingStep": "When I open /secure without signing in",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 1 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/secure"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Checkboxes start in the documented state and toggle",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-4",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-c88ec-documented-state-and-toggle-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-c88ec-documented-state-and-toggle-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-c88ec-documented-state-and-toggle-chromium/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 1,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/checkboxes"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/checkboxes",
+        "message": "Error: page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/checkboxes\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/checkboxes\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:117:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:117:5"
+      },
+      "failingStep": "Given I am on the Checkboxes page",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 1 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/checkboxes"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: The dropdown offers the documented options",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 8,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: Dynamically loaded content appears within 10 seconds",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium/error-context.md",
+        "snapshotExcerpt": "# url: https://the-internet.herokuapp.com/dynamic_loading/2\n# step: FAILED Then \"Hello World!\" is rendered within 10 seconds\n- link \"Fork me on GitHub\":\n  - /url: https://github.com/tourdedave/the-internet\n  - img \"Fork me on GitHub\"\n- heading \"Dynamically Loaded Page Elements\" [level=3]\n- 'heading \"Example 2: Element rendered after the fact\" [level=4]'\n- button \"Start\"\n- separator\n- text: Powered by\n- link \"Elemental Selenium\":\n  - /url: http://elementalselenium.com/\n",
+        "repeats": {
+          "runs": 8,
+          "failed": 2,
+          "causes": [
+            "NEEDS_INVESTIGATION: [REQ AC-6] \"Hello World!\" within 10 s",
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/dynamic_loading/2"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] \"Hello World!\" within 10 s",
+        "reqTag": "AC-6",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByText('Hello World!')",
+        "message": "Error: [REQ AC-6] \"Hello World!\" within 10 s\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText('Hello World!')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-6] \"Hello World!\" within 10 s getByText('Hello World!') with timeout 10000ms\n  - waiting for getByText('Hello World!')\n\n\n  146 |     await journey.step('When I press \"Start\"', async () => { await ui(page).start.click(); });\n  147 |     await journey.step('Then \"Hello World!\" is rendered within 10 seconds', async () => {\n> 148 |       await expect(ui(page).dynamicResult, '[REQ AC-6] \"Hello World!\" within 10 s').toBeVisible({ timeout: REQ.DYNAMIC_MAX_MS });\n      |                                                                                     ^\n  149 |     });\n  150 |   });\n  151 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:148:85)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:147:5"
+      },
+      "failingStep": "Then \"Hello World!\" is rendered within 10 seconds",
+      "auto": {
+        "category": "FLAKY",
+        "confidence": "medium",
+        "signals": [
+          "Failed 2 of 8 repeats — nondeterministic.",
+          "Failure cause seen: NEEDS_INVESTIGATION: [REQ AC-6] \"Hello World!\" within 10 s",
+          "Failure cause seen: ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/dynamic_loading/2"
+        ],
+        "next": "Decide per cause: ENVIRONMENT (network/5xx under load) → re-run; missing synchronisation → SCRIPT (fix and repeat); the app itself intermittently wrong → APPLICATION."
+      }
+    },
+    {
+      "scenario": "SCN-008.1",
+      "title": "SCN-008.1: JavaScript dialogs report the user's choice (alert)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-repeat3/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-repeat3/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-repeat3/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 1,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/javascript_alerts"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/javascript_alerts",
+        "message": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/javascript_alerts\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/javascript_alerts\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:154:90)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:154:7"
+      },
+      "failingStep": "Given I am on the JavaScript Alerts page",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 1 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/javascript_alerts"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-008.2",
+      "title": "SCN-008.2: JavaScript dialogs report the user's choice (confirm)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-252e7--the-user-s-choice-confirm--chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-252e7--the-user-s-choice-confirm--chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-252e7--the-user-s-choice-confirm--chromium/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 2,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/javascript_alerts",
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/javascript_alerts"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/javascript_alerts",
+        "message": "Error: page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/javascript_alerts\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/javascript_alerts\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:154:90)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:154:7"
+      },
+      "failingStep": "Given I am on the JavaScript Alerts page",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 2 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_CONNECTION_RESET at https://the-internet.herokuapp.com/javascript_alerts",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/javascript_alerts"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-008.3",
+      "title": "SCN-008.3: JavaScript dialogs report the user's choice (prompt)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 8,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: One click on \"Last Name\" sorts the first table ascending",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-8",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 1,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/tables"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/tables",
+        "message": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/tables\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/tables\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:164:82)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:164:5"
+      },
+      "failingStep": "Given I am on the Data Tables page",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 1 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/tables"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: Elements are added and removed one at a time",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-9",
+        "@type:functional",
+        "@layer:ui",
+        "@P3"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-repeat2/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-repeat2/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-repeat2/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 1,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/add_remove_elements/"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/add_remove_elements/",
+        "message": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/add_remove_elements/\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/add_remove_elements/\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:176:90)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:176:5"
+      },
+      "failingStep": "Given I am on the Add/Remove Elements page",
+      "auto": {
+        "category": "ENVIRONMENT_ISSUE",
+        "confidence": "medium",
+        "signals": [
+          "Failed 1 of 8 repeats, every time with a network/availability error — the environment, not the test or the app.",
+          "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/add_remove_elements/"
+        ],
+        "next": "Re-run at lower load (fewer workers/repeats) or when the AUT is healthy."
+      }
+    },
+    {
+      "scenario": "SCN-011.1",
+      "title": "SCN-011.1: Key presses are reported (Tab)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-10",
+        "@type:functional",
+        "@layer:ui",
+        "@P3"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "repeats": {
+          "runs": 8,
+          "failed": 0,
+          "causes": []
+        }
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.2",
+      "title": "SCN-011.2: Key presses are reported (A)",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "status": "flaky",
+      "tags": [
+        "@AC-10",
+        "@type:functional",
+        "@layer:ui",
+        "@P3"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-404/runs/02-harden-stability/artifacts/DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium/error-context.md",
+        "repeats": {
+          "runs": 8,
+          "failed": 2,
+          "causes": [
+            "ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/key_presses",
+            "NEEDS_INVESTIGATION: [REQ AC-10] A reported"
+          ]
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/key_presses",
+        "message": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/key_presses\nCall log:\n  - navigating to \"https://the-internet.herokuapp.com/key_presses\", waiting until \"domcontentloaded\"\n\n\n  57 |  */\n  58 | async function open(page: Page, path: string) {\n> 59 |   await page.goto(path, { waitUntil: 'domcontentloaded' });\n     |              ^\n  60 |   await page.waitForLoadState('load', { timeout: 10_000 }).catch(() => undefined);\n  61 | }\n  62 | async function signIn(page: Page, username: string, password: string) {\n    at open (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:59:14)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:185:84)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:185:7"
+      },
+      "failingStep": "Given I am on the Key Presses page",
+      "auto": {
+        "category": "FLAKY",
+        "confidence": "medium",
+        "signals": [
+          "Failed 2 of 8 repeats — nondeterministic.",
+          "Failure cause seen: ENVIRONMENT_ISSUE: page.goto: net::ERR_EMPTY_RESPONSE at https://the-internet.herokuapp.com/key_presses",
+          "Failure cause seen: NEEDS_INVESTIGATION: [REQ AC-10] A reported"
+        ],
+        "next": "Decide per cause: ENVIRONMENT (network/5xx under load) → re-run; missing synchronisation → SCRIPT (fix and repeat); the app itself intermittently wrong → APPLICATION."
+      }
+    }
+  ]
+}

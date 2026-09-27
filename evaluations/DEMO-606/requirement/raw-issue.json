@@ -1,0 +1,167 @@
+{
+  "id": "10606",
+  "key": "DEMO-606",
+  "self": "https://your-domain.atlassian.net/rest/api/3/issue/DEMO-606",
+  "fields": {
+    "summary": "Practice portal — notification copy",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [
+      "training",
+      "ui"
+    ],
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Context"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Content has now approved the notification copy for the Notification Message page. The server picks one of the outcomes at random on each request, and "
+            },
+            {
+              "type": "text",
+              "text": "every",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " message shown must be approved copy."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Acceptance criteria"
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "AC-1",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ": On the Notification Message page ("
+                    },
+                    {
+                      "type": "text",
+                      "text": "/notification_message_rendered",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "), each click on \"Click here\" shows exactly one notification, and its text is one of the approved messages in "
+                    },
+                    {
+                      "type": "text",
+                      "text": "ux-copy.md",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "AC-2",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ": Across repeated clicks, both outcomes (success and failure) can occur."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "attachment": [
+      {
+        "id": "26060",
+        "filename": "ux-copy.md",
+        "mimeType": "text/markdown",
+        "size": 238,
+        "content": "attachments/ux-copy.md",
+        "created": "2026-09-26T16:13:30.854Z",
+        "author": {
+          "displayName": "Product Owner"
+        }
+      }
+    ],
+    "comment": {
+      "comments": [],
+      "total": 0
+    }
+  }
+}

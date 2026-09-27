@@ -1,0 +1,75 @@
+<testsuites id="" name="" tests="8" failures="1" skipped="0" errors="0" time="8.353227">
+<testsuite name="TOOL-2\tests\tool-2.spec.ts" timestamp="2026-09-26T22:38:39.540Z" hostname="chromium" tests="8" failures="1" skipped="0" time="19.321" errors="0">
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-001: Registration creates the customer without echoing the password" classname="TOOL-2\tests\tool-2.spec.ts" time="1.399">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-002: A registered e-mail address cannot register twice" classname="TOOL-2\tests\tool-2.spec.ts" time="1.456">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-003: Weak passwords are rejected with every broken rule listed" classname="TOOL-2\tests\tool-2.spec.ts" time="1.345">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-004: Signing in on the web shop" classname="TOOL-2\tests\tool-2.spec.ts" time="4.154">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-005: A wrong password is refused by the API" classname="TOOL-2\tests\tool-2.spec.ts" time="1.33">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-006: A wrong password is refused on the web shop" classname="TOOL-2\tests\tool-2.spec.ts" time="3.583">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-007: The account locks after five failed attempts" classname="TOOL-2\tests\tool-2.spec.ts" time="3.873">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] attempts one to five → 401" type="expect.toEqual">
+<![CDATA[  [chromium] › TOOL-2\tests\tool-2.spec.ts:115:3 › TOOL-2 Customer registration, sign-in and account protection › SCN-007: The account locks after five failed attempts @AC-6 @type:security @layer:api › Then attempts one to five each respond 401 
+
+    Error: [REQ AC-6] attempts one to five → 401
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Array [
+        401,
+        401,
+        401,
+    -   401,
+    -   401,
+    +   423,
+    +   423,
+      ]
+
+      120 |     });
+      121 |     await journey.step('Then attempts one to five each respond 401', async () => {
+    > 122 |       expect.soft(statuses, '[REQ AC-6] attempts one to five → 401').toEqual(Array(REQ.FAILED_ATTEMPTS_ALLOWED).fill(REQ.STATUS.UNAUTHORIZED));
+          |                                                                      ^
+      123 |     });
+      124 |     await journey.step('And the sixth attempt, with the correct password, responds 423 with a message that the account is locked', async () => {
+      125 |       sixth = await login(api, c);
+        at body (D:\projects\hldout-skill\evaluations\TOOL-2\tests\tool-2.spec.ts:122:70)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:301:34
+        at D:\projects\hldout-skill\evaluations\TOOL-2\tests\tool-2.spec.ts:121:5
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-008: Signing out invalidates the token" classname="TOOL-2\tests\tool-2.spec.ts" time="2.181">
+</testcase>
+</testsuite>
+</testsuites>

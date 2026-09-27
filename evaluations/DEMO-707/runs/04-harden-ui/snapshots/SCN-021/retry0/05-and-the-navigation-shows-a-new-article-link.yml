@@ -1,0 +1,34 @@
+# url: https://conduit.bondaracademy.com/
+# step: And the navigation shows a "New Article" link
+- navigation:
+  - link "conduit":
+    - /url: /
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: /
+    - listitem:
+      - link " New Article":
+        - /url: /editor
+    - listitem:
+      - link " Settings":
+        - /url: /settings
+    - listitem:
+      - link "qairsb8jm7r1":
+        - /url: /profile/qairsb8jm7r1
+        - img
+        - text: qairsb8jm7r1
+- list:
+  - listitem: Your Feed
+  - listitem: Global Feed
+- text: Loading articles...
+- contentinfo:
+  - link "conduit":
+    - /url: /
+  - text: © 2026. An interactive learning project from
+  - link "RealWorld OSS Project":
+    - /url: https://github.com/gothinkster/realworld
+  - text: . Code licensed under MIT. Hosted by
+  - link "Bondar Academy":
+    - /url: https://bondaracademy.com
+  - text: .

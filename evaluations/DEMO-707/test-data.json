@@ -1,0 +1,3 @@
+{
+  "userPassword": "${env:CONDUIT_USER_PASSWORD}"
+}

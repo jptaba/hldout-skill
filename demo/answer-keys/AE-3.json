@@ -1,0 +1,31 @@
+{
+  "key": "AE-3",
+  "aut": "automation-exercise",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "PASS",
+  "defects": [],
+  "seededScriptDefects": [],
+  "traps": [
+    "brandsList returns 34 entries with repeated brand names (one per product, id = product id). The story states this explicitly; reporting 'duplicate brands' as a defect is a false positive.",
+    "AC-2 is explicit: HTTP 200 with body responseCode 405 'This request method is not supported.' for PUT/POST/DELETE. Asserting HTTP 405 is a script defect.",
+    "Content-Type of the API is text/html although the body is JSON; parse the body regardless.",
+    "The mandatory fields are only in the image attachment contact-us-mockup.png: only Email is marked mandatory (*); Name, Subject, Message are optional, attachment out of scope. An evaluator that assumes all fields are mandatory will report a false defect (the AUT sends the form with only Email filled).",
+    "Submitting the Contact Us form opens a native confirm() dialog 'Press OK to proceed!'. Tests must register a dialog handler (accept for AC-7, dismiss for AC-8); Playwright auto-dismisses dialogs by default, which looks like 'no success message' — a script defect, not an AUT defect.",
+    "The form submission is handled client-side (no network request is sent on confirm); AC-7 only requires the success message and the Home button, so do not require a server call.",
+    "Empty Email / invalid Email are blocked by native HTML5 validation (validationMessage 'Please fill out this field.' / 'Please include an '@' ...'), no custom error text on the page; the story does not specify an error text, so asserting one is a script defect.",
+    "Headings are CSS uppercased: innerText 'BRAND - POLO PRODUCTS', textContent 'Brand - Polo Products'. Case-sensitive innerText assertions fail falsely.",
+    "Brand sidebar items render as '(6)Polo' in textContent (count span floats right). Product cards appear twice in the DOM (dedupe by data-product-id).",
+    "Brand links contain raw '&' and spaces: /brand_products/H&M and /brand_products/Mast & Harbour both work; click the sidebar link rather than hand-building URLs.",
+    "Ads/consent overlays (Google) can cover elements; block ad domains. The file upload field is out of scope."
+  ],
+  "expectations": [
+    "AC-1 PASS: GET /api/brandsList -> responseCode 200, brands[34] {id, brand}; each id's product in productsList has the same brand (0 mismatches).",
+    "AC-2 PASS: PUT, POST, DELETE /api/brandsList -> HTTP 200, {\"responseCode\": 405, \"message\": \"This request method is not supported.\"}.",
+    "AC-3 PASS: sidebar lists 8 brands once each: Polo (6), H&M (5), Madame (5), Mast & Harbour (3), Babyhug (4), Allen Solly Junior (3), Kookie Kids (3), Biba (5).",
+    "AC-4 PASS: distinct brandsList names = the same 8; per-brand entry counts equal the sidebar counts.",
+    "AC-5 PASS: Polo -> 'Brand - Polo Products' ids 1,8,29,30,33,37; H&M -> ids 2,6,28,31,35; Mast & Harbour -> ids 5,42,43; each equals productsList filtered by brand.",
+    "AC-6 PASS: fields Name, Email, Subject, Message (+ file); empty Email or 'not-an-email' blocks sending (no confirm, no banner); Email-only submission is allowed.",
+    "AC-7 PASS: confirm 'Press OK to proceed!' -> OK -> 'Success! Your details have been submitted successfully.' visible, form replaced by a 'Home' button linking to /.",
+    "AC-8 PASS: dismissing the confirm -> no banner, form still present with the typed values."
+  ]
+}

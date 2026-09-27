@@ -1,0 +1,6 @@
+{
+  "name": "heldout-evaluator-skill",
+  "private": true,
+  "type": "module",
+  "description": "Scripts of the heldout-evaluator Claude Code skill. Declares ESM so the skill runs the same in CommonJS and ESM host projects."
+}

@@ -1,0 +1,23 @@
+{
+  "key": "DEMO-101",
+  "run": "02-eval",
+  "label": "eval",
+  "startedAt": "2026-09-26T14:20:27.032Z",
+  "finishedAt": "2026-09-26T14:21:06.355Z",
+  "aut": {
+    "name": "Swag Labs (saucedemo.com demo shop)",
+    "baseURL": "https://www.saucedemo.com"
+  },
+  "command": "npx playwright test evaluations/DEMO-101/tests/",
+  "grep": null,
+  "capture": false,
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-26T14:20:29.786Z",
+    "duration": 36280.187,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

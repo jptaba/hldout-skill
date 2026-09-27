@@ -1,0 +1,3 @@
+{
+  "customerPassword": "${env:TOOLSHOP_CUSTOMER_PASSWORD}"
+}

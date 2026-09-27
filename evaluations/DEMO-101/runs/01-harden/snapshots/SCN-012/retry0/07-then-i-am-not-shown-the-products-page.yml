@@ -1,0 +1,15 @@
+# url: https://www.saucedemo.com/
+# step: Then I am not shown the Products page
+- text: Swag Labs
+- main:
+  - form "Login":
+    - textbox "Username"
+    - textbox "Password"
+    - alert:
+      - button "Dismiss error"
+      - text: "Epic sadface: You can only access '/inventory.html' when you are logged in."
+    - button "Login"
+  - heading "Accepted usernames are:" [level=4]
+  - text: standard_user locked_out_user problem_user performance_glitch_user error_user visual_user
+  - heading "Password for all users:" [level=4]
+  - text: password

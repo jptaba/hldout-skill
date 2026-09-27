@@ -1,0 +1,8 @@
+{ "key": "TOOLB-2", "aut": "toolshop-rc", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-1", "AC-2", "AC-3", "AC-6", "AC-7", "AC-8"], "origin": "genuine (environment build)", "keywords": ["404", "Resource not found", "not deployed", "carts"], "description": "the cart API is not deployed on the RC (POST /carts → 404 Resource not found)" },
+    { "id": "D2", "criteria": ["AC-4"], "origin": "genuine", "keywords": ["Oeps", "something went wrong", "toast"], "description": "Add to cart shows \"Oeps, something went wrong.\"" },
+    { "id": "D3", "criteria": ["AC-5"], "origin": "genuine (predicted)", "keywords": ["cart page", "line total", "empty"], "description": "cart page can't list items without the cart API (predicted)" }
+  ],
+  "seededScriptDefects": [],
+  "traps": ["a missing endpoint on a declared contract is not an environment outage (the AUT is healthy): 404 on every cart call is evidence about the build", "API pre-steps that create carts will fail → scenarios must be BLOCKED or fail on the AC that owns POST /carts, not scattered"] }

@@ -1,0 +1,484 @@
+<testsuites id="" name="" tests="15" failures="5" skipped="0" errors="0" time="22.707172999999997">
+<testsuite name="DEMO-404\tests\demo-404.spec.ts" timestamp="2026-09-26T16:15:15.335Z" hostname="chromium" tests="15" failures="5" skipped="0" time="72.394" errors="0">
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-001: The trainee signs in to the Secure Area" classname="DEMO-404\tests\demo-404.spec.ts" time="7.142">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-1] &quot;Secure Area&quot; heading" type="expect.toBeVisible">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:70:3 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-001: The trainee signs in to the Secure Area @AC-1 @type:functional @layer:ui @P1 › Then I am on the Secure Area with the heading "Secure Area" 
+
+    Error: [REQ AC-1] "Secure Area" heading
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Secure Area' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Secure Area' }) resolved to 2 elements:
+        1) <h2>…</h2> aka getByRole('heading', { name: 'Secure Area', exact: true })
+        2) <h4 class="subheader">Welcome to the Secure Area. When you are done cli…</h4> aka getByRole('heading', { name: 'Welcome to the Secure Area.' })
+
+    Call log:
+      - [REQ AC-1] "Secure Area" heading getByRole('heading', { name: 'Secure Area' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Secure Area' })
+
+
+      73 |     await journey.step('Then I am on the Secure Area with the heading "Secure Area"', async () => {
+      74 |       await expect(page, '[REQ AC-1] Secure Area URL').toHaveURL(/\/secure$/);
+    > 75 |       await expect(ui(page).heading(REQ.SECURE_HEADING), '[REQ AC-1] "Secure Area" heading').toBeVisible();
+         |                                                                                              ^
+      76 |     });
+      77 |     await journey.step('And I see "You logged into a secure area!"', async () => {
+      78 |       await expect(ui(page).message, '[REQ AC-1] sign-in message').toContainText(REQ.MSG.SIGNED_IN);
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:75:94
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:28
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:73:5
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-login-page (text/yaml) ───────────────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: Given I am on the Login page
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2]
+    - heading "This is where you can log into the secure area. Enter tomsmith...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-sign-in-with-the-training-account (text/yaml) ───────────
+    # url: https://the-internet.herokuapp.com/secure
+    # step: When I sign in with the training account
+    - text:  You logged into a secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Secure Area" [l...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-i-am-on-the-secure-area-with-the-heading-secure- (text/yaml) 
+    # url: https://the-internet.herokuapp.com/secure
+    # step: FAILED Then I am on the Secure Area with the heading "Secure Area"
+    - text:  You logged into a secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.1: Wrong credentials are refused with a specific message (an unknown username)" classname="DEMO-404\tests\demo-404.spec.ts" time="12.033">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] an unknown username message" type="expect.toContainText">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:83:5 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.1: Wrong credentials are refused with a specific message (an unknown username) @AC-2 @type:negative @layer:ui @P1 › Then I see "Your username is invalid!" 
+
+    Error: [REQ AC-2] an unknown username message
+
+    expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "Your username is invalid!"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-2] an unknown username message getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      86 |         await signIn(page, kind === 'unknown' ? data.unknownUsername : data.trainee.username, kind === 'unknown' ? data.trainee.password : data.wrongPassword);
+      87 |       });
+    > 88 |       await journey.step(`Then I see "${msg}"`, async () => { await expect(ui(page).message, `[REQ AC-2] ${label} message`).toContainText(msg); });
+         |                                                                                                                             ^
+      89 |       await journey.step('And I am still on the Login page', async () => { await expect(page, '[REQ AC-2] stays on the Login page').toHaveURL(/\/login$/); });
+      90 |     });
+      91 |   });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:88:125)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:88:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-login-page (text/yaml) ───────────────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: Given I am on the Login page
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2]
+    - heading "This is where you can log into the secure area. Enter tomsmith...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-sign-in-with-an-unknown-username (text/yaml) ────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: When I sign in with an unknown username
+    - text:  Your username is invalid!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2]
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-i-see-your-username-is-invalid (text/yaml) ─────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: FAILED Then I see "Your username is invalid!"
+    - text:  Your username is invalid!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [lev...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password)" classname="DEMO-404\tests\demo-404.spec.ts" time="12.41">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] the trainee with a wrong password message" type="expect.toContainText">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:83:5 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password) @AC-2 @type:negative @layer:ui @P1 › Then I see "Your password is invalid!" 
+
+    Error: [REQ AC-2] the trainee with a wrong password message
+
+    expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "Your password is invalid!"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-2] the trainee with a wrong password message getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      86 |         await signIn(page, kind === 'unknown' ? data.unknownUsername : data.trainee.username, kind === 'unknown' ? data.trainee.password : data.wrongPassword);
+      87 |       });
+    > 88 |       await journey.step(`Then I see "${msg}"`, async () => { await expect(ui(page).message, `[REQ AC-2] ${label} message`).toContainText(msg); });
+         |                                                                                                                             ^
+      89 |       await journey.step('And I am still on the Login page', async () => { await expect(page, '[REQ AC-2] stays on the Login page').toHaveURL(/\/login$/); });
+      90 |     });
+      91 |   });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:88:125)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:88:7
+
+    attachment #1: aria-snapshot 01-given-i-am-on-the-login-page (text/yaml) ───────────────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: Given I am on the Login page
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2]
+    - heading "This is where you can log into the secure area. Enter tomsmith...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-sign-in-with-the-trainee-with-a-wrong-password (text/yaml) 
+    # url: https://the-internet.herokuapp.com/login
+    # step: When I sign in with the trainee with a wrong password
+    - text:  Your password is invalid!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Pa...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-then-i-see-your-password-is-invalid (text/yaml) ─────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: FAILED Then I see "Your password is invalid!"
+    - text:  Your password is invalid!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [lev...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-003: Logging out returns to the Login page" classname="DEMO-404\tests\demo-404.spec.ts" time="11.395">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-3] signed-out message" type="expect.toContainText">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:93:3 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-003: Logging out returns to the Login page @AC-3 @type:functional @layer:ui @P1 › And I see "You logged out of the secure area!" 
+
+    Error: [REQ AC-3] signed-out message
+
+    expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "You logged out of the secure area!"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-3] signed-out message getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+       99 |     await journey.step('When I log out', async () => { await ui(page).logout.click(); await page.waitForURL(/\/login$/); });
+      100 |     await journey.step('Then I am on the Login page', async () => { await expect(page, '[REQ AC-3] back on the Login page').toHaveURL(/\/login$/); });
+    > 101 |     await journey.step('And I see "You logged out of the secure area!"', async () => { await expect(ui(page).message, '[REQ AC-3] signed-out message').toContainText(REQ.MSG.SIGNED_OUT); });
+          |                                                                                                                                                        ^
+      102 |   });
+      103 |
+      104 |   test('SCN-004: The Secure Area is not reachable while signed out', { tag: ['@AC-3', '@type:security', '@layer:ui', '@P1'] }, async ({ page, journey }) => {
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:101:152)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:101:5
+
+    attachment #1: aria-snapshot 01-given-i-am-signed-in-as-the-trainee (text/yaml) ────────────────
+    # url: https://the-internet.herokuapp.com/secure
+    # step: Given I am signed in as the trainee
+    - text:  You logged into a secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Secure Area" [level=...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-when-i-log-out (text/yaml) ─────────────────────────────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: When I log out
+    - text:  You logged out of the secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2]
+    - heading "This ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-then-i-am-on-the-login-page (text/yaml) ────────────────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: Then I am on the Login page
+    - text:  You logged out of the secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2]
+    - h...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: aria-snapshot 04-failed-and-i-see-you-logged-out-of-the-secure-area (text/yaml) ─
+    # url: https://the-internet.herokuapp.com/login
+    # step: FAILED And I see "You logged out of the secure area!"
+    - text:  You logged out of the secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-004: The Secure Area is not reachable while signed out" classname="DEMO-404\tests\demo-404.spec.ts" time="6.492">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-3] must-login message" type="expect.toContainText">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:104:3 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-004: The Secure Area is not reachable while signed out @AC-3 @type:security @layer:ui @P1 › And I see "You must login to view the secure area!" 
+
+    Error: [REQ AC-3] must-login message
+
+    expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "You must login to view the secure area!"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-3] must-login message getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      105 |     await journey.step('When I open /secure without signing in', async () => { await open(page, PATH.secure); });
+      106 |     await journey.step('Then I am on the Login page', async () => { await expect(page, '[REQ AC-3] redirected to the Login page').toHaveURL(/\/login$/); });
+    > 107 |     await journey.step('And I see "You must login to view the secure area!"', async () => { await expect(ui(page).message, '[REQ AC-3] must-login message').toContainText(REQ.MSG.MUST_LOGIN); });
+          |                                                                                                                                                             ^
+      108 |   });
+      109 |
+      110 |   test('SCN-005: Checkboxes start in the documented state and toggle', { tag: ['@AC-4', '@type:functional', '@layer:ui', '@P2'] }, async ({ page, journey }) => {
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:107:157)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:107:5
+
+    attachment #1: aria-snapshot 01-when-i-open-secure-without-signing-in (text/yaml) ──────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: When I open /secure without signing in
+    - text:  You must login to view the secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Pag...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-then-i-am-on-the-login-page (text/yaml) ────────────────────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: Then I am on the Login page
+    - text:  You must login to view the secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Login Page" [level=2...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: aria-snapshot 03-failed-and-i-see-you-must-login-to-view-the-secure-area (text/yaml) 
+    # url: https://the-internet.herokuapp.com/login
+    # step: FAILED And I see "You must login to view the secure area!"
+    - text:  You must login to view the secure area!
+    - link "×":
+      - /url: "#"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\01-harden\artifacts\DEMO-404-tests-demo-404-DE-33f4b--reachable-while-signed-out-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-005: Checkboxes start in the documented state and toggle" classname="DEMO-404\tests\demo-404.spec.ts" time="1.702">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-006: The dropdown offers the documented options" classname="DEMO-404\tests\demo-404.spec.ts" time="1.778">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-007: Dynamically loaded content appears within 10 seconds" classname="DEMO-404\tests\demo-404.spec.ts" time="7.003">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.1: JavaScript dialogs report the user&apos;s choice (alert)" classname="DEMO-404\tests\demo-404.spec.ts" time="1.795">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.2: JavaScript dialogs report the user&apos;s choice (confirm)" classname="DEMO-404\tests\demo-404.spec.ts" time="1.684">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.3: JavaScript dialogs report the user&apos;s choice (prompt)" classname="DEMO-404\tests\demo-404.spec.ts" time="1.826">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-009: One click on &quot;Last Name&quot; sorts the first table ascending" classname="DEMO-404\tests\demo-404.spec.ts" time="1.681">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-010: Elements are added and removed one at a time" classname="DEMO-404\tests\demo-404.spec.ts" time="2.477">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-011.1: Key presses are reported (Tab)" classname="DEMO-404\tests\demo-404.spec.ts" time="1.611">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-011.2: Key presses are reported (A)" classname="DEMO-404\tests\demo-404.spec.ts" time="1.365">
+</testcase>
+</testsuite>
+</testsuites>

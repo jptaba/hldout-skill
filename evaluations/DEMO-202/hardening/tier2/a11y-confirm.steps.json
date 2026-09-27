@@ -1,0 +1,105 @@
+[
+  {
+    "tool": "browser_navigate",
+    "url": ""
+  },
+  {
+    "tool": "browser_wait_for",
+    "text": "Send Us a Message"
+  },
+  {
+    "expect": {
+      "role": "heading",
+      "name": "Send Us a Message",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "textbox",
+      "name": "Name",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "textbox",
+      "name": "Email",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "textbox",
+      "name": "Phone",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "textbox",
+      "name": "Subject",
+      "exact": true
+    }
+  },
+  {
+    "expectAbsent": {
+      "role": "textbox",
+      "name": "Message",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "img",
+      "name": "Single Room",
+      "exact": true
+    }
+  },
+  {
+    "expectAbsent": {
+      "role": "img",
+      "name": "Double Room",
+      "exact": true
+    }
+  },
+  {
+    "expectAbsent": {
+      "role": "img",
+      "name": "Suite Room",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "heading",
+      "name": "Double",
+      "exact": true
+    }
+  },
+  {
+    "expect": {
+      "role": "heading",
+      "name": "Suite",
+      "exact": true
+    }
+  },
+  {
+    "tool": "browser_click",
+    "find": {
+      "role": "button",
+      "name": "Submit",
+      "exact": true
+    }
+  },
+  {
+    "tool": "browser_wait_for",
+    "text": "may not be blank"
+  },
+  {
+    "expectText": "Name may not be blank"
+  },
+  {
+    "expectText": "Message may not be blank"
+  }
+]

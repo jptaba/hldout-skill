@@ -1,0 +1,445 @@
+{
+  "key": "TOOL-4",
+  "title": "Favourites for signed-in customers",
+  "revision": {
+    "story": "94747e2b9b63d684",
+    "attachments": {}
+  },
+  "context": "Signed-in customers keep a personal list of favourite products, from the product page (web shop) and through the API (mobile app).",
+  "actors": [
+    "signed-in customer (web shop)",
+    "signed-in customer (API / mobile app)",
+    "another customer (for isolation)"
+  ],
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "context (L17); technical notes: favourites endpoints, request body, Bearer auth from POST /users/login, 422 for duplicates (L19); AC-1…AC-6 from the acceptance-criteria custom field (L23-L28); PO clarification: duplicate → 409 Conflict superseding 422, web-shop duplicate message unchanged (L34)"
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "text": "A signed-in customer adds a product to favourites with POST /favorites; the API responds 201 with the favourite (its id and the product id).",
+      "quote": "A signed-in customer adds a product to favourites with POST /favorites; the API responds 201 with the favourite (its id and the product id).",
+      "source": "story.md#L23",
+      "layer": "api",
+      "outcomes": [
+        "201",
+        "the body is the favourite, with its id",
+        "the body carries the product id that was sent"
+      ],
+      "endpoints": [
+        "POST /users/register",
+        "POST /users/login",
+        "GET /products/search",
+        "POST /favorites"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G2",
+        "G3",
+        "G4",
+        "G7"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Adding a product that is already a favourite is rejected and the list still contains it once.",
+      "quote": "Adding a product that is already a favourite is rejected and the list still contains it once.",
+      "source": "story.md#L24",
+      "layer": "api",
+      "outcomes": [
+        "adding the same product again with POST /favorites → 409 (Conflict)",
+        "GET /favorites contains the product once"
+      ],
+      "endpoints": [
+        "POST /users/register",
+        "POST /users/login",
+        "GET /products/search",
+        "POST /favorites",
+        "GET /favorites"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G1",
+        "G2",
+        "G3",
+        "G4"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "GET /favorites lists the customer's own favourites only; another customer's favourites are never included.",
+      "quote": "GET /favorites lists the customer's own favourites only; another customer's favourites are never included.",
+      "source": "story.md#L25",
+      "layer": "api",
+      "outcomes": [
+        "GET /favorites lists the favourites the customer added",
+        "a favourite added by another customer is not included"
+      ],
+      "endpoints": [
+        "POST /users/register",
+        "POST /users/login",
+        "GET /products/search",
+        "POST /favorites",
+        "GET /favorites"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G2",
+        "G3",
+        "G4"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Every favourites endpoint responds 401 without a valid token.",
+      "quote": "Every favourites endpoint responds 401 without a valid token.",
+      "source": "story.md#L26",
+      "layer": "api",
+      "outcomes": [
+        "POST /favorites without a token → 401",
+        "GET /favorites without a token → 401",
+        "DELETE /favorites/{favoriteId} without a token → 401",
+        "each of them with an invalid token → 401"
+      ],
+      "endpoints": [
+        "POST /favorites",
+        "GET /favorites",
+        "DELETE /favorites/{favoriteId}"
+      ],
+      "needsData": false,
+      "gaps": [
+        "G2"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "On the web shop, a signed-in customer who clicks \"Add to favourites\" on a product page sees \"Product added to your favorites list.\" and the product then appears on the \"Favorites\" page of their account.",
+      "quote": "On the web shop, a signed-in customer who clicks \"Add to favourites\" on a product page sees \"Product added to your favorites list.\" and the product then appears on the \"Favorites\" page of their account.",
+      "source": "story.md#L27",
+      "layer": "ui",
+      "entryPoint": "product page of the web shop, after signing in (routes and labels: G5, G6)",
+      "outcomes": [
+        "clicking \"Add to favourites\" shows \"Product added to your favorites list.\"",
+        "the product appears on the \"Favorites\" page of the customer's account"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G3",
+        "G4",
+        "G5",
+        "G6"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "DELETE /favorites/{favoriteId} removes the favourite (204) and it no longer appears in GET /favorites.",
+      "quote": "DELETE /favorites/{favoriteId} removes the favourite (204) and it no longer appears in GET /favorites.",
+      "source": "story.md#L28",
+      "layer": "api",
+      "outcomes": [
+        "DELETE /favorites/{favoriteId} → 204",
+        "GET /favorites afterwards no longer contains that favourite"
+      ],
+      "endpoints": [
+        "POST /users/register",
+        "POST /users/login",
+        "GET /products/search",
+        "POST /favorites",
+        "DELETE /favorites/{favoriteId}",
+        "GET /favorites"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G2",
+        "G3",
+        "G4"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/favorites",
+      "auth": "required",
+      "request": "{\"product_id\"}",
+      "success": "201 with the favourite (its id and the product id)",
+      "source": "story.md#L19"
+    },
+    {
+      "method": "GET",
+      "path": "/favorites",
+      "auth": "required",
+      "success": "the customer's own favourites",
+      "source": "story.md#L19"
+    },
+    {
+      "method": "DELETE",
+      "path": "/favorites/{favoriteId}",
+      "auth": "required",
+      "success": "204",
+      "source": "story.md#L19"
+    },
+    {
+      "method": "POST",
+      "path": "/users/login",
+      "auth": "none",
+      "success": "token for Authorization: Bearer <token>",
+      "source": "story.md#L19"
+    },
+    {
+      "method": "POST",
+      "path": "/users/register",
+      "auth": "none",
+      "source": "G3"
+    },
+    {
+      "method": "GET",
+      "path": "/products/search",
+      "auth": "none",
+      "source": "G4"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "A duplicate favourite is a conflict: the API must answer 409 Conflict (the PO clarification supersedes the 422 in the technical notes).",
+      "source": "story.md#L34"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "Adding a product that is already a favourite (POST /favorites)",
+      "status": 409,
+      "source": "story.md#L34"
+    },
+    {
+      "id": "E2",
+      "case": "Any favourites endpoint called without a valid token",
+      "status": 401,
+      "source": "story.md#L26"
+    }
+  ],
+  "auth": {
+    "mechanism": "Authorization: Bearer <token>, the token obtained from POST /users/login; required by all favourites endpoints",
+    "credentials": "a freshly registered test customer per test (G3)",
+    "source": "story.md#L19"
+  },
+  "testData": {
+    "strategy": "Register fresh customers through POST /users/register (G3) and sign them in with POST /users/login for a Bearer token; pick existing product ids from GET /products/search (G4). AC-3 uses two customers. AC-5 signs the registered customer in on the web shop (G5).",
+    "constraints": [
+      "unique e-mail address per registered customer (run-scoped)",
+      "each test uses its own customer so favourites lists start empty and are not shared between tests"
+    ],
+    "cleanup": "favourites created through the API are removed with DELETE /favorites/{favoriteId}; registered test customers are left in place (unique per run)",
+    "source": "G3"
+  },
+  "outOfScope": [
+    "The message the web shop shows for a duplicate favourite: the PO says the web shop can keep its current message (story.md#L34), so no web-shop duplicate message is specified or tested"
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "status for a duplicate favourite: the technical notes say 422, the PO comment says 409",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19: \"Duplicate favourites are rejected with 422\"; L24 (AC-2): only \"rejected\"; L34 (PO, Priya, 2026-09-26): \"the API must answer 409 Conflict (not 422 as in the technical notes)\", explicitly superseding L19"
+        }
+      ],
+      "resolution": "found-in-requirement",
+      "value": "409",
+      "evidence": "story.md#L34 (Product Owner clarification explicitly supersedes the 422 in story.md#L19)"
+    },
+    {
+      "id": "G2",
+      "element": "API origin (the story gives paths only)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-4",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "paths only (L19), no host"
+        },
+        {
+          "where": "config",
+          "result": "AUT profile toolshop: apiBaseURL https://api.practicesoftwaretesting.com, baseURL https://practicesoftwaretesting.com"
+        }
+      ],
+      "resolution": "found-in-config",
+      "value": "https://api.practicesoftwaretesting.com (web shop https://practicesoftwaretesting.com)",
+      "evidence": "heldout.config.json → auts.toolshop.apiBaseURL / baseURL"
+    },
+    {
+      "id": "G3",
+      "element": "how to create a test customer who can sign in",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-5",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "\"signed-in customer\"; only POST /users/login named (L19), no way to create a customer"
+        },
+        {
+          "where": "aut",
+          "result": "published API docs: POST /users/register creates a customer"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "POST /users/register",
+      "evidence": "https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "id": "G4",
+      "element": "how to obtain a product id to add to favourites",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-5",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "body {\"product_id\"} (L19), no way to find a product"
+        },
+        {
+          "where": "aut",
+          "result": "published API docs: GET /products/search returns products with their ids"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "GET /products/search",
+      "evidence": "https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "id": "G5",
+      "element": "web-shop sign-in route and form, product page route and the \"Add to favourites\" control, where the confirmation appears (AC-5)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "\"a signed-in customer\", \"a product page\", button \"Add to favourites\" (L27) — no routes or selectors"
+        },
+        {
+          "where": "aut",
+          "result": "sign-in /auth/login (data-test email, password; button login-submit); product page /product/<id> with button data-test add-to-favorites (accessible name \"Add to favourites\"); confirmation is a toast with role=alert"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "/auth/login (data-test email / password / login-submit); /product/<id> with data-test add-to-favorites; toast role=alert",
+      "evidence": "hardening/inspect-favorites.md"
+    },
+    {
+      "id": "G6",
+      "element": "where the account's \"Favorites\" page lives and how its entries are marked (AC-5)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "\"the \\\"Favorites\\\" page of their account\" (L27) — no route"
+        },
+        {
+          "where": "aut",
+          "result": "account favourites page /account/favorites, entries carry data-test product-name"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "/account/favorites, entries data-test product-name",
+      "evidence": "hardening/inspect-favorites-page.md (page title Favorites, data-test product-name entries at /account/favorites)"
+    },
+    {
+      "id": "G7",
+      "element": "response field names for the favourite's id and the product id (AC-1)",
+      "kind": "mechanics",
+      "required": false,
+      "affects": [
+        "AC-1"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "\"the favourite (its id and the product id)\" (L23); request field is product_id (L19); response field names not stated"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "id for the favourite's id, product_id for the product id (same name as the request field in story.md#L19)",
+      "evidence": "user not asked (non-interactive subagent); mechanics only — can be confirmed from the published API docs during hardening"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17",
+      "as": "context",
+      "note": "who the feature is for and the two channels (web shop product page, API for the mobile app) — frames AC-5 (ui) vs the API criteria"
+    },
+    {
+      "lines": "story.md#L19",
+      "as": "endpoint auth G1",
+      "note": "POST /favorites (body product_id), GET /favorites, DELETE /favorites/{favoriteId}; Bearer token from POST /users/login; 422 for duplicates is superseded by L34 (G1)"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "AC-2"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L26",
+      "as": "AC-4 error-model"
+    },
+    {
+      "lines": "story.md#L27",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L28",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L34",
+      "as": "G1 R1 error-model out-of-scope",
+      "note": "409 Conflict for duplicates, explicitly superseding the 422 of L19; the web shop's duplicate message is left as is (out of scope)"
+    }
+  ]
+}

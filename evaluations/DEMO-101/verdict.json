@@ -1,0 +1,460 @@
+{
+  "key": "DEMO-101",
+  "verdict": "FAIL",
+  "reason": "3 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-2, AC-3, AC-7. Awaiting reviewer confirmation.",
+  "finalRun": "04-regression",
+  "generatedAt": "2026-09-26T15:38:14.337Z",
+  "autId": "swag-labs",
+  "aut": {
+    "name": "Swag Labs (saucedemo.com demo shop)",
+    "baseURL": "https://www.saucedemo.com",
+    "testIdAttribute": "data-test",
+    "healthcheck": [
+      "/"
+    ],
+    "notes": "UI only. Public demo credentials are shown on its login page.",
+    "apiBaseURL": "https://www.saucedemo.com"
+  },
+  "summary": {
+    "total": 12,
+    "passed": 9,
+    "failed": 3,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Sales tax charged at 8% instead of the 10% in pricing-rules.md",
+      "testType": "functional",
+      "source": "story AC-7, pricing-rules.md §Item total, §Tax, §Total",
+      "confirmed": true,
+      "severity": "Critical",
+      "criteria": [
+        "AC-7"
+      ],
+      "tests": [
+        "SCN-010"
+      ],
+      "expected": "4",
+      "actual": "3.2",
+      "rationale": "Item total ($39.98 = $29.99 + $9.99) and Total = Item total + Tax both hold, isolating the fault to the tax rate: $3.20 is 8.0% of $39.98, while pricing-rules.md (attached to the story, owned by Finance) requires 10% → $4.00. Money is computed wrongly on every order. (Confirmed in run 03-rerun; identical failure signature in 04-regression.)",
+      "liveCheck": "Reproduced live on 2026-09-26 (tier 3) with the first two catalogue products: 'Item total: $39.98', 'Tax: $3.20', 'Total: $43.18' — see runs/02-eval/confirm/SCN-010.png",
+      "steps": [
+        "Given I am on the sign-in page",
+        "Given I am signed in as the \"standard\" shopper",
+        "And I have added the 1st and 2nd listed products to the cart, noting their prices",
+        "When I open the cart and proceed to checkout",
+        "And I continue with my First Name, Last Name and Postal Code",
+        "Then the Item total equals the sum of the noted prices",
+        "And the Tax equals 10% of the Item total rounded half-up to 2 decimals",
+        "And the Total equals the Item total plus the Tax"
+      ],
+      "api": null,
+      "screenshot": "evaluations/DEMO-101/runs/04-regression/artifacts/DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1/test-failed-1.png",
+      "apiSequence": null,
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-101 --label repro --grep \"SCN-010:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "Credential fields are not cleared after a failed sign-in",
+      "testType": "negative",
+      "source": "story AC-3",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-3"
+      ],
+      "tests": [
+        "SCN-004"
+      ],
+      "expected": "\"\"",
+      "actual": "\"standard_user\"",
+      "rationale": "Both textboxes are located; after the wrong-password error is displayed they still contain the typed username and password. AC-3 requires both to be cleared for security. The error message part of AC-3 passes (SCN-003), so the fault is isolated to field clearing. (Confirmed in run 03-rerun; identical failure signature in 04-regression.)",
+      "liveCheck": "Reproduced live on 2026-09-26 (tier 3): after the error, Username='standard_user' and Password='wrong_password' remain — see runs/02-eval/confirm/SCN-004.png",
+      "steps": [
+        "Given I am on the sign-in page",
+        "When I sign in as the \"standard\" shopper with the password \"wrong_password\"",
+        "Then the Username field is empty",
+        "And the Password field is empty"
+      ],
+      "api": null,
+      "screenshot": "evaluations/DEMO-101/runs/04-regression/artifacts/DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1/test-failed-1.png",
+      "apiSequence": null,
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-101 --label repro --grep \"SCN-004:\""
+      ]
+    },
+    {
+      "id": "APP-3",
+      "title": "Locked-account error message does not match the required wording",
+      "testType": "negative",
+      "source": "story AC-2, test-users.csv (locked)",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-2"
+      ],
+      "tests": [
+        "SCN-002"
+      ],
+      "expected": "\"Your account has been locked. Please contact customer support.\"",
+      "actual": "\"Epic sadface: Sorry, this user has been locked out.\"",
+      "rationale": "The alert is located and visible, the shopper correctly stays on the sign-in page (that part of AC-2 passes), but the message text differs from the verbatim wording AC-2 mandates. Behaviour (blocking the locked account) is correct; the communicated message is not. (Confirmed in run 03-rerun; identical failure signature in 04-regression.)",
+      "liveCheck": "Reproduced live on 2026-09-26 (tier 3): signing in as locked_out_user shows the alert 'Epic sadface: Sorry, this user has been locked out.' — see runs/02-eval/confirm/SCN-002.png",
+      "steps": [
+        "Given I am on the sign-in page",
+        "When I sign in as the \"locked\" shopper",
+        "Then I see the error \"Your account has been locked. Please contact customer support.\"",
+        "And I am still on the sign-in page"
+      ],
+      "api": null,
+      "screenshot": "evaluations/DEMO-101/runs/04-regression/artifacts/DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1/test-failed-1.png",
+      "apiSequence": null,
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-101 --label repro --grep \"SCN-002:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [
+    {
+      "run": "02-eval",
+      "scenario": "SCN-011",
+      "action": "Restored the verified locator getByRole('button', { name: 'Checkout' }) via the shared openCartAndCheckout() helper; probe count=1; integrity re-checked (PRESERVED)."
+    }
+  ],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "functional",
+      "scenarios": 7,
+      "tests": 7,
+      "passed": 6,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    },
+    {
+      "type": "negative",
+      "scenarios": 5,
+      "tests": 5,
+      "passed": 3,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-2",
+        "APP-3"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "A registered shopper who signs in with valid credentials lands on the \"Products\" page, which lists the full catalogue of 6 products.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "Standard shopper signs in and sees the full catalogue",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-1, test-users.csv (standard)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "A shopper whose account is locked cannot sign in. The error message \"Your account has been locked. Please contact customer support.\" is shown and the shopper stays on the sign-in page.",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "Locked shopper cannot sign in and is told the account is locked",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story AC-2, test-users.csv (locked)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-3"
+          ],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "failed",
+              "defect": "APP-3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "When the password is wrong, the error \"Epic sadface: Username and password do not match any user in this service\" is shown and, for security, both the Username and Password fields are cleared.",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "Wrong password shows the credentials error",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story AC-3, test-users.csv (standard)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-004",
+          "title": "Wrong password clears the credential fields for security",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story AC-3"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "The shopper can sort products by \"Price (low to high)\"; products are then displayed in ascending order of price.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "Sorting by price low to high orders products by ascending price",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-4"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "Adding a product to the cart increases the cart badge count by one; removing it decreases the count, and the badge is not shown when the cart is empty.",
+      "scenarios": [
+        {
+          "id": "SCN-006",
+          "title": "Adding products increases the cart badge by one each time",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-5"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-007",
+          "title": "Removing products decreases the cart badge and hides it when empty",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-5"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "At checkout, First Name, Last Name and Postal Code are mandatory. Continuing without a First Name shows \"Error: First Name is required\".",
+      "scenarios": [
+        {
+          "id": "SCN-008",
+          "title": "Checkout requires a First Name",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story AC-6"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-009",
+          "title": "Checkout requires a Last Name and a Postal Code",
+          "type": "negative",
+          "layer": "ui",
+          "sources": [
+            "story AC-6"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "The checkout overview shows the Item total, Tax and Total. Item total is the sum of the prices of the items in the cart; Tax is calculated according to the attached pricing-rules.md; Total = Item total + Tax.",
+      "scenarios": [
+        {
+          "id": "SCN-010",
+          "title": "Checkout overview totals follow the pricing rules",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-7, pricing-rules.md §Item total, §Tax, §Total"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-010",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "Finishing the order shows the confirmation \"Thank you for your order!\" and the cart is empty afterwards.",
+      "scenarios": [
+        {
+          "id": "SCN-011",
+          "title": "Finishing the order confirms it and empties the cart",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-8"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-9",
+      "text": "Logging out returns the shopper to the sign-in page, and protected pages (e.g. the Products page URL) can no longer be opened without signing in again.",
+      "scenarios": [
+        {
+          "id": "SCN-012",
+          "title": "Logging out returns to sign-in and protects the Products page",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-9"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-012",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [],
+  "verdictFile": "evaluations/DEMO-101/verdict.md"
+}

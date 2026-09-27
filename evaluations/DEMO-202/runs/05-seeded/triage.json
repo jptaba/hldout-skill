@@ -1,0 +1,3303 @@
+{
+  "key": "DEMO-202",
+  "run": "05-seeded",
+  "generatedAt": "2026-09-26T17:17:35.603Z",
+  "summary": {
+    "total": 41,
+    "passed": 30,
+    "failed": 11,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: Contact form offers every field with an accessible label",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-1",
+        "@type:accessibility",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "accessibility",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium-retry1/error-context.md"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-1 strict] Message field has an accessible label",
+        "reqTag": "AC-1 strict",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByRole('textbox', { name: 'Message', exact: true })",
+        "message": "Error: [REQ AC-1 strict] Message field has an accessible label\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-1 strict] Message field has an accessible label getByRole('textbox', { name: 'Message', exact: true }) with timeout 5000ms\n  - waiting for getByRole('textbox', { name: 'Message', exact: true })\n\n\n  152 |     await journey.step('And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name', async () => {\n  153 |       for (const field of REQ.FIELDS) {\n> 154 |         await expect.soft(page.getByRole('textbox', { name: field, exact: true }), `[REQ AC-1 strict] ${field} field has an accessible label`).toBeVisible();\n      |                                                                                                                                                ^\n  155 |       }\n  156 |     });\n  157 |     await journey.step('And I see a \"Submit\" button', async () => {\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:154:144\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:152:5"
+      },
+      "failingStep": "And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "medium",
+        "signals": [
+          "Target not found: getByRole('textbox', { name: 'Message', exact: true })",
+          "This is a strict requirement assertion: the locator itself encodes the requirement (accessible name / role / alt text), so \"not found\" means the element is not exposed as required."
+        ],
+        "next": "Confirm live that the element exists but lacks the required accessible name/role (or is absent), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Message field label is not associated with its textarea",
+        "rationale": "The strict AC-1 assertion requires every field to be exposed with its accessible name. Name/Email/Phone/Subject pass; Message has no accessible name. Root cause found live: <label for=\"message\"> points to a non-existent id, while the textarea's id is \"description\", so screen readers announce an unlabeled edit field (WCAG 1.3.1/4.1.2). Automatic triage correctly flagged a strict-assertion failure. (Confirmed in run 04-rerun; identical failure signature in 05-seeded.)",
+        "evidence": "Live on 2026-09-26 (tier 3): getByRole('textbox', {name:'Message'}) → 0; label[for=message] exists, textarea#description has no aria-label/aria-labelledby (runs/03-eval/confirm/UI-SCN-001-019.md)",
+        "confirmedAt": "2026-09-26T15:18:06.173Z"
+      }
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: A valid enquiry shows the personalised confirmation",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: An empty submission keeps the form and reports every field",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: The UI rejects a value one character outside a boundary (Phone 10)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:boundary",
+        "@layer:ui",
+        "@P2",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "boundary",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: The UI rejects a value one character outside a boundary (Subject 101)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:boundary",
+        "@layer:ui",
+        "@P2",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "boundary",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.3",
+      "title": "SCN-004.3: The UI rejects a value one character outside a boundary (Message 19)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:boundary",
+        "@layer:ui",
+        "@P2",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "boundary",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Creating a valid enquiry returns 201 Created",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxnj13430",
+          "records": [
+            {
+              "label": "enquiry (created by the scenario)",
+              "created": "QA Subject inj1356b-2",
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 4,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "QA Guest inj135x7-1",
+                "email": "qa.guest@example.com",
+                "phone": "01234567890",
+                "subject": "QA Subject inj1356b-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 448,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:17 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "GrXdW_7nTXuY7r8kBhdwDg",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=z5rxx%2FgjAieuh93LRipLNrdk%2FM7pPIdf1IJJeLlhO9WFjx41NSxCdv15t3kX7wfljXpcvgXkLKmd3pv6Cw0Uy9M9AmkGgoSM%2BYb9PyR8J2qX%2FeGOeBw%2B5XEEfKobaZ7ICcHsxxvJcLWSwtg%2BzTkbjdHgGktbnWkdNQ%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea5f9e226e2f-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 220,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:18 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "2vecCOQuQ9iYZaFdGbGh5g",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=kL02pwSEXnvh0b9gI%2F6aA9vU1Epo5RBbGIxiCu32%2FZXE4fapD%2FqVpSbH91cCTpeT1v6o3CxS8yyIQOhsmcXmvEd0SxWiGnBCXPogEea%2FISdeVNXSFSPU1UlFiFRoyFaCgZUPg0RZ2neMZ923eTD9jdIJcEkMUqOe9Q%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea63b9ab6e2f-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 255,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:18 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "sxhv0IoTRYiA1_a7qmzx2A",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=IGkER73L5GW6HphI9pyQ2DdsA0J9ipwrGhmwHlLBgvW3SlRlfb8mt4b0DwjFk%2F5R4V20cwyj20a%2FPqsYK%2FErlcp0ME7Lk1LnNUv7wm4hnv1%2FpXy%2BNmoWxHf73E8lEt8psRC%2FYma4VcK5VYBdn3xWh72%2BL8WysA7IZA%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea650d7a6e2f-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 5,
+                    "name": "QA Guest inj135x7-1",
+                    "read": false,
+                    "subject": "QA Subject inj1356b-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/5",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 192,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:18 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "BiKfSTQuREOFVZAGqmzx2A",
+                "x-hikari-trace": "jfk1.48ys",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2F10dt93uDznpLObl6DjmgLRRm8tVjNGNCpSoQ31woy%2BrrsVwPEWnWWVr2bbMP7dWGe3UrFONPyCVs19TGmsGCYYGkUx6K7e97ezQdmIXOSaYBNkCqk9MVLhF7jOhkaQhbT3es1Ytp%2BMXZdN1uxMNT7k0O%2B%2BOuNtUVQ%3D%3D\"}]}",
+                "cf-ray": "a413ea66a9906e2f-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          }
+        ],
+        "apiRelevantIndex": 2,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Cookie": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 255,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:18 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "sxhv0IoTRYiA1_a7qmzx2A",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.48ys",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=IGkER73L5GW6HphI9pyQ2DdsA0J9ipwrGhmwHlLBgvW3SlRlfb8mt4b0DwjFk%2F5R4V20cwyj20a%2FPqsYK%2FErlcp0ME7Lk1LnNUv7wm4hnv1%2FpXy%2BNmoWxHf73E8lEt8psRC%2FYma4VcK5VYBdn3xWh72%2BL8WysA7IZA%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413ea650d7a6e2f-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "messages": [
+                {
+                  "id": 1,
+                  "name": "James Dean",
+                  "read": false,
+                  "subject": "Booking enquiry"
+                },
+                {
+                  "id": 2,
+                  "name": "ttt ttt",
+                  "read": false,
+                  "subject": "You have a new booking!"
+                },
+                {
+                  "id": 5,
+                  "name": "QA Guest inj135x7-1",
+                  "read": false,
+                  "subject": "QA Subject inj1356b-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] create enquiry → 201 Created",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "201",
+        "received": "200",
+        "message": "Error: [REQ AC-5] create enquiry → 201 Created\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 201\nReceived: 200\n\n  221 |     });\n  222 |     await journey.step('Then the response status is 201', async () => {\n> 223 |       expect.soft(res.status, '[REQ AC-5] create enquiry → 201 Created').toBe(REQ.STATUS.CREATED);\n      |                                                                          ^\n  224 |     });\n  225 |     await journey.step('And the response body is {\"success\": true}', async () => {\n  226 |       expect.soft(res.body, '[REQ AC-5] create enquiry body').toEqual(REQ.CREATE_BODY);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:223:74)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:222:5"
+      },
+      "failingStep": "Then the response status is 201",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: 201",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.1",
+      "title": "SCN-006.1: The API enforces field boundaries (name 1 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxnj4qb60",
+          "records": [
+            {
+              "label": "enquiry (created by the scenario)",
+              "created": "QA Subject inj4qcym-2",
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 4,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "q",
+                "email": "qa.guest@example.com",
+                "phone": "01234567890",
+                "subject": "QA Subject inj4qcym-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 427,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:22 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "sRjmlwHpS6KSRZFhc9o55Q",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rkvQ00RuNfrI7k1i7BbAml4GR9VSd4IXAhSTJcO3Dnnqlt3LyNrWLg6iP8ggJu6z3UDuwxiObf076kwj6zOb4FMMlgOBOKq%2B3rBtf5NTKTwKVJ4E%2FScEhs4ZwgiJ0mu1XzqC%2BEbrVUDAjTCkvXsiplEAA7gzw7gVIw%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea7cf8ea0f5b-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 229,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:22 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "lizjxjvpQBq5NNd0Hn5Ytg",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FYx0GDq3agk%2F67sUw2RZ9t7TK%2B1IbKmcmSjJcgwbDeN8QyIIcSHEBdd0DoFMqSAL6vEjLJlQaHo96Fzo8WHcp9F1TCHSa0nAxJVTYp13t8KOCxyUl0k8I5wDzT%2Bl40MbnT5lN%2BuNYKBQ2O%2FewudV%2BJ5HPTPXH80tmw%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea7ffb340f5b-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 168,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:22 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "_xBLTveYQ5K8t_qoCx5-qw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=A0SiWRZQvK8dfk8rDXCQimXmZFu2DjflKkMLi1uQN085gDTfGqaYJrIMCZrSKCYeHr9SSRfaKtTAAYcnxSwBORpK9DI0I15b58nV39BmS0OxUq32qxWWucYokVAZGBZ%2F2H8qf%2BXOpuu0EJYAQj2VMfh2HZ1Y4YIHdw%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea815bf60f5b-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 9,
+                    "name": "q",
+                    "read": false,
+                    "subject": "QA Subject inj4qcym-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/9",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 270,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:23 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "7DyyySX6T9CiSnu4yCLmYg",
+                "x-hikari-trace": "jfk1.pqzh",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ReQLzE4sJO5WUuGPpzi4YmT6vE0Wh3RvMB5XfkM5IsGVaLlrrO5wwtnXkorbL1Ny5wxoN%2FjmeOLwQHOtJGqe9Dfnau8%2BExBG%2FXgjAjthI%2BaEtE7ngHh9Ahb%2By1QvYs5%2BHsEMlFgm08mJeNVsvvFhAx70J6uOYVY8AQ%3D%3D\"}]}",
+                "cf-ray": "a413ea826ca20f5b-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          }
+        ],
+        "apiRelevantIndex": 2,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Cookie": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 168,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:22 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "_xBLTveYQ5K8t_qoCx5-qw",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.pqzh",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=A0SiWRZQvK8dfk8rDXCQimXmZFu2DjflKkMLi1uQN085gDTfGqaYJrIMCZrSKCYeHr9SSRfaKtTAAYcnxSwBORpK9DI0I15b58nV39BmS0OxUq32qxWWucYokVAZGBZ%2F2H8qf%2BXOpuu0EJYAQj2VMfh2HZ1Y4YIHdw%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413ea815bf60f5b-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "messages": [
+                {
+                  "id": 1,
+                  "name": "James Dean",
+                  "read": false,
+                  "subject": "Booking enquiry"
+                },
+                {
+                  "id": 2,
+                  "name": "ttt ttt",
+                  "read": false,
+                  "subject": "You have a new booking!"
+                },
+                {
+                  "id": 9,
+                  "name": "q",
+                  "read": false,
+                  "subject": "QA Subject inj4qcym-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] name 1 characters is rejected with 400",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "200",
+        "message": "Error: [REQ AC-6] name 1 characters is rejected with 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 200\n\n  243 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');\n  244 |         } else {\n> 245 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                                       ^\n  246 |         }\n  247 |       });\n  248 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:245:87)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:240:7"
+      },
+      "failingStep": "Then the enquiry is rejected",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 400",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.2",
+      "title": "SCN-006.2: The API enforces field boundaries (name 2 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.3",
+      "title": "SCN-006.3: The API enforces field boundaries (name 50 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.4",
+      "title": "SCN-006.4: The API enforces field boundaries (name 51 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxnj6zx80",
+          "records": [
+            {
+              "label": "enquiry (created by the scenario)",
+              "created": "QA Subject inj6zzn4-2",
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 4,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+                "email": "qa.guest@example.com",
+                "phone": "01234567890",
+                "subject": "QA Subject inj6zzn4-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 417,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:25 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "MdcKM6q1RxmAtmZRGbGh5g",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=SrskhAxOlWdsENBQq9bDVgTl3R2WMimZwCf0HUSMAnS5Sp6z0T4lbYy2Cj8RJT6KdZM0JUWm64ktDwcr%2B%2Bl3gi8gfa5%2FO61bSMzEpBHO6ctuwv16AJ9nOLoEEj%2FD7y%2B%2BPptCGd3n7JWVrHIqO0ce0PUhvs3TvtsiCg%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea8fdfd07b0e-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 327,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:25 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "O5XKsBYZQyW5UwTvH4GxDA",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=y1yEvTltDws%2F439YGMTOC%2FcPoUTWrs6x1grtQB8Gspjf4tm587ZOHofoxcNM0EfkvyFkbZ16%2FGg6gWOKDzOs3lBpFl%2Fj06hi%2BFZK0AE3pgdePkMpXZzMILLCKfjkKQq%2BWkyyFxrJKKUNqQyhjM1kovs%2FA5NSyoHLkw%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea925f9a7b0e-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 177,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:25 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "2yptZGdxQqSZYgBHO8poTA",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=LlfZRgF%2FbiLuNi2q1T1teNjLnPb3E0q%2FcQqCrqIx7%2BKSmi4dE29aopfMyBOpXcqDrxHaT1hGxS0JaDu1r1feUHXpK2JbLnK%2B%2BxulVodpDOyym1LJbZQDbogXY9LQnR84DJKiqN1TBWX59yKTtxXrsghUBuXLoHYtjA%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ea944d297b0e-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 11,
+                    "name": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+                    "read": false,
+                    "subject": "QA Subject inj6zzn4-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/11",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 262,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:26 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "m_mzKVS3RT-XAvkZPvyhXg",
+                "x-hikari-trace": "jfk1.48ys",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BW8yypySKsIXpwemoEzBL2LXnWaVIEcSJqdV%2BGBYz%2FudOaLqNo97mroMQ5GYMXkXBB0SzHAF4gHSQlOp5YZzssHyvFh%2Ftteh8%2BqbWck2UrTiQgz98V19anw0cYJj%2BfI1TxeblcuawgHlExr1S9dOZCtT1mjSxFg0hA%3D%3D\"}]}",
+                "cf-ray": "a413ea95580d7b0e-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          }
+        ],
+        "apiRelevantIndex": 2,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Cookie": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 177,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:25 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "2yptZGdxQqSZYgBHO8poTA",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.48ys",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=LlfZRgF%2FbiLuNi2q1T1teNjLnPb3E0q%2FcQqCrqIx7%2BKSmi4dE29aopfMyBOpXcqDrxHaT1hGxS0JaDu1r1feUHXpK2JbLnK%2B%2BxulVodpDOyym1LJbZQDbogXY9LQnR84DJKiqN1TBWX59yKTtxXrsghUBuXLoHYtjA%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413ea944d297b0e-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "messages": [
+                {
+                  "id": 1,
+                  "name": "James Dean",
+                  "read": false,
+                  "subject": "Booking enquiry"
+                },
+                {
+                  "id": 2,
+                  "name": "ttt ttt",
+                  "read": false,
+                  "subject": "You have a new booking!"
+                },
+                {
+                  "id": 11,
+                  "name": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+                  "read": false,
+                  "subject": "QA Subject inj6zzn4-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] name 51 characters is rejected with 400",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "200",
+        "message": "Error: [REQ AC-6] name 51 characters is rejected with 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 200\n\n  243 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');\n  244 |         } else {\n> 245 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                                       ^\n  246 |         }\n  247 |       });\n  248 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:245:87)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:240:7"
+      },
+      "failingStep": "Then the enquiry is rejected",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 400",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.5",
+      "title": "SCN-006.5: The API enforces field boundaries (phone 10 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.6",
+      "title": "SCN-006.6: The API enforces field boundaries (phone 11 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.7",
+      "title": "SCN-006.7: The API enforces field boundaries (phone 21 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.8",
+      "title": "SCN-006.8: The API enforces field boundaries (phone 22 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.9",
+      "title": "SCN-006.9: The API enforces field boundaries (subject 4 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.10",
+      "title": "SCN-006.10: The API enforces field boundaries (subject 5 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.11",
+      "title": "SCN-006.11: The API enforces field boundaries (subject 100 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.12",
+      "title": "SCN-006.12: The API enforces field boundaries (subject 101 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.13",
+      "title": "SCN-006.13: The API enforces field boundaries (message 19 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.14",
+      "title": "SCN-006.14: The API enforces field boundaries (message 20 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.15",
+      "title": "SCN-006.15: The API enforces field boundaries (message 2000 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.16",
+      "title": "SCN-006.16: The API enforces field boundaries (message 2001 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.17",
+      "title": "SCN-006.17: The API enforces field boundaries (email \"guest@example\" → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@example\"",
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxnjfpx100",
+          "records": [
+            {
+              "label": "enquiry (created by the scenario)",
+              "created": "QA Subject injfpy8e-2",
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 4,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "QA Guest injfpynq-1",
+                "email": "guest@example",
+                "phone": "01234567890",
+                "subject": "QA Subject injfpy8e-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 361,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:36 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "DoQgRNxjQSuZ5DlRAax-fw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=K%2FBxHASpWdz8Rbfxez4SSu3nTNTR5YzzR7pCBVur3U6iDFUsLDyZt%2Fb%2BiJBRAupwH4p%2FS%2ByVjcpao09kwEegk06wHezoE7WTLkaua3%2BpftpCSV%2B0LJ4Z66FxwPG6SEjFjcRgiwMie6M5gcFHfLqP%2BDfJ5WFSa7d93g%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ead62e0ca6cc-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 217,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:36 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "yA5sSJWUQNiojUBNwoOzXw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=TsyO9ZhXzOLKebsV4C9wYOpTxcsulhbKl50UxvCacMQ31DY2%2BcsLFmoe%2FE9qwdeKquTA7F7TQzbetXDQ%2BZJk9MsDLkRpnrn5lsaAKofgnmDQsqQg8Syt7lby6KpI3OseFWeZVfKNNZlrWVQapj9OmEQ%2B7JHWCLJF8A%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413ead92d79a6cc-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 260,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:37 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "cPYHexaRTxuMqyr2ozsQ6Q",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9IMmObgXpzThJpnI1q9DeswqsmUjHUxaV4s2rqE34dURfAG2MeJSJAAW0EHOcB%2FN%2FeTb16fMKZ5JxRs90u2rS1I7ToneZ%2BBVWRcQtFGgIAWzJQNKJhx8KM%2BaoEExXF0S8HUWlsIArM1IWpKsJSZQRDaDfCq1orBhgQ%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eada78f6a6cc-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 20,
+                    "name": "QA Guest injfpynq-1",
+                    "read": false,
+                    "subject": "QA Subject injfpy8e-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/20",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 267,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:37 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "1QON9pgdQhaXvJkLqmzx2A",
+                "x-hikari-trace": "jfk1.pqzh",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EAO3o1mjyIMhIOKmsDG3NO%2B4%2BAg%2ByvC04d9cUqD5esd5Vem1Ij5o56zR9AbSqpzlwSH5qRBzQ3OA9fZneVypGN1Prncy7ZMgTlhi%2FH6St%2Bvjm0nd0PzUXaqJ2ntjOb0pj76Wcth4qAB0HVNAHXXkkbSZA0zjRIKc4A%3D%3D\"}]}",
+                "cf-ray": "a413eadc1cf2a6cc-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          }
+        ],
+        "apiRelevantIndex": 2,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Cookie": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 260,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:37 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "cPYHexaRTxuMqyr2ozsQ6Q",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.pqzh",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9IMmObgXpzThJpnI1q9DeswqsmUjHUxaV4s2rqE34dURfAG2MeJSJAAW0EHOcB%2FN%2FeTb16fMKZ5JxRs90u2rS1I7ToneZ%2BBVWRcQtFGgIAWzJQNKJhx8KM%2BaoEExXF0S8HUWlsIArM1IWpKsJSZQRDaDfCq1orBhgQ%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413eada78f6a6cc-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "messages": [
+                {
+                  "id": 1,
+                  "name": "James Dean",
+                  "read": false,
+                  "subject": "Booking enquiry"
+                },
+                {
+                  "id": 2,
+                  "name": "ttt ttt",
+                  "read": false,
+                  "subject": "You have a new booking!"
+                },
+                {
+                  "id": 20,
+                  "name": "QA Guest injfpynq-1",
+                  "read": false,
+                  "subject": "QA Subject injfpy8e-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] email \"guest@example\" is rejected with 400",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "200",
+        "message": "Error: [REQ AC-6] email \"guest@example\" is rejected with 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 200\n\n  243 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');\n  244 |         } else {\n> 245 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                                       ^\n  246 |         }\n  247 |       });\n  248 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:245:87)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:240:7"
+      },
+      "failingStep": "Then the enquiry is rejected",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 400",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.18",
+      "title": "SCN-006.18: The API enforces field boundaries (email \"guest@example.com\" → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@example.com\"",
+        "@AC-4",
+        "@AC-6",
+        "@type:boundary",
+        "@layer:api",
+        "@P1",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: A rejected enquiry is not stored",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: A malformed JSON body is a client error",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium-retry1/error-context.md",
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": "{\"name\": \"QA malformed\", \"email\": "
+            },
+            "response": {
+              "status": 500,
+              "durationMs": 438,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:37 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "0ndXtt3AQ5CjHnVPH4GxDA",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=v7z05HYBDEOip%2BeuteHpAzEIzbMsm7%2BYUKEpOdsZN7O93bpiq183B%2FCVbmPSYTJuhOEbYxULO8y6EiEO8YDoCJdEpggrJSS%2FTqdRFD890BxDEI0MK3nGZcoVUc%2FoOTzxEaPnl5%2B%2FUrM1D6AuAB99SSZ1ZsZOfXt%2BzQ%3D%3D\"}]}",
+                "cf-ray": "a413eadf5cf14244-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "error": "Failed to create message"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"name\": \"QA malformed\", \"email\": "
+          },
+          "response": {
+            "status": 500,
+            "durationMs": 438,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:37 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "0ndXtt3AQ5CjHnVPH4GxDA",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.48ys",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=v7z05HYBDEOip%2BeuteHpAzEIzbMsm7%2BYUKEpOdsZN7O93bpiq183B%2FCVbmPSYTJuhOEbYxULO8y6EiEO8YDoCJdEpggrJSS%2FTqdRFD890BxDEI0MK3nGZcoVUc%2FoOTzxEaPnl5%2B%2FUrM1D6AuAB99SSZ1ZsZOfXt%2BzQ%3D%3D\"}]}",
+              "cf-ray": "a413eadf5cf14244-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "error": "Failed to create message"
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] malformed JSON → 400 (never 5xx)",
+        "reqTag": "AC-7",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "500",
+        "message": "Error: [REQ AC-7] malformed JSON → 400 (never 5xx)\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 500\n\n  277 |     });\n  278 |     await journey.step('Then the response status is 400', async () => {\n> 279 |       expect(status, '[REQ AC-7] malformed JSON → 400 (never 5xx)').toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                     ^\n  280 |     });\n  281 |   });\n  282 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:279:69)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:278:5"
+      },
+      "failingStep": "Then the response status is 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/message → 500",
+          "Server error (5xx) on a declared endpoint where the requirement specifies a different outcome."
+        ],
+        "next": "Replay the request (api-probe.ts) to confirm it reproduces, then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Malformed JSON returns 500 instead of 400",
+        "rationale": "AC-7: a non-JSON body is a client error and must be 400, never 5xx. The API answers 500 {\"error\":\"Failed to create message\"}: server-side failure on client input, which also pollutes error monitoring. (Confirmed in run 04-rerun; identical failure signature in 05-seeded.)",
+        "evidence": "Replayed live on 2026-09-26 (tier 3): POST /api/message with a truncated JSON body → 500 (confirm/SCN-008.md)",
+        "confirmedAt": "2026-09-26T15:18:14.273Z"
+      }
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Listing enquiries without a staff token is refused",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:security",
+        "@layer:api",
+        "@P1",
+        "@security"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium-retry1/error-context.md",
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 448,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:41 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "Jhp54gU0Ss-1zMhhBT7zVQ",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4hrDFxDFFz%2BBGv8qaLlFGe1rBIPHmRMN2XU9%2FFrfWBxjV9P9I8%2FGypEjqtEVGi%2Bic7c8l632BDk2lPcdZ5Iouo1fVyvTb7Zzimyar%2BUdWHsakT9smjpgIngR3RKvPRSZLEF%2B%2BnV8InVjcn%2BH0TcEQ04CkYfjHGPDRw%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eaf44a9b38ea-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 448,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:41 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "Jhp54gU0Ss-1zMhhBT7zVQ",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.pqzh",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4hrDFxDFFz%2BBGv8qaLlFGe1rBIPHmRMN2XU9%2FFrfWBxjV9P9I8%2FGypEjqtEVGi%2Bic7c8l632BDk2lPcdZ5Iouo1fVyvTb7Zzimyar%2BUdWHsakT9smjpgIngR3RKvPRSZLEF%2B%2BnV8InVjcn%2BH0TcEQ04CkYfjHGPDRw%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413eaf44a9b38ea-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "messages": [
+                {
+                  "id": 1,
+                  "name": "James Dean",
+                  "read": false,
+                  "subject": "Booking enquiry"
+                },
+                {
+                  "id": 2,
+                  "name": "ttt ttt",
+                  "read": false,
+                  "subject": "You have a new booking!"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-8] no message data without token",
+          "reqTag": "AC-8",
+          "expected": "not \"\\\"messages\\\"\"",
+          "received": "\"{\\\"messages\\\":[{\\\"id\\\":1,\\\"name\\\":\\\"James Dean\\\",\\\"read\\\":false,\\\"subject\\\":\\\"Booking enquiry\\\"},{\\\"id\\\":2,\\\"name\\\":\\\"ttt ttt\\\",\\\"read\\\":false,\\\"subject\\\":\\\"You have a new booking!\\\"}]}\""
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-8] message list without token → 401",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "401",
+        "received": "200",
+        "message": "Error: [REQ AC-8] message list without token → 401\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 401\nReceived: 200\n\n  285 |     await journey.step('When I GET /api/message without a token', async () => { res = await api.get(EP.message); });\n  286 |     await journey.step('Then the response status is 401', async () => {\n> 287 |       expect.soft(res.status, '[REQ AC-8] message list without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);\n      |                                                                              ^\n  288 |     });\n  289 |     await journey.step('And the response contains no message data', async () => {\n  290 |       expect.soft(res.text, '[REQ AC-8] no message data without token').not.toContain('\"messages\"');\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:287:78)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:286:5"
+      },
+      "failingStep": "Then the response status is 401",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message → 200",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: 401",
+          "Received: 200",
+          "Also failed: [REQ AC-8] no message data without token — expected not \"\\\"messages\\\"\", received \"{\\\"messages\\\":[{\\\"id\\\":1,\\\"name\\\":\\\"James Dean\\\",\\\"read\\\":false,\\\"subject\\\":\\\"Booking enquiry\\\"},{\\\"id\\\":2,\\\"name\\\":\\\"ttt ttt\\\",\\\"read\\\":false,\\\"subject\\\":\\\"You have a new booking!\\\"}]}\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Critical",
+        "title": "Messages API exposes guest enquiries without authentication",
+        "rationale": "AC-8: list and detail require a staff token and must return 401 without it. Both return 200 with data to anonymous callers; the detail includes guest e-mail, phone and message text (personal data). Security/privacy defect: the token is not checked on these endpoints. (Confirmed in run 04-rerun; identical failure signature in 05-seeded.)",
+        "evidence": "Replayed live on 2026-09-26 (tier 3) without any cookie: GET /api/message → 200 with messages; GET /api/message/1 → 200 with email/phone/description (confirm/SCN-009.md, SCN-010.md)",
+        "confirmedAt": "2026-09-26T15:18:15.828Z"
+      }
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: Reading an enquiry without a staff token is refused",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:security",
+        "@layer:api",
+        "@P1",
+        "@security"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxnjkn4150",
+          "records": [
+            {
+              "label": "enquiry",
+              "cleanup": "done",
+              "created": 22
+            }
+          ]
+        },
+        "apiCalls": 6,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "QA Guest injkn7wh-1",
+                "email": "qa.guest@example.com",
+                "phone": "01234567890",
+                "subject": "QA Subject injkn7b7-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 434,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:42 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "dwIAoAGVQMSvDZgSwoOzXw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.57w5",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=PfM97bRH81aRuHYdOcEj9WOsA%2BylgLFVkLhIE5G0uWRjezOA54MUKAniGw4HOvYW55Wpvib%2BQ51UDcOAVle0LRbEthVdCJJ%2B1zXfFSyUzELIgbaWcsN%2Bh6mWqWRMZSmnFYfeps%2F2IMbdiIQMr4v1wke65n2Vnm5L%2BQ%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eafdfcdcadf8-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 294,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:43 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "6yJ_ONTyTnG6zfgqHn5Ytg",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.57w5",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=0K3b4pYbL1CQOKyUzUWuN5ldS07eH2N3mEL8krUzEs%2FXf10oJJbVdzRje%2BLBRN%2FfCdtyBX%2Be9gUPIHq78JKOpnZjX5Fta1P13G5XziAGch7d5Q%2BIOKuMcrHgpDcB9Fw86YLsBlXdbwSGwMmx6YTMhGiUPWZZNKSptw%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eaffa8f3adf8-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 284,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:43 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "2JZnR6LRT5CmLnzLaP71AA",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.57w5",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rZzjxIyix3xkCiYnnob9X219kqXuMnnfgUX8PSAXC5DYILL4AKSWa5eZKrj5zJgZb64NIyFR%2BccYeCq7rNsLXkR%2FMWYFHud7mZ5u%2BpNMLAvpDxnBXbtWzkyNeKbPAGdogx8l2yaWBnT4ZFrOHnHlLaQwXjt6BNtjtQ%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb019e01adf8-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 22,
+                    "name": "QA Guest injkn7wh-1",
+                    "read": false,
+                    "subject": "QA Subject injkn7b7-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message/22",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 271,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:43 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "content-encoding": "gzip",
+                "server": "cloudflare",
+                "vary": "Accept-Encoding",
+                "x-railway-request-id": "KSimktjcQ_OK9ktGezItjw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.57w5",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ZMQjH674hCIV1rWvHUMyBGeH2TU7qGo5o3iabmL6GDThIH6Xi59vw48hDMRL%2FUWjbdB7FvBJSlJOfCT0F%2F7i49GCsf%2BAkbh9sHzgzecuPm%2B0GnvdWq9gmQHeSw3S%2B5l2x853%2FKZsJI8hvNfpJou8GjAbDO2fQqPuQw%3D%3D\"}]}",
+                "cf-ray": "a413eb035b6dadf8-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "description": "QA held-out evaluation enquiry — please ignore this message.",
+                "email": "qa.guest@example.com",
+                "messageid": 22,
+                "name": "QA Guest injkn7wh-1",
+                "phone": "01234567890",
+                "subject": "QA Subject injkn7b7-2"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 364,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:44 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "H0gLl36hQFS1jtNyAax-fw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.57w5",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rl4YMFIJ5tk9AampK2alVTCOA9wFdxvo%2FCPMIGlkYmCSCqiS%2Bi82x3kTfld2OdrXzzsPwSdHz7JAH%2Fe2g%2BJttfAqPEJaCARwRVdhkOqRZyqKPmFASAC4pO31UF%2FKLv7ooSM7k9HeGEH34OOPKWTKROw4gHxRVHlBZg%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb05b98cadf8-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/22",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 306,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:44 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "OS36zdtVRKmUsBBoozsQ6Q",
+                "x-hikari-trace": "jfk1.57w5",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=LQcrqeTCa9YJF2TPOx%2F6D7kPgh1a41ezmT7RRFUTkBE%2B6VvjE5iQYzIRfpLvX8oV1FmfIy2RAYwD5Z9ulnJ5Npxxvobl43nVVWd9Y42x%2BFDOacXccfT96JFR2KLB%2FLu3jbGfqoZ4bG17ujOppi7hLRJMVWgMEW3YRQ%3D%3D\"}]}",
+                "cf-ray": "a413eb07bf67adf8-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          }
+        ],
+        "apiRelevantIndex": 4,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/auth/login",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "username": "admin",
+              "password": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 364,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:44 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "H0gLl36hQFS1jtNyAax-fw",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.57w5",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rl4YMFIJ5tk9AampK2alVTCOA9wFdxvo%2FCPMIGlkYmCSCqiS%2Bi82x3kTfld2OdrXzzsPwSdHz7JAH%2Fe2g%2BJttfAqPEJaCARwRVdhkOqRZyqKPmFASAC4pO31UF%2FKLv7ooSM7k9HeGEH34OOPKWTKROw4gHxRVHlBZg%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413eb05b98cadf8-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "token": "***redacted***"
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-8] no personal data without token",
+          "reqTag": "AC-8"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-8] message detail without token → 401",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "401",
+        "received": "200",
+        "message": "Error: [REQ AC-8] message detail without token → 401\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 401\nReceived: 200\n\n  308 |     await journey.step('When I GET /api/message/{id} without a token', async () => { res = await api.get(EP.messageById(id)); });\n  309 |     await journey.step('Then the response status is 401', async () => {\n> 310 |       expect.soft(res.status, '[REQ AC-8] message detail without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);\n      |                                                                                ^\n  311 |     });\n  312 |     await journey.step('And the response contains no personal data', async () => {\n  313 |       const leaked = REQ.PERSONAL_DATA_KEYS.filter((k) => res.text.includes(`\"${k}\"`));\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:310:80)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:309:5"
+      },
+      "failingStep": "Then the response status is 401",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/auth/login → 200",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: 401",
+          "Received: 200",
+          "Also failed: [REQ AC-8] no personal data without token"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Staff can list enquiries with a valid token",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: Valid staff credentials return a token",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: Invalid staff credentials are refused",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014",
+      "title": "SCN-014: An enquiry sent from the UI is readable by staff through the API",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-10",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-015",
+      "title": "SCN-015: The rooms list follows the Room schema",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@type:contract",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-016",
+      "title": "SCN-016: An existing room can be fetched by id",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-12",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-12"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-017",
+      "title": "SCN-017: An unknown room id returns 404",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-12",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-12"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium-retry1/error-context.md",
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/room",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 461,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:49 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "dHcFqlWyRqqKT01aGbGh5g",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nHjlPpWzo3JKvy66lRsck90WzrbpDwGKFvK4zJmV5RMpyekv%2BKma26Rb3S2i%2FhSLER4g%2FYLIRALqCNUb%2B8WxEXNHE8OAhiDRzGVi3EwHpCOf0PNmoDkseg3XD7q%2FhLcT2qp%2BJMp1VJAUC2kjrF8KA6F875%2BRpXChhA%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb28dcdc9867-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "rooms": [
+                  {
+                    "accessible": true,
+                    "description": "Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. Maecenas sit amet nisl massa. Interdum et malesuada fames ac ante.",
+                    "features": [
+                      "TV",
+                      "WiFi",
+                      "Safe"
+                    ],
+                    "image": "/images/room1.jpg",
+                    "roomName": "101",
+                    "roomPrice": 100,
+                    "roomid": 1,
+                    "type": "Single"
+                  },
+                  {
+                    "accessible": true,
+                    "description": "Vestibulum sollicitudin, lectus ac mollis consequat, lorem orci ultrices tellus, eleifend euismod tortor dui egestas erat. Phasellus et ipsum nisl. ",
+                    "features": [
+                      "TV",
+                      "Radio",
+                      "Safe"
+                    ],
+                    "image": "/images/room2.jpg",
+                    "roomName": "102",
+                    "roomPrice": 150,
+                    "roomid": 2,
+                    "type": "Double"
+                  },
+                  {
+                    "accessible": true,
+                    "description": "Etiam metus metus, fringilla ac sagittis id, consequat vel neque. Nunc commodo quis nisl nec posuere. Etiam at accumsan ex. ",
+                    "features": [
+                      "Radio",
+                      "WiFi",
+                      "Safe"
+                    ],
+                    "image": "/images/room3.jpg",
+                    "roomName": "103",
+                    "roomPrice": 225,
+                    "roomid": 3,
+                    "type": "Suite"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/room/100003",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 500,
+              "durationMs": 328,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:49 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "content-encoding": "gzip",
+                "server": "cloudflare",
+                "vary": "Accept-Encoding",
+                "x-railway-request-id": "XPjiWxjURlWkFIOm8u2xcg",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=w6YbpvI1XU16rVaZfGPQnSmMsRe2m9Sr2ftC5AhbE%2BGkrmqrcP9LhZCV1I6FUpzA6JYhFRRMrwi3ZXZNNmXoHzBhtzhl0Yo7n%2FLIVXxr6HAY0zseE3Wx%2FOJZbIqGHIG12Shvw%2FcCUpJ2oGedLttbRjt6M15G0EcppQ%3D%3D\"}]}",
+                "cf-ray": "a413eb2ae9fd9867-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "timestamp": "2026-09-26T17:16:49.900Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "path": "/room/100003"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/room/100003",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 500,
+            "durationMs": 328,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:16:49 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "content-encoding": "gzip",
+              "server": "cloudflare",
+              "vary": "Accept-Encoding",
+              "x-railway-request-id": "XPjiWxjURlWkFIOm8u2xcg",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.48ys",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=w6YbpvI1XU16rVaZfGPQnSmMsRe2m9Sr2ftC5AhbE%2BGkrmqrcP9LhZCV1I6FUpzA6JYhFRRMrwi3ZXZNNmXoHzBhtzhl0Yo7n%2FLIVXxr6HAY0zseE3Wx%2FOJZbIqGHIG12Shvw%2FcCUpJ2oGedLttbRjt6M15G0EcppQ%3D%3D\"}]}",
+              "cf-ray": "a413eb2ae9fd9867-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "timestamp": "2026-09-26T17:16:49.900Z",
+              "status": 500,
+              "error": "Internal Server Error",
+              "path": "/room/100003"
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-12] unknown room → 404",
+        "reqTag": "AC-12",
+        "matcher": "toBe",
+        "expected": "404",
+        "received": "500",
+        "message": "Error: [REQ AC-12] unknown room → 404\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 500\n\n  412 |     await journey.step('When I GET /api/room/{id}', async () => { status = (await api.get(EP.roomById(unknownId))).status; });\n  413 |     await journey.step('Then the response status is 404', async () => {\n> 414 |       expect(status, '[REQ AC-12] unknown room → 404').toBe(REQ.STATUS.NOT_FOUND);\n      |                                                        ^\n  415 |     });\n  416 |   });\n  417 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:414:56)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:413:5"
+      },
+      "failingStep": "Then the response status is 404",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/room/100003 → 500",
+          "Server error (5xx) on a declared endpoint where the requirement specifies a different outcome."
+        ],
+        "next": "Replay the request (api-probe.ts) to confirm it reproduces, then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Unknown room id returns 500 instead of 404",
+        "rationale": "AC-12 / api-contract.md: an unknown id must return 404. The API returns 500 Internal Server Error, so an unhandled not-found condition surfaces as a server fault. (Confirmed in run 04-rerun; identical failure signature in 05-seeded.)",
+        "evidence": "Replayed live on 2026-09-26 (tier 3): GET /api/room/100003 → 500 (confirm/SCN-017.md)",
+        "confirmedAt": "2026-09-26T15:18:18.933Z"
+      }
+    },
+    {
+      "scenario": "SCN-018",
+      "title": "SCN-018: Every API room is shown with its type and nightly price",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-13",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-13"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-019",
+      "title": "SCN-019: Room card images name their own room type",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-14",
+        "@type:accessibility",
+        "@layer:e2e",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-14"
+      ],
+      "testType": "accessibility",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium-retry1/error-context.md",
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/room",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 431,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:17:06 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "0q_uxvg9SAS11zIMBT7zVQ",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4kcIgqpA5mB5RPoCPBz%2FP%2BRb3zei213lDSIKLACVz789XDRL5ovhFze96XN4qDXT20rpER8ir3VD1OjBT4T5piZDsBJeVkeOWAY7UYFH7nCbJUfpjd4I7gjbr2epdzjYS2Svq84vh66hYP1rIHFi4QQqM9o7rlWH7w%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb91e85d5e4b-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "rooms": [
+                  {
+                    "accessible": true,
+                    "description": "Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. Maecenas sit amet nisl massa. Interdum et malesuada fames ac ante.",
+                    "features": [
+                      "TV",
+                      "WiFi",
+                      "Safe"
+                    ],
+                    "image": "/images/room1.jpg",
+                    "roomName": "101",
+                    "roomPrice": 100,
+                    "roomid": 1,
+                    "type": "Single"
+                  },
+                  {
+                    "accessible": true,
+                    "description": "Vestibulum sollicitudin, lectus ac mollis consequat, lorem orci ultrices tellus, eleifend euismod tortor dui egestas erat. Phasellus et ipsum nisl. ",
+                    "features": [
+                      "TV",
+                      "Radio",
+                      "Safe"
+                    ],
+                    "image": "/images/room2.jpg",
+                    "roomName": "102",
+                    "roomPrice": 150,
+                    "roomid": 2,
+                    "type": "Double"
+                  },
+                  {
+                    "accessible": true,
+                    "description": "Etiam metus metus, fringilla ac sagittis id, consequat vel neque. Nunc commodo quis nisl nec posuere. Etiam at accumsan ex. ",
+                    "features": [
+                      "Radio",
+                      "WiFi",
+                      "Safe"
+                    ],
+                    "image": "/images/room3.jpg",
+                    "roomName": "103",
+                    "roomPrice": 225,
+                    "roomid": 3,
+                    "type": "Suite"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/room",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 431,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:17:06 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "0q_uxvg9SAS11zIMBT7zVQ",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.pqzh",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4kcIgqpA5mB5RPoCPBz%2FP%2BRb3zei213lDSIKLACVz789XDRL5ovhFze96XN4qDXT20rpER8ir3VD1OjBT4T5piZDsBJeVkeOWAY7UYFH7nCbJUfpjd4I7gjbr2epdzjYS2Svq84vh66hYP1rIHFi4QQqM9o7rlWH7w%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413eb91e85d5e4b-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "rooms": [
+                {
+                  "accessible": true,
+                  "description": "Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. Maecenas sit amet nisl massa. Interdum et malesuada fames ac ante.",
+                  "features": [
+                    "TV",
+                    "WiFi",
+                    "Safe"
+                  ],
+                  "image": "/images/room1.jpg",
+                  "roomName": "101",
+                  "roomPrice": 100,
+                  "roomid": 1,
+                  "type": "Single"
+                },
+                {
+                  "accessible": true,
+                  "description": "Vestibulum sollicitudin, lectus ac mollis consequat, lorem orci ultrices tellus, eleifend euismod tortor dui egestas erat. Phasellus et ipsum nisl. ",
+                  "features": [
+                    "TV",
+                    "Radio",
+                    "Safe"
+                  ],
+                  "image": "/images/room2.jpg",
+                  "roomName": "102",
+                  "roomPrice": 150,
+                  "roomid": 2,
+                  "type": "Double"
+                },
+                {
+                  "accessible": true,
+                  "description": "Etiam metus metus, fringilla ac sagittis id, consequat vel neque. Nunc commodo quis nisl nec posuere. Etiam at accumsan ex. ",
+                  "features": [
+                    "Radio",
+                    "WiFi",
+                    "Safe"
+                  ],
+                  "image": "/images/room3.jpg",
+                  "roomName": "103",
+                  "roomPrice": 225,
+                  "roomid": 3,
+                  "type": "Suite"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-14] Suite card image alt text",
+          "reqTag": "AC-14",
+          "expected": "\"Suite Room\"",
+          "received": "\"Single Room\""
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-14] Double card image alt text",
+        "reqTag": "AC-14",
+        "matcher": "toHaveAccessibleName",
+        "expected": "\"Double Room\"",
+        "received": "\"Single Room\"",
+        "locator": "locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()",
+        "message": "Error: [REQ AC-14] Double card image alt text\n\nexpect(locator).toHaveAccessibleName(expected) failed\n\nLocator:  locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()\nExpected: \"Double Room\"\nReceived: \"Single Room\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-14] Double card image alt text locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first() with timeout 5000ms\n  - waiting for locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()\n    14 × locator resolved to <img alt=\"Single Room\" class=\"card-img-top\" src=\"/images/room2.jpg\"/>\n       - unexpected value \"Single Room\"\n\n\n  438 |     await journey.step('Then each room card\\'s image has the alternative text \"<Type> Room\" for that card\\'s type', async () => {\n  439 |       for (const room of list) {\n> 440 |         await expect.soft(ui(page).roomCard(room.type).first().getByRole('img').first(), `[REQ AC-14] ${room.type} card image alt text`).toHaveAccessibleName(REQ.ALT_TEXT(room.type));\n      |                                                                                                                                          ^\n  441 |       }\n  442 |     });\n  443 |   });\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:440:138\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:438:5"
+      },
+      "failingStep": "Then each room card's image has the alternative text \"<Type> Room\" for that card's type",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/room → 200",
+          "Requirement assertion [REQ AC-14] failed.",
+          "Expected: \"Double Room\"",
+          "Received: \"Single Room\"",
+          "Also failed: [REQ AC-14] Suite card image alt text — expected \"Suite Room\", received \"Single Room\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Every room image has the alt text 'Single Room'",
+        "rationale": "AC-14 / ux-copy.md: each card image's alt text must name that card's type. The Single card is correct by coincidence; the Double and Suite cards also say 'Single Room', which misinforms screen-reader users (WCAG 1.1.1). (Confirmed in run 04-rerun; identical failure signature in 05-seeded.)",
+        "evidence": "Live on 2026-09-26 (tier 3): card types [Single, Double, Suite] → img alt [Single Room, Single Room, Single Room]",
+        "confirmedAt": "2026-09-26T15:18:20.495Z"
+      }
+    },
+    {
+      "scenario": "SCN-020",
+      "title": "SCN-020: The rooms list responds quickly",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-15",
+        "@type:performance",
+        "@layer:api",
+        "@P3",
+        "@performance"
+      ],
+      "requirementRefs": [
+        "AC-15"
+      ],
+      "testType": "performance",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-021",
+      "title": "SCN-021: A retried enquiry with the same Idempotency-Key is stored only once",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-16",
+        "@type:idempotency",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-16"
+      ],
+      "testType": "idempotency",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/05-seeded/artifacts/DEMO-202-tests-demo-202-DE-2010a-ncy-Key-is-stored-only-once-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hxnjwig200",
+          "records": [
+            {
+              "label": "enquiry (created by the scenario)",
+              "created": "QA Subject injwigt6-2",
+              "cleanup": "done"
+            }
+          ]
+        },
+        "apiCalls": 8,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 500,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "u3k92oGwTx-srBKzwoOzXw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ZB4%2BQ4hJaspOXCbyzDvjDVq5boYadPra2PNiv%2BYUSj37nKO6X7ViwbgXqlro8q40F5qy5wQLg6h0flbsmECVZ9%2FTFmjuo8dKPByelPu3l4z6FshejX0xuCW%2Fa8WZ2PrJk4xUXnIjqD4oXayqjB4uz96fVzGDKV8O9w%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb5e3e0faf27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Idempotency-Key": "qa-idem-injwih0k-3",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "QA Guest injwigb7-1",
+                "email": "qa.guest@example.com",
+                "phone": "01234567890",
+                "subject": "QA Subject injwigt6-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 218,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "XXXX06MtRf6LwMvoU79b0g",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=6%2Fz0f5PsIENBCJlN6J%2Fzgb1HEQaFpcuw4c4WUAHgvSrCaMfcUy%2FrOHCCWxXm89KsGRvk6rgDp97Ea7jjp4RnPamvPC2VH3CQhLX5J57LHCE6gg9MngyW2l4vGhvJTDqA3ZVpvbcMTop1PxxNh5TnLFq8npXxaf0YeQ%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb607fffaf27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Idempotency-Key": "qa-idem-injwih0k-3",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "name": "QA Guest injwigb7-1",
+                "email": "qa.guest@example.com",
+                "phone": "01234567890",
+                "subject": "QA Subject injwigt6-2",
+                "description": "QA held-out evaluation enquiry — please ignore this message."
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 168,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "f4_px7UrR9qMe73owoOzXw",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=UEQl3GaIcak%2FnDH0lfjpCdfghJxkHh%2BL%2FG129bz%2F159QMDEkiEQnBoOnvW9Sf1NV5zfASnzIrSFA7NaA3peRBQDr7rWSU4qSkl0KvE0ypQTEYtvLAykSMokkJW8vgzgDiqhuDuwG59nPE7K9yqXWrvb6tJLe68gKAg%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb619ca6af27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "success": true
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 268,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:58 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "La1ZYZcPS_WvvpSxO8poTA",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=hlHGKQsocTNWEZ5%2B2uLEKFEiC%2B6QjAk7k8I9Lgl7tYiE0qEFn%2BNHGolxaD7nU6tsUoOywfdCLEk67SLs2SR5dcE%2FwTifPY8hZVP%2BhIT16m5fvn%2FpPQLEHk60VmRBVP1%2F%2FqaHP%2FiT7I%2F2OINDyPhpAwG5RHHLcH4CMQ%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb62b90baf27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 26,
+                    "name": "QA Guest injwigb7-1",
+                    "read": false,
+                    "subject": "QA Subject injwigt6-2"
+                  },
+                  {
+                    "id": 27,
+                    "name": "QA Guest injwigb7-1",
+                    "read": false,
+                    "subject": "QA Subject injwigt6-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://automationintesting.online/api/auth/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "username": "admin",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 289,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:59 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "A8OPjvvVTEqxi20_PvyhXg",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.48ys",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nNROOQyAG7wRXRTaPBiuuIQZexCvm%2FETysChSB1NPZPR441ofc6kVWiaOpwv9V4z%2F%2BNGakMfS6ytYaLObxm1IpfII5XhNX%2FViz0F78aHzkBvVpiYhumNZ91ekDhE1lvqJKdUfDxeJWFRC%2BZZWJpDnsa58R5mAjGotg%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb647f13af27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "token": "***redacted***"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://automationintesting.online/api/message",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 277,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:59 GMT",
+                "content-type": "application/json",
+                "transfer-encoding": "chunked",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+                "x-railway-request-id": "f-_7G6eAQx2NFQGwyCLmYg",
+                "x-railway-edge": "jfk1",
+                "x-hikari-trace": "jfk1.pqzh",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ysmt%2FZxCGuQSg3HKgsxWs7DsQ6CiKiMXQp0mTESOq3pycsW19Y2zVbOiKCyvM7NEdHI1cGfNaFolDG%2FTmJT2eC%2FbgycoDigvQboGIdV8UrNnBlWMq7FSU8MShy%2B1Xo07THLRmLdm7fYTuYM4NHByoOmq67KjR8bJ9w%3D%3D\"}]}",
+                "content-encoding": "br",
+                "cf-ray": "a413eb667e77af27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": {
+                "messages": [
+                  {
+                    "id": 1,
+                    "name": "James Dean",
+                    "read": false,
+                    "subject": "Booking enquiry"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ttt ttt",
+                    "read": false,
+                    "subject": "You have a new booking!"
+                  },
+                  {
+                    "id": 26,
+                    "name": "QA Guest injwigb7-1",
+                    "read": false,
+                    "subject": "QA Subject injwigt6-2"
+                  },
+                  {
+                    "id": 27,
+                    "name": "QA Guest injwigb7-1",
+                    "read": false,
+                    "subject": "QA Subject injwigt6-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/26",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 270,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:16:59 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "sH3avWQcSd6NcVWmFFmdQQ",
+                "x-hikari-trace": "jfk1.48ys",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wxszZ62b8BAs8x4LA3nWrYaNU8fU43kXDxzo%2FX0QoA1R7gaUMvFhDXUoSbpYlWgRK9UQlsOhzDzcVBP2lVlJH8Um%2Bx4%2BlNxbc1xj3vZeT2udq1U5QAbox%2Bo7Aq3dNPoalbqSchYFg%2BBBAYTL0xEHoMEsAn%2F8w0087g%3D%3D\"}]}",
+                "cf-ray": "a413eb681cd7af27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://automationintesting.online/api/message/27",
+              "headers": {
+                "Accept": "application/json",
+                "Cookie": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 202,
+              "durationMs": 270,
+              "headers": {
+                "date": "Sat, 26 Sep 2026 17:17:00 GMT",
+                "content-length": "0",
+                "connection": "keep-alive",
+                "server": "cloudflare",
+                "x-railway-request-id": "pKyndegfRJGvF7itg4a9AQ",
+                "x-hikari-trace": "jfk1.pqzh",
+                "x-railway-edge": "jfk1",
+                "cf-cache-status": "DYNAMIC",
+                "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+                "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BffhQGxjxX0cbe4n%2BpoZ2F05LHWmFax2KY7rSZvKQeun7pyaJ1hnUGZ9owb1vc4avfNfz4bncg%2BUJT%2FGQJYaBEiTvXIUZACm2slwzO%2Fs2q%2BgMPhwPy1CZsBaMX0eW5pZjf7T63aPplrpelLv3Cyn7N9jXUJkbptDlg%3D%3D\"}]}",
+                "cf-ray": "a413eb69dbf9af27-EWR",
+                "alt-svc": "h3=\":443\"; ma=86400"
+              },
+              "body": ""
+            }
+          }
+        ],
+        "apiRelevantIndex": 7,
+        "api": {
+          "request": {
+            "method": "DELETE",
+            "url": "https://automationintesting.online/api/message/27",
+            "headers": {
+              "Accept": "application/json",
+              "Cookie": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 202,
+            "durationMs": 270,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 17:17:00 GMT",
+              "content-length": "0",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "x-railway-request-id": "pKyndegfRJGvF7itg4a9AQ",
+              "x-hikari-trace": "jfk1.pqzh",
+              "x-railway-edge": "jfk1",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BffhQGxjxX0cbe4n%2BpoZ2F05LHWmFax2KY7rSZvKQeun7pyaJ1hnUGZ9owb1vc4avfNfz4bncg%2BUJT%2FGQJYaBEiTvXIUZACm2slwzO%2Fs2q%2BgMPhwPy1CZsBaMX0eW5pZjf7T63aPplrpelLv3Cyn7N9jXUJkbptDlg%3D%3D\"}]}",
+              "cf-ray": "a413eb69dbf9af27-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": ""
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-16] retried enquiry stored only once",
+        "reqTag": "AC-16",
+        "matcher": "toBe",
+        "expected": "1",
+        "received": "2",
+        "message": "Error: [REQ AC-16] retried enquiry stored only once\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 1\nReceived: 2\n\n  472 |     await journey.step('And the authenticated message list contains that subject exactly once', async () => {\n  473 |       const stored = (await staffMessages(api, token)).filter((m) => m.subject === enquiry.subject).length;\n> 474 |       expect.soft(stored, '[REQ AC-16] retried enquiry stored only once').toBe(REQ.IDEMPOTENCY.EXPECTED_STORED);\n      |                                                                           ^\n  475 |     });\n  476 |   });\n  477 |\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:474:75\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:232:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:472:5"
+      },
+      "failingStep": "And the authenticated message list contains that subject exactly once",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: DELETE /api/message/27 → 202",
+          "Requirement assertion [REQ AC-16] failed.",
+          "Expected: 1",
+          "Received: 2"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-022",
+      "title": "SCN-022: Repeating GET /api/room/{id} returns an identical body",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-16",
+        "@type:idempotency",
+        "@layer:api",
+        "@P3"
+      ],
+      "requirementRefs": [
+        "AC-16"
+      ],
+      "testType": "idempotency",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

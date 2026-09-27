@@ -1,0 +1,29 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-26T00:00:00.000Z",
+  "contractHash": "5f89424270364e6e",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L23", "note": "Quote is verbatim. Outcomes (Products page shown; 6-product full catalogue) both restate the single sentence at L23; layer=ui matches a UI page-landing/listing check." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L24", "note": "Quote verbatim; all three outcomes (not signed in, exact error text, stays on sign-in page) are the three clauses of L24." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L25", "note": "Quote verbatim; outcomes (error text, Username cleared, Password cleared) match the two clauses of L25." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L26", "note": "Quote verbatim; outcomes (sort control availability, ascending order) match the two clauses of L26." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L27", "note": "Quote verbatim; outcomes (add +1, remove decreases, badge hidden when empty) match the three clauses of L27." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L28", "note": "Quote verbatim. Outcome 'continuing without a First Name shows the exact error' is directly stated. The second outcome ('checkout does not continue... while First Name, Last Name or Postal Code is missing') is a direct reading of 'mandatory' plus the demonstrated First Name behaviour; the contract correctly leaves the exact message for Last Name/Postal Code open via gap G4 rather than inventing a message." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "story.md#L29; attachments/pricing-rules.md#L4,L7,L10,L11,L14,L17", "note": "Quote verbatim (backticks preserved). Every outcome traces to a cited rule: item total to R2 (L7), tax to R3+R4 (L10-11), total to R5 (L14) plus 'no shipping' to R6 (L17), and $ / 2-decimal formatting to R1 (L4)." },
+    { "ref": "AC-8", "verdict": "supported", "evidence": "story.md#L30", "note": "Quote verbatim; both outcomes (confirmation text, empty cart afterwards) match the two clauses of L30." },
+    { "ref": "AC-9", "verdict": "supported", "evidence": "story.md#L31", "note": "Quote verbatim; outcomes (sign-in page after logout; Products URL no longer reachable) restate L31's two clauses without inventing the unspecified redirect/message, which is correctly left open as gap G5." },
+    { "ref": "R1", "verdict": "supported", "evidence": "attachments/pricing-rules.md#L4", "note": "Text matches source verbatim, including the $29.99 example." },
+    { "ref": "R2", "verdict": "supported", "evidence": "attachments/pricing-rules.md#L7", "note": "Text matches source verbatim." },
+    { "ref": "R3", "verdict": "supported", "evidence": "attachments/pricing-rules.md#L10", "note": "Text matches source verbatim (10% of item total)." },
+    { "ref": "R4", "verdict": "supported", "evidence": "attachments/pricing-rules.md#L11", "note": "Text matches source verbatim (half-up rounding to 2 decimals)." },
+    { "ref": "R5", "verdict": "supported", "evidence": "attachments/pricing-rules.md#L14", "note": "Text matches source verbatim." },
+    { "ref": "R6", "verdict": "supported", "evidence": "attachments/pricing-rules.md#L17", "note": "Text matches source verbatim (free shipping, not added to total)." },
+    { "ref": "E1", "verdict": "supported", "evidence": "story.md#L24", "note": "Locked-account error body is quoted exactly as in L24 and correctly tied to AC-2." },
+    { "ref": "E2", "verdict": "supported", "evidence": "story.md#L25", "note": "Wrong-password error body is quoted exactly as in L25 and correctly tied to AC-3." },
+    { "ref": "E3", "verdict": "supported", "evidence": "story.md#L28", "note": "Missing-First-Name error body is quoted exactly as in L28 and correctly tied to AC-6." },
+    { "ref": "G4", "verdict": "supported", "evidence": "story.md#L28", "note": "L28 states all three fields are mandatory but gives a message only for First Name; the gap correctly states this omission and correctly leaves it 'open' (no message for Last Name/Postal Code is stated anywhere in the pack, including the attachments, which the gap's 'tried' entries correctly report as empty)." },
+    { "ref": "G5", "verdict": "supported", "evidence": "story.md#L31", "note": "L31 only says protected pages 'can no longer be opened without signing in again', with no stated redirect target or message; the gap correctly reports this as unresolved/open, and the attachments (checked) contain nothing on this point." }
+  ],
+  "missed": [],
+  "summary": "Every acceptance criterion, pricing rule and error-model entry quotes its source line verbatim and every derived outcome traces to that quote or to a cited rule (R1-R6 for AC-7); the two oracle gaps (G4, G5) correctly identify information genuinely absent from story.md and its attachments and correctly leave them open rather than inventing values. No requirement-bearing line in the evidence pack was left uncaptured."
+}

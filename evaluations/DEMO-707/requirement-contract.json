@@ -1,0 +1,847 @@
+{
+  "key": "DEMO-707",
+  "title": "Conduit — accounts, articles, comments, favourites and discovery",
+  "revision": {
+    "story": "770640c7911cf291",
+    "attachments": {
+      "api-contract.md": "c5ed169aabb589cf"
+    }
+  },
+  "context": "Conduit is a public writing platform (web app + JSON API following the RealWorld specification). This story is the acceptance baseline for accounts, publishing, commenting, favouriting, following and discovering articles. All published content is public: any reader, signed in or not, must be able to discover and read any author's articles and their comments.",
+  "actors": [
+    "writer",
+    "reader (signed in)",
+    "anonymous visitor",
+    "platform / client apps"
+  ],
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "context, user stories, AC-1…AC-19, test data rules"
+    },
+    {
+      "file": "attachments/api-contract.md",
+      "read": true,
+      "contributes": "endpoints, request envelopes, auth header, pagination bounds, error model"
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "text": "POST /api/users with a new username, email and password responds 201 with the user (username, email, token).",
+      "quote": "POST /api/users with a new username, email and password responds 201 with the user (username, email, token).",
+      "source": "story.md#L31",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users"
+      ],
+      "outcomes": [
+        "responds 201",
+        "the response user contains username, email and token"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Registering an email or username that is already taken responds 422 with a field-level errors object naming the taken field(s).",
+      "quote": "Registering an email or username that is already taken responds 422 with a field-level errors object naming the taken field(s).",
+      "source": "story.md#L32",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "taken email → 422 with a field-level errors object naming email",
+        "taken username → 422 with a field-level errors object naming username"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "POST /api/users/login with valid credentials responds 200 with a token; with a wrong password it responds 401 Unauthorized with an errors object.",
+      "quote": "POST /api/users/login with valid credentials responds 200 with a token; with a wrong password it responds 401 Unauthorized with an errors object.",
+      "source": "story.md#L33",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/users/login"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "valid credentials → 200 with a token",
+        "wrong password → 401 Unauthorized with an errors object"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Endpoints that require authentication accept Authorization: Token <jwt> and respond 401 when the header is missing or the token is invalid.",
+      "quote": "Endpoints that require authentication accept Authorization: Token <jwt> and respond 401 when the header is missing or the token is invalid.",
+      "source": "story.md#L34",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "GET /api/user",
+        "POST /api/articles"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "a request with a valid Authorization: Token <jwt> header is accepted (GET /api/user → 200)",
+        "Authorization header missing → 401",
+        "invalid token → 401"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "An authenticated writer can create an article (title, description, body, tagList) → 201 with the article, including a slug, the author and the tags.",
+      "quote": "An authenticated writer can create an article (title, description, body, tagList) → 201 with the article, including a slug, the author and the tags.",
+      "source": "story.md#L38",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "responds 201 with the article",
+        "the article includes a slug",
+        "the article includes the author",
+        "the article includes the tags that were sent"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "Titles need not be unique: a writer may publish a second article with the same title, which receives its own distinct slug (201).",
+      "quote": "Titles need not be unique: a writer may publish a second article with the same title, which receives its own distinct slug (201).",
+      "source": "story.md#L39",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "second article with the same title → 201",
+        "the second article's slug differs from the first article's slug"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "A missing title, description or body is rejected with 422 and a field-level error.",
+      "quote": "A missing title, description or body is rejected with 422 and a field-level error.",
+      "source": "story.md#L40",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "missing title → 422 with a field-level error",
+        "missing description → 422 with a field-level error",
+        "missing body → 422 with a field-level error"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Only the author may update or delete an article. Another signed-in user gets 403; the article is unchanged.",
+      "quote": "Only the author may update or delete an article. Another signed-in user gets 403; the article is unchanged.",
+      "source": "story.md#L41",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "PUT /api/articles/{slug}",
+        "DELETE /api/articles/{slug}",
+        "GET /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "update by another signed-in user → 403",
+        "delete by another signed-in user → 403",
+        "the article is unchanged afterwards (still readable with its original fields)"
+      ]
+    },
+    {
+      "id": "AC-9",
+      "text": "The author can update an article (200, changed fields returned) and delete it (204); afterwards GET /api/articles/{slug} responds 404.",
+      "quote": "The author can update an article (200, changed fields returned) and delete it (204); afterwards GET /api/articles/{slug} responds 404.",
+      "source": "story.md#L42",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "PUT /api/articles/{slug}",
+        "DELETE /api/articles/{slug}",
+        "GET /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "update by the author → 200 with the changed fields returned",
+        "delete by the author → 204",
+        "afterwards GET /api/articles/{slug} responds 404"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "text": "Any reader filtering the article list by an author (?author=<username>) gets that author's published articles, including ones published moments ago.",
+      "quote": "Any reader filtering the article list by an author (?author=<username>) gets that author's published articles, including ones published moments ago.",
+      "source": "story.md#L46",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "GET /api/articles",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "an anonymous reader filtering by the author gets that author's article published moments ago",
+        "another signed-in reader filtering by the author gets that author's article published moments ago",
+        "every article in the filtered list is by that author"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "text": "The list supports pagination with limit (1–100) and offset. limit outside 1–100 is rejected with 422; values on the boundaries are accepted.",
+      "quote": "The list supports pagination with limit (1–100) and offset. limit outside 1–100 is rejected with 422; values on the boundaries are accepted.",
+      "source": "story.md#L47",
+      "layer": "api",
+      "endpoints": [
+        "GET /api/articles"
+      ],
+      "outcomes": [
+        "limit=0 → 422",
+        "limit=101 → 422",
+        "limit=1 is accepted (200) and returns at most one article",
+        "limit=100 is accepted (200)",
+        "offset pages through the list (a later offset skips earlier articles)"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "text": "After following an author, that author's articles appear in the reader's feed (GET /api/articles/feed).",
+      "quote": "After following an author, that author's articles appear in the reader's feed (GET /api/articles/feed).",
+      "source": "story.md#L48",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "POST /api/profiles/{username}/follow",
+        "GET /api/articles/feed",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "after the reader follows the author, GET /api/articles/feed includes that author's articles"
+      ]
+    },
+    {
+      "id": "AC-13",
+      "text": "A signed-in reader can comment on any article (200, the comment is returned). An empty comment body is rejected with 422.",
+      "quote": "A signed-in reader can comment on any article (200, the comment is returned). An empty comment body is rejected with 422.",
+      "source": "story.md#L52",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "POST /api/articles/{slug}/comments",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "a signed-in reader comments on another author's article → 200 with the comment returned",
+        "empty comment body → 422"
+      ]
+    },
+    {
+      "id": "AC-14",
+      "text": "Comments are public: every reader of the article — the article's author, other users and anonymous visitors — sees all its comments in GET /api/articles/{slug}/comments.",
+      "quote": "Comments are public: every reader of the article — the article's author, other users and anonymous visitors — sees all its comments in GET /api/articles/{slug}/comments.",
+      "source": "story.md#L53",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "POST /api/articles/{slug}/comments",
+        "GET /api/articles/{slug}/comments",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "the article's author sees all its comments in GET /api/articles/{slug}/comments",
+        "another signed-in user sees all its comments",
+        "an anonymous visitor sees all its comments"
+      ]
+    },
+    {
+      "id": "AC-15",
+      "text": "Only a comment's author may delete it. Anyone else gets 403 and the comment remains.",
+      "quote": "Only a comment's author may delete it. Anyone else gets 403 and the comment remains.",
+      "source": "story.md#L54",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "POST /api/articles/{slug}/comments",
+        "DELETE /api/articles/{slug}/comments/{id}",
+        "GET /api/articles/{slug}/comments",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "delete by a user who is not the comment's author → 403",
+        "the comment remains in GET /api/articles/{slug}/comments",
+        "delete by the comment's author → 200"
+      ]
+    },
+    {
+      "id": "AC-16",
+      "text": "Favouriting is idempotent: favouriting an article increases favoritesCount by one and sets favorited: true; favouriting it again (e.g. a double-click or retry) leaves the count unchanged; unfavouriting decreases it by one.",
+      "quote": "Favouriting is idempotent: favouriting an article increases favoritesCount by one and sets favorited: true; favouriting it again (e.g. a double-click or retry) leaves the count unchanged; unfavouriting decreases it by one.",
+      "source": "story.md#L55",
+      "layer": "api",
+      "endpoints": [
+        "POST /api/users",
+        "POST /api/articles",
+        "POST /api/articles/{slug}/favorite",
+        "DELETE /api/articles/{slug}/favorite",
+        "DELETE /api/articles/{slug}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "favourite → favoritesCount increases by one and favorited: true",
+        "favourite again → favoritesCount unchanged",
+        "unfavourite → favoritesCount decreases by one"
+      ]
+    },
+    {
+      "id": "AC-17",
+      "text": "A registered user can sign in on the web app's Sign in page with email and password; afterwards the navigation shows their username and a \"New Article\" link.",
+      "quote": "A registered user can sign in on the web app's Sign in page with email and password; afterwards the navigation shows their username and a \"New Article\" link.",
+      "source": "story.md#L59",
+      "layer": "ui",
+      "endpoints": [
+        "POST /api/users"
+      ],
+      "entryPoint": "web app Sign in page (route and labels: G2)",
+      "needsData": true,
+      "gaps": [
+        "G1",
+        "G2"
+      ],
+      "outcomes": [
+        "after signing in, the navigation shows the user's username",
+        "after signing in, the navigation shows a \"New Article\" link"
+      ]
+    },
+    {
+      "id": "AC-18",
+      "text": "A signed-in writer can publish an article from the editor (\"New Article\"); the article page then shows the title and body, and the article is available from the API under its slug.",
+      "quote": "A signed-in writer can publish an article from the editor (\"New Article\"); the article page then shows the title and body, and the article is available from the API under its slug.",
+      "source": "story.md#L60",
+      "layer": "e2e",
+      "endpoints": [
+        "POST /api/users",
+        "GET /api/articles/{slug}",
+        "DELETE /api/articles/{slug}"
+      ],
+      "entryPoint": "web app editor, opened from the \"New Article\" link after signing in (G2, G3)",
+      "needsData": true,
+      "gaps": [
+        "G1",
+        "G2",
+        "G3"
+      ],
+      "outcomes": [
+        "the article page shows the title that was entered",
+        "the article page shows the body that was entered",
+        "GET /api/articles/{slug} → 200 with that article"
+      ]
+    },
+    {
+      "id": "AC-19",
+      "text": "An anonymous visitor sees \"Sign in\" and \"Sign up\" links in the navigation.",
+      "quote": "An anonymous visitor sees \"Sign in\" and \"Sign up\" links in the navigation.",
+      "source": "story.md#L61",
+      "layer": "ui",
+      "entryPoint": "web app, not signed in; the page to open is not stated (G5), origin from G1",
+      "gaps": [
+        "G1",
+        "G5"
+      ],
+      "outcomes": [
+        "the navigation shows a \"Sign in\" link",
+        "the navigation shows a \"Sign up\" link"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/users",
+      "auth": "none",
+      "request": "{\"user\": {\"username\", \"email\", \"password\"}}",
+      "envelope": "user",
+      "requestFields": [
+        "username",
+        "email",
+        "password"
+      ],
+      "success": "201 {\"user\": {…, \"token\"}}",
+      "source": "attachments/api-contract.md#L8"
+    },
+    {
+      "method": "POST",
+      "path": "/api/users/login",
+      "auth": "none",
+      "request": "{\"user\": {\"email\", \"password\"}}",
+      "envelope": "user",
+      "requestFields": [
+        "email",
+        "password"
+      ],
+      "success": "200 {\"user\": {…, \"token\"}}",
+      "source": "attachments/api-contract.md#L9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/user",
+      "auth": "required",
+      "success": "200 {\"user\": {…}}",
+      "source": "attachments/api-contract.md#L10"
+    },
+    {
+      "method": "GET",
+      "path": "/api/articles",
+      "auth": "optional",
+      "request": "query: author, tag, favorited, limit (1–100, default 20), offset (≥ 0)",
+      "success": "200 {\"articles\": [...], \"articlesCount\"}",
+      "source": "attachments/api-contract.md#L11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/articles/feed",
+      "auth": "required",
+      "request": "query: limit, offset",
+      "success": "200 {\"articles\": [...], \"articlesCount\"}",
+      "source": "attachments/api-contract.md#L12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/articles",
+      "auth": "required",
+      "request": "{\"article\": {\"title\", \"description\", \"body\", \"tagList\"}}",
+      "envelope": "article",
+      "requestFields": [
+        "title",
+        "description",
+        "body",
+        "tagList"
+      ],
+      "success": "201 {\"article\": {…}}",
+      "source": "attachments/api-contract.md#L13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/articles/{slug}",
+      "auth": "optional",
+      "success": "200 {\"article\": {…}}",
+      "source": "attachments/api-contract.md#L14"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/articles/{slug}",
+      "auth": "required",
+      "request": "{\"article\": {…changed fields}} (the article fields of POST /api/articles)",
+      "envelope": "article",
+      "requestFields": [
+        "title",
+        "description",
+        "body",
+        "tagList"
+      ],
+      "success": "200 {\"article\": {…}} (author only)",
+      "source": "attachments/api-contract.md#L15"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/articles/{slug}",
+      "auth": "required",
+      "success": "204 (author only)",
+      "source": "attachments/api-contract.md#L16"
+    },
+    {
+      "method": "POST",
+      "path": "/api/articles/{slug}/comments",
+      "auth": "required",
+      "request": "{\"comment\": {\"body\"}}",
+      "envelope": "comment",
+      "requestFields": [
+        "body"
+      ],
+      "success": "200 {\"comment\": {…}}",
+      "source": "attachments/api-contract.md#L17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/articles/{slug}/comments",
+      "auth": "optional",
+      "success": "200 {\"comments\": [...]}",
+      "source": "attachments/api-contract.md#L18"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/articles/{slug}/comments/{id}",
+      "auth": "required",
+      "success": "200 (comment author only)",
+      "source": "attachments/api-contract.md#L19"
+    },
+    {
+      "method": "POST",
+      "path": "/api/articles/{slug}/favorite",
+      "auth": "required",
+      "success": "200 {\"article\": {…, \"favorited\", \"favoritesCount\"}}",
+      "source": "attachments/api-contract.md#L20"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/articles/{slug}/favorite",
+      "auth": "required",
+      "success": "200 {\"article\": {…}}",
+      "source": "attachments/api-contract.md#L21"
+    },
+    {
+      "method": "POST",
+      "path": "/api/profiles/{username}/follow",
+      "auth": "required",
+      "success": "200 {\"profile\": {…, \"following\": true}}",
+      "source": "attachments/api-contract.md#L22"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "All published content is public: any reader, signed in or not, must be able to discover and read any author's articles and the comments on them.",
+      "source": "story.md#L19"
+    },
+    {
+      "id": "R2",
+      "text": "Article list query: limit 1–100 (default 20), offset ≥ 0.",
+      "source": "attachments/api-contract.md#L11"
+    },
+    {
+      "id": "R3",
+      "text": "JSON bodies use a top-level envelope named after the resource.",
+      "source": "attachments/api-contract.md#L3"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "Validation / taken values",
+      "status": 422,
+      "body": "{\"errors\": {\"<field>\": [\"<message>\", …]}}",
+      "source": "attachments/api-contract.md#L28"
+    },
+    {
+      "id": "E2",
+      "case": "Missing / invalid token; wrong login credentials",
+      "status": 401,
+      "body": "error body",
+      "source": "attachments/api-contract.md#L29"
+    },
+    {
+      "id": "E3",
+      "case": "Authenticated but not permitted (not the owner)",
+      "status": 403,
+      "body": "error body",
+      "source": "attachments/api-contract.md#L30"
+    },
+    {
+      "id": "E4",
+      "case": "Resource not found",
+      "status": 404,
+      "body": "error body",
+      "source": "attachments/api-contract.md#L31"
+    }
+  ],
+  "auth": {
+    "mechanism": "Authorization: Token <jwt> (JWT from register/login)",
+    "credentials": "Tests register their own qa… users through POST /api/users and use the returned token",
+    "source": "attachments/api-contract.md#L4"
+  },
+  "testData": {
+    "strategy": "Tests create their own users through POST /api/users and their own articles through POST /api/articles (and comments/favourites/follows on them) — no pre-existing data is relied on.",
+    "constraints": [
+      "usernames must start with qa",
+      "e-mails at example.com",
+      "accounts cannot be deleted through the API; created users are left in place (uniquely named)"
+    ],
+    "cleanup": "Articles created by tests are deleted afterwards by their author (DELETE /api/articles/{slug}); users are left in place.",
+    "source": "story.md#L69"
+  },
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "origins of the web app and the JSON API",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "*"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19: \"web app + JSON API\"; no host named"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md#L3: \"Base: the environment's API origin\"; no host named"
+        },
+        {
+          "where": "config",
+          "result": "heldout.config.json auts.conduit (evaluation.json aut = conduit): baseURL https://conduit.bondaracademy.com, apiBaseURL https://conduit-api.bondaracademy.com"
+        }
+      ],
+      "resolution": "found-in-config",
+      "value": "web app https://conduit.bondaracademy.com; API https://conduit-api.bondaracademy.com",
+      "evidence": "heldout.config.json → auts.conduit; evaluations/DEMO-707/evaluation.json (aut: conduit)"
+    },
+    {
+      "id": "G2",
+      "element": "web app Sign in page: route, field labels and submit control",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-17",
+        "AC-18"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L59 names the \"Sign in page\" and email + password; no route or labels"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md covers the API only"
+        },
+        {
+          "where": "aut",
+          "result": "inspector on the web app: nav link \"Sign in\" → /login; textboxes \"Email\" and \"Password\" (placeholders); button \"Sign in\""
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "route /login (nav link \"Sign in\"); fill placeholders \"Email\" and \"Password\"; click button \"Sign in\"",
+      "evidence": "evaluations/DEMO-707/hardening/inspect-login.md (tier-3 inspector, 2026-09-26T18:58:36Z); hardening-log.md"
+    },
+    {
+      "id": "G3",
+      "element": "web app editor: how to open it, field labels, publish control, and how to learn the new article's slug",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-18"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L60 names the editor (\"New Article\"); no route, labels or slug source"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md covers the API only"
+        },
+        {
+          "where": "aut",
+          "result": "inspector after sign-in: link \"New Article\" → /editor; textboxes \"Article Title\", \"What's this article about?\", \"Write your article (in markdown)\", \"Enter tags\"; button \"Publish Article\"; after publishing the app navigates to /article/<slug>"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "click link \"New Article\" (/editor); fill placeholders \"Article Title\", \"What's this article about?\", \"Write your article (in markdown)\", \"Enter tags\"; click \"Publish Article\"; read the slug from the resulting /article/<slug> URL",
+      "evidence": "evaluations/DEMO-707/hardening/inspect-editor.md (tier-3 inspector, 2026-09-26T18:59:04Z); hardening-log.md (navigation to /article/<slug> confirmed)"
+    },
+    {
+      "id": "G4",
+      "element": "discovery by tag: the reader user story asks to \"discover articles by author and tag\" and GET /api/articles lists a tag query parameter, but no acceptance criterion covers it. Is discovery by tag part of this story's acceptance, and if so, what must filtering by a tag return?",
+      "kind": "oracle",
+      "required": false,
+      "affects": [],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L24: reader user story \"discover articles by author and tag\"; the Discovery criteria (L46-L48) cover only filtering by author (AC-10), pagination (AC-11) and the feed (AC-12); no criterion mentions tags in the article list"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md#L11: GET /api/articles query parameters include tag; no expected result for a tag filter is stated"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G5",
+      "element": "web app page an anonymous visitor opens to see the navigation (route)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-19"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L61 names only \"the navigation\"; no page or route"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md covers the API only"
+        }
+      ],
+      "resolution": "open"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L19",
+      "as": "R1, context",
+      "note": "public-content rule; underpins AC-10 and AC-14"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "context",
+      "note": "writer user story; realised by AC-5…AC-9, AC-18"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "context, G4",
+      "note": "reader user story; realised by AC-10, AC-12…AC-16. Discovery by tag has no acceptance criterion: recorded as open oracle gap G4"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "context",
+      "note": "platform user story; realised by the error model and AC-16 (safe retries)"
+    },
+    {
+      "lines": "story.md#L31",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L32",
+      "as": "AC-2"
+    },
+    {
+      "lines": "story.md#L33",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L34",
+      "as": "AC-4"
+    },
+    {
+      "lines": "story.md#L38",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L39",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L40",
+      "as": "AC-7"
+    },
+    {
+      "lines": "story.md#L41",
+      "as": "AC-8"
+    },
+    {
+      "lines": "story.md#L42",
+      "as": "AC-9"
+    },
+    {
+      "lines": "story.md#L46",
+      "as": "AC-10"
+    },
+    {
+      "lines": "story.md#L47",
+      "as": "AC-11"
+    },
+    {
+      "lines": "story.md#L48",
+      "as": "AC-12"
+    },
+    {
+      "lines": "story.md#L52",
+      "as": "AC-13"
+    },
+    {
+      "lines": "story.md#L53",
+      "as": "AC-14"
+    },
+    {
+      "lines": "story.md#L54",
+      "as": "AC-15"
+    },
+    {
+      "lines": "story.md#L55",
+      "as": "AC-16"
+    },
+    {
+      "lines": "story.md#L59",
+      "as": "AC-17"
+    },
+    {
+      "lines": "story.md#L60",
+      "as": "AC-18"
+    },
+    {
+      "lines": "story.md#L61",
+      "as": "AC-19"
+    },
+    {
+      "lines": "story.md#L65",
+      "as": "context",
+      "note": "pointer to attachments/api-contract.md, captured as endpoints / error model"
+    },
+    {
+      "lines": "story.md#L69",
+      "as": "test-data"
+    },
+    {
+      "lines": "attachments/api-contract.md#L3",
+      "as": "R3, endpoint, G1",
+      "note": "envelope rule → endpoints[].envelope; API origin comes from config (G1)"
+    },
+    {
+      "lines": "attachments/api-contract.md#L4",
+      "as": "auth"
+    },
+    {
+      "lines": "attachments/api-contract.md#L6",
+      "as": "endpoint",
+      "note": "table header"
+    },
+    {
+      "lines": "attachments/api-contract.md#L8-L10",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L11",
+      "as": "endpoint, R2, G4",
+      "note": "the tag query parameter has no acceptance criterion (G4)"
+    },
+    {
+      "lines": "attachments/api-contract.md#L12-L22",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L26",
+      "as": "error-model",
+      "note": "table header"
+    },
+    {
+      "lines": "attachments/api-contract.md#L28-L31",
+      "as": "error-model"
+    }
+  ]
+}

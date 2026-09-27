@@ -1,0 +1,132 @@
+{
+  "key": "DEMO-606",
+  "verdict": "FAIL",
+  "reason": "1 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-1. Awaiting reviewer confirmation.",
+  "finalRun": "04-eval2",
+  "generatedAt": "2026-09-26T18:12:04.163Z",
+  "autId": "the-internet",
+  "aut": {
+    "name": "The Internet (UI test playground)",
+    "baseURL": "https://the-internet.herokuapp.com",
+    "apiBaseURL": "https://the-internet.herokuapp.com",
+    "testIdAttribute": "data-test",
+    "healthcheck": [
+      "/"
+    ],
+    "notes": "UI only. Some pages load slow third-party assets: the load event can hang."
+  },
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Failure notification is misspelled ('unsuccesful')",
+      "testType": "functional",
+      "source": "story AC-1, ux-copy.md",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-1"
+      ],
+      "tests": [
+        "SCN-001"
+      ],
+      "expected": "[Array []]",
+      "actual": "[\"Action unsuccesful, please try again\"]",
+      "rationale": "AC-1 / ux-copy.md: every notification must be approved copy. The failure outcome reads 'Action unsuccesful, please try again' (missing 'c') instead of the approved 'Action unsuccessful, please try again'. It is intermittent by design, because the server picks the outcome at random; sampling 12 clicks per run made it reproduce every time (3/3 stability repeats and the official run). The success copy is correct, and both outcomes occur (AC-2 passes).",
+      "liveCheck": "Live re-check on 2026-09-26 (tier 3): 20 clicks → 'Action successful' ×11, 'Action unsuccesful, please try again' ×9 (runs/04-eval2/confirm/sample-20.json)",
+      "steps": [
+        "Given I am on the Notification Message page",
+        "When I click \"Click here\" 12 times, reading the notification after each click",
+        "Then each click showed exactly one notification",
+        "And every notification text is one of the approved messages"
+      ],
+      "api": null,
+      "screenshot": "evaluations/DEMO-606/runs/04-eval2/artifacts/DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-retry1/test-failed-1.png",
+      "apiSequence": null,
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-606 --label repro --grep \"SCN-001:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "functional",
+      "scenarios": 2,
+      "tests": 2,
+      "passed": 1,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "On the Notification Message page (/notification_message_rendered), each click on \"Click here\" shows exactly one notification, and its text is one of the approved messages in ux-copy.md.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "Every notification uses approved copy",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-1, ux-copy.md"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "Across repeated clicks, both outcomes (success and failure) can occur.",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "Both outcomes occur across repeated clicks",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-2, ux-copy.md"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [],
+  "verdictFile": "evaluations/DEMO-606/verdict.md"
+}

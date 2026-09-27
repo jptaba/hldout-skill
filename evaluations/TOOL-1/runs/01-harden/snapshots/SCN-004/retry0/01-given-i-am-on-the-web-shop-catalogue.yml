@@ -1,0 +1,9 @@
+# url: https://practicesoftwaretesting.com/
+# step: Given I am on the web shop catalogue
+- text: View the
+- link "Documentation":
+  - /url: https://testsmith-io.github.io/practice-software-testing/#/
+- text: for this application. Practice Black Box Testing & Bug Hunting
+- button "Testing Guide"
+- button "🐛 Bug Hunting"
+- button "Show live shop activity"

@@ -1,0 +1,485 @@
+{
+  "key": "TOOLB-2",
+  "title": "Release-candidate check — shopping cart for guests",
+  "revision": {
+    "story": "2a3d7ad2fa54825e",
+    "attachments": {}
+  },
+  "context": "Guests (not signed in) collect products in a cart before checkout; the web shop keeps the cart across page views and the cart API is also used by the mobile app. This story re-checks the same acceptance criteria as TOOL-3 on the release-candidate environment before promotion (story.md#L17, #L19).",
+  "actors": [
+    "guest (not signed in)"
+  ],
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "Acceptance-criteria table (L21-L30, AC-1..AC-8), context and auth (L17, L19), test data (L32). No attachments (L36)."
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "text": "POST /carts creates an empty cart and responds 201 with its id.",
+      "quote": "`POST /carts` creates an empty cart and responds 201 with its `id`.",
+      "source": "story.md#L23",
+      "layer": "api",
+      "endpoints": [
+        "POST /carts"
+      ],
+      "outcomes": [
+        "POST /carts → 201",
+        "the response contains the new cart's id",
+        "the new cart is empty (no products)"
+      ],
+      "gaps": [
+        "G2"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "POST /carts/{id} with product_id and a quantity from 1 to 99 adds the product (200); adding a product already in the cart increases its quantity by the amount added.",
+      "quote": "`POST /carts/{id}` with `product_id` and a `quantity` from 1 to 99 adds the product (200); adding a product already in the cart increases its quantity by the amount added.",
+      "source": "story.md#L24",
+      "layer": "api",
+      "endpoints": [
+        "POST /carts",
+        "POST /carts/{id}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "quantity 1 → 200 and the cart contains the product with quantity 1",
+        "quantity 99 → 200 and the cart contains the product with quantity 99",
+        "adding a product that is already in the cart increases its quantity by the amount added"
+      ],
+      "gaps": [
+        "G2",
+        "G3",
+        "G8"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "A quantity outside 1–99 is rejected with 422 and an error for the quantity field; the cart is unchanged.",
+      "quote": "A quantity outside 1–99 is rejected with 422 and an error for the `quantity` field; the cart is unchanged.",
+      "source": "story.md#L25",
+      "layer": "api",
+      "endpoints": [
+        "POST /carts",
+        "POST /carts/{id}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "quantity 0 → 422",
+        "quantity 100 → 422",
+        "the response carries an error for the `quantity` field",
+        "the cart is unchanged (same products and quantities as before the rejected request)"
+      ],
+      "gaps": [
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "On a product page, choosing a quantity and pressing \"Add to cart\" shows \"Product added to shopping cart.\" and the cart icon in the navigation shows the total number of items.",
+      "quote": "On a product page, choosing a quantity and pressing \"Add to cart\" shows \"Product added to shopping cart.\" and the cart icon in the navigation shows the total number of items.",
+      "source": "story.md#L26",
+      "layer": "ui",
+      "entryPoint": "a product page of an in-stock product (route: G4)",
+      "needsData": true,
+      "outcomes": [
+        "the message \"Product added to shopping cart.\" is shown",
+        "the cart icon in the navigation shows the total number of items in the cart (meaning of \"total number of items\": G5)"
+      ],
+      "gaps": [
+        "G3",
+        "G4",
+        "G5"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "The cart page (checkout step 1) lists each product with its quantity, unit price and line total (price × quantity), and the cart total.",
+      "quote": "The cart page (checkout step 1) lists each product with its quantity, unit price and line total (price × quantity), and the cart total.",
+      "source": "story.md#L27",
+      "layer": "ui",
+      "entryPoint": "the cart page (checkout step 1), reached with products already in the cart (route: G4)",
+      "needsData": true,
+      "outcomes": [
+        "every product in the cart is listed with its quantity",
+        "every listed product shows its unit price",
+        "every listed product shows a line total equal to unit price × quantity",
+        "the cart total is shown (how it is computed: G6)"
+      ],
+      "gaps": [
+        "G3",
+        "G4",
+        "G6"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "DELETE /carts/{id}/product/{productId} removes the product (204); the cart no longer lists it.",
+      "quote": "`DELETE /carts/{id}/product/{productId}` removes the product (204); the cart no longer lists it.",
+      "source": "story.md#L28",
+      "layer": "api",
+      "endpoints": [
+        "POST /carts",
+        "POST /carts/{id}",
+        "DELETE /carts/{id}/product/{productId}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "DELETE /carts/{id}/product/{productId} → 204",
+        "the cart no longer lists the removed product"
+      ],
+      "gaps": [
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204.",
+      "quote": "Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204.",
+      "source": "story.md#L29",
+      "layer": "api",
+      "endpoints": [
+        "POST /carts"
+      ],
+      "outcomes": [
+        "deleting a cart → 204",
+        "deleting the same, already deleted cart again → 204"
+      ],
+      "gaps": [
+        "G1",
+        "G7"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Any request for a cart that does not exist responds 404 with the message \"Cart not found\".",
+      "quote": "Any request for a cart that does not exist responds 404 with the message \"Cart not found\".",
+      "source": "story.md#L30",
+      "layer": "api",
+      "endpoints": [
+        "POST /carts/{id}",
+        "DELETE /carts/{id}/product/{productId}"
+      ],
+      "outcomes": [
+        "each request for a cart id that does not exist → 404",
+        "the response carries the message \"Cart not found\""
+      ],
+      "gaps": [
+        "G2",
+        "G7"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/carts",
+      "auth": "none",
+      "request": "no body stated",
+      "success": "201 with the cart's id (AC-1)",
+      "source": "story.md#L23"
+    },
+    {
+      "method": "POST",
+      "path": "/carts/{id}",
+      "auth": "none",
+      "request": "product_id and quantity (1 to 99); wrapper/envelope not stated",
+      "requestFields": [
+        "product_id",
+        "quantity"
+      ],
+      "success": "200 (AC-2)",
+      "source": "story.md#L24"
+    },
+    {
+      "method": "DELETE",
+      "path": "/carts/{id}/product/{productId}",
+      "auth": "none",
+      "success": "204 (AC-6)",
+      "source": "story.md#L28"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "The quantity added to a cart must be from 1 to 99; a quantity outside 1–99 is rejected.",
+      "source": "story.md#L24"
+    },
+    {
+      "id": "R2",
+      "text": "Line total = price × quantity.",
+      "source": "story.md#L27"
+    },
+    {
+      "id": "R3",
+      "text": "The web shop keeps the cart across page views.",
+      "source": "story.md#L19"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "quantity outside 1–99 when adding a product to a cart",
+      "status": 422,
+      "body": "an error for the quantity field",
+      "source": "story.md#L25"
+    },
+    {
+      "id": "E2",
+      "case": "any request for a cart that does not exist",
+      "status": 404,
+      "body": "Cart not found",
+      "source": "story.md#L30"
+    }
+  ],
+  "auth": {
+    "mechanism": "none: guests are not signed in and carts are anonymous",
+    "source": "story.md#L19"
+  },
+  "testData": {
+    "strategy": "Each test creates its own anonymous cart (POST /carts) and deletes it afterwards; products: any product that is in stock (how to find one: G3).",
+    "constraints": [
+      "use only products that are in stock",
+      "carts are anonymous: never reuse another test's cart",
+      "AC-8 needs a cart id that does not exist (e.g. a cart this test created and deleted), see G7 for DELETE of a cart"
+    ],
+    "cleanup": "delete every cart the test created (endpoint: G1)",
+    "source": "story.md#L32"
+  },
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "endpoint (method and path) for deleting a cart",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L29 says \"Deleting a cart\" but names no method or path; the only DELETE path given is for removing a product (L28)"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G2",
+      "element": "endpoint (method and path) for reading a cart's contents (products and quantities)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-6",
+        "AC-8"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L23 \"empty cart\", L24 \"increases its quantity\", L25 \"the cart is unchanged\", L28 \"the cart no longer lists it\" and L30 \"Any request for a cart\" all need the cart's contents or a read request, but no read endpoint is named"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G3",
+      "element": "how to find an in-stock product (its id for product_id, and its product page)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L32: \"any product that is in stock\"; no product id, lookup endpoint or stock indicator is named"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G4",
+      "element": "web shop routes and controls: product page, quantity control, cart icon in the navigation, cart page (checkout step 1) and its per-product quantity / unit price / line total and cart total",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-4",
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L26 names the \"Add to cart\" button and the cart icon in the navigation; L27 calls the cart page \"checkout step 1\"; no routes or other labels"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G5",
+      "element": "what \"the total number of items\" on the cart icon counts: the sum of the quantities in the cart, or the number of distinct products",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-4"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L26: \"choosing a quantity ... the cart icon in the navigation shows the total number of items\"; not defined further"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "the sum of the quantities of all products in the cart (each unit counts as an item)"
+    },
+    {
+      "id": "G6",
+      "element": "how \"the cart total\" on the cart page is computed (sum of the line totals? anything added or deducted?)",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L27 defines the line total (price × quantity) but only says \"and the cart total\", with no formula"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "the cart total equals the sum of the line totals"
+    },
+    {
+      "id": "G7",
+      "element": "conflict: AC-7 (L29) says deleting a cart that was already deleted responds 204; AC-8 (L30) says any request for a cart that does not exist responds 404. Which applies to DELETE of a deleted (or never-created) cart?",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-7",
+        "AC-8"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L29: already-deleted cart → 204; L30: any request for a non-existent cart → 404; neither line says it supersedes the other"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "AC-7 is the specific exception for deleting a cart: DELETE of an already deleted cart → 204. AC-8 (404, \"Cart not found\") is checked with the other requests for a non-existent cart (read, add product, remove product). DELETE of a cart id that was never created is not evaluated."
+    },
+    {
+      "id": "G8",
+      "element": "does the 1–99 limit apply to the resulting quantity when a product already in the cart is added again (e.g. a line at 99 plus 1)?",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-2",
+        "AC-3"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L24 bounds the quantity sent in the request and says a repeat add increases the quantity by the amount added; L25 rejects \"a quantity outside 1–99\"; neither says whether the accumulated quantity is bounded"
+        },
+        {
+          "where": "attachments",
+          "result": "none (L36: _None_)"
+        }
+      ],
+      "resolution": "open"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17",
+      "as": "context",
+      "note": "Target environment (release candidate, AUT profile toolshop-rc) and cross-reference to TOOL-3; the criteria themselves are listed in full at L23-L30 and are cited from there."
+    },
+    {
+      "lines": "story.md#L19",
+      "as": "R3, auth, context",
+      "note": "Guests not signed in → no auth; \"keeps the cart across page views\" → R3 (exercised by the AC-4 → AC-5 journey); mobile-app use of the cart API is context."
+    },
+    {
+      "lines": "story.md#L21",
+      "as": "not-a-requirement",
+      "note": "Header row of the acceptance-criteria table (ID | Criterion | Layer)."
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "AC-2, R1"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "AC-3, R1"
+    },
+    {
+      "lines": "story.md#L26",
+      "as": "AC-4"
+    },
+    {
+      "lines": "story.md#L27",
+      "as": "AC-5, R2"
+    },
+    {
+      "lines": "story.md#L28",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L29",
+      "as": "AC-7, G7"
+    },
+    {
+      "lines": "story.md#L30",
+      "as": "AC-8, G7"
+    },
+    {
+      "lines": "story.md#L32",
+      "as": "test-data, auth",
+      "note": "Any in-stock product; carts are anonymous, tests create and delete their own."
+    }
+  ]
+}

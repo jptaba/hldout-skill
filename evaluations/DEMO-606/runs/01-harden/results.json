@@ -1,0 +1,328 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/DEMO-606/tests/",
+      "--workers",
+      "2"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/DEMO-606/runs/01-harden/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "DEMO-606\\tests\\demo-606.spec.ts",
+      "file": "DEMO-606/tests/demo-606.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "DEMO-606 Practice portal — notification copy",
+          "file": "DEMO-606/tests/demo-606.spec.ts",
+          "line": 40,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001: Every notification uses approved copy",
+              "ok": false,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12368,
+                      "error": {
+                        "message": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n",
+                        "stack": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n\n    at sample (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:35:59)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:44:123\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:44:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                          "column": 59,
+                          "line": 35
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 34 |\u001b[39m     counts\u001b[33m.\u001b[39mpush(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mcount())\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 35 |\u001b[39m     texts\u001b[33m.\u001b[39mpush(copyOf(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39minnerText()))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 36 |\u001b[39m   }\n \u001b[90m 37 |\u001b[39m   \u001b[36mreturn\u001b[39m { counts\u001b[33m,\u001b[39m texts }\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                            "column": 59,
+                            "line": 35
+                          },
+                          "message": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n\n\n  33 |     await page.waitForLoadState('domcontentloaded');\n  34 |     counts.push(await ui(page).notification.count());\n> 35 |     texts.push(copyOf(await ui(page).notification.first().innerText()));\n     |                                                           ^\n  36 |   }\n  37 |   return { counts, texts };\n  38 | }\n    at sample (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:35:59)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:44:123\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:44:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Notification Message page",
+                          "duration": 1813
+                        },
+                        {
+                          "title": "When I click \"Click here\" 12 times, reading the notification after each click",
+                          "duration": 10341,
+                          "error": {
+                            "message": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n",
+                            "stack": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n\n    at sample (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:35:59)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:44:123\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:44:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                              "column": 59,
+                              "line": 35
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 34 |\u001b[39m     counts\u001b[33m.\u001b[39mpush(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mcount())\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 35 |\u001b[39m     texts\u001b[33m.\u001b[39mpush(copyOf(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39minnerText()))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 36 |\u001b[39m   }\n \u001b[90m 37 |\u001b[39m   \u001b[36mreturn\u001b[39m { counts\u001b[33m,\u001b[39m texts }\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m }\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:06:01.968Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-notification-message-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBHaXZlbiBJIGFtIG9uIHRoZSBOb3RpZmljYXRpb24gTWVzc2FnZSBwYWdlCi0gbGluayAiRm9yayBtZSBvbiBHaXRIdWIiOgogIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3RvdXJkZWRhdmUvdGhlLWludGVybmV0CiAgLSBpbWcgIkZvcmsgbWUgb24gR2l0SHViIgotIGhlYWRpbmcgIk5vdGlmaWNhdGlvbiBNZXNzYWdlIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBUaGUgbWVzc2FnZSBkaXNwbGF5ZWQgYWJvdmUgdGhlIGhlYWRpbmcgaXMgYSBub3RpZmljYXRpb24gbWVzc2FnZS4gSXQgaXMgb2Z0ZW4gdXNlZCB0byBjb252ZXkgaW5mb3JtYXRpb24gYWJvdXQgYW4gYWN0aW9uIHByZXZpb3VzbHkgdGFrZW4gYnkgdGhlIHVzZXIuIFNvbWUgcnVkaW1lbnRhcnkgZXhhbXBsZXMgaW5jbHVkZSAnQWN0aW9uIHN1Y2Nlc3NmdWwnLCAnQWN0aW9uIHVuc3VjY2Vzc2Z1bCwgcGxlYXNlIHRyeSBhZ2FpbicsIGV0Yy4KICAtIGxpbmsgIkNsaWNrIGhlcmUiOgogICAgLSAvdXJsOiAvbm90aWZpY2F0aW9uX21lc3NhZ2UKICAtIHRleHQ6IHRvIGxvYWQgYSBuZXcgbWVzc2FnZS4KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-click-click-here-12-times-reading-the-notifica",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBGQUlMRUQgV2hlbiBJIGNsaWNrICJDbGljayBoZXJlIiAxMiB0aW1lcywgcmVhZGluZyB0aGUgbm90aWZpY2F0aW9uIGFmdGVyIGVhY2ggY2xpY2sKLSB0ZXh0OiDvgaogQWN0aW9uIHVuc3VjY2VzZnVsLCBwbGVhc2UgdHJ5IGFnYWluCi0gbGluayAiw5ciOgogIC0gL3VybDogIiMiCi0gbGluayAiRm9yayBtZSBvbiBHaXRIdWIiOgogIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3RvdXJkZWRhdmUvdGhlLWludGVybmV0CiAgLSBpbWcgIkZvcmsgbWUgb24gR2l0SHViIgotIGhlYWRpbmcgIk5vdGlmaWNhdGlvbiBNZXNzYWdlIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBUaGUgbWVzc2FnZSBkaXNwbGF5ZWQgYWJvdmUgdGhlIGhlYWRpbmcgaXMgYSBub3RpZmljYXRpb24gbWVzc2FnZS4gSXQgaXMgb2Z0ZW4gdXNlZCB0byBjb252ZXkgaW5mb3JtYXRpb24gYWJvdXQgYW4gYWN0aW9uIHByZXZpb3VzbHkgdGFrZW4gYnkgdGhlIHVzZXIuIFNvbWUgcnVkaW1lbnRhcnkgZXhhbXBsZXMgaW5jbHVkZSAnQWN0aW9uIHN1Y2Nlc3NmdWwnLCAnQWN0aW9uIHVuc3VjY2Vzc2Z1bCwgcGxlYXNlIHRyeSBhZ2FpbicsIGV0Yy4KICAtIGxpbmsgIkNsaWNrIGhlcmUiOgogICAgLSAvdXJsOiAvbm90aWZpY2F0aW9uX21lc3NhZ2UKICAtIHRleHQ6IHRvIGxvYWQgYSBuZXcgbWVzc2FnZS4KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\artifacts\\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\artifacts\\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\artifacts\\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                        "column": 59,
+                        "line": 35
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e547fdbd376679e10de0-ee46b2a903410c67301f",
+              "file": "DEMO-606/tests/demo-606.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "SCN-002: Both outcomes occur across repeated clicks",
+              "ok": false,
+              "tags": [
+                "AC-2",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 12890,
+                      "error": {
+                        "message": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n",
+                        "stack": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n\n    at sample (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:35:59)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:57:109\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:57:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                          "column": 59,
+                          "line": 35
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 34 |\u001b[39m     counts\u001b[33m.\u001b[39mpush(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mcount())\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 35 |\u001b[39m     texts\u001b[33m.\u001b[39mpush(copyOf(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39minnerText()))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 36 |\u001b[39m   }\n \u001b[90m 37 |\u001b[39m   \u001b[36mreturn\u001b[39m { counts\u001b[33m,\u001b[39m texts }\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                            "column": 59,
+                            "line": 35
+                          },
+                          "message": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n\n\n  33 |     await page.waitForLoadState('domcontentloaded');\n  34 |     counts.push(await ui(page).notification.count());\n> 35 |     texts.push(copyOf(await ui(page).notification.first().innerText()));\n     |                                                           ^\n  36 |   }\n  37 |   return { counts, texts };\n  38 | }\n    at sample (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:35:59)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:57:109\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:57:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Notification Message page",
+                          "duration": 1801
+                        },
+                        {
+                          "title": "When I click \"Click here\" 12 times, noting each outcome",
+                          "duration": 10886,
+                          "error": {
+                            "message": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n",
+                            "stack": "TimeoutError: locator.innerText: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('alert').first()\u001b[22m\n\n    at sample (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:35:59)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:57:109\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:57:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                              "column": 59,
+                              "line": 35
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 34 |\u001b[39m     counts\u001b[33m.\u001b[39mpush(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mcount())\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 35 |\u001b[39m     texts\u001b[33m.\u001b[39mpush(copyOf(\u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39minnerText()))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 36 |\u001b[39m   }\n \u001b[90m 37 |\u001b[39m   \u001b[36mreturn\u001b[39m { counts\u001b[33m,\u001b[39m texts }\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m }\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:06:01.984Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-notification-message-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBHaXZlbiBJIGFtIG9uIHRoZSBOb3RpZmljYXRpb24gTWVzc2FnZSBwYWdlCi0gbGluayAiRm9yayBtZSBvbiBHaXRIdWIiOgogIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3RvdXJkZWRhdmUvdGhlLWludGVybmV0CiAgLSBpbWcgIkZvcmsgbWUgb24gR2l0SHViIgotIGhlYWRpbmcgIk5vdGlmaWNhdGlvbiBNZXNzYWdlIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBUaGUgbWVzc2FnZSBkaXNwbGF5ZWQgYWJvdmUgdGhlIGhlYWRpbmcgaXMgYSBub3RpZmljYXRpb24gbWVzc2FnZS4gSXQgaXMgb2Z0ZW4gdXNlZCB0byBjb252ZXkgaW5mb3JtYXRpb24gYWJvdXQgYW4gYWN0aW9uIHByZXZpb3VzbHkgdGFrZW4gYnkgdGhlIHVzZXIuIFNvbWUgcnVkaW1lbnRhcnkgZXhhbXBsZXMgaW5jbHVkZSAnQWN0aW9uIHN1Y2Nlc3NmdWwnLCAnQWN0aW9uIHVuc3VjY2Vzc2Z1bCwgcGxlYXNlIHRyeSBhZ2FpbicsIGV0Yy4KICAtIGxpbmsgIkNsaWNrIGhlcmUiOgogICAgLSAvdXJsOiAvbm90aWZpY2F0aW9uX21lc3NhZ2UKICAtIHRleHQ6IHRvIGxvYWQgYSBuZXcgbWVzc2FnZS4KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-click-click-here-12-times-noting-each-outcome",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBGQUlMRUQgV2hlbiBJIGNsaWNrICJDbGljayBoZXJlIiAxMiB0aW1lcywgbm90aW5nIGVhY2ggb3V0Y29tZQotIHRleHQ6IO+BqiBBY3Rpb24gc3VjY2Vzc2Z1bAotIGxpbmsgIsOXIjoKICAtIC91cmw6ICIjIgotIGxpbmsgIkZvcmsgbWUgb24gR2l0SHViIjoKICAtIC91cmw6IGh0dHBzOi8vZ2l0aHViLmNvbS90b3VyZGVkYXZlL3RoZS1pbnRlcm5ldAogIC0gaW1nICJGb3JrIG1lIG9uIEdpdEh1YiIKLSBoZWFkaW5nICJOb3RpZmljYXRpb24gTWVzc2FnZSIgW2xldmVsPTNdCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogVGhlIG1lc3NhZ2UgZGlzcGxheWVkIGFib3ZlIHRoZSBoZWFkaW5nIGlzIGEgbm90aWZpY2F0aW9uIG1lc3NhZ2UuIEl0IGlzIG9mdGVuIHVzZWQgdG8gY29udmV5IGluZm9ybWF0aW9uIGFib3V0IGFuIGFjdGlvbiBwcmV2aW91c2x5IHRha2VuIGJ5IHRoZSB1c2VyLiBTb21lIHJ1ZGltZW50YXJ5IGV4YW1wbGVzIGluY2x1ZGUgJ0FjdGlvbiBzdWNjZXNzZnVsJywgJ0FjdGlvbiB1bnN1Y2Nlc3NmdWwsIHBsZWFzZSB0cnkgYWdhaW4nLCBldGMuCiAgLSBsaW5rICJDbGljayBoZXJlIjoKICAgIC0gL3VybDogL25vdGlmaWNhdGlvbl9tZXNzYWdlCiAgLSB0ZXh0OiB0byBsb2FkIGEgbmV3IG1lc3NhZ2UuCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\artifacts\\DEMO-606-tests-demo-606-DE-d15c0-ccur-across-repeated-clicks-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\artifacts\\DEMO-606-tests-demo-606-DE-d15c0-ccur-across-repeated-clicks-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\runs\\01-harden\\artifacts\\DEMO-606-tests-demo-606-DE-d15c0-ccur-across-repeated-clicks-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts",
+                        "column": 59,
+                        "line": 35
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e547fdbd376679e10de0-337b946547b844864c25",
+              "file": "DEMO-606/tests/demo-606.spec.ts",
+              "line": 54,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T18:06:01.130Z",
+    "duration": 14645.381,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

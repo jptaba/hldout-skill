@@ -1,0 +1,10 @@
+<testsuites id="" name="" tests="3" failures="0" skipped="0" errors="0" time="6.49735">
+<testsuite name="DEMO-707\tests\demo-707.spec.ts" timestamp="2026-09-26T19:15:41.004Z" hostname="chromium" tests="3" failures="0" skipped="0" time="10.351" errors="0">
+<testcase name="DEMO-707 Conduit platform core › SCN-021: A registered user signs in on the web app" classname="DEMO-707\tests\demo-707.spec.ts" time="3.338">
+</testcase>
+<testcase name="DEMO-707 Conduit platform core › SCN-022: A writer publishes an article from the editor" classname="DEMO-707\tests\demo-707.spec.ts" time="4.822">
+</testcase>
+<testcase name="DEMO-707 Conduit platform core › SCN-023: An anonymous visitor sees Sign in and Sign up" classname="DEMO-707\tests\demo-707.spec.ts" time="2.191">
+</testcase>
+</testsuite>
+</testsuites>

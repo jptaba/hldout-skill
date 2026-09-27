@@ -1,0 +1,30 @@
+# url: https://www.saucedemo.com/checkout-step-one.html
+# step: And I continue with Last Name and Postal Code but no First Name
+- banner:
+  - button "Open Menu"
+  - img "Open Menu"
+  - text: Swag Labs
+  - button "Cart, 1 items": "1"
+  - text: "Checkout: Your Information"
+- main:
+  - form "Checkout information":
+    - textbox "First Name"
+    - textbox "Last Name": Shopper
+    - textbox "Zip/Postal Code": "90210"
+    - alert:
+      - button "Dismiss error"
+      - text: "Error: First Name is required"
+    - button "Cancel"
+    - button "Continue"
+- contentinfo:
+  - list:
+    - listitem:
+      - link "X":
+        - /url: https://x.com/saucelabs
+    - listitem:
+      - link "Facebook":
+        - /url: https://www.facebook.com/saucelabs
+    - listitem:
+      - link "LinkedIn":
+        - /url: https://www.linkedin.com/company/sauce-labs/
+  - text: © 2026 Sauce Labs. All Rights Reserved. Terms of Service | Privacy Policy

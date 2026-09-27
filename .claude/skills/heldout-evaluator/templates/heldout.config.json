@@ -1,0 +1,29 @@
+{
+  "defaultAut": "app",
+  "auts": {
+    "app": {
+      "name": "Application Under Test",
+      "baseURL": "http://localhost:3000",
+      "apiBaseURL": "http://localhost:3000",
+      "testIdAttribute": "data-testid",
+      "healthcheck": ["/"],
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json."
+    }
+  },
+  "jira": {
+    "mode": "mock",
+    "mockRoot": "mock-jira",
+    "baseUrl": "https://your-domain.atlassian.net",
+    "acceptanceCriteriaField": "",
+    "verdictLabelPrefix": "heldout-"
+  },
+  "evaluationsDir": "evaluations",
+  "run": {
+    "retries": 1,
+    "workers": 4,
+    "headless": true,
+    "actionTimeoutMs": 10000,
+    "expectTimeoutMs": 5000,
+    "testTimeoutMs": 60000
+  }
+}

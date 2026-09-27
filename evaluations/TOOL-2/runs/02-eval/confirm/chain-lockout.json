@@ -1,0 +1,10 @@
+{ "vars": { "pw": "${env:TOOLSHOP_CUSTOMER_PASSWORD}" },
+  "steps": [
+  { "name": "register a dedicated customer", "setup": true, "method": "POST", "path": "/users/register", "json": { "first_name": "Qa", "last_name": "Lock${uid}", "dob": "1990-01-01", "phone": "0612345678", "address": { "street": "Main 1", "city": "Utrecht", "state": "UT", "country": "NL", "postal_code": "1234AB" }, "email": "qalock${uid}@example.com", "password": "${pw}" }, "expect": 201 },
+  { "name": "wrong password #1", "method": "POST", "path": "/users/login", "json": { "email": "qalock${uid}@example.com", "password": "wrong-1-Pw!" }, "expect": 401, "show": ["error"] },
+  { "name": "wrong password #2", "method": "POST", "path": "/users/login", "json": { "email": "qalock${uid}@example.com", "password": "wrong-2-Pw!" }, "expect": 401, "show": ["error"] },
+  { "name": "wrong password #3", "method": "POST", "path": "/users/login", "json": { "email": "qalock${uid}@example.com", "password": "wrong-3-Pw!" }, "expect": 401, "show": ["error"] },
+  { "name": "wrong password #4 (story: still 401)", "method": "POST", "path": "/users/login", "json": { "email": "qalock${uid}@example.com", "password": "wrong-4-Pw!" }, "expect": 401, "show": ["error"] },
+  { "name": "wrong password #5 (story: still 401)", "method": "POST", "path": "/users/login", "json": { "email": "qalock${uid}@example.com", "password": "wrong-5-Pw!" }, "expect": 401, "show": ["error"] },
+  { "name": "6th attempt, correct password (story: 423)", "method": "POST", "path": "/users/login", "json": { "email": "qalock${uid}@example.com", "password": "${pw}" }, "expect": 423, "show": ["error"] }
+] }

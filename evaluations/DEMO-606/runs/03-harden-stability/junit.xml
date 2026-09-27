@@ -1,0 +1,170 @@
+<testsuites id="" name="" tests="6" failures="3" skipped="0" errors="0" time="33.089722">
+<testsuite name="DEMO-606\tests\demo-606.spec.ts" timestamp="2026-09-26T18:09:42.700Z" hostname="chromium" tests="2" failures="1" skipped="0" time="8.558" errors="0">
+<testcase name="DEMO-606 Practice portal — notification copy › SCN-001: Every notification uses approved copy" classname="DEMO-606\tests\demo-606.spec.ts" time="4.731">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-1] only approved copy (seen: Action unsuccesful, please try again | Action successful)" type="expect.toEqual">
+<![CDATA[  [chromium] › DEMO-606\tests\demo-606.spec.ts:42:3 › DEMO-606 Practice portal — notification copy › SCN-001: Every notification uses approved copy @AC-1 @type:functional @layer:ui @P2 › And every notification text is one of the approved messages 
+
+    Error: [REQ AC-1] only approved copy (seen: Action unsuccesful, please try again | Action successful)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Action unsuccesful, please try again",
+    + ]
+
+      49 |     await journey.step('And every notification text is one of the approved messages', async () => {
+      50 |       const offCopy = [...new Set(s.texts.filter((t) => !(REQ.APPROVED as readonly string[]).includes(t)))];
+    > 51 |       expect.soft(offCopy, `[REQ AC-1] only approved copy (seen: ${[...new Set(s.texts)].join(' | ')})`).toEqual([]);
+         |                                                                                                          ^
+      52 |     });
+      53 |   });
+      54 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-606\tests\demo-606.spec.ts:51:106)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-606\tests\demo-606.spec.ts:49:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-606 Practice portal — notification copy › SCN-002: Both outcomes occur across repeated clicks" classname="DEMO-606\tests\demo-606.spec.ts" time="3.827">
+</testcase>
+</testsuite>
+<testsuite name="DEMO-606\tests\demo-606.spec.ts" timestamp="2026-09-26T18:09:42.700Z" hostname="chromium" tests="2" failures="1" skipped="0" time="7.638" errors="0">
+<testcase name="DEMO-606 Practice portal — notification copy › SCN-001: Every notification uses approved copy" classname="DEMO-606\tests\demo-606.spec.ts" time="3.897">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-1] only approved copy (seen: Action successful | Action unsuccesful, please try again)" type="expect.toEqual">
+<![CDATA[  [chromium] › DEMO-606\tests\demo-606.spec.ts:42:3 › DEMO-606 Practice portal — notification copy › SCN-001: Every notification uses approved copy @AC-1 @type:functional @layer:ui @P2 › And every notification text is one of the approved messages 
+
+    Error: [REQ AC-1] only approved copy (seen: Action successful | Action unsuccesful, please try again)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Action unsuccesful, please try again",
+    + ]
+
+      49 |     await journey.step('And every notification text is one of the approved messages', async () => {
+      50 |       const offCopy = [...new Set(s.texts.filter((t) => !(REQ.APPROVED as readonly string[]).includes(t)))];
+    > 51 |       expect.soft(offCopy, `[REQ AC-1] only approved copy (seen: ${[...new Set(s.texts)].join(' | ')})`).toEqual([]);
+         |                                                                                                          ^
+      52 |     });
+      53 |   });
+      54 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-606\tests\demo-606.spec.ts:51:106)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-606\tests\demo-606.spec.ts:49:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-606 Practice portal — notification copy › SCN-002: Both outcomes occur across repeated clicks" classname="DEMO-606\tests\demo-606.spec.ts" time="3.741">
+</testcase>
+</testsuite>
+<testsuite name="DEMO-606\tests\demo-606.spec.ts" timestamp="2026-09-26T18:09:42.700Z" hostname="chromium" tests="2" failures="1" skipped="0" time="8.385" errors="0">
+<testcase name="DEMO-606 Practice portal — notification copy › SCN-001: Every notification uses approved copy" classname="DEMO-606\tests\demo-606.spec.ts" time="4.274">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-1] only approved copy (seen: Action successful | Action unsuccesful, please try again)" type="expect.toEqual">
+<![CDATA[  [chromium] › DEMO-606\tests\demo-606.spec.ts:42:3 › DEMO-606 Practice portal — notification copy › SCN-001: Every notification uses approved copy @AC-1 @type:functional @layer:ui @P2 › And every notification text is one of the approved messages 
+
+    Error: [REQ AC-1] only approved copy (seen: Action successful | Action unsuccesful, please try again)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Action unsuccesful, please try again",
+    + ]
+
+      49 |     await journey.step('And every notification text is one of the approved messages', async () => {
+      50 |       const offCopy = [...new Set(s.texts.filter((t) => !(REQ.APPROVED as readonly string[]).includes(t)))];
+    > 51 |       expect.soft(offCopy, `[REQ AC-1] only approved copy (seen: ${[...new Set(s.texts)].join(' | ')})`).toEqual([]);
+         |                                                                                                          ^
+      52 |     });
+      53 |   });
+      54 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-606\tests\demo-606.spec.ts:51:106)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:289:34
+        at D:\projects\hldout-skill\evaluations\DEMO-606\tests\demo-606.spec.ts:49:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-606\runs\03-harden-stability\artifacts\DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-606 Practice portal — notification copy › SCN-002: Both outcomes occur across repeated clicks" classname="DEMO-606\tests\demo-606.spec.ts" time="4.111">
+</testcase>
+</testsuite>
+</testsuites>

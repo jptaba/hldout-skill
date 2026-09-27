@@ -1,0 +1,59 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-27T00:55:54Z",
+  "contractHash": "436c787a8da8f8ee",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "evidence-pack.md#L23 (story.md#L23)",
+      "note": "Quote is verbatim from L23. text/outcomes add no new condition: both the caption \"name: user<N>\" and the \"View profile\" link are stated, tied to the N-th avatar, and 'revealed by hover' is a direct reading of 'reveals'. layer=ui matches a hover-driven UI interaction."
+    },
+    {
+      "ref": "AC-2",
+      "verdict": "supported",
+      "evidence": "evidence-pack.md#L24 (story.md#L24)",
+      "note": "Quote is verbatim from L24. Both outcomes (42->42, abc->empty) match the two examples literally given; no generalisation beyond the stated examples is asserted (consistent with G2). layer=ui matches a typing/field interaction."
+    },
+    {
+      "ref": "AC-3",
+      "verdict": "supported",
+      "evidence": "evidence-pack.md#L25 (story.md#L25)",
+      "note": "Quote is verbatim from L25. The outcome ('a notification is shown after the click') is the literal, testable part of the sentence; the dropped adjective 'appropriate' is not silently discarded but explicitly deferred via gap G1, listed in AC-3's gaps. layer=ui matches a click interaction."
+    },
+    {
+      "ref": "G1",
+      "verdict": "supported",
+      "evidence": "evidence-pack.md#L19, #L25, #L33",
+      "note": "L25 states 'shows an appropriate notification' with no content/type/tone given; L19 confirms 'Content has not finalised the notification copy yet'; L33 confirms no attachments exist to supply it. The gap's framing (literal part testable, 'appropriate' part not) matches these lines exactly."
+    },
+    {
+      "ref": "G2",
+      "verdict": "supported",
+      "evidence": "evidence-pack.md#L24, #L33",
+      "note": "L24 gives only the two examples (42, abc); it states nothing about signs, decimals, exponents or mixed input, and L33 confirms no attachments fill the gap. The gap accurately describes what is and isn't fixed by the story."
+    },
+    {
+      "ref": "G3",
+      "verdict": "supported",
+      "evidence": "evidence-pack.md#L29",
+      "note": "L29 verbatim: 'Should notifications dismiss themselves automatically after a few seconds? Content/PO to decide; not in scope for testing yet.' Matches the gap's element description and the outOfScope entry exactly."
+    }
+  ],
+  "missed": [],
+  "observations": [
+    {
+      "field": "context",
+      "note": "Contract's context adds 'UI only' — the pack never uses this phrase; it's inferred from the three ACs all being UI interactions and endpoints/rules being empty. Reasonable but not literally stated at any cited line."
+    },
+    {
+      "field": "actors",
+      "note": "Contract states the actor is a 'user of the practice portal (anonymous visitor)'. The pack never mentions login, accounts, or anonymity anywhere (L19-L29); 'anonymous visitor' is an assumption, not sourced."
+    },
+    {
+      "field": "testData.strategy",
+      "note": "Contract asserts 'the three pages are static public pages of the AUT; no accounts or seeded data' sourced to story.md#L23-L25. Those lines state the three ACs only; they say nothing about the pages being static, public, or account-free — this is inferred, not stated."
+    }
+  ],
+  "summary": "All three acceptance criteria and the three checked gaps (G1-G3) are verbatim and accurately grounded in story.md L19-L29; no requirement-bearing line in the pack is left uncaptured. The only issues found are unsourced but reasonable descriptive claims (UI-only, anonymous visitor, static/no-accounts) in context/actors/testData, flagged as observations rather than defects."
+}

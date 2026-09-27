@@ -1,0 +1,12 @@
+### add-attachment (simulated — no Jira subscription; this request was NOT sent)
+POST https://your-domain.atlassian.net/rest/api/3/issue/DEMO-101/attachments
+Authorization: Basic <base64(JIRA_EMAIL:JIRA_API_TOKEN)>
+X-Atlassian-Token: no-check
+Content-Type: multipart/form-data; boundary=----heldout
+
+------heldout
+Content-Disposition: form-data; name="file"; filename="heldout-verdict-DEMO-101-202609261425.md"
+Content-Type: text/markdown
+
+<12036 bytes from evaluations\DEMO-101\verdict.md>
+------heldout--

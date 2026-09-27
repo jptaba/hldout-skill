@@ -1,0 +1,2130 @@
+{
+  "key": "DEMO-707",
+  "verdict": "FAIL",
+  "reason": "7 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-6, AC-10, AC-11, AC-14, AC-15, AC-16. Awaiting reviewer confirmation.",
+  "finalRun": "03-eval",
+  "generatedAt": "2026-09-26T19:16:10.768Z",
+  "autId": "conduit",
+  "aut": {
+    "name": "Conduit (RealWorld demo, Angular + JSON API)",
+    "baseURL": "https://conduit.bondaracademy.com",
+    "apiBaseURL": "https://conduit-api.bondaracademy.com",
+    "testIdAttribute": "data-testid",
+    "healthcheck": [
+      "/",
+      "api:/api/tags"
+    ],
+    "notes": "UI (Angular SPA) + JSON API with JWT (Authorization: Token <jwt>). Shared sandbox: list/comment visibility is scoped per user. Users cannot be deleted via the API."
+  },
+  "summary": {
+    "total": 34,
+    "passed": 23,
+    "failed": 11,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Other readers cannot find an author's articles by ?author=",
+      "testType": "functional",
+      "source": "story AC-10, story §Context (all published content is public), gap G4",
+      "confirmed": true,
+      "severity": "Critical",
+      "criteria": [
+        "AC-10"
+      ],
+      "tests": [
+        "SCN-012.1",
+        "SCN-012.2"
+      ],
+      "expected": "\"Heldout-irl8v63eb2-74248\"",
+      "actual": "[]",
+      "rationale": "Reproduced live: the author's ?author= query returns the new article; another signed-in reader and an anonymous visitor get [] — still after 13 s, so not a timing matter (independent of assumption G4). AC-10 + context: all published content is public to any reader. (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-012.md",
+      "steps": [
+        "Given a writer published an article just now",
+        "When <reader> lists articles with ?author=<the writer's username>",
+        "Then within 10 seconds the list contains the new article"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 126,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+            "x-cloud-trace-context": "9d4193d69bc5ac77c7d426e47600f2b0",
+            "date": "Sat, 26 Sep 2026 19:10:08 GMT",
+            "server": "Google Frontend",
+            "content-length": "33"
+          },
+          "body": {
+            "articles": [],
+            "articlesCount": 0
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-357ea-ticle-published-moments-ago-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 105,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+              "x-cloud-trace-context": "2b436bd83eadef9665f945f1b63b13cd",
+              "date": "Sat, 26 Sep 2026 19:09:59 GMT",
+              "server": "Google Frontend",
+              "content-length": "33"
+            },
+            "body": {
+              "articles": [],
+              "articlesCount": 0
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 132,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+              "x-cloud-trace-context": "ec04db7d73a47da365f945f1b63b1df2",
+              "date": "Sat, 26 Sep 2026 19:10:00 GMT",
+              "server": "Google Frontend",
+              "content-length": "33"
+            },
+            "body": {
+              "articles": [],
+              "articlesCount": 0
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 117,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+              "x-cloud-trace-context": "6631cf8d1c50aae565f945f1b63b1b40;o=1",
+              "date": "Sat, 26 Sep 2026 19:10:02 GMT",
+              "server": "Google Frontend",
+              "content-length": "33"
+            },
+            "body": {
+              "articles": [],
+              "articlesCount": 0
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 104,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+              "x-cloud-trace-context": "4df5faeeb5ead15365f945f1b63b1552",
+              "date": "Sat, 26 Sep 2026 19:10:04 GMT",
+              "server": "Google Frontend",
+              "content-length": "33"
+            },
+            "body": {
+              "articles": [],
+              "articlesCount": 0
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 107,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+              "x-cloud-trace-context": "19f93a7f3ac67544c7d426e47600f462",
+              "date": "Sat, 26 Sep 2026 19:10:06 GMT",
+              "server": "Google Frontend",
+              "content-length": "33"
+            },
+            "body": {
+              "articles": [],
+              "articlesCount": 0
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?author=qairl8g00911",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 126,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"21-/3zoiGPNflLbkDGmxSQjxjQsAo8\"",
+              "x-cloud-trace-context": "9d4193d69bc5ac77c7d426e47600f2b0",
+              "date": "Sat, 26 Sep 2026 19:10:08 GMT",
+              "server": "Google Frontend",
+              "content-length": "33"
+            },
+            "body": {
+              "articles": [],
+              "articlesCount": 0
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-012\\.1:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-012\\.2:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "Comments are visible only to the commenter",
+      "testType": "functional",
+      "source": "story AC-14, story §Context",
+      "confirmed": true,
+      "severity": "Critical",
+      "criteria": [
+        "AC-14"
+      ],
+      "tests": [
+        "SCN-018.1",
+        "SCN-018.2",
+        "SCN-018.3"
+      ],
+      "expected": "106890",
+      "actual": "[]",
+      "rationale": "Reproduced live: the commenter lists the comment; the article's author, another signed-in user and an anonymous visitor all get comments: []. AC-14: every reader sees all comments. (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-018.md",
+      "steps": [
+        "Given a writer published an article",
+        "And a reader commented on it",
+        "When <viewer> lists the article's comments",
+        "Then the list contains the reader's comment"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irlqh67zo2-74255/comments",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 125,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"f-DSK3s7cPAqrq+537gdA1gy8XGx8\"",
+            "x-cloud-trace-context": "562afc9f6f0a40d59cadd7b41e2d22ef",
+            "date": "Sat, 26 Sep 2026 19:10:22 GMT",
+            "server": "Google Frontend",
+            "content-length": "15"
+          },
+          "body": {
+            "comments": []
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-b156e-er-s-comment-on-the-article-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irlqh67zo2-74255/comments",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 125,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"f-DSK3s7cPAqrq+537gdA1gy8XGx8\"",
+              "x-cloud-trace-context": "562afc9f6f0a40d59cadd7b41e2d22ef",
+              "date": "Sat, 26 Sep 2026 19:10:22 GMT",
+              "server": "Google Frontend",
+              "content-length": "15"
+            },
+            "body": {
+              "comments": []
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-018\\.1:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-018\\.2:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-018\\.3:\""
+      ]
+    },
+    {
+      "id": "APP-3",
+      "title": "Wrong password is answered 403 instead of 401",
+      "testType": "security",
+      "source": "story AC-3, api-contract.md §Errors (401 wrong login credentials)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-3"
+      ],
+      "tests": [
+        "SCN-004"
+      ],
+      "expected": "401",
+      "actual": "403",
+      "rationale": "Reproduced live: POST /api/users/login with a wrong password → 403 with an errors object. AC-3 and the contract's error model say wrong login credentials → 401 (403 is reserved for authenticated-but-not-permitted). (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-004.md",
+      "steps": [
+        "Given a registered user exists",
+        "When I POST their email with a wrong password to /api/users/login",
+        "Then the response status is 401",
+        "And the body has an errors object"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://conduit-api.bondaracademy.com/api/users/login",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "user": {
+              "email": "qairktzjujb1@example.com",
+              "password": "***redacted***"
+            }
+          }
+        },
+        "response": {
+          "status": 403,
+          "durationMs": 228,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"2f-83PWxEwXkLR3WfVjo3wqB0FwKlU\"",
+            "x-cloud-trace-context": "511a4cbeaed21163aa59d498e3214283",
+            "date": "Sat, 26 Sep 2026 19:09:40 GMT",
+            "server": "Google Frontend",
+            "content-length": "47"
+          },
+          "body": {
+            "errors": {
+              "email or password": [
+                "is invalid"
+              ]
+            }
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-15eb4-th-401-and-an-errors-object-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://conduit-api.bondaracademy.com/api/users/login",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "user": {
+                "email": "qairktzjujb1@example.com",
+                "password": "***redacted***"
+              }
+            }
+          },
+          "response": {
+            "status": 403,
+            "durationMs": 228,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"2f-83PWxEwXkLR3WfVjo3wqB0FwKlU\"",
+              "x-cloud-trace-context": "511a4cbeaed21163aa59d498e3214283",
+              "date": "Sat, 26 Sep 2026 19:09:40 GMT",
+              "server": "Google Frontend",
+              "content-length": "47"
+            },
+            "body": {
+              "errors": {
+                "email or password": [
+                  "is invalid"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-004:\""
+      ]
+    },
+    {
+      "id": "APP-4",
+      "title": "Second article with the same title is rejected (422 must be unique)",
+      "testType": "functional",
+      "source": "story AC-6",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-008"
+      ],
+      "expected": "201",
+      "actual": "422",
+      "rationale": "Reproduced live: the second POST with an identical title → 422 {errors:{title:[must be unique]}}. AC-6: titles need not be unique; a second article gets its own slug (201). (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-008.md",
+      "steps": [
+        "Given I am a signed-in writer who published an article",
+        "When I POST a second article with exactly the same title",
+        "Then the response status is 201",
+        "And its slug differs from the first article's slug"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://conduit-api.bondaracademy.com/api/articles",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "article": {
+              "title": "Heldout irkw21m202",
+              "description": "About irkw6gnhh3",
+              "body": "Body of irkw6gnhh3",
+              "tagList": [
+                "heldout",
+                "tirkw6gnhh3"
+              ]
+            }
+          }
+        },
+        "response": {
+          "status": 422,
+          "durationMs": 104,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"27-BNeuaWQ7DHvW/r+pl+qdJiF06Is\"",
+            "x-cloud-trace-context": "4ca7cfca2c851fb55b7e03606a748518",
+            "date": "Sat, 26 Sep 2026 19:09:42 GMT",
+            "server": "Google Frontend",
+            "content-length": "39"
+          },
+          "body": {
+            "errors": {
+              "title": [
+                "must be unique"
+              ]
+            }
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-03494-ame-title-gets-its-own-slug-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://conduit-api.bondaracademy.com/api/articles",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "article": {
+                "title": "Heldout irkw21m202",
+                "description": "About irkw6gnhh3",
+                "body": "Body of irkw6gnhh3",
+                "tagList": [
+                  "heldout",
+                  "tirkw6gnhh3"
+                ]
+              }
+            }
+          },
+          "response": {
+            "status": 422,
+            "durationMs": 104,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"27-BNeuaWQ7DHvW/r+pl+qdJiF06Is\"",
+              "x-cloud-trace-context": "4ca7cfca2c851fb55b7e03606a748518",
+              "date": "Sat, 26 Sep 2026 19:09:42 GMT",
+              "server": "Google Frontend",
+              "content-length": "39"
+            },
+            "body": {
+              "errors": {
+                "title": [
+                  "must be unique"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-008:\""
+      ]
+    },
+    {
+      "id": "APP-5",
+      "title": "Favouriting is not idempotent (second favourite counts again)",
+      "testType": "idempotency",
+      "source": "story AC-16, story §User stories (safe retries)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-16"
+      ],
+      "tests": [
+        "SCN-020"
+      ],
+      "expected": "1",
+      "actual": "2",
+      "rationale": "Reproduced live: favourite → 1, favourite again → 2, unfavourite → 1. AC-16: a repeated favourite leaves the count unchanged. The unfavourite assertion fails only as a consequence (count starts at 2). (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-020.md",
+      "steps": [
+        "Given a writer published an article",
+        "And I am a signed-in reader",
+        "When I favourite the article",
+        "Then favoritesCount is 1 and favorited is true",
+        "When I favourite the article again",
+        "Then favoritesCount is still 1",
+        "When I unfavourite the article",
+        "Then favoritesCount is 0"
+      ],
+      "api": {
+        "request": {
+          "method": "DELETE",
+          "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irm06fm3p2-74272/favorite",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 187,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"1b7-Thb3SN9Xg7z3OBu3vUtFwohiAac\"",
+            "x-cloud-trace-context": "f8d0ab139c8cd9b3f65d52697bab2676",
+            "date": "Sat, 26 Sep 2026 19:10:35 GMT",
+            "server": "Google Frontend",
+            "content-length": "439"
+          },
+          "body": {
+            "article": {
+              "id": 503939,
+              "slug": "Heldout-irm06fm3p2-74272",
+              "title": "Heldout irm06fm3p2",
+              "description": "About irm06fm3p2",
+              "body": "Body of irm06fm3p2",
+              "createdAt": "2026-09-26T19:10:34.339Z",
+              "updatedAt": "2026-09-26T19:10:34.339Z",
+              "favoritesCount": 1,
+              "tagList": [
+                "heldout",
+                "tirm06fm3p2"
+              ],
+              "author": {
+                "username": "qairlzuq5o81",
+                "bio": null,
+                "image": "https://conduit-api.bondaracademy.com/images/smiley-cyrus.jpeg",
+                "following": false
+              },
+              "favorited": false
+            }
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-7331d-ce-unfavouriting-decrements-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irm06fm3p2-74272/favorite",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 158,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"1b6-FRsy6GMAA9bl/l6NCnbhwzwZM00\"",
+              "x-cloud-trace-context": "63b5ca600d32ba20f65d52697bab2e57",
+              "date": "Sat, 26 Sep 2026 19:10:34 GMT",
+              "server": "Google Frontend",
+              "content-length": "438"
+            },
+            "body": {
+              "article": {
+                "id": 503939,
+                "slug": "Heldout-irm06fm3p2-74272",
+                "title": "Heldout irm06fm3p2",
+                "description": "About irm06fm3p2",
+                "body": "Body of irm06fm3p2",
+                "createdAt": "2026-09-26T19:10:34.339Z",
+                "updatedAt": "2026-09-26T19:10:34.339Z",
+                "favoritesCount": 1,
+                "tagList": [
+                  "heldout",
+                  "tirm06fm3p2"
+                ],
+                "author": {
+                  "username": "qairlzuq5o81",
+                  "bio": null,
+                  "image": "https://conduit-api.bondaracademy.com/images/smiley-cyrus.jpeg",
+                  "following": false
+                },
+                "favorited": true
+              }
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irm06fm3p2-74272/favorite",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 169,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"1b6-w645rOpnBfh/nc6DgwpwMq+5G6M\"",
+              "x-cloud-trace-context": "c6eb5baf4973d6aef65d52697bab2251",
+              "date": "Sat, 26 Sep 2026 19:10:35 GMT",
+              "server": "Google Frontend",
+              "content-length": "438"
+            },
+            "body": {
+              "article": {
+                "id": 503939,
+                "slug": "Heldout-irm06fm3p2-74272",
+                "title": "Heldout irm06fm3p2",
+                "description": "About irm06fm3p2",
+                "body": "Body of irm06fm3p2",
+                "createdAt": "2026-09-26T19:10:34.339Z",
+                "updatedAt": "2026-09-26T19:10:34.339Z",
+                "favoritesCount": 2,
+                "tagList": [
+                  "heldout",
+                  "tirm06fm3p2"
+                ],
+                "author": {
+                  "username": "qairlzuq5o81",
+                  "bio": null,
+                  "image": "https://conduit-api.bondaracademy.com/images/smiley-cyrus.jpeg",
+                  "following": false
+                },
+                "favorited": true
+              }
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irm06fm3p2-74272/favorite",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 187,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"1b7-Thb3SN9Xg7z3OBu3vUtFwohiAac\"",
+              "x-cloud-trace-context": "f8d0ab139c8cd9b3f65d52697bab2676",
+              "date": "Sat, 26 Sep 2026 19:10:35 GMT",
+              "server": "Google Frontend",
+              "content-length": "439"
+            },
+            "body": {
+              "article": {
+                "id": 503939,
+                "slug": "Heldout-irm06fm3p2-74272",
+                "title": "Heldout irm06fm3p2",
+                "description": "About irm06fm3p2",
+                "body": "Body of irm06fm3p2",
+                "createdAt": "2026-09-26T19:10:34.339Z",
+                "updatedAt": "2026-09-26T19:10:34.339Z",
+                "favoritesCount": 1,
+                "tagList": [
+                  "heldout",
+                  "tirm06fm3p2"
+                ],
+                "author": {
+                  "username": "qairlzuq5o81",
+                  "bio": null,
+                  "image": "https://conduit-api.bondaracademy.com/images/smiley-cyrus.jpeg",
+                  "following": false
+                },
+                "favorited": false
+              }
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-020:\""
+      ]
+    },
+    {
+      "id": "APP-6",
+      "title": "limit outside 1–100 is accepted instead of 422",
+      "testType": "boundary",
+      "source": "story AC-11, api-contract.md (limit 1–100)",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-11"
+      ],
+      "tests": [
+        "SCN-013.3",
+        "SCN-013.4"
+      ],
+      "expected": "422",
+      "actual": "200",
+      "rationale": "Reproduced live: limit=0 and limit=101 → 200 with articles; AC-11 requires 422 outside 1–100 (1 and 100 accepted, as required). (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-013.md",
+      "steps": [
+        "When I GET /api/articles?limit=<limit>",
+        "Then the request is <outcome>"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://conduit-api.bondaracademy.com/api/articles?limit=0",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 624,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"43a9-Il8oCnWUnijQsgupxnOWSBjZ3qM\"",
+            "x-cloud-trace-context": "2d8fad423057bafede595fea79af36ee",
+            "date": "Sat, 26 Sep 2026 19:10:15 GMT",
+            "server": "Google Frontend",
+            "content-length": "17321"
+          },
+          "body": {
+            "articles": [
+              {
+                "slug": "Discover-Bondar-Academy:-Your-Gateway-to-Efficient-Learning-1",
+                "title": "Discover Bondar Academy: Your Gateway to Efficient Learning",
+                "description": "Discover Bondar Academy's unique place in the educational landscape, where value-focused and efficient learning approaches converge. Our goal is to rapidly enhance your professional technical skills, boosting your market competitiveness and paving the way for higher-paying job opportunities. The speed of your progress is in your hands – you set the pace, and we provide the solutions and support to help you achieve your desired outcomes.",
+                "body": "Bondar Academy is a leading platform for efficient education, designed to boost your technical skills and advance your career in Quality Assurance (QA). Our program features a balanced mix of pre-recorded lectures and live sessions, allowing each student to study at their own pace and at a time that suits them. \n\nOur instructors are readily available on our Slack Workspace for support. Whether it's a quick question or a more complex issue requiring a Zoom call or Slack Huddle for screen sharing and live discussion, we're here to assist. Additionally, each class comes with a comprehensive question bank for self-assessment. Following each lecture, you have the opportunity to validate your understanding and readiness to progress to the next topic. You set the pace, and we provide the solutions to ensure you achieve your desired outcomes.\n\nSignUp today: https://www.bondaracademy.com",
+                "tagList": [
+                  "qa career",
+                  "Bondar Academy",
+                  "QA Skills",
+                  "Value-Focused"
+                ],
+                "createdAt": "2024-01-27T21:52:32.682Z",
+                "updatedAt": "2024-01-27T21:52:32.682Z",
+                "favorited": false,
+                "favoritesCount": 2265,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "The-value-of-pre-recorded-video-classes.-The-most-efficient-approach-to-tranfer-the-knowledge-1",
+                "title": "The value of pre-recorded video classes. The most efficient approach to tranfer the knowledge",
+                "description": "As educational practices evolve, video tutorials have emerged as the most efficient method for imparting theoretical knowledge. At Bondar Academy, we prioritize expertly structured and crafted video tutorials, ensuring you learn quickly and effectively and advance your skills.",
+                "body": "At Bondar Academy, we prioritize the value of your time and the efficiency of your education, distinguishing our approach from traditional colleges and live boot camps. Forget long, tedious live lectures on a fixed schedule. With us, you learn at your convenience and pace through optimized, structured video lectures. \n\nWe understand your goal is rapid knowledge acquisition. Our pre-recorded and well-organized lectures are designed precisely for this, ensuring no slowdowns from group dynamics or unrelated instructor anecdotes. \n\nDive straight into the subject matter, learn efficiently, and if questions arise, our immediate support on the Slack Workspace is there to streamline your learning process and swiftly remove any roadblocks.",
+                "tagList": [
+                  "Bondar Academy",
+                  "Video Lectures",
+                  "Tutorials"
+                ],
+                "createdAt": "2024-01-27T21:50:38.825Z",
+                "updatedAt": "2024-01-27T21:50:38.825Z",
+                "favorited": false,
+                "favoritesCount": 490,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Mastering-Knowledge-with-Self-Assessments:-Identifying-and-Bridging-Learning-Gaps-in-Education-1",
+                "title": "Mastering Knowledge with Self-Assessments: Identifying and Bridging Learning Gaps in Education",
+                "description": "Self-assessment is an essential tool for gauging your understanding of lecture material. It answers critical questions: Have you grasped everything correctly? Is there anything you've missed? Are you prepared for the next lesson? These assessments ensure that you build a solid foundation of knowledge, confidently and efficiently paving the way for swift progress and effective learning outcomes.",
+                "body": "Traditional educational institutions, such as colleges and universities, commonly use tests and assessments to measure knowledge. This approach is effective for gauging student performance, but it's not without drawbacks. In these settings, assessments after every lecture aren't feasible due to the time required for teachers to evaluate them. This often leads to students having a false sense of understanding, believing they've comprehended all aspects of a lecture when, in reality, small but crucial details might be missed. These 'knowledge gaps' can accumulate, making more complex topics difficult to grasp later on.\n\nAt Bondar Academy, we address this challenge by implementing self-assessments after every lecture. These are designed to cover key questions that ensure a thorough understanding of the material, essential for comfort and success in future lectures. The number of questions varies, ranging from 3-4 to 15-20, depending on the lecture's significance and the volume of critical information. With these self-assessments, students receive immediate feedback, helping them determine if they've fully understood the lecture or if they need to revisit certain parts or seek assistance from our instructors in the Slack Workspace.",
+                "tagList": [
+                  "Self-Assessment",
+                  "Test",
+                  "Exam"
+                ],
+                "createdAt": "2024-01-27T21:48:36.340Z",
+                "updatedAt": "2024-01-27T21:48:36.340Z",
+                "favorited": false,
+                "favoritesCount": 248,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Practical-Implementation-of-Skills:-Homework-Assignments-with-Instructor-Supervision-1",
+                "title": "Practical Implementation of Skills: Homework Assignments with Instructor Supervision",
+                "description": "Knowledge or skills not reinforced through practical exercises can quickly fade, often faster than anticipated. Homework, particularly in tasks like writing your own code, is crucial for honing these skills and cementing your understanding. At Bondar Academy, we ensure this vital step by assigning homework, rigorously evaluating the outcomes, and providing valuable feedback to guide your learning journey.",
+                "body": "Homework assignments are a fundamental component of the educational methodology at Bondar Academy, especially in technical education where learning a new programming language or framework is involved. The key to mastering these skills lies in writing code; the more you write, the better you become. However, merely replicating code seen in lectures leads to minimal learning. Often, this approach leaves students unclear about why their code works the way it does, as they focus on copying rather than understanding.\n\nA homework assignment at Bondar Academy starts with a blank page, challenging students to apply all their knowledge to write the first line of code. This process is more demanding than it appears. As you write each line, understanding and reasoning grow, making your code meaningful and comprehensible. You learn to write code that makes sense to you, enhancing your understanding.\n\nIn completing these assignments, you engage the 'thinking' part of your brain, transforming theoretical knowledge into practical skills. Recognizing the crucial role of homework in learning, our instructors at Bondar Academy are always available to assist with any challenges. Just reach out on Slack, and you'll receive the guidance and support needed for successful completion. At Bondar Academy, we fully understand the importance of homework assignments for the best outcome, so our instructors are always here to assist if you have any difficulties with completing them. Just ask in Slack and you'll be guided and assisted.",
+                "tagList": [
+                  "Homework",
+                  "Assignments",
+                  "Practice",
+                  "Coding"
+                ],
+                "createdAt": "2024-01-27T21:46:09.512Z",
+                "updatedAt": "2024-01-27T21:46:09.512Z",
+                "favorited": false,
+                "favoritesCount": 115,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Embracing-Daily-Git-Routines:-Real-Code-Reviews-on-GitHub-for-Effective-Coding-Practice.-1",
+                "title": "Embracing Daily Git Routines: Real Code Reviews on GitHub for Effective Coding Practice.",
+                "description": "Learning to code is just one part of a larger skill set; effectively managing and organizing code is equally crucial. At Bondar Academy, we integrate Git and platforms like GitHub into the core learning cycle. With us, using Git becomes a regular routine, where organizing code in branches, storing it in remote repositories, and collaborating with others through strategies like branching, merging, pull requests, and code reviews are standard practice.",
+                "body": "At Bondar Academy, mastering Git and GitHub is a fundamental step before delving into frameworks or programming languages. Effective code management, organization, and storage are crucial skills, and Git is the premier tool for this purpose. However, many learners initially find Git challenging due to its complexity and non-intuitive nature. To address this, our instructors have developed structured lectures on Git and GitHub, ensuring an efficient and thorough understanding of these essential tools. Git lessons are a mandatory prerequisite in every class. For a glimpse into our teaching approach, visit our YouTube channel: https://www.youtube.com/@BondarAcademy/playlists.\n\nIn our courses, all homework assignments are reviewed using GitHub pull requests, mirroring the workflow in real-world software development environments. Students submit their code to their working branch for review. Our instructors then provide feedback, suggesting modifications or adjustments for pull request approval. This iterative process is repeated throughout the course, establishing Git usage as a natural and routine part of your coding practice.",
+                "tagList": [
+                  "YouTube",
+                  "Git",
+                  "GitHub"
+                ],
+                "createdAt": "2024-01-27T21:42:31.491Z",
+                "updatedAt": "2024-01-27T21:42:31.491Z",
+                "favorited": false,
+                "favoritesCount": 104,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Engaging-in-Live-Zoom-Sessions:-Interact-with-Instructors-and-Peers-Ask-Questions-in-Real-Time-1",
+                "title": "Engaging in Live Zoom Sessions: Interact with Instructors and Peers, Ask Questions in Real-Time",
+                "description": "In our increasingly online world, personal engagement remains a crucial element of effective learning. At Bondar Academy, we address this by hosting live Zoom sessions. These sessions provide a platform for live interaction between instructors and students, and among students themselves. Complementing our Slack channel, these live sessions offer an additional avenue for asking questions and engaging in meaningful discussions.",
+                "body": "In our increasingly online world, personal engagement remains a crucial element of effective learning. \nAt Bondar Academy, we address this by hosting live Zoom sessions. These sessions provide a platform for live interaction between instructors and students and among students themselves. Complementing our Slack channel, these live sessions offer an additional avenue for asking questions and engaging in meaningful discussions.",
+                "tagList": [
+                  "Zoom",
+                  "Live Sessions"
+                ],
+                "createdAt": "2024-01-27T21:39:50.587Z",
+                "updatedAt": "2024-01-27T21:39:50.587Z",
+                "favorited": false,
+                "favoritesCount": 77,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Utilizing-Slack-for-Continuous-Engagement:-Connect-with-Instructors-Share-Insights-and-Collaborate-1",
+                "title": "Utilizing Slack for Continuous Engagement: Connect with Instructors, Share Insights, and Collaborate",
+                "description": "Slack stands out as a widely-used messaging and collaboration platform, celebrated for its convenience and versatility. It enables simultaneous participation in multiple conversations, supports comments and emoji reactions, and allows users to share screenshots, videos, and code snippets. Its functionality extends to making calls in huddle sessions. Given these robust features, Bondar Academy has chosen Slack as our primary communication platform, facilitating seamless interaction and collaboration.",
+                "body": "As a new member of Bondar Academy, one of your initial steps should be registering for the Bondar Academy Slack Workspace. Upon registration at Bondar Academy, you'll receive a welcome email containing the URL to join. This Workspace serves as a central hub for communication with instructors and fellow students. Whether you have a question, need to share code, or want to upload screenshots, Slack makes it easy and efficient. Moreover, its compatibility with both desktop and mobile devices, by downloading and installing the app, ensures you can stay connected with your instructors and the community wherever you go.",
+                "tagList": [
+                  "Slack",
+                  "Community",
+                  "Collaboration"
+                ],
+                "createdAt": "2024-01-27T21:38:27.992Z",
+                "updatedAt": "2024-01-27T21:38:27.992Z",
+                "favorited": false,
+                "favoritesCount": 72,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Stay-Ahead-with-Bondar-Academy:-Subscribe-to-Our-YouTube-channel-for-Latest-Tech-and-Education-Updates-1",
+                "title": "Stay Ahead with Bondar Academy: Subscribe to Our YouTube channel for Latest Tech and Education Updates",
+                "description": "Who doesn't appreciate high-quality free resources? YouTube serves as an ideal platform for sharing the latest news, updates, and a wealth of tips and tricks in test automation and technology. Keep abreast of these invaluable insights by subscribing to the @bondaracademy YouTube channel.",
+                "body": "Who doesn't appreciate high-quality free resources? \n\nYouTube serves as an ideal platform for sharing the latest news, updates, and a wealth of tips and tricks in test automation and technology. \n\nKeep abreast of these invaluable insights by subscribing to our YouTube channel: https://www.youtube.com/@bondaracademy",
+                "tagList": [
+                  "YouTube"
+                ],
+                "createdAt": "2024-01-27T21:36:32.360Z",
+                "updatedAt": "2024-01-27T21:36:32.360Z",
+                "favorited": false,
+                "favoritesCount": 68,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Explore-the-Latest-in-Learning:-Bondar-Academy-Blog's-Educational-Insights-from-Our-Experts-1",
+                "title": "Explore the Latest in Learning: Bondar Academy Blog's Educational Insights from Our Experts",
+                "description": "Discover a treasure trove of knowledge on the Bondar Academy blog. Here, we share an array of tips, techniques, and valuable educational materials, all designed to keep you abreast of the latest technological trends and best practices. For easy access and continual learning, consider bookmarking our blog in your browser.",
+                "body": "On the Bondar Academy blog, we consistently provide insightful and pertinent updates on the latest in technology, test automation, and industry best practices. For your convenience, we recommend adding our blog to your browser's bookmarks. Our commitment to keeping you informed is reflected in our weekly posts, each focusing on a significant topic of the week.\n\nWe value your input and invite you to contribute to our ever-evolving content. If you have any suggestions or specific topics you'd like us to explore, please feel free to share your ideas in the Bondar Academy Slack workspace. \n\nDiscover our blog here: https://www.bondaracademy.com/blog\n",
+                "tagList": [
+                  "Blog"
+                ],
+                "createdAt": "2024-01-27T21:34:04.531Z",
+                "updatedAt": "2024-01-27T21:34:04.531Z",
+                "favorited": false,
+                "favoritesCount": 67,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              },
+              {
+                "slug": "Take-the-Next-Step:-Join-Bondar-Academy-Today-and-Enroll-into-the-class-1",
+                "title": "Take the Next Step: Join Bondar Academy Today and Enroll into the class",
+                "description": "Are you prepared to transform your educational journey? Begin by signing up at Bondar Academy, then register for our Slack Workspace to start exploring. We offer a range of classes, with some being completely free and others featuring free previews of the initial sections. This allows you to experience our content and teaching approach firsthand, helping you make an informed decision before enrolling in a class.",
+                "body": "Are you prepared to transform your educational journey? \n\nBegin by signing up at Bondar Academy, then register for our Slack Workspace to start exploring. We offer a range of classes, with some being completely free and others featuring free previews of the initial sections. This allows you to experience our content and teaching approach firsthand, helping you make an informed decision before enrolling in a class.\n\nClick here to enroll: https://www.bondaracademy.com",
+                "tagList": [
+                  "Enroll",
+                  "Start for Free"
+                ],
+                "createdAt": "2024-01-27T21:32:21.056Z",
+                "updatedAt": "2024-01-27T21:32:21.056Z",
+                "favorited": false,
+                "favoritesCount": 75,
+                "author": {
+                  "username": "Artem Bondar",
+                  "bio": null,
+                  "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                  "following": false
+                }
+              }
+            ],
+            "articlesCount": 10
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-dd3d9-imit-0-is-rejected-with-422-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles?limit=0",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 624,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"43a9-Il8oCnWUnijQsgupxnOWSBjZ3qM\"",
+              "x-cloud-trace-context": "2d8fad423057bafede595fea79af36ee",
+              "date": "Sat, 26 Sep 2026 19:10:15 GMT",
+              "server": "Google Frontend",
+              "content-length": "17321"
+            },
+            "body": {
+              "articles": [
+                {
+                  "slug": "Discover-Bondar-Academy:-Your-Gateway-to-Efficient-Learning-1",
+                  "title": "Discover Bondar Academy: Your Gateway to Efficient Learning",
+                  "description": "Discover Bondar Academy's unique place in the educational landscape, where value-focused and efficient learning approaches converge. Our goal is to rapidly enhance your professional technical skills, boosting your market competitiveness and paving the way for higher-paying job opportunities. The speed of your progress is in your hands – you set the pace, and we provide the solutions and support to help you achieve your desired outcomes.",
+                  "body": "Bondar Academy is a leading platform for efficient education, designed to boost your technical skills and advance your career in Quality Assurance (QA). Our program features a balanced mix of pre-recorded lectures and live sessions, allowing each student to study at their own pace and at a time that suits them. \n\nOur instructors are readily available on our Slack Workspace for support. Whether it's a quick question or a more complex issue requiring a Zoom call or Slack Huddle for screen sharing and live discussion, we're here to assist. Additionally, each class comes with a comprehensive question bank for self-assessment. Following each lecture, you have the opportunity to validate your understanding and readiness to progress to the next topic. You set the pace, and we provide the solutions to ensure you achieve your desired outcomes.\n\nSignUp today: https://www.bondaracademy.com",
+                  "tagList": [
+                    "qa career",
+                    "Bondar Academy",
+                    "QA Skills",
+                    "Value-Focused"
+                  ],
+                  "createdAt": "2024-01-27T21:52:32.682Z",
+                  "updatedAt": "2024-01-27T21:52:32.682Z",
+                  "favorited": false,
+                  "favoritesCount": 2265,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "The-value-of-pre-recorded-video-classes.-The-most-efficient-approach-to-tranfer-the-knowledge-1",
+                  "title": "The value of pre-recorded video classes. The most efficient approach to tranfer the knowledge",
+                  "description": "As educational practices evolve, video tutorials have emerged as the most efficient method for imparting theoretical knowledge. At Bondar Academy, we prioritize expertly structured and crafted video tutorials, ensuring you learn quickly and effectively and advance your skills.",
+                  "body": "At Bondar Academy, we prioritize the value of your time and the efficiency of your education, distinguishing our approach from traditional colleges and live boot camps. Forget long, tedious live lectures on a fixed schedule. With us, you learn at your convenience and pace through optimized, structured video lectures. \n\nWe understand your goal is rapid knowledge acquisition. Our pre-recorded and well-organized lectures are designed precisely for this, ensuring no slowdowns from group dynamics or unrelated instructor anecdotes. \n\nDive straight into the subject matter, learn efficiently, and if questions arise, our immediate support on the Slack Workspace is there to streamline your learning process and swiftly remove any roadblocks.",
+                  "tagList": [
+                    "Bondar Academy",
+                    "Video Lectures",
+                    "Tutorials"
+                  ],
+                  "createdAt": "2024-01-27T21:50:38.825Z",
+                  "updatedAt": "2024-01-27T21:50:38.825Z",
+                  "favorited": false,
+                  "favoritesCount": 490,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Mastering-Knowledge-with-Self-Assessments:-Identifying-and-Bridging-Learning-Gaps-in-Education-1",
+                  "title": "Mastering Knowledge with Self-Assessments: Identifying and Bridging Learning Gaps in Education",
+                  "description": "Self-assessment is an essential tool for gauging your understanding of lecture material. It answers critical questions: Have you grasped everything correctly? Is there anything you've missed? Are you prepared for the next lesson? These assessments ensure that you build a solid foundation of knowledge, confidently and efficiently paving the way for swift progress and effective learning outcomes.",
+                  "body": "Traditional educational institutions, such as colleges and universities, commonly use tests and assessments to measure knowledge. This approach is effective for gauging student performance, but it's not without drawbacks. In these settings, assessments after every lecture aren't feasible due to the time required for teachers to evaluate them. This often leads to students having a false sense of understanding, believing they've comprehended all aspects of a lecture when, in reality, small but crucial details might be missed. These 'knowledge gaps' can accumulate, making more complex topics difficult to grasp later on.\n\nAt Bondar Academy, we address this challenge by implementing self-assessments after every lecture. These are designed to cover key questions that ensure a thorough understanding of the material, essential for comfort and success in future lectures. The number of questions varies, ranging from 3-4 to 15-20, depending on the lecture's significance and the volume of critical information. With these self-assessments, students receive immediate feedback, helping them determine if they've fully understood the lecture or if they need to revisit certain parts or seek assistance from our instructors in the Slack Workspace.",
+                  "tagList": [
+                    "Self-Assessment",
+                    "Test",
+                    "Exam"
+                  ],
+                  "createdAt": "2024-01-27T21:48:36.340Z",
+                  "updatedAt": "2024-01-27T21:48:36.340Z",
+                  "favorited": false,
+                  "favoritesCount": 248,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Practical-Implementation-of-Skills:-Homework-Assignments-with-Instructor-Supervision-1",
+                  "title": "Practical Implementation of Skills: Homework Assignments with Instructor Supervision",
+                  "description": "Knowledge or skills not reinforced through practical exercises can quickly fade, often faster than anticipated. Homework, particularly in tasks like writing your own code, is crucial for honing these skills and cementing your understanding. At Bondar Academy, we ensure this vital step by assigning homework, rigorously evaluating the outcomes, and providing valuable feedback to guide your learning journey.",
+                  "body": "Homework assignments are a fundamental component of the educational methodology at Bondar Academy, especially in technical education where learning a new programming language or framework is involved. The key to mastering these skills lies in writing code; the more you write, the better you become. However, merely replicating code seen in lectures leads to minimal learning. Often, this approach leaves students unclear about why their code works the way it does, as they focus on copying rather than understanding.\n\nA homework assignment at Bondar Academy starts with a blank page, challenging students to apply all their knowledge to write the first line of code. This process is more demanding than it appears. As you write each line, understanding and reasoning grow, making your code meaningful and comprehensible. You learn to write code that makes sense to you, enhancing your understanding.\n\nIn completing these assignments, you engage the 'thinking' part of your brain, transforming theoretical knowledge into practical skills. Recognizing the crucial role of homework in learning, our instructors at Bondar Academy are always available to assist with any challenges. Just reach out on Slack, and you'll receive the guidance and support needed for successful completion. At Bondar Academy, we fully understand the importance of homework assignments for the best outcome, so our instructors are always here to assist if you have any difficulties with completing them. Just ask in Slack and you'll be guided and assisted.",
+                  "tagList": [
+                    "Homework",
+                    "Assignments",
+                    "Practice",
+                    "Coding"
+                  ],
+                  "createdAt": "2024-01-27T21:46:09.512Z",
+                  "updatedAt": "2024-01-27T21:46:09.512Z",
+                  "favorited": false,
+                  "favoritesCount": 115,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Embracing-Daily-Git-Routines:-Real-Code-Reviews-on-GitHub-for-Effective-Coding-Practice.-1",
+                  "title": "Embracing Daily Git Routines: Real Code Reviews on GitHub for Effective Coding Practice.",
+                  "description": "Learning to code is just one part of a larger skill set; effectively managing and organizing code is equally crucial. At Bondar Academy, we integrate Git and platforms like GitHub into the core learning cycle. With us, using Git becomes a regular routine, where organizing code in branches, storing it in remote repositories, and collaborating with others through strategies like branching, merging, pull requests, and code reviews are standard practice.",
+                  "body": "At Bondar Academy, mastering Git and GitHub is a fundamental step before delving into frameworks or programming languages. Effective code management, organization, and storage are crucial skills, and Git is the premier tool for this purpose. However, many learners initially find Git challenging due to its complexity and non-intuitive nature. To address this, our instructors have developed structured lectures on Git and GitHub, ensuring an efficient and thorough understanding of these essential tools. Git lessons are a mandatory prerequisite in every class. For a glimpse into our teaching approach, visit our YouTube channel: https://www.youtube.com/@BondarAcademy/playlists.\n\nIn our courses, all homework assignments are reviewed using GitHub pull requests, mirroring the workflow in real-world software development environments. Students submit their code to their working branch for review. Our instructors then provide feedback, suggesting modifications or adjustments for pull request approval. This iterative process is repeated throughout the course, establishing Git usage as a natural and routine part of your coding practice.",
+                  "tagList": [
+                    "YouTube",
+                    "Git",
+                    "GitHub"
+                  ],
+                  "createdAt": "2024-01-27T21:42:31.491Z",
+                  "updatedAt": "2024-01-27T21:42:31.491Z",
+                  "favorited": false,
+                  "favoritesCount": 104,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Engaging-in-Live-Zoom-Sessions:-Interact-with-Instructors-and-Peers-Ask-Questions-in-Real-Time-1",
+                  "title": "Engaging in Live Zoom Sessions: Interact with Instructors and Peers, Ask Questions in Real-Time",
+                  "description": "In our increasingly online world, personal engagement remains a crucial element of effective learning. At Bondar Academy, we address this by hosting live Zoom sessions. These sessions provide a platform for live interaction between instructors and students, and among students themselves. Complementing our Slack channel, these live sessions offer an additional avenue for asking questions and engaging in meaningful discussions.",
+                  "body": "In our increasingly online world, personal engagement remains a crucial element of effective learning. \nAt Bondar Academy, we address this by hosting live Zoom sessions. These sessions provide a platform for live interaction between instructors and students and among students themselves. Complementing our Slack channel, these live sessions offer an additional avenue for asking questions and engaging in meaningful discussions.",
+                  "tagList": [
+                    "Zoom",
+                    "Live Sessions"
+                  ],
+                  "createdAt": "2024-01-27T21:39:50.587Z",
+                  "updatedAt": "2024-01-27T21:39:50.587Z",
+                  "favorited": false,
+                  "favoritesCount": 77,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Utilizing-Slack-for-Continuous-Engagement:-Connect-with-Instructors-Share-Insights-and-Collaborate-1",
+                  "title": "Utilizing Slack for Continuous Engagement: Connect with Instructors, Share Insights, and Collaborate",
+                  "description": "Slack stands out as a widely-used messaging and collaboration platform, celebrated for its convenience and versatility. It enables simultaneous participation in multiple conversations, supports comments and emoji reactions, and allows users to share screenshots, videos, and code snippets. Its functionality extends to making calls in huddle sessions. Given these robust features, Bondar Academy has chosen Slack as our primary communication platform, facilitating seamless interaction and collaboration.",
+                  "body": "As a new member of Bondar Academy, one of your initial steps should be registering for the Bondar Academy Slack Workspace. Upon registration at Bondar Academy, you'll receive a welcome email containing the URL to join. This Workspace serves as a central hub for communication with instructors and fellow students. Whether you have a question, need to share code, or want to upload screenshots, Slack makes it easy and efficient. Moreover, its compatibility with both desktop and mobile devices, by downloading and installing the app, ensures you can stay connected with your instructors and the community wherever you go.",
+                  "tagList": [
+                    "Slack",
+                    "Community",
+                    "Collaboration"
+                  ],
+                  "createdAt": "2024-01-27T21:38:27.992Z",
+                  "updatedAt": "2024-01-27T21:38:27.992Z",
+                  "favorited": false,
+                  "favoritesCount": 72,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Stay-Ahead-with-Bondar-Academy:-Subscribe-to-Our-YouTube-channel-for-Latest-Tech-and-Education-Updates-1",
+                  "title": "Stay Ahead with Bondar Academy: Subscribe to Our YouTube channel for Latest Tech and Education Updates",
+                  "description": "Who doesn't appreciate high-quality free resources? YouTube serves as an ideal platform for sharing the latest news, updates, and a wealth of tips and tricks in test automation and technology. Keep abreast of these invaluable insights by subscribing to the @bondaracademy YouTube channel.",
+                  "body": "Who doesn't appreciate high-quality free resources? \n\nYouTube serves as an ideal platform for sharing the latest news, updates, and a wealth of tips and tricks in test automation and technology. \n\nKeep abreast of these invaluable insights by subscribing to our YouTube channel: https://www.youtube.com/@bondaracademy",
+                  "tagList": [
+                    "YouTube"
+                  ],
+                  "createdAt": "2024-01-27T21:36:32.360Z",
+                  "updatedAt": "2024-01-27T21:36:32.360Z",
+                  "favorited": false,
+                  "favoritesCount": 68,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Explore-the-Latest-in-Learning:-Bondar-Academy-Blog's-Educational-Insights-from-Our-Experts-1",
+                  "title": "Explore the Latest in Learning: Bondar Academy Blog's Educational Insights from Our Experts",
+                  "description": "Discover a treasure trove of knowledge on the Bondar Academy blog. Here, we share an array of tips, techniques, and valuable educational materials, all designed to keep you abreast of the latest technological trends and best practices. For easy access and continual learning, consider bookmarking our blog in your browser.",
+                  "body": "On the Bondar Academy blog, we consistently provide insightful and pertinent updates on the latest in technology, test automation, and industry best practices. For your convenience, we recommend adding our blog to your browser's bookmarks. Our commitment to keeping you informed is reflected in our weekly posts, each focusing on a significant topic of the week.\n\nWe value your input and invite you to contribute to our ever-evolving content. If you have any suggestions or specific topics you'd like us to explore, please feel free to share your ideas in the Bondar Academy Slack workspace. \n\nDiscover our blog here: https://www.bondaracademy.com/blog\n",
+                  "tagList": [
+                    "Blog"
+                  ],
+                  "createdAt": "2024-01-27T21:34:04.531Z",
+                  "updatedAt": "2024-01-27T21:34:04.531Z",
+                  "favorited": false,
+                  "favoritesCount": 67,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                },
+                {
+                  "slug": "Take-the-Next-Step:-Join-Bondar-Academy-Today-and-Enroll-into-the-class-1",
+                  "title": "Take the Next Step: Join Bondar Academy Today and Enroll into the class",
+                  "description": "Are you prepared to transform your educational journey? Begin by signing up at Bondar Academy, then register for our Slack Workspace to start exploring. We offer a range of classes, with some being completely free and others featuring free previews of the initial sections. This allows you to experience our content and teaching approach firsthand, helping you make an informed decision before enrolling in a class.",
+                  "body": "Are you prepared to transform your educational journey? \n\nBegin by signing up at Bondar Academy, then register for our Slack Workspace to start exploring. We offer a range of classes, with some being completely free and others featuring free previews of the initial sections. This allows you to experience our content and teaching approach firsthand, helping you make an informed decision before enrolling in a class.\n\nClick here to enroll: https://www.bondaracademy.com",
+                  "tagList": [
+                    "Enroll",
+                    "Start for Free"
+                  ],
+                  "createdAt": "2024-01-27T21:32:21.056Z",
+                  "updatedAt": "2024-01-27T21:32:21.056Z",
+                  "favorited": false,
+                  "favoritesCount": 75,
+                  "author": {
+                    "username": "Artem Bondar",
+                    "bio": null,
+                    "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                    "following": false
+                  }
+                }
+              ],
+              "articlesCount": 10
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-013\\.3:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-013\\.4:\""
+      ]
+    },
+    {
+      "id": "APP-7",
+      "title": "Deleting someone else's comment answers 404 instead of 403",
+      "testType": "security",
+      "source": "story AC-15, api-contract.md §Errors (403 not the owner)",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-15"
+      ],
+      "tests": [
+        "SCN-019"
+      ],
+      "expected": "403",
+      "actual": "404",
+      "rationale": "Reproduced live: the article's author (not the commenter) DELETE → 404 {}; the comment remains (that half of AC-15 holds). AC-15 and the error model: not permitted → 403. (Confirmed in run 02-eval; identical failure signature in 03-eval.)",
+      "liveCheck": "evaluations/DEMO-707/runs/02-eval/confirm/SCN-019.md",
+      "steps": [
+        "Given a writer published an article",
+        "And a reader commented on it",
+        "When the article's author (not the commenter) deletes the comment",
+        "Then the response status is 403",
+        "And the comment is still listed for the commenter"
+      ],
+      "api": {
+        "request": {
+          "method": "DELETE",
+          "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irlvc6snz2-74265/comments/106895",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 404,
+          "durationMs": 107,
+          "headers": {
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+            "x-cloud-trace-context": "b451eb681f31409eae1cb17f13223805",
+            "date": "Sat, 26 Sep 2026 19:10:28 GMT",
+            "server": "Google Frontend",
+            "content-length": "2"
+          },
+          "body": {}
+        }
+      },
+      "screenshot": "evaluations/DEMO-707/runs/03-eval/artifacts/DEMO-707-tests-demo-707-DE-dd44b-t-s-author-cannot-delete-it-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irlvc6snz2-74265/comments/106895",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 107,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+              "x-cloud-trace-context": "b451eb681f31409eae1cb17f13223805",
+              "date": "Sat, 26 Sep 2026 19:10:28 GMT",
+              "server": "Google Frontend",
+              "content-length": "2"
+            },
+            "body": {}
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://conduit-api.bondaracademy.com/api/articles/Heldout-irlvc6snz2-74265/comments",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 129,
+            "headers": {
+              "x-powered-by": "Express",
+              "vary": "Origin",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "W/\"111-dEKKque24gbMGQCdEt+zlPuStHA\"",
+              "x-cloud-trace-context": "7f22d706256dc413ae1cb17f13223141",
+              "date": "Sat, 26 Sep 2026 19:10:28 GMT",
+              "server": "Google Frontend",
+              "content-length": "273"
+            },
+            "body": {
+              "comments": [
+                {
+                  "id": 106895,
+                  "createdAt": "2026-09-26T19:10:28.557Z",
+                  "updatedAt": "2026-09-26T19:10:28.557Z",
+                  "body": "Comment irlvpsoyn4",
+                  "author": {
+                    "username": "qairlvgvh9f3",
+                    "bio": null,
+                    "image": "https://conduit-api.bondaracademy.com/images/smiley-cyrus.jpeg",
+                    "following": false
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-707 --label repro --grep \"SCN-019:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [
+    {
+      "run": "02-eval",
+      "scenario": "SCN-007",
+      "action": "Wrap the payload in the declared envelope (HOW only) and re-run."
+    }
+  ],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 1,
+      "tests": 4,
+      "passed": 2,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-6"
+      ]
+    },
+    {
+      "type": "functional",
+      "scenarios": 12,
+      "tests": 15,
+      "passed": 9,
+      "failed": 6,
+      "flaky": 0,
+      "defects": [
+        "APP-1",
+        "APP-2",
+        "APP-4"
+      ]
+    },
+    {
+      "type": "idempotency",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-5"
+      ]
+    },
+    {
+      "type": "integration",
+      "scenarios": 2,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 3,
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "security",
+      "scenarios": 4,
+      "tests": 6,
+      "passed": 4,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-3",
+        "APP-7"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "`POST /api/users` with a new username, email and password responds 201 with the user (username, email, token).",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "Registering a new user returns the user with a token",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-1, api-contract.md (POST /api/users)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "Registering an email or username that is already taken responds 422 with a field-level `errors` object naming the taken field(s).",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "Registering a taken <field> is rejected with a field-level error",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-2, api-contract.md §Errors (422)"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "`POST /api/users/login` with valid credentials responds 200 with a token; with a wrong password it responds 401 Unauthorized with an `errors` object.",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "Logging in with valid credentials returns a token",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-004",
+          "title": "A wrong password is refused with 401 and an errors object",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-3, api-contract.md §Errors (401 wrong login credentials)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-3"
+          ],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "failed",
+              "defect": "APP-3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "Endpoints that require authentication accept `Authorization: Token <jwt>` and respond 401 when the header is missing or the token is invalid.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "A valid Token header is accepted",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-4, api-contract.md (Authorization: Token <jwt>)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-006",
+          "title": "A request to an authenticated endpoint with <credentials> is refused with 401",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-4, api-contract.md §Errors (401 missing / invalid token)"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-006.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "An authenticated writer can create an article (title, description, body, tagList) → 201 with the article, including a `slug`, the author and the tags.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "A writer creates an article",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-5, api-contract.md (POST /api/articles, article envelope)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "Titles need not be unique: a writer may publish a second article with the same title, which receives its own distinct slug (201).",
+      "scenarios": [
+        {
+          "id": "SCN-008",
+          "title": "A second article with the same title gets its own slug",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-6"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-4"
+          ],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "failed",
+              "defect": "APP-4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "A missing title, description or body is rejected with 422 and a field-level error.",
+      "scenarios": [
+        {
+          "id": "SCN-009",
+          "title": "An article without a <field> is rejected with 422",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-7, api-contract.md §Errors (422)"
+          ],
+          "passed": 3,
+          "total": 3,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-009.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-009.3",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "Only the author may update or delete an article. Another signed-in user gets 403; the article is unchanged.",
+      "scenarios": [
+        {
+          "id": "SCN-010",
+          "title": "Another signed-in user cannot <action> someone else's article",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-8, api-contract.md §Errors (403 not the owner)"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-010.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-9",
+      "text": "The author can update an article (200, changed fields returned) and delete it (204); afterwards `GET /api/articles/{slug}` responds 404.",
+      "scenarios": [
+        {
+          "id": "SCN-011",
+          "title": "The author updates and then deletes an article",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-9"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-10",
+      "text": "Any reader filtering the article list by an author (`?author=<username>`) gets that author's published articles, including ones published moments ago.",
+      "scenarios": [
+        {
+          "id": "SCN-012",
+          "title": "<reader> filtering by author finds an article published moments ago",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-10, story §Context (all published content is public), gap G4"
+          ],
+          "passed": 0,
+          "total": 2,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-012.1",
+              "status": "failed",
+              "defect": "APP-1"
+            },
+            {
+              "id": "SCN-012.2",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-11",
+      "text": "The list supports pagination with `limit` (1–100) and `offset`. `limit` outside 1–100 is rejected with 422; values on the boundaries are accepted.",
+      "scenarios": [
+        {
+          "id": "SCN-013",
+          "title": "limit=<limit> is <outcome>",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story AC-11, api-contract.md (limit 1–100)"
+          ],
+          "passed": 2,
+          "total": 4,
+          "result": "fails requirement",
+          "defects": [
+            "APP-6"
+          ],
+          "tests": [
+            {
+              "id": "SCN-013.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-013.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-013.3",
+              "status": "failed",
+              "defect": "APP-6"
+            },
+            {
+              "id": "SCN-013.4",
+              "status": "failed",
+              "defect": "APP-6"
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "offset pages through the list",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-11, api-contract.md (offset)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-12",
+      "text": "After following an author, that author's articles appear in the reader's feed (`GET /api/articles/feed`).",
+      "scenarios": [
+        {
+          "id": "SCN-015",
+          "title": "A followed author's new article appears in the reader's feed",
+          "type": "integration",
+          "layer": "api",
+          "sources": [
+            "story AC-12"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-015",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-13",
+      "text": "A signed-in reader can comment on any article (200, the comment is returned). An empty comment body is rejected with 422.",
+      "scenarios": [
+        {
+          "id": "SCN-016",
+          "title": "A signed-in reader comments on an article",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-13"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-016",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-017",
+          "title": "An empty comment is rejected with 422",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-13, api-contract.md §Errors (422)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-017",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-14",
+      "text": "Comments are public: every reader of the article — the article's author, other users and anonymous visitors — sees all its comments in `GET /api/articles/{slug}/comments`.",
+      "scenarios": [
+        {
+          "id": "SCN-018",
+          "title": "<viewer> sees a reader's comment on the article",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-14, story §Context"
+          ],
+          "passed": 0,
+          "total": 3,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-018.1",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-018.2",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-018.3",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-15",
+      "text": "Only a comment's author may delete it. Anyone else gets 403 and the comment remains.",
+      "scenarios": [
+        {
+          "id": "SCN-019",
+          "title": "Someone other than the comment's author cannot delete it",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-15, api-contract.md §Errors (403 not the owner)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-7"
+          ],
+          "tests": [
+            {
+              "id": "SCN-019",
+              "status": "failed",
+              "defect": "APP-7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-16",
+      "text": "Favouriting is idempotent: favouriting an article increases `favoritesCount` by one and sets `favorited: true`; favouriting it again (e.g. a double-click or retry) leaves the count unchanged; unfavouriting decreases it by one.",
+      "scenarios": [
+        {
+          "id": "SCN-020",
+          "title": "Favouriting twice counts once; unfavouriting decrements",
+          "type": "idempotency",
+          "layer": "api",
+          "sources": [
+            "story AC-16, story §User stories (safe retries)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-5"
+          ],
+          "tests": [
+            {
+              "id": "SCN-020",
+              "status": "failed",
+              "defect": "APP-5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-17",
+      "text": "A registered user can sign in on the web app's Sign in page with email and password; afterwards the navigation shows their username and a \"New Article\" link.",
+      "scenarios": [
+        {
+          "id": "SCN-021",
+          "title": "A registered user signs in on the web app",
+          "type": "functional",
+          "layer": "e2e",
+          "sources": [
+            "story AC-17, gap G2 (Sign in page = /login)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-021",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-18",
+      "text": "A signed-in writer can publish an article from the editor (\"New Article\"); the article page then shows the title and body, and the article is available from the API under its slug.",
+      "scenarios": [
+        {
+          "id": "SCN-022",
+          "title": "A writer publishes an article from the editor",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story AC-18, gap G3 (editor via \"New Article\")"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-022",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-19",
+      "text": "An anonymous visitor sees \"Sign in\" and \"Sign up\" links in the navigation.",
+      "scenarios": [
+        {
+          "id": "SCN-023",
+          "title": "An anonymous visitor sees Sign in and Sign up",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story AC-19"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-023",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "G5 — what status should an invalid offset (negative or non-numeric) return? The contract only says \"offset (≥ 0)\". Not tested."
+  ],
+  "verdictFile": "evaluations/DEMO-707/verdict.md"
+}

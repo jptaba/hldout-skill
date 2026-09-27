@@ -1,0 +1,4 @@
+{ "key": "TOOL-4", "aut": "toolshop", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "PASS",
+  "defects": [],
+  "seededScriptDefects": [],
+  "traps": ["ACs live in a Jira custom field, not the description", "the description says duplicates → 422; a later PO comment clarifies 409 — the contract must record the comment as the source and the conflict as a resolved gap", "false-positive resistance: the app meets every AC"] }

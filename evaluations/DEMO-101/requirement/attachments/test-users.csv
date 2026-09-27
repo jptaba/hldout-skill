@@ -1,0 +1,3 @@
+role,username,password,notes
+standard,standard_user,secret_sauce,Happy-path shopper with no restrictions
+locked,locked_out_user,secret_sauce,Account locked by an administrator

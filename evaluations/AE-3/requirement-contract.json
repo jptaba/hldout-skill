@@ -1,0 +1,309 @@
+{
+  "key": "AE-3",
+  "title": "Brands in the catalogue API and shop, and the Contact Us form",
+  "revision": {
+    "story": "c1163a498e088e6a",
+    "attachments": {
+      "contact-us-mockup.png": "234d5d4b924d87a1"
+    }
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "goal, background rules for brandsList and the shop, out of scope, AC-1..AC-8"
+    },
+    {
+      "file": "attachments/contact-us-mockup.png",
+      "read": true,
+      "contributes": "Contact Us fields, which are mandatory/optional, the submit/confirm/cancel flow (read through transcripts/contact-us-mockup.png.md)"
+    }
+  ],
+  "context": "Shoppers browse the catalogue by brand in the shop (Products page /products, \"Brands\" sidebar panel); partners read brands through the public API GET /api/brandsList on the same host as the shop; anyone can reach the shop through the Contact Us page (/contact_us), \"Get In Touch\" form.",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "`GET /api/brandsList` returns `responseCode` 200 and a `brands` array; every entry has an `id` and a `brand`. For every entry, the product with that `id` in `GET /api/productsList` has exactly that brand.",
+      "source": "story.md#L31",
+      "text": "GET /api/brandsList returns responseCode 200 and a brands array; every entry has an id and a brand. For every entry, the product with that id in GET /api/productsList has exactly that brand.",
+      "layer": "api",
+      "endpoints": ["GET /api/brandsList", "GET /api/productsList"],
+      "outcomes": [
+        "HTTP status 200 (R2)",
+        "body field responseCode is 200",
+        "body contains a brands array",
+        "every brands entry has an id and a brand",
+        "for every brands entry, the product with that id in GET /api/productsList has exactly that brand"
+      ],
+      "gaps": ["G1"]
+    },
+    {
+      "id": "AC-2",
+      "quote": "`PUT /api/brandsList` is not supported: the HTTP status stays 200 and the JSON body is `responseCode` 405 with `message` \"This request method is not supported.\". POST and DELETE on `/api/brandsList` answer the same way.",
+      "source": "story.md#L32",
+      "text": "PUT /api/brandsList is not supported: the HTTP status stays 200 and the JSON body is responseCode 405 with message \"This request method is not supported.\". POST and DELETE on /api/brandsList answer the same way.",
+      "layer": "api",
+      "endpoints": ["PUT /api/brandsList", "POST /api/brandsList", "DELETE /api/brandsList"],
+      "outcomes": [
+        "PUT /api/brandsList: HTTP status 200",
+        "PUT /api/brandsList: body responseCode 405",
+        "PUT /api/brandsList: body message \"This request method is not supported.\"",
+        "POST /api/brandsList: HTTP status 200, body responseCode 405, message \"This request method is not supported.\"",
+        "DELETE /api/brandsList: HTTP status 200, body responseCode 405, message \"This request method is not supported.\""
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "The \"Brands\" panel on the Products page lists every brand exactly once, each followed by the number of its products in parentheses, e.g. \"(6)\".",
+      "source": "story.md#L33",
+      "text": "The \"Brands\" panel on the Products page lists every brand exactly once, each followed by the number of its products in parentheses, e.g. \"(6)\".",
+      "layer": "ui",
+      "entryPoint": "Products page (/products), left-hand sidebar \"Brands\" panel",
+      "outcomes": [
+        "no brand appears more than once in the \"Brands\" panel",
+        "each brand is followed by its product count in parentheses, e.g. \"(6)\""
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "The brands in the sidebar are exactly the distinct brand names in `GET /api/brandsList`, and the number shown next to each brand equals the number of `brandsList` entries with that brand.",
+      "source": "story.md#L34",
+      "text": "The brands in the sidebar are exactly the distinct brand names in GET /api/brandsList, and the number shown next to each brand equals the number of brandsList entries with that brand.",
+      "layer": "e2e",
+      "entryPoint": "Products page (/products), left-hand sidebar \"Brands\" panel",
+      "endpoints": ["GET /api/brandsList"],
+      "outcomes": [
+        "the set of brands in the sidebar equals the set of distinct brand names in GET /api/brandsList (none missing, none extra)",
+        "for each brand, the number shown next to it equals the number of brandsList entries with that brand"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "Clicking a brand in the sidebar opens that brand's page headed \"Brand - &lt;brand&gt; Products\" (e.g. \"Brand - Polo Products\") that lists only that brand's products: exactly the products that `GET /api/productsList` gives that brand. Check at least Polo, H&M and Mast & Harbour.",
+      "source": "story.md#L35",
+      "text": "Clicking a brand in the sidebar opens that brand's page headed \"Brand - <brand> Products\" (e.g. \"Brand - Polo Products\") that lists only that brand's products: exactly the products that GET /api/productsList gives that brand. Check at least Polo, H&M and Mast & Harbour.",
+      "layer": "e2e",
+      "entryPoint": "Products page (/products), left-hand sidebar \"Brands\" panel",
+      "endpoints": ["GET /api/productsList"],
+      "outcomes": [
+        "clicking brand Polo opens a page headed \"Brand - Polo Products\"",
+        "the page heading has the form Brand - <brand> Products for each checked brand (at least Polo, H&M, Mast & Harbour)",
+        "the brand page lists exactly the products that GET /api/productsList gives that brand: none missing, none of another brand",
+        "checked for at least Polo, H&M and Mast & Harbour"
+      ],
+      "gaps": ["G1", "G2"]
+    },
+    {
+      "id": "AC-6",
+      "quote": "The Contact Us form offers the fields shown in the mock-up; the mandatory field(s) marked in the mock-up must be filled for the form to be sent, and an e-mail that is not a valid address stops the form from being sent. Fields marked optional may be left empty.",
+      "source": "story.md#L36",
+      "text": "The Contact Us form offers the fields shown in the mock-up; the mandatory field(s) marked in the mock-up must be filled for the form to be sent, and an e-mail that is not a valid address stops the form from being sent. Fields marked optional may be left empty.",
+      "layer": "ui",
+      "entryPoint": "Contact Us page (/contact_us), \"Get In Touch\" form",
+      "outcomes": [
+        "the form offers the fields Name, Email, Subject and Message shown in the mock-up (Attachment is out of scope)",
+        "with Email empty the form is not sent",
+        "with an Email that is not a valid address the form is not sent",
+        "with a valid Email and Name, Subject and Message left empty the form can be sent"
+      ],
+      "gaps": ["G3", "G4"]
+    },
+    {
+      "id": "AC-7",
+      "quote": "Sending the form follows the mock-up: the customer is asked to confirm; after confirming, the message \"Success! Your details have been submitted successfully.\" is shown and the form is replaced by a \"Home\" button that returns to the home page.",
+      "source": "story.md#L37",
+      "text": "Sending the form follows the mock-up: the customer is asked to confirm; after confirming, the message \"Success! Your details have been submitted successfully.\" is shown and the form is replaced by a \"Home\" button that returns to the home page.",
+      "layer": "ui",
+      "entryPoint": "Contact Us page (/contact_us), \"Get In Touch\" form",
+      "outcomes": [
+        "clicking \"Submit\" on a validly filled form opens a browser confirmation \"Press OK to proceed!\"",
+        "after OK, the message \"Success! Your details have been submitted successfully.\" is shown (mock-up: green success banner above the form)",
+        "after OK, the form is replaced by a \"Home\" button",
+        "clicking \"Home\" returns to the home page"
+      ],
+      "gaps": ["G5"]
+    },
+    {
+      "id": "AC-8",
+      "quote": "If the customer cancels the confirmation, no success message is shown and the form stays on the page with what they typed.",
+      "source": "story.md#L38",
+      "text": "If the customer cancels the confirmation, no success message is shown and the form stays on the page with what they typed.",
+      "layer": "ui",
+      "entryPoint": "Contact Us page (/contact_us), \"Get In Touch\" form",
+      "outcomes": [
+        "after Cancel on the \"Press OK to proceed!\" confirmation, the message \"Success! Your details have been submitted successfully.\" is not shown",
+        "after Cancel, the form is still on the page and every field keeps the text that was typed"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/brandsList",
+      "source": "story.md#L21",
+      "auth": "none",
+      "success": "HTTP 200, body responseCode 200 and a brands array of { id, brand } entries, one per catalogue product",
+      "envelope": "brands",
+      "request": "Public endpoint on the same host as the shop"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/brandsList",
+      "source": "story.md#L32",
+      "request": "Unsupported method: expected HTTP 200 with body responseCode 405 (E1)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/brandsList",
+      "source": "story.md#L32",
+      "request": "Unsupported method: expected HTTP 200 with body responseCode 405 (E1)"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/brandsList",
+      "source": "story.md#L32",
+      "request": "Unsupported method: expected HTTP 200 with body responseCode 405 (E1)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/productsList",
+      "source": "story.md#L31",
+      "request": "Catalogue products; response shape (array key, product id and brand fields) not stated, see G1"
+    }
+  ],
+  "auth": {
+    "mechanism": "none: GET /api/brandsList is a public endpoint",
+    "source": "story.md#L21"
+  },
+  "rules": [
+    {
+      "id": "R1",
+      "text": "GET /api/brandsList returns the brand of every catalogue product, one entry per product: entry id is the product id and brand is that product's brand. A brand appears once per product it has; the distinct brand names are our brands.",
+      "source": "story.md#L21"
+    },
+    {
+      "id": "R2",
+      "text": "Like the rest of the public catalogue API, brandsList always answers with HTTP status 200 and reports the outcome in the responseCode field of its JSON body.",
+      "source": "story.md#L22"
+    },
+    {
+      "id": "R3",
+      "text": "Contact Us form fields (mock-up): Name (optional), Email (mandatory, marked *), Subject (optional), Message (optional), Attachment (optional, not part of this story).",
+      "source": "transcripts/contact-us-mockup.png.md#L5-L9"
+    },
+    {
+      "id": "R4",
+      "text": "The form must not be sent while a mandatory field is empty or the e-mail is not a valid address.",
+      "source": "transcripts/contact-us-mockup.png.md#L12"
+    },
+    {
+      "id": "R5",
+      "text": "Submit flow (mock-up): Submit -> browser confirmation \"Press OK to proceed!\" -> OK shows the green success banner above the form and replaces the form with a \"Home\" button. Cancel keeps the form as filled, no banner.",
+      "source": "transcripts/contact-us-mockup.png.md#L11"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "Unsupported method (PUT, POST or DELETE) on /api/brandsList",
+      "status": 200,
+      "body": "responseCode 405 with message \"This request method is not supported.\"",
+      "source": "story.md#L32"
+    }
+  ],
+  "testData": {
+    "strategy": "No seeding: brand checks read the existing catalogue through GET /api/brandsList and GET /api/productsList (brand data comes from the same catalogue as the products); Contact Us tests type their own input into the form.",
+    "source": "story.md#L21"
+  },
+  "outOfScope": [
+    "the file attachment on the Contact Us form",
+    "the newsletter subscription box",
+    "categories"
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "response shape of GET /api/productsList: key of the product array and the fields holding a product's id and brand",
+      "kind": "mechanics",
+      "required": true,
+      "affects": ["AC-1", "AC-5"],
+      "tried": [
+        { "where": "story", "result": "L31 and L35 name GET /api/productsList but not its response shape; L21 gives the brandsList entry fields (id, brand) only" },
+        { "where": "attachments", "result": "the mock-up covers the Contact Us form only" }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G2",
+      "element": "how a product listed on a brand page is matched to its GET /api/productsList entry (e.g. product name or id in the product link)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": ["AC-5"],
+      "tried": [
+        { "where": "story", "result": "L35 requires the brand page to list exactly the products productsList gives that brand, but does not say how UI products are identified" },
+        { "where": "attachments", "result": "no brand page mock-up" }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G3",
+      "element": "what counts as a valid e-mail address (which inputs must stop the form)",
+      "kind": "oracle",
+      "required": false,
+      "affects": ["AC-6"],
+      "tried": [
+        { "where": "story", "result": "L36: \"an e-mail that is not a valid address stops the form from being sent\"; no definition of valid" },
+        { "where": "attachments", "result": "transcripts/contact-us-mockup.png.md#L12: \"the e-mail is not a valid address\"; no definition of valid" }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G4",
+      "element": "observable sign that the form was not sent when Email is empty or invalid (no validation message is specified)",
+      "kind": "oracle",
+      "required": false,
+      "affects": ["AC-6"],
+      "tried": [
+        { "where": "story", "result": "L36 says the form is not sent but names no message or indicator; L37 states only what a successful send shows" },
+        { "where": "attachments", "result": "transcripts/contact-us-mockup.png.md#L12: \"the form must not be sent\"; no validation message shown" }
+      ],
+      "resolution": "open"
+    },
+    {
+      "id": "G5",
+      "element": "route or recognisable marker of the home page that the \"Home\" button returns to",
+      "kind": "mechanics",
+      "required": true,
+      "affects": ["AC-7"],
+      "tried": [
+        { "where": "story", "result": "L37: \"a \\\"Home\\\" button that returns to the home page\"; no route given" },
+        { "where": "attachments", "result": "mock-up (L11) shows the \"Home\" button but not where it leads" }
+      ],
+      "resolution": "open"
+    }
+  ],
+  "coverage": [
+    { "lines": "story.md#L17", "as": "context", "note": "story goal; each part is captured by AC-1..AC-8" },
+    { "lines": "story.md#L21", "as": "R1, endpoint, auth, test-data" },
+    { "lines": "story.md#L22", "as": "R2" },
+    { "lines": "story.md#L23", "as": "context, AC-3, AC-5", "note": "Products page route /products and the \"Brands\" panel are the entry point of AC-3..AC-5; brand links are exercised by AC-5" },
+    { "lines": "story.md#L24", "as": "context, AC-6", "note": "Contact Us page route /contact_us and the pointer to the mock-up, which is transcribed and captured in R3..R5" },
+    { "lines": "story.md#L25", "as": "out-of-scope" },
+    { "lines": "story.md#L29", "as": "not-a-requirement", "note": "header row of the acceptance-criteria table" },
+    { "lines": "story.md#L31", "as": "AC-1" },
+    { "lines": "story.md#L32", "as": "AC-2, E1" },
+    { "lines": "story.md#L33", "as": "AC-3" },
+    { "lines": "story.md#L34", "as": "AC-4" },
+    { "lines": "story.md#L35", "as": "AC-5" },
+    { "lines": "story.md#L36", "as": "AC-6" },
+    { "lines": "story.md#L37", "as": "AC-7" },
+    { "lines": "story.md#L38", "as": "AC-8" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L3", "as": "context", "note": "mock-up caption: identifies the page (/contact_us) and the \"Get In Touch\" form; not to scale" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L4", "as": "context", "note": "form heading \"GET IN TOUCH\"; identifies the form named in story L24, no criterion attached to it" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L5-L8", "as": "AC-6, R3" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L9", "as": "R3, out-of-scope", "note": "Attachment field is marked not part of this story (also story L25)" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L10", "as": "AC-7", "note": "\"Submit\" button that starts the flow" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L11", "as": "AC-7, AC-8, R5" },
+    { "lines": "transcripts/contact-us-mockup.png.md#L12", "as": "AC-6, R4, G3, G4" }
+  ]
+}

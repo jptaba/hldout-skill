@@ -1,0 +1,58 @@
+{
+  "key": "AE-2",
+  "aut": "automation-exercise",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-3"],
+      "origin": "genuine",
+      "keywords": ["case", "insensitive", "email", "duplicate", "uppercase", "201"],
+      "description": "Story/contract: e-mail uniqueness is case-insensitive; registering an address differing only in letter case must be refused with responseCode 400 'Email already exists!'. The AUT creates a second account (responseCode 201 'User created!') for the upper-cased address.",
+      "evidence": "createAccount email=qa-author-<ts>@example.com -> {\"responseCode\": 201, \"message\": \"User created!\"}; then createAccount email=QA-AUTHOR-<ts>@EXAMPLE.COM (all other fields valid) -> {\"responseCode\": 201, \"message\": \"User created!\"} (HTTP 200); getUserDetailByEmail for the upper-case address -> 200 with a different user id. Reproduced twice (ts 1790469669 and 1790469986). Same-spelling duplicate correctly gives 400 'Email already exists!'. Note also that verifyLogin/getUserDetailByEmail treat e-mail case-sensitively (upper-case lookup of a lower-case account -> 404)."
+    },
+    {
+      "id": "D2",
+      "criteria": ["AC-5"],
+      "origin": "genuine",
+      "keywords": ["invalid", "email", "format", "created", "201", "400"],
+      "description": "Story/contract: createAccount with an e-mail that is not a valid address (e.g. no '@') is refused with responseCode 400 and no account is created. The AUT accepts it: responseCode 201 'User created!' and the account exists.",
+      "evidence": "createAccount email=qa-author-notanemail-<ts> (no @), all other required fields valid -> {\"responseCode\": 201, \"message\": \"User created!\"}; again with email=qa-author-v2-<ts>.example.com -> 201; getUserDetailByEmail for that address -> responseCode 200 with the user. Reproduced twice; accounts deleted afterwards via deleteAccount (works with the invalid address)."
+    },
+    {
+      "id": "D3",
+      "criteria": ["AC-7"],
+      "origin": "embedded",
+      "keywords": ["mobile_number", "getuserdetailbyemail", "profile", "missing", "field"],
+      "description": "Contract §2.3 lists mobile_number among the user fields returned by getUserDetailByEmail (AC-7: every listed field, holding the registration values). The AUT's user object has no mobile_number (all other listed fields are present, with values matching registration).",
+      "evidence": "createAccount ... mobile_number=9999999999 -> 201; GET /api/getUserDetailByEmail?email=... -> {\"responseCode\": 200, \"user\": {\"id\": 2936749, \"name\": \"QA Author\", \"email\": ..., \"title\": \"Mr\", \"birth_day\": \"10\", \"birth_month\": \"May\", \"birth_year\": \"1990\", \"first_name\": \"Qa\", \"last_name\": \"Author\", \"company\": \"QACo\", \"address1\": \"1 Test St\", \"address2\": \"Suite 2\", \"country\": \"India\", \"state\": \"Karnataka\", \"city\": \"Bengaluru\", \"zipcode\": \"560001\"}} — no mobile_number, no password. Reproduced twice (second account mobile_number=5145550100)."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "Envelope: every listed call answers HTTP 200; the codes in the story/contract are the body's responseCode (stated explicitly in contract §1.1). Asserting HTTP 201/400/404/405 is a script defect, not an AUT defect. Content-Type is text/html although the body is JSON.",
+    "Parameters must be form-encoded in the request body, including for DELETE /deleteAccount and PUT /updateAccount. Sending DELETE params in the query string gives responseCode 400 'Bad request, email parameter is missing in DELETE request.'; sending JSON gives 'parameter is missing' answers. Reporting those as AUT failures is wrong.",
+    "Response field names differ from request names (birth_date -> birth_day, firstname -> first_name, lastname -> last_name); the contract lists the response names. Only mobile_number is actually missing.",
+    "createAccount checks required fields in a fixed order and reports the first missing one; when testing AC-4, drop one field at a time. Required: name, email, password, firstname, lastname, address1, country, zipcode, state, city, mobile_number (all verified to give 400 'Bad request, <field> parameter is missing in POST request.' and no account). title, birth_*, company, address2 are optional (verified 201).",
+    "Wrong-method probes outside the contract answer differently: POST /updateAccount, POST /deleteAccount and GET /createAccount return a real HTTP 405 with {\"detail\": \"Method \\\"POST\\\" not allowed.\"}. The contract only fixes DELETE /verifyLogin (body 405, HTTP 200) — met. Do not generalise.",
+    "Cleanup: D1 and D2 probes create extra accounts (upper-case and invalid e-mail) — they can and should be deleted with deleteAccount using that exact address.",
+    "verifyLogin with the e-mail in a different letter case answers 404 'User not found!' — this is NOT the AC-3 finding (AC-3 is about registration uniqueness); do not conflate.",
+    "UI: header text is 'Logged in as <name>' in the nav bar; login form fields use data-qa attributes (login-email, login-password, login-button). Wrong password error text: 'Your email or password is incorrect!'. Ads/consent overlays may appear; block ad domains.",
+    "AE_USER_PASSWORD contains special characters (e.g. '!', '#'); it must be URL-encoded in form bodies (Playwright form: {} does this)."
+  ],
+  "expectations": [
+    "AC-1 PASS: createAccount with all required fields -> responseCode 201 'User created!'.",
+    "AC-2 PASS: same e-mail again -> responseCode 400 'Email already exists!'.",
+    "AC-3 FAIL (D1).",
+    "AC-4 PASS: each required field missing -> responseCode 400 'Bad request, <field> parameter is missing in POST request.' and getUserDetailByEmail -> 404.",
+    "AC-5 FAIL (D2).",
+    "AC-6 PASS: 200 'User exists!'; wrong pw / unknown -> 404 'User not found!'; missing email or password -> 400 exact message; DELETE -> 405 'This request method is not supported.' (all HTTP 200).",
+    "AC-7 FAIL (D3) for mobile_number; the rest of AC-7 holds: other listed fields present with registration values, no password field, unknown e-mail -> 404 'Account not found with this email, try another email!'.",
+    "AC-8 PASS: PUT with email+password+city/company -> 200 'User updated!', only those fields change; wrong password -> 404 'Account not found!', nothing changes.",
+    "AC-9 PASS: DELETE (form body) -> 200 'Account deleted!'; then verifyLogin 404 'User not found!' and getUserDetailByEmail 404; wrong password -> 404 'Account not found!' and account still verifies.",
+    "AC-10 PASS: UI login with API-created account -> redirected to /, nav shows 'Logged in as <name>'; after updateAccount name='QA Author Renamed' the header shows 'Logged in as QA Author Renamed'.",
+    "AC-11 PASS: wrong password -> stays on /login, 'Your email or password is incorrect!'.",
+    "AC-12 PASS: after API deleteAccount, UI login -> same message."
+  ]
+}

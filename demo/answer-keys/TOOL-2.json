@@ -1,0 +1,6 @@
+{ "key": "TOOL-2", "aut": "toolshop", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["lock", "423", "attempt", "fourth", "4th", "five"], "description": "account locks after 3 failed attempts (4th gets 423), not after 5" }
+  ],
+  "seededScriptDefects": [],
+  "traps": ["Gherkin scenarios in the story: the contract must quote each Scenario block", "lockout test must use its own fresh account (it locks it)"] }

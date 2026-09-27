@@ -1,0 +1,256 @@
+{
+  "key": "DEMO-606",
+  "title": "Practice portal — notification copy",
+  "revision": {
+    "story": "d34b8b836411c495",
+    "attachments": {
+      "ux-copy.md": "68402a41a2e3f198"
+    }
+  },
+  "context": "Content has approved the notification copy for the Notification Message page. The server picks one of the outcomes (success / failure) at random on each request; every message shown must be approved copy (story.md#L19, attachments/ux-copy.md).",
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "context and rule R1 (L19), AC-1 (L23), AC-2 (L24)"
+    },
+    {
+      "file": "attachments/ux-copy.md",
+      "read": true,
+      "contributes": "approved copy table (header L3; R2 values at L5-L6) and the close-icon rule (R3, L8)"
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "On the Notification Message page (`/notification_message_rendered`), each click on \"Click here\" shows exactly one notification, and its text is one of the approved messages in `ux-copy.md`.",
+      "source": "story.md#L23",
+      "text": "On the Notification Message page (/notification_message_rendered), each click on \"Click here\" shows exactly one notification, and its text is one of the approved messages in ux-copy.md.",
+      "layer": "ui",
+      "entryPoint": "Notification Message page, /notification_message_rendered",
+      "outcomes": [
+        "each click on \"Click here\" shows exactly one notification",
+        "on every click, the notification text (close icon × excluded) is one of the approved messages: \"Action successful\" or \"Action unsuccessful, please try again\""
+      ],
+      "gaps": [
+        "G1",
+        "G2",
+        "G3",
+        "G4"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "Across repeated clicks, both outcomes (success and failure) can occur.",
+      "source": "story.md#L24",
+      "text": "Across repeated clicks, both outcomes (success and failure) can occur.",
+      "layer": "ui",
+      "entryPoint": "Notification Message page, /notification_message_rendered",
+      "outcomes": [
+        "across repeated clicks on \"Click here\", the success outcome (\"Action successful\") occurs at least once",
+        "across repeated clicks on \"Click here\", the failure outcome (\"Action unsuccessful, please try again\") occurs at least once"
+      ],
+      "gaps": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5"
+      ]
+    }
+  ],
+  "endpoints": [],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "The server picks one of the outcomes at random on each request, and every message shown must be approved copy.",
+      "source": "story.md#L19"
+    },
+    {
+      "id": "R2",
+      "text": "Approved notification copy: Success → \"Action successful\"; Failure → \"Action unsuccessful, please try again\".",
+      "source": "attachments/ux-copy.md#L5-L6"
+    },
+    {
+      "id": "R3",
+      "text": "A close icon (×) may follow the message; it is not part of the copy.",
+      "source": "attachments/ux-copy.md#L8"
+    }
+  ],
+  "errorModel": [],
+  "testData": {
+    "strategy": "no data setup is stated in the sources and no AC needs pre-existing data: the server picks one of the outcomes at random on each request, so each click on \"Click here\" yields a fresh outcome",
+    "source": "story.md#L19"
+  },
+  "outOfScope": [],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "locator of the notification element and of its close icon on the Notification Message page",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L23 names the page route and the \"Click here\" link, but not how the notification is rendered"
+        },
+        {
+          "where": "attachments",
+          "result": "ux-copy.md#L8 says a close icon (×) may follow the message; no element names"
+        },
+        {
+          "where": "aut",
+          "result": "inspect-01: getByRole('alert') matches 0; locator('#flash') matches 1 visible element; the close icon is a link named '×' inside it; 'Click here' is getByRole('link', { name: 'Click here' })"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "notification = locator('#flash') (one element); close icon = link '×' inside it, stripped before comparing text; trigger = getByRole('link', { name: 'Click here' })",
+      "evidence": "evaluations/DEMO-606/hardening/inspect-01-notification.md (Locator probes); hardening/hardening-log.md (UI locators)"
+    },
+    {
+      "id": "G2",
+      "element": "how to wait for the outcome after each click",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19: the server picks an outcome \"on each request\"; nothing on page behaviour"
+        },
+        {
+          "where": "attachments",
+          "result": "nothing"
+        },
+        {
+          "where": "aut",
+          "result": "hardening: the page is reloaded on every click; each sample waits for DOMContentLoaded before reading the notification"
+        },
+        {
+          "where": "config",
+          "result": "the-internet profile notes: some pages load slow third-party assets, the load event can hang (so do not wait for 'load')"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "each click triggers a full page reload; wait for DOMContentLoaded (not the load event) before reading the notification",
+      "evidence": "evaluations/DEMO-606/hardening/hardening-log.md (Mechanics); heldout.config.json auts.the-internet.notes"
+    },
+    {
+      "id": "G3",
+      "element": "origin (base URL) of the application under test",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L23 gives only the route /notification_message_rendered; L9 is the Jira URL, not the app"
+        },
+        {
+          "where": "attachments",
+          "result": "nothing"
+        },
+        {
+          "where": "config",
+          "result": "evaluation.json aut = the-internet; heldout.config.json auts.the-internet.baseURL = https://the-internet.herokuapp.com (UI only)"
+        }
+      ],
+      "resolution": "found-in-config",
+      "value": "https://the-internet.herokuapp.com (page: https://the-internet.herokuapp.com/notification_message_rendered)",
+      "evidence": "evaluations/DEMO-606/evaluation.json (aut: the-internet); heldout.config.json auts.the-internet.baseURL"
+    },
+    {
+      "id": "G4",
+      "element": "how many clicks to sample for \"each click\" (AC-1) and \"repeated clicks\" (AC-2): the outcome is random and the story gives no number",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19 \"at random on each request\"; L23 \"each click\"; L24 \"across repeated clicks … can occur\": no count, no probability"
+        },
+        {
+          "where": "attachments",
+          "result": "ux-copy.md: nothing on sampling"
+        },
+        {
+          "where": "config",
+          "result": "nothing"
+        },
+        {
+          "where": "user",
+          "result": "not asked: the extractor subagent cannot ask the user; to be confirmed by the evaluator"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "sample 12 clicks per test; AC-1 is checked on every one of the 12, AC-2 passes if each outcome appears at least once within the 12 (evaluator's sampling choice, not a requirement value)"
+    },
+    {
+      "id": "G5",
+      "element": "how an outcome (success / failure) is recognised for AC-2, and whether a notification whose text matches no approved message counts as an occurrence of either outcome",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L24 names the outcomes \"success and failure\" but no signal that distinguishes them"
+        },
+        {
+          "where": "attachments",
+          "result": "ux-copy.md#L3-L6 pairs each outcome with exactly one message (Success → \"Action successful\", Failure → \"Action unsuccessful, please try again\"); it does not say how off-copy text should be classified"
+        },
+        {
+          "where": "config",
+          "result": "nothing"
+        },
+        {
+          "where": "user",
+          "result": "not asked: the extractor subagent cannot ask the user; to be confirmed by the evaluator"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "an outcome is recognised by its approved message from ux-copy.md: success = \"Action successful\", failure = \"Action unsuccessful, please try again\" (close icon × excluded); a notification matching neither message counts as neither outcome (it is an AC-1 failure)"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L19",
+      "as": "R1",
+      "note": "also context: random outcome per request"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "AC-2"
+    },
+    {
+      "lines": "attachments/ux-copy.md#L3-L6",
+      "as": "R2",
+      "note": "approved copy table: L3 is the Outcome/Message header, L5 the Success row, L6 the Failure row (the values of R2)"
+    },
+    {
+      "lines": "attachments/ux-copy.md#L8",
+      "as": "R3"
+    }
+  ]
+}

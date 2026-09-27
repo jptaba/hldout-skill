@@ -1,0 +1,34 @@
+{
+  "key": "DQ-2",
+  "aut": "demoqa",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "PASS",
+  "defects": [],
+  "seededScriptDefects": [],
+  "traps": [
+    "Only the most recently issued token for a user is valid: signing in on the UI (which calls GenerateToken) invalidates the API token obtained earlier. Checking the collection through the API after a UI sign-in with the old token gives 401 - that is a script defect, not an app defect (regenerate the token or use Basic auth).",
+    "AC-4 no-match case: the AUT shows no rows and the pager reads 'Page 1 of 0'. The story only requires that no book rows are listed, so this is met; failing the story on 'Page 1 of 0' or on a missing 'No rows found' text would be a false positive (at most an observation).",
+    "The search box does NOT match ISBNs; the story never requires ISBN search - do not invent that expectation.",
+    "AC-5: the detail page URL is /books?search=<isbn> (not ?book=<isbn>, which just shows the full list). The story leaves the URL to discovery; clicking the title link is the reliable path.",
+    "AC-9: deletion confirms via a modal (#closeSmallModal-ok 'OK') followed by a native alert 'Book deleted.' that must be accepted.",
+    "Profile rows: delete icon id is 'delete-record-<isbn>'; titles link to /books?search=<isbn>. No data-testid attributes; ids are used. Ads may cover parts of the page - block ad domains.",
+    "DELETE /BookStore/v1/Book needs a JSON body {isbn, userId}; 204 with an empty body.",
+    "Error codes are strings ('1205', not 1205).",
+    "GET /Account/v1/User/{UUID} returns 'userId' (lower-case d) whereas POST /Account/v1/User returns 'userID'.",
+    "Do not assert a fixed catalogue size: compare /books with whatever GET /BookStore/v1/Books returns (currently 8 books, all on page 1)."
+  ],
+  "expectations": [
+    "AC-1 met: 200, books list, all 9 fields present on every entry.",
+    "AC-2 met: Book?ISBN=9781449325862 returns the same object as the catalogue entry.",
+    "AC-3 met: all catalogue books (8) are listed on /books with title, author, publisher.",
+    "AC-4 met: 'javascript' -> the 4 titles, 'zakas' -> Understanding ECMAScript 6, 'No Starch' -> 2 books, non-matching term -> no rows.",
+    "AC-5 met: detail page shows ISBN, Title, Sub Title, Author, Publisher, Total Pages.",
+    "AC-6 met: 201 {books:[{isbn}...]}, user lists the books.",
+    "AC-7 met: API-added books appear on /profile.",
+    "AC-8 met: 400 code 1210 'ISBN already present in the User's Collection!', book listed once.",
+    "AC-9 met: modal 'Do you want to delete this book?' -> OK -> row removed, others remain; API confirms.",
+    "AC-10 met: DELETE Book 204; not-in-collection -> 400 code 1206.",
+    "AC-11 met: unknown ISBN -> 400 code 1205 for lookup and add; nothing added.",
+    "AC-12 met: no/invalid token and cross-user access -> 401 code 1200 'User not authorized!'."
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "POST /carts creates an empty cart and responds 201 with its id.",
+      "outcomes": [
+        "POST /carts responds 201",
+        "the response body contains the cart's id",
+        "the new cart is empty (reading it via GET /carts/{id} lists no products)"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "POST /carts/{id} with product_id and a quantity from 1 to 99 adds the product (200); adding a product already in the cart increases its quantity by the amount added.",
+      "outcomes": [
+        "quantity 1 → 200 and the cart lists the product with quantity 1",
+        "quantity 99 → 200 and the cart lists the product with quantity 99",
+        "adding a product already in the cart increases its quantity by the amount added (the cart lists it once, with the summed quantity)"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "A quantity outside 1–99 is rejected with 422 and an error for the quantity field; the cart is unchanged.",
+      "outcomes": [
+        "quantity 0 → 422",
+        "quantity 100 → 422",
+        "the error response contains an error for the quantity field",
+        "the cart is unchanged after the rejected request (same products and quantities as before)"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "On a product page, choosing a quantity and pressing \"Add to cart\" shows \"Product added to shopping cart.\" and the cart icon in the navigation shows the total number of items.",
+      "outcomes": [
+        "the message \"Product added to shopping cart.\" is shown",
+        "the cart icon in the navigation shows the total number of items in the cart"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "The cart page (checkout step 1) lists each product with its quantity, unit price and line total (price × quantity), and the cart total.",
+      "outcomes": [
+        "every product in the cart is listed",
+        "each listed product shows its quantity",
+        "each listed product shows its unit price",
+        "each listed product shows its line total, equal to unit price × quantity",
+        "the cart total is shown"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "DELETE /carts/{id}/product/{productId} removes the product (204); the cart no longer lists it.",
+      "outcomes": [
+        "DELETE /carts/{id}/product/{productId} responds 204",
+        "the cart no longer lists the removed product"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204.",
+      "outcomes": [
+        "deleting a cart → 204",
+        "deleting the same cart again → 204"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Any request for a cart that does not exist responds 404 with the message \"Cart not found\".",
+      "outcomes": [
+        "a request for a cart id that never existed responds 404 (read, add product, remove product, delete cart)",
+        "the response carries the message \"Cart not found\""
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "The web shop keeps the cart across page views."
+    },
+    {
+      "id": "R2",
+      "text": "A quantity from 1 to 99 is accepted when adding a product; a quantity outside 1–99 is rejected and leaves the cart unchanged."
+    },
+    {
+      "id": "R3",
+      "text": "The cart is for guests (not signed in); carts are anonymous."
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "adding a product with a quantity outside 1–99",
+      "status": 422,
+      "body": "an error for the quantity field"
+    },
+    {
+      "id": "E2",
+      "case": "any request for a cart that does not exist, including deleting a cart id that never existed (see G7 for deleting an already-deleted cart)",
+      "status": 404,
+      "body": "Cart not found"
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G7",
+      "resolution": "assumed",
+      "value": "only for a cart that was already deleted: deleting it again responds 204 (AC-7, the more specific statement). Every other request for a cart that does not exist, including DELETE /carts/{id} on a cart id that never existed, responds 404 \"Cart not found\" (AC-8)"
+    },
+    {
+      "id": "G8",
+      "resolution": "assumed",
+      "value": "the cart icon shows the sum of the quantities of all products in the cart"
+    },
+    {
+      "id": "G9",
+      "resolution": "assumed",
+      "value": "the cart total equals the sum of the line totals"
+    },
+    {
+      "id": "G10",
+      "resolution": "open",
+      "value": null
+    }
+  ]
+}

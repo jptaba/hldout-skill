@@ -1,0 +1,46 @@
+{
+  "key": "PB-3",
+  "aut": "parabank",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-5"],
+      "origin": "genuine",
+      "keywords": ["negative", "zero", "amount", "transfer", "accepted", "refused"],
+      "description": "AC-5 says zero and negative amounts are refused and balances do not change; ParaBank accepts both on the page ('Transfer Complete! -$10.00 has been transferred ...' / '$0.00 has been transferred ...') and through the service (200 'Successfully transferred $-10.00 ...'); a negative transfer moves money from B back to A and 0.00 transactions are recorded.",
+      "evidence": "Customer 15653, A=21114, B=21225: POST /transfer?fromAccountId=21114&toAccountId=21225&amount=-10.00 -> 200 'Successfully transferred $-10.00 from account #21114 to account #21225', A -596.84 -> -586.84, B 1112.34 -> 1102.34. UI amount -10.00 -> XHR 200, 'Transfer Complete! -$10.00 has been transferred from account #21114 to account #21225.'; UI amount 0 -> 'Transfer Complete! $0.00 ...'. Same earlier on customer 12656 (amount=-10 and amount=0 -> 200) and customer 12878 (UI -10)."
+    },
+    {
+      "id": "D2",
+      "criteria": ["AC-4"],
+      "origin": "genuine",
+      "keywords": ["amount", "empty", "valid", "internal", "error", "message"],
+      "description": "AC-4 says an empty amount shows 'The amount cannot be empty.' and 'abc' shows 'Please enter a valid amount.' with the form still on screen; ParaBank sends the request anyway (400 from the service) and replaces the form with 'Error! An internal error has occurred and has been logged.' — the two messages exist hidden in the page but are never shown.",
+      "evidence": "UI transfer.htm, amount '' -> XHR POST services_proxy/bank/transfer?...&amount= 400, #rightPanel 'Error! An internal error has occurred and has been logged.'; amount 'abc' -> XHR 400, same Error! text (customers 12878 and 15653). Balances unchanged."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "The PO comment (comment-1) REPLACES AC-6: a transfer larger than the balance must complete and the source may go negative. ParaBank does exactly that (1000.00 from A with 403.16 -> 200, A -596.84, B credited 1000.00). Reporting AC-6 as failing (following the original description) is a false positive.",
+    "AC-4 is 'no balance changes' + message: balances do not change (the service rejects), so the deviation is only the message/form behaviour; don't count it twice.",
+    "D1 has two amounts (0 and -10.00) and two layers; it is one deviation, not four.",
+    "The REST transfer answers with a plain sentence but Content-Type application/xml; do not parse it as XML/JSON. The amount in the message echoes the input string ($12.34 for 12.34, $1000.00 for 1000.00, $-10.00 for -10.00).",
+    "Transfer page account selects are filled by XHR; wait for options before selecting, or the submit posts the wrong ids (both selects default to the first account = A to A, which ParaBank also accepts).",
+    "A negative transfer makes B lower and A higher; tests comparing 'no change' must read both balances.",
+    "Accounts Overview shows negative balances as '-$596.84' with Available Amount '$0.00'.",
+    "AC-3 transaction dates are epoch-ms at UTC midnight; the page renders them in browser local time (may show the previous day) — don't assert dates.",
+    "The AC-7 message lists the source first: 'Could not find account number <A> and/or 99999999'. 99999999 must not exist; it does not on this sandbox.",
+    "Open the second account with newAccountType=1 (SAVINGS) or 0 (CHECKING) — integer code, not the name."
+  ],
+  "expectations": [
+    "AC-1: 'Transfer Complete!' and '$25.50 has been transferred from account #A to account #B.'; overview A -25.50, B +25.50, Total unchanged (probed).",
+    "AC-2: 200 'Successfully transferred $12.34 from account #A to account #B'; balances change by 12.34 (probed).",
+    "AC-3: A Debit 25.50 'Funds Transfer Sent', B Credit 25.50 'Funds Transfer Received'; activity page lists it in Debit (-) column (probed).",
+    "AC-4: FAILS (D2).",
+    "AC-5: FAILS (D1).",
+    "AC-6 (as replaced by comment-1): met — overdraft transfer completes, source negative, destination credited with full amount (probed).",
+    "AC-7: 400 'Could not find account number A and/or 99999999', A unchanged (probed)."
+  ]
+}

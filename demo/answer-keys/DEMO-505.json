@@ -1,0 +1,7 @@
+{
+  "key": "DEMO-505", "aut": "the-internet", "writtenAt": "2026-09-26 (before evaluation)",
+  "expectedVerdict": "PASS_WITH_WARNINGS",
+  "defects": [],
+  "seededScriptDefects": [],
+  "expectations": ["AC-3 'appropriate notification' is ambiguous → @needs-clarification (tested literally: a non-empty notification appears)", "open question on auto-dismiss → # OPEN-QUESTION, not tested", "the notification typo is NOT a defect here (no copy is specified in this story)"]
+}

@@ -1,0 +1,275 @@
+/**
+ * Shared configuration + path helpers for the held-out evaluator scripts.
+ * Everything AUT-specific lives in the project's heldout.config.json / .env — never in the skill.
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+
+export interface AutProfile {
+  name: string;
+  /** Web UI origin (Playwright baseURL). */
+  baseURL: string;
+  /** API origin for the `api` fixture and api-probe.ts; defaults to baseURL. */
+  apiBaseURL?: string;
+  /** Attribute used by getByTestId() — e.g. data-testid, data-test, data-qa. */
+  testIdAttribute?: string;
+  /** Paths checked before a run: UI paths resolve against baseURL, "api:" paths against apiBaseURL. */
+  healthcheck?: string[];
+  notes?: string;
+}
+
+export interface HeldoutConfig {
+  /** Named AUT profiles. A story is bound to one via evaluations/<KEY>/evaluation.json. */
+  auts: Record<string, AutProfile>;
+  defaultAut: string;
+  /** The profile resolved for the current command (see loadConfig). */
+  aut: AutProfile;
+  autId: string;
+  jira: {
+    mode: 'mock' | 'cloud';
+    /** Folder that simulates a Jira instance when mode=mock. */
+    mockRoot: string;
+    /** https://<site>.atlassian.net — used for REST calls (cloud) and for links / outbox logs (mock). */
+    baseUrl?: string;
+    /** Optional custom field that stores acceptance criteria, e.g. customfield_10035. */
+    acceptanceCriteriaField?: string;
+    /** Labels written on publish: <prefix>pass | <prefix>fail | ... */
+    verdictLabelPrefix?: string;
+  };
+  evaluationsDir: string;
+  run: {
+    retries: number;
+    workers?: number;
+    headless?: boolean;
+    actionTimeoutMs?: number;
+    expectTimeoutMs?: number;
+    testTimeoutMs?: number;
+  };
+}
+
+export const ROOT = process.cwd();
+export const SKILL_DIR = path.resolve(import.meta.dirname, '..', '..');
+
+/** Minimal .env loader (no dependency). Existing process.env values win. */
+export function loadEnv(file = path.join(ROOT, '.env')): void {
+  if (!fs.existsSync(file)) return;
+  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
+    if (line.trim().startsWith('#')) continue;
+    const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!m) continue;
+    const value = m[2].replace(/^(['"])(.*)\1$/, '$2');
+    if (process.env[m[1]] === undefined) process.env[m[1]] = value;
+  }
+}
+
+/**
+ * Load heldout.config.json and resolve the AUT profile for this command.
+ * Profile precedence: opts.aut (--aut) > HELDOUT_AUT env > evaluations/<key>/evaluation.json > defaultAut.
+ * AUT_BASE_URL / AUT_API_BASE_URL env vars override the resolved profile's URLs (e.g. CI → staging).
+ */
+export function loadConfig(opts: { key?: string; aut?: string } = {}): HeldoutConfig {
+  loadEnv();
+  const file = path.join(ROOT, 'heldout.config.json');
+  if (!fs.existsSync(file)) {
+    throw new Error(`heldout.config.json not found in ${ROOT}. Run: npx tsx ${rel(SKILL_DIR)}/scripts/heldout.ts init --base-url <url>`);
+  }
+  let raw: Partial<HeldoutConfig>;
+  try { raw = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { throw new Error(`heldout.config.json is not valid JSON: ${(e as Error).message}`); }
+  const issues = validateConfig(raw);
+  if (issues.length) throw new Error(`heldout.config.json has ${issues.length} problem(s):\n${issues.map((i) => `  - ${i}`).join('\n')}\nRun the doctor for details: npx tsx ${rel(SKILL_DIR)}/scripts/heldout.ts doctor`);
+  const cfg = raw as HeldoutConfig;
+  cfg.jira ??= { mode: 'mock', mockRoot: 'mock-jira' };
+  cfg.run ??= { retries: 1 };
+  cfg.defaultAut ??= Object.keys(cfg.auts)[0];
+  cfg.evaluationsDir ??= 'evaluations';
+
+  const bound = opts.key ? readEvaluationMeta(cfg, opts.key).aut : undefined;
+  const autId = opts.aut ?? process.env.HELDOUT_AUT ?? bound ?? cfg.defaultAut;
+  const profile = cfg.auts[autId];
+  if (!profile) throw new Error(`AUT profile "${autId}" not found in heldout.config.json (have: ${Object.keys(cfg.auts).join(', ')})`);
+  cfg.autId = autId;
+  cfg.aut = { ...profile };
+  if (process.env.AUT_BASE_URL) cfg.aut.baseURL = process.env.AUT_BASE_URL;
+  if (process.env.AUT_API_BASE_URL) cfg.aut.apiBaseURL = process.env.AUT_API_BASE_URL;
+  cfg.aut.apiBaseURL ??= cfg.aut.baseURL;
+
+  if (process.env.JIRA_MODE) cfg.jira.mode = process.env.JIRA_MODE as 'mock' | 'cloud';
+  if (process.env.JIRA_BASE_URL) cfg.jira.baseUrl = process.env.JIRA_BASE_URL;
+  cfg.jira.mockRoot ??= 'mock-jira';
+  cfg.jira.verdictLabelPrefix ??= 'heldout-';
+  return cfg;
+}
+
+/**
+ * Structural validation with messages a new user can act on (the JSON schema in templates/ gives the same
+ * rules to editors). Returns a list of problems; empty = valid.
+ */
+export function validateConfig(raw: unknown): string[] {
+  const out: string[] = [];
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return ['the file must contain a JSON object'];
+  const c = raw as Record<string, unknown>;
+  const isUrl = (v: unknown) => typeof v === 'string' && /^https?:\/\/[^\s/]+/.test(v);
+  const auts = c.auts as Record<string, unknown> | undefined;
+  if (!auts || typeof auts !== 'object' || !Object.keys(auts).length) out.push('"auts" must define at least one AUT profile, e.g. {"app": {"name": "My app", "baseURL": "https://…"}}');
+  else for (const [id, p] of Object.entries(auts)) {
+    if (!/^[A-Za-z0-9][\w.-]*$/.test(id)) out.push(`auts.${id}: profile ids may contain letters, digits, ".", "_" and "-"`);
+    if (!p || typeof p !== 'object') { out.push(`auts.${id} must be an object`); continue; }
+    const prof = p as Record<string, unknown>;
+    if (!isUrl(prof.baseURL)) out.push(`auts.${id}.baseURL must be an http(s) URL (got ${JSON.stringify(prof.baseURL)})`);
+    if (prof.apiBaseURL !== undefined && !isUrl(prof.apiBaseURL)) out.push(`auts.${id}.apiBaseURL must be an http(s) URL (got ${JSON.stringify(prof.apiBaseURL)})`);
+    if (prof.healthcheck !== undefined && (!Array.isArray(prof.healthcheck) || prof.healthcheck.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.healthcheck must be a list of paths, e.g. ["/", "api:/health"]`);
+    else for (const h of (prof.healthcheck as string[] | undefined) ?? []) {
+      if (!/^(\/|api:\/|https?:\/\/)/.test(h) && h !== '') out.push(`auts.${id}.healthcheck entry ${JSON.stringify(h)} must start with "/", "api:/" or http(s):// (a Windows path here usually means Git Bash rewrote the argument)`);
+    }
+  }
+  if (c.defaultAut !== undefined && auts && !(String(c.defaultAut) in auts)) out.push(`defaultAut "${String(c.defaultAut)}" is not one of the profiles (${Object.keys(auts).join(', ')})`);
+  const j = c.jira as Record<string, unknown> | undefined;
+  if (j !== undefined) {
+    if (j.mode !== undefined && !['mock', 'cloud'].includes(String(j.mode))) out.push(`jira.mode must be "mock" or "cloud" (got ${JSON.stringify(j.mode)})`);
+    if (j.mode === 'cloud' && !isUrl(j.baseUrl) && !process.env.JIRA_BASE_URL) out.push('jira.mode is "cloud" but jira.baseUrl (or JIRA_BASE_URL) is not an https URL');
+    if (j.acceptanceCriteriaField && !/^customfield_\d+$/.test(String(j.acceptanceCriteriaField))) out.push(`jira.acceptanceCriteriaField looks wrong (${JSON.stringify(j.acceptanceCriteriaField)}); expected "customfield_12345" — list fields with: heldout doctor --jira`);
+  }
+  const r = c.run as Record<string, unknown> | undefined;
+  if (r) for (const k of ['retries', 'workers', 'actionTimeoutMs', 'expectTimeoutMs', 'testTimeoutMs']) {
+    if (r[k] !== undefined && (typeof r[k] !== 'number' || (r[k] as number) < 0)) out.push(`run.${k} must be a non-negative number`);
+  }
+  return out;
+}
+
+export interface EvaluationMeta { key: string; aut?: string; createdAt?: string; notes?: string }
+
+/** evaluations/<KEY>/evaluation.json — binds a story to an AUT profile. */
+export function readEvaluationMeta(cfg: Pick<HeldoutConfig, 'evaluationsDir'>, key: string): EvaluationMeta {
+  const file = path.join(ROOT, cfg.evaluationsDir ?? 'evaluations', key, 'evaluation.json');
+  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as EvaluationMeta) : { key };
+}
+
+/** Environment passed to Playwright so config + fixtures target the resolved profile. */
+export function autEnv(cfg: HeldoutConfig): Record<string, string> {
+  return {
+    HELDOUT_AUT: cfg.autId,
+    AUT_BASE_URL: cfg.aut.baseURL,
+    AUT_API_BASE_URL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL,
+    AUT_TEST_ID_ATTRIBUTE: cfg.aut.testIdAttribute ?? 'data-testid',
+  };
+}
+
+/**
+ * Git Bash (MSYS) rewrites arguments that start with "/" into Windows paths under the Git install:
+ * "/" → "C:/Program Files/Git/", "/products" → "C:/Program Files/Git/products". Undo that when recognisable.
+ */
+export function unmangleMsysPath(value: string): string {
+  // Path-list form: "api:/products" → "api;C:\Program Files\Git\products".
+  const list = value.match(/^([A-Za-z]+);[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i);
+  if (list) return `${list[1]}:/${list[2].replace(/\\/g, '/')}`;
+  const m =value.match(/^[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i) ?? value.match(/^[A-Za-z]:[\\/](?:msys64|msys2)[\\/](.*)$/i);
+  return m ? `/${m[1].replace(/\\/g, '/')}` : value;
+}
+
+/** Resolve a path against an origin ("", "/", "cart", "/app/cart" or a full URL). */
+export function resolveUrl(base: string, rawTarget = ''): string {
+  const target = unmangleMsysPath(rawTarget);
+  if (/^[A-Za-z]:[\\/]/.test(target)) {
+    throw new Error(`"${target}" looks like a Windows path — Git Bash rewrote a "/…" argument. Drop the leading slash (e.g. cart.html) or set MSYS_NO_PATHCONV=1.`);
+  }
+  if (/^https?:\/\//.test(target)) return target;
+  return new URL(target.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).toString();
+}
+
+export function assertIssueKey(key: string | undefined): string {
+  if (!key || !/^[A-Z][A-Z0-9_]+-\d+$/.test(key)) {
+    throw new Error(`A Jira issue key like ABC-123 is required (got: ${key ?? 'nothing'})`);
+  }
+  return key;
+}
+
+export function evalPaths(cfg: HeldoutConfig, key: string) {
+  const base = path.join(ROOT, cfg.evaluationsDir, key);
+  return {
+    base,
+    requirement: path.join(base, 'requirement'),
+    storyMd: path.join(base, 'requirement', 'story.md'),
+    rawIssue: path.join(base, 'requirement', 'raw-issue.json'),
+    attachments: path.join(base, 'requirement', 'attachments'),
+    evaluationMeta: path.join(base, 'evaluation.json'),
+    requirementReview: path.join(base, 'requirement-review.md'),
+    scenarios: path.join(base, 'scenarios.feature'),
+    testData: path.join(base, 'test-data.json'),
+    tests: path.join(base, 'tests'),
+    draft: path.join(base, 'draft'),
+    hardening: path.join(base, 'hardening'),
+    hardeningLog: path.join(base, 'hardening', 'hardening-log.md'),
+    integrity: path.join(base, 'hardening', 'integrity.json'),
+    runs: path.join(base, 'runs'),
+    verdictMd: path.join(base, 'verdict.md'),
+    verdictJson: path.join(base, 'verdict.json'),
+  };
+}
+
+export type Flags = Record<string, string | boolean | string[]>;
+
+/** Tiny argv parser: positionals + `--flag value` / `--flag=value` / `--flag`. Repeated flags become arrays. */
+export function parseArgs(argv = process.argv.slice(2)): { _: string[]; flags: Flags } {
+  const _: string[] = [];
+  const flags: Flags = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (!a.startsWith('--')) { _.push(a); continue; }
+    const eq = a.indexOf('=');
+    const name = eq === -1 ? a.slice(2) : a.slice(2, eq);
+    let value: string | boolean;
+    if (eq !== -1) value = a.slice(eq + 1);
+    else if (argv[i + 1] !== undefined && !argv[i + 1].startsWith('--')) value = argv[++i];
+    else value = true;
+    const prev = flags[name];
+    flags[name] = prev === undefined ? value : ([] as string[]).concat(prev as string | string[], String(value));
+  }
+  return { _, flags };
+}
+
+export const flagStr = (f: Flags, name: string): string | undefined => {
+  const v = f[name];
+  return typeof v === 'string' ? v : Array.isArray(v) ? v.at(-1) : undefined;
+};
+
+export const flagList = (f: Flags, name: string): string[] =>
+  f[name] === undefined || f[name] === true ? [] : ([] as string[]).concat(f[name] as string | string[]);
+
+export function readJson<T>(file: string): T {
+  return JSON.parse(fs.readFileSync(file, 'utf8')) as T;
+}
+
+export function writeFile(file: string, content: string | Buffer): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, content);
+}
+
+/** Project-relative POSIX path (for reports and links). */
+export const rel = (p: string) => path.relative(ROOT, p).split(path.sep).join('/');
+
+export const timestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
+
+/** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
+export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness)/;
+
+/** Run folders (NN-label), oldest → newest. */
+export function listRuns(runsDir: string): string[] {
+  if (!fs.existsSync(runsDir)) return [];
+  return fs.readdirSync(runsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && /^\d{2,}-/.test(d.name))
+    .map((d) => d.name)
+    .sort();
+}
+
+export function main(fn: () => Promise<void> | void): void {
+  // Piping into `head` etc. closes stdout early — exit quietly instead of crashing with EPIPE.
+  for (const stream of [process.stdout, process.stderr]) {
+    stream.on('error', (e: NodeJS.ErrnoException) => { if (e.code === 'EPIPE') process.exit(process.exitCode ?? 0); else throw e; });
+  }
+  Promise.resolve()
+    .then(fn)
+    .catch((err: unknown) => {
+      console.error(`\n✖ ${err instanceof Error ? err.message : String(err)}`);
+      process.exit(1);
+    });
+}

@@ -1,0 +1,87 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-27T00:42:29Z",
+  "contractHash": "17be611b124f7f64",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "story.md#L25; attachments/ux-copy.md#L5-L6, #L17",
+      "note": "Quote and text match L25 verbatim. Outcomes (Secure Area opens, heading 'Secure Area', message 'You logged into a secure area!') all follow from L25; heading/message copy also matches ux-copy.md#L5-L6. R2 (trailing close icon not part of copy) is correctly cited from ux-copy.md#L17. Layer 'ui' matches a browser sign-in flow."
+    },
+    {
+      "ref": "AC-2",
+      "verdict": "supported",
+      "evidence": "story.md#L26; attachments/ux-copy.md#L7-L8",
+      "note": "Quote/text match L26 verbatim; message copy matches ux-copy.md#L7-L8. The added clause 'does not reach the Secure Area' is a direct restatement of 'stays on the Login page', not a new invented condition. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-3",
+      "verdict": "supported",
+      "evidence": "story.md#L27; attachments/ux-copy.md#L9-L10",
+      "note": "Quote/text match L27 verbatim (both the logout and the signed-out /secure clauses). Message copy matches ux-copy.md#L9-L10. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-4",
+      "verdict": "supported",
+      "evidence": "story.md#L31",
+      "note": "Quote/text match L31 verbatim. 'Clicking checkbox 1 checks it' / 'clicking checkbox 2 unchecks it' are direct entailments of the stated initial states plus 'toggles it', not outside assumptions. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-5",
+      "verdict": "supported",
+      "evidence": "story.md#L32",
+      "note": "Quote/text match L32 verbatim. The enumerated three options plus '(no others)' is a fair reading of 'the options are X, Y and Z'. 'Please select an option' not selectable matches the parenthetical. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-6",
+      "verdict": "supported",
+      "evidence": "story.md#L33; attachments/ux-copy.md#L11",
+      "note": "Quote/text match L33 verbatim; 'Hello World!' copy matches ux-copy.md#L11. Single outcome captures the whole sentence. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-7",
+      "verdict": "supported",
+      "evidence": "story.md#L34; attachments/ux-copy.md#L12-L14",
+      "note": "Quote/text match L34 verbatim; all three message copies match ux-copy.md#L12-L14. All three outcomes (Alert/Confirm/Prompt) captured. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-8",
+      "verdict": "supported",
+      "evidence": "story.md#L35",
+      "note": "Quote/text match L35 verbatim; single outcome (ascending sort of first table by last name after one click) matches exactly. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-9",
+      "verdict": "supported",
+      "evidence": "story.md#L36",
+      "note": "Quote/text match L36 verbatim. Both outcomes (Add Element adds one Delete button; pressing a Delete button removes that button) are stated in the source; the parenthetical 'n presses give n Delete buttons' is an arithmetic restatement of 'each press adds one', not new information. Layer 'ui' correct."
+    },
+    {
+      "ref": "AC-10",
+      "verdict": "supported",
+      "evidence": "story.md#L37; attachments/ux-copy.md#L15",
+      "note": "Quote/text match L37 verbatim (including both examples TAB and A); copy matches ux-copy.md#L15. The contract deliberately limits outcomes to the two documented examples and defers other keys to G4, which is the correct strict reading rather than generalising. Layer 'ui' correct."
+    },
+    {
+      "ref": "R1",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": "L19 states 'Exact copy is in `ux-copy.md`.' The rule's value (messages must match that approved copy exactly) is the direct meaning of 'exact copy is in ux-copy.md' together with the AC message quotes, which are in fact identical to ux-copy.md's wording; no new value introduced."
+    },
+    {
+      "ref": "R2",
+      "verdict": "supported",
+      "evidence": "attachments/ux-copy.md#L17",
+      "note": "Rule text is a verbatim match of L17: 'Messages may be followed by a close icon (×), which is not part of the copy.'"
+    },
+    {
+      "ref": "G4",
+      "verdict": "supported",
+      "evidence": "story.md#L37; attachments/ux-copy.md#L15",
+      "note": "Story L37 gives only the two examples (TAB, A) and ux-copy.md#L15 gives only the generic '<KEY>' placeholder with no naming table for other keys, so the gap (naming for other keys is unspecified) is genuinely unresolved in the sources. Kind 'oracle' and 'required: false' are consistent with AC-10 still being evaluable on the two given examples."
+    }
+  ],
+  "missed": [],
+  "summary": "All 13 checked refs (AC-1 through AC-10, R1, R2, G4) are fully grounded in story.md and its two attachments, with quotes, outcomes, rule values and the G4 gap all matching the cited lines; every ● line in the evidence pack is accounted for in the contract's coverage ledger, and no requirement-bearing line was found uncaptured."
+}

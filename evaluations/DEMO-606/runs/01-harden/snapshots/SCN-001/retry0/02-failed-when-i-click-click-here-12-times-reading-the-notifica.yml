@@ -1,0 +1,18 @@
+# url: https://the-internet.herokuapp.com/notification_message_rendered
+# step: FAILED When I click "Click here" 12 times, reading the notification after each click
+- text:  Action unsuccesful, please try again
+- link "×":
+  - /url: "#"
+- link "Fork me on GitHub":
+  - /url: https://github.com/tourdedave/the-internet
+  - img "Fork me on GitHub"
+- heading "Notification Message" [level=3]
+- paragraph:
+  - text: The message displayed above the heading is a notification message. It is often used to convey information about an action previously taken by the user. Some rudimentary examples include 'Action successful', 'Action unsuccessful, please try again', etc.
+  - link "Click here":
+    - /url: /notification_message
+  - text: to load a new message.
+- separator
+- text: Powered by
+- link "Elemental Selenium":
+  - /url: http://elementalselenium.com/

@@ -1,0 +1,183 @@
+/**
+ * Hardening tier 3 — bundled headless inspector (used when neither the IDE browser tool (tier 1)
+ * nor Playwright MCP (tier 2) is available, and for scripted probing/verification in any tier).
+ *
+ *   heldout inspect [--key KEY | --aut <profile>] [--url login]   (path relative to the AUT base URL, or a full URL)
+ *       [--steps steps.json | --steps-json '[{"do":"fill","target":"getByLabel(\'Email\')","value":"a@b.c"}]']
+ *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
+ *       [--wait-for "<locator>"]   wait for an element before inspecting (SPAs); network idle is always awaited (≤10 s)
+ *       [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
+ *
+ * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait, target?, value?, url? }
+ *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
+ *   value  = supports ${env:NAME}
+ */
+import fs from 'node:fs';
+import { chromium, selectors, type Locator, type Page } from '@playwright/test';
+import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './lib/config';
+import { redactSnapshot } from './lib/redact';
+
+interface Step { do: string; target?: string; value?: string; url?: string }
+interface Candidate {
+  tag: string; role: string; name: string; testId: string; id: string; placeholder: string; label: string;
+  type: string; visible: boolean; text: string;
+}
+
+const env = (s = '') => s.replace(/\$\{env:(\w+)\}/g, (_, n: string) => process.env[n] ?? '');
+
+function locate(page: Page, expr: string): Locator {
+  // Deliberately evaluates a locator expression authored by the evaluator (local tool, trusted input).
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  // Nested locators inside the expression (filter({ has: getByTestId('x') })) resolve against the page too.
+  const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'] as const;
+  return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
+}
+
+async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
+  const t = () => locate(page, s.target ?? '');
+  switch (s.do) {
+    case 'goto': await page.goto(autUrl(baseURL, s.url ?? s.value)); break;
+    case 'fill': await t().fill(env(s.value)); break;
+    case 'click': await t().click(); break;
+    case 'press': await (s.target ? t().press(s.value ?? 'Enter') : page.keyboard.press(s.value ?? 'Enter')); break;
+    case 'select': await t().selectOption(env(s.value)); break;
+    case 'check': await t().check(); break;
+    case 'uncheck': await t().uncheck(); break;
+    case 'hover': await t().hover(); break;
+    case 'wait': await (s.target ? t().waitFor() : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
+    default: throw new Error(`Unknown step "${s.do}"`);
+  }
+}
+
+const q = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+
+main(async () => {
+  const { flags } = parseArgs();
+  const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
+  const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
+  const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
+  const stepsFile = flagStr(flags, 'steps');
+  const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8'))
+    : flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) : [];
+
+  selectors.setTestIdAttribute(testIdAttr);
+  const browser = await chromium.launch({ headless: !flags.headed });
+  const context = await browser.newContext({ baseURL: cfg.aut.baseURL });
+  // tsx/esbuild wraps named functions with __name(); functions shipped to page.evaluate need the helper too.
+  await context.addInitScript('globalThis.__name = globalThis.__name || ((fn) => fn);');
+  const page = await context.newPage();
+  const out: string[] = [];
+  try {
+    await page.goto(target);
+    const stepLog: string[] = [];
+    for (const [i, s] of steps.entries()) {
+      try { await runStep(page, s, cfg.aut.baseURL); stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✔ |`); }
+      catch (e) {
+        stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
+        break;
+      }
+    }
+    await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
+    const waitFor = flagStr(flags, 'wait-for');
+    if (waitFor) await locate(page, waitFor).first().waitFor({ timeout: 15_000 });
+
+    out.push(`# AUT inspection (tier 3 — bundled inspector)`, '',
+      `- AUT: ${cfg.aut.name} (profile \`${cfg.autId}\`) — ${cfg.aut.baseURL}`,
+      `- URL: ${page.url()}`, `- Title: ${await page.title()}`, `- Captured: ${new Date().toISOString()}`,
+      `- testIdAttribute: \`${testIdAttr}\``, '');
+    if (steps.length) out.push('## Setup steps', '', '| # | action | target | result |', '| --- | --- | --- | --- |', ...stepLog, '');
+
+    if (!flags['no-snapshot']) {
+      // Snapshots echo field values: redact whatever is typed into password inputs.
+      const secrets = await page.$$eval('input[type="password"]', (els) => els.map((el) => (el as HTMLInputElement).value)).catch(() => [] as string[]);
+      out.push('## Accessibility snapshot', '', '```yaml', redactSnapshot(await page.locator('body').ariaSnapshot(), secrets), '```', '');
+    }
+
+    const candidates = await page.evaluate((attr: string): Candidate[] => {
+      const implicitRole = (el: Element): string => {
+        const tag = el.tagName.toLowerCase();
+        const type = (el.getAttribute('type') ?? '').toLowerCase();
+        if (el.getAttribute('role')) return el.getAttribute('role')!;
+        if (tag === 'a' && el.hasAttribute('href')) return 'link';
+        if (tag === 'button' || (tag === 'input' && ['submit', 'button', 'reset', 'image'].includes(type))) return 'button';
+        if (tag === 'input' && type === 'checkbox') return 'checkbox';
+        if (tag === 'input' && type === 'radio') return 'radio';
+        if (tag === 'select') return (el as HTMLSelectElement).multiple ? 'listbox' : 'combobox';
+        if (tag === 'textarea' || (tag === 'input' && ['', 'text', 'email', 'search', 'tel', 'url', 'password', 'number'].includes(type))) return type === 'search' ? 'searchbox' : type === 'number' ? 'spinbutton' : 'textbox';
+        if (/^h[1-6]$/.test(tag)) return 'heading';
+        if (tag === 'img') return 'img';
+        return '';
+      };
+      const labelOf = (el: Element): string => {
+        const id = el.getAttribute('id');
+        const byFor = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+        const wrap = el.closest('label');
+        const lb = el.getAttribute('aria-labelledby');
+        const byLb = lb ? lb.split(/\s+/).map((x) => document.getElementById(x)?.textContent ?? '').join(' ') : '';
+        return (byFor?.textContent ?? wrap?.textContent ?? byLb ?? '').trim();
+      };
+      const sel = `a,button,input,select,textarea,[role],[${attr}],h1,h2,h3,[contenteditable="true"]`;
+      return Array.from(document.querySelectorAll(sel)).slice(0, 250).map((el) => {
+        const h = el as HTMLElement;
+        const inputLike = el as HTMLInputElement;
+        const type = (el.getAttribute('type') ?? '').toLowerCase();
+        const label = labelOf(el);
+        const text = (h.innerText ?? '').trim().replace(/\s+/g, ' ').slice(0, 80);
+        const name = (el.getAttribute('aria-label') ?? label ?? '') || (['submit', 'button'].includes(type) ? inputLike.value : '')
+          || text || el.getAttribute('title') || el.getAttribute('alt') || el.getAttribute('placeholder') || '';
+        const rect = h.getBoundingClientRect();
+        return {
+          tag: el.tagName.toLowerCase(), role: implicitRole(el), name: name.trim().slice(0, 80),
+          testId: el.getAttribute(attr) ?? '', id: el.id, placeholder: el.getAttribute('placeholder') ?? '', label,
+          type, visible: rect.width > 0 && rect.height > 0 && getComputedStyle(h).visibility !== 'hidden', text,
+        };
+      });
+    }, testIdAttr);
+
+    // Rank candidate locators by resilience and keep the first unique one.
+    const rows: string[] = [];
+    for (const c of candidates.filter((x) => x.visible)) {
+      const options: string[] = [];
+      if (c.role && c.name) options.push(`getByRole(${q(c.role)}, { name: ${q(c.name)}, exact: true })`);
+      if (c.label) options.push(`getByLabel(${q(c.label)}, { exact: true })`);
+      if (c.placeholder) options.push(`getByPlaceholder(${q(c.placeholder)}, { exact: true })`);
+      if (c.testId) options.push(`getByTestId(${q(c.testId)})`);
+      if (c.id) options.push(`locator(${q(`#${c.id}`)})`);
+      let best = ''; let count = 0;
+      for (const o of options) {
+        count = await locate(page, o).count().catch(() => 0);
+        if (count === 1) { best = o; break; }
+      }
+      if (!best && options[0]) { best = `${options[0]} ⚠ matches ${count}`; }
+      rows.push(`| ${c.role || c.tag} | ${c.name.replace(/\|/g, '\\|') || '-'} | ${c.testId || '-'} | ${c.type || '-'} | \`${best || '(no stable locator)'}\` |`);
+    }
+    out.push('## Visible interactive / test-id elements (best unique locator)', '',
+      '| role | accessible name | test id | type | suggested locator |', '| --- | --- | --- | --- | --- |', ...[...new Set(rows)], '');
+
+    const probes = flagList(flags, 'probe');
+    if (probes.length) {
+      out.push('## Locator probes', '', '| expression | count | visible | text / value |', '| --- | --- | --- | --- |');
+      for (const expr of probes) {
+        try {
+          const loc = locate(page, expr);
+          const count = await loc.count();
+          const first = loc.first();
+          const visible = count ? await first.isVisible() : false;
+          const text = count ? ((await first.innerText().catch(() => '')) || (await first.inputValue().catch(() => ''))).slice(0, 80) : '';
+          out.push(`| \`${expr}\` | ${count}${count === 1 ? ' ✔' : count ? ' ⚠ not unique' : ' ✖'} | ${visible} | ${text.replace(/\n/g, ' ')} |`);
+        } catch (e) {
+          out.push(`| \`${expr}\` | error | - | ${(e as Error).message.split('\n')[0]} |`);
+        }
+      }
+      out.push('');
+    }
+
+    const shot = flagStr(flags, 'screenshot');
+    if (shot) { await page.screenshot({ path: shot, fullPage: true }); out.push(`Screenshot: ${shot}`, ''); }
+  } finally {
+    await browser.close();
+  }
+  const report = out.join('\n');
+  const file = flagStr(flags, 'out');
+  if (file) { writeFile(file, report); console.log(`✔ inspection written to ${file}`); } else console.log(report);
+});

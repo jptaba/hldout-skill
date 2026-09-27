@@ -1,0 +1,57 @@
+# url: https://conduit.bondaracademy.com/article/Heldout-irsb8fw301-74275
+# step: And GET /api/articles/{slug} returns the article with that title
+- navigation:
+  - link "conduit":
+    - /url: /
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: /
+    - listitem:
+      - link " New Article":
+        - /url: /editor
+    - listitem:
+      - link " Settings":
+        - /url: /settings
+    - listitem:
+      - link "qairsb8ic3k2":
+        - /url: /profile/qairsb8ic3k2
+        - img
+        - text: qairsb8ic3k2
+- heading "Heldout irsb8fw301" [level=1]
+- link:
+  - /url: /profile/qairsb8ic3k2
+  - img
+- link "qairsb8ic3k2":
+  - /url: /profile/qairsb8ic3k2
+- text: September 26, 2026
+- link " Edit Article":
+  - /url: /editor/Heldout-irsb8fw301-74275
+- button " Delete Article"
+- paragraph: Body of irsb8fw301
+- list
+- separator
+- link:
+  - /url: /profile/qairsb8ic3k2
+  - img
+- link "qairsb8ic3k2":
+  - /url: /profile/qairsb8ic3k2
+- text: September 26, 2026
+- link " Edit Article":
+  - /url: /editor/Heldout-irsb8fw301-74275
+- button " Delete Article"
+- list
+- group:
+  - textbox "Write a comment..."
+  - img
+  - button "Post Comment"
+- contentinfo:
+  - link "conduit":
+    - /url: /
+  - text: © 2026. An interactive learning project from
+  - link "RealWorld OSS Project":
+    - /url: https://github.com/gothinkster/realworld
+  - text: . Code licensed under MIT. Hosted by
+  - link "Bondar Academy":
+    - /url: https://bondaracademy.com
+  - text: .

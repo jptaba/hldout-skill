@@ -1,0 +1,957 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/DEMO-404/tests/",
+      "--workers",
+      "2"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/DEMO-404/runs/07-eval2/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\07-eval2\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\07-eval2\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\07-eval2\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "DEMO-404\\tests\\demo-404.spec.ts",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "DEMO-404 Practice portal — sign-in and interactive widgets",
+          "file": "DEMO-404/tests/demo-404.spec.ts",
+          "line": 75,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001: The trainee signs in to the Secure Area",
+              "ok": true,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1778,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 945
+                        },
+                        {
+                          "title": "When I sign in with the training account",
+                          "duration": 615
+                        },
+                        {
+                          "title": "Then I am on the Secure Area with the heading \"Secure Area\"",
+                          "duration": 53
+                        },
+                        {
+                          "title": "And I see \"You logged into a secure area!\"",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:46.310Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-be11bfb3778456714f0d",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "SCN-002.1: Wrong credentials are refused with a specific message (an unknown username)",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1781,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 989
+                        },
+                        {
+                          "title": "When I sign in with an unknown username",
+                          "duration": 579
+                        },
+                        {
+                          "title": "Then I see \"Your username is invalid!\"",
+                          "duration": 44
+                        },
+                        {
+                          "title": "And I am still on the Login page",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:46.306Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-c747262fa2cb2aca510f",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 89,
+              "column": 5
+            },
+            {
+              "title": "SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password)",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1471,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 1066
+                        },
+                        {
+                          "title": "When I sign in with the trainee with a wrong password",
+                          "duration": 255
+                        },
+                        {
+                          "title": "Then I see \"Your password is invalid!\"",
+                          "duration": 40
+                        },
+                        {
+                          "title": "And I am still on the Login page",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:48.231Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-6df1df28d0cbcddf1a81",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 89,
+              "column": 5
+            },
+            {
+              "title": "SCN-003: Logging out returns to the Login page",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1710,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the trainee",
+                          "duration": 1353,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 1352
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I log out",
+                          "duration": 222
+                        },
+                        {
+                          "title": "Then I am on the Login page",
+                          "duration": 20
+                        },
+                        {
+                          "title": "And I see \"You logged out of the secure area!\"",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:48.228Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhwZ3V3OTEwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIgogICAgfQogIF0KfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-b23bec73dcfb3a70eb91",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 99,
+              "column": 3
+            },
+            {
+              "title": "SCN-004: The Secure Area is not reachable while signed out",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:security",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1233,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am not signed in",
+                          "duration": 2
+                        },
+                        {
+                          "title": "When I open /secure",
+                          "duration": 1109
+                        },
+                        {
+                          "title": "Then I am on the Login page",
+                          "duration": 23
+                        },
+                        {
+                          "title": "And I see \"You must login to view the secure area!\"",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:49.715Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-7b80c9c4eab64c9978e6",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 112,
+              "column": 3
+            },
+            {
+              "title": "SCN-005: Checkboxes start in the documented state and toggle",
+              "ok": true,
+              "tags": [
+                "AC-4",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1201,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Checkboxes page",
+                          "duration": 973
+                        },
+                        {
+                          "title": "Then checkbox 1 is unchecked and checkbox 2 is checked",
+                          "duration": 27
+                        },
+                        {
+                          "title": "When I click both checkboxes",
+                          "duration": 87
+                        },
+                        {
+                          "title": "Then checkbox 1 is checked and checkbox 2 is unchecked",
+                          "duration": 15
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:49.950Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-d6e31f405e6effe1f000",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 119,
+              "column": 3
+            },
+            {
+              "title": "SCN-006: The dropdown offers the documented options",
+              "ok": true,
+              "tags": [
+                "AC-5",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1090,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Dropdown page",
+                          "duration": 932
+                        },
+                        {
+                          "title": "Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"",
+                          "duration": 21
+                        },
+                        {
+                          "title": "And \"Please select an option\" is preselected and cannot be selected",
+                          "duration": 11
+                        },
+                        {
+                          "title": "When I choose \"Option 2\"",
+                          "duration": 9
+                        },
+                        {
+                          "title": "Then \"Option 2\" is the selected option",
+                          "duration": 5
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:50.959Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-ce3f911fc81ea077b8b6",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 132,
+              "column": 3
+            },
+            {
+              "title": "SCN-007: Dynamically loaded content appears within 10 seconds",
+              "ok": true,
+              "tags": [
+                "AC-6",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 6546,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on Dynamic Loading example 2",
+                          "duration": 925
+                        },
+                        {
+                          "title": "When I press \"Start\"",
+                          "duration": 61
+                        },
+                        {
+                          "title": "Then \"Hello World!\" is rendered within 10 seconds",
+                          "duration": 5465
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:51.162Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-e6e130ce91a3e2fe6d45",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 147,
+              "column": 3
+            },
+            {
+              "title": "SCN-008.1: JavaScript dialogs report the user's choice (alert)",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1058,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 874
+                        },
+                        {
+                          "title": "When I accept the JS alert",
+                          "duration": 65
+                        },
+                        {
+                          "title": "Then I see \"You successfully clicked an alert\"",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:52.058Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-afa23001c685cab79b97",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 156,
+              "column": 5
+            },
+            {
+              "title": "SCN-008.2: JavaScript dialogs report the user's choice (confirm)",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1037,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 875
+                        },
+                        {
+                          "title": "When I dismiss the JS confirm",
+                          "duration": 61
+                        },
+                        {
+                          "title": "Then I see \"You clicked: Cancel\"",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:53.129Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-fb20246a5589970e1bb6",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 156,
+              "column": 5
+            },
+            {
+              "title": "SCN-008.3: JavaScript dialogs report the user's choice (prompt)",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1062,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 884
+                        },
+                        {
+                          "title": "When I accept the JS prompt",
+                          "duration": 58
+                        },
+                        {
+                          "title": "Then I see \"You entered: held out\"",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:54.176Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-c812752448ced2b55173",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 156,
+              "column": 5
+            },
+            {
+              "title": "SCN-009: One click on \"Last Name\" sorts the first table ascending",
+              "ok": true,
+              "tags": [
+                "AC-8",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1126,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Data Tables page",
+                          "duration": 923
+                        },
+                        {
+                          "title": "When I click the \"Last Name\" header of the first table once",
+                          "duration": 52
+                        },
+                        {
+                          "title": "Then its rows are sorted by last name, ascending",
+                          "duration": 40
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:55.248Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-7d110426c0c5d61fc348",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 166,
+              "column": 3
+            },
+            {
+              "title": "SCN-010: Elements are added and removed one at a time",
+              "ok": true,
+              "tags": [
+                "AC-9",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1274,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Add/Remove Elements page",
+                          "duration": 958
+                        },
+                        {
+                          "title": "When I press \"Add Element\" 3 times",
+                          "duration": 137
+                        },
+                        {
+                          "title": "Then there are 3 \"Delete\" buttons",
+                          "duration": 6
+                        },
+                        {
+                          "title": "When I press one \"Delete\" button",
+                          "duration": 41
+                        },
+                        {
+                          "title": "Then there are 2 \"Delete\" buttons",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:56.381Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-0cfad20a39ad14ab023c",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 178,
+              "column": 3
+            },
+            {
+              "title": "SCN-011.1: Key presses are reported (Tab)",
+              "ok": true,
+              "tags": [
+                "AC-10",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1052,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Key Presses page",
+                          "duration": 914
+                        },
+                        {
+                          "title": "When I press Tab in the input",
+                          "duration": 27
+                        },
+                        {
+                          "title": "Then I see \"You entered: TAB\"",
+                          "duration": 5
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:57.666Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-494d5a2c1793bcacc5c0",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 187,
+              "column": 5
+            },
+            {
+              "title": "SCN-011.2: Key presses are reported (A)",
+              "ok": true,
+              "tags": [
+                "AC-10",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1059,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Key Presses page",
+                          "duration": 918
+                        },
+                        {
+                          "title": "When I press A in the input",
+                          "duration": 31
+                        },
+                        {
+                          "title": "Then I see \"You entered: A\"",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:10:57.717Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-87b60f207abcaf01ad85",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 187,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T18:10:45.534Z",
+    "duration": 14471.242,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

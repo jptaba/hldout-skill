@@ -1,0 +1,52 @@
+{
+  "key": "DQ-1",
+  "aut": "demoqa",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-6"],
+      "origin": "embedded",
+      "keywords": ["generatetoken", "401", "200", "wrong", "password"],
+      "description": "PO comment-1 requires POST /Account/v1/GenerateToken with a wrong password (or unknown user) to answer 401 Unauthorized; the AUT answers 200 OK (the body itself matches AC-6: token/expires null, status Failed, result 'User authorization failed.').",
+      "evidence": "curl -X POST https://demoqa.com/Account/v1/GenerateToken -H 'Content-Type: application/json' -d '{\"userName\":\"<existing user>\",\"password\":\"<wrong>\"}' -> HTTP/1.1 200 OK {\"token\":null,\"expires\":null,\"status\":\"Failed\",\"result\":\"User authorization failed.\"}; same 200 for an unknown user name. Probed 4 times with different fresh users on 2026-09-27."
+    },
+    {
+      "id": "D2",
+      "criteria": ["AC-7"],
+      "origin": "genuine",
+      "keywords": ["token", "password", "jwt", "payload", "plaintext"],
+      "description": "AC-7 says the token must not disclose the user's password; the JWT payload issued by GenerateToken contains the password in clear text.",
+      "evidence": "GenerateToken 200 for a fresh user; base64url-decoding the 2nd JWT segment gives {\"userName\":\"qa-author-1790470246356\",\"password\":\"Qa!7xRv#29kL\",\"iat\":1790470252}. Reproduced 3 times with different users."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "Comment-1 overrides AC-6 only for the HTTP status (401); the body part of AC-6 is met. An evaluator that ignores the comment will wrongly pass AC-6.",
+    "Comment-1 explicitly says AC-8 (Authorized) stays as written: Authorized with a wrong password answers 404 'User not found!' - that is NOT a deviation (AC-8 names only the message and 'never true'). The HTTP status for that case is unspecified in the story: an open question/gap to surface, not a failure.",
+    "Only the most recently issued token for a user is valid: every GenerateToken call (including the one the UI makes on sign-in) invalidates earlier tokens (401 'User not authorized!'). Tests that sign in on the UI and then reuse an older API token for DELETE /Account/v1/User/{UUID} get 401 - a script defect, not an app defect. Basic auth (user:password) is also accepted by protected endpoints.",
+    "POST /Account/v1/User returns 'userID' while GET /Account/v1/User/{UUID} returns 'userId' - AC-1 names 'userID' for the create response, which matches.",
+    "Authorized returns a bare JSON boolean (false/true) with HTTP 200, not an object.",
+    "Sign-in page and profile use id attributes (#userName, #password, #login, #userName-value); no data-testid. Profile button label is 'Logout' (the book detail page uses 'Log out'). Ads can overlay the page; block ad domains.",
+    "AC-11: the inputs get the Bootstrap 'is-invalid' class (red border) and the URL stays /login; there is no text message.",
+    "AC-5: expires is exactly 7 days after issue (e.g. issued 2026-09-27T00:40:24Z -> expires 2026-10-04T00:40:24.642Z).",
+    "AC-2 'no account is created' is checkable via GenerateToken for the rejected user name returning status 'Failed' (HTTP 200 - the D1 status deviation belongs to AC-6; do not double-count it under AC-2).",
+    "Do not use the /register page (out of scope per story and comment)."
+  ],
+  "expectations": [
+    "AC-1 met: 201 with userID (UUID), username, books [].",
+    "AC-2 met: 400 code 1300 with the exact policy message for short/weak passwords; no account created.",
+    "AC-3 met: 406 code 1204 'User exists!'.",
+    "AC-4 met: 400 code 1200 'UserName and Password required.'.",
+    "AC-5 met: 200, token, status Success, result 'User authorized successfully.', expires +7 days.",
+    "AC-6 body met but HTTP status 200 vs required 401 (D1) -> not met.",
+    "AC-7 not met (D2).",
+    "AC-8 met: false before any token, true after; wrong password -> 404 'User not found!' (status unspecified -> warning/open question).",
+    "AC-9 met: UI sign-in lands on /profile showing 'User Name :' + user name; Authorized true afterwards.",
+    "AC-10 met: stays on /login, red (rgb(255,0,0)) 'Invalid username or password!'.",
+    "AC-11 met: no sign-in, both inputs marked is-invalid.",
+    "AC-12 met: Logout -> /login; /profile shows the 'Currently you are not logged into the Book Store application...' text and no user name.",
+    "AC-13 met: DELETE with the user's current token -> 204; GenerateToken afterwards -> status Failed."
+  ]
+}

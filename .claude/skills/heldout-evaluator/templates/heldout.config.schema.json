@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Held-out evaluator configuration",
+  "description": "Everything application-specific the held-out evaluator needs. One profile per application; bind a story to a profile with evaluations/<KEY>/evaluation.json.",
+  "type": "object",
+  "required": ["auts"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "defaultAut": { "type": "string", "description": "Profile used when a story has no evaluation.json binding." },
+    "auts": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Named AUT profiles.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["baseURL"],
+        "properties": {
+          "name": { "type": "string", "description": "Human-readable name shown in verdicts." },
+          "baseURL": { "type": "string", "pattern": "^https?://", "description": "Web UI origin (Playwright baseURL)." },
+          "apiBaseURL": { "type": "string", "pattern": "^https?://", "description": "API origin for the api fixture and api-probe. Defaults to baseURL." },
+          "testIdAttribute": { "type": "string", "description": "Attribute used by getByTestId(): data-testid, data-test, data-qa…", "default": "data-testid" },
+          "healthcheck": { "type": "array", "items": { "type": "string" }, "description": "Checked before every run. UI paths resolve against baseURL, \"api:/path\" against apiBaseURL.", "default": ["/"] },
+          "healthSlowMs": { "type": "number", "description": "Slowest healthcheck sample above this (ms) = degraded AUT; the run is refused.", "default": 5000 },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "jira": {
+      "type": "object",
+      "properties": {
+        "mode": { "enum": ["mock", "cloud"], "description": "mock = file-backed Jira in ./mock-jira; cloud = Jira Cloud REST v3 (JIRA_EMAIL / JIRA_API_TOKEN in .env).", "default": "mock" },
+        "mockRoot": { "type": "string", "default": "mock-jira" },
+        "baseUrl": { "type": "string", "description": "https://<site>.atlassian.net" },
+        "acceptanceCriteriaField": { "type": "string", "pattern": "^(customfield_\\d+)?$", "description": "Custom field holding acceptance criteria, if your Jira uses one. Find it with: heldout doctor --jira" },
+        "verdictLabelPrefix": { "type": "string", "default": "heldout-" }
+      }
+    },
+    "evaluationsDir": { "type": "string", "default": "evaluations" },
+    "run": {
+      "type": "object",
+      "properties": {
+        "retries": { "type": "integer", "minimum": 0, "default": 1 },
+        "workers": { "type": "integer", "minimum": 1 },
+        "headless": { "type": "boolean", "default": true },
+        "actionTimeoutMs": { "type": "integer", "minimum": 0 },
+        "expectTimeoutMs": { "type": "integer", "minimum": 0 },
+        "testTimeoutMs": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

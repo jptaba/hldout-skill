@@ -1,0 +1,41 @@
+{
+  "key": "JS-2",
+  "aut": "juice-shop",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-3"],
+      "origin": "genuine",
+      "keywords": ["password", "minimum length", "5 characters", "201", "not enforced", "too short accepted"],
+      "description": "AC-3 (refined by the PO comment: minimum password length 5) requires the registration API to reject a too-short password with HTTP 400 and not create the account. The AUT does not enforce any password length on the API: registering with a 2- or 3-character password returns HTTP 201 and creates the customer.",
+      "evidence": "POST /api/Users with password/passwordRepeat 'abc' -> HTTP 201 (user created); with '12' -> HTTP 201. Reproduced twice. The account is created and would be usable, so the too-short password is accepted rather than rejected with 400."
+    },
+    {
+      "id": "D2",
+      "criteria": ["AC-6"],
+      "origin": "genuine",
+      "keywords": ["basket", "idor", "another customer", "authorization", "200", "reads other user basket"],
+      "description": "AC-6 requires a customer to read only their own basket. The AUT authorizes GET /rest/basket/{id} by valid JWT only, not by ownership: customer A's token can read customer B's basket id and receives B's basket (HTTP 200) instead of being refused.",
+      "evidence": "Created customer A (basket id 6) and customer B (basket id 7). GET /rest/basket/7 with A's Bearer token -> HTTP 200 body {\"status\":\"success\",\"data\":{\"id\":7,\"UserId\":29,\"Products\":[...]}} i.e. B's basket returned to A. Reproduced with a second pair (bid 8 read across tokens). A reading its own basket also returns 200, confirming the cross-account read is not merely an error path."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "AC-1/AC-2/AC-4 are all MET and must not be false-flagged. Registration success is HTTP 201 (not 200); duplicate e-mail is HTTP 400 with body {\"message\":\"Validation error\",\"errors\":[{\"field\":\"email\",\"message\":\"email must be unique\"}]}.",
+    "The registration body must nest the security question as securityQuestion:{id:<n>} and include securityAnswer; ids come from GET /api/SecurityQuestions (1..N). Sending a bare id or omitting the object shape can cause spurious failures unrelated to the ACs.",
+    "AC-5 add-to-basket returns HTTP 200 (NOT 201) with {status:success,data:{...}}; the story does not specify a status for AC-5, so do not fail it on the 200-vs-201 point. The end-to-end check is that /#/basket lists the product+quantity after UI login.",
+    "UI login state is set via the login FORM, not by injecting the token into localStorage (the SPA shows the basket as 'anonymous' if the token is only planted in storage without a real login). Register via API or UI, then log in through /#/login before asserting on /#/basket.",
+    "Welcome banner and cookie dialog overlay /#/login and /#/basket on first load; dismiss them before UI interaction.",
+    "AC-6 wording says the cross-account read must be 'refused' without naming a status code (a deliberate small gap). The deviation is unambiguous regardless: returning HTTP 200 WITH the other customer's basket contents violates the criterion. An evaluator may note the missing expected-status as an open question but should still judge AC-6 as not met.",
+    "bid values and user ids shift on data reset; tests must create their own two customers and use the bid returned by their own logins rather than hard-coded ids."
+  ],
+  "expectations": [
+    "AC-1 MET: POST /api/Users with unique email + JS_USER_PASSWORD (>=5 chars) + securityQuestion{id}+securityAnswer -> 201, body has submitted email and role 'customer'.",
+    "AC-2 MET: re-registering the same email -> 400 with 'email must be unique' validation error; no second account.",
+    "AC-4 MET: POST /rest/user/login with correct credentials -> 200 with authentication.token (JWT) and authentication.bid.",
+    "AC-5 MET: POST /api/BasketItems {BasketId:bid,ProductId:1,quantity:N} with the owner's Bearer token succeeds; after UI login as that customer, /#/basket shows 'Apple Juice (1000ml)' with quantity N (verified: quantity 3 rendered).",
+    "Overall FAIL: AC-3 (password minimum length not enforced) and AC-6 (cross-customer basket read allowed) are both genuine deviations."
+  ]
+}

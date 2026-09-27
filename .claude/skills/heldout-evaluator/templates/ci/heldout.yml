@@ -1,0 +1,55 @@
+# Held-out regression run (scaffolded by the heldout-evaluator skill: init.ts --ci).
+#
+# Re-runs an already-evaluated story's held-out suite (e.g. after a deploy) and re-renders the verdict.
+# Failures whose signature matches a decision already confirmed by the evaluator carry over.
+# Any NEW failure stays unconfirmed, so the verdict becomes INCONCLUSIVE (exit code 2): run the
+# heldout-evaluator skill in Claude Code to investigate it. CI never classifies a new defect by itself.
+name: held-out regression
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_key:
+        description: Jira story key whose held-out suite to run (e.g. ABC-123)
+        required: true
+      aut_base_url:
+        description: Optional override of the AUT base URL (e.g. a staging environment)
+        required: false
+
+jobs:
+  heldout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KEY: ${{ inputs.issue_key }}
+      AUT_BASE_URL: ${{ inputs.aut_base_url }}
+      JIRA_MODE: mock
+      # Secrets referenced from evaluations/<KEY>/test-data.json as ${env:NAME}:
+      # AUT_USER_PASSWORD: ${{ secrets.AUT_USER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run held-out suite (preflight lint + healthcheck included)
+        run: npm run heldout -- run "$KEY" --label ci
+      - name: Triage (carry confirmed decisions with identical signatures)
+        run: npm run heldout -- triage "$KEY" --carry-from auto
+      - name: Verdict
+        id: verdict
+        run: npm run heldout -- verdict "$KEY" --exit-code
+      - name: Job summary
+        if: always()
+        run: cat "evaluations/$KEY/verdict.md" >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heldout-${{ inputs.issue_key }}
+          path: |
+            evaluations/${{ inputs.issue_key }}/verdict.md
+            evaluations/${{ inputs.issue_key }}/verdict.json
+            evaluations/${{ inputs.issue_key }}/runs/

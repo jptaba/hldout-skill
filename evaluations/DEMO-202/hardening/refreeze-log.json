@@ -1,0 +1,20 @@
+[
+  {
+    "at": "2026-09-26T15:24:51.954Z",
+    "reason": "Requirement revision 2 (requirement/CHANGES.md): AC-16 idempotency added with api-contract.md v1.5; new scenarios SCN-021/022 drafted from the revised requirement before any AUT contact. REQ constants gained the IDEMPOTENCY block.",
+    "previousDraft": "evaluations/DEMO-202/hardening/draft-history/2026-09-26T15-24-51-952Z",
+    "absorbed": {
+      "changed": [],
+      "removed": [],
+      "constantsChanged": [
+        "demo-202.spec.ts"
+      ],
+      "added": [
+        "demo-202.spec.ts: [REQ AC-16] every repeat answers 2xx",
+        "demo-202.spec.ts: [REQ AC-16] retried enquiry stored only once",
+        "demo-202.spec.ts: [REQ AC-16] repeated GET all 200",
+        "demo-202.spec.ts: [REQ AC-16] repeated GET returns identical bodies"
+      ]
+    }
+  }
+]

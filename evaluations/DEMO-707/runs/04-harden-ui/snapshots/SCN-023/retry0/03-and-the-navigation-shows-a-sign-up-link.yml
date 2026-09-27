@@ -1,0 +1,25 @@
+# url: https://conduit.bondaracademy.com/
+# step: And the navigation shows a "Sign up" link
+- navigation:
+  - link "conduit":
+    - /url: /
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: /
+    - listitem:
+      - link "Sign in":
+        - /url: /login
+    - listitem:
+      - link "Sign up":
+        - /url: /register
+- contentinfo:
+  - link "conduit":
+    - /url: /
+  - text: © 2026. An interactive learning project from
+  - link "RealWorld OSS Project":
+    - /url: https://github.com/gothinkster/realworld
+  - text: . Code licensed under MIT. Hosted by
+  - link "Bondar Academy":
+    - /url: https://bondaracademy.com
+  - text: .

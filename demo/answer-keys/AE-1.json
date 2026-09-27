@@ -1,0 +1,43 @@
+{
+  "key": "AE-1",
+  "aut": "automation-exercise",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "PASS_WITH_WARNINGS",
+  "defects": [],
+  "seededScriptDefects": [],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "criteria": ["AC-7"],
+      "keywords": ["response", "code", "400", "http", "responsecode", "ambiguous"],
+      "description": "AC-7 says the request is 'rejected with response code 400' without saying whether that is the HTTP status or the JSON body's responseCode. The AUT answers HTTP 200 with body {\"responseCode\": 400, \"message\": \"Bad request, search_product parameter is missing in POST request.\"}. The story nowhere else defines the envelope (no other scenario names a code). The evaluator must raise this as a gap/open question (AC-7 met under the body-code reading, not met under the HTTP reading), not as a confirmed defect.",
+      "evidence": "curl -s -D - -X POST https://automationexercise.com/api/searchProduct -> 'HTTP/2 200', body {\"responseCode\": 400, \"message\": \"Bad request, search_product parameter is missing in POST request.\"} (probed 3 times, 2026-09-26/27). Same with a JSON body {\"search_product\":\"top\"} (the API only reads form fields)."
+    }
+  ],
+  "traps": [
+    "AC-7 ambiguity: HTTP status is 200, body responseCode is 400. Reporting it as a confirmed defect (HTTP 200 != 400) is wrong; silently passing it without surfacing the ambiguity is also wrong. Expected: a gap / open question -> PASS_WITH_WARNINGS.",
+    "comment-1 (PO) replaces AC-4: search matches name OR category. 'dress' returns 'Sleeves Top and Short - Blue & Pink' (id 16, Kids > Dress) and 'Sleeveless Unicorn Patch Gown - Pink' (id 19, Kids > Dress) whose names lack 'dress'. An evaluator that applies the original AC-4 text reports a false defect.",
+    "comment-1: brand is not searched. 'Polo' returns only 'Premium Polo T-Shirts' (id 30), not the 6 Polo-brand products. Expecting brand matches is a false positive.",
+    "Headings are CSS text-transform: uppercase. innerText gives 'SEARCHED PRODUCTS' / 'ALL PRODUCTS', textContent gives 'Searched Products' / 'All Products'. Case-sensitive innerText assertions against the story text fail falsely (script defect).",
+    "Every product card appears twice in the DOM (productinfo + overlay); counting raw 'Add to cart' links or name elements double-counts. Dedupe by data-product-id.",
+    "All API responses are HTTP 200 with the outcome in responseCode, and Content-Type is text/html even though the body is JSON; parse the body as JSON regardless of the header.",
+    "searchProduct only reads form-encoded fields (application/x-www-form-urlencoded); a JSON request body gets responseCode 400 'parameter is missing'. Sending JSON and then reporting AC-2/AC-5/AC-6 failures is a script defect.",
+    "The UI search only triggers on the search button (#submit_search) — pressing Enter in the box does nothing (it is not inside a form). The button navigates to /products?search=<term>.",
+    "The UI search box builds the URL without encoding; a term with '&' is truncated (e.g. 'Fit & Flare' shows 3 products in the UI vs 1 via the API). This is a real AUT issue but explicitly out of scope ('punctuation and special characters ... tracked separately'); it must not fail AC-10 (whose examples are 'top', 'dress', 'Men Tshirt'). At most an observation.",
+    "The home page (/) has no search box; the search is on /products.",
+    "Third-party ads / Google consent / vignette overlays may appear; block googlesyndication/doubleclick/fundingchoices requests or dismiss them; they are not part of any AC."
+  ],
+  "expectations": [
+    "AC-1 PASS: GET /api/productsList -> responseCode 200, 34 products, each with id, name, price 'Rs. <n>', brand, category {usertype {usertype}, category}.",
+    "AC-2 PASS: search 'jean' -> ids 33, 35, 37 = Soft Stretch Jeans, Regular Fit Straight Jeans, Grunt Blue Slim Fit Jeans.",
+    "AC-3 PASS: 'TOP' and 'top' both -> 14 products (ids 1,5,6,7,8,11,12,13,14,15,16,18,24,42).",
+    "AC-4 (as replaced by comment-1) PASS: 'dress' -> ids 3,4,16,19,20,21,22,23,38 = names containing dress ∪ category Dress; nothing else.",
+    "AC-5 PASS: 'zzqxv' -> responseCode 200, products [].",
+    "AC-6 PASS: search_product='' -> responseCode 200 with all 34 catalogue products (same ids as productsList).",
+    "AC-7 OPEN QUESTION (see openQuestions Q1): body responseCode 400 + exact message; HTTP 200.",
+    "AC-8 PASS: UI 'jean' -> heading 'Searched Products', box keeps 'jean', ids 33,35,37.",
+    "AC-9 PASS: UI empty search -> URL /products?search=, heading 'All Products', all 34 products.",
+    "AC-10 PASS: UI == API for 'top' (14 ids), 'dress' (9 ids), 'Men Tshirt' (id 2 only).",
+    "AC-11 PASS: UI 'zzqxv' -> heading 'Searched Products', no product cards."
+  ]
+}

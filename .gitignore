@@ -1,0 +1,9 @@
+node_modules/
+.env
+test-results/
+playwright-report/
+# heavy run artifacts (screenshots, error-context and results are kept as evidence)
+evaluations/**/runs/**/trace.zip
+evaluations/**/runs/**/html/
+.claude/settings.local.json
+.playwright-mcp/

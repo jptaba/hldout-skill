@@ -1,0 +1,234 @@
+{
+  "key": "TOOL-4",
+  "run": "02-eval",
+  "generatedAt": "2026-09-26T23:20:39.179Z",
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: A signed-in customer adds a favourite",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Adding the same favourite twice is rejected with 409",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: A customer sees only their own favourites",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: POST /favorites with no token is refused with 401",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: GET /favorites with no token is refused with 401",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.3",
+      "title": "SCN-004.3: DELETE /favorites/{id} with no token is refused with 401",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.4",
+      "title": "SCN-004.4: POST /favorites with an invalid token is refused with 401",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.5",
+      "title": "SCN-004.5: GET /favorites with an invalid token is refused with 401",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.6",
+      "title": "SCN-004.6: DELETE /favorites/{id} with an invalid token is refused with 401",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Adding a favourite on the web shop",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: Removing a favourite",
+      "file": "TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:api"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

@@ -1,0 +1,759 @@
+<testsuites id="" name="" tests="15" failures="2" skipped="0" errors="5" time="252.13488499999997">
+<testsuite name="DEMO-404\tests\demo-404.spec.ts" timestamp="2026-09-26T16:29:09.830Z" hostname="chromium" tests="15" failures="2" skipped="0" time="895.02" errors="5">
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-001: The trainee signs in to the Secure Area" classname="DEMO-404\tests\demo-404.spec.ts" time="44.656">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.1: Wrong credentials are refused with a specific message (an unknown username)" classname="DEMO-404\tests\demo-404.spec.ts" time="33.874">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password)" classname="DEMO-404\tests\demo-404.spec.ts" time="110.187">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] the trainee with a wrong password message" type="expect.toContainText">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:89:5 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password) @AC-2 @type:negative @layer:ui @P1 
+
+    Error: [REQ AC-2] the trainee with a wrong password message
+
+    expect(locator).toContainText(expected) failed
+
+    Locator: locator('#flash')
+    Expected substring: "Your password is invalid!"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - [REQ AC-2] the trainee with a wrong password message locator('#flash') with timeout 5000ms
+      - waiting for locator('#flash')
+
+
+      92 |         await signIn(page, kind === 'unknown' ? data.unknownUsername : data.trainee.username, kind === 'unknown' ? data.trainee.password : data.wrongPassword);
+      93 |       });
+    > 94 |       await journey.step(`Then I see "${msg}"`, async () => { await expect(ui(page).message, `[REQ AC-2] ${label} message`).toContainText(msg); });
+         |                                                                                                                             ^
+      95 |       await journey.step('And I am still on the Login page', async () => { await expect(page, '[REQ AC-2] stays on the Login page').toHaveURL(/\/login$/); });
+      96 |     });
+      97 |   });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:94:125)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:94:7
+
+    attachment #1: aria-snapshot 03-failed-then-i-see-your-password-is-invalid (text/yaml) ─────────
+    # url: https://the-internet.herokuapp.com/login
+    # step: FAILED Then I see "Your password is invalid!"
+    # snapshot unavailable: locator.ariaSnapshot: Timeout 3000ms exceeded.
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Target page, context or browser has been closed
+
+      62 | async function signIn(page: Page, username: string, password: string) {
+      63 |   const u = ui(page);
+    > 64 |   await u.username.fill(username);
+         |                    ^
+      65 |   await u.password.fill(password);
+      66 |   await u.login.click();
+      67 | }
+        at signIn (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:64:20)
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:92:15)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:91:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-failed-when-i-sign-in-with-the-trainee-with-a-wrong-password (text/yaml) 
+    # url: https://the-internet.herokuapp.com/login
+    # step: FAILED When I sign in with the trainee with a wrong password
+    # snapshot unavailable: locator.ariaSnapshot: Target page, context or browser has been closed
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-003: Logging out returns to the Login page" classname="DEMO-404\tests\demo-404.spec.ts" time="34.141">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-004: The Secure Area is not reachable while signed out" classname="DEMO-404\tests\demo-404.spec.ts" time="30.81">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-005: Checkboxes start in the documented state and toggle" classname="DEMO-404\tests\demo-404.spec.ts" time="31.146">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-006: The dropdown offers the documented options" classname="DEMO-404\tests\demo-404.spec.ts" time="30.694">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-007: Dynamically loaded content appears within 10 seconds" classname="DEMO-404\tests\demo-404.spec.ts" time="102.062">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="locator.click: Timeout 10000ms exceeded." type="TimeoutError">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:144:3 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-007: Dynamically loaded content appears within 10 seconds @AC-6 @type:functional @layer:ui @P2 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Start' })
+
+
+      144 |   test('SCN-007: Dynamically loaded content appears within 10 seconds', { tag: ['@AC-6', '@type:functional', '@layer:ui', '@P2'] }, async ({ page, journey }) => {
+      145 |     await journey.step('Given I am on Dynamic Loading example 2', async () => { await open(page, PATH.dynamic); });
+    > 146 |     await journey.step('When I press "Start"', async () => { await ui(page).start.click(); });
+          |                                                                                   ^
+      147 |     await journey.step('Then "Hello World!" is rendered within 10 seconds', async () => {
+      148 |       await expect(ui(page).dynamicResult, '[REQ AC-6] "Hello World!" within 10 s').toBeVisible({ timeout: REQ.DYNAMIC_MAX_MS });
+      149 |     });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:146:83)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:146:5
+
+    attachment #1: aria-snapshot 02-failed-when-i-press-start (text/yaml) ──────────────────────────
+    # url: https://the-internet.herokuapp.com/dynamic_loading/2
+    # step: FAILED When I press "Start"
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Start' })
+        - locator resolved to <button>Start</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      144 |   test('SCN-007: Dynamically loaded content appears within 10 seconds', { tag: ['@AC-6', '@type:functional', '@layer:ui', '@P2'] }, async ({ page, journey }) => {
+      145 |     await journey.step('Given I am on Dynamic Loading example 2', async () => { await open(page, PATH.dynamic); });
+    > 146 |     await journey.step('When I press "Start"', async () => { await ui(page).start.click(); });
+          |                                                                                   ^
+      147 |     await journey.step('Then "Hello World!" is rendered within 10 seconds', async () => {
+      148 |       await expect(ui(page).dynamicResult, '[REQ AC-6] "Hello World!" within 10 s').toBeVisible({ timeout: REQ.DYNAMIC_MAX_MS });
+      149 |     });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:146:83)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:146:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-failed-when-i-press-start (text/yaml) ──────────────────────────
+    # url: https://the-internet.herokuapp.com/dynamic_loading/2
+    # step: FAILED When I press "Start"
+    # snapshot unavailable: locator.ariaSnapshot: Target page, context or browser has been closed
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.1: JavaScript dialogs report the user&apos;s choice (alert)" classname="DEMO-404\tests\demo-404.spec.ts" time="82.108">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="locator.click: Timeout 10000ms exceeded." type="TimeoutError">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:153:5 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.1: JavaScript dialogs report the user's choice (alert) @AC-7 @type:functional @layer:ui @P2 › When I accept the JS alert 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Click for JS Alert' })
+
+
+      155 |       await journey.step(`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`, async () => {
+      156 |         page.once('dialog', (dialog) => (d.accept ? dialog.accept(d.kind === 'prompt' ? data.promptText : undefined) : dialog.dismiss()));
+    > 157 |         await ui(page).dialogButton(d.button).click();
+          |                                               ^
+      158 |       });
+      159 |       await journey.step(`Then I see "${d.result}"`, async () => { await expect(ui(page).result, `[REQ AC-7] ${d.kind} result`).toHaveText(d.result); });
+      160 |     });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:157:47)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:155:7
+
+    attachment #1: aria-snapshot 02-failed-when-i-accept-the-js-alert (text/yaml) ──────────────────
+    # url: https://the-internet.herokuapp.com/javascript_alerts
+    # step: FAILED When I accept the JS alert
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Click for JS Alert' })
+
+
+      155 |       await journey.step(`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`, async () => {
+      156 |         page.once('dialog', (dialog) => (d.accept ? dialog.accept(d.kind === 'prompt' ? data.promptText : undefined) : dialog.dismiss()));
+    > 157 |         await ui(page).dialogButton(d.button).click();
+          |                                               ^
+      158 |       });
+      159 |       await journey.step(`Then I see "${d.result}"`, async () => { await expect(ui(page).result, `[REQ AC-7] ${d.kind} result`).toHaveText(d.result); });
+      160 |     });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:157:47)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:155:7
+
+    attachment #1: aria-snapshot 02-failed-when-i-accept-the-js-alert (text/yaml) ──────────────────
+    # url: https://the-internet.herokuapp.com/javascript_alerts
+    # step: FAILED When I accept the JS alert
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.2: JavaScript dialogs report the user&apos;s choice (confirm)" classname="DEMO-404\tests\demo-404.spec.ts" time="31.966">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-008.3: JavaScript dialogs report the user&apos;s choice (prompt)" classname="DEMO-404\tests\demo-404.spec.ts" time="31.126">
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-009: One click on &quot;Last Name&quot; sorts the first table ascending" classname="DEMO-404\tests\demo-404.spec.ts" time="81.797">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="locator.click: Timeout 10000ms exceeded." type="TimeoutError">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:163:3 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-009: One click on "Last Name" sorts the first table ascending @AC-8 @type:functional @layer:ui @P2 › When I click the "Last Name" header of the first table once 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('table').first().getByRole('columnheader', { name: 'Last Name' })
+
+
+      164 |     await journey.step('Given I am on the Data Tables page', async () => { await open(page, PATH.tables); });
+      165 |     await journey.step('When I click the "Last Name" header of the first table once', async () => {
+    > 166 |       await ui(page).firstTable.getByRole('columnheader', { name: 'Last Name' }).click();
+          |                                                                                  ^
+      167 |     });
+      168 |     await journey.step('Then its rows are sorted by last name, ascending', async () => {
+      169 |       const names = await lastNames(page);
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:166:82)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:165:5
+
+    attachment #1: aria-snapshot 02-failed-when-i-click-the-last-name-header-of-the-first-table- (text/yaml) 
+    # url: https://the-internet.herokuapp.com/tables
+    # step: FAILED When I click the "Last Name" header of the first table once
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('table').first().getByRole('columnheader', { name: 'Last Name' })
+
+
+      164 |     await journey.step('Given I am on the Data Tables page', async () => { await open(page, PATH.tables); });
+      165 |     await journey.step('When I click the "Last Name" header of the first table once', async () => {
+    > 166 |       await ui(page).firstTable.getByRole('columnheader', { name: 'Last Name' }).click();
+          |                                                                                  ^
+      167 |     });
+      168 |     await journey.step('Then its rows are sorted by last name, ascending', async () => {
+      169 |       const names = await lastNames(page);
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:166:82)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:165:5
+
+    attachment #1: aria-snapshot 02-failed-when-i-click-the-last-name-header-of-the-first-table- (text/yaml) 
+    # url: https://the-internet.herokuapp.com/tables
+    # step: FAILED When I click the "Last Name" header of the first table once
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-010: Elements are added and removed one at a time" classname="DEMO-404\tests\demo-404.spec.ts" time="96.941">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-9] one Delete button per Add" type="expect.toHaveCount">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:175:3 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-010: Elements are added and removed one at a time @AC-9 @type:functional @layer:ui @P3 
+
+    Error: [REQ AC-9] one Delete button per Add
+
+    expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('button', { name: 'Delete' })
+    Expected: 3
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-9] one Delete button per Add getByRole('button', { name: 'Delete' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Delete' })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      176 |     await journey.step('Given I am on the Add/Remove Elements page', async () => { await open(page, PATH.addRemove); });
+      177 |     await journey.step('When I press "Add Element" 3 times', async () => { for (let n = 0; n < REQ.ADD_TIMES; n++) await ui(page).addElement.click(); });
+    > 178 |     await journey.step('Then there are 3 "Delete" buttons', async () => { await expect(ui(page).deleteButtons, '[REQ AC-9] one Delete button per Add').toHaveCount(REQ.ADD_TIMES); });
+          |                                                                                                                                                        ^
+      179 |     await journey.step('When I press one "Delete" button', async () => { await ui(page).deleteButtons.first().click(); });
+      180 |     await journey.step('Then there are 2 "Delete" buttons', async () => { await expect(ui(page).deleteButtons, '[REQ AC-9] Delete removes one button').toHaveCount(REQ.ADD_TIMES - 1); });
+      181 |   });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:178:152)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:178:5
+
+    attachment #1: aria-snapshot 03-failed-then-there-are-3-delete-buttons (text/yaml) ─────────────
+    # url: https://the-internet.herokuapp.com/add_remove_elements/
+    # step: FAILED Then there are 3 "Delete" buttons
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Add/Remove Elements" [level=3]
+    - button "Add Element"
+    - separator
+    - ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Add Element' })
+        - locator resolved to <button onclick="addElement()">Add Element</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+
+
+      175 |   test('SCN-010: Elements are added and removed one at a time', { tag: ['@AC-9', '@type:functional', '@layer:ui', '@P3'] }, async ({ page, journey }) => {
+      176 |     await journey.step('Given I am on the Add/Remove Elements page', async () => { await open(page, PATH.addRemove); });
+    > 177 |     await journey.step('When I press "Add Element" 3 times', async () => { for (let n = 0; n < REQ.ADD_TIMES; n++) await ui(page).addElement.click(); });
+          |                                                                                                                                              ^
+      178 |     await journey.step('Then there are 3 "Delete" buttons', async () => { await expect(ui(page).deleteButtons, '[REQ AC-9] one Delete button per Add').toHaveCount(REQ.ADD_TIMES); });
+      179 |     await journey.step('When I press one "Delete" button', async () => { await ui(page).deleteButtons.first().click(); });
+      180 |     await journey.step('Then there are 2 "Delete" buttons', async () => { await expect(ui(page).deleteButtons, '[REQ AC-9] Delete removes one button').toHaveCount(REQ.ADD_TIMES - 1); });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:177:142)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:177:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: aria-snapshot 02-failed-when-i-press-add-element-3-times (text/yaml) ────────────
+    # url: https://the-internet.herokuapp.com/add_remove_elements/
+    # step: FAILED When I press "Add Element" 3 times
+    # snapshot unavailable: locator.ariaSnapshot: Target page, context or browser has been closed
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-3d4c3-d-and-removed-one-at-a-time-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-011.1: Key presses are reported (Tab)" classname="DEMO-404\tests\demo-404.spec.ts" time="76.686">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="locator.press: Timeout 10000ms exceeded." type="TimeoutError">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:184:5 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-011.1: Key presses are reported (Tab) @AC-10 @type:functional @layer:ui @P3 
+
+    TimeoutError: locator.press: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('textbox')
+
+
+      184 |     test(`SCN-011.${i + 1}: Key presses are reported (${k.key})`, { tag: ['@AC-10', '@type:functional', '@layer:ui', '@P3'] }, async ({ page, journey }) => {
+      185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });
+    > 186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });
+          |                                                                                                      ^
+      187 |       await journey.step(`Then I see "${k.shown}"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });
+      188 |     });
+      189 |   });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:186:102)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:186:7
+
+    attachment #1: aria-snapshot 02-failed-when-i-press-tab-in-the-input (text/yaml) ───────────────
+    # url: https://the-internet.herokuapp.com/key_presses
+    # step: FAILED When I press Tab in the input
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-10] Tab reported
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('#result')
+    Expected: "You entered: TAB"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-10] Tab reported locator('#result') with timeout 5000ms
+      - waiting for locator('#result')
+        14 × locator resolved to <p id="result"></p>
+           - unexpected value ""
+
+
+      185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });
+      186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });
+    > 187 |       await journey.step(`Then I see "${k.shown}"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });
+          |                                                                                                                                  ^
+      188 |     });
+      189 |   });
+      190 | });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:187:130)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:187:7
+
+    attachment #1: aria-snapshot 03-failed-then-i-see-you-entered-tab (text/yaml) ──────────────────
+    # url: https://the-internet.herokuapp.com/key_presses
+    # step: FAILED Then I see "You entered: TAB"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Key Presses" [level=3]
+    - paragraph: Key presses are often used to interact with a...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="DEMO-404 Practice portal — sign-in and interactive widgets › SCN-011.2: Key presses are reported (A)" classname="DEMO-404\tests\demo-404.spec.ts" time="76.826">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<error message="locator.press: Timeout 10000ms exceeded." type="TimeoutError">
+<![CDATA[  [chromium] › DEMO-404\tests\demo-404.spec.ts:184:5 › DEMO-404 Practice portal — sign-in and interactive widgets › SCN-011.2: Key presses are reported (A) @AC-10 @type:functional @layer:ui @P3 
+
+    TimeoutError: locator.press: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('textbox')
+
+
+      184 |     test(`SCN-011.${i + 1}: Key presses are reported (${k.key})`, { tag: ['@AC-10', '@type:functional', '@layer:ui', '@P3'] }, async ({ page, journey }) => {
+      185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });
+    > 186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });
+          |                                                                                                      ^
+      187 |       await journey.step(`Then I see "${k.shown}"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });
+      188 |     });
+      189 |   });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:186:102)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:186:7
+
+    attachment #1: aria-snapshot 02-failed-when-i-press-a-in-the-input (text/yaml) ─────────────────
+    # url: https://the-internet.herokuapp.com/key_presses
+    # step: FAILED When I press A in the input
+    - iframe
+    
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-10] A reported
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('#result')
+    Expected: "You entered: A"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-10] A reported locator('#result') with timeout 5000ms
+      - waiting for locator('#result')
+        14 × locator resolved to <p id="result"></p>
+           - unexpected value ""
+
+
+      185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });
+      186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });
+    > 187 |       await journey.step(`Then I see "${k.shown}"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });
+          |                                                                                                                                  ^
+      188 |     });
+      189 |   });
+      190 | });
+        at body (D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:187:130)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:170:34
+        at D:\projects\hldout-skill\evaluations\DEMO-404\tests\demo-404.spec.ts:187:7
+
+    attachment #1: aria-snapshot 03-failed-then-i-see-you-entered-a (text/yaml) ────────────────────
+    # url: https://the-internet.herokuapp.com/key_presses
+    # step: FAILED Then I see "You entered: A"
+    - link "Fork me on GitHub":
+      - /url: https://github.com/tourdedave/the-internet
+      - img "Fork me on GitHub"
+    - heading "Key Presses" [level=3]
+    - paragraph: Key presses are often used to interact with a w...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-404\runs\04-eval\artifacts\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,1377 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/DEMO-101/tests/"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/DEMO-101/runs/05-seeded/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "DEMO-101\\tests\\demo-101.spec.ts",
+      "file": "DEMO-101/tests/demo-101.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "DEMO-101 Shopper can sign in, build a cart and complete checkout",
+          "file": "DEMO-101/tests/demo-101.spec.ts",
+          "line": 81,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001: Standard shopper signs in and sees the full catalogue",
+              "ok": true,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1542,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When I sign in as the \"standard\" shopper",
+                          "duration": 696
+                        },
+                        {
+                          "title": "Then I am on the \"Products\" page",
+                          "duration": 12
+                        },
+                        {
+                          "title": "And the catalogue lists 6 products",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:24.181Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-a4ed984809f7b96af4cf",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "SCN-002: Locked shopper cannot sign in and is told the account is locked",
+              "ok": false,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 6510,
+                      "error": {
+                        "message": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n",
+                        "stack": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                          "column": 79,
+                          "line": 105
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 103 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 104 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then I see the error \"Your account has been locked. Please contact customer support.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39merror\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] locked-account error message'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC2_LOCKED_MESSAGE\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And I am still on the sign-in page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 108 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39msignIn\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] stays on the sign-in page'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 79,
+                            "line": 105
+                          },
+                          "message": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n\n\n  103 |     });\n  104 |     await journey.step('Then I see the error \"Your account has been locked. Please contact customer support.\"', async () => {\n> 105 |       await expect(ui(page).error, '[REQ AC-2] locked-account error message').toHaveText(REQ.AC2_LOCKED_MESSAGE);\n      |                                                                               ^\n  106 |     });\n  107 |     await journey.step('And I am still on the sign-in page', async () => {\n  108 |       await expect(ui(page).signIn, '[REQ AC-2] stays on the sign-in page').toBeVisible();\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When I sign in as the \"locked\" shopper",
+                          "duration": 660
+                        },
+                        {
+                          "title": "Then I see the error \"Your account has been locked. Please contact customer support.\"",
+                          "duration": 5038,
+                          "error": {
+                            "message": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 79,
+                              "line": 105
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 103 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 104 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then I see the error \"Your account has been locked. Please contact customer support.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39merror\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] locked-account error message'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC2_LOCKED_MESSAGE\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And I am still on the sign-in page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 108 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39msignIn\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] stays on the sign-in page'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:24.198Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 03-failed-then-i-see-the-error-your-account-has-been-locked-ple",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vd3d3LnNhdWNlZGVtby5jb20vCiMgc3RlcDogRkFJTEVEIFRoZW4gSSBzZWUgdGhlIGVycm9yICJZb3VyIGFjY291bnQgaGFzIGJlZW4gbG9ja2VkLiBQbGVhc2UgY29udGFjdCBjdXN0b21lciBzdXBwb3J0LiIKLSB0ZXh0OiBTd2FnIExhYnMKLSBtYWluOgogIC0gZm9ybSAiTG9naW4iOgogICAgLSB0ZXh0Ym94ICJVc2VybmFtZSI6IGxvY2tlZF9vdXRfdXNlcgogICAgLSB0ZXh0Ym94ICJQYXNzd29yZCI6ICoqKnJlZGFjdGVkKioqCiAgICAtIGFsZXJ0OgogICAgICAtIGJ1dHRvbiAiRGlzbWlzcyBlcnJvciIKICAgICAgLSB0ZXh0OiAiRXBpYyBzYWRmYWNlOiBTb3JyeSwgdGhpcyB1c2VyIGhhcyBiZWVuIGxvY2tlZCBvdXQuIgogICAgLSBidXR0b24gIkxvZ2luIgogIC0gaGVhZGluZyAiQWNjZXB0ZWQgdXNlcm5hbWVzIGFyZToiIFtsZXZlbD00XQogIC0gdGV4dDogc3RhbmRhcmRfdXNlciBsb2NrZWRfb3V0X3VzZXIgcHJvYmxlbV91c2VyIHBlcmZvcm1hbmNlX2dsaXRjaF91c2VyIGVycm9yX3VzZXIgdmlzdWFsX3VzZXIKICAtIGhlYWRpbmcgIlBhc3N3b3JkIGZvciBhbGwgdXNlcnM6IiBbbGV2ZWw9NF0KICAtIHRleHQ6IHBhc3N3b3JkCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                        "column": 79,
+                        "line": 105
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 5882,
+                      "error": {
+                        "message": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n",
+                        "stack": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                          "column": 79,
+                          "line": 105
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 103 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 104 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then I see the error \"Your account has been locked. Please contact customer support.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39merror\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] locked-account error message'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC2_LOCKED_MESSAGE\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And I am still on the sign-in page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 108 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39msignIn\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] stays on the sign-in page'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 79,
+                            "line": 105
+                          },
+                          "message": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n\n\n  103 |     });\n  104 |     await journey.step('Then I see the error \"Your account has been locked. Please contact customer support.\"', async () => {\n> 105 |       await expect(ui(page).error, '[REQ AC-2] locked-account error message').toHaveText(REQ.AC2_LOCKED_MESSAGE);\n      |                                                                               ^\n  106 |     });\n  107 |     await journey.step('And I am still on the sign-in page', async () => {\n  108 |       await expect(ui(page).signIn, '[REQ AC-2] stays on the sign-in page').toBeVisible();\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "When I sign in as the \"locked\" shopper",
+                          "duration": 97
+                        },
+                        {
+                          "title": "Then I see the error \"Your account has been locked. Please contact customer support.\"",
+                          "duration": 5047,
+                          "error": {
+                            "message": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-2] locked-account error message\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m\"\u001b[7mYour account has been locked. Please contact customer suppor\u001b[27mt.\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mEpic sadface: Sorry, this user has been locked ou\u001b[27mt.\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to <h3 role=\"alert\" data-test=\"error\">…</h3>\u001b[22m\n\u001b[2m       - unexpected value \"Epic sadface: Sorry, this user has been locked out.\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:105:79)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:104:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 79,
+                              "line": 105
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 103 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 104 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then I see the error \"Your account has been locked. Please contact customer support.\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39merror\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] locked-account error message'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC2_LOCKED_MESSAGE\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And I am still on the sign-in page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 108 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39msignIn\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-2] stays on the sign-in page'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:32.297Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 03-failed-then-i-see-the-error-your-account-has-been-locked-ple",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vd3d3LnNhdWNlZGVtby5jb20vCiMgc3RlcDogRkFJTEVEIFRoZW4gSSBzZWUgdGhlIGVycm9yICJZb3VyIGFjY291bnQgaGFzIGJlZW4gbG9ja2VkLiBQbGVhc2UgY29udGFjdCBjdXN0b21lciBzdXBwb3J0LiIKLSB0ZXh0OiBTd2FnIExhYnMKLSBtYWluOgogIC0gZm9ybSAiTG9naW4iOgogICAgLSB0ZXh0Ym94ICJVc2VybmFtZSI6IGxvY2tlZF9vdXRfdXNlcgogICAgLSB0ZXh0Ym94ICJQYXNzd29yZCI6ICoqKnJlZGFjdGVkKioqCiAgICAtIGFsZXJ0OgogICAgICAtIGJ1dHRvbiAiRGlzbWlzcyBlcnJvciIKICAgICAgLSB0ZXh0OiAiRXBpYyBzYWRmYWNlOiBTb3JyeSwgdGhpcyB1c2VyIGhhcyBiZWVuIGxvY2tlZCBvdXQuIgogICAgLSBidXR0b24gIkxvZ2luIgogIC0gaGVhZGluZyAiQWNjZXB0ZWQgdXNlcm5hbWVzIGFyZToiIFtsZXZlbD00XQogIC0gdGV4dDogc3RhbmRhcmRfdXNlciBsb2NrZWRfb3V0X3VzZXIgcHJvYmxlbV91c2VyIHBlcmZvcm1hbmNlX2dsaXRjaF91c2VyIGVycm9yX3VzZXIgdmlzdWFsX3VzZXIKICAtIGhlYWRpbmcgIlBhc3N3b3JkIGZvciBhbGwgdXNlcnM6IiBbbGV2ZWw9NF0KICAtIHRleHQ6IHBhc3N3b3JkCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                        "column": 79,
+                        "line": 105
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "43057f5573badb417d57-e7fb25a500023e387a27",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "SCN-003: Wrong password shows the credentials error",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1446,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When I sign in as the \"standard\" shopper with the password \"wrong_password\"",
+                          "duration": 637
+                        },
+                        {
+                          "title": "Then I see the error \"Epic sadface: Username and password do not match any user in this service\"",
+                          "duration": 17
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:24.214Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-7b92c88edbcf187616e5",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 112,
+              "column": 3
+            },
+            {
+              "title": "SCN-004: Wrong password clears the credential fields for security",
+              "ok": false,
+              "tags": [
+                "AC-3",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 11473,
+                      "error": {
+                        "message": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n",
+                        "stack": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                          "column": 81,
+                          "line": 127
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 125 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 126 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the Username field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39musername\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Username field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Password field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 130 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Password field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 81,
+                            "line": 127
+                          },
+                          "message": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n\n\n  125 |     });\n  126 |     await journey.step('Then the Username field is empty', async () => {\n> 127 |       await expect.soft(ui(page).username, '[REQ AC-3] Username field cleared').toHaveValue('');\n      |                                                                                 ^\n  128 |     });\n  129 |     await journey.step('And the Password field is empty', async () => {\n  130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 81,
+                            "line": 130
+                          },
+                          "message": "Error: [REQ AC-3] Password field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Password', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"wrong_password\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Password', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input id=\"password\" type=\"password\" name=\"password\" autocorrect=\"off\" data-test=\"password\" aria-label=\"Password\" autocapitalize=\"none\" placeholder=\"Password\" value=\"wrong_password\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"wrong_password\"\u001b[22m\n\n\n  128 |     });\n  129 |     await journey.step('And the Password field is empty', async () => {\n> 130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');\n      |                                                                                 ^\n  131 |     });\n  132 |   });\n  133 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:130:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:129:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When I sign in as the \"standard\" shopper with the password \"wrong_password\"",
+                          "duration": 654
+                        },
+                        {
+                          "title": "Then the Username field is empty",
+                          "duration": 5015,
+                          "error": {
+                            "message": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 81,
+                              "line": 127
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 125 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 126 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the Username field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39musername\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Username field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Password field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 130 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Password field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        },
+                        {
+                          "title": "And the Password field is empty",
+                          "duration": 5008,
+                          "error": {
+                            "message": "Error: [REQ AC-3] Password field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Password', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"wrong_password\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Password', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input id=\"password\" type=\"password\" name=\"password\" autocorrect=\"off\" data-test=\"password\" aria-label=\"Password\" autocapitalize=\"none\" placeholder=\"Password\" value=\"wrong_password\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"wrong_password\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-3] Password field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Password', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"wrong_password\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Password', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input id=\"password\" type=\"password\" name=\"password\" autocorrect=\"off\" data-test=\"password\" aria-label=\"Password\" autocapitalize=\"none\" placeholder=\"Password\" value=\"wrong_password\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"wrong_password\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:130:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:129:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 81,
+                              "line": 130
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 128 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Password field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 130 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Password field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 131 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 132 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 133 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:24.199Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                        "column": 81,
+                        "line": 127
+                      }
+                    },
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10881,
+                      "error": {
+                        "message": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n",
+                        "stack": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                          "column": 81,
+                          "line": 127
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 125 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 126 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the Username field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39musername\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Username field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Password field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 130 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Password field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 81,
+                            "line": 127
+                          },
+                          "message": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n\n\n  125 |     });\n  126 |     await journey.step('Then the Username field is empty', async () => {\n> 127 |       await expect.soft(ui(page).username, '[REQ AC-3] Username field cleared').toHaveValue('');\n      |                                                                                 ^\n  128 |     });\n  129 |     await journey.step('And the Password field is empty', async () => {\n  130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 81,
+                            "line": 130
+                          },
+                          "message": "Error: [REQ AC-3] Password field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Password', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"wrong_password\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Password', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input id=\"password\" type=\"password\" name=\"password\" autocorrect=\"off\" data-test=\"password\" aria-label=\"Password\" autocapitalize=\"none\" placeholder=\"Password\" value=\"wrong_password\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"wrong_password\"\u001b[22m\n\n\n  128 |     });\n  129 |     await journey.step('And the Password field is empty', async () => {\n> 130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');\n      |                                                                                 ^\n  131 |     });\n  132 |   });\n  133 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:130:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:129:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "When I sign in as the \"standard\" shopper with the password \"wrong_password\"",
+                          "duration": 115
+                        },
+                        {
+                          "title": "Then the Username field is empty",
+                          "duration": 5012,
+                          "error": {
+                            "message": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-3] Username field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Username', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"standard_user\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Username', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input type=\"text\" id=\"user-name\" name=\"user-name\" autocorrect=\"off\" data-test=\"username\" aria-label=\"Username\" autocapitalize=\"none\" value=\"standard_user\" placeholder=\"Username\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"standard_user\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:127:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:126:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 81,
+                              "line": 127
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 125 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 126 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the Username field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39musername\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Username field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Password field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 130 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Password field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        },
+                        {
+                          "title": "And the Password field is empty",
+                          "duration": 5018,
+                          "error": {
+                            "message": "Error: [REQ AC-3] Password field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Password', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"wrong_password\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Password', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input id=\"password\" type=\"password\" name=\"password\" autocorrect=\"off\" data-test=\"password\" aria-label=\"Password\" autocapitalize=\"none\" placeholder=\"Password\" value=\"wrong_password\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"wrong_password\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-3] Password field cleared\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Password', exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"wrong_password\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Password', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <input id=\"password\" type=\"password\" name=\"password\" autocorrect=\"off\" data-test=\"password\" aria-label=\"Password\" autocapitalize=\"none\" placeholder=\"Password\" value=\"wrong_password\" class=\"input_error form_input error\"/>\u001b[22m\n\u001b[2m       - unexpected value \"wrong_password\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:130:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:129:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 81,
+                              "line": 130
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 128 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Password field is empty'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 130 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] Password field cleared'\u001b[39m)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 131 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 132 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 133 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:37.134Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                        "column": 81,
+                        "line": 127
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "43057f5573badb417d57-2c0541a90f4a47c13233",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 121,
+              "column": 3
+            },
+            {
+              "title": "SCN-005: Sorting by price low to high orders products by ascending price",
+              "ok": true,
+              "tags": [
+                "AC-4",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 946,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 133,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 133
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When I sort the products by \"Price (low to high)\"",
+                          "duration": 20
+                        },
+                        {
+                          "title": "Then the product prices are displayed in ascending order",
+                          "duration": 35
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:25.836Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudDhkbjIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-8f4c0349cf6a3a5375cd",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 134,
+              "column": 3
+            },
+            {
+              "title": "SCN-006: Adding products increases the cart badge by one each time",
+              "ok": true,
+              "tags": [
+                "AC-5",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 908,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 134,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 134
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And the cart badge is not shown",
+                          "duration": 12
+                        },
+                        {
+                          "title": "When I add the 1st listed product to the cart",
+                          "duration": 21
+                        },
+                        {
+                          "title": "Then the cart badge shows 1",
+                          "duration": 5
+                        },
+                        {
+                          "title": "When I add the 2nd listed product to the cart",
+                          "duration": 45
+                        },
+                        {
+                          "title": "Then the cart badge shows 2",
+                          "duration": 4
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:25.881Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudDhlMTAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-7c5cfdc0c8081029c391",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 149,
+              "column": 3
+            },
+            {
+              "title": "SCN-007: Removing products decreases the cart badge and hides it when empty",
+              "ok": true,
+              "tags": [
+                "AC-5",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1007,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 169,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 168
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I have added the 1st and 2nd listed products to the cart",
+                          "duration": 98
+                        },
+                        {
+                          "title": "When I remove the 2nd listed product",
+                          "duration": 54
+                        },
+                        {
+                          "title": "Then the cart badge shows 1",
+                          "duration": 6
+                        },
+                        {
+                          "title": "When I remove the 1st listed product",
+                          "duration": 48
+                        },
+                        {
+                          "title": "Then the cart badge is not shown",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:26.803Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudDk0YjIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-f7f66bbc0996c225a4b6",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 170,
+              "column": 3
+            },
+            {
+              "title": "SCN-008: Checkout requires a First Name",
+              "ok": true,
+              "tags": [
+                "AC-6",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1048,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 131,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 131
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I have added the 1st listed product to the cart",
+                          "duration": 29
+                        },
+                        {
+                          "title": "When I open the cart and proceed to checkout",
+                          "duration": 115
+                        },
+                        {
+                          "title": "And I continue with Last Name and Postal Code but no First Name",
+                          "duration": 105
+                        },
+                        {
+                          "title": "Then I see the error \"Error: First Name is required\"",
+                          "duration": 5
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:26.802Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudDk1NDAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-54c682e40e31ea957e30",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 193,
+              "column": 3
+            },
+            {
+              "title": "SCN-009: Checkout requires a Last Name and a Postal Code",
+              "ok": true,
+              "tags": [
+                "AC-6",
+                "type:negative",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1349,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 142,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 141
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I have added the 1st listed product to the cart",
+                          "duration": 29
+                        },
+                        {
+                          "title": "When I open the cart and proceed to checkout",
+                          "duration": 113
+                        },
+                        {
+                          "title": "And I continue with First Name and Postal Code but no Last Name",
+                          "duration": 125
+                        },
+                        {
+                          "title": "Then I cannot continue and an error is shown",
+                          "duration": 13
+                        },
+                        {
+                          "title": "When I continue with First Name and Last Name but no Postal Code",
+                          "duration": 97
+                        },
+                        {
+                          "title": "Then I cannot continue and an error is shown",
+                          "duration": 12
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:27.823Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudGEyNjIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-0ea83b9a12e39dab6b7e",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 211,
+              "column": 3
+            },
+            {
+              "title": "SCN-010: Checkout overview totals follow the pricing rules",
+              "ok": false,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1313,
+                      "error": {
+                        "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m",
+                        "stack": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                          "column": 81,
+                          "line": 262
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 260 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 261 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Tax equals 10% of the Item total rounded half-up to 2 decimals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 262 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(tax\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m*\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC7_TAX_RATE\u001b[39m)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 263 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 264 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Total equals the Item total plus the Tax'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 265 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(total\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Total = Item total + Tax'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m+\u001b[39m tax)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 81,
+                            "line": 262
+                          },
+                          "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m\n\n  260 |     });\n  261 |     await journey.step('And the Tax equals 10% of the Item total rounded half-up to 2 decimals', async () => {\n> 262 |       expect.soft(tax, '[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)').toBeCloseTo(round2(itemTotal * REQ.AC7_TAX_RATE), 2);\n      |                                                                                 ^\n  263 |     });\n  264 |     await journey.step('And the Total equals the Item total plus the Tax', async () => {\n  265 |       expect.soft(total, '[REQ AC-7] Total = Item total + Tax').toBeCloseTo(round2(itemTotal + tax), 2);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 138,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 138
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I have added the 1st and 2nd listed products to the cart, noting their prices",
+                          "duration": 87
+                        },
+                        {
+                          "title": "When I open the cart and proceed to checkout",
+                          "duration": 113
+                        },
+                        {
+                          "title": "And I continue with my First Name, Last Name and Postal Code",
+                          "duration": 160
+                        },
+                        {
+                          "title": "Then the Item total equals the sum of the noted prices",
+                          "duration": 2
+                        },
+                        {
+                          "title": "And the Tax equals 10% of the Item total rounded half-up to 2 decimals",
+                          "duration": 2,
+                          "error": {
+                            "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m",
+                            "stack": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 81,
+                              "line": 262
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 260 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 261 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Tax equals 10% of the Item total rounded half-up to 2 decimals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 262 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(tax\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m*\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC7_TAX_RATE\u001b[39m)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 263 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 264 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Total equals the Item total plus the Tax'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 265 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(total\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Total = Item total + Tax'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m+\u001b[39m tax)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        },
+                        {
+                          "title": "And the Total equals the Item total plus the Tax",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:27.864Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudGEwODAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                        "column": 81,
+                        "line": 262
+                      }
+                    },
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1379,
+                      "error": {
+                        "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m",
+                        "stack": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                          "column": 81,
+                          "line": 262
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 260 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 261 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Tax equals 10% of the Item total rounded half-up to 2 decimals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 262 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(tax\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m*\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC7_TAX_RATE\u001b[39m)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 263 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 264 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Total equals the Item total plus the Tax'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 265 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(total\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Total = Item total + Tax'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m+\u001b[39m tax)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                            "column": 81,
+                            "line": 262
+                          },
+                          "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m\n\n  260 |     });\n  261 |     await journey.step('And the Tax equals 10% of the Item total rounded half-up to 2 decimals', async () => {\n> 262 |       expect.soft(tax, '[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)').toBeCloseTo(round2(itemTotal * REQ.AC7_TAX_RATE), 2);\n      |                                                                                 ^\n  263 |     });\n  264 |     await journey.step('And the Total equals the Item total plus the Tax', async () => {\n  265 |       expect.soft(total, '[REQ AC-7] Total = Item total + Tax').toBeCloseTo(round2(itemTotal + tax), 2);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 228,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 227
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I have added the 1st and 2nd listed products to the cart, noting their prices",
+                          "duration": 117
+                        },
+                        {
+                          "title": "When I open the cart and proceed to checkout",
+                          "duration": 101
+                        },
+                        {
+                          "title": "And I continue with my First Name, Last Name and Postal Code",
+                          "duration": 145
+                        },
+                        {
+                          "title": "Then the Item total equals the sum of the noted prices",
+                          "duration": 0
+                        },
+                        {
+                          "title": "And the Tax equals 10% of the Item total rounded half-up to 2 decimals",
+                          "duration": 2,
+                          "error": {
+                            "message": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m",
+                            "stack": "Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m3.2\u001b[39m\n\nExpected precision:    2\nExpected difference: < \u001b[32m0.005\u001b[39m\nReceived difference:   \u001b[31m0.7999999999999998\u001b[39m\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:262:81)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:240:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts:261:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                              "column": 81,
+                              "line": 262
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 260 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 261 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Tax equals 10% of the Item total rounded half-up to 2 decimals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 262 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(tax\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m*\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mAC7_TAX_RATE\u001b[39m)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 263 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 264 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the Total equals the Item total plus the Tax'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 265 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(total\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-7] Total = Item total + Tax'\u001b[39m)\u001b[33m.\u001b[39mtoBeCloseTo(round2(itemTotal \u001b[33m+\u001b[39m tax)\u001b[33m,\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        },
+                        {
+                          "title": "And the Total equals the Item total plus the Tax",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:30.558Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudGM1dTQwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\runs\\05-seeded\\artifacts\\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-101\\tests\\demo-101.spec.ts",
+                        "column": 81,
+                        "line": 262
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "43057f5573badb417d57-e5b680d275ac5f102cd7",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 237,
+              "column": 3
+            },
+            {
+              "title": "SCN-011: Finishing the order confirms it and empties the cart",
+              "ok": true,
+              "tags": [
+                "AC-8",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1049,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 133,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 133
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I have added the 1st listed product to the cart",
+                          "duration": 34
+                        },
+                        {
+                          "title": "When I open the cart and proceed to checkout",
+                          "duration": 101
+                        },
+                        {
+                          "title": "And I continue with my First Name, Last Name and Postal Code",
+                          "duration": 95
+                        },
+                        {
+                          "title": "And I finish the order",
+                          "duration": 66
+                        },
+                        {
+                          "title": "Then I see the confirmation \"Thank you for your order!\"",
+                          "duration": 18
+                        },
+                        {
+                          "title": "And the cart badge is not shown",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:29.185Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudGF5OTIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-ada9b6aa3954d9985775",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 269,
+              "column": 3
+            },
+            {
+              "title": "SCN-012: Logging out returns to sign-in and protects the Products page",
+              "ok": true,
+              "tags": [
+                "AC-9",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1969,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the \"standard\" shopper",
+                          "duration": 155,
+                          "steps": [
+                            {
+                              "title": "[SEED] signed-in session (UI setup: the AUT has no API)",
+                              "duration": 154
+                            }
+                          ]
+                        },
+                        {
+                          "title": "And I note the address of the Products page",
+                          "duration": 0
+                        },
+                        {
+                          "title": "When I log out",
+                          "duration": 993
+                        },
+                        {
+                          "title": "Then I am on the sign-in page",
+                          "duration": 15
+                        },
+                        {
+                          "title": "When I open the noted Products page address directly",
+                          "duration": 179
+                        },
+                        {
+                          "title": "Then I am not shown the Products page",
+                          "duration": 24
+                        },
+                        {
+                          "title": "And I am on the sign-in page",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-09-26T17:24:30.249Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHhudGJyejIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInNpZ25lZC1pbiBzZXNzaW9uIChVSSBzZXR1cDogdGhlIEFVVCBoYXMgbm8gQVBJKSIsCiAgICAgICJjbGVhbnVwIjogIm5vbmUiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43057f5573badb417d57-7cffa333504008da0625",
+              "file": "DEMO-101/tests/demo-101.spec.ts",
+              "line": 293,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T17:24:23.252Z",
+    "duration": 26289.108,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

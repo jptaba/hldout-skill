@@ -1,0 +1,405 @@
+<testsuites id="" name="" tests="12" failures="3" skipped="0" errors="0" time="30.501049">
+<testsuite name="DEMO-101\tests\demo-101.spec.ts" timestamp="2026-09-26T15:37:07.571Z" hostname="chromium" tests="12" failures="3" skipped="0" time="75.558" errors="0">
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-001: Standard shopper signs in and sees the full catalogue" classname="DEMO-101\tests\demo-101.spec.ts" time="5.45">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-002: Locked shopper cannot sign in and is told the account is locked" classname="DEMO-101\tests\demo-101.spec.ts" time="16.589">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] locked-account error message" type="expect.toHaveText">
+<![CDATA[  [chromium] › DEMO-101\tests\demo-101.spec.ts:100:3 › DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-002: Locked shopper cannot sign in and is told the account is locked @AC-2 @type:negative @P1 › Then I see the error "Your account has been locked. Please contact customer support." 
+
+    Error: [REQ AC-2] locked-account error message
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('alert')
+    Expected: "Your account has been locked. Please contact customer support."
+    Received: "Epic sadface: Sorry, this user has been locked out."
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+        14 × locator resolved to <h3 role="alert" data-test="error">…</h3>
+           - unexpected value "Epic sadface: Sorry, this user has been locked out."
+
+
+      103 |     });
+      104 |     await journey.step('Then I see the error "Your account has been locked. Please contact customer support."', async () => {
+    > 105 |       await expect(ui(page).error, '[REQ AC-2] locked-account error message').toHaveText(REQ.AC2_LOCKED_MESSAGE);
+          |                                                                               ^
+      106 |     });
+      107 |     await journey.step('And I am still on the sign-in page', async () => {
+      108 |       await expect(ui(page).signIn, '[REQ AC-2] stays on the sign-in page').toBeVisible();
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:105:79)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:104:5
+
+    attachment #1: aria-snapshot 03-failed-then-i-see-the-error-your-account-has-been-locked-ple (text/yaml) 
+    # url: https://www.saucedemo.com/
+    # step: FAILED Then I see the error "Your account has been locked. Please contact customer support."
+    - text: Swag Labs
+    - main:
+      - form "Login":
+        - textbox "Username": locked_out_user
+        - textbox "Password": ***redacted***
+        - alert:
+          - button "Dismiss err...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-2] locked-account error message
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('alert')
+    Expected: "Your account has been locked. Please contact customer support."
+    Received: "Epic sadface: Sorry, this user has been locked out."
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-2] locked-account error message getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+        14 × locator resolved to <h3 role="alert" data-test="error">…</h3>
+           - unexpected value "Epic sadface: Sorry, this user has been locked out."
+
+
+      103 |     });
+      104 |     await journey.step('Then I see the error "Your account has been locked. Please contact customer support."', async () => {
+    > 105 |       await expect(ui(page).error, '[REQ AC-2] locked-account error message').toHaveText(REQ.AC2_LOCKED_MESSAGE);
+          |                                                                               ^
+      106 |     });
+      107 |     await journey.step('And I am still on the sign-in page', async () => {
+      108 |       await expect(ui(page).signIn, '[REQ AC-2] stays on the sign-in page').toBeVisible();
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:105:79)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:104:5
+
+    attachment #1: aria-snapshot 03-failed-then-i-see-the-error-your-account-has-been-locked-ple (text/yaml) 
+    # url: https://www.saucedemo.com/
+    # step: FAILED Then I see the error "Your account has been locked. Please contact customer support."
+    - text: Swag Labs
+    - main:
+      - form "Login":
+        - textbox "Username": locked_out_user
+        - textbox "Password": ***redacted***
+        - alert:
+          - button "Dismiss err...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-d0deb--told-the-account-is-locked-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-003: Wrong password shows the credentials error" classname="DEMO-101\tests\demo-101.spec.ts" time="5.373">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-004: Wrong password clears the credential fields for security" classname="DEMO-101\tests\demo-101.spec.ts" time="25.838">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-3] Username field cleared" type="expect.toHaveValue">
+<![CDATA[  [chromium] › DEMO-101\tests\demo-101.spec.ts:121:3 › DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-004: Wrong password clears the credential fields for security @AC-3 @type:negative @P2 
+
+    Error: [REQ AC-3] Username field cleared
+
+    expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Username', exact: true })
+    Expected: ""
+    Received: "standard_user"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Username', exact: true })
+        14 × locator resolved to <input type="text" id="user-name" name="user-name" autocorrect="off" data-test="username" aria-label="Username" autocapitalize="none" value="standard_user" placeholder="Username" class="input_error form_input error"/>
+           - unexpected value "standard_user"
+
+
+      125 |     });
+      126 |     await journey.step('Then the Username field is empty', async () => {
+    > 127 |       await expect.soft(ui(page).username, '[REQ AC-3] Username field cleared').toHaveValue('');
+          |                                                                                 ^
+      128 |     });
+      129 |     await journey.step('And the Password field is empty', async () => {
+      130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:127:81)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:126:5
+
+    Error: [REQ AC-3] Password field cleared
+
+    expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Password', exact: true })
+    Expected: ""
+    Received: "wrong_password"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Password', exact: true })
+        14 × locator resolved to <input id="password" type="password" name="password" autocorrect="off" data-test="password" aria-label="Password" autocapitalize="none" placeholder="Password" value="wrong_password" class="input_error form_input error"/>
+           - unexpected value "wrong_password"
+
+
+      128 |     });
+      129 |     await journey.step('And the Password field is empty', async () => {
+    > 130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');
+          |                                                                                 ^
+      131 |     });
+      132 |   });
+      133 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:130:81)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:129:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-3] Username field cleared
+
+    expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Username', exact: true })
+    Expected: ""
+    Received: "standard_user"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-3] Username field cleared getByRole('textbox', { name: 'Username', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Username', exact: true })
+        14 × locator resolved to <input type="text" id="user-name" name="user-name" autocorrect="off" data-test="username" aria-label="Username" autocapitalize="none" value="standard_user" placeholder="Username" class="input_error form_input error"/>
+           - unexpected value "standard_user"
+
+
+      125 |     });
+      126 |     await journey.step('Then the Username field is empty', async () => {
+    > 127 |       await expect.soft(ui(page).username, '[REQ AC-3] Username field cleared').toHaveValue('');
+          |                                                                                 ^
+      128 |     });
+      129 |     await journey.step('And the Password field is empty', async () => {
+      130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:127:81)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:126:5
+
+    Error: [REQ AC-3] Password field cleared
+
+    expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Password', exact: true })
+    Expected: ""
+    Received: "wrong_password"
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-3] Password field cleared getByRole('textbox', { name: 'Password', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Password', exact: true })
+        14 × locator resolved to <input id="password" type="password" name="password" autocorrect="off" data-test="password" aria-label="Password" autocapitalize="none" placeholder="Password" value="wrong_password" class="input_error form_input error"/>
+           - unexpected value "wrong_password"
+
+
+      128 |     });
+      129 |     await journey.step('And the Password field is empty', async () => {
+    > 130 |       await expect.soft(ui(page).password, '[REQ AC-3] Password field cleared').toHaveValue('');
+          |                                                                                 ^
+      131 |     });
+      132 |   });
+      133 |
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:130:81)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:129:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-ff7bc-dential-fields-for-security-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-005: Sorting by price low to high orders products by ascending price" classname="DEMO-101\tests\demo-101.spec.ts" time="1.649">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-006: Adding products increases the cart badge by one each time" classname="DEMO-101\tests\demo-101.spec.ts" time="1.397">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-007: Removing products decreases the cart badge and hides it when empty" classname="DEMO-101\tests\demo-101.spec.ts" time="2.266">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-008: Checkout requires a First Name" classname="DEMO-101\tests\demo-101.spec.ts" time="2.009">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-009: Checkout requires a Last Name and a Postal Code" classname="DEMO-101\tests\demo-101.spec.ts" time="1.962">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-010: Checkout overview totals follow the pricing rules" classname="DEMO-101\tests\demo-101.spec.ts" time="5.764">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)" type="expect.toBeCloseTo">
+<![CDATA[  [chromium] › DEMO-101\tests\demo-101.spec.ts:237:3 › DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-010: Checkout overview totals follow the pricing rules @AC-7 @type:functional @P1 › And the Tax equals 10% of the Item total rounded half-up to 2 decimals 
+
+    Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 4
+    Received: 3.2
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   0.7999999999999998
+
+      260 |     });
+      261 |     await journey.step('And the Tax equals 10% of the Item total rounded half-up to 2 decimals', async () => {
+    > 262 |       expect.soft(tax, '[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)').toBeCloseTo(round2(itemTotal * REQ.AC7_TAX_RATE), 2);
+          |                                                                                 ^
+      263 |     });
+      264 |     await journey.step('And the Total equals the Item total plus the Tax', async () => {
+      265 |       expect.soft(total, '[REQ AC-7] Total = Item total + Tax').toBeCloseTo(round2(itemTotal + tax), 2);
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:262:81)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:261:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] Tax = 10% of Item total (pricing-rules.md)
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 4
+    Received: 3.2
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   0.7999999999999998
+
+      260 |     });
+      261 |     await journey.step('And the Tax equals 10% of the Item total rounded half-up to 2 decimals', async () => {
+    > 262 |       expect.soft(tax, '[REQ AC-7] Tax = 10% of Item total (pricing-rules.md)').toBeCloseTo(round2(itemTotal * REQ.AC7_TAX_RATE), 2);
+          |                                                                                 ^
+      263 |     });
+      264 |     await journey.step('And the Total equals the Item total plus the Tax', async () => {
+      265 |       expect.soft(total, '[REQ AC-7] Total = Item total + Tax').toBeCloseTo(round2(itemTotal + tax), 2);
+        at body (D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:262:81)
+        at D:\projects\hldout-skill\heldout-support\fixtures.ts:168:34
+        at D:\projects\hldout-skill\evaluations\DEMO-101\tests\demo-101.spec.ts:261:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace DEMO-101\runs\04-regression\artifacts\DEMO-101-tests-demo-101-DE-bc3c3-ls-follow-the-pricing-rules-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-011: Finishing the order confirms it and empties the cart" classname="DEMO-101\tests\demo-101.spec.ts" time="4.838">
+</testcase>
+<testcase name="DEMO-101 Shopper can sign in, build a cart and complete checkout › SCN-012: Logging out returns to sign-in and protects the Products page" classname="DEMO-101\tests\demo-101.spec.ts" time="2.423">
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,55 @@
+{
+  "key": "DEMO-404",
+  "run": "06-eval",
+  "label": "eval",
+  "startedAt": "2026-09-26T17:59:46.727Z",
+  "finishedAt": "2026-09-26T18:05:04.411Z",
+  "autId": "the-internet",
+  "aut": {
+    "name": "The Internet (UI test playground)",
+    "baseURL": "https://the-internet.herokuapp.com",
+    "apiBaseURL": "https://the-internet.herokuapp.com"
+  },
+  "command": "npx playwright test evaluations/DEMO-404/tests/ --workers 2",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://the-internet.herokuapp.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 335,
+        "samples": [
+          84,
+          335,
+          231
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://the-internet.herokuapp.com/",
+        "ok": false,
+        "ms": 20011,
+        "samples": [
+          20011
+        ],
+        "slow": false,
+        "error": "The operation was aborted due to timeout"
+      }
+    ]
+  },
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-26T17:59:48.209Z",
+    "duration": 293047.466,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 2
+  }
+}

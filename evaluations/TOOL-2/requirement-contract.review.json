@@ -1,0 +1,159 @@
+{
+  "reviewer": "heldout-contract-reviewer (claude-sonnet-5)",
+  "reviewedAt": "2026-09-26T23:15:00Z",
+  "contractHash": "34e9d2965579007d",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "story.md#L23-L27",
+      "note": "201 with details+id, no password; matches quote exactly."
+    },
+    {
+      "ref": "AC-2",
+      "verdict": "supported",
+      "evidence": "story.md#L29-L32",
+      "note": "409 with exact message quoted verbatim from L32."
+    },
+    {
+      "ref": "AC-3",
+      "verdict": "supported",
+      "evidence": "story.md#L34-L37",
+      "note": "422 and all four password rules listed at L37 match outcomes 1:1."
+    },
+    {
+      "ref": "AC-4",
+      "verdict": "supported",
+      "evidence": "story.md#L39-L43",
+      "note": "e2e layer correct (web shop); My account page and nav first/last name both at L42-L43."
+    },
+    {
+      "ref": "AC-5",
+      "verdict": "supported",
+      "evidence": "story.md#L45-L49",
+      "note": "POST /users/login 401 (L48) and UI message quoted verbatim (L49); endpoints field correctly includes /users/login since it's named in the Then clause."
+    },
+    {
+      "ref": "AC-6",
+      "verdict": "supported",
+      "evidence": "story.md#L51-L55",
+      "note": "attempts 1-5 -> 401, 6th -> 423 with locked message; api layer correct (no UI mentioned)."
+    },
+    {
+      "ref": "AC-7",
+      "verdict": "supported",
+      "evidence": "story.md#L57-L60",
+      "note": "logout then /users/me -> 401; api layer correct."
+    },
+    {
+      "ref": "R1",
+      "verdict": "supported",
+      "evidence": "story.md#L34-L37",
+      "note": "four password rules and 422 match."
+    },
+    {
+      "ref": "R2",
+      "verdict": "supported",
+      "evidence": "story.md#L29-L32",
+      "note": "duplicate email -> 409 matches."
+    },
+    {
+      "ref": "R3",
+      "verdict": "supported",
+      "evidence": "story.md#L51-L55",
+      "note": "lockout rule matches."
+    },
+    {
+      "ref": "R4",
+      "verdict": "supported",
+      "evidence": "story.md#L27",
+      "note": "\"response does not contain the password\" quoted directly."
+    },
+    {
+      "ref": "R5",
+      "verdict": "supported",
+      "evidence": "story.md#L57-L60",
+      "note": "logout invalidates token, /users/me -> 401 matches."
+    },
+    {
+      "ref": "E1",
+      "verdict": "supported",
+      "evidence": "story.md#L32",
+      "note": "409 + exact message match L32 verbatim."
+    },
+    {
+      "ref": "E2",
+      "verdict": "supported",
+      "evidence": "story.md#L37",
+      "note": "422, no body text asserted since story gives none (correctly left to G4)."
+    },
+    {
+      "ref": "E3",
+      "verdict": "supported",
+      "evidence": "story.md#L48, story.md#L54",
+      "note": "Source now cites both L48 (AC-5: wrong password -> 401) and L54 (AC-6: attempts one to five -> 401), fully grounding the consolidated case text. Fixed since the prior review."
+    },
+    {
+      "ref": "E4",
+      "verdict": "supported",
+      "evidence": "story.md#L49",
+      "note": "UI message quoted verbatim, correctly labeled as UI text not an API body."
+    },
+    {
+      "ref": "E5",
+      "verdict": "supported",
+      "evidence": "story.md#L55",
+      "note": "423 + 'locked' wording correctly flagged as unspecified via G6."
+    },
+    {
+      "ref": "E6",
+      "verdict": "supported",
+      "evidence": "story.md#L60",
+      "note": "401 after logout matches."
+    },
+    {
+      "ref": "G4",
+      "verdict": "supported",
+      "evidence": "story.md#L37",
+      "note": "story states the four rules must be named but gives no exact message text; gap and 'assumed' resolution correctly reflect this."
+    },
+    {
+      "ref": "G5",
+      "verdict": "supported",
+      "evidence": "story.md#L26",
+      "note": "\"the customer's details\" is not enumerated in the story; gap and assumption correctly reflect this."
+    },
+    {
+      "ref": "G6",
+      "verdict": "supported",
+      "evidence": "story.md#L55",
+      "note": "\"a message that the account is locked\" has no exact wording in the story; gap and assumption correctly reflect this."
+    },
+    {
+      "ref": "POST /users/register",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": "path and method appear verbatim; 'auth: none' is a defensible reading of L19's '(both need Authorization: Bearer <access_token>)', which by its wording applies only to /users/me and /users/logout."
+    },
+    {
+      "ref": "POST /users/login",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": "path, method and response shape { access_token, token_type, expires_in } quoted verbatim from L19."
+    },
+    {
+      "ref": "GET /users/me",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": "path, method, and 'auth: required' match L19's Bearer-token requirement."
+    },
+    {
+      "ref": "GET /users/logout",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": "path, method, and 'auth: required' match L19's Bearer-token requirement."
+    }
+  ],
+  "missed": [],
+  "summary": "All 7 acceptance criteria, 5 rules, 6 error-model entries, 3 oracle gaps and 4 endpoints are fully grounded in story.md with accurate quotes, values and layer classifications. The previously flagged E3 citation gap is fixed: its source now cites both story.md#L48 and story.md#L54, covering both facts the case text asserts. Every marked (●) line in the evidence pack is accounted for in the coverage ledger; no requirement-bearing content was found uncaptured, and re-diffing the full contract against the prior review confirmed no other field changed."
+}

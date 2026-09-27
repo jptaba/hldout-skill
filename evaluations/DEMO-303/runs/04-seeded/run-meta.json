@@ -1,0 +1,57 @@
+{
+  "key": "DEMO-303",
+  "run": "04-seeded",
+  "label": "seeded",
+  "startedAt": "2026-09-26T16:49:27.106Z",
+  "finishedAt": "2026-09-26T16:49:48.802Z",
+  "autId": "restful-booker",
+  "aut": {
+    "name": "Restful Booker (booking API demo)",
+    "baseURL": "https://restful-booker.herokuapp.com",
+    "apiBaseURL": "https://restful-booker.herokuapp.com"
+  },
+  "command": "npx playwright test evaluations/DEMO-303/tests/",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://restful-booker.herokuapp.com/ping",
+        "ok": true,
+        "status": 201,
+        "ms": 368,
+        "samples": [
+          368,
+          180,
+          57
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://restful-booker.herokuapp.com/ping",
+        "ok": true,
+        "status": 201,
+        "ms": 77,
+        "samples": [
+          77,
+          72,
+          56
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-26T16:49:28.603Z",
+    "duration": 19799.259,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 12,
+    "flaky": 0
+  }
+}

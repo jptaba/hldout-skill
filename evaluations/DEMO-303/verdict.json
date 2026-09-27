@@ -1,0 +1,1280 @@
+{
+  "key": "DEMO-303",
+  "verdict": "FAIL",
+  "reason": "6 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-2, AC-6, AC-10, AC-11. Awaiting reviewer confirmation.",
+  "finalRun": "07-presteps",
+  "generatedAt": "2026-09-26T17:56:43.247Z",
+  "autId": "restful-booker",
+  "aut": {
+    "name": "Restful Booker (booking API demo)",
+    "baseURL": "https://restful-booker.herokuapp.com",
+    "apiBaseURL": "https://restful-booker.herokuapp.com",
+    "testIdAttribute": "data-testid",
+    "healthcheck": [
+      "api:/ping"
+    ],
+    "notes": "API only. Shared public sandbox, data resets periodically."
+  },
+  "summary": {
+    "total": 27,
+    "passed": 15,
+    "failed": 12,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Invalid credentials return 200 instead of 401",
+      "testType": "security",
+      "source": "story AC-2",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-2"
+      ],
+      "tests": [
+        "SCN-002"
+      ],
+      "expected": "401",
+      "actual": "200",
+      "rationale": "AC-2 requires 401 Unauthorized for bad credentials. The API answers 200 OK with {\"reason\":\"Bad credentials\"} (the body matches; the status does not). Partner systems keying on the status would treat a failed login as success. (Confirmed in run 05-seeded; identical failure signature in 07-presteps.)",
+      "liveCheck": "Replayed live on 2026-09-26 (tier 3, api-probe): POST /auth with a wrong password → 200 (runs/02-eval/confirm/SCN-002.md)",
+      "steps": [
+        "When I POST the partner username with a wrong password to /auth",
+        "Then the response status is 401",
+        "And the body is {\"reason\": \"Bad credentials\"}"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://restful-booker.herokuapp.com/auth",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "admin",
+            "password": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 272,
+          "headers": {
+            "content-length": "28",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Sat, 26 Sep 2026 17:56:00 GMT",
+            "etag": "W/\"1c-J3EiwfZwVQjKTKvpvazUfTni8fI\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=MA4b0%2FdVeS0DqZbuk%2BLOktPS6%2Fzjtxqn89CFULV2k74%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445360\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=MA4b0%2FdVeS0DqZbuk%2BLOktPS6%2Fzjtxqn89CFULV2k74%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445360\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": {
+            "reason": "Bad credentials"
+          }
+        }
+      },
+      "screenshot": "evaluations/DEMO-303/runs/07-presteps/artifacts/DEMO-303-tests-demo-303-DE-422b9-ntials-are-refused-with-401-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://restful-booker.herokuapp.com/auth",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "username": "admin",
+              "password": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 272,
+            "headers": {
+              "content-length": "28",
+              "content-type": "application/json; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:00 GMT",
+              "etag": "W/\"1c-J3EiwfZwVQjKTKvpvazUfTni8fI\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=MA4b0%2FdVeS0DqZbuk%2BLOktPS6%2Fzjtxqn89CFULV2k74%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445360\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=MA4b0%2FdVeS0DqZbuk%2BLOktPS6%2Fzjtxqn89CFULV2k74%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445360\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": {
+              "reason": "Bad credentials"
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-002:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "A booking missing a required field causes 500 instead of 400",
+      "testType": "negative",
+      "source": "story AC-6, booking-rules.csv R1 R2 R4 R5",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-007.1",
+        "SCN-007.2",
+        "SCN-007.3",
+        "SCN-007.4"
+      ],
+      "expected": "400",
+      "actual": "500",
+      "rationale": "AC-6 / booking-rules.csv R1 R2 R4 R5: a missing required field must be rejected with 400, never 5xx. Every missing-field variant returns 500 Internal Server Error, so input validation is absent and the server fails on client input. (Confirmed in run 05-seeded; identical failure signature in 07-presteps.)",
+      "liveCheck": "Replayed live on 2026-09-26 (tier 3, api-probe): POST /booking without lastname → 500 (runs/02-eval/confirm/SCN-007-missing-lastname.md)",
+      "steps": [
+        "When I POST a valid booking without <field>",
+        "Then the response status is 400",
+        "And the booking is not stored"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "https://restful-booker.herokuapp.com/booking",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "lastname": "Heldout ioy6b647-2",
+            "totalprice": 150,
+            "depositpaid": true,
+            "bookingdates": {
+              "checkin": "2026-11-10",
+              "checkout": "2026-11-14"
+            },
+            "additionalneeds": "Breakfast"
+          }
+        },
+        "response": {
+          "status": 500,
+          "durationMs": 299,
+          "headers": {
+            "content-length": "21",
+            "content-type": "text/plain; charset=utf-8",
+            "date": "Sat, 26 Sep 2026 17:56:03 GMT",
+            "etag": "W/\"15-/6VXivhc2MKdLfIkLcUE47K6aH0\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=2meuGLMHi1%2BqW4Ny2GqzwQziL7Qjii6y4CleMqUwE34%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445363\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=2meuGLMHi1%2BqW4Ny2GqzwQziL7Qjii6y4CleMqUwE34%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445363\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": "Internal Server Error"
+        }
+      },
+      "screenshot": "evaluations/DEMO-303/runs/07-presteps/artifacts/DEMO-303-tests-demo-303-DE-71608-ejected-with-400-firstname--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://restful-booker.herokuapp.com/booking",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "lastname": "Heldout ioy6b647-2",
+              "totalprice": 150,
+              "depositpaid": true,
+              "bookingdates": {
+                "checkin": "2026-11-10",
+                "checkout": "2026-11-14"
+              },
+              "additionalneeds": "Breakfast"
+            }
+          },
+          "response": {
+            "status": 500,
+            "durationMs": 299,
+            "headers": {
+              "content-length": "21",
+              "content-type": "text/plain; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:03 GMT",
+              "etag": "W/\"15-/6VXivhc2MKdLfIkLcUE47K6aH0\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=2meuGLMHi1%2BqW4Ny2GqzwQziL7Qjii6y4CleMqUwE34%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445363\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=2meuGLMHi1%2BqW4Ny2GqzwQziL7Qjii6y4CleMqUwE34%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445363\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": "Internal Server Error"
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-007\\.1:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-007\\.2:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-007\\.3:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-007\\.4:\""
+      ]
+    },
+    {
+      "id": "APP-3",
+      "title": "A negative totalprice is accepted",
+      "testType": "boundary",
+      "source": "story AC-6, booking-rules.csv R3 R6",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-008.2"
+      ],
+      "expected": "400",
+      "actual": "200",
+      "rationale": "booking-rules.csv R3: totalprice must be an integer ≥ 0 (0 is valid and passes). totalprice −1 is accepted with 200 and stored, where AC-6 requires 400 and not stored. (Confirmed in run 05-seeded; identical failure signature in 07-presteps.)",
+      "liveCheck": "Replayed live on 2026-09-26 (tier 3, api-probe): POST /booking with totalprice −1 → 200 (runs/02-eval/confirm/SCN-008.2.md)",
+      "steps": [
+        "When I POST a valid booking with <change>",
+        "Then the booking is <outcome>"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://restful-booker.herokuapp.com/booking?firstname=QA+ioydlrfy-1&lastname=Heldout+ioydlr36-2",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 66,
+          "headers": {
+            "content-length": "20",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Sat, 26 Sep 2026 17:56:13 GMT",
+            "etag": "W/\"14-vMiPh1rTXqnvVbTMk0jXyWkL2XM\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=UbDeF9iIOI%2BaJekCnrSLCJ10GlD5Q1lSyEFOf0kpYNE%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445373\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=UbDeF9iIOI%2BaJekCnrSLCJ10GlD5Q1lSyEFOf0kpYNE%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445373\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": [
+            {
+              "bookingid": 2990
+            }
+          ]
+        }
+      },
+      "screenshot": "evaluations/DEMO-303/runs/07-presteps/artifacts/DEMO-303-tests-demo-303-DE-56d82-d-totalprice--1-→-rejected--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://restful-booker.herokuapp.com/booking",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "firstname": "QA ioydlrfy-1",
+              "lastname": "Heldout ioydlr36-2",
+              "totalprice": -1,
+              "depositpaid": true,
+              "bookingdates": {
+                "checkin": "2026-11-10",
+                "checkout": "2026-11-14"
+              },
+              "additionalneeds": "Breakfast"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 289,
+            "headers": {
+              "content-length": "219",
+              "content-type": "application/json; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:12 GMT",
+              "etag": "W/\"db-mAhCwWld3yyeDqlEjD6zEVy9jVY\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445372\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445372\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": {
+              "bookingid": 2990,
+              "booking": {
+                "firstname": "QA ioydlrfy-1",
+                "lastname": "Heldout ioydlr36-2",
+                "totalprice": -1,
+                "depositpaid": true,
+                "bookingdates": {
+                  "checkin": "2026-11-10",
+                  "checkout": "2026-11-14"
+                },
+                "additionalneeds": "Breakfast"
+              }
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://restful-booker.herokuapp.com/booking?firstname=QA+ioydlrfy-1&lastname=Heldout+ioydlr36-2",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 66,
+            "headers": {
+              "content-length": "20",
+              "content-type": "application/json; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:13 GMT",
+              "etag": "W/\"14-vMiPh1rTXqnvVbTMk0jXyWkL2XM\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=UbDeF9iIOI%2BaJekCnrSLCJ10GlD5Q1lSyEFOf0kpYNE%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445373\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=UbDeF9iIOI%2BaJekCnrSLCJ10GlD5Q1lSyEFOf0kpYNE%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445373\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": [
+              {
+                "bookingid": 2990
+              }
+            ]
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-008\\.2:\""
+      ]
+    },
+    {
+      "id": "APP-4",
+      "title": "Check-out on or before check-in is accepted",
+      "testType": "boundary",
+      "source": "story AC-6, booking-rules.csv R3 R6",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-008.4",
+        "SCN-008.5"
+      ],
+      "expected": "400",
+      "actual": "200",
+      "rationale": "booking-rules.csv R6: checkout must be strictly after checkin (checkin+1 is valid and passes). Same-day and earlier check-outs are accepted with 200 and stored, where AC-6 requires 400. (Confirmed in run 05-seeded; identical failure signature in 07-presteps.)",
+      "liveCheck": "Replayed live on 2026-09-26 (tier 3, api-probe): checkin 2026-11-10, checkout 2026-11-06 → 200 (runs/02-eval/confirm/SCN-008.5.md)",
+      "steps": [
+        "When I POST a valid booking with <change>",
+        "Then the booking is <outcome>"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://restful-booker.herokuapp.com/booking?firstname=QA+ioydcwpr-1&lastname=Heldout+ioydcwmd-2",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 57,
+          "headers": {
+            "content-length": "20",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Sat, 26 Sep 2026 17:56:12 GMT",
+            "etag": "W/\"14-569qAaT28zYIrXmnkA1mCxdNb1g\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445372\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445372\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": [
+            {
+              "bookingid": 2987
+            }
+          ]
+        }
+      },
+      "screenshot": "evaluations/DEMO-303/runs/07-presteps/artifacts/DEMO-303-tests-demo-303-DE-6f55b-heckin-same-day-→-rejected--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://restful-booker.herokuapp.com/booking",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "firstname": "QA ioydcwpr-1",
+              "lastname": "Heldout ioydcwmd-2",
+              "totalprice": 150,
+              "depositpaid": true,
+              "bookingdates": {
+                "checkin": "2026-11-10",
+                "checkout": "2026-11-10"
+              },
+              "additionalneeds": "Breakfast"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 282,
+            "headers": {
+              "content-length": "220",
+              "content-type": "application/json; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:12 GMT",
+              "etag": "W/\"dc-dVDRNZ/XJbziF9tCJmNmlQSv7Z0\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445372\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445372\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": {
+              "bookingid": 2987,
+              "booking": {
+                "firstname": "QA ioydcwpr-1",
+                "lastname": "Heldout ioydcwmd-2",
+                "totalprice": 150,
+                "depositpaid": true,
+                "bookingdates": {
+                  "checkin": "2026-11-10",
+                  "checkout": "2026-11-10"
+                },
+                "additionalneeds": "Breakfast"
+              }
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://restful-booker.herokuapp.com/booking?firstname=QA+ioydcwpr-1&lastname=Heldout+ioydcwmd-2",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 57,
+            "headers": {
+              "content-length": "20",
+              "content-type": "application/json; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:12 GMT",
+              "etag": "W/\"14-569qAaT28zYIrXmnkA1mCxdNb1g\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445372\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=G6raQGtTFa34n0HlQBo5uEC3Y%2FZM6FiZkZ3NYq4AVhc%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445372\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": [
+              {
+                "bookingid": 2987
+              }
+            ]
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-008\\.4:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-008\\.5:\""
+      ]
+    },
+    {
+      "id": "APP-5",
+      "title": "Cancelling a booking returns 201 Created instead of 204 No Content",
+      "testType": "functional",
+      "source": "story AC-10",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-10"
+      ],
+      "tests": [
+        "SCN-013"
+      ],
+      "expected": "204",
+      "actual": "201",
+      "rationale": "AC-10 requires 204 No Content for an authenticated DELETE. The cancellation works (a GET afterwards returns 404, which passes), but the API answers 201 Created, a status that means a resource was created. This finding was hidden in run 02 behind a test auth-plumbing defect and surfaced after the repair. (Confirmed in run 05-seeded; identical failure signature in 07-presteps.)",
+      "liveCheck": "Replayed live on 2026-09-26 (tier 3, api-probe): DELETE with the declared Authorization header → 201; GET afterwards → 404 (runs/02-eval/confirm/SCN-013-correct-header.md, SCN-013-get-after-delete.md)",
+      "steps": [
+        "Given I created a valid booking",
+        "When I DELETE /booking/{id} with Basic authentication",
+        "Then the response status is 204",
+        "And GET /booking/{id} responds 404"
+      ],
+      "api": {
+        "request": {
+          "method": "DELETE",
+          "url": "https://restful-booker.herokuapp.com/booking/3061",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 201,
+          "durationMs": 57,
+          "headers": {
+            "content-length": "7",
+            "content-type": "text/plain; charset=utf-8",
+            "date": "Sat, 26 Sep 2026 17:56:19 GMT",
+            "etag": "W/\"7-rM9AyJuqT6iOan/xHh+AW+7K/T8\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=0A5eVgSG2XcYMlCiTEkil5P%2Bxbj%2FmNYAN11KKx3NiKA%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445379\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=0A5eVgSG2XcYMlCiTEkil5P%2Bxbj%2FmNYAN11KKx3NiKA%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445379\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": "Created"
+        }
+      },
+      "screenshot": "evaluations/DEMO-303/runs/07-presteps/artifacts/DEMO-303-tests-demo-303-DE-83bf2--returns-204-and-removes-it-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "https://restful-booker.herokuapp.com/booking/3061",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 201,
+            "durationMs": 57,
+            "headers": {
+              "content-length": "7",
+              "content-type": "text/plain; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:19 GMT",
+              "etag": "W/\"7-rM9AyJuqT6iOan/xHh+AW+7K/T8\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=0A5eVgSG2XcYMlCiTEkil5P%2Bxbj%2FmNYAN11KKx3NiKA%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445379\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=0A5eVgSG2XcYMlCiTEkil5P%2Bxbj%2FmNYAN11KKx3NiKA%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445379\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": "Created"
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://restful-booker.herokuapp.com/booking/3061",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 63,
+            "headers": {
+              "content-length": "9",
+              "content-type": "text/plain; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:19 GMT",
+              "etag": "W/\"9-0gXL1ngzMqISxa6S1zx3F4wtLyg\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=0A5eVgSG2XcYMlCiTEkil5P%2Bxbj%2FmNYAN11KKx3NiKA%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445379\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=0A5eVgSG2XcYMlCiTEkil5P%2Bxbj%2FmNYAN11KKx3NiKA%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445379\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": "Not Found"
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-013:\""
+      ]
+    },
+    {
+      "id": "APP-6",
+      "title": "Writes to a booking id that does not exist return 405 instead of 404",
+      "testType": "negative",
+      "source": "story AC-11",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-11"
+      ],
+      "tests": [
+        "SCN-014.1",
+        "SCN-014.2",
+        "SCN-014.3"
+      ],
+      "expected": "404",
+      "actual": "405",
+      "rationale": "AC-11: PUT, PATCH or DELETE of a non-existent booking must answer 404. The API answers 405 Method Not Allowed, which wrongly tells partners the method is unsupported rather than that the booking is gone. (Confirmed in run 05-seeded; identical failure signature in 07-presteps.)",
+      "liveCheck": "Replayed live on 2026-09-26 (tier 3, api-probe): authenticated PUT to a deleted booking id → 405 (runs/02-eval/confirm/SCN-014-put-unknown.md)",
+      "steps": [
+        "Given the id of a booking that no longer exists",
+        "When I <method> /booking/{id} with authentication",
+        "Then the response status is 404"
+      ],
+      "api": {
+        "request": {
+          "method": "PUT",
+          "url": "https://restful-booker.herokuapp.com/booking/3071",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "firstname": "QA ioyk3vpu-3",
+            "lastname": "Heldout ioyk3vkt-4",
+            "totalprice": 150,
+            "depositpaid": true,
+            "bookingdates": {
+              "checkin": "2026-11-10",
+              "checkout": "2026-11-14"
+            },
+            "additionalneeds": "Breakfast"
+          }
+        },
+        "response": {
+          "status": 405,
+          "durationMs": 150,
+          "headers": {
+            "content-length": "18",
+            "content-type": "text/plain; charset=utf-8",
+            "date": "Sat, 26 Sep 2026 17:56:21 GMT",
+            "etag": "W/\"12-UGJMK66P4abaBlq0vKHJaCKuGCA\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=0BN1AHMF2RTyqxGgaCz9TaoyspNIceiG4Qj3sYs%2FukY%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445381\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=0BN1AHMF2RTyqxGgaCz9TaoyspNIceiG4Qj3sYs%2FukY%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445381\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": "Method Not Allowed"
+        }
+      },
+      "screenshot": "evaluations/DEMO-303/runs/07-presteps/artifacts/DEMO-303-tests-demo-303-DE-11cd6--not-exist-returns-404-PUT--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "PUT",
+            "url": "https://restful-booker.herokuapp.com/booking/3071",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "firstname": "QA ioyk3vpu-3",
+              "lastname": "Heldout ioyk3vkt-4",
+              "totalprice": 150,
+              "depositpaid": true,
+              "bookingdates": {
+                "checkin": "2026-11-10",
+                "checkout": "2026-11-14"
+              },
+              "additionalneeds": "Breakfast"
+            }
+          },
+          "response": {
+            "status": 405,
+            "durationMs": 150,
+            "headers": {
+              "content-length": "18",
+              "content-type": "text/plain; charset=utf-8",
+              "date": "Sat, 26 Sep 2026 17:56:21 GMT",
+              "etag": "W/\"12-UGJMK66P4abaBlq0vKHJaCKuGCA\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=0BN1AHMF2RTyqxGgaCz9TaoyspNIceiG4Qj3sYs%2FukY%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1790445381\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=0BN1AHMF2RTyqxGgaCz9TaoyspNIceiG4Qj3sYs%2FukY%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1790445381\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": "Method Not Allowed"
+          }
+        }
+      ],
+      "reproduce": [
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-014\\.1:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-014\\.2:\"",
+        "npx tsx .claude/skills/heldout-evaluator/scripts/run.ts DEMO-303 --label repro --grep \"SCN-014\\.3:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [
+    {
+      "run": "02-eval",
+      "scenario": "SCN-013",
+      "action": "Header name corrected to Authorization (the shared basic() helper); replayed live: DELETE → 201 with the correct header. Full re-run required: the real AC-10 outcome was masked."
+    }
+  ],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 1,
+      "tests": 5,
+      "passed": 2,
+      "failed": 3,
+      "flaky": 0,
+      "defects": [
+        "APP-3",
+        "APP-4"
+      ]
+    },
+    {
+      "type": "functional",
+      "scenarios": 7,
+      "tests": 8,
+      "passed": 7,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-5"
+      ]
+    },
+    {
+      "type": "idempotency",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 3,
+      "tests": 8,
+      "passed": 1,
+      "failed": 7,
+      "flaky": 0,
+      "defects": [
+        "APP-2",
+        "APP-6"
+      ]
+    },
+    {
+      "type": "performance",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "security",
+      "scenarios": 2,
+      "tests": 4,
+      "passed": 3,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "POST /auth with valid partner credentials responds 200 with {\"token\": \"<non-empty string>\"}.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "Valid partner credentials return a token",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-1, partner-accounts.csv"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "POST /auth with invalid credentials responds 401 Unauthorized with {\"reason\": \"Bad credentials\"}.",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "Invalid credentials are refused with 401",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-2"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "POST /booking with a valid booking responds 200 with {\"bookingid\": <integer>, \"booking\": <the booking exactly as sent>}.",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "Creating a valid booking echoes it with an id",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-3, story §API contract (booking JSON)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "GET /booking/{id} responds 200 with the stored booking, identical to what was created. An id that does not exist responds 404.",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "A created booking can be read back unchanged",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-4"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-005",
+          "title": "Reading a booking that does not exist returns 404",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-4"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "GET /booking?firstname=<f>&lastname=<l> responds 200 with a JSON array of {\"bookingid\"} objects that includes every booking with that name.",
+      "scenarios": [
+        {
+          "id": "SCN-006",
+          "title": "Searching by name finds the booking",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-5"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "A booking that breaks any rule in booking-rules.csv is rejected with 400 Bad Request (never 5xx) and is not stored. A value exactly on a boundary is valid.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "A booking missing a required field is rejected with 400",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-6, booking-rules.csv R1 R2 R4 R5"
+          ],
+          "passed": 0,
+          "total": 4,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-007.1",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-007.2",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-007.3",
+              "status": "failed",
+              "defect": "APP-2"
+            },
+            {
+              "id": "SCN-007.4",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        },
+        {
+          "id": "SCN-008",
+          "title": "Price and date boundaries are enforced",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story AC-6, booking-rules.csv R3 R6"
+          ],
+          "passed": 2,
+          "total": 5,
+          "result": "fails requirement",
+          "defects": [
+            "APP-3",
+            "APP-4"
+          ],
+          "tests": [
+            {
+              "id": "SCN-008.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-008.2",
+              "status": "failed",
+              "defect": "APP-3"
+            },
+            {
+              "id": "SCN-008.3",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-008.4",
+              "status": "failed",
+              "defect": "APP-4"
+            },
+            {
+              "id": "SCN-008.5",
+              "status": "failed",
+              "defect": "APP-4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "PUT, PATCH and DELETE require authentication, either the cookie token=<token from /auth> or Authorization: Basic <base64 of partner credentials>. Without it they respond 403 Forbidden and change nothing.",
+      "scenarios": [
+        {
+          "id": "SCN-009",
+          "title": "Writes without authentication are refused and change nothing",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story AC-7"
+          ],
+          "passed": 3,
+          "total": 3,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-009.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-009.3",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-010",
+          "title": "A full update succeeds with either authentication method",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-7, AC-8"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-010.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "PUT /booking/{id} replaces the whole booking and responds 200 with the updated booking. Repeating the same PUT is idempotent: same response, same stored state.",
+      "scenarios": [
+        {
+          "id": "SCN-010",
+          "title": "A full update succeeds with either authentication method",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-7, AC-8"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-010.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-011",
+          "title": "Repeating the same PUT is idempotent",
+          "type": "idempotency",
+          "layer": "api",
+          "sources": [
+            "story AC-8"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-9",
+      "text": "PATCH /booking/{id} changes only the fields supplied. All other fields keep their values.",
+      "scenarios": [
+        {
+          "id": "SCN-012",
+          "title": "PATCH changes only the supplied fields",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-9"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-012",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-10",
+      "text": "DELETE /booking/{id} with authentication responds 204 No Content. Afterwards GET /booking/{id} responds 404.",
+      "scenarios": [
+        {
+          "id": "SCN-013",
+          "title": "Cancelling a booking returns 204 and removes it",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story AC-10"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-5"
+          ],
+          "tests": [
+            {
+              "id": "SCN-013",
+              "status": "failed",
+              "defect": "APP-5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-11",
+      "text": "PUT, PATCH or DELETE of a booking id that does not exist responds 404 Not Found.",
+      "scenarios": [
+        {
+          "id": "SCN-014",
+          "title": "Writing to a booking that does not exist returns 404",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story AC-11"
+          ],
+          "passed": 0,
+          "total": 3,
+          "result": "fails requirement",
+          "defects": [
+            "APP-6"
+          ],
+          "tests": [
+            {
+              "id": "SCN-014.1",
+              "status": "failed",
+              "defect": "APP-6"
+            },
+            {
+              "id": "SCN-014.2",
+              "status": "failed",
+              "defect": "APP-6"
+            },
+            {
+              "id": "SCN-014.3",
+              "status": "failed",
+              "defect": "APP-6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-12",
+      "text": "GET /booking/{id} responds in under 3000 ms for each of 5 consecutive requests.",
+      "scenarios": [
+        {
+          "id": "SCN-015",
+          "title": "Reading a booking is fast",
+          "type": "performance",
+          "layer": "api",
+          "sources": [
+            "story AC-12"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-015",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [],
+  "verdictFile": "evaluations/DEMO-303/verdict.md"
+}

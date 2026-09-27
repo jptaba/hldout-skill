@@ -1,0 +1,799 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/TOOL-2/tests/",
+      "--workers",
+      "3"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/TOOL-2/runs/01-harden/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\runs\\01-harden\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\runs\\01-harden\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\runs\\01-harden\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 3,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "TOOL-2\\tests\\tool-2.spec.ts",
+      "file": "TOOL-2/tests/tool-2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "TOOL-2 Customer registration, sign-in and account protection",
+          "file": "TOOL-2/tests/tool-2.spec.ts",
+          "line": 60,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001: Registration creates the customer without echoing the password",
+              "ok": true,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:api"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1399,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When I post a new customer with a unique e-mail address to POST /users/register",
+                          "duration": 761
+                        },
+                        {
+                          "title": "Then the response status is 201",
+                          "duration": 3
+                        },
+                        {
+                          "title": "And the response has an id and my first name, last name and e-mail address",
+                          "duration": 2
+                        },
+                        {
+                          "title": "And the response does not contain the password",
+                          "duration": 0
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:40.169Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFjOG4yMWUxIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFjOG4yMWUxQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNzU2LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjcgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWM4bjIxZTEiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxYzhuMjFlMUBleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4YmR3Zjdyajl4dDAzeWNtN21xOSIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MjciLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-14e7605dd7ee0d205d63",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "SCN-002: A registered e-mail address cannot register twice",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:api"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1456,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a customer already registered with an e-mail address",
+                          "duration": 707,
+                          "steps": [
+                            {
+                              "title": "[SEED] registered customer (API; not deletable)",
+                              "duration": 706
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When the same e-mail address is registered again",
+                          "duration": 561
+                        },
+                        {
+                          "title": "Then the response status is 409",
+                          "duration": 1
+                        },
+                        {
+                          "title": "And the message is \"A customer with this email address already exists.\"",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:40.185Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFjOTd0ZjQxIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFjOTd0ZjQxQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNjk5LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjcgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWM5N3RmNDEiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxYzk3dGY0MUBleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4YmQwZWd6eTQwMnJhdGU5dHQ3diIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MjciLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "api-exchange 02 POST /users/register → 409",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFjc3RtN3UyIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFjOTd0ZjQxQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDQwOSwKICAgICJkdXJhdGlvbk1zIjogNTU5LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjggR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImVtYWlsIjogWwogICAgICAgICJBIGN1c3RvbWVyIHdpdGggdGhpcyBlbWFpbCBhZGRyZXNzIGFscmVhZHkgZXhpc3RzLiIKICAgICAgXQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHh6MWM5NDEwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInJlZ2lzdGVyZWQgY3VzdG9tZXIgKEFQSTsgbm90IGRlbGV0YWJsZSkiLAogICAgICAia2luZCI6ICJkYXRhIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogewogICAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWM5N3RmNDEiLAogICAgICAgICJkb2IiOiAiMTk5MC0wMS0wMSIsCiAgICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAgICJhZGRyZXNzIjogewogICAgICAgICAgInN0cmVldCI6ICJNYWluIDEiLAogICAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgICAic3RhdGUiOiAiVVQiLAogICAgICAgICAgImNvdW50cnkiOiAiTkwiLAogICAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgICB9LAogICAgICAgICJlbWFpbCI6ICJxYW11aXoxYzk3dGY0MUBleGFtcGxlLmNvbSIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-f8b1a710adc3db2e1fe6",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "SCN-003: Weak passwords are rejected with every broken rule listed",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:negative",
+                "layer:api"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1345,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When a new customer registers with the password \"abc\"",
+                          "duration": 511
+                        },
+                        {
+                          "title": "Then the response status is 422",
+                          "duration": 3
+                        },
+                        {
+                          "title": "And the password errors name the 8-character minimum, upper and lower case letters, a symbol and a number",
+                          "duration": 1
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:40.201Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 POST /users/register → 422",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFjOXZrcTIxIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFjOXZrcTIxQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDQyMiwKICAgICJkdXJhdGlvbk1zIjogNTA2LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjcgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgInBhc3N3b3JkIjogWwogICAgICAgICJUaGUgcGFzc3dvcmQgZmllbGQgbXVzdCBiZSBhdCBsZWFzdCA4IGNoYXJhY3RlcnMuIiwKICAgICAgICAiVGhlIHBhc3N3b3JkIGZpZWxkIG11c3QgY29udGFpbiBhdCBsZWFzdCBvbmUgdXBwZXJjYXNlIGFuZCBvbmUgbG93ZXJjYXNlIGxldHRlci4iLAogICAgICAgICJUaGUgcGFzc3dvcmQgZmllbGQgbXVzdCBjb250YWluIGF0IGxlYXN0IG9uZSBzeW1ib2wuIiwKICAgICAgICAiVGhlIHBhc3N3b3JkIGZpZWxkIG11c3QgY29udGFpbiBhdCBsZWFzdCBvbmUgbnVtYmVyLiIKICAgICAgXQogICAgfQogIH0KfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-2677da80f227f8b0dc08",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 83,
+              "column": 3
+            },
+            {
+              "title": "SCN-004: Signing in on the web shop",
+              "ok": true,
+              "tags": [
+                "AC-4",
+                "type:functional",
+                "layer:e2e"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4154,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a registered customer on the web shop's sign-in page",
+                          "duration": 1626,
+                          "steps": [
+                            {
+                              "title": "[SEED] registered customer (API; not deletable)",
+                              "duration": 640
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When they sign in with their e-mail address and password",
+                          "duration": 950
+                        },
+                        {
+                          "title": "Then they land on the \"My account\" page",
+                          "duration": 1419
+                        },
+                        {
+                          "title": "And the navigation shows their first and last name",
+                          "duration": 30
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:41.693Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFkOWptMngyIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFkOWptMngyQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNjM4LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjggR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWQ5am0yeDIiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxZDlqbTJ4MkBleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4Y2tzc3Ixd2UxMmc0YXM1MHdxNCIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MjgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "aria-snapshot 01-given-a-registered-customer-on-the-web-shop-s-sign-in-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2F1dGgvbG9naW4KIyBzdGVwOiBHaXZlbiBhIHJlZ2lzdGVyZWQgY3VzdG9tZXIgb24gdGhlIHdlYiBzaG9wJ3Mgc2lnbi1pbiBwYWdlCi0gdGV4dDogVmlldyB0aGUKLSBsaW5rICJEb2N1bWVudGF0aW9uIjoKICAtIC91cmw6IGh0dHBzOi8vdGVzdHNtaXRoLWlvLmdpdGh1Yi5pby9wcmFjdGljZS1zb2Z0d2FyZS10ZXN0aW5nLyMvCi0gdGV4dDogZm9yIHRoaXMgYXBwbGljYXRpb24uIFByYWN0aWNlIEJsYWNrIEJveCBUZXN0aW5nICYgQnVnIEh1bnRpbmcKLSBidXR0b24gIlRlc3RpbmcgR3VpZGUiCi0gYnV0dG9uICLwn5CbIEJ1ZyBIdW50aW5nIgotIGJ1dHRvbiAiU2hvdyBsaXZlIHNob3AgYWN0aXZpdHkiCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-they-sign-in-with-their-e-mail-address-and-password",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2F1dGgvbG9naW4KIyBzdGVwOiBXaGVuIHRoZXkgc2lnbiBpbiB3aXRoIHRoZWlyIGUtbWFpbCBhZGRyZXNzIGFuZCBwYXNzd29yZAotIHRleHQ6IFZpZXcgdGhlCi0gbGluayAiRG9jdW1lbnRhdGlvbiI6CiAgLSAvdXJsOiBodHRwczovL3Rlc3RzbWl0aC1pby5naXRodWIuaW8vcHJhY3RpY2Utc29mdHdhcmUtdGVzdGluZy8jLwotIHRleHQ6IGZvciB0aGlzIGFwcGxpY2F0aW9uLiBQcmFjdGljZSBCbGFjayBCb3ggVGVzdGluZyAmIEJ1ZyBIdW50aW5nCi0gYnV0dG9uICJUZXN0aW5nIEd1aWRlIgotIGJ1dHRvbiAi8J+QmyBCdWcgSHVudGluZyIKLSBuYXZpZ2F0aW9uOgogIC0gbGluayAiUHJhY3RpY2UgU29mdHdhcmUgVGVzdGluZyAtIFRvb2xzaG9wIjoKICAgIC0gL3VybDogLwogICAgLSBpbWcKICAtIG1lbnViYXIgIk1haW4gbWVudSI6CiAgICAtIG1lbnVpdGVtICJIb21lIjoKICAgICAgLSBsaW5rICJIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbWVudWl0ZW0gIkNhdGVnb3JpZXMiOgogICAgICAtIGJ1dHRvbiAiQ2F0ZWdvcmllcyIKICAgIC0gbWVudWl0ZW0gIkNvbnRhY3QiOgogICAgICAtIGxpbmsgIkNvbnRhY3QiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3QKICAgIC0gbWVudWl0ZW0gIlNpZ24gaW4iOgogICAgICAtIGxpbmsgIlNpZ24gaW4iOgogICAgICAgIC0gL3VybDogL2F1dGgvbG9naW4KICAtIGJ1dHRvbiAiU2VsZWN0IGxhbmd1YWdlIjogRU4KLSBoZWFkaW5nICJMb2dpbiIgW2xldmVsPTNdCi0gYnV0dG9uICJTaWduIGluIHdpdGggR29vZ2xlIgotIHRleHQ6IG9yIHVzZSBFbWFpbCBhZGRyZXNzICoKLSB0ZXh0Ym94ICJFbWFpbCBhZGRyZXNzICoiOgogIC0gL3BsYWNlaG9sZGVyOiBZb3VyIGVtYWlsCiAgLSB0ZXh0OiBxYW11aXoxZDlqbTJ4MkBleGFtcGxlLmNvbQotIHRleHQ6IFBhc3N3b3JkICoKLSB0ZXh0Ym94ICJQYXNzd29yZCAqIjogKioqcmVkYWN0ZWQqKioKICAtIHRleHQ6ICoqKnJlZGFjdGVkKioqCi0gYnV0dG9uCi0gYnV0dG9uICJMb2dpbiIKLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBOb3QgeWV0IGFuIGFjY291bnQ/CiAgLSBsaW5rICJSZWdpc3RlciB5b3VyIGFjY291bnQiOgogICAgLSAvdXJsOiAvYXV0aC9yZWdpc3RlcgogIC0gbGluayAiRm9yZ290IHlvdXIgUGFzc3dvcmQ/IjoKICAgIC0gL3VybDogL2F1dGgvZm9yZ290LXBhc3N3b3JkCi0gY29udGVudGluZm86CiAgLSB0ZXh0OiBMZWFybiAmIEV4cGxvcmUKICAtIGxpbmsgIkxlYXJuIFRlc3QgQXV0b21hdGlvbiBIYW5kcy1vbiBjb3Vyc2VzIGZvciBQbGF5d3JpZ2h0LCBSb2JvdCBGcmFtZXdvcmssIEFQSXMgYW5kIG1vcmUiOgogICAgLSAvdXJsOiBodHRwczovL29ubGluZWNvdXJzZXMudGVzdHNtaXRoLmlvCiAgLSBsaW5rICJBUEkgU3BlY3RvciBPcGVuLXNvdXJjZSBBUEkgdGVzdGluZywgbW9ja2luZyBhbmQgY29udHJhY3QgdGVzdGluZyI6CiAgICAtIC91cmw6IGh0dHBzOi8vYXBpLXNwZWN0b3IuZGV2CiAgLSBsaW5rICJHaXRIdWIgU291cmNlIGNvZGUsIGlzc3VlcyBhbmQgY29udHJpYnV0aW9ucyI6CiAgICAtIC91cmw6IGh0dHBzOi8vZ2l0aHViLmNvbS90ZXN0c21pdGgtaW8vcHJhY3RpY2Utc29mdHdhcmUtdGVzdGluZwogIC0gdGV4dDogVGhpcyBpcyBhIERFTU8gYXBwbGljYXRpb24sIHVzZWQgZm9yIHNvZnR3YXJlIHRlc3RpbmcgdHJhaW5pbmcgcHVycG9zZS4gfAogIC0gbGluayAiUHJpdmFjeSBQb2xpY3kiOgogICAgLSAvdXJsOiAvcHJpdmFjeQogIC0gdGV4dDogInwgQmFubmVyIHBob3RvIGJ5IgogIC0gbGluayAiQmFybiBJbWFnZXMiOgogICAgLSAvdXJsOiBodHRwczovL3Vuc3BsYXNoLmNvbS9AYmFybmltYWdlcwogIC0gdGV4dDogIm9uIgogIC0gbGluayAiVW5zcGxhc2giOgogICAgLSAvdXJsOiBodHRwczovL3Vuc3BsYXNoLmNvbS9waG90b3MvdDVZVW9IVzZ6Um8KICAtIHRleHQ6IC4gdjIuNSB8IEJ1aWx0IDIwMjYtMDktMDkgfCBBbmd1bGFyIDIwLjAuNQotIGJ1dHRvbiAiT3BlbiBjaGF0IjoKICAtIGltZwotIGJ1dHRvbiAiU2hvdyBsaXZlIHNob3AgYWN0aXZpdHkiCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-they-land-on-the-my-account-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2FjY291bnQKIyBzdGVwOiBUaGVuIHRoZXkgbGFuZCBvbiB0aGUgIk15IGFjY291bnQiIHBhZ2UKLSB0ZXh0OiBWaWV3IHRoZQotIGxpbmsgIkRvY3VtZW50YXRpb24iOgogIC0gL3VybDogaHR0cHM6Ly90ZXN0c21pdGgtaW8uZ2l0aHViLmlvL3ByYWN0aWNlLXNvZnR3YXJlLXRlc3RpbmcvIy8KLSB0ZXh0OiBmb3IgdGhpcyBhcHBsaWNhdGlvbi4gUHJhY3RpY2UgQmxhY2sgQm94IFRlc3RpbmcgJiBCdWcgSHVudGluZwotIGJ1dHRvbiAiVGVzdGluZyBHdWlkZSIKLSBidXR0b24gIvCfkJsgQnVnIEh1bnRpbmciCi0gbmF2aWdhdGlvbjoKICAtIGxpbmsgIlByYWN0aWNlIFNvZnR3YXJlIFRlc3RpbmcgLSBUb29sc2hvcCI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nCiAgLSBtZW51YmFyICJNYWluIG1lbnUiOgogICAgLSBtZW51aXRlbSAiSG9tZSI6CiAgICAgIC0gbGluayAiSG9tZSI6CiAgICAgICAgLSAvdXJsOiAvCiAgICAtIG1lbnVpdGVtICJDYXRlZ29yaWVzIjoKICAgICAgLSBidXR0b24gIkNhdGVnb3JpZXMiCiAgICAtIG1lbnVpdGVtICJDb250YWN0IjoKICAgICAgLSBsaW5rICJDb250YWN0IjoKICAgICAgICAtIC91cmw6IC9jb250YWN0CiAgICAtIG1lbnVpdGVtICJRYSBIZWxkbXVpejFkOWptMngyIjoKICAgICAgLSBidXR0b24gIlFhIEhlbGRtdWl6MWQ5am0yeDIiCiAgLSBidXR0b24gIlNlbGVjdCBsYW5ndWFnZSI6IEVOCi0gaGVhZGluZyAiTXkgYWNjb3VudCIgW2xldmVsPTFdCi0gcGFyYWdyYXBoOiBIZXJlIHlvdSBjYW4gbWFuYWdlIHlvdXIgcHJvZmlsZSwgZmF2b3JpdGVzIGFuZCBvcmRlcnMuCi0gYnV0dG9uICJGYXZvcml0ZXMiCi0gYnV0dG9uICJQcm9maWxlIgotIGJ1dHRvbiAiSW52b2ljZXMiCi0gYnV0dG9uICJNZXNzYWdlcyIKLSBjb250ZW50aW5mbzoKICAtIHRleHQ6IExlYXJuICYgRXhwbG9yZQogIC0gbGluayAiTGVhcm4gVGVzdCBBdXRvbWF0aW9uIEhhbmRzLW9uIGNvdXJzZXMgZm9yIFBsYXl3cmlnaHQsIFJvYm90IEZyYW1ld29yaywgQVBJcyBhbmQgbW9yZSI6CiAgICAtIC91cmw6IGh0dHBzOi8vb25saW5lY291cnNlcy50ZXN0c21pdGguaW8KICAtIGxpbmsgIkFQSSBTcGVjdG9yIE9wZW4tc291cmNlIEFQSSB0ZXN0aW5nLCBtb2NraW5nIGFuZCBjb250cmFjdCB0ZXN0aW5nIjoKICAgIC0gL3VybDogaHR0cHM6Ly9hcGktc3BlY3Rvci5kZXYKICAtIGxpbmsgIkdpdEh1YiBTb3VyY2UgY29kZSwgaXNzdWVzIGFuZCBjb250cmlidXRpb25zIjoKICAgIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3Rlc3RzbWl0aC1pby9wcmFjdGljZS1zb2Z0d2FyZS10ZXN0aW5nCiAgLSB0ZXh0OiBUaGlzIGlzIGEgREVNTyBhcHBsaWNhdGlvbiwgdXNlZCBmb3Igc29mdHdhcmUgdGVzdGluZyB0cmFpbmluZyBwdXJwb3NlLiB8CiAgLSBsaW5rICJQcml2YWN5IFBvbGljeSI6CiAgICAtIC91cmw6IC9wcml2YWN5CiAgLSB0ZXh0OiAifCBCYW5uZXIgcGhvdG8gYnkiCiAgLSBsaW5rICJCYXJuIEltYWdlcyI6CiAgICAtIC91cmw6IGh0dHBzOi8vdW5zcGxhc2guY29tL0BiYXJuaW1hZ2VzCiAgLSB0ZXh0OiAib24iCiAgLSBsaW5rICJVbnNwbGFzaCI6CiAgICAtIC91cmw6IGh0dHBzOi8vdW5zcGxhc2guY29tL3Bob3Rvcy90NVlVb0hXNnpSbwogIC0gdGV4dDogLiB2Mi41IHwgQnVpbHQgMjAyNi0wOS0wOSB8IEFuZ3VsYXIgMjAuMC41Ci0gYnV0dG9uICJPcGVuIGNoYXQiOgogIC0gaW1nCi0gYnV0dG9uICJTaG93IGxpdmUgc2hvcCBhY3Rpdml0eSIK"
+                        },
+                        {
+                          "name": "aria-snapshot 04-and-the-navigation-shows-their-first-and-last-name",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2FjY291bnQKIyBzdGVwOiBBbmQgdGhlIG5hdmlnYXRpb24gc2hvd3MgdGhlaXIgZmlyc3QgYW5kIGxhc3QgbmFtZQotIHRleHQ6IFZpZXcgdGhlCi0gbGluayAiRG9jdW1lbnRhdGlvbiI6CiAgLSAvdXJsOiBodHRwczovL3Rlc3RzbWl0aC1pby5naXRodWIuaW8vcHJhY3RpY2Utc29mdHdhcmUtdGVzdGluZy8jLwotIHRleHQ6IGZvciB0aGlzIGFwcGxpY2F0aW9uLiBQcmFjdGljZSBCbGFjayBCb3ggVGVzdGluZyAmIEJ1ZyBIdW50aW5nCi0gYnV0dG9uICJUZXN0aW5nIEd1aWRlIgotIGJ1dHRvbiAi8J+QmyBCdWcgSHVudGluZyIKLSBuYXZpZ2F0aW9uOgogIC0gbGluayAiUHJhY3RpY2UgU29mdHdhcmUgVGVzdGluZyAtIFRvb2xzaG9wIjoKICAgIC0gL3VybDogLwogICAgLSBpbWcKICAtIG1lbnViYXIgIk1haW4gbWVudSI6CiAgICAtIG1lbnVpdGVtICJIb21lIjoKICAgICAgLSBsaW5rICJIb21lIjoKICAgICAgICAtIC91cmw6IC8KICAgIC0gbWVudWl0ZW0gIkNhdGVnb3JpZXMiOgogICAgICAtIGJ1dHRvbiAiQ2F0ZWdvcmllcyIKICAgIC0gbWVudWl0ZW0gIkNvbnRhY3QiOgogICAgICAtIGxpbmsgIkNvbnRhY3QiOgogICAgICAgIC0gL3VybDogL2NvbnRhY3QKICAgIC0gbWVudWl0ZW0gIlFhIEhlbGRtdWl6MWQ5am0yeDIiOgogICAgICAtIGJ1dHRvbiAiUWEgSGVsZG11aXoxZDlqbTJ4MiIKICAtIGJ1dHRvbiAiU2VsZWN0IGxhbmd1YWdlIjogRU4KLSBoZWFkaW5nICJNeSBhY2NvdW50IiBbbGV2ZWw9MV0KLSBwYXJhZ3JhcGg6IEhlcmUgeW91IGNhbiBtYW5hZ2UgeW91ciBwcm9maWxlLCBmYXZvcml0ZXMgYW5kIG9yZGVycy4KLSBidXR0b24gIkZhdm9yaXRlcyIKLSBidXR0b24gIlByb2ZpbGUiCi0gYnV0dG9uICJJbnZvaWNlcyIKLSBidXR0b24gIk1lc3NhZ2VzIgotIGNvbnRlbnRpbmZvOgogIC0gdGV4dDogTGVhcm4gJiBFeHBsb3JlCiAgLSBsaW5rICJMZWFybiBUZXN0IEF1dG9tYXRpb24gSGFuZHMtb24gY291cnNlcyBmb3IgUGxheXdyaWdodCwgUm9ib3QgRnJhbWV3b3JrLCBBUElzIGFuZCBtb3JlIjoKICAgIC0gL3VybDogaHR0cHM6Ly9vbmxpbmVjb3Vyc2VzLnRlc3RzbWl0aC5pbwogIC0gbGluayAiQVBJIFNwZWN0b3IgT3Blbi1zb3VyY2UgQVBJIHRlc3RpbmcsIG1vY2tpbmcgYW5kIGNvbnRyYWN0IHRlc3RpbmciOgogICAgLSAvdXJsOiBodHRwczovL2FwaS1zcGVjdG9yLmRldgogIC0gbGluayAiR2l0SHViIFNvdXJjZSBjb2RlLCBpc3N1ZXMgYW5kIGNvbnRyaWJ1dGlvbnMiOgogICAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdGVzdHNtaXRoLWlvL3ByYWN0aWNlLXNvZnR3YXJlLXRlc3RpbmcKICAtIHRleHQ6IFRoaXMgaXMgYSBERU1PIGFwcGxpY2F0aW9uLCB1c2VkIGZvciBzb2Z0d2FyZSB0ZXN0aW5nIHRyYWluaW5nIHB1cnBvc2UuIHwKICAtIGxpbmsgIlByaXZhY3kgUG9saWN5IjoKICAgIC0gL3VybDogL3ByaXZhY3kKICAtIHRleHQ6ICJ8IEJhbm5lciBwaG90byBieSIKICAtIGxpbmsgIkJhcm4gSW1hZ2VzIjoKICAgIC0gL3VybDogaHR0cHM6Ly91bnNwbGFzaC5jb20vQGJhcm5pbWFnZXMKICAtIHRleHQ6ICJvbiIKICAtIGxpbmsgIlVuc3BsYXNoIjoKICAgIC0gL3VybDogaHR0cHM6Ly91bnNwbGFzaC5jb20vcGhvdG9zL3Q1WVVvSFc2elJvCiAgLSB0ZXh0OiAuIHYyLjUgfCBCdWlsdCAyMDI2LTA5LTA5IHwgQW5ndWxhciAyMC4wLjUKLSBidXR0b24gIk9wZW4gY2hhdCI6CiAgLSBpbWcKLSBidXR0b24gIlNob3cgbGl2ZSBzaG9wIGFjdGl2aXR5Igo="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHh6MWQ5aTIwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInJlZ2lzdGVyZWQgY3VzdG9tZXIgKEFQSTsgbm90IGRlbGV0YWJsZSkiLAogICAgICAia2luZCI6ICJkYXRhIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogewogICAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWQ5am0yeDIiLAogICAgICAgICJkb2IiOiAiMTk5MC0wMS0wMSIsCiAgICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAgICJhZGRyZXNzIjogewogICAgICAgICAgInN0cmVldCI6ICJNYWluIDEiLAogICAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgICAic3RhdGUiOiAiVVQiLAogICAgICAgICAgImNvdW50cnkiOiAiTkwiLAogICAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgICB9LAogICAgICAgICJlbWFpbCI6ICJxYW11aXoxZDlqbTJ4MkBleGFtcGxlLmNvbSIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-e663afa5b95e92f60166",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 93,
+              "column": 3
+            },
+            {
+              "title": "SCN-005: A wrong password is refused by the API",
+              "ok": true,
+              "tags": [
+                "AC-5",
+                "type:security",
+                "layer:api"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1330,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a registered customer",
+                          "duration": 688,
+                          "steps": [
+                            {
+                              "title": "[SEED] registered customer (API; not deletable)",
+                              "duration": 688
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When they POST their e-mail address with a wrong password to /users/login",
+                          "duration": 541
+                        },
+                        {
+                          "title": "Then the response status is 401",
+                          "duration": 0
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:41.695Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFkOWd5NXUyIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFkOWd5NXUyQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNjg2LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjkgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWQ5Z3k1dTIiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxZDlneTV1MkBleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4Y25lZmM4a3BwMm45dDZrbjh0YSIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MjkiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "api-exchange 02 POST /users/login → 401",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZDlneTV1MkBleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MDEsCiAgICAiZHVyYXRpb25NcyI6IDUzOCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjI5IEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJVbmF1dGhvcml6ZWQiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHh6MWQ5ZjAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInJlZ2lzdGVyZWQgY3VzdG9tZXIgKEFQSTsgbm90IGRlbGV0YWJsZSkiLAogICAgICAia2luZCI6ICJkYXRhIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogewogICAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWQ5Z3k1dTIiLAogICAgICAgICJkb2IiOiAiMTk5MC0wMS0wMSIsCiAgICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAgICJhZGRyZXNzIjogewogICAgICAgICAgInN0cmVldCI6ICJNYWluIDEiLAogICAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgICAic3RhdGUiOiAiVVQiLAogICAgICAgICAgImNvdW50cnkiOiAiTkwiLAogICAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgICB9LAogICAgICAgICJlbWFpbCI6ICJxYW11aXoxZDlneTV1MkBleGFtcGxlLmNvbSIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-4dabcd6b741f530b64f1",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 101,
+              "column": 3
+            },
+            {
+              "title": "SCN-006: A wrong password is refused on the web shop",
+              "ok": true,
+              "tags": [
+                "AC-5",
+                "type:negative",
+                "layer:ui"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3583,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a registered customer on the web shop's sign-in page",
+                          "duration": 1639,
+                          "steps": [
+                            {
+                              "title": "[SEED] registered customer (API; not deletable)",
+                              "duration": 700
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When they sign in with a wrong password",
+                          "duration": 958
+                        },
+                        {
+                          "title": "Then the web shop shows \"Invalid email or password\"",
+                          "duration": 865
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:41.775Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFkYmhxZmszIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFkYmhxZmszQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNjk3LAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MjkgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWRiaHFmazMiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxZGJocWZrM0BleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4Y3F2ejIzMmNtcmg5dzIxcXNtNSIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MjkiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "aria-snapshot 01-given-a-registered-customer-on-the-web-shop-s-sign-in-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2F1dGgvbG9naW4KIyBzdGVwOiBHaXZlbiBhIHJlZ2lzdGVyZWQgY3VzdG9tZXIgb24gdGhlIHdlYiBzaG9wJ3Mgc2lnbi1pbiBwYWdlCi0gdGV4dDogVmlldyB0aGUKLSBsaW5rICJEb2N1bWVudGF0aW9uIjoKICAtIC91cmw6IGh0dHBzOi8vdGVzdHNtaXRoLWlvLmdpdGh1Yi5pby9wcmFjdGljZS1zb2Z0d2FyZS10ZXN0aW5nLyMvCi0gdGV4dDogZm9yIHRoaXMgYXBwbGljYXRpb24uIFByYWN0aWNlIEJsYWNrIEJveCBUZXN0aW5nICYgQnVnIEh1bnRpbmcKLSBidXR0b24gIlRlc3RpbmcgR3VpZGUiCi0gYnV0dG9uICLwn5CbIEJ1ZyBIdW50aW5nIgotIGJ1dHRvbiAiU2hvdyBsaXZlIHNob3AgYWN0aXZpdHkiCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-they-sign-in-with-a-wrong-password",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2F1dGgvbG9naW4KIyBzdGVwOiBXaGVuIHRoZXkgc2lnbiBpbiB3aXRoIGEgd3JvbmcgcGFzc3dvcmQKLSB0ZXh0OiBWaWV3IHRoZQotIGxpbmsgIkRvY3VtZW50YXRpb24iOgogIC0gL3VybDogaHR0cHM6Ly90ZXN0c21pdGgtaW8uZ2l0aHViLmlvL3ByYWN0aWNlLXNvZnR3YXJlLXRlc3RpbmcvIy8KLSB0ZXh0OiBmb3IgdGhpcyBhcHBsaWNhdGlvbi4gUHJhY3RpY2UgQmxhY2sgQm94IFRlc3RpbmcgJiBCdWcgSHVudGluZwotIGJ1dHRvbiAiVGVzdGluZyBHdWlkZSIKLSBidXR0b24gIvCfkJsgQnVnIEh1bnRpbmciCi0gbmF2aWdhdGlvbjoKICAtIGxpbmsgIlByYWN0aWNlIFNvZnR3YXJlIFRlc3RpbmcgLSBUb29sc2hvcCI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nCiAgLSBtZW51YmFyICJNYWluIG1lbnUiOgogICAgLSBtZW51aXRlbSAiSG9tZSI6CiAgICAgIC0gbGluayAiSG9tZSI6CiAgICAgICAgLSAvdXJsOiAvCiAgICAtIG1lbnVpdGVtICJDYXRlZ29yaWVzIjoKICAgICAgLSBidXR0b24gIkNhdGVnb3JpZXMiCiAgICAtIG1lbnVpdGVtICJDb250YWN0IjoKICAgICAgLSBsaW5rICJDb250YWN0IjoKICAgICAgICAtIC91cmw6IC9jb250YWN0CiAgICAtIG1lbnVpdGVtICJTaWduIGluIjoKICAgICAgLSBsaW5rICJTaWduIGluIjoKICAgICAgICAtIC91cmw6IC9hdXRoL2xvZ2luCiAgLSBidXR0b24gIlNlbGVjdCBsYW5ndWFnZSI6IEVOCi0gaGVhZGluZyAiTG9naW4iIFtsZXZlbD0zXQotIGJ1dHRvbiAiU2lnbiBpbiB3aXRoIEdvb2dsZSIKLSB0ZXh0OiBvciB1c2UgRW1haWwgYWRkcmVzcyAqCi0gdGV4dGJveCAiRW1haWwgYWRkcmVzcyAqIjoKICAtIC9wbGFjZWhvbGRlcjogWW91ciBlbWFpbAogIC0gdGV4dDogcWFtdWl6MWRiaHFmazNAZXhhbXBsZS5jb20KLSB0ZXh0OiBQYXNzd29yZCAqCi0gdGV4dGJveCAiUGFzc3dvcmQgKiI6ICoqKnJlZGFjdGVkKioqCiAgLSB0ZXh0OiAqKipyZWRhY3RlZCoqKgotIGJ1dHRvbgotIGJ1dHRvbiAiTG9naW4iCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogTm90IHlldCBhbiBhY2NvdW50PwogIC0gbGluayAiUmVnaXN0ZXIgeW91ciBhY2NvdW50IjoKICAgIC0gL3VybDogL2F1dGgvcmVnaXN0ZXIKICAtIGxpbmsgIkZvcmdvdCB5b3VyIFBhc3N3b3JkPyI6CiAgICAtIC91cmw6IC9hdXRoL2ZvcmdvdC1wYXNzd29yZAotIGNvbnRlbnRpbmZvOgogIC0gdGV4dDogTGVhcm4gJiBFeHBsb3JlCiAgLSBsaW5rICJMZWFybiBUZXN0IEF1dG9tYXRpb24gSGFuZHMtb24gY291cnNlcyBmb3IgUGxheXdyaWdodCwgUm9ib3QgRnJhbWV3b3JrLCBBUElzIGFuZCBtb3JlIjoKICAgIC0gL3VybDogaHR0cHM6Ly9vbmxpbmVjb3Vyc2VzLnRlc3RzbWl0aC5pbwogIC0gbGluayAiQVBJIFNwZWN0b3IgT3Blbi1zb3VyY2UgQVBJIHRlc3RpbmcsIG1vY2tpbmcgYW5kIGNvbnRyYWN0IHRlc3RpbmciOgogICAgLSAvdXJsOiBodHRwczovL2FwaS1zcGVjdG9yLmRldgogIC0gbGluayAiR2l0SHViIFNvdXJjZSBjb2RlLCBpc3N1ZXMgYW5kIGNvbnRyaWJ1dGlvbnMiOgogICAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdGVzdHNtaXRoLWlvL3ByYWN0aWNlLXNvZnR3YXJlLXRlc3RpbmcKICAtIHRleHQ6IFRoaXMgaXMgYSBERU1PIGFwcGxpY2F0aW9uLCB1c2VkIGZvciBzb2Z0d2FyZSB0ZXN0aW5nIHRyYWluaW5nIHB1cnBvc2UuIHwKICAtIGxpbmsgIlByaXZhY3kgUG9saWN5IjoKICAgIC0gL3VybDogL3ByaXZhY3kKICAtIHRleHQ6ICJ8IEJhbm5lciBwaG90byBieSIKICAtIGxpbmsgIkJhcm4gSW1hZ2VzIjoKICAgIC0gL3VybDogaHR0cHM6Ly91bnNwbGFzaC5jb20vQGJhcm5pbWFnZXMKICAtIHRleHQ6ICJvbiIKICAtIGxpbmsgIlVuc3BsYXNoIjoKICAgIC0gL3VybDogaHR0cHM6Ly91bnNwbGFzaC5jb20vcGhvdG9zL3Q1WVVvSFc2elJvCiAgLSB0ZXh0OiAuIHYyLjUgfCBCdWlsdCAyMDI2LTA5LTA5IHwgQW5ndWxhciAyMC4wLjUKLSBidXR0b24gIk9wZW4gY2hhdCI6CiAgLSBpbWcKLSBidXR0b24gIlNob3cgbGl2ZSBzaG9wIGFjdGl2aXR5Igo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-the-web-shop-shows-invalid-email-or-password",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vcHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL2F1dGgvbG9naW4KIyBzdGVwOiBUaGVuIHRoZSB3ZWIgc2hvcCBzaG93cyAiSW52YWxpZCBlbWFpbCBvciBwYXNzd29yZCIKLSB0ZXh0OiBWaWV3IHRoZQotIGxpbmsgIkRvY3VtZW50YXRpb24iOgogIC0gL3VybDogaHR0cHM6Ly90ZXN0c21pdGgtaW8uZ2l0aHViLmlvL3ByYWN0aWNlLXNvZnR3YXJlLXRlc3RpbmcvIy8KLSB0ZXh0OiBmb3IgdGhpcyBhcHBsaWNhdGlvbi4gUHJhY3RpY2UgQmxhY2sgQm94IFRlc3RpbmcgJiBCdWcgSHVudGluZwotIGJ1dHRvbiAiVGVzdGluZyBHdWlkZSIKLSBidXR0b24gIvCfkJsgQnVnIEh1bnRpbmciCi0gbmF2aWdhdGlvbjoKICAtIGxpbmsgIlByYWN0aWNlIFNvZnR3YXJlIFRlc3RpbmcgLSBUb29sc2hvcCI6CiAgICAtIC91cmw6IC8KICAgIC0gaW1nCiAgLSBtZW51YmFyICJNYWluIG1lbnUiOgogICAgLSBtZW51aXRlbSAiSG9tZSI6CiAgICAgIC0gbGluayAiSG9tZSI6CiAgICAgICAgLSAvdXJsOiAvCiAgICAtIG1lbnVpdGVtICJDYXRlZ29yaWVzIjoKICAgICAgLSBidXR0b24gIkNhdGVnb3JpZXMiCiAgICAtIG1lbnVpdGVtICJDb250YWN0IjoKICAgICAgLSBsaW5rICJDb250YWN0IjoKICAgICAgICAtIC91cmw6IC9jb250YWN0CiAgICAtIG1lbnVpdGVtICJTaWduIGluIjoKICAgICAgLSBsaW5rICJTaWduIGluIjoKICAgICAgICAtIC91cmw6IC9hdXRoL2xvZ2luCiAgLSBidXR0b24gIlNlbGVjdCBsYW5ndWFnZSI6IEVOCi0gaGVhZGluZyAiTG9naW4iIFtsZXZlbD0zXQotIGJ1dHRvbiAiU2lnbiBpbiB3aXRoIEdvb2dsZSIKLSB0ZXh0OiBvciB1c2UgRW1haWwgYWRkcmVzcyAqCi0gdGV4dGJveCAiRW1haWwgYWRkcmVzcyAqIjoKICAtIC9wbGFjZWhvbGRlcjogWW91ciBlbWFpbAogIC0gdGV4dDogcWFtdWl6MWRiaHFmazNAZXhhbXBsZS5jb20KLSB0ZXh0OiBQYXNzd29yZCAqCi0gdGV4dGJveCAiUGFzc3dvcmQgKiI6ICoqKnJlZGFjdGVkKioqCiAgLSB0ZXh0OiAqKipyZWRhY3RlZCoqKgotIGJ1dHRvbgotIGJ1dHRvbiAiTG9naW4iCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogTm90IHlldCBhbiBhY2NvdW50PwogIC0gbGluayAiUmVnaXN0ZXIgeW91ciBhY2NvdW50IjoKICAgIC0gL3VybDogL2F1dGgvcmVnaXN0ZXIKICAtIGxpbmsgIkZvcmdvdCB5b3VyIFBhc3N3b3JkPyI6CiAgICAtIC91cmw6IC9hdXRoL2ZvcmdvdC1wYXNzd29yZAotIHRleHQ6IEludmFsaWQgZW1haWwgb3IgcGFzc3dvcmQKLSBjb250ZW50aW5mbzoKICAtIHRleHQ6IExlYXJuICYgRXhwbG9yZQogIC0gbGluayAiTGVhcm4gVGVzdCBBdXRvbWF0aW9uIEhhbmRzLW9uIGNvdXJzZXMgZm9yIFBsYXl3cmlnaHQsIFJvYm90IEZyYW1ld29yaywgQVBJcyBhbmQgbW9yZSI6CiAgICAtIC91cmw6IGh0dHBzOi8vb25saW5lY291cnNlcy50ZXN0c21pdGguaW8KICAtIGxpbmsgIkFQSSBTcGVjdG9yIE9wZW4tc291cmNlIEFQSSB0ZXN0aW5nLCBtb2NraW5nIGFuZCBjb250cmFjdCB0ZXN0aW5nIjoKICAgIC0gL3VybDogaHR0cHM6Ly9hcGktc3BlY3Rvci5kZXYKICAtIGxpbmsgIkdpdEh1YiBTb3VyY2UgY29kZSwgaXNzdWVzIGFuZCBjb250cmlidXRpb25zIjoKICAgIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3Rlc3RzbWl0aC1pby9wcmFjdGljZS1zb2Z0d2FyZS10ZXN0aW5nCiAgLSB0ZXh0OiBUaGlzIGlzIGEgREVNTyBhcHBsaWNhdGlvbiwgdXNlZCBmb3Igc29mdHdhcmUgdGVzdGluZyB0cmFpbmluZyBwdXJwb3NlLiB8CiAgLSBsaW5rICJQcml2YWN5IFBvbGljeSI6CiAgICAtIC91cmw6IC9wcml2YWN5CiAgLSB0ZXh0OiAifCBCYW5uZXIgcGhvdG8gYnkiCiAgLSBsaW5rICJCYXJuIEltYWdlcyI6CiAgICAtIC91cmw6IGh0dHBzOi8vdW5zcGxhc2guY29tL0BiYXJuaW1hZ2VzCiAgLSB0ZXh0OiAib24iCiAgLSBsaW5rICJVbnNwbGFzaCI6CiAgICAtIC91cmw6IGh0dHBzOi8vdW5zcGxhc2guY29tL3Bob3Rvcy90NVlVb0hXNnpSbwogIC0gdGV4dDogLiB2Mi41IHwgQnVpbHQgMjAyNi0wOS0wOSB8IEFuZ3VsYXIgMjAuMC41Ci0gYnV0dG9uICJPcGVuIGNoYXQiOgogIC0gaW1nCi0gYnV0dG9uICJTaG93IGxpdmUgc2hvcCBhY3Rpdml0eSIK"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHh6MWRiZzEwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInJlZ2lzdGVyZWQgY3VzdG9tZXIgKEFQSTsgbm90IGRlbGV0YWJsZSkiLAogICAgICAia2luZCI6ICJkYXRhIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogewogICAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWRiaHFmazMiLAogICAgICAgICJkb2IiOiAiMTk5MC0wMS0wMSIsCiAgICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAgICJhZGRyZXNzIjogewogICAgICAgICAgInN0cmVldCI6ICJNYWluIDEiLAogICAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgICAic3RhdGUiOiAiVVQiLAogICAgICAgICAgImNvdW50cnkiOiAiTkwiLAogICAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgICB9LAogICAgICAgICJlbWFpbCI6ICJxYW11aXoxZGJocWZrM0BleGFtcGxlLmNvbSIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-b95438a2355390841fc2",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 108,
+              "column": 3
+            },
+            {
+              "title": "SCN-007: The account locks after five failed attempts",
+              "ok": false,
+              "tags": [
+                "AC-6",
+                "type:security",
+                "layer:api"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3873,
+                      "error": {
+                        "message": "Error: [REQ AC-6] attempts one to five → 401\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[32m-   401,\u001b[39m\n\u001b[32m-   401,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[2m  ]\u001b[22m",
+                        "stack": "Error: [REQ AC-6] attempts one to five → 401\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[32m-   401,\u001b[39m\n\u001b[32m-   401,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[2m  ]\u001b[22m\n    at body (D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts:122:70)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:301:34\n    at D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts:121:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts",
+                          "column": 70,
+                          "line": 122
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 120 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 121 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then attempts one to five each respond 401'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 122 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(statuses\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] attempts one to five → 401'\u001b[39m)\u001b[33m.\u001b[39mtoEqual(\u001b[33mArray\u001b[39m(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mFAILED_ATTEMPTS_ALLOWED\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mSTATUS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mUNAUTHORIZED\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 123 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 124 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the sixth attempt, with the correct password, responds 423 with a message that the account is locked'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 125 |\u001b[39m       sixth \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m login(api\u001b[33m,\u001b[39m c)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts",
+                            "column": 70,
+                            "line": 122
+                          },
+                          "message": "Error: [REQ AC-6] attempts one to five → 401\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[32m-   401,\u001b[39m\n\u001b[32m-   401,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[2m  ]\u001b[22m\n\n  120 |     });\n  121 |     await journey.step('Then attempts one to five each respond 401', async () => {\n> 122 |       expect.soft(statuses, '[REQ AC-6] attempts one to five → 401').toEqual(Array(REQ.FAILED_ATTEMPTS_ALLOWED).fill(REQ.STATUS.UNAUTHORIZED));\n      |                                                                      ^\n  123 |     });\n  124 |     await journey.step('And the sixth attempt, with the correct password, responds 423 with a message that the account is locked', async () => {\n  125 |       sixth = await login(api, c);\n    at body (D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts:122:70)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:301:34\n    at D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts:121:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a registered customer used only by this scenario",
+                          "duration": 723,
+                          "steps": [
+                            {
+                              "title": "[SEED] customer dedicated to the lockout scenario (API; not deletable)",
+                              "duration": 722
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When five sign-in attempts with a wrong password are made",
+                          "duration": 2502
+                        },
+                        {
+                          "title": "Then attempts one to five each respond 401",
+                          "duration": 4,
+                          "error": {
+                            "message": "Error: [REQ AC-6] attempts one to five → 401\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[32m-   401,\u001b[39m\n\u001b[32m-   401,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[2m  ]\u001b[22m",
+                            "stack": "Error: [REQ AC-6] attempts one to five → 401\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[2m    401,\u001b[22m\n\u001b[32m-   401,\u001b[39m\n\u001b[32m-   401,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[31m+   423,\u001b[39m\n\u001b[2m  ]\u001b[22m\n    at body (D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts:122:70)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:301:34\n    at D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts:121:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts",
+                              "column": 70,
+                              "line": 122
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 120 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 121 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then attempts one to five each respond 401'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 122 |\u001b[39m       expect\u001b[33m.\u001b[39msoft(statuses\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] attempts one to five → 401'\u001b[39m)\u001b[33m.\u001b[39mtoEqual(\u001b[33mArray\u001b[39m(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mFAILED_ATTEMPTS_ALLOWED\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mSTATUS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mUNAUTHORIZED\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 123 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 124 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And the sixth attempt, with the correct password, responds 423 with a message that the account is locked'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 125 |\u001b[39m       sixth \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m login(api\u001b[33m,\u001b[39m c)\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        },
+                        {
+                          "title": "And the sixth attempt, with the correct password, responds 423 with a message that the account is locked",
+                          "duration": 471
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:43.036Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFlYjZ5YTAzIiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFlYjZ5YTAzQGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNzIwLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MzAgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWViNnlhMDMiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4ZTBqN3YzMGFicDI5OXcyZ3FtYyIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MzAiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "api-exchange 02 POST /users/login → 401",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MDEsCiAgICAiZHVyYXRpb25NcyI6IDUxMiwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMwIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJVbmF1dGhvcml6ZWQiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 03 POST /users/login → 401",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MDEsCiAgICAiZHVyYXRpb25NcyI6IDUzNywKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMxIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJVbmF1dGhvcml6ZWQiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 04 POST /users/login → 401",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MDEsCiAgICAiZHVyYXRpb25NcyI6IDU1MywKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMyIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJVbmF1dGhvcml6ZWQiCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 05 POST /users/login → 423",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MjMsCiAgICAiZHVyYXRpb25NcyI6IDQ2NiwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMyIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJBY2NvdW50IGxvY2tlZCwgdG9vIG1hbnkgZmFpbGVkIGF0dGVtcHRzLiBQbGVhc2UgY29udGFjdCB0aGUgYWRtaW5pc3RyYXRvci4iCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 06 POST /users/login → 423",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MjMsCiAgICAiZHVyYXRpb25NcyI6IDQyMiwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMyIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJBY2NvdW50IGxvY2tlZCwgdG9vIG1hbnkgZmFpbGVkIGF0dGVtcHRzLiBQbGVhc2UgY29udGFjdCB0aGUgYWRtaW5pc3RyYXRvci4iCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 07 POST /users/login → 423",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZWI2eWEwM0BleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiA0MjMsCiAgICAiZHVyYXRpb25NcyI6IDQ2NCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMzIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlcnJvciI6ICJBY2NvdW50IGxvY2tlZCwgdG9vIG1hbnkgZmFpbGVkIGF0dGVtcHRzLiBQbGVhc2UgY29udGFjdCB0aGUgYWRtaW5pc3RyYXRvci4iCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\runs\\01-harden\\artifacts\\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHh6MWViNTAwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImN1c3RvbWVyIGRlZGljYXRlZCB0byB0aGUgbG9ja291dCBzY2VuYXJpbyAoQVBJOyBub3QgZGVsZXRhYmxlKSIsCiAgICAgICJraW5kIjogImRhdGEiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiB7CiAgICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAgICJsYXN0X25hbWUiOiAiSGVsZG11aXoxZWI2eWEwMyIsCiAgICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICAgImFkZHJlc3MiOiB7CiAgICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgICAiY2l0eSI6ICJVdHJlY2h0IiwKICAgICAgICAgICJzdGF0ZSI6ICJVVCIsCiAgICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgICAicG9zdGFsX2NvZGUiOiAiMTIzNEFCIgogICAgICAgIH0sCiAgICAgICAgImVtYWlsIjogInFhbXVpejFlYjZ5YTAzQGV4YW1wbGUuY29tIiwKICAgICAgICAicGFzc3dvcmQiOiAiKioqcmVkYWN0ZWQqKioiCiAgICAgIH0KICAgIH0KICBdCn0="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\runs\\01-harden\\artifacts\\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\runs\\01-harden\\artifacts\\TOOL-2-tests-tool-2-TOOL-2-a30bc--after-five-failed-attempts-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\TOOL-2\\tests\\tool-2.spec.ts",
+                        "column": 70,
+                        "line": 122
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-62db9a463edc1d3a90fb",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "SCN-008: Signing out invalidates the token",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:security",
+                "layer:api"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2181,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given a signed-in customer with an access token",
+                          "duration": 1165,
+                          "steps": [
+                            {
+                              "title": "[SEED] registered customer (API; not deletable)",
+                              "duration": 656
+                            },
+                            {
+                              "title": "[SEED] sign in (POST /users/login)",
+                              "duration": 507
+                            }
+                          ]
+                        },
+                        {
+                          "title": "When they sign out with GET /users/logout",
+                          "duration": 464
+                        },
+                        {
+                          "title": "Then GET /users/me with the same token responds 401",
+                          "duration": 457
+                        }
+                      ],
+                      "startTime": "2026-09-26T22:38:45.371Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "api-exchange 01 [seed] POST /users/register → 201",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL3JlZ2lzdGVyIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgImxhc3RfbmFtZSI6ICJIZWxkbXVpejFnM2x5OXI0IiwKICAgICAgImRvYiI6ICIxOTkwLTAxLTAxIiwKICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfSwKICAgICAgImVtYWlsIjogInFhbXVpejFnM2x5OXI0QGV4YW1wbGUuY29tIiwKICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDIwMSwKICAgICJkdXJhdGlvbk1zIjogNjUwLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MzIgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAidHJhbnNmZXItZW5jb2RpbmciOiAiY2h1bmtlZCIsCiAgICAgICJjb250ZW50LXR5cGUiOiAiYXBwbGljYXRpb24vanNvbiIKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgImZpcnN0X25hbWUiOiAiUWEiLAogICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWczbHk5cjQiLAogICAgICAiZG9iIjogIjE5OTAtMDEtMDEiLAogICAgICAicGhvbmUiOiAiMDYxMjM0NTY3OCIsCiAgICAgICJlbWFpbCI6ICJxYW11aXoxZzNseTlyNEBleGFtcGxlLmNvbSIsCiAgICAgICJpZCI6ICIwMW0zZnh4Zzc2eDd0bTFyejM4ZGN3cWF2ciIsCiAgICAgICJjcmVhdGVkX2F0IjogIjIwMjYtMDktMjYgMjI6Mzg6MzIiLAogICAgICAiYWRkcmVzcyI6IHsKICAgICAgICAic3RyZWV0IjogIk1haW4gMSIsCiAgICAgICAgImhvdXNlX251bWJlciI6IG51bGwsCiAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgInN0YXRlIjogIlVUIiwKICAgICAgICAiY291bnRyeSI6ICJOTCIsCiAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgfQogICAgfQogIH0KfQ=="
+                        },
+                        {
+                          "name": "api-exchange 02 [seed] POST /users/login → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hcGkucHJhY3RpY2Vzb2Z0d2FyZXRlc3RpbmcuY29tL3VzZXJzL2xvZ2luIiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJlbWFpbCI6ICJxYW11aXoxZzNseTlyNEBleGFtcGxlLmNvbSIsCiAgICAgICJwYXNzd29yZCI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiAyMDAsCiAgICAiZHVyYXRpb25NcyI6IDUwNCwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMzIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInZhcnkiOiAiQWNjZXB0LUVuY29kaW5nIiwKICAgICAgImNvbnRlbnQtZW5jb2RpbmciOiAiZ3ppcCIsCiAgICAgICJjb250ZW50LWxlbmd0aCI6ICIzODMiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJhY2Nlc3NfdG9rZW4iOiAiKioqcmVkYWN0ZWQqKioiLAogICAgICAidG9rZW5fdHlwZSI6ICIqKipyZWRhY3RlZCoqKiIsCiAgICAgICJleHBpcmVzX2luIjogMzAwCiAgICB9CiAgfQp9"
+                        },
+                        {
+                          "name": "api-exchange 03 GET /users/logout → 200",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL2FwaS5wcmFjdGljZXNvZnR3YXJldGVzdGluZy5jb20vdXNlcnMvbG9nb3V0IiwKICAgICJoZWFkZXJzIjogewogICAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAiQXV0aG9yaXphdGlvbiI6ICIqKipyZWRhY3RlZCoqKiIKICAgIH0KICB9LAogICJyZXNwb25zZSI6IHsKICAgICJzdGF0dXMiOiAyMDAsCiAgICAiZHVyYXRpb25NcyI6IDQ2MiwKICAgICJoZWFkZXJzIjogewogICAgICAiZGF0ZSI6ICJTYXQsIDI2IFNlcCAyMDI2IDIyOjM4OjMzIEdNVCIsCiAgICAgICJzZXJ2ZXIiOiAiQXBhY2hlLzIuNC41MiAoVWJ1bnR1KSIsCiAgICAgICJjYWNoZS1jb250cm9sIjogIm5vLWNhY2hlLCBwcml2YXRlIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6ICIqIiwKICAgICAgImFjY2Vzcy1jb250cm9sLWV4cG9zZS1oZWFkZXJzIjogIkNvbnRlbnQtRGlzcG9zaXRpb24iLAogICAgICAidmFyeSI6ICJBdXRob3JpemF0aW9uLEFjY2VwdC1FbmNvZGluZyIsCiAgICAgICJ1cGdyYWRlIjogImgyIiwKICAgICAgImNvbm5lY3Rpb24iOiAiVXBncmFkZSwgY2xvc2UiLAogICAgICAiY29udGVudC1lbmNvZGluZyI6ICJnemlwIiwKICAgICAgImNvbnRlbnQtbGVuZ3RoIjogIjU1IiwKICAgICAgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIgogICAgfSwKICAgICJib2R5IjogewogICAgICAibWVzc2FnZSI6ICJTdWNjZXNzZnVsbHkgbG9nZ2VkIG91dCIKICAgIH0KICB9Cn0="
+                        },
+                        {
+                          "name": "api-exchange 04 GET /users/me → 401",
+                          "contentType": "application/json",
+                          "body": "ewogICJyZXF1ZXN0IjogewogICAgIm1ldGhvZCI6ICJHRVQiLAogICAgInVybCI6ICJodHRwczovL2FwaS5wcmFjdGljZXNvZnR3YXJldGVzdGluZy5jb20vdXNlcnMvbWUiLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJBY2NlcHQiOiAiYXBwbGljYXRpb24vanNvbiIsCiAgICAgICJBdXRob3JpemF0aW9uIjogIioqKnJlZGFjdGVkKioqIgogICAgfQogIH0sCiAgInJlc3BvbnNlIjogewogICAgInN0YXR1cyI6IDQwMSwKICAgICJkdXJhdGlvbk1zIjogNDUzLAogICAgImhlYWRlcnMiOiB7CiAgICAgICJkYXRlIjogIlNhdCwgMjYgU2VwIDIwMjYgMjI6Mzg6MzQgR01UIiwKICAgICAgInNlcnZlciI6ICJBcGFjaGUvMi40LjUyIChVYnVudHUpIiwKICAgICAgImNhY2hlLWNvbnRyb2wiOiAibm8tY2FjaGUsIHByaXZhdGUiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtYWxsb3ctb3JpZ2luIjogIioiLAogICAgICAiYWNjZXNzLWNvbnRyb2wtZXhwb3NlLWhlYWRlcnMiOiAiQ29udGVudC1EaXNwb3NpdGlvbiIsCiAgICAgICJ2YXJ5IjogIkF1dGhvcml6YXRpb24iLAogICAgICAidXBncmFkZSI6ICJoMiIsCiAgICAgICJjb25uZWN0aW9uIjogIlVwZ3JhZGUsIGNsb3NlIiwKICAgICAgInRyYW5zZmVyLWVuY29kaW5nIjogImNodW5rZWQiLAogICAgICAiY29udGVudC10eXBlIjogImFwcGxpY2F0aW9uL2pzb24iCiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJtZXNzYWdlIjogIlVuYXV0aG9yaXplZCIKICAgIH0KICB9Cn0="
+                        },
+                        {
+                          "name": "seed-ledger",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiaHh6MWczazEwIiwKICAicmVjb3JkcyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogInJlZ2lzdGVyZWQgY3VzdG9tZXIgKEFQSTsgbm90IGRlbGV0YWJsZSkiLAogICAgICAia2luZCI6ICJkYXRhIiwKICAgICAgImNsZWFudXAiOiAibm9uZSIsCiAgICAgICJjcmVhdGVkIjogewogICAgICAgICJmaXJzdF9uYW1lIjogIlFhIiwKICAgICAgICAibGFzdF9uYW1lIjogIkhlbGRtdWl6MWczbHk5cjQiLAogICAgICAgICJkb2IiOiAiMTk5MC0wMS0wMSIsCiAgICAgICAgInBob25lIjogIjA2MTIzNDU2NzgiLAogICAgICAgICJhZGRyZXNzIjogewogICAgICAgICAgInN0cmVldCI6ICJNYWluIDEiLAogICAgICAgICAgImNpdHkiOiAiVXRyZWNodCIsCiAgICAgICAgICAic3RhdGUiOiAiVVQiLAogICAgICAgICAgImNvdW50cnkiOiAiTkwiLAogICAgICAgICAgInBvc3RhbF9jb2RlIjogIjEyMzRBQiIKICAgICAgICB9LAogICAgICAgICJlbWFpbCI6ICJxYW11aXoxZzNseTlyNEBleGFtcGxlLmNvbSIsCiAgICAgICAgInBhc3N3b3JkIjogIioqKnJlZGFjdGVkKioqIgogICAgICB9CiAgICB9LAogICAgewogICAgICAibGFiZWwiOiAic2lnbiBpbiAoUE9TVCAvdXNlcnMvbG9naW4pIiwKICAgICAgImtpbmQiOiAicHJlLXN0ZXAiLAogICAgICAiY2xlYW51cCI6ICJub25lIiwKICAgICAgImNyZWF0ZWQiOiAiZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKb2RIUndjem92TDJGd2FTNXdjbUZqZEdsalpYTnZablIzWVhKbGRHVnpkR2x1Wnk1amIyMHZkWE5sY25NdmJHOW5hVzRpTENKcFlYUWlPakUzT1RBME5qSXpNVE1zSW1WNGNDSTZNVGM1TURRMk1qWXhNeXdpYm1KbUlqb3hOemt3TkRZeU16RXpMQ0pxZEdraU9pSlZORTkwZHpadlMzazFkMWxuU1hkUklpd2ljM1ZpSWpvaU1ERnRNMlo0ZUdjM05uZzNkRzB4Y25vek9HUmpkM0ZoZG5JaUxDSndjbllpT2lJeU0ySmtOV000T1RRNVpqWXdNR0ZrWWpNNVpUY3dNV00wTURBNE56SmtZamRoTlRrM05tWTNJaXdpY205c1pTSTZJblZ6WlhJaWZRLkQxSHpjLXVKVkpYMENQbGp4ZXVBYTRpVk1VWHVDQ3RNQ0VZbGRWZEI4cDQiCiAgICB9CiAgXQp9"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "890cc6a4322c74f744fe-e63cb0824db8ea06f04f",
+              "file": "TOOL-2/tests/tool-2.spec.ts",
+              "line": 131,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T22:38:39.299Z",
+    "duration": 8353.227,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

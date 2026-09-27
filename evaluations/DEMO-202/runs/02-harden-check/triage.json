@@ -1,0 +1,1552 @@
+{
+  "key": "DEMO-202",
+  "run": "02-harden-check",
+  "generatedAt": "2026-09-26T15:13:53.426Z",
+  "summary": {
+    "total": 39,
+    "passed": 28,
+    "failed": 11,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: Contact form offers every field with an accessible label",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-1",
+        "@P2",
+        "@ui",
+        "@a11y"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-1f36a-ld-with-an-accessible-label-chromium/error-context.md"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-1 strict] Message field has an accessible label",
+        "reqTag": "AC-1 strict",
+        "matcher": "toBeVisible",
+        "expected": "visible",
+        "locator": "getByRole('textbox', { name: 'Message', exact: true })",
+        "message": "Error: [REQ AC-1 strict] Message field has an accessible label\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - [REQ AC-1 strict] Message field has an accessible label getByRole('textbox', { name: 'Message', exact: true }) with timeout 5000ms\n  - waiting for getByRole('textbox', { name: 'Message', exact: true })\n\n\n  139 |     await journey.step('And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name', async () => {\n  140 |       for (const field of REQ.FIELDS) {\n> 141 |         await expect.soft(page.getByRole('textbox', { name: field, exact: true }), `[REQ AC-1 strict] ${field} field has an accessible label`).toBeVisible();\n      |                                                                                                                                                ^\n  142 |       }\n  143 |     });\n  144 |     await journey.step('And I see a \"Submit\" button', async () => {\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:141:144\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:139:5"
+      },
+      "failingStep": "And the fields Name, Email, Phone, Subject and Message are each exposed with that accessible name",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "medium",
+        "signals": [
+          "Target not found: getByRole('textbox', { name: 'Message', exact: true })",
+          "This is a strict requirement assertion: the locator itself encodes the requirement (accessible name / role / alt text), so \"not found\" means the element is not exposed as required."
+        ],
+        "next": "Confirm live that the element exists but lacks the required accessible name/role (or is absent), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: A valid enquiry shows the personalised confirmation",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@P1",
+        "@ui"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: An empty submission keeps the form and reports every field",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-3",
+        "@P2",
+        "@ui"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-8bad5-orm-and-reports-every-field-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-8bad5-orm-and-reports-every-field-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-8bad5-orm-and-reports-every-field-chromium/error-context.md"
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-3] validation errors mention Phone",
+          "reqTag": "AC-3",
+          "expected": "/\\bPhone\\b/i",
+          "received": "\"Message must be between 20 and 2000 characters.Message may not be blankEmail may not be blankPhone may not be blankPhone must be between 11 and 21 characters.Subject must be between 5 and 100 characters.Name may not be blankSubject may not be blank\""
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-3] validation errors mention Email",
+        "reqTag": "AC-3",
+        "matcher": "toContainText",
+        "expected": "/\\bEmail\\b/i",
+        "received": "\"Message must be between 20 and 2000 characters.Message may not be blankEmail may not be blankPhone may not be blankPhone must be between 11 and 21 characters.Subject must be between 5 and 100 characters.Name may not be blankSubject may not be blank\"",
+        "locator": "locator('.alert-danger')",
+        "message": "Error: [REQ AC-3] validation errors mention Email\n\nexpect(locator).toContainText(expected) failed\n\nLocator: locator('.alert-danger')\nExpected pattern: /\\bEmail\\b/i\nReceived string:  \"Message must be between 20 and 2000 characters.Message may not be blankEmail may not be blankPhone may not be blankPhone must be between 11 and 21 characters.Subject must be between 5 and 100 characters.Name may not be blankSubject may not be blank\"\nTimeout: 5000ms\n\nCall log:\n  - [REQ AC-3] validation errors mention Email locator('.alert-danger') with timeout 5000ms\n  - waiting for locator('.alert-danger')\n    14 × locator resolved to <div class=\"alert alert-danger\">…</div>\n       - unexpected value \"Message must be between 20 and 2000 characters.Message may not be blankEmail may not be blankPhone may not be blankPhone must be between 11 and 21 characters.Subject must be between 5 and 100 characters.Name may not be blankSubject may not be blank\"\n\n\n  178 |       await expect(ui(page).errors).toBeVisible();\n  179 |       for (const field of REQ.FIELDS) {\n> 180 |         await expect.soft(ui(page).errors, `[REQ AC-3] validation errors mention ${field}`).toContainText(new RegExp(`\\\\b${field}\\\\b`, 'i'));\n      |                                                                                             ^\n  181 |       }\n  182 |     });\n  183 |   });\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:180:93\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:177:5"
+      },
+      "failingStep": "And the validation errors mention Name, Email, Phone, Subject and Message",
+      "auto": {
+        "category": "SCRIPT_DEFECT",
+        "confidence": "medium",
+        "signals": [
+          "Requirement assertion [REQ AC-3] failed on a located element.",
+          "Expected: /\\bEmail\\b/i",
+          "Received: \"Message must be between 20 and 2000 characters.Message may not be blankEmail may not be blankPhone may not be blankPhone must be between 11 and 21 characters.Subject must be between 5 and 100 characters.Name may not be blankSubject may not be blank\"",
+          "The received text DOES contain the expected content when the pattern is relaxed (/Email/i matches) — the assertion is stricter than the requirement.",
+          "Also failed: [REQ AC-3] validation errors mention Phone — expected /\\bPhone\\b/i, received \"Message must be between 20 and 2000 characters.Message may not be blankEmail may not be blankPhone may not be blankPhone must be between 11 and 21 characters.Subject must be between 5 and 100 characters.Name may not be blankSubject may not be blank\""
+        ],
+        "next": "Fix the assertion implementation (e.g. drop word boundaries/anchors) without changing what it requires; record it with integrity.ts --amend, then re-run."
+      }
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: The UI rejects a value one character outside a boundary (Phone 10)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@P2",
+        "@ui",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: The UI rejects a value one character outside a boundary (Subject 101)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@P2",
+        "@ui",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.3",
+      "title": "SCN-004.3: The UI rejects a value one character outside a boundary (Message 19)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@P2",
+        "@ui",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Creating a valid enquiry returns 201 Created",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-5",
+        "@P1",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-5439a-enquiry-returns-201-Created-chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "name": "QA Guest ij2zovny-5",
+              "email": "qa.guest@example.com",
+              "phone": "01234567890",
+              "subject": "QA Subject ij2zovzp-6",
+              "description": "QA held-out evaluation enquiry — please ignore this message."
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 384,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:50 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "-jObspAETiiRRO1GwoOzXw",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.cv40",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=T8ujYAgBVTor3Yi%2FEEnyurYpgD9VX3iqR%2F0DT%2FHIjvhGj8Fwh8tn4%2F65ewCAJ3L2FxbjlzPK2uwGCkDt%2BUt4Mc4ks65XYw0%2Fcuo4TxVr9JMCDCV1sbUAt9HF4Jyt%2Bso8v1UNhNKmZUGN3FARHYeEnpreNyfx1K2A3w%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a41334142a6f4334-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "success": true
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-5] create enquiry → 201 Created",
+        "reqTag": "AC-5",
+        "matcher": "toBe",
+        "expected": "201",
+        "received": "200",
+        "message": "Error: [REQ AC-5] create enquiry → 201 Created\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 201\nReceived: 200\n\n  204 |     });\n  205 |     await journey.step('Then the response status is 201', async () => {\n> 206 |       expect.soft(res.status, '[REQ AC-5] create enquiry → 201 Created').toBe(REQ.STATUS.CREATED);\n      |                                                                          ^\n  207 |     });\n  208 |     await journey.step('And the response body is {\"success\": true}', async () => {\n  209 |       expect.soft(res.body, '[REQ AC-5] create enquiry body').toEqual(REQ.CREATE_BODY);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:206:74)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:205:5"
+      },
+      "failingStep": "Then the response status is 201",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/message → 200",
+          "Requirement assertion [REQ AC-5] failed.",
+          "Expected: 201",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.1",
+      "title": "SCN-006.1: The API enforces field boundaries (name 1 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-0cff5-me-1-characters-→-rejected--chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "name": "q",
+              "email": "qa.guest@example.com",
+              "phone": "01234567890",
+              "subject": "QA Subject ij31inza-2",
+              "description": "QA held-out evaluation enquiry — please ignore this message."
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 502,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:53 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "ANFolYv3SoSyyHYEH4GxDA",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.48ys",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=HtRqc84H7qexQRfzTGypUYmgLH6aqSMEppZ7ABwDEsLhzsW2hcjH6HAw4hZjTjVwEvd4IyyknhP%2B8bOlpPXgNQEmkpXoxXAJqX1wDakY8SiaHiVbWearGQEf%2BTVwWSp3jzB3QdIgQKBhIswQDIhY6zu8wTPqYvtJSg%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a41334232ce5be82-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "success": true
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] name 1 characters is rejected with 400",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "200",
+        "message": "Error: [REQ AC-6] name 1 characters is rejected with 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 200\n\n  224 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');\n  225 |         } else {\n> 226 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                                       ^\n  227 |         }\n  228 |       });\n  229 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:226:87)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:221:7"
+      },
+      "failingStep": "Then the enquiry is rejected",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/message → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 400",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.2",
+      "title": "SCN-006.2: The API enforces field boundaries (name 2 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.3",
+      "title": "SCN-006.3: The API enforces field boundaries (name 50 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.4",
+      "title": "SCN-006.4: The API enforces field boundaries (name 51 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-842eb-e-51-characters-→-rejected--chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "name": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+              "email": "qa.guest@example.com",
+              "phone": "01234567890",
+              "subject": "QA Subject ij31hzu9-8",
+              "description": "QA held-out evaluation enquiry — please ignore this message."
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 426,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:52 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "U0Xl1xX4Sd6TczY4ezItjw",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.57w5",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=WhTHn%2BbtGwDFAfzjyzi1F3hLVdqyd%2BZ6sSDdYAtdQNuCPSYuBJlOLZPF7BBasE8Jb65qExY4tibS9tmqV16yF12ObX%2FwY82AI5UaZP%2BsdVBIyDqPebTsU0dlMiektK6jd9NGW9Rjlhoa3jCNhqXVzLrIYup4%2Bgv7%2FA%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a41334228c4e42a3-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "success": true
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] name 51 characters is rejected with 400",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "200",
+        "message": "Error: [REQ AC-6] name 51 characters is rejected with 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 200\n\n  224 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');\n  225 |         } else {\n> 226 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                                       ^\n  227 |         }\n  228 |       });\n  229 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:226:87)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:221:7"
+      },
+      "failingStep": "Then the enquiry is rejected",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/message → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 400",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.5",
+      "title": "SCN-006.5: The API enforces field boundaries (phone 10 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.6",
+      "title": "SCN-006.6: The API enforces field boundaries (phone 11 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.7",
+      "title": "SCN-006.7: The API enforces field boundaries (phone 21 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.8",
+      "title": "SCN-006.8: The API enforces field boundaries (phone 22 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.9",
+      "title": "SCN-006.9: The API enforces field boundaries (subject 4 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.10",
+      "title": "SCN-006.10: The API enforces field boundaries (subject 5 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.11",
+      "title": "SCN-006.11: The API enforces field boundaries (subject 100 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.12",
+      "title": "SCN-006.12: The API enforces field boundaries (subject 101 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.13",
+      "title": "SCN-006.13: The API enforces field boundaries (message 19 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.14",
+      "title": "SCN-006.14: The API enforces field boundaries (message 20 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.15",
+      "title": "SCN-006.15: The API enforces field boundaries (message 2000 characters → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.16",
+      "title": "SCN-006.16: The API enforces field boundaries (message 2001 characters → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006.17",
+      "title": "SCN-006.17: The API enforces field boundaries (email \"guest@example\" → rejected)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@example\"",
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-247ff-l-guest-example-→-rejected--chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "name": "QA Guest ij34kk8e-7",
+              "email": "guest@example",
+              "phone": "01234567890",
+              "subject": "QA Subject ij34kkwg-8",
+              "description": "QA held-out evaluation enquiry — please ignore this message."
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 536,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:56 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "otxNk_CVRXaCGHiKPvyhXg",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.cv40",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Zr%2B3OG77um9ihYtlQSG5dXtqA2QO93bZITNAJhUTmuBvO9X2aITL2unYZ6llBMrjJw6TAWbW3yjQo5f1hSVdCZ5ePioeeL5pnXJb%2FEmyiWhG3S2SqqI2BrHIQvUIJsihrI%2FiI4IQeugWNsPIv1Zgh4xpayliDOJisw%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a413343bbf6580e0-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "success": true
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] email \"guest@example\" is rejected with 400",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "200",
+        "message": "Error: [REQ AC-6] email \"guest@example\" is rejected with 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 200\n\n  224 |           expect(outcome, `[REQ AC-4] ${row.field} ${label} is accepted`).toBe('accepted');\n  225 |         } else {\n> 226 |           expect(res.status, `[REQ AC-6] ${row.field} ${label} is rejected with 400`).toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                                       ^\n  227 |         }\n  228 |       });\n  229 |       const expectedMessage = row.outcome === 'rejected' ? REQ.LENGTH_MESSAGE[row.field as keyof typeof REQ.LENGTH_MESSAGE] : undefined;\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:226:87)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:221:7"
+      },
+      "failingStep": "Then the enquiry is rejected",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/message → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 400",
+          "Received: 200"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-006.18",
+      "title": "SCN-006.18: The API enforces field boundaries (email \"guest@example.com\" → accepted)",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@example.com\"",
+        "@AC-4",
+        "@AC-6",
+        "@P1",
+        "@api",
+        "@boundary"
+      ],
+      "requirementRefs": [
+        "AC-4",
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: A rejected enquiry is not stored",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@P2",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: A malformed JSON body is a client error",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@P2",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-98962-JSON-body-is-a-client-error-chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"name\": \"QA malformed\", \"email\": "
+          },
+          "response": {
+            "status": 500,
+            "durationMs": 371,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:57 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "L8cltss_RmSmPa1Kg4a9AQ",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.pqzh",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=yJ8DmEbdAlzxImJRmun09OXAXaRphAMBjGwFl%2FlrkwP5sviftnMm%2FjEdyc5BzstFI0yymj3RxAos0%2FSE247Bka8fAwv94o1NsJ%2Bx5dQ04WjdY4bzopMOYxzNUyO6hKkjMx17xb47dgJ6Ywcn%2B3S%2FULZ%2BBnUCnoR1AA%3D%3D\"}]}",
+              "cf-ray": "a413343efbe1a506-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "error": "Failed to create message"
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] malformed JSON → 400 (never 5xx)",
+        "reqTag": "AC-7",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "500",
+        "message": "Error: [REQ AC-7] malformed JSON → 400 (never 5xx)\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 500\n\n  257 |     });\n  258 |     await journey.step('Then the response status is 400', async () => {\n> 259 |       expect(status, '[REQ AC-7] malformed JSON → 400 (never 5xx)').toBe(REQ.STATUS.BAD_REQUEST);\n      |                                                                     ^\n  260 |     });\n  261 |   });\n  262 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:259:69)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:258:5"
+      },
+      "failingStep": "Then the response status is 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/message → 500",
+          "Server error (5xx) on a declared endpoint where the requirement specifies a different outcome."
+        ],
+        "next": "Replay the request (api-probe.ts) to confirm it reproduces, then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Listing enquiries without a staff token is refused",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@P1",
+        "@api",
+        "@security"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-d0702-ut-a-staff-token-is-refused-chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 502,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:58 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "hVLD3S5ITyGSnm7vaP71AA",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.pqzh",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=5wuuGxFyCVA6cWD1LFwbufLS9UkaakbM555nlfT5irkrFGY%2FO%2BSCeA8mgk8Gu7FgAHDXQJga23w2vICyhqihPjVcpYa1uUKCAG8tbh45QFVhg0rxAxybGBqPngKsDth9kX7dqdIxGHwdB71t8XReH5wigHjJIBIEgQ%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a41334477ca3db49-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "messages": [
+                {
+                  "id": 1,
+                  "name": "James Dean",
+                  "read": false,
+                  "subject": "Booking enquiry"
+                },
+                {
+                  "id": 2,
+                  "name": "QA Probe",
+                  "read": false,
+                  "subject": "QA probe subject"
+                },
+                {
+                  "id": 3,
+                  "name": "QA probe",
+                  "read": false,
+                  "subject": "QA probe subject"
+                },
+                {
+                  "id": 4,
+                  "name": "QA Guest ij2v6b6g-1",
+                  "read": false,
+                  "subject": "QA Subject ij2v6b78-2"
+                },
+                {
+                  "id": 5,
+                  "name": "QA Guest ij2zovny-5",
+                  "read": false,
+                  "subject": "QA Subject ij2zovzp-6"
+                },
+                {
+                  "id": 6,
+                  "name": "qq",
+                  "read": false,
+                  "subject": "QA Subject ij30xqya-6"
+                },
+                {
+                  "id": 7,
+                  "name": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+                  "read": false,
+                  "subject": "QA Subject ij31hzu9-8"
+                },
+                {
+                  "id": 8,
+                  "name": "q",
+                  "read": false,
+                  "subject": "QA Subject ij31inza-2"
+                },
+                {
+                  "id": 9,
+                  "name": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+                  "read": false,
+                  "subject": "QA Subject ij31u420-2"
+                },
+                {
+                  "id": 10,
+                  "name": "QA Guest ij32am21-3",
+                  "read": false,
+                  "subject": "QA Subject ij32amyp-4"
+                },
+                {
+                  "id": 11,
+                  "name": "QA Guest ij331zwi-1",
+                  "read": false,
+                  "subject": "QA Subject ij331z0t-2"
+                },
+                {
+                  "id": 12,
+                  "name": "QA Guest ij33l52w-3",
+                  "read": false,
+                  "subject": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                },
+                {
+                  "id": 13,
+                  "name": "QA Guest ij33k9cy-9",
+                  "read": false,
+                  "subject": "qqqqq"
+                },
+                {
+                  "id": 14,
+                  "name": "QA Guest ij342z4l-5",
+                  "read": false,
+                  "subject": "QA Subject ij342z13-6"
+                },
+                {
+                  "id": 15,
+                  "name": "QA Guest ij344xlg-11",
+                  "read": false,
+                  "subject": "QA Subject ij344xqk-12"
+                },
+                {
+                  "id": 16,
+                  "name": "QA Guest ij34loyg-13",
+                  "read": false,
+                  "subject": "QA Subject ij34loz4-14"
+                },
+                {
+                  "id": 17,
+                  "name": "QA Guest ij34kk8e-7",
+                  "read": false,
+                  "subject": "QA Subject ij34kkwg-8"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-8] no message data without token",
+          "reqTag": "AC-8",
+          "expected": "not \"\\\"messages\\\"\"",
+          "received": "\"{\\\"messages\\\":[{\\\"id\\\":1,\\\"name\\\":\\\"James Dean\\\",\\\"read\\\":false,\\\"subject\\\":\\\"Booking enquiry\\\"},{\\\"id\\\":2,\\\"name\\\":\\\"QA Probe\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA probe subject\\\"},{\\\"id\\\":3,\\\"name\\\":\\\"QA probe\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA probe subject\\\"},{\\\"id\\\":4,\\\"name\\\":\\\"QA Guest ij2v6b6g-1\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij2v6b78-2\\\"},{\\\"id\\\":5,\\\"name\\\":\\\"QA Guest ij2zovny-5\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij2zovzp-6\\\"},{\\\"id\\\":6,\\\"name\\\":\\\"qq\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij30xqya-6\\\"},{\\\"id\\\":7,\\\"name\\\":\\\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij31hzu9-8\\\"},{\\\"id\\\":8,\\\"name\\\":\\\"q\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij31inza-2\\\"},{\\\"id\\\":9,\\\"name\\\":\\\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij31u420-2\\\"},{\\\"id\\\":10,\\\"name\\\":\\\"QA Guest ij32am21-3\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij32amyp-4\\\"},{\\\"id\\\":11,\\\"name\\\":\\\"QA Guest ij331zwi-1\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij331z0t-2\\\"},{\\\"id\\\":12,\\\"name\\\":\\\"QA Guest ij33l52w-3\\\",\\\"read\\\":false,\\\"subject\\\":\\\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\\\"},{\\\"id\\\":13,\\\"name\\\":\\\"QA Guest ij33k9cy-9\\\",\\\"read\\\":false,\\\"subject\\\":\\\"qqqqq\\\"},{\\\"id\\\":14,\\\"name\\\":\\\"QA Guest ij342z4l-5\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij342z13-6\\\"},{\\\"id\\\":15,\\\"name\\\":\\\"QA Guest ij344xlg-11\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij344xqk-12\\\"},{\\\"id\\\":16,\\\"name\\\":\\\"QA Guest ij34loyg-13\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij34loz4-14\\\"},{\\\"id\\\":17,\\\"name\\\":\\\"QA Guest ij34kk8e-7\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij34kkwg-8\\\"}]}\""
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-8] message list without token → 401",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "401",
+        "received": "200",
+        "message": "Error: [REQ AC-8] message list without token → 401\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 401\nReceived: 200\n\n  265 |     await journey.step('When I GET /api/message without a token', async () => { res = await api.get(EP.message); });\n  266 |     await journey.step('Then the response status is 401', async () => {\n> 267 |       expect.soft(res.status, '[REQ AC-8] message list without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);\n      |                                                                              ^\n  268 |     });\n  269 |     await journey.step('And the response contains no message data', async () => {\n  270 |       expect.soft(res.text, '[REQ AC-8] no message data without token').not.toContain('\"messages\"');\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:267:78)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:266:5"
+      },
+      "failingStep": "Then the response status is 401",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message → 200",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: 401",
+          "Received: 200",
+          "Also failed: [REQ AC-8] no message data without token — expected not \"\\\"messages\\\"\", received \"{\\\"messages\\\":[{\\\"id\\\":1,\\\"name\\\":\\\"James Dean\\\",\\\"read\\\":false,\\\"subject\\\":\\\"Booking enquiry\\\"},{\\\"id\\\":2,\\\"name\\\":\\\"QA Probe\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA probe subject\\\"},{\\\"id\\\":3,\\\"name\\\":\\\"QA probe\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA probe subject\\\"},{\\\"id\\\":4,\\\"name\\\":\\\"QA Guest ij2v6b6g-1\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij2v6b78-2\\\"},{\\\"id\\\":5,\\\"name\\\":\\\"QA Guest ij2zovny-5\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij2zovzp-6\\\"},{\\\"id\\\":6,\\\"name\\\":\\\"qq\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij30xqya-6\\\"},{\\\"id\\\":7,\\\"name\\\":\\\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij31hzu9-8\\\"},{\\\"id\\\":8,\\\"name\\\":\\\"q\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij31inza-2\\\"},{\\\"id\\\":9,\\\"name\\\":\\\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij31u420-2\\\"},{\\\"id\\\":10,\\\"name\\\":\\\"QA Guest ij32am21-3\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij32amyp-4\\\"},{\\\"id\\\":11,\\\"name\\\":\\\"QA Guest ij331zwi-1\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij331z0t-2\\\"},{\\\"id\\\":12,\\\"name\\\":\\\"QA Guest ij33l52w-3\\\",\\\"read\\\":false,\\\"subject\\\":\\\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\\\"},{\\\"id\\\":13,\\\"name\\\":\\\"QA Guest ij33k9cy-9\\\",\\\"read\\\":false,\\\"subject\\\":\\\"qqqqq\\\"},{\\\"id\\\":14,\\\"name\\\":\\\"QA Guest ij342z4l-5\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij342z13-6\\\"},{\\\"id\\\":15,\\\"name\\\":\\\"QA Guest ij344xlg-11\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij344xqk-12\\\"},{\\\"id\\\":16,\\\"name\\\":\\\"QA Guest ij34loyg-13\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij34loz4-14\\\"},{\\\"id\\\":17,\\\"name\\\":\\\"QA Guest ij34kk8e-7\\\",\\\"read\\\":false,\\\"subject\\\":\\\"QA Subject ij34kkwg-8\\\"}]}\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: Reading an enquiry without a staff token is refused",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@P1",
+        "@api",
+        "@security"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-a5988-ut-a-staff-token-is-refused-chromium/error-context.md",
+        "apiCalls": 3,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/message/1",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 172,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:11:59 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "content-encoding": "gzip",
+              "server": "cloudflare",
+              "vary": "Accept-Encoding",
+              "x-railway-request-id": "Ly98pLgPSquuz6KSc9o55Q",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.cv40",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=bRZ35uvuyCqu9YjrKQVLYW28A31H2QF5vgU0xVXSnXdfSI%2BuDbzA974J3r9HjAfmENDhCveR5mNWADKgVRSkZMrRDm1R72zV9xwXKpZevT0P3b0EdDWB5Ab1eawdCx6GSsj%2BSREez64sYFyvXRrgcEN6snZU2B7iOw%3D%3D\"}]}",
+              "cf-ray": "a413344c0f2d786b-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "description": "I would like to book a room at your place",
+              "email": "james@email.com",
+              "messageid": 1,
+              "name": "James Dean",
+              "phone": "01402 619211",
+              "subject": "Booking enquiry"
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-8] no personal data without token",
+          "reqTag": "AC-8"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-8] message detail without token → 401",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "401",
+        "received": "200",
+        "message": "Error: [REQ AC-8] message detail without token → 401\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 401\nReceived: 200\n\n  282 |     await journey.step('When I GET /api/message/{id} without a token', async () => { res = await api.get(EP.messageById(id)); });\n  283 |     await journey.step('Then the response status is 401', async () => {\n> 284 |       expect.soft(res.status, '[REQ AC-8] message detail without token → 401').toBe(REQ.STATUS.UNAUTHORIZED);\n      |                                                                                ^\n  285 |     });\n  286 |     await journey.step('And the response contains no personal data', async () => {\n  287 |       const leaked = REQ.PERSONAL_DATA_KEYS.filter((k) => res.text.includes(`\"${k}\"`));\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:284:80)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:283:5"
+      },
+      "failingStep": "Then the response status is 401",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/message/1 → 200",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: 401",
+          "Received: 200",
+          "Also failed: [REQ AC-8] no personal data without token"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Staff can list enquiries with a valid token",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@P1",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: Valid staff credentials return a token",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@P1",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: Invalid staff credentials are refused",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@P2",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014",
+      "title": "SCN-014: An enquiry sent from the UI is readable by staff through the API",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-10",
+        "@P1",
+        "@e2e"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-015",
+      "title": "SCN-015: The rooms list follows the Room schema",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@P1",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-016",
+      "title": "SCN-016: An existing room can be fetched by id",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-12",
+        "@P2",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-12"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-017",
+      "title": "SCN-017: An unknown room id returns 404",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-12",
+        "@P2",
+        "@api"
+      ],
+      "requirementRefs": [
+        "AC-12"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-3a801-unknown-room-id-returns-404-chromium/error-context.md",
+        "apiCalls": 2,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/room/100003",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 500,
+            "durationMs": 310,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:12:02 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "content-encoding": "gzip",
+              "server": "cloudflare",
+              "vary": "Accept-Encoding",
+              "x-railway-request-id": "ZtU5C3geQMCWwN-aqmzx2A",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.cv40",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=w%2BHMc44FAVdkBS4iY%2F8VuDxQZYi%2BoVqYutCOR%2B5KQ6hqRLi75f9QeYBMqWB%2F2G%2Bnjf6Zf8EDwkVJF98Rf2wuF3hMVnSaFaDfbvBRB1nFWDJIdtv%2BLttcST0q8Xb6rk%2BjjeR4Ichk8KnefwoaeaugKi5nvwNLap%2F6iw%3D%3D\"}]}",
+              "cf-ray": "a413345b7cd6375e-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "timestamp": "2026-09-26T15:12:01.988Z",
+              "status": 500,
+              "error": "Internal Server Error",
+              "path": "/room/100003"
+            }
+          }
+        }
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-12] unknown room → 404",
+        "reqTag": "AC-12",
+        "matcher": "toBe",
+        "expected": "404",
+        "received": "500",
+        "message": "Error: [REQ AC-12] unknown room → 404\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 500\n\n  385 |     await journey.step('When I GET /api/room/{id}', async () => { status = (await api.get(EP.roomById(unknownId))).status; });\n  386 |     await journey.step('Then the response status is 404', async () => {\n> 387 |       expect(status, '[REQ AC-12] unknown room → 404').toBe(REQ.STATUS.NOT_FOUND);\n      |                                                        ^\n  388 |     });\n  389 |   });\n  390 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:387:56)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:386:5"
+      },
+      "failingStep": "Then the response status is 404",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/room/100003 → 500",
+          "Server error (5xx) on a declared endpoint where the requirement specifies a different outcome."
+        ],
+        "next": "Replay the request (api-probe.ts) to confirm it reproduces, then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-018",
+      "title": "SCN-018: Every API room is shown with its type and nightly price",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-13",
+        "@P1",
+        "@e2e"
+      ],
+      "requirementRefs": [
+        "AC-13"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-019",
+      "title": "SCN-019: Room card images name their own room type",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-14",
+        "@P2",
+        "@e2e",
+        "@a11y"
+      ],
+      "requirementRefs": [
+        "AC-14"
+      ],
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium/test-failed-1.png",
+        "trace": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium/trace.zip",
+        "errorContext": "evaluations/DEMO-202/runs/02-harden-check/artifacts/DEMO-202-tests-demo-202-DE-9696b-es-name-their-own-room-type-chromium/error-context.md",
+        "apiCalls": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://automationintesting.online/api/room",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 327,
+            "headers": {
+              "date": "Sat, 26 Sep 2026 15:12:00 GMT",
+              "content-type": "application/json",
+              "transfer-encoding": "chunked",
+              "connection": "keep-alive",
+              "server": "cloudflare",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-railway-request-id": "qCb6X9MvRW6inHAsPvyhXg",
+              "x-railway-edge": "jfk1",
+              "x-hikari-trace": "jfk1.57w5",
+              "cf-cache-status": "DYNAMIC",
+              "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+              "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=52AUSi1ErpZL9LKy6NQehRDaaJuaN37Lr34zSBohWJDLgFJaFwvHAiV2WsEApTVT4tecrMmlfSsWST5fPnzVncc5oLhdBHODgtNtSSchb200unMtARW6rmy2QzfeImnxVX0AQiNIKtslPP%2BC7LIRJQsnDhvfSqbb%2BA%3D%3D\"}]}",
+              "content-encoding": "br",
+              "cf-ray": "a41334533ea1c407-EWR",
+              "alt-svc": "h3=\":443\"; ma=86400"
+            },
+            "body": {
+              "rooms": [
+                {
+                  "accessible": true,
+                  "description": "Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. Maecenas sit amet nisl massa. Interdum et malesuada fames ac ante.",
+                  "features": [
+                    "TV",
+                    "WiFi",
+                    "Safe"
+                  ],
+                  "image": "/images/room1.jpg",
+                  "roomName": "101",
+                  "roomPrice": 100,
+                  "roomid": 1,
+                  "type": "Single"
+                },
+                {
+                  "accessible": true,
+                  "description": "Vestibulum sollicitudin, lectus ac mollis consequat, lorem orci ultrices tellus, eleifend euismod tortor dui egestas erat. Phasellus et ipsum nisl. ",
+                  "features": [
+                    "TV",
+                    "Radio",
+                    "Safe"
+                  ],
+                  "image": "/images/room2.jpg",
+                  "roomName": "102",
+                  "roomPrice": 150,
+                  "roomid": 2,
+                  "type": "Double"
+                },
+                {
+                  "accessible": true,
+                  "description": "Etiam metus metus, fringilla ac sagittis id, consequat vel neque. Nunc commodo quis nisl nec posuere. Etiam at accumsan ex. ",
+                  "features": [
+                    "Radio",
+                    "WiFi",
+                    "Safe"
+                  ],
+                  "image": "/images/room3.jpg",
+                  "roomName": "103",
+                  "roomPrice": 225,
+                  "roomid": 3,
+                  "type": "Suite"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-14] Suite card image alt text",
+          "reqTag": "AC-14",
+          "expected": "\"Suite Room\"",
+          "received": "\"Single Room\""
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-14] Double card image alt text",
+        "reqTag": "AC-14",
+        "matcher": "toHaveAccessibleName",
+        "expected": "\"Double Room\"",
+        "received": "\"Single Room\"",
+        "locator": "locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()",
+        "message": "Error: [REQ AC-14] Double card image alt text\n\nexpect(locator).toHaveAccessibleName(expected) failed\n\nLocator:  locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()\nExpected: \"Double Room\"\nReceived: \"Single Room\"\nTimeout:  5000ms\n\nCall log:\n  - [REQ AC-14] Double card image alt text locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first() with timeout 5000ms\n  - waiting for locator('.room-card').filter({ has: getByRole('heading', { name: 'Double', exact: true }) }).first().getByRole('img').first()\n    14 × locator resolved to <img alt=\"Single Room\" class=\"card-img-top\" src=\"/images/room2.jpg\"/>\n       - unexpected value \"Single Room\"\n\n\n  411 |     await journey.step('Then each room card\\'s image has the alternative text \"<Type> Room\" for that card\\'s type', async () => {\n  412 |       for (const room of list) {\n> 413 |         await expect.soft(ui(page).roomCard(room.type).first().getByRole('img').first(), `[REQ AC-14] ${room.type} card image alt text`).toHaveAccessibleName(REQ.ALT_TEXT(room.type));\n      |                                                                                                                                          ^\n  414 |       }\n  415 |     });\n  416 |   });\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:413:138\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:168:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-202\\tests\\demo-202.spec.ts:411:5"
+      },
+      "failingStep": "Then each room card's image has the alternative text \"<Type> Room\" for that card's type",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /api/room → 200",
+          "Requirement assertion [REQ AC-14] failed.",
+          "Expected: \"Double Room\"",
+          "Received: \"Single Room\"",
+          "Also failed: [REQ AC-14] Suite card image alt text — expected \"Suite Room\", received \"Single Room\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      }
+    },
+    {
+      "scenario": "SCN-020",
+      "title": "SCN-020: The rooms list responds quickly",
+      "file": "DEMO-202/tests/demo-202.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-15",
+        "@P3",
+        "@api",
+        "@performance"
+      ],
+      "requirementRefs": [
+        "AC-15"
+      ],
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

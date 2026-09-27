@@ -1,0 +1,15 @@
+# url: https://www.saucedemo.com/
+# step: When I sign in as the "locked" shopper
+- text: Swag Labs
+- main:
+  - form "Login":
+    - textbox "Username": locked_out_user
+    - textbox "Password": ***redacted***
+    - alert:
+      - button "Dismiss error"
+      - text: "Epic sadface: Sorry, this user has been locked out."
+    - button "Login"
+  - heading "Accepted usernames are:" [level=4]
+  - text: standard_user locked_out_user problem_user performance_glitch_user error_user visual_user
+  - heading "Password for all users:" [level=4]
+  - text: password

@@ -1,0 +1,2086 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/DEMO-404/tests/"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/DEMO-404/runs/05-rerun/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "DEMO-404\\tests\\demo-404.spec.ts",
+      "file": "DEMO-404/tests/demo-404.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "DEMO-404 Practice portal — sign-in and interactive widgets",
+          "file": "DEMO-404/tests/demo-404.spec.ts",
+          "line": 75,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001: The trainee signs in to the Secure Area",
+              "ok": false,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 41544,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 20,
+                          "line": 64
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 20,
+                            "line": 64
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n\n  62 | async function signIn(page: Page, username: string, password: string) {\n  63 |   const u = ui(page);\n> 64 |   await u.username.fill(username);\n     |                    ^\n  65 |   await u.password.fill(password);\n  66 |   await u.login.click();\n  67 | }\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 31202
+                        },
+                        {
+                          "title": "When I sign in with the training account",
+                          "duration": 10035,
+                          "error": {
+                            "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                            "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 20,
+                              "line": 64
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:37:08.472Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-sign-in-with-the-training-account",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbG9naW4KIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHNpZ24gaW4gd2l0aCB0aGUgdHJhaW5pbmcgYWNjb3VudAotIGlmcmFtZQo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 20,
+                        "line": 64
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 40954,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 20,
+                          "line": 64
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 20,
+                            "line": 64
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n\n  62 | async function signIn(page: Page, username: string, password: string) {\n  63 |   const u = ui(page);\n> 64 |   await u.username.fill(username);\n     |                    ^\n  65 |   await u.password.fill(password);\n  66 |   await u.login.click();\n  67 | }\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 30709
+                        },
+                        {
+                          "title": "When I sign in with the training account",
+                          "duration": 10031,
+                          "error": {
+                            "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                            "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:78:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 20,
+                              "line": 64
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:37:52.094Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-sign-in-with-the-training-account",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbG9naW4KIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHNpZ24gaW4gd2l0aCB0aGUgdHJhaW5pbmcgYWNjb3VudAotIGlmcmFtZQo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-f3bed-signs-in-to-the-Secure-Area-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 20,
+                        "line": 64
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-be11bfb3778456714f0d",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "SCN-002.1: Wrong credentials are refused with a specific message (an unknown username)",
+              "ok": false,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 41534,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:15)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 20,
+                          "line": 64
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 20,
+                            "line": 64
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n\n  62 | async function signIn(page: Page, username: string, password: string) {\n  63 |   const u = ui(page);\n> 64 |   await u.username.fill(username);\n     |                    ^\n  65 |   await u.password.fill(password);\n  66 |   await u.login.click();\n  67 | }\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:15)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 31212
+                        },
+                        {
+                          "title": "When I sign in with an unknown username",
+                          "duration": 10027,
+                          "error": {
+                            "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                            "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:15)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 20,
+                              "line": 64
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:37:08.502Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-sign-in-with-an-unknown-username",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbG9naW4KIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHNpZ24gaW4gd2l0aCBhbiB1bmtub3duIHVzZXJuYW1lCi0gaWZyYW1lCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 20,
+                        "line": 64
+                      }
+                    },
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 40945,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:15)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 20,
+                          "line": 64
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 20,
+                            "line": 64
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n\n  62 | async function signIn(page: Page, username: string, password: string) {\n  63 |   const u = ui(page);\n> 64 |   await u.username.fill(username);\n     |                    ^\n  65 |   await u.password.fill(password);\n  66 |   await u.login.click();\n  67 | }\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:15)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 30695
+                        },
+                        {
+                          "title": "When I sign in with an unknown username",
+                          "duration": 10031,
+                          "error": {
+                            "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n",
+                            "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Username')\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:64:20)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:15)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 20,
+                              "line": 64
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m signIn(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m\u001b[33m,\u001b[39m username\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m password\u001b[33m:\u001b[39m string) {\n \u001b[90m 63 |\u001b[39m   \u001b[36mconst\u001b[39m u \u001b[33m=\u001b[39m ui(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m }\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:37:52.079Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-sign-in-with-an-unknown-username",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbG9naW4KIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHNpZ24gaW4gd2l0aCBhbiB1bmtub3duIHVzZXJuYW1lCi0gaWZyYW1lCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-58e28-essage-an-unknown-username--chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 20,
+                        "line": 64
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-c747262fa2cb2aca510f",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 89,
+              "column": 5
+            },
+            {
+              "title": "SCN-002.2: Wrong credentials are refused with a specific message (the trainee with a wrong password)",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 54451,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:66:17)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:9\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 17,
+                          "line": 66
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m }\n \u001b[90m 68 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m lastNames(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m)\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[33mstring\u001b[39m[]\u001b[33m>\u001b[39m {\n \u001b[90m 69 |\u001b[39m   \u001b[36mconst\u001b[39m table \u001b[33m=\u001b[39m ui(page)\u001b[33m.\u001b[39mfirstTable\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 17,
+                            "line": 66
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n\n\n  64 |   await u.username.fill(username);\n  65 |   await u.password.fill(password);\n> 66 |   await u.login.click();\n     |                 ^\n  67 | }\n  68 | async function lastNames(page: Page): Promise<string[]> {\n  69 |   const table = ui(page).firstTable;\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:66:17)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:9\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 31080
+                        },
+                        {
+                          "title": "When I sign in with the trainee with a wrong password",
+                          "duration": 13077,
+                          "error": {
+                            "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n",
+                            "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:66:17)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:92:9\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:91:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 17,
+                              "line": 66
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m }\n \u001b[90m 68 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m lastNames(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m)\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[33mstring\u001b[39m[]\u001b[33m>\u001b[39m {\n \u001b[90m 69 |\u001b[39m   \u001b[36mconst\u001b[39m table \u001b[33m=\u001b[39m ui(page)\u001b[33m.\u001b[39mfirstTable\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:37:08.489Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-sign-in-with-the-trainee-with-a-wrong-password",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbG9naW4KIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHNpZ24gaW4gd2l0aCB0aGUgdHJhaW5lZSB3aXRoIGEgd3JvbmcgcGFzc3dvcmQKIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRpbWVvdXQgMzAwMG1zIGV4Y2VlZGVkLgo="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-43c96-inee-with-a-wrong-password--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 17,
+                        "line": 66
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 33278,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Login page",
+                          "duration": 31815
+                        },
+                        {
+                          "title": "When I sign in with the trainee with a wrong password",
+                          "duration": 429
+                        },
+                        {
+                          "title": "Then I see \"Your password is invalid!\"",
+                          "duration": 866
+                        },
+                        {
+                          "title": "And I am still on the Login page",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:38:05.034Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-6df1df28d0cbcddf1a81",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 89,
+              "column": 5
+            },
+            {
+              "title": "SCN-003: Logging out returns to the Login page",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:functional",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 54311,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:66:17)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:102:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:100:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 17,
+                          "line": 66
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m }\n \u001b[90m 68 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m lastNames(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m)\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[33mstring\u001b[39m[]\u001b[33m>\u001b[39m {\n \u001b[90m 69 |\u001b[39m   \u001b[36mconst\u001b[39m table \u001b[33m=\u001b[39m ui(page)\u001b[33m.\u001b[39mfirstTable\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 17,
+                            "line": 66
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n\n\n  64 |   await u.username.fill(username);\n  65 |   await u.password.fill(password);\n> 66 |   await u.login.click();\n     |                 ^\n  67 | }\n  68 | async function lastNames(page: Page): Promise<string[]> {\n  69 |   const table = ui(page).firstTable;\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:66:17)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:102:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:100:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the trainee",
+                          "duration": 44032,
+                          "error": {
+                            "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n",
+                            "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Login' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"radius\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n\n    at signIn (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:66:17)\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:102:7\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:100:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 17,
+                              "line": 66
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39musername\u001b[33m.\u001b[39mfill(username)\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mpassword\u001b[33m.\u001b[39mfill(password)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m   \u001b[36mawait\u001b[39m u\u001b[33m.\u001b[39mlogin\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m }\n \u001b[90m 68 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m lastNames(page\u001b[33m:\u001b[39m \u001b[33mPage\u001b[39m)\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[33mstring\u001b[39m[]\u001b[33m>\u001b[39m {\n \u001b[90m 69 |\u001b[39m   \u001b[36mconst\u001b[39m table \u001b[33m=\u001b[39m ui(page)\u001b[33m.\u001b[39mfirstTable\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:37:08.486Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-failed-given-i-am-signed-in-as-the-trainee",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbG9naW4KIyBzdGVwOiBGQUlMRUQgR2l2ZW4gSSBhbSBzaWduZWQgaW4gYXMgdGhlIHRyYWluZWUKIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRpbWVvdXQgMzAwMG1zIGV4Y2VlZGVkLgo="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-958d7-t-returns-to-the-Login-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 17,
+                        "line": 66
+                      }
+                    },
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 32710,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am signed in as the trainee",
+                          "duration": 32163
+                        },
+                        {
+                          "title": "When I log out",
+                          "duration": 354
+                        },
+                        {
+                          "title": "Then I am on the Login page",
+                          "duration": 31
+                        },
+                        {
+                          "title": "And I see \"You logged out of the secure area!\"",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:38:05.017Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-b23bec73dcfb3a70eb91",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 99,
+              "column": 3
+            },
+            {
+              "title": "SCN-004: The Secure Area is not reachable while signed out",
+              "ok": true,
+              "tags": [
+                "AC-3",
+                "type:security",
+                "layer:ui",
+                "P1"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 30963,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "When I open /secure without signing in",
+                          "duration": 30769
+                        },
+                        {
+                          "title": "Then I am on the Login page",
+                          "duration": 32
+                        },
+                        {
+                          "title": "And I see \"You must login to view the secure area!\"",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:38:34.453Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-7b80c9c4eab64c9978e6",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "SCN-005: Checkboxes start in the documented state and toggle",
+              "ok": true,
+              "tags": [
+                "AC-4",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 51190,
+                      "error": {
+                        "message": "Error: [REQ AC-4] checkbox 1 initially unchecked\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox').first()\nExpected: not checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-4] checkbox 1 initially unchecked getByRole('checkbox').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n",
+                        "stack": "Error: [REQ AC-4] checkbox 1 initially unchecked\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox').first()\nExpected: not checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-4] checkbox 1 initially unchecked getByRole('checkbox').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:119:96)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:118:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 96,
+                          "line": 119
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 117 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Checkboxes page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mcheckboxes)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then checkbox 1 is unchecked and checkbox 2 is checked'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 119 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m0\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 1 initially unchecked'\u001b[39m)\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 120 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 2 initially checked'\u001b[39m)\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\n \u001b[90m 121 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click both checkboxes'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m0\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 96,
+                            "line": 119
+                          },
+                          "message": "Error: [REQ AC-4] checkbox 1 initially unchecked\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox').first()\nExpected: not checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-4] checkbox 1 initially unchecked getByRole('checkbox').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n\n\n  117 |     await journey.step('Given I am on the Checkboxes page', async () => { await open(page, PATH.checkboxes); });\n  118 |     await journey.step('Then checkbox 1 is unchecked and checkbox 2 is checked', async () => {\n> 119 |       await expect.soft(ui(page).checkbox(0), '[REQ AC-4] checkbox 1 initially unchecked').not.toBeChecked();\n      |                                                                                                ^\n  120 |       await expect.soft(ui(page).checkbox(1), '[REQ AC-4] checkbox 2 initially checked').toBeChecked();\n  121 |     });\n  122 |     await journey.step('When I click both checkboxes', async () => { await ui(page).checkbox(0).click(); await ui(page).checkbox(1).click(); });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:119:96)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:118:5"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 90,
+                            "line": 120
+                          },
+                          "message": "Error: [REQ AC-4] checkbox 2 initially checked\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox').nth(1)\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-4] checkbox 2 initially checked getByRole('checkbox').nth(1) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox').nth(1)\u001b[22m\n\n\n  118 |     await journey.step('Then checkbox 1 is unchecked and checkbox 2 is checked', async () => {\n  119 |       await expect.soft(ui(page).checkbox(0), '[REQ AC-4] checkbox 1 initially unchecked').not.toBeChecked();\n> 120 |       await expect.soft(ui(page).checkbox(1), '[REQ AC-4] checkbox 2 initially checked').toBeChecked();\n      |                                                                                          ^\n  121 |     });\n  122 |     await journey.step('When I click both checkboxes', async () => { await ui(page).checkbox(0).click(); await ui(page).checkbox(1).click(); });\n  123 |     await journey.step('Then checkbox 1 is checked and checkbox 2 is unchecked', async () => {\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:120:90\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:118:5"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 97,
+                            "line": 122
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n\n\n  120 |       await expect.soft(ui(page).checkbox(1), '[REQ AC-4] checkbox 2 initially checked').toBeChecked();\n  121 |     });\n> 122 |     await journey.step('When I click both checkboxes', async () => { await ui(page).checkbox(0).click(); await ui(page).checkbox(1).click(); });\n      |                                                                                                 ^\n  123 |     await journey.step('Then checkbox 1 is checked and checkbox 2 is unchecked', async () => {\n  124 |       await expect.soft(ui(page).checkbox(0), '[REQ AC-4] checkbox 1 toggled on').toBeChecked();\n  125 |       await expect.soft(ui(page).checkbox(1), '[REQ AC-4] checkbox 2 toggled off').not.toBeChecked();\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:122:97)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:122:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Checkboxes page",
+                          "duration": 30964
+                        },
+                        {
+                          "title": "Then checkbox 1 is unchecked and checkbox 2 is checked",
+                          "duration": 10030,
+                          "error": {
+                            "message": "Error: [REQ AC-4] checkbox 1 initially unchecked\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox').first()\nExpected: not checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-4] checkbox 1 initially unchecked getByRole('checkbox').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n",
+                            "stack": "Error: [REQ AC-4] checkbox 1 initially unchecked\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox').first()\nExpected: not checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-4] checkbox 1 initially unchecked getByRole('checkbox').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:119:96)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:118:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 96,
+                              "line": 119
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 117 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Checkboxes page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mcheckboxes)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then checkbox 1 is unchecked and checkbox 2 is checked'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 119 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m0\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 1 initially unchecked'\u001b[39m)\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 120 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 2 initially checked'\u001b[39m)\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\n \u001b[90m 121 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click both checkboxes'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m0\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        },
+                        {
+                          "title": "When I click both checkboxes",
+                          "duration": 10021,
+                          "error": {
+                            "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n",
+                            "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('checkbox').first()\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:122:97)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:122:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 97,
+                              "line": 122
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 120 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 2 initially checked'\u001b[39m)\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\n \u001b[90m 121 |\u001b[39m     })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 122 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click both checkboxes'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m0\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 123 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then checkbox 1 is checked and checkbox 2 is unchecked'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 124 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m0\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 1 toggled on'\u001b[39m)\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\n \u001b[90m 125 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcheckbox(\u001b[35m1\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-4] checkbox 2 toggled off'\u001b[39m)\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeChecked()\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:38:34.451Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 03-failed-when-i-click-both-checkboxes",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vY2hlY2tib3hlcwojIHN0ZXA6IEZBSUxFRCBXaGVuIEkgY2xpY2sgYm90aCBjaGVja2JveGVzCi0gaWZyYW1lCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-c88ec-documented-state-and-toggle-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-c88ec-documented-state-and-toggle-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-c88ec-documented-state-and-toggle-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 96,
+                        "line": 119
+                      }
+                    },
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 31247,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Checkboxes page",
+                          "duration": 30975
+                        },
+                        {
+                          "title": "Then checkbox 1 is unchecked and checkbox 2 is checked",
+                          "duration": 44
+                        },
+                        {
+                          "title": "When I click both checkboxes",
+                          "duration": 74
+                        },
+                        {
+                          "title": "Then checkbox 1 is checked and checkbox 2 is unchecked",
+                          "duration": 17
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:27.044Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-d6e31f405e6effe1f000",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "SCN-006: The dropdown offers the documented options",
+              "ok": false,
+              "tags": [
+                "AC-5",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 35829,
+                      "error": {
+                        "message": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n",
+                        "stack": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:132:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:131:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 88,
+                          "line": 132
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 130 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Dropdown page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mdropdown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 131 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 132 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] dropdown options'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText([\u001b[33m...\u001b[39m\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m])\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 133 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 134 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And \"Please select an option\" is preselected and cannot be selected'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 135 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option:checked'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] placeholder preselected'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m[\u001b[35m0\u001b[39m])\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 88,
+                            "line": 132
+                          },
+                          "message": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\n\n  130 |     await journey.step('Given I am on the Dropdown page', async () => { await open(page, PATH.dropdown); });\n  131 |     await journey.step('Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"', async () => {\n> 132 |       await expect(ui(page).dropdown.locator('option'), '[REQ AC-5] dropdown options').toHaveText([...REQ.DROPDOWN_OPTIONS]);\n      |                                                                                        ^\n  133 |     });\n  134 |     await journey.step('And \"Please select an option\" is preselected and cannot be selected', async () => {\n  135 |       await expect.soft(ui(page).dropdown.locator('option:checked'), '[REQ AC-5] placeholder preselected').toHaveText(REQ.DROPDOWN_OPTIONS[0]);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:132:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:131:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Dropdown page",
+                          "duration": 30652
+                        },
+                        {
+                          "title": "Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"",
+                          "duration": 5028,
+                          "error": {
+                            "message": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n",
+                            "stack": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:132:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:131:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 88,
+                              "line": 132
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 130 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Dropdown page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mdropdown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 131 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 132 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] dropdown options'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText([\u001b[33m...\u001b[39m\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m])\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 133 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 134 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And \"Please select an option\" is preselected and cannot be selected'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 135 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option:checked'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] placeholder preselected'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m[\u001b[35m0\u001b[39m])\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:38:37.857Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-then-the-options-are-please-select-an-option-option-1",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vZHJvcGRvd24KIyBzdGVwOiBGQUlMRUQgVGhlbiB0aGUgb3B0aW9ucyBhcmUgIlBsZWFzZSBzZWxlY3QgYW4gb3B0aW9uIiwgIk9wdGlvbiAxIiBhbmQgIk9wdGlvbiAyIgotIGlmcmFtZQo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ecce7-fers-the-documented-options-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ecce7-fers-the-documented-options-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ecce7-fers-the-documented-options-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 88,
+                        "line": 132
+                      }
+                    },
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 36108,
+                      "error": {
+                        "message": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n",
+                        "stack": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:132:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:131:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 88,
+                          "line": 132
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 130 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Dropdown page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mdropdown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 131 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 132 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] dropdown options'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText([\u001b[33m...\u001b[39m\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m])\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 133 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 134 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And \"Please select an option\" is preselected and cannot be selected'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 135 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option:checked'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] placeholder preselected'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m[\u001b[35m0\u001b[39m])\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 88,
+                            "line": 132
+                          },
+                          "message": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\n\n  130 |     await journey.step('Given I am on the Dropdown page', async () => { await open(page, PATH.dropdown); });\n  131 |     await journey.step('Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"', async () => {\n> 132 |       await expect(ui(page).dropdown.locator('option'), '[REQ AC-5] dropdown options').toHaveText([...REQ.DROPDOWN_OPTIONS]);\n      |                                                                                        ^\n  133 |     });\n  134 |     await journey.step('And \"Please select an option\" is preselected and cannot be selected', async () => {\n  135 |       await expect.soft(ui(page).dropdown.locator('option:checked'), '[REQ AC-5] placeholder preselected').toHaveText(REQ.DROPDOWN_OPTIONS[0]);\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:132:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:131:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Dropdown page",
+                          "duration": 30875
+                        },
+                        {
+                          "title": "Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"",
+                          "duration": 5046,
+                          "error": {
+                            "message": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n",
+                            "stack": "Error: [REQ AC-5] dropdown options\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox').locator('option')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"Please select an option\",\u001b[39m\n\u001b[32m-   \"Option 1\",\u001b[39m\n\u001b[32m-   \"Option 2\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-5] dropdown options getByRole('combobox').locator('option') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox').locator('option')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:132:88)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:131:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 88,
+                              "line": 132
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 130 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Dropdown page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mdropdown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 131 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then the options are \"Please select an option\", \"Option 1\" and \"Option 2\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 132 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] dropdown options'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText([\u001b[33m...\u001b[39m\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m])\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 133 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 134 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'And \"Please select an option\" is preselected and cannot be selected'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 135 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mdropdown\u001b[33m.\u001b[39mlocator(\u001b[32m'option:checked'\u001b[39m)\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-5] placeholder preselected'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDROPDOWN_OPTIONS\u001b[39m[\u001b[35m0\u001b[39m])\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:15.683Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-then-the-options-are-please-select-an-option-option-1",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vZHJvcGRvd24KIyBzdGVwOiBGQUlMRUQgVGhlbiB0aGUgb3B0aW9ucyBhcmUgIlBsZWFzZSBzZWxlY3QgYW4gb3B0aW9uIiwgIk9wdGlvbiAxIiBhbmQgIk9wdGlvbiAyIgotIGlmcmFtZQo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ecce7-fers-the-documented-options-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ecce7-fers-the-documented-options-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ecce7-fers-the-documented-options-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 88,
+                        "line": 132
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-ce3f911fc81ea077b8b6",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "SCN-007: Dynamically loaded content appears within 10 seconds",
+              "ok": false,
+              "tags": [
+                "AC-6",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 40740,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Start' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Start' })\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:146:83)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:146:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 83,
+                          "line": 146
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 144 |\u001b[39m   test(\u001b[32m'SCN-007: Dynamically loaded content appears within 10 seconds'\u001b[39m\u001b[33m,\u001b[39m { tag\u001b[33m:\u001b[39m [\u001b[32m'@AC-6'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@type:functional'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@layer:ui'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@P2'\u001b[39m] }\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m journey }) \u001b[33m=>\u001b[39m {\n \u001b[90m 145 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on Dynamic Loading example 2'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mdynamic)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 146 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I press \"Start\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mstart\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 147 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then \"Hello World!\" is rendered within 10 seconds'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 148 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdynamicResult\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] \"Hello World!\" within 10 s'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDYNAMIC_MAX_MS\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 149 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 83,
+                            "line": 146
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Start' })\u001b[22m\n\n\n  144 |   test('SCN-007: Dynamically loaded content appears within 10 seconds', { tag: ['@AC-6', '@type:functional', '@layer:ui', '@P2'] }, async ({ page, journey }) => {\n  145 |     await journey.step('Given I am on Dynamic Loading example 2', async () => { await open(page, PATH.dynamic); });\n> 146 |     await journey.step('When I press \"Start\"', async () => { await ui(page).start.click(); });\n      |                                                                                   ^\n  147 |     await journey.step('Then \"Hello World!\" is rendered within 10 seconds', async () => {\n  148 |       await expect(ui(page).dynamicResult, '[REQ AC-6] \"Hello World!\" within 10 s').toBeVisible({ timeout: REQ.DYNAMIC_MAX_MS });\n  149 |     });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:146:83)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:146:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on Dynamic Loading example 2",
+                          "duration": 30547
+                        },
+                        {
+                          "title": "When I press \"Start\"",
+                          "duration": 10033,
+                          "error": {
+                            "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Start' })\u001b[22m\n",
+                            "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Start' })\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:146:83)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:146:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 83,
+                              "line": 146
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 144 |\u001b[39m   test(\u001b[32m'SCN-007: Dynamically loaded content appears within 10 seconds'\u001b[39m\u001b[33m,\u001b[39m { tag\u001b[33m:\u001b[39m [\u001b[32m'@AC-6'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@type:functional'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@layer:ui'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@P2'\u001b[39m] }\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m journey }) \u001b[33m=>\u001b[39m {\n \u001b[90m 145 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on Dynamic Loading example 2'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mdynamic)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 146 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I press \"Start\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mstart\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 147 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then \"Hello World!\" is rendered within 10 seconds'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 148 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdynamicResult\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] \"Hello World!\" within 10 s'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDYNAMIC_MAX_MS\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 149 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:38:38.448Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-press-start",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vZHluYW1pY19sb2FkaW5nLzIKIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHByZXNzICJTdGFydCIKLSBpZnJhbWUK"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 83,
+                        "line": 146
+                      }
+                    },
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 41737,
+                      "error": {
+                        "message": "Error: [REQ AC-6] \"Hello World!\" within 10 s\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Hello World!')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-6] \"Hello World!\" within 10 s getByText('Hello World!') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Hello World!')\u001b[22m\n",
+                        "stack": "Error: [REQ AC-6] \"Hello World!\" within 10 s\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Hello World!')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-6] \"Hello World!\" within 10 s getByText('Hello World!') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Hello World!')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:148:85)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:147:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 85,
+                          "line": 148
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 146 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I press \"Start\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mstart\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 147 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then \"Hello World!\" is rendered within 10 seconds'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 148 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdynamicResult\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] \"Hello World!\" within 10 s'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDYNAMIC_MAX_MS\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 149 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 85,
+                            "line": 148
+                          },
+                          "message": "Error: [REQ AC-6] \"Hello World!\" within 10 s\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Hello World!')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-6] \"Hello World!\" within 10 s getByText('Hello World!') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Hello World!')\u001b[22m\n\n\n  146 |     await journey.step('When I press \"Start\"', async () => { await ui(page).start.click(); });\n  147 |     await journey.step('Then \"Hello World!\" is rendered within 10 seconds', async () => {\n> 148 |       await expect(ui(page).dynamicResult, '[REQ AC-6] \"Hello World!\" within 10 s').toBeVisible({ timeout: REQ.DYNAMIC_MAX_MS });\n      |                                                                                     ^\n  149 |     });\n  150 |   });\n  151 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:148:85)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:147:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on Dynamic Loading example 2",
+                          "duration": 31473
+                        },
+                        {
+                          "title": "When I press \"Start\"",
+                          "duration": 61
+                        },
+                        {
+                          "title": "Then \"Hello World!\" is rendered within 10 seconds",
+                          "duration": 10032,
+                          "error": {
+                            "message": "Error: [REQ AC-6] \"Hello World!\" within 10 s\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Hello World!')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-6] \"Hello World!\" within 10 s getByText('Hello World!') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Hello World!')\u001b[22m\n",
+                            "stack": "Error: [REQ AC-6] \"Hello World!\" within 10 s\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Hello World!')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-6] \"Hello World!\" within 10 s getByText('Hello World!') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Hello World!')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:148:85)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:147:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 85,
+                              "line": 148
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 146 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I press \"Start\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mstart\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 147 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then \"Hello World!\" is rendered within 10 seconds'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 148 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mdynamicResult\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-6] \"Hello World!\" within 10 s'\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mDYNAMIC_MAX_MS\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 149 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:20.448Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 03-failed-then-password-world-is-rendered-within-10-seconds",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vZHluYW1pY19sb2FkaW5nLzIKIyBzdGVwOiBGQUlMRUQgVGhlbiAiSGVsbG8gV29ybGQhIiBpcyByZW5kZXJlZCB3aXRoaW4gMTAgc2Vjb25kcwotIGxpbmsgIkZvcmsgbWUgb24gR2l0SHViIjoKICAtIC91cmw6IGh0dHBzOi8vZ2l0aHViLmNvbS90b3VyZGVkYXZlL3RoZS1pbnRlcm5ldAogIC0gaW1nICJGb3JrIG1lIG9uIEdpdEh1YiIKLSBoZWFkaW5nICJEeW5hbWljYWxseSBMb2FkZWQgUGFnZSBFbGVtZW50cyIgW2xldmVsPTNdCi0gJ2hlYWRpbmcgIkV4YW1wbGUgMjogRWxlbWVudCByZW5kZXJlZCBhZnRlciB0aGUgZmFjdCIgW2xldmVsPTRdJwotIGJ1dHRvbiAiU3RhcnQiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-ea8ed-t-appears-within-10-seconds-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 85,
+                        "line": 148
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-e6e130ce91a3e2fe6d45",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 144,
+              "column": 3
+            },
+            {
+              "title": "SCN-008.1: JavaScript dialogs report the user's choice (alert)",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 40904,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Alert' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Alert' })\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:157:47)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:155:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 47,
+                          "line": 157
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 155 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 156 |\u001b[39m         page\u001b[33m.\u001b[39monce(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m (dialog) \u001b[33m=>\u001b[39m (d\u001b[33m.\u001b[39maccept \u001b[33m?\u001b[39m dialog\u001b[33m.\u001b[39maccept(d\u001b[33m.\u001b[39mkind \u001b[33m===\u001b[39m \u001b[32m'prompt'\u001b[39m \u001b[33m?\u001b[39m data\u001b[33m.\u001b[39mpromptText \u001b[33m:\u001b[39m undefined) \u001b[33m:\u001b[39m dialog\u001b[33m.\u001b[39mdismiss()))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 157 |\u001b[39m         \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mdialogButton(d\u001b[33m.\u001b[39mbutton)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 158 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 159 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${d.result}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-7] ${d.kind} result`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(d\u001b[33m.\u001b[39mresult)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 160 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 47,
+                            "line": 157
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Alert' })\u001b[22m\n\n\n  155 |       await journey.step(`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`, async () => {\n  156 |         page.once('dialog', (dialog) => (d.accept ? dialog.accept(d.kind === 'prompt' ? data.promptText : undefined) : dialog.dismiss()));\n> 157 |         await ui(page).dialogButton(d.button).click();\n      |                                               ^\n  158 |       });\n  159 |       await journey.step(`Then I see \"${d.result}\"`, async () => { await expect(ui(page).result, `[REQ AC-7] ${d.kind} result`).toHaveText(d.result); });\n  160 |     });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:157:47)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:155:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 30721
+                        },
+                        {
+                          "title": "When I accept the JS alert",
+                          "duration": 10023,
+                          "error": {
+                            "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Alert' })\u001b[22m\n",
+                            "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Alert' })\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:157:47)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:155:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 47,
+                              "line": 157
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 155 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 156 |\u001b[39m         page\u001b[33m.\u001b[39monce(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m (dialog) \u001b[33m=>\u001b[39m (d\u001b[33m.\u001b[39maccept \u001b[33m?\u001b[39m dialog\u001b[33m.\u001b[39maccept(d\u001b[33m.\u001b[39mkind \u001b[33m===\u001b[39m \u001b[32m'prompt'\u001b[39m \u001b[33m?\u001b[39m data\u001b[33m.\u001b[39mpromptText \u001b[33m:\u001b[39m undefined) \u001b[33m:\u001b[39m dialog\u001b[33m.\u001b[39mdismiss()))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 157 |\u001b[39m         \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mdialogButton(d\u001b[33m.\u001b[39mbutton)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 158 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 159 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${d.result}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-7] ${d.kind} result`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(d\u001b[33m.\u001b[39mresult)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 160 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:05.562Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-accept-the-js-alert",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vamF2YXNjcmlwdF9hbGVydHMKIyBzdGVwOiBGQUlMRUQgV2hlbiBJIGFjY2VwdCB0aGUgSlMgYWxlcnQKLSBpZnJhbWUK"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-0b685-rt-the-user-s-choice-alert--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 47,
+                        "line": 157
+                      }
+                    },
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 30978,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 30739
+                        },
+                        {
+                          "title": "When I accept the JS alert",
+                          "duration": 90
+                        },
+                        {
+                          "title": "Then I see \"You successfully clicked an alert\"",
+                          "duration": 15
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:48.424Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-afa23001c685cab79b97",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 153,
+              "column": 5
+            },
+            {
+              "title": "SCN-008.2: JavaScript dialogs report the user's choice (confirm)",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 31302,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 31087
+                        },
+                        {
+                          "title": "When I dismiss the JS confirm",
+                          "duration": 71
+                        },
+                        {
+                          "title": "Then I see \"You clicked: Cancel\"",
+                          "duration": 16
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:53.167Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-fb20246a5589970e1bb6",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 153,
+              "column": 5
+            },
+            {
+              "title": "SCN-008.3: JavaScript dialogs report the user's choice (prompt)",
+              "ok": true,
+              "tags": [
+                "AC-7",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 40891,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Prompt' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Prompt' })\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:157:47)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:155:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 47,
+                          "line": 157
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 155 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 156 |\u001b[39m         page\u001b[33m.\u001b[39monce(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m (dialog) \u001b[33m=>\u001b[39m (d\u001b[33m.\u001b[39maccept \u001b[33m?\u001b[39m dialog\u001b[33m.\u001b[39maccept(d\u001b[33m.\u001b[39mkind \u001b[33m===\u001b[39m \u001b[32m'prompt'\u001b[39m \u001b[33m?\u001b[39m data\u001b[33m.\u001b[39mpromptText \u001b[33m:\u001b[39m undefined) \u001b[33m:\u001b[39m dialog\u001b[33m.\u001b[39mdismiss()))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 157 |\u001b[39m         \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mdialogButton(d\u001b[33m.\u001b[39mbutton)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 158 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 159 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${d.result}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-7] ${d.kind} result`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(d\u001b[33m.\u001b[39mresult)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 160 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 47,
+                            "line": 157
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Prompt' })\u001b[22m\n\n\n  155 |       await journey.step(`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`, async () => {\n  156 |         page.once('dialog', (dialog) => (d.accept ? dialog.accept(d.kind === 'prompt' ? data.promptText : undefined) : dialog.dismiss()));\n> 157 |         await ui(page).dialogButton(d.button).click();\n      |                                               ^\n  158 |       });\n  159 |       await journey.step(`Then I see \"${d.result}\"`, async () => { await expect(ui(page).result, `[REQ AC-7] ${d.kind} result`).toHaveText(d.result); });\n  160 |     });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:157:47)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:155:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 30687
+                        },
+                        {
+                          "title": "When I accept the JS prompt",
+                          "duration": 10044,
+                          "error": {
+                            "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Prompt' })\u001b[22m\n",
+                            "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Click for JS Prompt' })\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:157:47)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:155:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 47,
+                              "line": 157
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 155 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I ${d.accept ? 'accept' : 'dismiss'} the JS ${d.kind}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 156 |\u001b[39m         page\u001b[33m.\u001b[39monce(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m (dialog) \u001b[33m=>\u001b[39m (d\u001b[33m.\u001b[39maccept \u001b[33m?\u001b[39m dialog\u001b[33m.\u001b[39maccept(d\u001b[33m.\u001b[39mkind \u001b[33m===\u001b[39m \u001b[32m'prompt'\u001b[39m \u001b[33m?\u001b[39m data\u001b[33m.\u001b[39mpromptText \u001b[33m:\u001b[39m undefined) \u001b[33m:\u001b[39m dialog\u001b[33m.\u001b[39mdismiss()))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 157 |\u001b[39m         \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mdialogButton(d\u001b[33m.\u001b[39mbutton)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 158 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 159 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${d.result}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-7] ${d.kind} result`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(d\u001b[33m.\u001b[39mresult)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 160 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:39:58.414Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-accept-the-js-prompt",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vamF2YXNjcmlwdF9hbGVydHMKIyBzdGVwOiBGQUlMRUQgV2hlbiBJIGFjY2VwdCB0aGUgSlMgcHJvbXB0Ci0gaWZyYW1lCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-b960b-t-the-user-s-choice-prompt--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-b960b-t-the-user-s-choice-prompt--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-b960b-t-the-user-s-choice-prompt--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 47,
+                        "line": 157
+                      }
+                    },
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 32350,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the JavaScript Alerts page",
+                          "duration": 32120
+                        },
+                        {
+                          "title": "When I accept the JS prompt",
+                          "duration": 78
+                        },
+                        {
+                          "title": "Then I see \"You entered: held out\"",
+                          "duration": 18
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:40:41.259Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-c812752448ced2b55173",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 153,
+              "column": 5
+            },
+            {
+              "title": "SCN-009: One click on \"Last Name\" sorts the first table ascending",
+              "ok": true,
+              "tags": [
+                "AC-8",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 60560,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 57,
+                            "line": 70
+                          },
+                          "message": "Error: locator.allInnerTexts: Target page, context or browser has been closed\n\n  68 | async function lastNames(page: Page): Promise<string[]> {\n  69 |   const table = ui(page).firstTable;\n> 70 |   const headers = await table.getByRole('columnheader').allInnerTexts();\n     |                                                         ^\n  71 |   const col = headers.findIndex((h) => /last name/i.test(h));\n  72 |   return table.locator('tbody tr').evaluateAll((rows, c) => rows.map((r) => (r.children[c] as HTMLElement).innerText.trim()), col);\n  73 | }\n    at lastNames (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:70:57)\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:169:27)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:168:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Data Tables page",
+                          "duration": 60393
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:40:04.263Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "aria-snapshot 03-failed-then-its-rows-are-sorted-by-last-name-ascending",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vdGFibGVzCiMgc3RlcDogRkFJTEVEIFRoZW4gaXRzIHJvd3MgYXJlIHNvcnRlZCBieSBsYXN0IG5hbWUsIGFzY2VuZGluZwojIHNuYXBzaG90IHVuYXZhaWxhYmxlOiBsb2NhdG9yLmFyaWFTbmFwc2hvdDogVGFyZ2V0IHBhZ2UsIGNvbnRleHQgb3IgYnJvd3NlciBoYXMgYmVlbiBjbG9zZWQK"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-eb46d-s-the-first-table-ascending-chromium\\trace.zip"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 30961,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Data Tables page",
+                          "duration": 30711
+                        },
+                        {
+                          "title": "When I click the \"Last Name\" header of the first table once",
+                          "duration": 74
+                        },
+                        {
+                          "title": "Then its rows are sorted by last name, ascending",
+                          "duration": 53
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:41:06.831Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-7d110426c0c5d61fc348",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 163,
+              "column": 3
+            },
+            {
+              "title": "SCN-010: Elements are added and removed one at a time",
+              "ok": true,
+              "tags": [
+                "AC-9",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 32962,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Add/Remove Elements page",
+                          "duration": 32615
+                        },
+                        {
+                          "title": "When I press \"Add Element\" 3 times",
+                          "duration": 173
+                        },
+                        {
+                          "title": "Then there are 3 \"Delete\" buttons",
+                          "duration": 8
+                        },
+                        {
+                          "title": "When I press one \"Delete\" button",
+                          "duration": 44
+                        },
+                        {
+                          "title": "Then there are 2 \"Delete\" buttons",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:40:19.522Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-0cfad20a39ad14ab023c",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 175,
+              "column": 3
+            },
+            {
+              "title": "SCN-011.1: Key presses are reported (Tab)",
+              "ok": true,
+              "tags": [
+                "AC-10",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 60103,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 130,
+                            "line": 187
+                          },
+                          "message": "Error: [REQ AC-10] Tab reported\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#result')\nExpected: \u001b[32m\"You entered: TAB\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-10] Tab reported locator('#result') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#result')\u001b[22m\n\u001b[2m    4 × locator resolved to <p id=\"result\"></p>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\u001b[2m  - Test timeout of 60000ms exceeded.\u001b[22m\n\n\n  185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });\n  186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });\n> 187 |       await journey.step(`Then I see \"${k.shown}\"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });\n      |                                                                                                                                  ^\n  188 |     });\n  189 |   });\n  190 | });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:187:130)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:187:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Key Presses page",
+                          "duration": 59741
+                        },
+                        {
+                          "title": "When I press Tab in the input",
+                          "duration": 32
+                        },
+                        {
+                          "title": "Then I see \"You entered: TAB\"",
+                          "duration": 259,
+                          "error": {
+                            "message": "Error: [REQ AC-10] Tab reported\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#result')\nExpected: \u001b[32m\"You entered: TAB\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-10] Tab reported locator('#result') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#result')\u001b[22m\n\u001b[2m    4 × locator resolved to <p id=\"result\"></p>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\u001b[2m  - Test timeout of 60000ms exceeded.\u001b[22m\n",
+                            "stack": "Error: [REQ AC-10] Tab reported\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#result')\nExpected: \u001b[32m\"You entered: TAB\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-10] Tab reported locator('#result') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#result')\u001b[22m\n\u001b[2m    4 × locator resolved to <p id=\"result\"></p>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\u001b[2m  - Test timeout of 60000ms exceeded.\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:187:130)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:187:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 130,
+                              "line": 187
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 185 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Key Presses page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mkeys)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 186 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I press ${k.key} in the input`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mkeyInput\u001b[33m.\u001b[39mpress(k\u001b[33m.\u001b[39mkey)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 187 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${k.shown}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-10] ${k.key} reported`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(k\u001b[33m.\u001b[39mshown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 188 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 189 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 190 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:40:24.590Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "aria-snapshot 03-failed-then-i-see-you-entered-tab",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20va2V5X3ByZXNzZXMKIyBzdGVwOiBGQUlMRUQgVGhlbiBJIHNlZSAiWW91IGVudGVyZWQ6IFRBQiIKIyBzbmFwc2hvdCB1bmF2YWlsYWJsZTogbG9jYXRvci5hcmlhU25hcHNob3Q6IFRhcmdldCBwYWdlLCBjb250ZXh0IG9yIGJyb3dzZXIgaGFzIGJlZW4gY2xvc2VkCg=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-57bed-y-presses-are-reported-Tab--chromium\\trace.zip"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 59204,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Key Presses page",
+                          "duration": 59024
+                        },
+                        {
+                          "title": "When I press Tab in the input",
+                          "duration": 42
+                        },
+                        {
+                          "title": "Then I see \"You entered: TAB\"",
+                          "duration": 21
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:41:26.660Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-494d5a2c1793bcacc5c0",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 184,
+              "column": 5
+            },
+            {
+              "title": "SCN-011.2: Key presses are reported (A)",
+              "ok": false,
+              "tags": [
+                "AC-10",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 40778,
+                      "error": {
+                        "message": "TimeoutError: locator.press: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox')\u001b[22m\n",
+                        "stack": "TimeoutError: locator.press: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:186:102)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:186:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                          "column": 102,
+                          "line": 186
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 184 |\u001b[39m     test(\u001b[32m`SCN-011.${i + 1}: Key presses are reported (${k.key})`\u001b[39m\u001b[33m,\u001b[39m { tag\u001b[33m:\u001b[39m [\u001b[32m'@AC-10'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@type:functional'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@layer:ui'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@P3'\u001b[39m] }\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m journey }) \u001b[33m=>\u001b[39m {\n \u001b[90m 185 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Key Presses page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mkeys)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 186 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I press ${k.key} in the input`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mkeyInput\u001b[33m.\u001b[39mpress(k\u001b[33m.\u001b[39mkey)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 187 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${k.shown}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-10] ${k.key} reported`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(k\u001b[33m.\u001b[39mshown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 188 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 189 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 102,
+                            "line": 186
+                          },
+                          "message": "TimeoutError: locator.press: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox')\u001b[22m\n\n\n  184 |     test(`SCN-011.${i + 1}: Key presses are reported (${k.key})`, { tag: ['@AC-10', '@type:functional', '@layer:ui', '@P3'] }, async ({ page, journey }) => {\n  185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });\n> 186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });\n      |                                                                                                      ^\n  187 |       await journey.step(`Then I see \"${k.shown}\"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });\n  188 |     });\n  189 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:186:102)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:186:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Key Presses page",
+                          "duration": 30612
+                        },
+                        {
+                          "title": "When I press A in the input",
+                          "duration": 10021,
+                          "error": {
+                            "message": "TimeoutError: locator.press: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox')\u001b[22m\n",
+                            "stack": "TimeoutError: locator.press: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox')\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:186:102)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:186:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                              "column": 102,
+                              "line": 186
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 184 |\u001b[39m     test(\u001b[32m`SCN-011.${i + 1}: Key presses are reported (${k.key})`\u001b[39m\u001b[33m,\u001b[39m { tag\u001b[33m:\u001b[39m [\u001b[32m'@AC-10'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@type:functional'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@layer:ui'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'@P3'\u001b[39m] }\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m journey }) \u001b[33m=>\u001b[39m {\n \u001b[90m 185 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Given I am on the Key Presses page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m open(page\u001b[33m,\u001b[39m \u001b[33mPATH\u001b[39m\u001b[33m.\u001b[39mkeys)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 186 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`When I press ${k.key} in the input`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mkeyInput\u001b[33m.\u001b[39mpress(k\u001b[33m.\u001b[39mkey)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 187 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"${k.shown}\"`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mresult\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-10] ${k.key} reported`\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(k\u001b[33m.\u001b[39mshown)\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 188 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 189 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:40:52.497Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 02-failed-when-i-press-a-in-the-input",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20va2V5X3ByZXNzZXMKIyBzdGVwOiBGQUlMRUQgV2hlbiBJIHByZXNzIEEgaW4gdGhlIGlucHV0Ci0gaWZyYW1lCg=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                        "column": 102,
+                        "line": 186
+                      }
+                    },
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60682,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts",
+                            "column": 130,
+                            "line": 187
+                          },
+                          "message": "Error: [REQ AC-10] A reported\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#result')\nExpected: \u001b[32m\"You entered: A\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\n\nCall log:\n\u001b[2m  - [REQ AC-10] A reported locator('#result') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#result')\u001b[22m\n\u001b[2m    - locator resolved to <p id=\"result\"></p>\u001b[22m\n\u001b[2m    - unexpected value \"\"\u001b[22m\n\u001b[2m  - Test timeout of 60000ms exceeded.\u001b[22m\n\n\n  185 |       await journey.step('Given I am on the Key Presses page', async () => { await open(page, PATH.keys); });\n  186 |       await journey.step(`When I press ${k.key} in the input`, async () => { await ui(page).keyInput.press(k.key); });\n> 187 |       await journey.step(`Then I see \"${k.shown}\"`, async () => { await expect(ui(page).result, `[REQ AC-10] ${k.key} reported`).toHaveText(k.shown); });\n      |                                                                                                                                  ^\n  188 |     });\n  189 |   });\n  190 | });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:187:130)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:170:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\tests\\demo-404.spec.ts:187:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Key Presses page",
+                          "duration": 60500
+                        }
+                      ],
+                      "startTime": "2026-09-26T16:41:35.263Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "aria-snapshot 03-failed-then-i-see-you-entered-a",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20va2V5X3ByZXNzZXMKIyBzdGVwOiBGQUlMRUQgVGhlbiBJIHNlZSAiWW91IGVudGVyZWQ6IEEiCiMgc25hcHNob3QgdW5hdmFpbGFibGU6IGxvY2F0b3IuYXJpYVNuYXBzaG90OiBUYXJnZXQgcGFnZSwgY29udGV4dCBvciBicm93c2VyIGhhcyBiZWVuIGNsb3NlZAo="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-404\\runs\\05-rerun\\artifacts\\DEMO-404-tests-demo-404-DE-bf1f8-Key-presses-are-reported-A--chromium-retry1\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95e8a7ec3d265a63b0dd-87b60f207abcaf01ad85",
+              "file": "DEMO-404/tests/demo-404.spec.ts",
+              "line": 184,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T16:37:07.666Z",
+    "duration": 329777.527,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 7
+  }
+}

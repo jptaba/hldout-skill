@@ -1,0 +1,23 @@
+[
+  { "tool": "browser_navigate", "url": "checkboxes" },
+  { "tool": "browser_click", "find": { "role": "checkbox", "name": "" } },
+  { "snapshot": "checkboxes after clicking the first" },
+  { "tool": "browser_navigate", "url": "dropdown" },
+  { "tool": "browser_select_option", "find": { "role": "combobox" }, "values": ["Option 2"] },
+  { "expect": { "role": "option", "name": "Option 2" } },
+  { "tool": "browser_navigate", "url": "dynamic_loading/2" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Start", "exact": true } },
+  { "tool": "browser_wait_for", "text": "Hello World!" },
+  { "expectText": "Hello World!" },
+  { "tool": "browser_navigate", "url": "javascript_alerts" },
+  { "tool": "browser_click", "find": { "role": "button", "name": "Click for JS Prompt", "exact": true } },
+  { "tool": "browser_handle_dialog", "accept": true, "promptText": "held out" },
+  { "expectText": "You entered: held out" },
+  { "tool": "browser_navigate", "url": "tables" },
+  { "tool": "browser_click", "find": { "role": "columnheader", "name": "Last Name" } },
+  { "snapshot": "table after one click on Last Name" },
+  { "tool": "browser_navigate", "url": "key_presses" },
+  { "tool": "browser_click", "find": { "role": "textbox" } },
+  { "tool": "browser_press_key", "key": "A" },
+  { "expectText": "You entered: A" }
+]

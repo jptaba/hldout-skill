@@ -1,0 +1,21 @@
+{
+  "key": "DEMO-707", "aut": "conduit", "writtenAt": "2026-09-26 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-3"], "origin": "genuine", "keywords": ["401", "403", "wrong password", "login"], "description": "wrong password answered 403 instead of 401" },
+    { "id": "D2", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["title", "unique", "same title", "duplicate"], "description": "second article with the same title rejected (422)" },
+    { "id": "D3", "criteria": ["AC-10"], "origin": "genuine (sandbox scoping)", "keywords": ["author", "filter", "discover", "other reader", "not visible"], "description": "other readers filtering by author don't see the author's new article" },
+    { "id": "D4", "criteria": ["AC-11"], "origin": "embedded", "keywords": ["limit", "pagination", "422"], "description": "limit outside 1–100 accepted (200)" },
+    { "id": "D5", "criteria": ["AC-14"], "origin": "genuine (sandbox scoping)", "keywords": ["comment", "visible", "public", "other reader", "anonymous"], "description": "comments visible only to the commenter" },
+    { "id": "D6", "criteria": ["AC-15"], "origin": "genuine", "keywords": ["404", "403", "delete", "comment"], "description": "deleting someone else's comment answers 404 instead of 403" },
+    { "id": "D7", "criteria": ["AC-16"], "origin": "genuine", "keywords": ["favourit", "favorit", "idempot", "twice", "count"], "description": "favouriting twice increments the count twice" }
+  ],
+  "seededScriptDefects": [
+    { "id": "S5", "keywords": ["envelope", "article", "payload", "wrapper", "contract"], "description": "create-article test (AC-5) sends the fields without the required {\"article\": …} envelope → 422 'can't be blank', which looks like an application validation defect" }
+  ],
+  "traps": [
+    "422 on a create looks like an app validation defect but is the test's payload (S5): the classifier's 'expected 2xx, got 400/422' rule must lead to investigation",
+    "users cannot be deleted via the API (seed cleanup not possible) — ledger must say so",
+    "per-user visibility: a check made as the author passes, the same check as another reader fails — tests must use a second user"
+  ]
+}

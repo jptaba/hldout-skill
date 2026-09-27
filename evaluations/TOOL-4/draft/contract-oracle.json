@@ -1,0 +1,82 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "A signed-in customer adds a product to favourites with POST /favorites; the API responds 201 with the favourite (its id and the product id).",
+      "outcomes": [
+        "201",
+        "the body is the favourite, with its id",
+        "the body carries the product id that was sent"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Adding a product that is already a favourite is rejected and the list still contains it once.",
+      "outcomes": [
+        "adding the same product again with POST /favorites → 409 (Conflict)",
+        "GET /favorites contains the product once"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "GET /favorites lists the customer's own favourites only; another customer's favourites are never included.",
+      "outcomes": [
+        "GET /favorites lists the favourites the customer added",
+        "a favourite added by another customer is not included"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Every favourites endpoint responds 401 without a valid token.",
+      "outcomes": [
+        "POST /favorites without a token → 401",
+        "GET /favorites without a token → 401",
+        "DELETE /favorites/{favoriteId} without a token → 401",
+        "each of them with an invalid token → 401"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "On the web shop, a signed-in customer who clicks \"Add to favourites\" on a product page sees \"Product added to your favorites list.\" and the product then appears on the \"Favorites\" page of their account.",
+      "outcomes": [
+        "clicking \"Add to favourites\" shows \"Product added to your favorites list.\"",
+        "the product appears on the \"Favorites\" page of the customer's account"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "DELETE /favorites/{favoriteId} removes the favourite (204) and it no longer appears in GET /favorites.",
+      "outcomes": [
+        "DELETE /favorites/{favoriteId} → 204",
+        "GET /favorites afterwards no longer contains that favourite"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "A duplicate favourite is a conflict: the API must answer 409 Conflict (the PO clarification supersedes the 422 in the technical notes)."
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "Adding a product that is already a favourite (POST /favorites)",
+      "status": 409,
+      "body": null
+    },
+    {
+      "id": "E2",
+      "case": "Any favourites endpoint called without a valid token",
+      "status": 401,
+      "body": null
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G1",
+      "resolution": "found-in-requirement",
+      "value": "409"
+    }
+  ]
+}

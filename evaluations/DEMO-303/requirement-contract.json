@@ -1,0 +1,819 @@
+{
+  "key": "DEMO-303",
+  "title": "Partner booking API — authenticate, create, amend and cancel bookings",
+  "revision": {
+    "story": "116fedc4e11023ef",
+    "attachments": {
+      "booking-rules.csv": "0eb603e78a9a13d9",
+      "partner-accounts.csv": "cd1b1c61805cf2bf"
+    }
+  },
+  "context": "Partner-facing HTTP booking API (no UI). Partners obtain a token and create, read, search, amend and cancel bookings; invalid bookings must be rejected predictably (400, never 5xx) and not stored.",
+  "actors": [
+    "partner system",
+    "operations"
+  ],
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "acceptance criteria AC-1..AC-12, API contract table, booking JSON shape (R7), Accept header for every call (R9), auth schemes, test-data pointer"
+    },
+    {
+      "file": "attachments/booking-rules.csv",
+      "read": true,
+      "contributes": "validation rules R1-R6 with valid/invalid examples (AC-6)"
+    },
+    {
+      "file": "attachments/partner-accounts.csv",
+      "read": true,
+      "contributes": "partner credentials for the test environment"
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "text": "POST /auth with valid partner credentials responds 200 with {\"token\": \"<non-empty string>\"}.",
+      "quote": "POST /auth with valid partner credentials responds 200 with {\"token\": \"<non-empty string>\"}.",
+      "source": "story.md#L30",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth"
+      ],
+      "gaps": [
+        "G2",
+        "G3"
+      ],
+      "outcomes": [
+        "status 200",
+        "body has \"token\" as a non-empty string"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "POST /auth with invalid credentials responds 401 Unauthorized with {\"reason\": \"Bad credentials\"}.",
+      "quote": "POST /auth with invalid credentials responds 401 Unauthorized with {\"reason\": \"Bad credentials\"}.",
+      "source": "story.md#L31",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth"
+      ],
+      "gaps": [
+        "G2",
+        "G3"
+      ],
+      "outcomes": [
+        "status 401",
+        "body {\"reason\": \"Bad credentials\"}"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "POST /booking with a valid booking responds 200 with {\"bookingid\": <integer>, \"booking\": <the booking exactly as sent>}.",
+      "quote": "POST /booking with a valid booking responds 200 with {\"bookingid\": <integer>, \"booking\": <the booking exactly as sent>}.",
+      "source": "story.md#L35",
+      "layer": "api",
+      "endpoints": [
+        "POST /booking"
+      ],
+      "gaps": [
+        "G3"
+      ],
+      "outcomes": [
+        "status 200",
+        "\"bookingid\" is an integer",
+        "\"booking\" equals the booking exactly as sent"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "GET /booking/{id} responds 200 with the stored booking, identical to what was created. An id that does not exist responds 404.",
+      "quote": "GET /booking/{id} responds 200 with the stored booking, identical to what was created. An id that does not exist responds 404.",
+      "source": "story.md#L36",
+      "layer": "api",
+      "endpoints": [
+        "POST /booking",
+        "GET /booking/{id}"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G7"
+      ],
+      "outcomes": [
+        "GET of a created booking's id → 200",
+        "body is identical to the booking that was created",
+        "GET of an id that does not exist → 404"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "GET /booking?firstname=<f>&lastname=<l> responds 200 with a JSON array of {\"bookingid\"} objects that includes every booking with that name.",
+      "quote": "GET /booking?firstname=<f>&lastname=<l> responds 200 with a JSON array of {\"bookingid\"} objects that includes every booking with that name.",
+      "source": "story.md#L37",
+      "layer": "api",
+      "endpoints": [
+        "POST /booking",
+        "GET /booking"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "status 200",
+        "body is a JSON array of {\"bookingid\"} objects",
+        "the array includes the bookingid of every booking with that firstname and lastname"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "A booking that breaks any rule in booking-rules.csv is rejected with 400 Bad Request (never 5xx) and is not stored. A value exactly on a boundary is valid.",
+      "quote": "A booking that breaks any rule in booking-rules.csv is rejected with 400 Bad Request (never 5xx) and is not stored. A value exactly on a boundary is valid.",
+      "source": "story.md#L41",
+      "layer": "api",
+      "endpoints": [
+        "POST /booking",
+        "GET /booking"
+      ],
+      "gaps": [
+        "G3",
+        "G5",
+        "G8"
+      ],
+      "outcomes": [
+        "a booking breaking any one of R1-R6 → 400 Bad Request",
+        "each invalid_example of booking-rules.csv is rejected: missing firstname, missing lastname, totalprice -1, missing depositpaid, missing bookingdates.checkin, checkout = checkin - 4 days",
+        "never a 5xx response",
+        "the rejected booking is not stored (a search by its name does not return it)",
+        "a value exactly on a boundary is valid and accepted (totalprice 0; checkout = checkin + 1 day)"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "PUT, PATCH and DELETE require authentication, either the cookie token=<token from /auth> or Authorization: Basic <base64 of partner credentials>. Without it they respond 403 Forbidden and change nothing.",
+      "quote": "PUT, PATCH and DELETE require authentication, either the cookie token=<token from /auth> or Authorization: Basic <base64 of partner credentials>. Without it they respond 403 Forbidden and change nothing.",
+      "source": "story.md#L45",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth",
+        "POST /booking",
+        "PUT /booking/{id}",
+        "PATCH /booking/{id}",
+        "DELETE /booking/{id}",
+        "GET /booking/{id}"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G2",
+        "G3",
+        "G6",
+        "G8",
+        "G9"
+      ],
+      "outcomes": [
+        "PUT without authentication → 403 Forbidden",
+        "PATCH without authentication → 403 Forbidden",
+        "DELETE without authentication → 403 Forbidden",
+        "after each unauthenticated attempt the booking is unchanged (still readable with GET /booking/{id}, same content)",
+        "authentication by the token cookie and by Basic credentials are both accepted"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "PUT /booking/{id} replaces the whole booking and responds 200 with the updated booking. Repeating the same PUT is idempotent: same response, same stored state.",
+      "quote": "PUT /booking/{id} replaces the whole booking and responds 200 with the updated booking. Repeating the same PUT is idempotent: same response, same stored state.",
+      "source": "story.md#L46",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth",
+        "POST /booking",
+        "PUT /booking/{id}",
+        "GET /booking/{id}"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G3"
+      ],
+      "outcomes": [
+        "status 200",
+        "body is the updated booking",
+        "the stored booking (GET /booking/{id}) is the whole replacement booking",
+        "repeating the same PUT gives the same response and the same stored state"
+      ]
+    },
+    {
+      "id": "AC-9",
+      "text": "PATCH /booking/{id} changes only the fields supplied. All other fields keep their values.",
+      "quote": "PATCH /booking/{id} changes only the fields supplied. All other fields keep their values.",
+      "source": "story.md#L47",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth",
+        "POST /booking",
+        "PATCH /booking/{id}",
+        "GET /booking/{id}"
+      ],
+      "needsData": true,
+      "gaps": [
+        "G3",
+        "G4"
+      ],
+      "outcomes": [
+        "the supplied fields have the new values",
+        "all other fields keep their previous values (checked with GET /booking/{id})"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "text": "DELETE /booking/{id} with authentication responds 204 No Content. Afterwards GET /booking/{id} responds 404.",
+      "quote": "DELETE /booking/{id} with authentication responds 204 No Content. Afterwards GET /booking/{id} responds 404.",
+      "source": "story.md#L48",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth",
+        "POST /booking",
+        "DELETE /booking/{id}",
+        "GET /booking/{id}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "DELETE with authentication → 204 No Content",
+        "GET /booking/{id} afterwards → 404"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "text": "PUT, PATCH or DELETE of a booking id that does not exist responds 404 Not Found.",
+      "quote": "PUT, PATCH or DELETE of a booking id that does not exist responds 404 Not Found.",
+      "source": "story.md#L49",
+      "layer": "api",
+      "endpoints": [
+        "POST /auth",
+        "PUT /booking/{id}",
+        "PATCH /booking/{id}",
+        "DELETE /booking/{id}"
+      ],
+      "gaps": [
+        "G3",
+        "G6",
+        "G7"
+      ],
+      "outcomes": [
+        "PUT of a non-existent id → 404 Not Found",
+        "PATCH of a non-existent id → 404 Not Found",
+        "DELETE of a non-existent id → 404 Not Found"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "text": "GET /booking/{id} responds in under 3000 ms for each of 5 consecutive requests.",
+      "quote": "GET /booking/{id} responds in under 3000 ms for each of 5 consecutive requests.",
+      "source": "story.md#L53",
+      "layer": "api",
+      "endpoints": [
+        "POST /booking",
+        "GET /booking/{id}"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "each of 5 consecutive GET /booking/{id} requests responds in under 3000 ms"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/auth",
+      "auth": "none",
+      "request": "JSON body with the partner credentials (username, password — field names from G2); Content-Type: application/json (G3); Accept: application/json (R9, story.md#L67)",
+      "requestFields": [
+        "username",
+        "password"
+      ],
+      "success": "200 {\"token\": \"<non-empty string>\"}",
+      "source": "story.md#L59"
+    },
+    {
+      "method": "POST",
+      "path": "/booking",
+      "auth": "none",
+      "request": "Booking JSON, unwrapped: firstname, lastname, totalprice, depositpaid, bookingdates {checkin, checkout}, additionalneeds (optional); Content-Type: application/json (G3); Accept: application/json (R9, story.md#L67)",
+      "requestFields": [
+        "firstname",
+        "lastname",
+        "totalprice",
+        "depositpaid",
+        "bookingdates",
+        "additionalneeds"
+      ],
+      "success": "200 {\"bookingid\": <integer>, \"booking\": <as sent>}",
+      "source": "story.md#L60"
+    },
+    {
+      "method": "GET",
+      "path": "/booking",
+      "auth": "none",
+      "request": "query parameters firstname, lastname; Accept: application/json (R9, story.md#L67)",
+      "success": "200 JSON array of {\"bookingid\"}",
+      "source": "story.md#L61"
+    },
+    {
+      "method": "GET",
+      "path": "/booking/{id}",
+      "auth": "none",
+      "success": "200 stored booking",
+      "source": "story.md#L62",
+      "request": "no body; Accept: application/json (R9, story.md#L67)"
+    },
+    {
+      "method": "PUT",
+      "path": "/booking/{id}",
+      "auth": "required",
+      "request": "whole Booking JSON, unwrapped; token cookie or Basic; Content-Type: application/json (G3); Accept: application/json (R9, story.md#L67)",
+      "requestFields": [
+        "firstname",
+        "lastname",
+        "totalprice",
+        "depositpaid",
+        "bookingdates",
+        "additionalneeds"
+      ],
+      "success": "200 updated booking",
+      "source": "story.md#L63"
+    },
+    {
+      "method": "PATCH",
+      "path": "/booking/{id}",
+      "auth": "required",
+      "request": "any subset of the Booking JSON fields, unwrapped; token cookie or Basic; Content-Type: application/json (G3); Accept: application/json (R9, story.md#L67)",
+      "requestFields": [
+        "firstname",
+        "lastname",
+        "totalprice",
+        "depositpaid",
+        "bookingdates",
+        "additionalneeds"
+      ],
+      "success": "not stated (G4)",
+      "source": "story.md#L64"
+    },
+    {
+      "method": "DELETE",
+      "path": "/booking/{id}",
+      "auth": "required",
+      "request": "no body; token cookie or Basic; Accept: application/json (R9, story.md#L67)",
+      "success": "204 No Content",
+      "source": "story.md#L65"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "firstname: required non-empty string (valid: Ada; invalid: missing)",
+      "source": "attachments/booking-rules.csv#L2"
+    },
+    {
+      "id": "R2",
+      "text": "lastname: required non-empty string (valid: Lovelace; invalid: missing)",
+      "source": "attachments/booking-rules.csv#L3"
+    },
+    {
+      "id": "R3",
+      "text": "totalprice: required integer >= 0 (valid: 0; invalid: -1)",
+      "source": "attachments/booking-rules.csv#L4"
+    },
+    {
+      "id": "R4",
+      "text": "depositpaid: required boolean (valid: true; invalid: missing)",
+      "source": "attachments/booking-rules.csv#L5"
+    },
+    {
+      "id": "R5",
+      "text": "bookingdates.checkin: required date YYYY-MM-DD (valid: 2026-10-01; invalid: missing)",
+      "source": "attachments/booking-rules.csv#L6"
+    },
+    {
+      "id": "R6",
+      "text": "bookingdates.checkout: required date YYYY-MM-DD strictly after checkin (valid: checkin + 1 day; invalid: checkin - 4 days)",
+      "source": "attachments/booking-rules.csv#L7"
+    },
+    {
+      "id": "R7",
+      "text": "additionalneeds is an optional string; the other booking fields are firstname (string), lastname (string), totalprice (integer), depositpaid (boolean), bookingdates.checkin and bookingdates.checkout (YYYY-MM-DD)",
+      "source": "story.md#L67"
+    },
+    {
+      "id": "R8",
+      "text": "A value exactly on a boundary is valid",
+      "source": "story.md#L41"
+    },
+    {
+      "id": "R9",
+      "text": "Clients send Accept: application/json on every booking API call (general client instruction, not specific to one endpoint)",
+      "source": "story.md#L67"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "POST /auth with invalid credentials",
+      "status": 401,
+      "body": "{\"reason\": \"Bad credentials\"}",
+      "source": "story.md#L31"
+    },
+    {
+      "id": "E2",
+      "case": "GET /booking/{id} for an id that does not exist",
+      "status": 404,
+      "source": "story.md#L36"
+    },
+    {
+      "id": "E3",
+      "case": "POST /booking with a booking that breaks any rule in booking-rules.csv (never 5xx; not stored)",
+      "status": 400,
+      "source": "story.md#L41"
+    },
+    {
+      "id": "E4",
+      "case": "PUT, PATCH or DELETE without authentication (nothing changes)",
+      "status": 403,
+      "source": "story.md#L45"
+    },
+    {
+      "id": "E5",
+      "case": "GET /booking/{id} after the booking was deleted",
+      "status": 404,
+      "source": "story.md#L48"
+    },
+    {
+      "id": "E6",
+      "case": "PUT, PATCH or DELETE of a booking id that does not exist",
+      "status": 404,
+      "source": "story.md#L49"
+    }
+  ],
+  "auth": {
+    "mechanism": "PUT, PATCH and DELETE /booking/{id} require either the cookie `token=<token from POST /auth>` or `Authorization: Basic <base64 of partner credentials>` (username:password, G9). POST /auth takes the credentials as JSON {username, password} (G2). All other endpoints need no authentication.",
+    "credentials": "attachments/partner-accounts.csv#L2 (role partner, public demo account of the test environment)",
+    "source": "story.md#L45"
+  },
+  "testData": {
+    "strategy": "Each test creates its own bookings with POST /booking (no authentication needed) and uses the bookingid from the response. Use a unique firstname/lastname per test so name searches (AC-5, AC-6 'not stored') are not disturbed by other users. Non-existent ids per G7.",
+    "constraints": [
+      "Shared public sandbox (AUT profile restful-booker): other people write to it and data resets periodically; never rely on pre-existing bookings",
+      "Valid bookings must satisfy R1-R7; a valid baseline is firstname Ada, lastname Lovelace, totalprice 0 or more, depositpaid true, checkin 2026-10-01, checkout after checkin"
+    ],
+    "cleanup": "Best effort: DELETE /booking/{id} with authentication for bookings a test created; the sandbox also resets periodically.",
+    "source": "story.md#L71"
+  },
+  "outOfScope": [
+    "UI (story.md#L19: there is no UI; partners call the API directly)"
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "API origin (base URL) of the booking service",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "*"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "only relative paths (/auth, /booking…); no host"
+        },
+        {
+          "where": "attachments",
+          "result": "no host in booking-rules.csv or partner-accounts.csv"
+        },
+        {
+          "where": "config",
+          "result": "evaluation.json aut = restful-booker; heldout.config.json auts.restful-booker.apiBaseURL = https://restful-booker.herokuapp.com"
+        }
+      ],
+      "resolution": "found-in-config",
+      "value": "https://restful-booker.herokuapp.com",
+      "evidence": "heldout.config.json auts.restful-booker.apiBaseURL (profile selected by evaluations/DEMO-303/evaluation.json)"
+    },
+    {
+      "id": "G2",
+      "element": "request body field names of POST /auth",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-7",
+        "AC-8",
+        "AC-9",
+        "AC-10",
+        "AC-11"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L30/L59: POST /auth with 'valid partner credentials'; body shape not stated"
+        },
+        {
+          "where": "attachments",
+          "result": "partner-accounts.csv has columns username,password (the values), not stated as request field names"
+        },
+        {
+          "where": "aut",
+          "result": "published API docs (apidoc/api_data.json) CreateToken: POST auth, request body fields username (String), password (String)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "POST /auth JSON body {\"username\": <username>, \"password\": <password>}",
+      "evidence": "https://restful-booker.herokuapp.com/apidoc/api_data.json (fetched 2026-09-26), entry CreateToken; hardening-log.md confirms POST /auth issues the token used as Cookie: token=… (runs/01-harden)"
+    },
+    {
+      "id": "G3",
+      "element": "request body encoding (Content-Type) for POST /auth, POST /booking, PUT and PATCH",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-6",
+        "AC-7",
+        "AC-8",
+        "AC-9",
+        "AC-11"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L67: Booking JSON; \"Clients send Accept: application/json\" applies to every call (captured as R9, found in the requirement); request Content-Type not stated"
+        },
+        {
+          "where": "attachments",
+          "result": "nothing"
+        },
+        {
+          "where": "aut",
+          "result": "published API docs: header Content-Type application/json on CreateToken, CreateBooking, UpdateBooking, PartialUpdateBooking"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "send JSON bodies with Content-Type: application/json",
+      "evidence": "https://restful-booker.herokuapp.com/apidoc/api_data.json (fetched 2026-09-26), header Content-Type application/json on CreateToken, CreateBooking, UpdateBooking, PartialUpdateBooking. (Accept: application/json is not part of this gap: it is stated by story.md#L67, R9.)"
+    },
+    {
+      "id": "G4",
+      "element": "success status of PATCH /booking/{id} (AC-9 states only that supplied fields change and others keep their values)",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-9"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L47 (AC-9) and L64 (API table) state no status or response body for PATCH; L46 states 200 for PUT only"
+        },
+        {
+          "where": "attachments",
+          "result": "nothing"
+        }
+      ],
+      "resolution": "open",
+      "evidence": "Not evaluable as a status: assert only the field changes/preservation (response body or GET /booking/{id}), not a specific success code. Question for the PO: what status and body should a successful PATCH return?"
+    },
+    {
+      "id": "G5",
+      "element": "is checkout equal to checkin valid? R6 says checkout strictly after checkin (equal would be invalid); AC-6 says a value exactly on a boundary is valid",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L41: 'A value exactly on a boundary is valid'"
+        },
+        {
+          "where": "attachments",
+          "result": "booking-rules.csv L7: 'strictly after checkin', valid example checkin + 1 day, invalid example checkin - 4 days; neither source explicitly supersedes the other for checkout = checkin"
+        }
+      ],
+      "resolution": "open",
+      "evidence": "Do not assert checkout = checkin either way; test checkin + 1 day (valid) and checkin - 4 days (invalid). Question for the PO: is a zero-night booking (checkout = checkin) rejected with 400?"
+    },
+    {
+      "id": "G6",
+      "element": "precedence when an unauthenticated PUT/PATCH/DELETE targets an id that does not exist: 403 (AC-7) or 404 (AC-11)?",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-7",
+        "AC-11"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L45 (403 without authentication) and L49 (404 for unknown id) do not say which wins when both apply"
+        },
+        {
+          "where": "attachments",
+          "result": "nothing"
+        }
+      ],
+      "resolution": "open",
+      "evidence": "Avoid the combination: AC-7 is tested against an existing booking, AC-11 with valid authentication. Question for the PO if the combination matters."
+    },
+    {
+      "id": "G7",
+      "element": "how to obtain a booking id that does not exist (AC-4, AC-11)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-4",
+        "AC-11"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L36/L49 say 'an id that does not exist' without saying how to pick one"
+        },
+        {
+          "where": "attachments",
+          "result": "nothing"
+        }
+      ],
+      "resolution": "assumed",
+      "value": "use a very large integer id that the sandbox does not hand out (e.g. 999999999); ids are integers per AC-3",
+      "evidence": "test-design choice (mechanics only); ids are integers per story.md#L35"
+    },
+    {
+      "id": "G8",
+      "element": "how to verify 'is not stored' (AC-6) and 'change nothing' (AC-7)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-6",
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L37 (AC-5): GET /booking?firstname=<f>&lastname=<l> lists every booking with that name; L36 (AC-4): GET /booking/{id} returns the stored booking"
+        }
+      ],
+      "resolution": "found-in-requirement",
+      "value": "AC-6: send the invalid booking with a unique firstname/lastname, then GET /booking?firstname=&lastname= must not list any bookingid for it. AC-7: GET /booking/{id} after the unauthenticated attempt returns the booking unchanged.",
+      "evidence": "story.md#L36-L37"
+    },
+    {
+      "id": "G9",
+      "element": "exact form of the Basic credentials ('base64 of partner credentials')",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L45: Authorization: Basic <base64 of partner credentials>; separator not stated"
+        },
+        {
+          "where": "attachments",
+          "result": "partner-accounts.csv L2 gives username and password"
+        },
+        {
+          "where": "aut",
+          "result": "published API docs, UpdateBooking header example: Authorization: Basic YWRtaW46cGFzc3dvcmQxMjM= (= base64 of username:password)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "Authorization: Basic base64(\"<username>:<password>\") (standard HTTP Basic)",
+      "evidence": "https://restful-booker.herokuapp.com/apidoc/api_data.json (fetched 2026-09-26), UpdateBooking header Authorization; hardening-log.md: Basic auth PUT/PATCH verified in runs/01-harden"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L19",
+      "as": "context",
+      "note": "API-only partner contract; no UI (out of scope); errors must be predictable (motivates AC-6 'never 5xx')"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "context",
+      "note": "user story: partner obtains a token and manages bookings (AC-1..AC-11)"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "context",
+      "note": "user story: invalid bookings rejected and never stored (AC-6)"
+    },
+    {
+      "lines": "story.md#L30",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L31",
+      "as": "AC-2, E1"
+    },
+    {
+      "lines": "story.md#L35",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L36",
+      "as": "AC-4, E2"
+    },
+    {
+      "lines": "story.md#L37",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L41",
+      "as": "AC-6, R8, E3"
+    },
+    {
+      "lines": "story.md#L45",
+      "as": "AC-7, auth, E4"
+    },
+    {
+      "lines": "story.md#L46",
+      "as": "AC-8"
+    },
+    {
+      "lines": "story.md#L47",
+      "as": "AC-9"
+    },
+    {
+      "lines": "story.md#L48",
+      "as": "AC-10, E5"
+    },
+    {
+      "lines": "story.md#L49",
+      "as": "AC-11, E6"
+    },
+    {
+      "lines": "story.md#L53",
+      "as": "AC-12"
+    },
+    {
+      "lines": "story.md#L57",
+      "as": "endpoint",
+      "note": "API contract table header"
+    },
+    {
+      "lines": "story.md#L59-L62",
+      "as": "endpoint"
+    },
+    {
+      "lines": "story.md#L63-L65",
+      "as": "endpoint, auth"
+    },
+    {
+      "lines": "story.md#L67",
+      "as": "endpoint, R7, R9",
+      "note": "booking JSON shape = request fields of POST/PUT/PATCH /booking (R7); \"Clients send Accept: application/json\" is a general instruction for every booking API call (R9), reflected in the request of every endpoint"
+    },
+    {
+      "lines": "story.md#L71",
+      "as": "test-data, auth"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L1",
+      "as": "context",
+      "note": "CSV column header (rule_id, field, rule, valid_example, invalid_example)"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L2",
+      "as": "R1"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L3",
+      "as": "R2"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L4",
+      "as": "R3"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L5",
+      "as": "R4"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L6",
+      "as": "R5"
+    },
+    {
+      "lines": "attachments/booking-rules.csv#L7",
+      "as": "R6, G5"
+    },
+    {
+      "lines": "attachments/partner-accounts.csv#L1",
+      "as": "context",
+      "note": "CSV column header (role, username, password, notes)"
+    },
+    {
+      "lines": "attachments/partner-accounts.csv#L2",
+      "as": "auth, test-data"
+    }
+  ]
+}

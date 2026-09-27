@@ -1,0 +1,4 @@
+# url: https://automationintesting.online/
+# step: Given I am on the home page
+- status
+- alert

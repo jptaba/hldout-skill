@@ -1,0 +1,14 @@
+{ "steps": [
+  { "name": "find an in-stock product", "setup": true, "method": "GET", "path": "/products/search?q=pliers", "save": { "pid": "data.0.id" }, "show": ["data.0.name"] },
+  { "name": "create a cart", "setup": true, "method": "POST", "path": "/carts", "expect": 201, "save": { "cart": "id" }, "show": ["id"] },
+  { "name": "SCN-002 as the test sent it (productId)", "method": "POST", "path": "/carts/${cart}", "json": { "productId": "${pid}", "quantity": 1 }, "show": ["message", "errors"] },
+  { "name": "SCN-002 with the declared field product_id, quantity 1", "method": "POST", "path": "/carts/${cart}", "json": { "product_id": "${pid}", "quantity": 1 }, "expect": 200, "show": ["result"] },
+  { "name": "SCN-002 quantity 99 on a fresh product line", "method": "PUT", "path": "/carts/${cart}/product/quantity", "json": { "product_id": "${pid}", "quantity": 99 }, "show": ["result"] },
+  { "name": "cart now holds the product", "method": "GET", "path": "/carts/${cart}", "show": ["cart_items.0.quantity"] },
+  { "name": "SCN-008 delete the cart", "method": "DELETE", "path": "/carts/${cart}", "expect": 204 },
+  { "name": "SCN-008 delete the same cart again (story: 204)", "method": "DELETE", "path": "/carts/${cart}", "expect": 204, "show": ["message"] },
+  { "name": "SCN-009 read a never-existing cart", "method": "GET", "path": "/carts/nx${uid}", "expect": 404, "show": ["message"] },
+  { "name": "SCN-009 add to a never-existing cart", "method": "POST", "path": "/carts/nx${uid}", "json": { "product_id": "${pid}", "quantity": 1 }, "expect": 404, "show": ["message"] },
+  { "name": "SCN-009 remove from a never-existing cart", "method": "DELETE", "path": "/carts/nx${uid}/product/${pid}", "expect": 404, "show": ["message"] },
+  { "name": "SCN-009 delete a never-existing cart", "method": "DELETE", "path": "/carts/nx${uid}", "expect": 404, "show": ["message"] }
+] }

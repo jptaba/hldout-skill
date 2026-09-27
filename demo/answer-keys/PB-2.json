@@ -1,0 +1,44 @@
+{
+  "key": "PB-2",
+  "aut": "parabank",
+  "writtenAt": "2026-09-27 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-6"],
+      "origin": "genuine",
+      "keywords": ["funding", "minimum", "deposit", "negative", "opened", "insufficient"],
+      "description": "account-rules.csv R5 says the funding account must hold at least the 100.00 minimum opening deposit, otherwise the account is not opened and the customer gets an error; ParaBank opens the account anyway (page shows 'Account Opened!', service answers 200) and the funding account goes negative.",
+      "evidence": "Customer 14765: funding account 19671 reduced to $65.50 by a transfer; UI Open New Account (CHECKING, from 19671) -> XHR POST createAccount 200 {\"id\":20337,...}, page 'Account Opened! ... Your new account number: 20337'; Overview then shows 19671 -$34.50, 20337 $100.00. REST repeat: customer 12656 account 16674 at 15.50 -> POST /createAccount?customerId=12656&newAccountType=0&fromAccountId=16674 -> 200, account 16674 balance -84.50."
+    },
+    {
+      "id": "D2",
+      "criteria": ["AC-4"],
+      "origin": "genuine",
+      "keywords": ["createaccount", "response", "balance", "0", "100.00"],
+      "description": "AC-4 says POST /createAccount returns the new account with its opening balance (100.00); the response always carries balance 0 although the account really holds 100.00 (GET /accounts/{id} and /customers/{id}/accounts show 100.00).",
+      "evidence": "POST /createAccount?customerId=14765&newAccountType=0&fromAccountId=19671 (Accept: application/json) -> 200 {\"id\":20226,\"customerId\":14765,\"type\":\"CHECKING\",\"balance\":0}; XML variant for SAVINGS -> <balance>0</balance>; GET /customers/14765/accounts -> 20226 balance 100.00. Same on customer 12656 (16896 SAVINGS balance 0 in response, 100.00 afterwards) and in the UI XHR response for 20337."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "D1 needs a funding account below 100.00: a new customer starts with 515.50 (admin default), so the test must first move money out (e.g. transfer 450 to a second account, or open several accounts). A test that just opens one account from a fresh customer never exercises R5.",
+    "The expected error status/text for R5 is not specified in the story ('the customer gets an error'); the evaluator should note this gap but it does not change D1: the AUT reports success (200 / 'Account Opened!').",
+    "newAccountType is an integer code, not the enum name: 0 = CHECKING, 1 = SAVINGS (discoverable from the page's <select id='type'> option values; the OpenAPI text only says 'Account type (CHECKING, SAVINGS, LOAN)'). Sending 'SAVINGS' is a script defect.",
+    "createAccount is a POST with query parameters and no body.",
+    "D2 is about the createAccount response only; GET /accounts/{id} and the Accounts Overview show the correct 100.00, so AC-2, AC-3 and the second half of AC-4 must not be reported as deviations.",
+    "The Open New Account page fills the funding-account <select id='fromAccountId'> by XHR; clicking 'Open New Account' before the options load fails. Wait for the options / network idle.",
+    "Accounts Overview shows a negative balance as '-$34.50' and its 'Available Amount' as '$0.00'.",
+    "Opening deposit 100.00 and the initial 515.50 come from the admin 'Min. Balance' / 'Init. Balance' settings (defaults); a shared-sandbox user could change them — if the page text shows a different minimum, that is environment drift, not a deviation.",
+    "Account ids are not consecutive (other users create accounts concurrently); never predict an id."
+  ],
+  "expectations": [
+    "AC-1: types CHECKING and SAVINGS only, funding select lists the customer's accounts, the page text 'A minimum of $100.00 must be deposited into this account at time of opening. ...' (probed).",
+    "AC-2: 'Account Opened!', 'Congratulations, your account is now open.', 'Your new account number: <id>' link -> activity.htm?id=<id> shows Account Type SAVINGS, Balance $100.00 (probed).",
+    "AC-3: overview lists new account $100.00, funding account reduced by 100.00; REST accounts list agrees (probed).",
+    "AC-4: FAILS on the response balance (D2); status 200, id/customerId/type correct; GET /accounts/{id} correct.",
+    "AC-5: funding account Debit 100.00 'Funds Transfer Sent', new account Credit 100.00 'Funds Transfer Received' (probed).",
+    "AC-6: R1-R4 and R6-R9 met; R5 violated (D1)."
+  ]
+}

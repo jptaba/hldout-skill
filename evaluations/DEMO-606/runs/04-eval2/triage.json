@@ -1,0 +1,87 @@
+{
+  "key": "DEMO-606",
+  "run": "04-eval2",
+  "generatedAt": "2026-09-26T18:11:28.706Z",
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: Every notification uses approved copy",
+      "file": "DEMO-606/tests/demo-606.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/DEMO-606/runs/04-eval2/artifacts/DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/DEMO-606/runs/04-eval2/artifacts/DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/DEMO-606/runs/04-eval2/artifacts/DEMO-606-tests-demo-606-DE-cd7a9-fication-uses-approved-copy-chromium-retry1/error-context.md",
+        "snapshotExcerpt": "- generic [active] [ref=f12e1]:\n  - generic [ref=f12e4]:\n    - text:  Action successful\n    - link \"×\" [ref=f12e5] [cursor=pointer]:\n      - /url: \"#\"\n  - generic [ref=f12e6]:\n    - link \"Fork me on GitHub\":\n      - /url: https://github.com/tourdedave/the-internet\n      - img \"Fork me on GitHub\" [ref=f12e7] [cursor=pointer]\n    - generic [ref=f12e9]:\n      - heading \"Notification Message\" [level=3] [ref=f12e10]\n      - paragraph [ref=f12e11]:\n        - text: The message displayed above the heading is a notification message. It is often used to convey information about an action previously taken by the user. Some rudimentary examples include 'Action successful', 'Action unsuccessful, please try again', etc.\n        - link \"Click here\" [ref=f12e12] [cursor=pointer]:\n          - /url: /notification_message\n        - text: to load a new message.\n  - generic [ref=f12e14]:\n    - separator [ref=f12e15]\n    - generic [ref=f12e16]:\n      - text: Powered by\n      - link \"Elemental Selenium\" [ref=f12e17] [cursor=pointer]:\n        - /url: http://elementalselenium.com/\n"
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-1] only approved copy (seen: Action successful | Action unsuccesful, please try again)",
+        "reqTag": "AC-1",
+        "matcher": "toEqual",
+        "expected": "[Array []]",
+        "received": "[\"Action unsuccesful, please try again\"]",
+        "message": "Error: [REQ AC-1] only approved copy (seen: Action successful | Action unsuccesful, please try again)\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 3\n\n- Array []\n+ Array [\n+   \"Action unsuccesful, please try again\",\n+ ]\n\n  49 |     await journey.step('And every notification text is one of the approved messages', async () => {\n  50 |       const offCopy = [...new Set(s.texts.filter((t) => !(REQ.APPROVED as readonly string[]).includes(t)))];\n> 51 |       expect.soft(offCopy, `[REQ AC-1] only approved copy (seen: ${[...new Set(s.texts)].join(' | ')})`).toEqual([]);\n     |                                                                                                          ^\n  52 |     });\n  53 |   });\n  54 |\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:51:106)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-606\\tests\\demo-606.spec.ts:49:5"
+      },
+      "failingStep": "And every notification text is one of the approved messages",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Requirement assertion [REQ AC-1] failed on a located element.",
+          "Expected: [Array []]",
+          "Received: [\"Action unsuccesful, please try again\"]"
+        ],
+        "next": "Confirm live in the AUT (reproduce the steps, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Failure notification is misspelled ('unsuccesful')",
+        "rationale": "AC-1 / ux-copy.md: every notification must be approved copy. The failure outcome reads 'Action unsuccesful, please try again' (missing 'c') instead of the approved 'Action unsuccessful, please try again'. It is intermittent by design, because the server picks the outcome at random; sampling 12 clicks per run made it reproduce every time (3/3 stability repeats and the official run). The success copy is correct, and both outcomes occur (AC-2 passes).",
+        "evidence": "Live re-check on 2026-09-26 (tier 3): 20 clicks → 'Action successful' ×11, 'Action unsuccesful, please try again' ×9 (runs/04-eval2/confirm/sample-20.json)",
+        "confirmedAt": "2026-09-26T18:12:00.211Z"
+      }
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Both outcomes occur across repeated clicks",
+      "file": "DEMO-606/tests/demo-606.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:ui",
+        "@P3"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

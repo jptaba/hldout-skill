@@ -1,0 +1,671 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\projects\\hldout-skill\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "evaluations/DEMO-505/tests/",
+      "--workers",
+      "2"
+    ],
+    "configFile": "D:\\projects\\hldout-skill\\playwright.config.ts",
+    "rootDir": "D:/projects/hldout-skill/evaluations",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/projects/hldout-skill/evaluations/DEMO-505/runs/01-harden/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/projects/hldout-skill/evaluations",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\junit.xml"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "DEMO-505\\tests\\demo-505.spec.ts",
+      "file": "DEMO-505/tests/demo-505.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "DEMO-505 Practice portal — hovers, number input and notifications",
+          "file": "DEMO-505/tests/demo-505.spec.ts",
+          "line": 30,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SCN-001.1: Hovering an avatar reveals that user's caption (avatar 1)",
+              "ok": true,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19689,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Hovers page",
+                          "duration": 19439
+                        },
+                        {
+                          "title": "When I hover over avatar 1",
+                          "duration": 69
+                        },
+                        {
+                          "title": "Then I see \"name: user1\" and a \"View profile\" link",
+                          "duration": 29
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:05:10.075Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-hovers-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgSG92ZXJzIHBhZ2UKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-i-hover-over-avatar-1",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogV2hlbiBJIGhvdmVyIG92ZXIgYXZhdGFyIDEKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSAnaGVhZGluZyAibmFtZTogdXNlcjEiIFtsZXZlbD01XScKLSBsaW5rICJWaWV3IHByb2ZpbGUiOgogIC0gL3VybDogL3VzZXJzLzEKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-i-see-name-user1-and-a-view-profile-link",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogVGhlbiBJIHNlZSAibmFtZTogdXNlcjEiIGFuZCBhICJWaWV3IHByb2ZpbGUiIGxpbmsKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSAnaGVhZGluZyAibmFtZTogdXNlcjEiIFtsZXZlbD01XScKLSBsaW5rICJWaWV3IHByb2ZpbGUiOgogIC0gL3VybDogL3VzZXJzLzEKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45975f593f884c847a64-def2e780b5015ee71d40",
+              "file": "DEMO-505/tests/demo-505.spec.ts",
+              "line": 32,
+              "column": 5
+            },
+            {
+              "title": "SCN-001.2: Hovering an avatar reveals that user's caption (avatar 2)",
+              "ok": false,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 26062,
+                      "error": {
+                        "message": "Error: [REQ AC-1] \"View profile\" link for avatar 2\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(1)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 2 getByRole('link', { name: 'View profile' }).nth(1) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(1)\u001b[22m\n",
+                        "stack": "Error: [REQ AC-1] \"View profile\" link for avatar 2\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(1)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 2 getByRole('link', { name: 'View profile' }).nth(1) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(1)\u001b[22m\n\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:37:102\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:35:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                          "column": 102,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"name: user${n}\" and a \"View profile\" link`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcaption(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] caption for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mprofileLink(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] \"View profile\" link for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                            "column": 102,
+                            "line": 37
+                          },
+                          "message": "Error: [REQ AC-1] \"View profile\" link for avatar 2\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(1)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 2 getByRole('link', { name: 'View profile' }).nth(1) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(1)\u001b[22m\n\n\n  35 |       await journey.step(`Then I see \"name: user${n}\" and a \"View profile\" link`, async () => {\n  36 |         await expect.soft(ui(page).caption(n), `[REQ AC-1] caption for avatar ${n}`).toBeVisible();\n> 37 |         await expect.soft(ui(page).profileLink(n), `[REQ AC-1] \"View profile\" link for avatar ${n}`).toBeVisible();\n     |                                                                                                      ^\n  38 |       });\n  39 |     });\n  40 |   });\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:37:102\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:35:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Hovers page",
+                          "duration": 20771
+                        },
+                        {
+                          "title": "When I hover over avatar 2",
+                          "duration": 71
+                        },
+                        {
+                          "title": "Then I see \"name: user2\" and a \"View profile\" link",
+                          "duration": 5030,
+                          "error": {
+                            "message": "Error: [REQ AC-1] \"View profile\" link for avatar 2\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(1)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 2 getByRole('link', { name: 'View profile' }).nth(1) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(1)\u001b[22m\n",
+                            "stack": "Error: [REQ AC-1] \"View profile\" link for avatar 2\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(1)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 2 getByRole('link', { name: 'View profile' }).nth(1) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(1)\u001b[22m\n\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:37:102\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:35:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                              "column": 102,
+                              "line": 37
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"name: user${n}\" and a \"View profile\" link`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcaption(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] caption for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mprofileLink(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] \"View profile\" link for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:05:10.072Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-hovers-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgSG92ZXJzIHBhZ2UKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-i-hover-over-avatar-2",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogV2hlbiBJIGhvdmVyIG92ZXIgYXZhdGFyIDIKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotICdoZWFkaW5nICJuYW1lOiB1c2VyMiIgW2xldmVsPTVdJwotIGxpbmsgIlZpZXcgcHJvZmlsZSI6CiAgLSAvdXJsOiAvdXNlcnMvMgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-i-see-name-user2-and-a-view-profile-link",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogVGhlbiBJIHNlZSAibmFtZTogdXNlcjIiIGFuZCBhICJWaWV3IHByb2ZpbGUiIGxpbmsKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotICdoZWFkaW5nICJuYW1lOiB1c2VyMiIgW2xldmVsPTVdJwotIGxpbmsgIlZpZXcgcHJvZmlsZSI6CiAgLSAvdXJsOiAvdXNlcnMvMgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-7e614-at-user-s-caption-avatar-2--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-7e614-at-user-s-caption-avatar-2--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-7e614-at-user-s-caption-avatar-2--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                        "column": 102,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "45975f593f884c847a64-d0947ea2722c2232e691",
+              "file": "DEMO-505/tests/demo-505.spec.ts",
+              "line": 32,
+              "column": 5
+            },
+            {
+              "title": "SCN-001.3: Hovering an avatar reveals that user's caption (avatar 3)",
+              "ok": false,
+              "tags": [
+                "AC-1",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17392,
+                      "error": {
+                        "message": "Error: [REQ AC-1] \"View profile\" link for avatar 3\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(2)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 3 getByRole('link', { name: 'View profile' }).nth(2) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(2)\u001b[22m\n",
+                        "stack": "Error: [REQ AC-1] \"View profile\" link for avatar 3\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(2)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 3 getByRole('link', { name: 'View profile' }).nth(2) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(2)\u001b[22m\n\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:37:102\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:35:7",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                          "column": 102,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"name: user${n}\" and a \"View profile\" link`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcaption(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] caption for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mprofileLink(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] \"View profile\" link for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                            "column": 102,
+                            "line": 37
+                          },
+                          "message": "Error: [REQ AC-1] \"View profile\" link for avatar 3\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(2)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 3 getByRole('link', { name: 'View profile' }).nth(2) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(2)\u001b[22m\n\n\n  35 |       await journey.step(`Then I see \"name: user${n}\" and a \"View profile\" link`, async () => {\n  36 |         await expect.soft(ui(page).caption(n), `[REQ AC-1] caption for avatar ${n}`).toBeVisible();\n> 37 |         await expect.soft(ui(page).profileLink(n), `[REQ AC-1] \"View profile\" link for avatar ${n}`).toBeVisible();\n     |                                                                                                      ^\n  38 |       });\n  39 |     });\n  40 |   });\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:37:102\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:35:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Hovers page",
+                          "duration": 12151
+                        },
+                        {
+                          "title": "When I hover over avatar 3",
+                          "duration": 51
+                        },
+                        {
+                          "title": "Then I see \"name: user3\" and a \"View profile\" link",
+                          "duration": 5035,
+                          "error": {
+                            "message": "Error: [REQ AC-1] \"View profile\" link for avatar 3\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(2)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 3 getByRole('link', { name: 'View profile' }).nth(2) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(2)\u001b[22m\n",
+                            "stack": "Error: [REQ AC-1] \"View profile\" link for avatar 3\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'View profile' }).nth(2)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - [REQ AC-1] \"View profile\" link for avatar 3 getByRole('link', { name: 'View profile' }).nth(2) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'View profile' }).nth(2)\u001b[22m\n\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:37:102\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:28\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:35:7",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                              "column": 102,
+                              "line": 37
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m       \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m`Then I see \"name: user${n}\" and a \"View profile\" link`\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mcaption(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] caption for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39msoft(ui(page)\u001b[33m.\u001b[39mprofileLink(n)\u001b[33m,\u001b[39m \u001b[32m`[REQ AC-1] \"View profile\" link for avatar ${n}`\u001b[39m)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:05:29.896Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-hovers-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgSG92ZXJzIHBhZ2UKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-i-hover-over-avatar-3",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogV2hlbiBJIGhvdmVyIG92ZXIgYXZhdGFyIDMKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gJ2hlYWRpbmcgIm5hbWU6IHVzZXIzIiBbbGV2ZWw9NV0nCi0gbGluayAiVmlldyBwcm9maWxlIjoKICAtIC91cmw6IC91c2Vycy8zCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-i-see-name-user3-and-a-view-profile-link",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaG92ZXJzCiMgc3RlcDogVGhlbiBJIHNlZSAibmFtZTogdXNlcjMiIGFuZCBhICJWaWV3IHByb2ZpbGUiIGxpbmsKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSG92ZXJzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IEhvdmVyIG92ZXIgdGhlIGltYWdlIGZvciBhZGRpdGlvbmFsIGluZm9ybWF0aW9uCi0gaW1nICJVc2VyIEF2YXRhciIKLSBpbWcgIlVzZXIgQXZhdGFyIgotIGltZyAiVXNlciBBdmF0YXIiCi0gJ2hlYWRpbmcgIm5hbWU6IHVzZXIzIiBbbGV2ZWw9NV0nCi0gbGluayAiVmlldyBwcm9maWxlIjoKICAtIC91cmw6IC91c2Vycy8zCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-cd82f-at-user-s-caption-avatar-3--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-cd82f-at-user-s-caption-avatar-3--chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-cd82f-at-user-s-caption-avatar-3--chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                        "column": 102,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "45975f593f884c847a64-b4fcc96aa562a821497f",
+              "file": "DEMO-505/tests/demo-505.spec.ts",
+              "line": 32,
+              "column": 5
+            },
+            {
+              "title": "SCN-002: The number field accepts digits",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:functional",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1062,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Inputs page",
+                          "duration": 881
+                        },
+                        {
+                          "title": "When I type \"42\" into the number field",
+                          "duration": 24
+                        },
+                        {
+                          "title": "Then the field value is \"42\"",
+                          "duration": 20
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:05:38.116Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-inputs-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaW5wdXRzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgSW5wdXRzIHBhZ2UKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSW5wdXRzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IE51bWJlcgotIHNwaW5idXR0b24KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-i-type-42-into-the-number-field",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaW5wdXRzCiMgc3RlcDogV2hlbiBJIHR5cGUgIjQyIiBpbnRvIHRoZSBudW1iZXIgZmllbGQKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSW5wdXRzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IE51bWJlcgotIHNwaW5idXR0b246ICI0MiIKLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-the-field-value-is-42",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaW5wdXRzCiMgc3RlcDogVGhlbiB0aGUgZmllbGQgdmFsdWUgaXMgIjQyIgotIGxpbmsgIkZvcmsgbWUgb24gR2l0SHViIjoKICAtIC91cmw6IGh0dHBzOi8vZ2l0aHViLmNvbS90b3VyZGVkYXZlL3RoZS1pbnRlcm5ldAogIC0gaW1nICJGb3JrIG1lIG9uIEdpdEh1YiIKLSBoZWFkaW5nICJJbnB1dHMiIFtsZXZlbD0zXQotIHBhcmFncmFwaDogTnVtYmVyCi0gc3BpbmJ1dHRvbjogIjQyIgotIHNlcGFyYXRvcgotIHRleHQ6IFBvd2VyZWQgYnkKLSBsaW5rICJFbGVtZW50YWwgU2VsZW5pdW0iOgogIC0gL3VybDogaHR0cDovL2VsZW1lbnRhbHNlbGVuaXVtLmNvbS8K"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45975f593f884c847a64-8d4a2a90bb08f7f7cf90",
+              "file": "DEMO-505/tests/demo-505.spec.ts",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "SCN-003: The number field rejects non-numeric characters",
+              "ok": true,
+              "tags": [
+                "AC-2",
+                "type:negative",
+                "layer:ui",
+                "P2"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 920,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Inputs page",
+                          "duration": 806
+                        },
+                        {
+                          "title": "When I type \"abc\" into the number field",
+                          "duration": 20
+                        },
+                        {
+                          "title": "Then the field is empty",
+                          "duration": 11
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:05:39.295Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-inputs-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaW5wdXRzCiMgc3RlcDogR2l2ZW4gSSBhbSBvbiB0aGUgSW5wdXRzIHBhZ2UKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSW5wdXRzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IE51bWJlcgotIHNwaW5idXR0b24KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-i-type-abc-into-the-number-field",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaW5wdXRzCiMgc3RlcDogV2hlbiBJIHR5cGUgImFiYyIgaW50byB0aGUgbnVtYmVyIGZpZWxkCi0gbGluayAiRm9yayBtZSBvbiBHaXRIdWIiOgogIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3RvdXJkZWRhdmUvdGhlLWludGVybmV0CiAgLSBpbWcgIkZvcmsgbWUgb24gR2l0SHViIgotIGhlYWRpbmcgIklucHV0cyIgW2xldmVsPTNdCi0gcGFyYWdyYXBoOiBOdW1iZXIKLSBzcGluYnV0dG9uCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-then-the-field-is-empty",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vaW5wdXRzCiMgc3RlcDogVGhlbiB0aGUgZmllbGQgaXMgZW1wdHkKLSBsaW5rICJGb3JrIG1lIG9uIEdpdEh1YiI6CiAgLSAvdXJsOiBodHRwczovL2dpdGh1Yi5jb20vdG91cmRlZGF2ZS90aGUtaW50ZXJuZXQKICAtIGltZyAiRm9yayBtZSBvbiBHaXRIdWIiCi0gaGVhZGluZyAiSW5wdXRzIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6IE51bWJlcgotIHNwaW5idXR0b24KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45975f593f884c847a64-38da5155689f3a47fa94",
+              "file": "DEMO-505/tests/demo-505.spec.ts",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "SCN-004: Clicking \"Click here\" shows a notification",
+              "ok": false,
+              "tags": [
+                "AC-3",
+                "type:functional",
+                "layer:ui",
+                "P3"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 14323,
+                      "error": {
+                        "message": "Error: [REQ AC-3] exactly one notification\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] exactly one notification getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: [REQ AC-3] exactly one notification\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] exactly one notification getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:58:82)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:57:5",
+                        "location": {
+                          "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                          "column": 82,
+                          "line": 58
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click \"Click here\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mclickHere\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then exactly one non-empty notification is shown'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] exactly one notification'\u001b[39m)\u001b[33m.\u001b[39mtoHaveCount(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mNOTIFICATION_COUNT\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] notification is not empty'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[35m/\\w{3,}/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 61 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                            "column": 82,
+                            "line": 58
+                          },
+                          "message": "Error: [REQ AC-3] exactly one notification\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] exactly one notification getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  56 |     await journey.step('When I click \"Click here\"', async () => { await ui(page).clickHere.click(); });\n  57 |     await journey.step('Then exactly one non-empty notification is shown', async () => {\n> 58 |       await expect(ui(page).notification, '[REQ AC-3] exactly one notification').toHaveCount(REQ.NOTIFICATION_COUNT);\n     |                                                                                  ^\n  59 |       await expect(ui(page).notification, '[REQ AC-3] notification is not empty').toHaveText(/\\w{3,}/);\n  60 |     });\n  61 |   });\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:58:82)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:57:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given I am on the Notification Message page",
+                          "duration": 8924
+                        },
+                        {
+                          "title": "When I click \"Click here\"",
+                          "duration": 235
+                        },
+                        {
+                          "title": "Then exactly one non-empty notification is shown",
+                          "duration": 5020,
+                          "error": {
+                            "message": "Error: [REQ AC-3] exactly one notification\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] exactly one notification getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                            "stack": "Error: [REQ AC-3] exactly one notification\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - [REQ AC-3] exactly one notification getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at body (D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:58:82)\n    at D:\\projects\\hldout-skill\\heldout-support\\fixtures.ts:289:34\n    at D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts:57:5",
+                            "location": {
+                              "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                              "column": 82,
+                              "line": 58
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'When I click \"Click here\"'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m { \u001b[36mawait\u001b[39m ui(page)\u001b[33m.\u001b[39mclickHere\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m journey\u001b[33m.\u001b[39mstep(\u001b[32m'Then exactly one non-empty notification is shown'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] exactly one notification'\u001b[39m)\u001b[33m.\u001b[39mtoHaveCount(\u001b[33mREQ\u001b[39m\u001b[33m.\u001b[39m\u001b[33mNOTIFICATION_COUNT\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mawait\u001b[39m expect(ui(page)\u001b[33m.\u001b[39mnotification\u001b[33m,\u001b[39m \u001b[32m'[REQ AC-3] notification is not empty'\u001b[39m)\u001b[33m.\u001b[39mtoHaveText(\u001b[35m/\\w{3,}/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 61 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-09-26T18:05:40.225Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "aria-snapshot 01-given-i-am-on-the-notification-message-page",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBHaXZlbiBJIGFtIG9uIHRoZSBOb3RpZmljYXRpb24gTWVzc2FnZSBwYWdlCi0gbGluayAiRm9yayBtZSBvbiBHaXRIdWIiOgogIC0gL3VybDogaHR0cHM6Ly9naXRodWIuY29tL3RvdXJkZWRhdmUvdGhlLWludGVybmV0CiAgLSBpbWcgIkZvcmsgbWUgb24gR2l0SHViIgotIGhlYWRpbmcgIk5vdGlmaWNhdGlvbiBNZXNzYWdlIiBbbGV2ZWw9M10KLSBwYXJhZ3JhcGg6CiAgLSB0ZXh0OiBUaGUgbWVzc2FnZSBkaXNwbGF5ZWQgYWJvdmUgdGhlIGhlYWRpbmcgaXMgYSBub3RpZmljYXRpb24gbWVzc2FnZS4gSXQgaXMgb2Z0ZW4gdXNlZCB0byBjb252ZXkgaW5mb3JtYXRpb24gYWJvdXQgYW4gYWN0aW9uIHByZXZpb3VzbHkgdGFrZW4gYnkgdGhlIHVzZXIuIFNvbWUgcnVkaW1lbnRhcnkgZXhhbXBsZXMgaW5jbHVkZSAnQWN0aW9uIHN1Y2Nlc3NmdWwnLCAnQWN0aW9uIHVuc3VjY2Vzc2Z1bCwgcGxlYXNlIHRyeSBhZ2FpbicsIGV0Yy4KICAtIGxpbmsgIkNsaWNrIGhlcmUiOgogICAgLSAvdXJsOiAvbm90aWZpY2F0aW9uX21lc3NhZ2UKICAtIHRleHQ6IHRvIGxvYWQgYSBuZXcgbWVzc2FnZS4KLSBzZXBhcmF0b3IKLSB0ZXh0OiBQb3dlcmVkIGJ5Ci0gbGluayAiRWxlbWVudGFsIFNlbGVuaXVtIjoKICAtIC91cmw6IGh0dHA6Ly9lbGVtZW50YWxzZWxlbml1bS5jb20vCg=="
+                        },
+                        {
+                          "name": "aria-snapshot 02-when-i-click-click-here",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBXaGVuIEkgY2xpY2sgIkNsaWNrIGhlcmUiCi0gdGV4dDog74GqIEFjdGlvbiB1bnN1Y2Nlc2Z1bCwgcGxlYXNlIHRyeSBhZ2FpbgotIGxpbmsgIsOXIjoKICAtIC91cmw6ICIjIgotIGxpbmsgIkZvcmsgbWUgb24gR2l0SHViIjoKICAtIC91cmw6IGh0dHBzOi8vZ2l0aHViLmNvbS90b3VyZGVkYXZlL3RoZS1pbnRlcm5ldAogIC0gaW1nICJGb3JrIG1lIG9uIEdpdEh1YiIKLSBoZWFkaW5nICJOb3RpZmljYXRpb24gTWVzc2FnZSIgW2xldmVsPTNdCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogVGhlIG1lc3NhZ2UgZGlzcGxheWVkIGFib3ZlIHRoZSBoZWFkaW5nIGlzIGEgbm90aWZpY2F0aW9uIG1lc3NhZ2UuIEl0IGlzIG9mdGVuIHVzZWQgdG8gY29udmV5IGluZm9ybWF0aW9uIGFib3V0IGFuIGFjdGlvbiBwcmV2aW91c2x5IHRha2VuIGJ5IHRoZSB1c2VyLiBTb21lIHJ1ZGltZW50YXJ5IGV4YW1wbGVzIGluY2x1ZGUgJ0FjdGlvbiBzdWNjZXNzZnVsJywgJ0FjdGlvbiB1bnN1Y2Nlc3NmdWwsIHBsZWFzZSB0cnkgYWdhaW4nLCBldGMuCiAgLSBsaW5rICJDbGljayBoZXJlIjoKICAgIC0gL3VybDogL25vdGlmaWNhdGlvbl9tZXNzYWdlCiAgLSB0ZXh0OiB0byBsb2FkIGEgbmV3IG1lc3NhZ2UuCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "aria-snapshot 03-failed-then-exactly-one-non-empty-notification-is-shown",
+                          "contentType": "text/yaml",
+                          "body": "IyB1cmw6IGh0dHBzOi8vdGhlLWludGVybmV0Lmhlcm9rdWFwcC5jb20vbm90aWZpY2F0aW9uX21lc3NhZ2VfcmVuZGVyZWQKIyBzdGVwOiBGQUlMRUQgVGhlbiBleGFjdGx5IG9uZSBub24tZW1wdHkgbm90aWZpY2F0aW9uIGlzIHNob3duCi0gdGV4dDog74GqIEFjdGlvbiB1bnN1Y2Nlc2Z1bCwgcGxlYXNlIHRyeSBhZ2FpbgotIGxpbmsgIsOXIjoKICAtIC91cmw6ICIjIgotIGxpbmsgIkZvcmsgbWUgb24gR2l0SHViIjoKICAtIC91cmw6IGh0dHBzOi8vZ2l0aHViLmNvbS90b3VyZGVkYXZlL3RoZS1pbnRlcm5ldAogIC0gaW1nICJGb3JrIG1lIG9uIEdpdEh1YiIKLSBoZWFkaW5nICJOb3RpZmljYXRpb24gTWVzc2FnZSIgW2xldmVsPTNdCi0gcGFyYWdyYXBoOgogIC0gdGV4dDogVGhlIG1lc3NhZ2UgZGlzcGxheWVkIGFib3ZlIHRoZSBoZWFkaW5nIGlzIGEgbm90aWZpY2F0aW9uIG1lc3NhZ2UuIEl0IGlzIG9mdGVuIHVzZWQgdG8gY29udmV5IGluZm9ybWF0aW9uIGFib3V0IGFuIGFjdGlvbiBwcmV2aW91c2x5IHRha2VuIGJ5IHRoZSB1c2VyLiBTb21lIHJ1ZGltZW50YXJ5IGV4YW1wbGVzIGluY2x1ZGUgJ0FjdGlvbiBzdWNjZXNzZnVsJywgJ0FjdGlvbiB1bnN1Y2Nlc3NmdWwsIHBsZWFzZSB0cnkgYWdhaW4nLCBldGMuCiAgLSBsaW5rICJDbGljayBoZXJlIjoKICAgIC0gL3VybDogL25vdGlmaWNhdGlvbl9tZXNzYWdlCiAgLSB0ZXh0OiB0byBsb2FkIGEgbmV3IG1lc3NhZ2UuCi0gc2VwYXJhdG9yCi0gdGV4dDogUG93ZXJlZCBieQotIGxpbmsgIkVsZW1lbnRhbCBTZWxlbml1bSI6CiAgLSAvdXJsOiBodHRwOi8vZWxlbWVudGFsc2VsZW5pdW0uY29tLwo="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-18acb-k-here-shows-a-notification-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-18acb-k-here-shows-a-notification-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\runs\\01-harden\\artifacts\\DEMO-505-tests-demo-505-DE-18acb-k-here-shows-a-notification-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\projects\\hldout-skill\\evaluations\\DEMO-505\\tests\\demo-505.spec.ts",
+                        "column": 82,
+                        "line": 58
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "45975f593f884c847a64-822cc8ad0bbf1d959777",
+              "file": "DEMO-505/tests/demo-505.spec.ts",
+              "line": 54,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-26T18:05:09.285Z",
+    "duration": 46577.731,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

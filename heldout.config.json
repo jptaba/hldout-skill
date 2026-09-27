@@ -1,0 +1,123 @@
+{
+  "defaultAut": "swag-labs",
+  "auts": {
+    "swag-labs": {
+      "name": "Swag Labs (saucedemo.com demo shop)",
+      "baseURL": "https://www.saucedemo.com",
+      "testIdAttribute": "data-test",
+      "healthcheck": [
+        "/"
+      ],
+      "notes": "UI only. Public demo credentials are shown on its login page."
+    },
+    "shady-meadows": {
+      "name": "Shady Meadows B&B (Restful Booker Platform demo)",
+      "baseURL": "https://automationintesting.online",
+      "apiBaseURL": "https://automationintesting.online",
+      "testIdAttribute": "data-testid",
+      "healthcheck": [
+        "/",
+        "api:/api/room"
+      ],
+      "notes": "UI + JSON API. Shared public sandbox: data is reset periodically and other people write to it."
+    },
+    "restful-booker": {
+      "name": "Restful Booker (booking API demo)",
+      "baseURL": "https://restful-booker.herokuapp.com",
+      "apiBaseURL": "https://restful-booker.herokuapp.com",
+      "testIdAttribute": "data-testid",
+      "healthcheck": [
+        "api:/ping"
+      ],
+      "notes": "API only. Shared public sandbox, data resets periodically."
+    },
+    "the-internet": {
+      "name": "The Internet (UI test playground)",
+      "baseURL": "https://the-internet.herokuapp.com",
+      "apiBaseURL": "https://the-internet.herokuapp.com",
+      "testIdAttribute": "data-test",
+      "healthcheck": [
+        "/"
+      ],
+      "notes": "UI only. Some pages load slow third-party assets: the load event can hang."
+    },
+    "conduit": {
+      "name": "Conduit (RealWorld demo, Angular + JSON API)",
+      "baseURL": "https://conduit.bondaracademy.com",
+      "apiBaseURL": "https://conduit-api.bondaracademy.com",
+      "testIdAttribute": "data-testid",
+      "healthcheck": [
+        "/",
+        "api:/api/tags"
+      ],
+      "notes": "UI (Angular SPA) + JSON API with JWT (Authorization: Token <jwt>). Shared sandbox: list/comment visibility is scoped per user. Users cannot be deleted via the API."
+    },
+    "toolshop": {
+      "name": "Toolshop (practicesoftwaretesting.com, Angular + Laravel API)",
+      "baseURL": "https://practicesoftwaretesting.com",
+      "apiBaseURL": "https://api.practicesoftwaretesting.com",
+      "testIdAttribute": "data-test",
+      "healthcheck": [
+        "/",
+        "api:/products"
+      ]
+    },
+    "toolshop-rc": {
+      "name": "Toolshop release candidate (with-bugs build)",
+      "baseURL": "https://with-bugs.practicesoftwaretesting.com",
+      "apiBaseURL": "https://api-with-bugs.practicesoftwaretesting.com",
+      "testIdAttribute": "data-test",
+      "healthcheck": [
+        "/",
+        "api:/products"
+      ]
+    },
+    "contact-list": {
+      "name": "Contact List App (thinking-tester, UI + REST API)",
+      "baseURL": "https://thinking-tester-contact-list.herokuapp.com",
+      "apiBaseURL": "https://thinking-tester-contact-list.herokuapp.com",
+      "testIdAttribute": "data-testid",
+      "healthcheck": [
+        "/"
+      ]
+    },
+    "juice-shop": {
+      "name": "OWASP Juice Shop (public demo)",
+      "baseURL": "https://demo.owasp-juice.shop",
+      "apiBaseURL": "https://demo.owasp-juice.shop",
+      "testIdAttribute": "id",
+      "healthcheck": [
+        "/",
+        "api:/api/Products"
+      ],
+      "notes": "Angular SPA (hash routes) + REST API on the same origin; JWT Bearer. Shared demo, may be reset at any time."
+    },
+    "automation-exercise": {
+      "name": "Automation Exercise (demo shop + practice API)",
+      "baseURL": "https://automationexercise.com",
+      "apiBaseURL": "https://automationexercise.com",
+      "testIdAttribute": "data-qa",
+      "healthcheck": [
+        "/",
+        "api:/api/productsList"
+      ],
+      "notes": "UI + form-encoded API under /api. Third-party ads and consent overlays on the UI."
+    }
+  },
+  "jira": {
+    "mode": "mock",
+    "mockRoot": "mock-jira",
+    "baseUrl": "https://your-domain.atlassian.net",
+    "acceptanceCriteriaField": "customfield_10035",
+    "verdictLabelPrefix": "heldout-"
+  },
+  "evaluationsDir": "evaluations",
+  "run": {
+    "retries": 1,
+    "workers": 4,
+    "headless": true,
+    "actionTimeoutMs": 10000,
+    "expectTimeoutMs": 5000,
+    "testTimeoutMs": 60000
+  }
+}
