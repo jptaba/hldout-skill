@@ -1,11 +1,11 @@
 {
   "status": "PRESERVED",
-  "checkedAt": "2026-09-27T22:03:19.197Z",
+  "checkedAt": "2026-09-27T06:03:44.351Z",
   "files": [
     {
       "file": "pb-1.spec.ts",
-      "draftAssertions": 46,
-      "currentAssertions": 46
+      "draftAssertions": 42,
+      "currentAssertions": 42
     }
   ],
   "removed": [],

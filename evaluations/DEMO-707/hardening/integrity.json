@@ -1,11 +1,11 @@
 {
-  "status": "VIOLATED",
-  "checkedAt": "2026-09-27T22:03:14.397Z",
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-26T19:12:31.250Z",
   "files": [
     {
       "file": "demo-707.spec.ts",
-      "draftAssertions": 47,
-      "currentAssertions": 47
+      "draftAssertions": 46,
+      "currentAssertions": 46
     }
   ],
   "removed": [],
@@ -13,6 +13,5 @@
   "amended": [],
   "added": [],
   "constantsChanged": [],
-  "unhardenedMarkers": [],
-  "contractChanged": true
+  "unhardenedMarkers": []
 }

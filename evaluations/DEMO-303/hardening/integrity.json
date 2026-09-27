@@ -1,6 +1,6 @@
 {
-  "status": "VIOLATED",
-  "checkedAt": "2026-09-27T22:03:09.610Z",
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-26T18:13:52.740Z",
   "files": [
     {
       "file": "demo-303.spec.ts",
@@ -13,6 +13,5 @@
   "amended": [],
   "added": [],
   "constantsChanged": [],
-  "unhardenedMarkers": [],
-  "contractChanged": true
+  "unhardenedMarkers": []
 }
