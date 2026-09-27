@@ -65,6 +65,11 @@ main(async () => {
     else { writeFile(file, `${JSON.stringify(contract, null, 2)}\n`); console.log(`✔ empty contract bound to this requirement revision → ${rel(file)}`); }
     console.log(`✔ evidence pack → ${rel(packFile)} (${contract.sourcesRead.length} source(s)${untranscribed.length ? `; ${untranscribed.length} non-text attachment(s) to transcribe first` : binaries.length ? `; ${binaries.length} transcript(s)` : ''})`);
     console.log('\nNext:');
+    if (untranscribed.length) {
+      console.log('  0. Transcribe each non-text attachment (open it with the Read tool; write everything it states, no interpretation):');
+      for (const b of untranscribed) console.log(`     ${rel(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`))}   first line: transcribedFrom: attachments/${path.basename(b)}`);
+      console.log(`     then run heldout contract ${key} --pack again so its lines are numbered (the extractor subagent can do this as its first step)`);
+    }
     console.log(`  1. Build the contract from the evidence pack — delegate to the heldout-contract-extractor subagent, or follow ${rel(path.join(SKILL_DIR, 'references', 'requirement-contract.md'))}`);
     console.log(`  2. heldout contract ${key}                  (anchoring, coverage, grounded literals)`);
     console.log(`  3. Independent review — the heldout-contract-reviewer subagent writes ${REVIEW_FILE}; then re-run step 2`);

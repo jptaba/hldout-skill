@@ -99,7 +99,58 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 | — | Jira Cloud adapter against a fake Jira REST server | ✅ `tests/jira-cloud.test.ts` |
 | — | Real rate-limiting WAF (Cloudflare 1015 on ParaBank), AUT restart (502), database reset | ✅ handled as ENVIRONMENT after fix #8; no false defects |
 
-## 5. Limitations and honest caveats
+## 5. Onboarding, end to end, until smooth
+
+After the blind round, the whole journey was repeated from an empty folder five times. Each round installed the skill
+the way a team would, from a git repository with no GitHub-specific steps. It then went through `init`, `doctor`, the
+story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the verdict and publishing. Every
+hiccup was fixed in the skill before the next round.
+
+| Round | Story (AUT) | Path exercised | Result | Skill hiccups found |
+| --- | --- | --- | --- | --- |
+| 1 | DQ-2 (DemoQA) | first onboarding, accounts created by the tests | ✅ PASS, 21/21 | 12 |
+| 2 | DQ-2 (DemoQA) | install from a git clone, skill update, accounts recipe | ✅ 21/21 (PASS WITH WARNINGS: one open question touching two ACs) | 9 |
+| 3 | AE-1 (Automation Exercise) | second application, ad-heavy, PO comment, `@needs-clarification` | ✅ PASS WITH WARNINGS (as the key) | 8 |
+| 4 | DQ-3 (DemoQA) | the FAIL path: defects, audited amendments, grouped confirmation | ✅ FAIL, 2/2 defects (as the key) | 2 bugs, 2 wording |
+| 5 | AE-3 (Automation Exercise) | an image mock-up transcribed into the contract, review → fix → re-review | ✅ 14/14 (PASS WITH WARNINGS: invalid-e-mail question) | 1 hint |
+
+**What changed for the people using it:**
+- **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
+  copies the skill into the project. Running it again after a pull updates the skill and refreshes the template copies
+  the project hasn't changed. `doctor` shows the installed version and the exact update command. `--ci` writes a
+  GitLab CI job (GitHub Actions for a GitHub remote).
+- **The app profile fills itself in.** `init` visits the app once and records its id (from the host) and its name (from
+  the page title). It also finds the test-id attribute, including on pages linked from the navigation, and blocks the
+  ad and analytics networks the pages load.
+- **Test users need no code.** The AUT profile's accounts recipe covers creating, signing in and deleting a user, and
+  signing in through the UI. It's written once, from the API probe already made while hardening
+  (`heldout accounts --from-chain`), and checked live by `doctor`. After that, `seed.account()` and `signIn()` work in
+  every story on that app. `heldout secret NAME --generate` writes a strong test password to `.env` without showing it.
+- **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
+  exact file name, and questions for the owner.
+- **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports
+  `expectResponse` for API checks. `triage --set SCN-007` confirms every failing row of an outline with one decision.
+- **Quieter, faster runs.** Under Claude Code, a run prints a digest (one line per failing test) and keeps the full
+  output in the run folder. Cleanup reuses tokens (DQ-2: 88 s → 67 s). Dropped connections on preconditions are
+  retried.
+
+**Integrity and correctness bugs found by these rounds (fixed, with tests):**
+- **Assertions the integrity freeze never saw.** `[REQ]` messages containing a different kind of quote
+  (`` `[REQ AC-7] "${link}" …` ``) were never frozen. Neither were assertions inside a spec's own helper. The freeze now
+  reads both kinds of quote, `expectResponse()` is frozen, and lint flags messages built from a variable. A re-check of
+  every evaluation found no hidden changes.
+- **Other freeze and lint gaps.** Integrity blocked adding a timeout to a matcher, and a draft that didn't compile
+  could be frozen. Lint now type-checks the story's specs, and freezing refuses a draft that doesn't compile.
+- **A cleanup that answered 401 was recorded as done.** Leftover data went unreported.
+- **Verdict and triage rules:**
+  - A confirmed failure of a `@needs-clarification` scenario is now a question for the owner, not a defect.
+  - Triage had cited the wrong API call for a precondition that got no answer.
+- **CI.** The CI template's verdict step was rejected by the command dispatcher (`--exit-code`); a test now checks
+  every documented flag.
+- **Secrets.** Two test passwords were found in pushed files: a unit-test fixture and an answer key. Both are replaced,
+  and `doctor` now fails when any `.env` secret value is in a file git would commit.
+
+## 6. Limitations and honest caveats
 
 1. **Same model family throughout.** The authors, contract builders, reviewers and evaluators were separate agents,
    and the evaluators never saw the answer keys. All of them were Claude models, though, so shared blind spots are possible.
@@ -115,13 +166,14 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 6. **Still open:**
    - verdict reproduction steps show Scenario Outline placeholders instead of row values;
    - `scaffold` doesn't regenerate stubs from an existing feature;
-   - `lint` doesn't type-check specs;
    - API-only tests still start a browser;
    - there is no pattern for apps whose data can only be seeded through the UI.
 
-## 6. Recommended next steps
+## 7. Recommended next steps
 
 1. Run the remaining authored stories (PB-4, JS-1, JS-2) blind, to widen the sample.
 2. Exercise the interactive path: answer oracle gaps with `AskUserQuestion` in a live session.
 3. Point the skill at an AUT you own, with a dedicated environment and a seeding/reset API. That removes the
    sandbox noise that cost the most time here.
+4. The two leaked test passwords are still in the git history of the public repository: change them, and rewrite the
+   history before the move to the internal GitLab if the old commits go with it.
