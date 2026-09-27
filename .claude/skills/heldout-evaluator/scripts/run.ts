@@ -149,7 +149,13 @@ main(async () => {
   if (!produced) throw new Error(`Playwright produced no results.json (exit ${res.status}). Check config / environment.`);
   console.log(`\n■ ${runName}: passed ${stats!.expected}, failed ${stats!.unexpected}, flaky ${stats!.flaky}, skipped ${stats!.skipped} (${Math.round(stats!.duration / 1000)} s)`);
   if (quiet) {
-    for (const f of failedTests(readJson<unknown>(resultsFile))) console.log(`  ${f.flaky ? '≈' : '✖'} ${f.title}\n      ${f.error}`);
+    // Repeats of one test with the same error are one line with a count.
+    const lines = new Map<string, number>();
+    for (const f of failedTests(readJson<unknown>(resultsFile))) {
+      const line = `  ${f.flaky ? '≈' : '✖'} ${f.title}\n      ${f.error}`;
+      lines.set(line, (lines.get(line) ?? 0) + 1);
+    }
+    for (const [line, n] of lines) console.log(n > 1 ? line.replace('\n', ` (×${n})\n`) : line);
     console.log(`  full output: ${rel(path.join(runDir, 'console.log'))}`);
   }
   console.log(`  run dir: ${rel(runDir)}`);

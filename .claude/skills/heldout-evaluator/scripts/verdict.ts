@@ -95,7 +95,15 @@ main(() => {
     const ids = q.match(/\bG\d+\b/g) ?? [];
     return ids.length > 0 && ids.every((id) => contract.gaps.some((g) => g.id === id && g.kind === 'oracle' && !g.required && !g.affects.length));
   };
-  const blockingQuestions = feature.openQuestions.filter((q) => !informational(q));
+  // A question a @needs-clarification scenario tests (its literal reading) is not "untested".
+  const testedLiterally = (q: string) => {
+    const ids = q.match(/\bG\d+\b/g) ?? [];
+    return ids.length > 0 && ids.every((id) => {
+      const g = contract.gaps.find((x) => x.id === id);
+      return g && feature.scenarios.some((s) => s.needsClarification && s.acs.some((a) => g.affects.includes(a)));
+    });
+  };
+  const blockingQuestions = feature.openQuestions.filter((q) => !informational(q) && !testedLiterally(q));
   const infoQuestions = feature.openQuestions.filter(informational);
   const { verdict, reason } = decideVerdict({
     integrity: integrity.status,
@@ -294,7 +302,8 @@ main(() => {
         '| Gap | Missing element | Kind | Affects | Resolution |', '| --- | --- | --- | --- | --- |',
         ...contractGaps.map((g) => `| ${g.id} | ${esc(g.element)} | ${g.kind === 'oracle' ? 'expected behaviour' : 'how to exercise'} | ${g.affects.join(', ')} | ${how[g.resolution] ?? g.resolution}${g.value ? `: ${esc(g.value)}` : ''} |`), '');
     }
-    if (blockingQuestions.length) md.push('**Open questions for the PO** (untested unless a scenario needing clarification below covers it):', '', ...blockingQuestions.map((q) => `- ❓ ${q}`), '');
+    const poQuestions = feature.openQuestions.filter((q) => !informational(q));
+    if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${testedLiterally(q) ? ' _(its literal reading is tested: see the scenarios needing clarification)_' : ' _(not tested)_'}`), '');
     if (infoQuestions.length) md.push('**For the owner\'s information** (about things no acceptance criterion requires; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
     if (clarifications.length) md.push('**Scenarios needing clarification:**', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');
