@@ -67,12 +67,14 @@ Everything goes through one entry point: `npm run heldout -- <command>`. `npm ru
 
 | Command | Purpose |
 | --- | --- |
-| `init`, `add-aut`, `doctor`, `status [KEY]` | set up, check the setup, see where each story is and the next step |
+| `init`, `add-aut`, `doctor`, `status [KEY]` | set up (and update the skill), check the setup, see where each story is and the next step |
+| `secret NAME --generate` | a strong random test password written to `.env`, never shown |
 | `new KEY --from story.md [--attach f] [--ac-from f] [--comment-from f]` | write a story into the mock Jira |
 | `fetch KEY [--aut id]` | story, attachments and comments; binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | feature header and test stubs generated from the contract |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
+| `accounts --from-chain chain.json` · `accounts --check` | save how to make a test user on this app (from the probe you already ran), check it live |
 | `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira Cloud) · TypeScript |
 

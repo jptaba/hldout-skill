@@ -132,7 +132,7 @@ main(() => {
     ` * Held-out acceptance tests for ${key} — "${c.title}".`,
     ` * Written from evaluations/${key}/scenarios.feature (requirement + attachments only; never from the AUT's code).`,
     ' */',
-    `import { test, expect${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
+    `import { test, expect${c.endpoints.length ? ', expectResponse' : ''}${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
     ...(accounts ? [
       '',
       `// Accounts: \`const me = await seed.account()\` makes a test user on ${cfg.aut.name} (the profile's recipe; deleted after the test).`,
@@ -154,14 +154,14 @@ main(() => {
     `test.describe('${key} ${c.title.replace(/'/g, "\\'")}', () => {`,
     ...c.acceptanceCriteria.flatMap((ac, i) => [
       `  test('SCN-${String(i + 1).padStart(3, '0')}: ${shortTitle(ac).replace(/'/g, "\\'")}', { tag: ['@${ac.id}', '@layer:${ac.layer}'] }, async ({ ${ac.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`,
-      '    // TODO(scenario) one journey.step per Gherkin line; seed preconditions with seed.*; assert with "[REQ ' + ac.id + '] …" messages',
+      `    // TODO(scenario) one journey.step per Gherkin line; seed preconditions with seed.*; assert with "[REQ ${ac.id}] …" messages${ac.layer !== 'ui' && c.endpoints.length ? ` (API answers: expectResponse(res, { status, body }, '[REQ ${ac.id}] <METHOD /path> …'))` : ''}`,
       '  });',
       '',
     ]),
     '});',
     '',
     '// Unused until the stubs are implemented:',
-    `void [EP, REQ, checkShape${accounts && hasUi ? ', signIn' : ''}] as unknown as [Api, ApiResponse, Seed, TestData${accounts ? ', Account' : ''}];`,
+    `void [EP, REQ, checkShape${c.endpoints.length ? ', expectResponse' : ''}${accounts && hasUi ? ', signIn' : ''}] as unknown as [Api, ApiResponse, Seed, TestData${accounts ? ', Account' : ''}];`,
     '',
   ].join('\n');
   writeFile(specFile, spec);
