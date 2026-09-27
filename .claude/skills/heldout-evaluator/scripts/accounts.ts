@@ -11,7 +11,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, evalPaths, flagStr, loadConfig, main, parseArgs, rel } from './lib/config';
+import { ROOT, evalPaths, flagStr, loadConfig, main, parseArgs, rel, unmangleMsysPath } from './lib/config';
 import { checkAccountRecipe, recipeFromChain } from './lib/accounts';
 
 main(async () => {
@@ -28,7 +28,7 @@ main(async () => {
       : flagStr(flags, 'sign-in-json') ? JSON.parse(flagStr(flags, 'sign-in-json')!) : undefined;
     if (signInSteps && !flagStr(flags, 'sign-in-path')) throw new Error('--sign-in-path is required with sign-in steps (the page the sign-in starts on, e.g. /login)');
     const recipe = recipeFromChain(JSON.parse(fs.readFileSync(find(chainFile), 'utf8')),
-      signInSteps ? { path: flagStr(flags, 'sign-in-path')!, steps: signInSteps, done: flagStr(flags, 'sign-in-done') } : undefined);
+      signInSteps ? { path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') } : undefined);
     const raw = JSON.parse(fs.readFileSync(configFile, 'utf8'));
     raw.auts[cfg.autId].accounts = { ...(raw.auts[cfg.autId].accounts ?? {}), ...recipe };
     fs.writeFileSync(configFile, `${JSON.stringify(raw, null, 2)}\n`);

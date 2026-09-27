@@ -87,3 +87,21 @@ describe('contract oracle in the frozen draft', () => {
     assert.equal(r.contractChanged, true);
   });
 });
+
+describe('expectResponse assertions', () => {
+  const API = `
+test('SCN-002: b', async () => {
+  const res = await api.post('/books', { data: {} });
+  expectResponse(res, { status: 400, body: { code: '1210', message: 'already present' } }, '[REQ AC-8] POST /books duplicate');
+});
+`;
+  it('are frozen: the expected status and body are the oracle, the response variable is mechanics', () => {
+    assert.deepEqual([...reqAssertions(API).keys()], ['[REQ AC-8] POST /books duplicate']);
+    const renamed = workspace(API, API.replace('const res =', 'const answer =').replace('expectResponse(res,', 'expectResponse(answer,'));
+    assert.equal(checkIntegrity(path.join(renamed, 'tests'), path.join(renamed, 'draft'), undefined, ORACLE).status, 'PRESERVED');
+    const weakened = workspace(API, API.replace('status: 400', 'status: 200'));
+    assert.equal(checkIntegrity(path.join(weakened, 'tests'), path.join(weakened, 'draft'), undefined, ORACLE).status, 'VIOLATED');
+    const dropped = workspace(API, API.replace(", body: { code: '1210', message: 'already present' }", ''));
+    assert.equal(checkIntegrity(path.join(dropped, 'tests'), path.join(dropped, 'draft'), undefined, ORACLE).status, 'VIOLATED');
+  });
+});

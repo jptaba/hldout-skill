@@ -116,13 +116,19 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const givens = (steps: string[]) => { const out: string[] = []; let inGiven = false; for (const st of steps) { if (/^Given\b/.test(st)) inGiven = true; else if (/^(When|Then)\b/.test(st)) inGiven = false; if (inGiven && /^(Given|And|But)\b/.test(st)) out.push(st); } return out; };
   const needsData = f.scenarios.filter((x) => givens([...f.background, ...x.steps]).some((st) => /\b(exists?|created|signed in|have added|know (the|an) id|registered)\b/i.test(st)));
   // Lookups ("I know the id of …") are satisfied by seed.step; data by seed.create/track; auth by seed.once.
-  if (needsData.length && !/\bseed\.(create|track|step|once|until)\(/.test(src)) {
+  if (needsData.length && !/\bseed\.(create|track|step|once|until|account)\(/.test(src)) {
     warn('no-seeding', `${needsData.length} scenario(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but the spec never uses seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
   }
 
+  // An assertion whose message starts from a variable (a local helper building "[REQ …]") is invisible to the integrity
+  // freeze: its expected value could change unnoticed. expectResponse() or a literal message keeps it frozen.
+  const hidden = [...src.matchAll(/expect(?:\.soft)?\([^;]*?,\s*`\$\{/g)].length;
+  if (hidden) warn('req-message-not-literal', `${hidden} assertion(s) take their message from a variable (e.g. a helper that builds "[REQ …]"), so the integrity freeze can't see them — use expectResponse(res, { status, body }, '[REQ AC-n] …') for API answers, or write the [REQ] message literally`);
+
   for (const ep of f.endpoints) {
     const prefix = ep.path.split(/[{:]/)[0].replace(/\/+$/, '');
-    if (prefix && !src.includes(prefix)) warn('endpoint-unused', `Declared endpoint ${ep.method} ${ep.path} is not referenced by any test`);
+    // The profile's accounts recipe calls endpoints on the tests' behalf (seed.account()).
+    if (prefix && !src.includes(prefix) && !JSON.stringify(cfg.aut.accounts ?? {}).includes(prefix)) warn('endpoint-unused', `Declared endpoint ${ep.method} ${ep.path} is not referenced by any test`);
   }
 
   if (fs.existsSync(p.testData)) {

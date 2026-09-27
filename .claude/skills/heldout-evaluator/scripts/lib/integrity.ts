@@ -61,6 +61,9 @@ export function reqAssertions(source: string): Map<string, string> {
   // earlier non-REQ expect( would swallow unrelated code up to the next [REQ …] message.
   const plain = /expect(?:\.soft)?\(\s*([^;]*?),\s*(['"`])(\[REQ [^\]]+\][^'"`]*)\2\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
   for (const m of source.matchAll(plain)) add(m[3], m[1], m[4]);
+  // expectResponse(res, { status, body }, '[REQ …]') from the fixtures: the expected status and body are the oracle.
+  const response = /expectResponse\(\s*([^;]*?),\s*(\{[\s\S]*?\}),\s*(['"`])(\[REQ [^\]]+\][^'"`]*)\3\s*\)\s*;/g;
+  for (const m of source.matchAll(response)) add(m[4], m[1], `expectResponse ${m[2]}`);
   const poll = /expect\.poll\(((?:(?!expect[.(])[\s\S])*?)message:\s*(['"`])(\[REQ [^\]]+\][^'"`]*)\2[\s\S]*?\}\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
   for (const m of source.matchAll(poll)) add(m[3], m[1], m[4]);
   return map;

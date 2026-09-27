@@ -57,6 +57,7 @@ test.describe('<KEY> <summary>', () => {
 | `data` | `test-data.json`, with `${env:NAME}` resolved |
 | `unique(prefix)` | Collision-free values for shared AUTs (`"QA k3x9q2-1"`, with a space) |
 | `uniqueId(prefix)` | The same without spaces, for e-mails, user names and slugs (`` `${uniqueId('qa')}@example.com` ``) |
+| `expectResponse(res, { status, body? }, '[REQ AC-n] <call>')` | A requirement check of an API answer: status, and the exact body when given (soft). Frozen by integrity like any `[REQ]` assertion. Use it rather than a local helper, whose built messages integrity can't see |
 | `checkShape(value, schema, label)` | Contract check returning readable violations: `expect(checkShape(body, ROOM), '[REQ AC-11] schema').toEqual([])` |
 
 ## Conventions (triage, integrity, lint and verdict depend on them)

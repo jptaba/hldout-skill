@@ -233,6 +233,16 @@ export type ShapeRule ='string' | 'number' | 'integer' | 'boolean' | 'array' | '
  * requirement assertion reads `expect(checkShape(room, ROOM), '[REQ AC-n] Room schema').toEqual([])`
  * and a failure lists exactly which fields broke the contract.
  */
+/**
+ * A requirement check of an API answer: its status and, if given, its exact body, as two soft assertions.
+ * Write the message literally at the call site — `expectResponse(res, { status: 400, body: REQ.ERR.X }, '[REQ AC-8] POST /books duplicate')`
+ * — the integrity freeze then holds the expected status and body like any other [REQ] assertion.
+ */
+export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {
+  expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);
+  if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);
+}
+
 export function checkShape(value: unknown, schema: Record<string, ShapeRule>, label = 'value'): string[] {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return [`${label} is not an object`];
   const obj = value as Record<string, unknown>;
@@ -497,7 +507,21 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         failOnStatusCode: false,
       });
       let started = Date.now();
-      let res = await send();
+      // A dropped connection (no answer at all) is the environment. Preconditions and cleanups, and idempotent requests,
+      // are sent once more; the request under test is never repeated when it isn't idempotent (its outcome is the finding).
+      let retriedAfter: string | undefined;
+      const resend = async () => {
+        try { return await send(); } catch (e) {
+          const message = (e as Error).message.split('\n')[0];
+          const idempotent = ['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE'].includes(method.toUpperCase());
+          if (retriedAfter || !(apiPhase !== 'test' || idempotent) || !/socket hang up|ECONNRESET|ETIMEDOUT|EPIPE|ECONNREFUSED/i.test(message)) throw e;
+          retriedAfter = message;
+          await sleep(1000);
+          started = Date.now();
+          return send();
+        }
+      };
+      let res = await resend();
       // A shared host rate-limiting us (429) is the environment, not the answer under test: wait as told, twice at most.
       for (let attempt = 0; res.status() === 429 && attempt < 2; attempt++) {
         await sleep(retryAfter(res.headers()['retry-after'], await res.text().catch(() => '')) * 1000);
@@ -509,7 +533,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       let body: unknown = text;
       if (/json/i.test(res.headers()['content-type'] ?? '') || /^\s*[[{]/.test(text)) { try { body = JSON.parse(text); } catch { /* keep text */ } }
       const exchange = {
-        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form) : redact(o.data) },
+        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form) : redact(o.data), ...(retriedAfter ? { retriedAfter } : {}) },
         response: { status: res.status(), durationMs, headers: redactHeaders(res.headers()), body: typeof body === 'string' ? clip(body) : redact(body) },
       };
       n++;

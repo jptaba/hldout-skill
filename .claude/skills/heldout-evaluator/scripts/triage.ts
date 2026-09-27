@@ -112,7 +112,12 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
           .filter((x): x is ApiExchange => Boolean(x));
         if (preSeq.length) entry.evidence.preSequence = preSeq;
         // A BLOCKED precondition that went through the API: the relevant exchange is the last seed call.
-        if (!entry.evidence.api && preSeq.length && /\[SEED\]/.test(entry.error.message)) entry.evidence.api = preSeq.at(-1);
+        // A transport error (no answer at all) has no exchange: the last seed call that did answer is not the culprit.
+        const noAnswer = /socket hang up|ECONNRESET|ETIMEDOUT|ECONNREFUSED|EPIPE|ENOTFOUND|fetch failed/i.test(entry.error.message);
+        if (!entry.evidence.api && preSeq.length && /\[SEED\]/.test(entry.error.message) && !noAnswer) {
+          entry.evidence.api = preSeq.at(-1);
+          entry.evidence.apiRelevantIndex = preSeq.length - 1;
+        }
         entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...feature.seedEndpoints], requestContracts: requests, apiBasePath });
         for (const o of entry.otherFailures) {
           entry.auto.signals.push(`Also failed: ${o.headline}${o.expected !== undefined ? ` — expected ${o.expected}, received ${o.received}` : ''}`);
@@ -167,7 +172,7 @@ export function renderTriageMd(r: TriageReport, runDir: string): string {
       ...(e.evidence.repeats ? [`- Repeats: failed **${e.evidence.repeats.failed} of ${e.evidence.repeats.runs}**`] : []),
       `- Error: \`${e.error!.headline}\``, ...(e.error!.locator ? [`- Locator: \`${e.error!.locator}\``] : []),
       ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\``] : []), ...(e.error!.received !== undefined ? [`- Received: \`${e.error!.received}\``] : []),
-      ...(api ? [`- Relevant API exchange (#${(e.evidence.apiRelevantIndex ?? 0) + 1} of ${e.evidence.apiCalls}): \`${api.request.method} ${api.request.url}\` → **${api.response.status}**`,
+      ...(api ? [`- Relevant API exchange (${e.evidence.apiCalls ? '' : 'precondition '}#${(e.evidence.apiRelevantIndex ?? 0) + 1} of ${e.evidence.apiCalls ?? e.evidence.preSequence?.length ?? 1}): \`${api.request.method} ${api.request.url}\` → **${api.response.status}**`,
         `  - request body: \`${short(api.request.body)}\``, `  - response body: \`${short(api.response.body)}\``] : []),
       `- Evidence: ${[e.evidence.screenshot && `[screenshot](${link(e.evidence.screenshot)})`, e.evidence.trace && `trace: \`npx playwright show-trace ${e.evidence.trace}\``, e.evidence.errorContext && `[error-context](${link(e.evidence.errorContext)})`].filter(Boolean).join(' · ') || '-'}`,
       '', `**Auto: ${e.auto!.category} (${e.auto!.confidence})**`, '', ...e.auto!.signals.map((s) => `- ${s}`), '', `Next: ${e.auto!.next}`, '');
