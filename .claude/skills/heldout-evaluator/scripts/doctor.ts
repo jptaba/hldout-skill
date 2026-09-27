@@ -157,7 +157,7 @@ main(async () => {
       const d = testIds[id];
       const configured = cfg!.auts[id]?.testIdAttribute ?? 'data-testid';
       if (!d || d.via === 'none') return;
-      if (!d.attribute) check('ok', `AUT ${id}`, 'no test-id attributes on the start page — tests will locate by role and label');
+      if (!d.attribute) check('ok', `AUT ${id}`, 'no test-id attributes on the start page or the pages its navigation links to — tests will locate by role and label');
       else if (d.attribute === configured) check('ok', `AUT ${id}`, `test-id attribute ${configured} is used by the app (${describeCounts(d)})`);
       else check('warn', `AUT ${id}`, `testIdAttribute is "${configured}" but the app renders ${describeCounts(d)}`, `set auts.${id}.testIdAttribute to "${d.attribute}" in heldout.config.json`);
       const unblocked = d.adDomains.filter((h) => !(cfg!.auts[id]?.blockHosts ?? []).includes(h));

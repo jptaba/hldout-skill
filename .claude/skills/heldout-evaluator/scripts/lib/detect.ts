@@ -45,10 +45,22 @@ async function rendered(url: string): Promise<{ counts: Record<string, number>; 
     const page = await browser.newPage();
     const hosts = new Set<string>();
     page.on('request', (r) => { try { hosts.add(new URL(r.url()).hostname); } catch { /* data: and the like */ } });
+    const countOnPage = () => page.evaluate((attrs: readonly string[]) => Object.fromEntries(attrs.map((a) => [a, document.querySelectorAll(`[${a}]`).length])), TEST_ID_ATTRIBUTES);
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
     await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => undefined);
-    const counts = await page.evaluate((attrs: readonly string[]) => Object.fromEntries(attrs.map((a) => [a, document.querySelectorAll(`[${a}]`).length])), TEST_ID_ATTRIBUTES);
-    return { counts, title: (await page.title()).trim(), hosts };
+    const title = (await page.title()).trim();
+    const counts = await countOnPage();
+    // Test ids often sit on forms, not on the start page: add up to 4 pages linked from the navigation (same origin).
+    const links = await page.evaluate((origin: string) => [...new Set([...document.querySelectorAll('header a[href], nav a[href], [role="navigation"] a[href]')]
+      .map((a) => (a as HTMLAnchorElement).href).filter((h) => h.startsWith(origin) && !h.includes('#') && !/logout|signout|delete/i.test(h)))].slice(0, 4), new URL(url).origin)
+      .catch(() => [] as string[]);
+    for (const link of links.filter((l) => l.replace(/\/$/, '') !== url.replace(/\/$/, ''))) {
+      await page.goto(link, { waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(() => undefined);
+      await page.waitForLoadState('networkidle', { timeout: 3_000 }).catch(() => undefined);
+      const more = await countOnPage().catch(() => ({} as Record<string, number>));
+      for (const [k, n] of Object.entries(more)) counts[k] = (counts[k] ?? 0) + n;
+    }
+    return { counts, title, hosts };
   } finally { await browser.close(); }
 }
 interface PageLike {

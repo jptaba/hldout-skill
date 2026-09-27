@@ -108,7 +108,7 @@ async function discover(configFile: string, id: string, flags: Flags): Promise<v
   if (flagStr(flags, 'test-id-attr')) { /* given */ } else if (d.attribute) {
     profile.testIdAttribute = d.attribute;
     say('✔', `test-id attribute: ${d.attribute} (on ${profile.baseURL}: ${describeCounts(d)}${d.via === 'html' ? '; served HTML only — install Chromium for a rendered check' : ''})`);
-  } else say('•', `test-id attribute: none on the start page — keeping "${profile.testIdAttribute}"; tests will use roles and labels`);
+  } else say('•', `test-id attribute: none on the start page or the pages its navigation links to — keeping "${profile.testIdAttribute}"; tests will use roles and labels`);
   const block = d.adDomains.filter((h) => !(profile.blockHosts ?? []).includes(h));
   if (block.length) {
     profile.blockHosts = [...(profile.blockHosts ?? []), ...block];
