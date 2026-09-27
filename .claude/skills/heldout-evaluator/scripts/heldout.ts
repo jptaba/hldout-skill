@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { knownFlags } from './lib/config';
 
 interface Command { script: string; args: string; about: string; group: string }
 const COMMANDS: Record<string, Command> = {
@@ -59,7 +60,7 @@ if (rest.includes('--help') || rest.includes('-h')) {
   console.log((src.match(/^\/\*\*([\s\S]*?)\*\//)?.[1] ?? '').split('\n').map((l) => l.replace(/^ ?\* ?/, '')).join('\n').trim());
   process.exit(0);
 }
-const known = new Set([...src.matchAll(/flags\.([A-Za-z_]\w*)|flags\['([a-z-]+)'\]|flag(?:Str|List)\(flags, '([a-z-]+)'\)/g)].map((m) => m[1] ?? m[2] ?? m[3]));
+const known = knownFlags(src);
 const unknown = rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]).filter((f) => !known.has(f));
 if (unknown.length) {
   console.error(`✖ ${cmd} does not take ${unknown.map((f) => `--${f}`).join(', ')}. It takes: ${[...known].sort().map((f) => `--${f}`).join(' ')}`);

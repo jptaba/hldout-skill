@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, assertIssueKey, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
-import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint } from './lib/contract';
+import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint, type RequirementContract } from './lib/contract';
 import { TEST_TYPES } from './lib/gherkin';
 
 
@@ -87,6 +87,22 @@ main(() => {
     if (secret && !process.env[secret]) console.log(`✖ ${secret} is not set — add ${secret}=… to .env before hardening (a strong value, not a plain word, so run artifacts can be scrubbed of it)`);
   }
 
+  // ---- requirement review and hardening log: everything the contract already knows, the judgement left to write --
+  if (!fs.existsSync(p.requirementReview)) {
+    const gapLine = (g: RequirementContract['gaps'][number]) => `- ${g.id} (${g.kind}${g.required ? ', required' : ''}): ${g.element} — ${g.resolution}${g.value ? `: ${g.value}` : ''}`;
+    writeFile(p.requirementReview, [
+      `# Requirement review — ${key}`, '',
+      '## Sources used', '', '| Source | Contributes |', '| --- | --- |', ...c.sourcesRead.map((x) => `| ${x.file} | ${x.contributes ?? ''} |`), '',
+      '## Testability decisions', '', '_How each criterion is verified (write the decision after the arrow)._', '',
+      ...c.acceptanceCriteria.map((a) => `- **${a.id}** (${a.layer}) ${a.text.length > 140 ? `${a.text.slice(0, 137)}…` : a.text} →`), '',
+      '## Ambiguities / open questions', '', ...(c.gaps.length ? c.gaps.map(gapLine) : ['- none']), '',
+    ].join('\n'));
+    console.log(`✔ created ${rel(p.requirementReview)} — sources and gaps filled in from the contract; write the testability decisions`);
+  }
+  if (!fs.existsSync(p.hardeningLog)) {
+    writeFile(p.hardeningLog, [`# Hardening log — ${key}`, '', '**Tiers used:** ', '', '| Change | Why | Evidence |', '| --- | --- | --- |', ''].join('\n'));
+  }
+
   const discover = toDiscover(c);
   if (discover.length) console.log(`• discover while hardening (record discovered-in-aut + evidence in the contract): ${discover.map((g) => `${g.id} ${g.element}`).join('; ')}`);
 
@@ -110,12 +126,18 @@ main(() => {
       : `  ${doc} ${name}: '${p0}',`;
   });
   const hasUi = c.acceptanceCriteria.some((a) => a.layer !== 'api');
+  const accounts = Boolean(cfg.aut.accounts);
   const spec = [
     '/**',
     ` * Held-out acceptance tests for ${key} — "${c.title}".`,
     ` * Written from evaluations/${key}/scenarios.feature (requirement + attachments only; never from the AUT's code).`,
     ' */',
-    `import { test, expect${hasUi ? ', gotoPage' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
+    `import { test, expect${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
+    ...(accounts ? [
+      '',
+      `// Accounts: \`const me = await seed.account()\` makes a test user on ${cfg.aut.name} (the profile's recipe; deleted after the test).`,
+      `// \`me.headers\` authenticates API calls as it${hasUi ? '; `await signIn(page, me)` signs in through the UI (then `await me.refresh()` before more API calls)' : ''}.`,
+    ] : []),
     '',
     `// @req-constants-start — expected outcomes copied verbatim from ${key} (never edit during hardening)`,
     'const REQ = {',
@@ -139,10 +161,14 @@ main(() => {
     '});',
     '',
     '// Unused until the stubs are implemented:',
-    'void [EP, REQ, checkShape] as unknown as [Api, ApiResponse, Seed, TestData];',
+    `void [EP, REQ, checkShape${accounts && hasUi ? ', signIn' : ''}] as unknown as [Api, ApiResponse, Seed, TestData${accounts ? ', Account' : ''}];`,
     '',
   ].join('\n');
   writeFile(specFile, spec);
   console.log(`✔ created ${rel(specFile)} — ${c.acceptanceCriteria.length} test stub(s), ${c.endpoints.length} endpoint helper(s)`);
+  if (accounts) console.log(`• accounts: seed.account() uses the "${cfg.autId}" profile's recipe — no seeding code needed for test users`);
+  else if (/\b(creat|regist|sign ?up)\w*\b[^.]*\b(user|account|customer)/i.test(JSON.stringify([c.testData, c.auth]))) {
+    console.log(`• the tests make their own accounts: once hardening has found how (create, sign in, delete), save it as auts.${cfg.autId}.accounts in heldout.config.json — then seed.account() does it for this and every later story (references/data-and-journeys.md)`);
+  }
   console.log(`\nNext: complete the feature and the tests, then: heldout lint ${key} --fix-tags --allow-unhardened`);
 });

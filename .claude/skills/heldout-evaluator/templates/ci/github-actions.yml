@@ -1,4 +1,4 @@
-# Held-out regression run (scaffolded by the heldout-evaluator skill: init.ts --ci).
+# Held-out regression run (scaffolded by the heldout-evaluator skill: heldout init --ci github).
 #
 # Re-runs an already-evaluated story's held-out suite (e.g. after a deploy) and re-renders the verdict.
 # Failures whose signature matches a decision already confirmed by the evaluator carry over.

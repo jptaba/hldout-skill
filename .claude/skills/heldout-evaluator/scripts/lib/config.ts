@@ -21,7 +21,30 @@ export interface AutProfile {
   maxWorkers?: number;
   /** Minimum gap between test starts (ms), across workers: for hosts that ban bursts of traffic. */
   minTestIntervalMs?: number;
+  /** How to make a test account on this AUT (mechanics, found while hardening the first story): seed.account() and signIn(). */
+  accounts?: AccountRecipe;
   notes?: string;
+}
+
+/** An HTTP call of an account recipe. Strings may use ${username}, ${password}, ${id}, ${token}, ${env:NAME}. */
+export interface RecipeCall { method: string; path: string; body?: unknown; form?: Record<string, string> }
+
+export interface AccountRecipe {
+  /** Password for every test account, normally "${env:NAME}" (a strong value, so artifacts can be scrubbed of it). */
+  password: string;
+  /** User-name template; ${uid} is unique per account. Default "qa-${uid}". */
+  username?: string;
+  /** Creates the account; `id` is the dotted path of the new account's id in the response body. */
+  create: RecipeCall & { id: string };
+  /** Signs in over the API; `token` is the dotted path of the token in the response body. */
+  token?: RecipeCall & { token: string };
+  /** Header that authenticates API calls. Default "Authorization: Bearer ${token}". */
+  authHeader?: string;
+  /** Deletes the account after the test (a 401/403 answer gets a fresh token and one retry). */
+  delete?: RecipeCall;
+  /** UI sign-in: open `path`, run the steps (fill/click with a page-locator expression), then wait for `done`
+   *  ("url:/profile" or a locator expression). */
+  signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
 }
 
 export interface HeldoutConfig {
@@ -124,6 +147,14 @@ export function validateConfig(raw: unknown): string[] {
     if (!isUrl(prof.baseURL)) out.push(`auts.${id}.baseURL must be an http(s) URL (got ${JSON.stringify(prof.baseURL)})`);
     if (prof.apiBaseURL !== undefined && !isUrl(prof.apiBaseURL)) out.push(`auts.${id}.apiBaseURL must be an http(s) URL (got ${JSON.stringify(prof.apiBaseURL)})`);
     if (prof.blockHosts !== undefined && (!Array.isArray(prof.blockHosts) || prof.blockHosts.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.blockHosts must be a list of host names, e.g. ["doubleclick.net"]`);
+    const acc = prof.accounts as Record<string, Record<string, unknown> | string | undefined> | undefined;
+    if (acc !== undefined) {
+      const call = (k: string) => typeof acc[k] === 'object' && typeof (acc[k] as Record<string, unknown>).method === 'string' && typeof (acc[k] as Record<string, unknown>).path === 'string';
+      if (typeof acc.password !== 'string') out.push(`auts.${id}.accounts.password is required (e.g. "\${env:APP_USER_PASSWORD}")`);
+      if (!call('create') || typeof (acc.create as Record<string, unknown>).id !== 'string') out.push(`auts.${id}.accounts.create needs method, path and id (the dotted path of the new account's id in the response)`);
+      if (acc.token !== undefined && (!call('token') || typeof (acc.token as Record<string, unknown>).token !== 'string')) out.push(`auts.${id}.accounts.token needs method, path and token (the dotted path of the token in the response)`);
+      if (acc.delete !== undefined && !call('delete')) out.push(`auts.${id}.accounts.delete needs method and path`);
+    }
     if (prof.minTestIntervalMs !== undefined && !(Number.isInteger(prof.minTestIntervalMs) && (prof.minTestIntervalMs as number) >= 0)) out.push(`auts.${id}.minTestIntervalMs must be a whole number of milliseconds`);
     if (prof.maxWorkers !== undefined && !(Number.isInteger(prof.maxWorkers) && (prof.maxWorkers as number) >= 1)) out.push(`auts.${id}.maxWorkers must be a whole number ≥ 1`);
     if (prof.healthcheck !== undefined && (!Array.isArray(prof.healthcheck) || prof.healthcheck.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.healthcheck must be a list of paths, e.g. ["/", "api:/health"]`);
@@ -162,6 +193,7 @@ export function autEnv(cfg: HeldoutConfig): Record<string, string> {
     AUT_TEST_ID_ATTRIBUTE: cfg.aut.testIdAttribute ?? 'data-testid',
     AUT_BLOCK_HOSTS: (cfg.aut.blockHosts ?? []).join(','),
     AUT_MIN_TEST_INTERVAL_MS: String(cfg.aut.minTestIntervalMs ?? 0),
+    ...(cfg.aut.accounts ? { AUT_ACCOUNTS: JSON.stringify(cfg.aut.accounts) } : {}),
   };
 }
 
@@ -283,4 +315,9 @@ export function main(fn: () => Promise<void> | void): void {
       console.error(`\n✖ ${err instanceof Error ? err.message : String(err)}`);
       process.exit(1);
     });
+}
+
+/** The flags a command script reads (flags.x, flags['x'], flagStr/flagList(flags, 'x')): the dispatcher rejects others. */
+export function knownFlags(src: string): Set<string> {
+  return new Set([...src.matchAll(/flags\.([A-Za-z_]\w*)|flags\[['"]([a-z-]+)['"]\]|flag(?:Str|List)\(flags, ['"]([a-z-]+)['"]\)/g)].map((m) => m[1] ?? m[2] ?? m[3]));
 }

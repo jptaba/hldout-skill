@@ -21,6 +21,7 @@ import { assertIssueKey, autEnv, evalPaths, flagStr, listRuns, loadConfig, main,
 import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
 import { scrubDir, secretValuesFor } from './lib/redact';
 import { failedTests } from './lib/triage-model';
+import { envNamesIn } from './lib/accounts';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
@@ -123,7 +124,7 @@ main(async () => {
   const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: quiet ? ['inherit', 'pipe', 'pipe'] : 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
   if (quiet) writeFile(path.join(runDir, 'console.log'), `${res.stdout ?? ''}${res.stderr ?? ''}`);
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
-  const secrets = secretValuesFor(p.testData);
+  const secrets = secretValuesFor(p.testData, process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean));
   const scrubbed = scrubDir(runDir, secrets.values);
   if (scrubbed.files) console.log(`
   🔒 scrubbed secret values from ${scrubbed.files} run artifact(s)`);

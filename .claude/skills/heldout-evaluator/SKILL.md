@@ -32,11 +32,12 @@ If `heldout.config.json` is missing, set the project up before anything else:
 2. Run:
 
 ```bash
-npx tsx .claude/skills/heldout-evaluator/scripts/heldout.ts init --base-url <url> [--api-base-url <url>] [--name "<app>"] [--profile <id>] [--jira mock|cloud] [--install]
+npx tsx <skill folder>/scripts/heldout.ts init --base-url <url> [--api-base-url <url>] [--name "<app>"] [--profile <id>] [--jira mock|cloud] [--install]
 npm run heldout -- doctor          # every problem comes with the command that fixes it
 ```
 
-`init` scaffolds, and never overwrites, the following:
+Run from a skill folder outside the project (a clone anywhere), `init` first copies the skill into
+`.claude/skills/heldout-evaluator/`, or updates an older copy. It then scaffolds, and never overwrites, the following:
 
 - `heldout.config.json` (with a JSON schema for editor help)
 - `playwright.config.ts`
@@ -49,7 +50,7 @@ npm run heldout -- doctor          # every problem comes with the command that f
 - the subagents in `.claude/agents/` (the contract extractor and reviewer)
 - `mock-jira/` and `evaluations/`
 
-`--install` also installs the dependencies and Chromium. `--ci` adds `.github/workflows/heldout.yml`. Unless flags give
+`--install` also installs the dependencies and Chromium. `--ci [gitlab|github]` adds a regression pipeline (GitLab CI unless the remote is GitHub). Unless flags give
 them, one visit of the start page fills in the profile: its id (from the host), name (page title), test-id attribute and
 `blockHosts` (ad/analytics networks).
 
@@ -67,7 +68,7 @@ Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptanc
 | 1 | **Fetch** | Pull the story, attachments and comments, and bind it to an AUT profile. A re-fetch detects requirement revisions | `$H fetch KEY [--aut <profile>]` → `requirement/`, `evaluation.json` (+ `CHANGES.md`, `history/`) |
 | 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 4) or *oracle* (WHAT: found in the requirement, or a question for the user); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean. **Ask the user** the oracle questions it lists (`AskUserQuestion`, interactive sessions); record answers as `provided-by-user` and re-review | `requirement-contract.json`, `requirement-contract.review.json` — [requirement-contract](references/requirement-contract.md) |
 | 2 | **Review + scenarios** | `$H scaffold KEY` writes the feature header (ACs verbatim, endpoints, assumptions, open questions) and test stubs from the contract. Write the testability review and the scenarios: one `@type`, the `@AC-n` tags and a `# from` source per scenario | `requirement-review.md`, `scenarios.feature`, `test-data.json` — [scenario-format](references/scenario-format.md) |
-| 3 | **Draft tests** | Translate the scenarios 1:1 into Playwright TS (UI via `page`, API via `api`). **Seed every data precondition** with `seed.*` (API first, with cleanup). Deep-link to the page the AC names (`gotoPage`). Guessed locators get `// TODO(harden)` | `tests/*.spec.ts`, then `$H lint KEY --fix-tags --allow-unhardened` — [test-authoring](references/test-authoring.md), [data-and-journeys](references/data-and-journeys.md) |
+| 3 | **Draft tests** | Translate the scenarios 1:1 into Playwright TS (UI via `page`, API via `api`). **Seed every data precondition** with `seed.*` (API first, with cleanup); test users with `seed.account()` / `signIn()` when the profile has an accounts recipe (write it while hardening the first story that needs users). Deep-link to the page the AC names (`gotoPage`). Guessed locators get `// TODO(harden)` | `tests/*.spec.ts`, then `$H lint KEY --fix-tags --allow-unhardened` — [test-authoring](references/test-authoring.md), [data-and-journeys](references/data-and-journeys.md) |
 | 4 | **Freeze + harden** | Freeze the draft together with the contract's oracle, then make the mechanics work against the live AUT. Record each open mechanics gap once found: `$H contract KEY --resolve G<n> --value … --evidence …` (`discovered-in-aut`), plus what it unlocks (endpoints, `requestFields`, `envelope`, entry points). This changes no reviewed content. Prove stability with `$H run KEY --label harden --repeat-each 3 --workers 2` (on a profile with `maxWorkers`, the workers are capped; for a rate-limited host use `--repeat-each 2` on the failing and timing-sensitive scenarios only) | `$H integrity KEY --snapshot` → harden → `$H integrity KEY` — [hardening](references/hardening.md) |
 | 5 | **Run** | Full suite. Preflight (lint, contract and review, 3-sample healthcheck) runs automatically; a down or **degraded** AUT aborts the run (`--allow-degraded` overrides) | `$H run KEY --label eval` → `runs/NN-eval/` |
 | 6 | **Triage** | Auto-classify, then **reproduce each failure live** (`$H api-probe --chain`, `$H inspect`) and record the decision. Repair script defects (HOW only) and re-run everything | `$H triage KEY` · `--set …` · `--carry-from auto` — [triage](references/triage.md) |

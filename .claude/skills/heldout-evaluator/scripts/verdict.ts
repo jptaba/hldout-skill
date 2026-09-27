@@ -6,7 +6,7 @@
  *
  * Verdict rules: see lib/verdict-rules.ts (INCONCLUSIVE on integrity violation → FAIL on confirmed
  * application defects → INCONCLUSIVE on unexplained failures → PASS_WITH_WARNINGS → PASS).
- * Application defects that share a root-cause title (same --title) are grouped.
+ * Application defects that share a root-cause title (the title given when confirming them in triage) are grouped.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -348,5 +348,5 @@ main(() => {
   };
   writeFile(p.verdictJson, `${JSON.stringify(json, null, 2)}\n`);
   console.log(`Verdict for ${key}: ${BADGE[verdict]}\n  ${reason}\n  → ${rel(p.verdictMd)}\n  → ${rel(p.verdictJson)}`);
-  if (flags["exit-code"]) process.exit({ PASS: 0, PASS_WITH_WARNINGS: 0, FAIL: 1, INCONCLUSIVE: 2 }[verdict]);
+  if (flags['exit-code']) process.exit({ PASS: 0, PASS_WITH_WARNINGS: 0, FAIL: 1, INCONCLUSIVE: 2 }[verdict]);
 });

@@ -16,6 +16,7 @@ import { ROOT, SKILL_DIR, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl,
 import { describeCounts, discoverApp } from './lib/detect';
 import { createTracker } from './lib/jira';
 import { safeToScrub } from './lib/redact';
+import { checkAccountRecipe, envNamesIn } from './lib/accounts';
 
 type Level = 'ok' | 'warn' | 'fail';
 const results: { level: Level; area: string; msg: string; fix?: string }[] = [];
@@ -36,6 +37,14 @@ async function reachable(url: string): Promise<{ ok: boolean; detail: string }> 
 main(async () => {
   const { flags } = parseArgs();
   loadEnv();
+
+  // ---- skill --------------------------------------------------------------------------------------
+  const sourceFile = path.join(SKILL_DIR, 'SOURCE.json');
+  if (fs.existsSync(sourceFile)) {
+    const s = JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { from: string; remote?: string; commit?: string; installedAt: string };
+    const update = fs.existsSync(s.from) ? `git -C "${s.from}" pull, then run its init again from this folder` : `clone ${s.remote ?? 'the skill repository'} and run its init from this folder`;
+    check('ok', 'skill', `installed ${s.installedAt.slice(0, 10)} from ${s.remote ?? s.from}${s.commit ? ` @ ${s.commit}` : ''} — to update: ${update}`);
+  }
 
   // ---- runtime ------------------------------------------------------------------------------------
   const [major, minor] = process.versions.node.split('.').map(Number);
@@ -119,6 +128,8 @@ main(async () => {
       if (!fs.existsSync(td)) continue;
       for (const m of fs.readFileSync(td, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)) if (!process.env[m[1]]) missing.set(m[1], [...(missing.get(m[1]) ?? []), key]);
     }
+    // The accounts recipes' secrets too (seed.account() reads them in every test that makes an account).
+    for (const [id, prof] of Object.entries(cfg.auts)) for (const n of envNamesIn(prof.accounts)) if (!process.env[n]) missing.set(n, [...(missing.get(n) ?? []), `auts.${id}.accounts`]);
     for (const [name, keys] of missing) check('fail', 'secrets', `${name} is referenced by ${[...new Set(keys)].join(', ')} but not set`, `add ${name}=… to .env`);
     if (!missing.size) check('ok', 'secrets', 'every ${env:…} referenced by test data is set');
     const leaks = committableLeaks(evalDir);
@@ -152,6 +163,17 @@ main(async () => {
       const unblocked = d.adDomains.filter((h) => !(cfg!.auts[id]?.blockHosts ?? []).includes(h));
       if (unblocked.length) check('warn', `AUT ${id}`, `the start page loads ad/analytics networks that are not blocked: ${unblocked.join(', ')}`, `add them to auts.${id}.blockHosts in heldout.config.json (they inject content and make tests flaky)`);
     });
+    // Accounts recipes, run live (create → token → delete) so a broken one never surfaces as BLOCKED scenarios.
+    for (const id of ids) {
+      const p = cfg.auts[id];
+      if (!p?.accounts || envNamesIn(p.accounts).some((n) => !process.env[n])) continue;
+      try {
+        const steps = await checkAccountRecipe(p.accounts, p.apiBaseURL ?? p.baseURL);
+        const bad = steps.find((x) => !x.ok);
+        if (bad) check('fail', `AUT ${id}`, `accounts recipe: ${bad.step} → ${bad.detail}`, `fix auts.${id}.accounts in heldout.config.json (try the calls with heldout api-probe --chain)`);
+        else check('ok', `AUT ${id}`, `accounts recipe works: ${steps.map((x) => x.step.split(' ')[0]).join(' → ')}`);
+      } catch (e) { check('fail', `AUT ${id}`, `accounts recipe: ${(e as Error).message}`, 'check the recipe paths and the API URL'); }
+    }
     if (cfg.jira.mode === 'cloud') {
       for (const v of ['JIRA_EMAIL', 'JIRA_API_TOKEN']) if (!process.env[v]) check('fail', 'Jira', `${v} is not set`, `add ${v}=… to .env (token: https://id.atlassian.com/manage-profile/security/api-tokens)`);
       if (process.env.JIRA_EMAIL && process.env.JIRA_API_TOKEN) {

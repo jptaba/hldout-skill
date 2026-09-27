@@ -325,3 +325,17 @@ describe('app discovery', () => {
       ['doubleclick.net', 'googlesyndication.com', 'googletagmanager.com']);
   });
 });
+
+describe('command flags', () => {
+  it('every flag a command documents in its usage header is accepted by the dispatcher', async () => {
+    const { knownFlags } = await import('../scripts/lib/config');
+    const dir = path.join(import.meta.dirname, '..', 'scripts');
+    const rejected = fs.readdirSync(dir).filter((f) => f.endsWith('.ts') && f !== 'heldout.ts').flatMap((f) => {
+      const src = fs.readFileSync(path.join(dir, f), 'utf8');
+      const header = src.match(/^\/\*\*([\s\S]*?)\*\//)?.[1] ?? '';
+      const known = knownFlags(src);
+      return [...new Set([...header.matchAll(/(?<![\w-])--([a-z][a-z-]+)/g)].map((m) => m[1]))].filter((d) => !known.has(d)).map((d) => `${f} --${d}`);
+    });
+    assert.deepEqual(rejected, []);
+  });
+});

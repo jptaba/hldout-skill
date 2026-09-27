@@ -25,6 +25,7 @@
  * browser_wait_for anchor, or once the snapshot has substantial content) — otherwise it FAILS rather than
  * vacuously passing on an unrendered page.
  */
+import { envNamesIn } from './lib/accounts';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -80,7 +81,7 @@ main(async () => {
   };
   /** Values typed from ${env:…} or into secret-looking fields — never written to the report (snapshots echo field values). */
   const key = flagStr(flags, 'key');
-  const secrets: string[] = key ? secretValuesFor(evalPaths(cfg, key).testData).values : [];
+  const secrets: string[] = key ? secretValuesFor(evalPaths(cfg, key).testData, process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)).values : [];
   const refresh = async () => { snapshot = redactSnapshot(snapshotFrom((await client.call('browser_snapshot')).text), secrets); return snapshot; };
   /** Web-first: poll the snapshot until `found(snapshot)` or the timeout. */
   const poll = async (found: (snap: string) => boolean, timeoutMs = 10_000) => {

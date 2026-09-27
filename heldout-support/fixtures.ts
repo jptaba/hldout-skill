@@ -9,6 +9,8 @@
  *                attached to the report as `api-exchange NN …` (secrets redacted) — triage and the
  *                verdict use it as evidence.
  *  - `unique()`: collision-free values for shared/sandbox AUTs.
+ *  - `seed.account()` / `signIn()`: a test account made by the AUT profile's `accounts` recipe (created, signed in over
+ *                the API, deleted after the test) and the UI sign-in for it — no per-story seeding code.
  *
  * Assertion convention: every assertion that encodes a requirement carries a message tagged
  * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics.
@@ -16,7 +18,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test as base, expect, request as pwRequest, type APIRequestContext } from '@playwright/test';
+import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page } from '@playwright/test';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TestData = Record<string, any>;
@@ -126,6 +128,73 @@ export interface Seed {
   until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts?: { timeoutMs?: number; intervalMs?: number }): Promise<T>;
   /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). */
   track<T>(label: string, created: T, cleanup: (created: T) => Promise<unknown>): T;
+  /**
+   * A test account made by the AUT profile's `accounts` recipe: created (unique user name), signed in over the API
+   * when the recipe has a `token` call, and deleted after the test. A failure is BLOCKED, like any precondition.
+   */
+  account(label?: string, options?: { username?: string }): Promise<Account>;
+}
+
+/** A test account from seed.account(). `headers` authenticate API calls as it: api.get(path, { headers: acct.headers }). */
+export interface Account {
+  id: string; username: string; password: string; token?: string;
+  headers: Record<string, string>;
+  /** Sign in over the API again (a UI sign-in revokes earlier tokens on many applications). */
+  refresh(): Promise<void>;
+}
+
+interface RecipeCall { method: string; path: string; body?: Json; form?: Record<string, string> }
+interface AccountRecipe {
+  password: string; username?: string; authHeader?: string;
+  create: RecipeCall & { id: string }; token?: RecipeCall & { token: string }; delete?: RecipeCall;
+  signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
+}
+const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
+const NO_RECIPE = 'the AUT profile has no "accounts" recipe in heldout.config.json (how to create, sign in and delete a test account on this application; see references/data-and-journeys.md)';
+
+/** Fill ${env:NAME} and ${name} placeholders of a recipe value. */
+function fillRecipe(value: Json, vars: Record<string, string | undefined>): Json {
+  if (typeof value === 'string') return (resolveEnv(value) as string).replace(/\$\{(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+  if (Array.isArray(value)) return value.map((v) => fillRecipe(v, vars));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fillRecipe(v, vars)]));
+  return value;
+}
+/** The recipe's auth header for a token ("Authorization: Bearer ${token}" by default) as a headers object. */
+function authHeader(r: AccountRecipe, token: string): Record<string, string> {
+  const line = String(fillRecipe(r.authHeader ?? 'Authorization: Bearer ${token}', { token }));
+  const i = line.indexOf(':');
+  return { [line.slice(0, i).trim()]: line.slice(i + 1).trim() };
+}
+const dig = (o: unknown, dotted: string): unknown => dotted.split('.').reduce<unknown>((a, k) => (a && typeof a === 'object' ? (a as Record<string, unknown>)[k] : undefined), o);
+
+/** A page-locator expression from config ("getByPlaceholder('UserName')") evaluated against the page. */
+function locate(page: Page, expr: string): Locator {
+  const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'] as const;
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
+}
+
+/**
+ * Sign in through the UI as a seed.account() account, with the recipe's `signIn` steps. A precondition: a failure is
+ * `[SEED] …` (BLOCKED). Afterwards call account.refresh() before API calls if the application revokes older tokens.
+ */
+export async function signIn(page: Page, account: Account): Promise<void> {
+  const r = accountRecipe()?.signIn;
+  await base.step(`[SEED] sign in as ${account.username}`, async () => {
+    try {
+      if (!r) throw new Error(`${NO_RECIPE.replace('"accounts" recipe', '"accounts.signIn" recipe')}`);
+      await gotoPage(page, r.path);
+      const vars = { username: account.username, password: account.password, id: account.id };
+      for (const s of r.steps) {
+        if (s.fill !== undefined) await locate(page, s.fill).fill(String(fillRecipe(s.value ?? '', vars)));
+        else if (s.click !== undefined) await locate(page, s.click).click();
+      }
+      if (r.done?.startsWith('url:')) await expect(page).toHaveURL(new RegExp(r.done.slice(4).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), { timeout: 15_000 });
+      else if (r.done) await expect(locate(page, r.done).first()).toBeVisible({ timeout: 15_000 });
+    } catch (err) {
+      throw new Error(`[SEED] sign in as ${account.username}: precondition could not be established — ${(err as Error).message}`);
+    }
+  });
 }
 
 /** Worker-scoped cache for seed.once (one worker runs one test at a time). */
@@ -269,7 +338,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
       }
     };
-    await use({
+    const seedApi: Seed = {
       tag,
       async create<T>(label: string, make: () => Promise<T>, cleanup?: (created: T) => Promise<unknown>): Promise<T> {
         const rec: SeedRecord = { label, kind: 'data', cleanup: cleanup ? undefined : 'none' };
@@ -309,12 +378,51 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         cleanups.push({ rec, run: () => cleanup(created) });
         return created;
       },
-    });
+      async account(label = 'account', options = {}): Promise<Account> {
+        const r = accountRecipe();
+        const vars: Record<string, string | undefined> = { uid: uniqueId('').replace(/^-/, ''), password: r ? String(resolveEnv(r.password)) : undefined };
+        const send = async (c: RecipeCall, token?: string) => api.call(c.method, String(fillRecipe(c.path, { ...vars, token })), {
+          ...(c.body !== undefined ? { data: fillRecipe(c.body, { ...vars, token }) } : {}),
+          ...(c.form ? { form: fillRecipe(c.form, { ...vars, token }) as Record<string, string> } : {}),
+          ...(token ? { headers: authHeader(r!, token) } : {}),
+        });
+        const account = {} as Account;
+        return seedApi.create(label, async () => {
+          if (!r) throw new Error(NO_RECIPE);
+          vars.username = options.username ?? String(fillRecipe(r.username ?? 'qa-${uid}', vars));
+          const res = await send(r.create);
+          if (!res.ok) throw new Error(`${r.create.method} ${r.create.path} → ${res.status} ${res.text.slice(0, 200)}`);
+          const id = dig(res.body, r.create.id);
+          if (id === undefined || id === null || id === '') throw new Error(`${r.create.method} ${r.create.path} → ${res.status}, but the response has no "${r.create.id}"`);
+          vars.id = String(id);
+          Object.assign(account, {
+            id: vars.id, username: vars.username, password: vars.password!, headers: {},
+            async refresh() {
+              if (!r.token) return;
+              const t = await send(r.token);
+              const token = dig(t.body, r.token.token);
+              if (typeof token !== 'string' || !token) throw new Error(`${r.token.method} ${r.token.path} → ${t.status}, but the response has no "${r.token.token}"`);
+              account.token = token;
+              account.headers = authHeader(r, token);
+            },
+          });
+          await account.refresh();
+          return account;
+        }, r?.delete ? async () => {
+          let res = await send(r.delete!, account.token);
+          // A sign-in during the test (UI or API) may have revoked the token: take a fresh one and retry once.
+          if ((res.status === 401 || res.status === 403) && r.token) { await account.refresh(); res = await send(r.delete!, account.token); }
+          return res;
+        } : undefined);
+      },
+    };
+    await use(seedApi);
     // Teardown: undo in reverse order; never fail the test because of cleanup. HELDOUT_KEEP_DATA=1 keeps data for debugging.
     for (const c of cleanups.reverse()) {
       if (process.env.HELDOUT_KEEP_DATA === '1') { c.rec.cleanup = 'skipped'; continue; }
       apiPhase = 'cleanup';
-      try { await c.run(); c.rec.cleanup = 'done'; } catch (e) { c.rec.cleanup = 'failed'; c.rec.error = (e as Error).message.split('\n')[0]; } finally { apiPhase = 'test'; }
+      // A cleanup that returns an HTTP error answer (e.g. a DELETE refused with 401) did not clean up.
+      try { const out = await c.run() as { status?: unknown } | undefined; if (typeof out?.status === 'number' && out.status >= 400) throw new Error(`HTTP ${out.status}`); c.rec.cleanup = 'done'; } catch (e) { c.rec.cleanup = 'failed'; c.rec.error = (e as Error).message.split('\n')[0]; } finally { apiPhase = 'test'; }
     }
     if (ledger.length) await testInfo.attach('seed-ledger', { body: JSON.stringify({ tag, records: ledger }, null, 2), contentType: 'application/json' });
   },

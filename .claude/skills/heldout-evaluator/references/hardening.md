@@ -27,7 +27,10 @@ then record it:
 npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence hardening/api-user.md
 ```
 
-This sets `"resolution": "discovered-in-aut"`, `value` and `evidence`, and adds `{ "where": "aut" }` to `tried`. It refuses
+This sets `"resolution": "discovered-in-aut"`, `value` and `evidence`, and adds `{ "where": "aut" }` to `tried`.
+When the gap is how to make a test account (create, sign in, delete, the sign-in form), also write it as the profile's
+accounts recipe ([data-and-journeys.md](data-and-journeys.md) §4a) and switch the spec to `seed.account()`: every later
+story on this application reuses it. It refuses
 oracle gaps. It's mechanics only, so the review stays valid. Then add what the gap unlocks by hand, if anything: the
 endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`. For example, on the
 endpoint: `{ "method": "POST", "path": "/Account/v1/User", "source": "story.md#L42", "requestFields": ["userName", "password"] }`;

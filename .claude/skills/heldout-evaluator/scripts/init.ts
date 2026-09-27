@@ -10,7 +10,9 @@
  * Creates or completes: heldout.config.json (with $schema for editor help), playwright.config.ts,
  * heldout-support/fixtures.ts, tsconfig.json, .mcp.json (Playwright MCP = tier 2), .env + .env.example,
  * package.json (the `heldout` npm script and dev dependencies), .gitignore entries, mock-jira/, evaluations/.
- * --install runs `npm install` and installs Chromium. --ci adds .github/workflows/heldout.yml.
+ * --install runs `npm install` and installs Chromium. --ci [gitlab|github] adds a CI pipeline (default: from the git remote).
+ * Run from a skill outside the project (a clone anywhere, any git host), it first installs the skill into
+ * .claude/skills/heldout-evaluator, or updates an older copy; re-running it after a pull updates the skill.
  * Unless given, the profile id comes from the host name, and one visit of the start page supplies the name (page
  * title), the test-id attribute and blockHosts (the ad/analytics networks the page loads).
  */
@@ -33,6 +35,41 @@ const DEV_DEPENDENCIES: Record<string, string> = { '@playwright/test': '^1.63.0'
 const GITIGNORE = ['.env', 'node_modules/', 'test-results/', 'playwright-report/', 'evaluations/*/runs/*/html/', 'evaluations/*/runs/*/artifacts/', '*.trace.zip', '.playwright-mcp/', '.claude/settings.local.json'];
 
 const say = (mark: string, msg: string) => console.log(`${mark} ${msg}`);
+
+const PROJECT_SKILL = path.join(ROOT, '.claude', 'skills', 'heldout-evaluator');
+/** Project files that are copies of skill templates: refreshed on a skill update unless the project changed them. */
+const TEMPLATE_COPIES: [template: string, target: string][] = [
+  ['playwright.config.ts', 'playwright.config.ts'],
+  ['fixtures.ts', 'heldout-support/fixtures.ts'],
+  ...['heldout-contract-extractor.md', 'heldout-contract-reviewer.md'].map((f) => [path.join('agents', f), path.join('.claude', 'agents', f)] as [string, string]),
+];
+const git = (dir: string, ...args: string[]) => {
+  const r = spawnSync('git', ['-C', dir, ...args], { encoding: 'utf8' });
+  return r.status === 0 ? r.stdout.trim() : undefined;
+};
+
+/**
+ * Run from a skill outside this project (a clone anywhere, on any git host): copy the skill into the project, or
+ * replace an older copy, then continue from the copy. Template copies the project hasn't changed are refreshed.
+ */
+function installSkillFrom(source: string): void {
+  const read = (f: string) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : undefined);
+  const before = read(path.join(PROJECT_SKILL, 'SOURCE.json'));
+  const refresh = fs.existsSync(PROJECT_SKILL) ? TEMPLATE_COPIES.filter(([tpl, target]) => {
+    const current = read(path.join(ROOT, target));
+    return current !== undefined && current === read(path.join(PROJECT_SKILL, 'templates', tpl));
+  }) : [];
+  const edited = fs.existsSync(PROJECT_SKILL) ? TEMPLATE_COPIES.filter(([, t]) => fs.existsSync(path.join(ROOT, t)) && !refresh.some(([, r]) => r === t)) : [];
+  fs.rmSync(PROJECT_SKILL, { recursive: true, force: true });
+  fs.cpSync(source, PROJECT_SKILL, { recursive: true, filter: (f) => !path.relative(source, f).split(/[\\/]/).some((p) => p === 'node_modules' || p === '.git') });
+  const commit = git(source, 'rev-parse', '--short', 'HEAD');
+  const info = { from: source, remote: git(source, 'remote', 'get-url', 'origin'), commit, installedAt: new Date().toISOString() };
+  fs.writeFileSync(path.join(PROJECT_SKILL, 'SOURCE.json'), `${JSON.stringify(info, null, 2)}\n`);
+  const was = before ? (JSON.parse(before) as { commit?: string }).commit : undefined;
+  say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} (from ${info.remote ?? source})`);
+  for (const [tpl, target] of refresh) { fs.copyFileSync(path.join(PROJECT_SKILL, 'templates', tpl), path.join(ROOT, target)); say('✔', `refreshed ${target}`); }
+  for (const [tpl, target] of edited) say('⚠', `kept ${target} (changed in this project) — compare it with ${rel(path.join(PROJECT_SKILL, 'templates', tpl))}`);
+}
 
 function profileFrom(flags: Flags, base: Record<string, unknown> = {}) {
   const baseURL = flagStr(flags, 'base-url') ?? (base.baseURL as string);
@@ -105,6 +142,16 @@ main(async () => {
   const { _, flags } = parseArgs();
   const configFile = path.join(ROOT, 'heldout.config.json');
 
+  // Started from a skill outside this project: install (or update) the project's copy, then continue from it.
+  const toSkill = path.relative(ROOT, SKILL_DIR);
+  if (toSkill.startsWith('..') || path.isAbsolute(toSkill)) {
+    installSkillFrom(SKILL_DIR);
+    const cmd = flags['add-aut'] ? 'add-aut' : 'init';
+    const args = process.argv.slice(2).filter((a) => a !== '--add-aut');
+    const again = spawnSync(process.execPath, [...process.execArgv, path.join(PROJECT_SKILL, 'scripts', 'heldout.ts'), cmd, ...args], { stdio: 'inherit', cwd: ROOT });
+    process.exit(again.status ?? 1);
+  }
+
   const addAut = flagStr(flags, 'add-aut') ?? (flags['add-aut'] === true ? _[0] : undefined);
   if (addAut || flags['add-aut']) {
     if (!addAut) throw new Error('Usage: heldout add-aut <profile-id> --base-url <url> [--api-base-url <url>]');
@@ -155,12 +202,23 @@ main(async () => {
   const needInstall = ensurePackageJson();
   ensureGitignore();
   if (flags.ci) {
-    const dest = path.join(ROOT, '.github', 'workflows', 'heldout.yml');
-    if (fs.existsSync(dest)) say('•', 'keep    .github/workflows/heldout.yml');
+    // GitLab unless the project is evidently on GitHub (or --ci says which).
+    const remote = git(ROOT, 'remote', 'get-url', 'origin') ?? '';
+    const ci = flagStr(flags, 'ci') ?? (fs.existsSync(path.join(ROOT, '.gitlab-ci.yml')) ? 'gitlab' : /github\.com/.test(remote) || fs.existsSync(path.join(ROOT, '.github')) ? 'github' : 'gitlab');
+    if (ci !== 'gitlab' && ci !== 'github') throw new Error(`--ci takes gitlab or github, not "${ci}"`);
+    const target = ci === 'github' ? path.join('.github', 'workflows', 'heldout.yml') : path.join('.gitlab', 'heldout.gitlab-ci.yml');
+    const dest = path.join(ROOT, target);
+    if (fs.existsSync(dest)) say('•', `keep    ${target}`);
     else {
       fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.copyFileSync(path.join(SKILL_DIR, 'templates', 'ci', 'heldout.yml'), dest);
-      say('✔', 'created .github/workflows/heldout.yml');
+      fs.copyFileSync(path.join(SKILL_DIR, 'templates', 'ci', ci === 'github' ? 'github-actions.yml' : 'gitlab-ci.yml'), dest);
+      say('✔', `created ${target} (${ci === 'github' ? 'GitHub Actions: run it from the Actions tab' : 'GitLab CI: run a pipeline with HELDOUT_KEY=<story>'})`);
+    }
+    if (ci === 'gitlab') {
+      const main = path.join(ROOT, '.gitlab-ci.yml');
+      const include = 'include:\n  - local: .gitlab/heldout.gitlab-ci.yml\n';
+      if (!fs.existsSync(main)) { fs.writeFileSync(main, include); say('✔', 'created .gitlab-ci.yml (includes the held-out job)'); }
+      else if (!fs.readFileSync(main, 'utf8').includes('.gitlab/heldout.gitlab-ci.yml')) say('⚠', `add to .gitlab-ci.yml:\n${include}`);
     }
   }
   for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'evaluations']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });

@@ -15,37 +15,49 @@ Jira story + attachments + comments
 
 ## Adopt it in another project (about 1 minute)
 
-From the root of your repository, one line fetches the skill and sets everything up:
+Get the skill once, from wherever your team keeps it (GitLab, GitHub, a file share). Then run its `init` from the
+root of the project that will hold the evaluations:
 
 ```bash
-npx -y degit jptaba/hldout-skill/.claude/skills/heldout-evaluator .claude/skills/heldout-evaluator && npx -y tsx .claude/skills/heldout-evaluator/scripts/heldout.ts init --base-url https://your-app --install
+git clone --depth 1 <skill-repository-url> "$HOME/heldout-skill"
+npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install
 ```
 
-`init` visits your app once and fills in the profile for you:
+The same two lines work in bash, zsh and PowerShell. `init` copies the skill into `.claude/skills/heldout-evaluator/`
+and scaffolds the project. Then it visits your app once and fills in the profile:
 - the profile id, from the host name;
 - the app's name, from its page title (shown in verdicts);
 - the test-id attribute the app renders;
 - `blockHosts`, the ad and analytics networks the page loads.
 
-Add `--api-base-url` if the API lives elsewhere. Then:
+Add `--api-base-url` if the API lives elsewhere, and `--ci` for a regression pipeline (GitLab CI, or GitHub Actions
+when the remote is GitHub). Then:
 
-1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents and secrets. Every problem comes with the command that fixes it.
+1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
+   secrets (including any secret value that has slipped into a file git would commit) and the accounts recipe. Every
+   problem comes with the command that fixes it.
 2. Restart Claude Code once, so the Playwright MCP server and the two subagents load.
 3. Ask Claude: **"Run a held-out evaluation of ABC-123"**. No Jira yet? Run `npm run heldout -- new ABC-1 --from story.md` first.
 
-Or just ask Claude to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer, then runs the steps above.
+**Update:** `git -C "$HOME/heldout-skill" pull`, then run the same `init` line again. It replaces the project's copy of
+the skill. It also refreshes `playwright.config.ts`, `heldout-support/fixtures.ts` and the subagents, unless you changed
+them, and it never touches your config, `.env` or evaluations. `doctor` shows which version is installed.
+
+Or just ask Claude to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
+then runs the steps above.
 
 ## Point it at your application and Jira
 
 | What | Where |
 | --- | --- |
 | Applications (UI URL, API URL, test-id attribute (detected by `init`), healthcheck, `blockHosts` for ads/analytics, `maxWorkers` and `minTestIntervalMs` for rate-limited hosts) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
+| Test accounts (how to create, sign in and delete a user on this app, written once; `seed.account()` and `signIn()` use it in every story) | `auts.<id>.accounts` in heldout.config.json — [data-and-journeys.md §4a](.claude/skills/heldout-evaluator/references/data-and-journeys.md) |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (writes `evaluations/KEY/evaluation.json`) |
 | Secrets used by tests | `.env` → referenced from `evaluations/<KEY>/test-data.json` as `${env:NAME}` |
 | Jira | `JIRA_MODE=mock` (file-based, [mock-jira/](mock-jira/)) or `cloud` + `JIRA_BASE_URL/JIRA_EMAIL/JIRA_API_TOKEN`; `doctor --jira` finds your acceptance-criteria custom field |
 | Browser tier 2 (Playwright MCP) | [.mcp.json](.mcp.json) |
 | Subagents (contract extractor, independent reviewer) | [.claude/agents/](.claude/agents/) |
-| CI regression run | `heldout init --ci` → `.github/workflows/heldout.yml` |
+| CI regression run | `heldout init --ci` → a GitLab CI job (`.gitlab/heldout.gitlab-ci.yml`, included from `.gitlab-ci.yml`) or, for a GitHub remote, `.github/workflows/heldout.yml`; `--ci gitlab\|github` chooses |
 
 ## Commands
 

@@ -43,7 +43,8 @@ most: where each scenario's data comes from, and where each journey starts.
 | Reference data | product catalogue, country list | Read-only; assert against the requirement, don't create |
 | Per-test entity | a booking, an enquiry, a cart line | `seed.create` in the Given (+ cleanup), or `seed.track` when the When-step creates it |
 | "Must not exist" id | unknown booking id for a 404 test | Seed it: create, then delete, and use that id. Never guess ids on shared environments |
-| Signed-in state | "Given I am signed in" | API login + cookie/`storageState` when login isn't under test; UI sign-in inside `seed.create` otherwise |
+| Test account | "each run creates its own user" | `seed.account()` from the profile's accounts recipe (§4a): created, signed in over the API, deleted after the test |
+| Signed-in state | "Given I am signed in" | `signIn(page, account)` from the recipe; API login + cookie/`storageState` when the UI isn't needed |
 | Expensive shared setup | a merchant account with configuration | Worker-scoped fixture (Playwright `{ scope: 'worker' }`), created once per worker, tagged, cleaned at worker end |
 
 ## 4. How it looks in a spec
@@ -68,6 +69,43 @@ test('SCN-004: …', { tag: ['@AC-4', '@type:functional', '@layer:api'] }, async
 // Data created by the scenario itself (the POST under test) is tracked for cleanup:
 seed.track('booking', res.body.bookingid, (id) => api.delete(`/booking/${id}`, { headers: auth(data) }));
 ```
+
+## 4a. Test accounts: write the recipe once per application
+
+Most stories need a user of their own. Describe **how** to make one on this application once, in the AUT profile
+(`heldout.config.json` → `auts.<id>.accounts`). It's mechanics, so it's found while hardening the first story that
+needs accounts (`heldout api-probe --chain` for the calls, `heldout inspect` for the sign-in form). Every later story on
+the same application then needs no seeding code for users:
+
+```json
+"accounts": {
+  "password": "${env:APP_USER_PASSWORD}",
+  "username": "qa-${uid}",
+  "create": { "method": "POST", "path": "/api/users", "body": { "userName": "${username}", "password": "${password}" }, "id": "userID" },
+  "token":  { "method": "POST", "path": "/api/token", "body": { "userName": "${username}", "password": "${password}" }, "token": "token" },
+  "authHeader": "Authorization: Bearer ${token}",
+  "delete": { "method": "DELETE", "path": "/api/users/${id}" },
+  "signIn": { "path": "/login", "steps": [
+    { "fill": "getByLabel('User name')", "value": "${username}" },
+    { "fill": "getByLabel('Password')", "value": "${password}" },
+    { "click": "getByRole('button', { name: 'Sign in' })" } ], "done": "url:/profile" }
+}
+```
+
+`id` and `token` are dotted paths into the response body. Strings may use `${username}`, `${password}`, `${id}`,
+`${token}`, `${uid}` and `${env:NAME}`. Only `password` and `create` are required. `heldout doctor` runs the recipe live
+(create → token → delete), and `heldout run` scrubs its password from the run artifacts like any other secret.
+
+```ts
+const me = await seed.account();                         // BLOCKED if it fails; deleted after the test
+await api.get(`/api/users/${me.id}`, { headers: me.headers });
+await signIn(page, me);                                  // UI sign-in, as a precondition ([SEED] … on failure)
+await me.refresh();                                      // new API token, if the UI sign-in revoked the old one
+```
+
+The cleanup reuses the account's token and takes a fresh one only when the delete answers 401 or 403. Any cleanup
+that returns an HTTP error answer is recorded as failed, and `heldout run` lists it as data left behind. When the
+account itself is the subject of the story (registration, sign-in rules), call the endpoints in the test instead.
 
 ## 5b. API pre-steps (calls needed before the API under test)
 
@@ -142,8 +180,7 @@ when a spec has data preconditions but never uses `seed` (`no-seeding`).
 2. **Prefer dedicated or ephemeral environments** (per PR or per run) over shared sandboxes. On
    shared ones, keep `workers` low. This evaluation measured shared sandboxes dropping connections
    under 8 repeats × 4 workers.
-3. **Use worker-scoped accounts plus `storageState`** for authenticated journeys when login isn't
-   the subject.
+3. **Write the accounts recipe** (§4a) for each application as soon as a story needs users.
 4. **Keep data builders per entity**, derived from the requirement's schema (valid by default,
    overridable per test), as in `validBooking()` / `validEnquiry()`.
 5. **Sweep leftovers by tag** after interrupted runs. The `hx…` seed tag and the `QA …` names make

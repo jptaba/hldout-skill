@@ -110,6 +110,7 @@ Full strategy: [data-and-journeys.md](data-and-journeys.md).
 | `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. When the application offers no way to delete the data, omit `cleanup`: the ledger records `none`; use unique names so leftovers never collide |
 | `seed.track(label, created, cleanup)` | Register cleanup for data the scenario itself created (the POST under test, or data the AUT wrongly accepted) |
 | `seed.tag` | Per-test tag for naming seeded data (sweepable) |
+| `seed.account()` · `signIn(page, account)` | A test user from the profile's accounts recipe (created, API token in `account.headers`, deleted after the test) and its UI sign-in. See [data-and-journeys.md](data-and-journeys.md) §4a |
 | `gotoPage(page, path)` | Entry-point navigation: DOMContentLoaded + bounded `load` settle |
 
 - Never read "whatever exists" (e.g. `list[0]`) as a precondition. Seed your own record.
