@@ -41,7 +41,7 @@ const PROJECT_SKILL = path.join(ROOT, '.claude', 'skills', 'heldout-evaluator');
 const TEMPLATE_COPIES: [template: string, target: string][] = [
   ['playwright.config.ts', 'playwright.config.ts'],
   ['fixtures.ts', 'heldout-support/fixtures.ts'],
-  ...['heldout-contract-extractor.md', 'heldout-contract-reviewer.md'].map((f) => [path.join('agents', f), path.join('.claude', 'agents', f)] as [string, string]),
+  ...['heldout-contract-extractor.md', 'heldout-contract-reviewer.md'].map((f) => [`agents/${f}`, `.claude/agents/${f}`] as [string, string]),
 ];
 const git = (dir: string, ...args: string[]) => {
   const r = spawnSync('git', ['-C', dir, ...args], { encoding: 'utf8' });
@@ -53,7 +53,8 @@ const git = (dir: string, ...args: string[]) => {
  * replace an older copy, then continue from the copy. Template copies the project hasn't changed are refreshed.
  */
 function installSkillFrom(source: string): void {
-  const read = (f: string) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : undefined);
+  // Line endings don't count as a change (git on Windows checks out CRLF; editors may normalise either way).
+  const read = (f: string) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').replace(/\r\n/g, '\n') : undefined);
   const before = read(path.join(PROJECT_SKILL, 'SOURCE.json'));
   const refresh = fs.existsSync(PROJECT_SKILL) ? TEMPLATE_COPIES.filter(([tpl, target]) => {
     const current = read(path.join(ROOT, target));
@@ -65,7 +66,7 @@ function installSkillFrom(source: string): void {
   const commit = git(source, 'rev-parse', '--short', 'HEAD');
   // Where to pull from and what to run again to update (paths in the form the local git prints them).
   const repo = git(source, 'rev-parse', '--show-toplevel');
-  const info = { from: repo ?? source, update: `${repo ? `git -C "${repo}" pull, then ` : ''}npx -y tsx "${path.join(source, 'scripts', 'heldout.ts')}" init`,
+  const info = { from: repo ?? source, update: `${repo ? `git -C "${repo}" pull, then ` : ''}npx -y tsx "${path.join(source, 'scripts', 'heldout.ts').split(path.sep).join('/')}" init`,
     remote: git(source, 'remote', 'get-url', 'origin'), commit, installedAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PROJECT_SKILL, 'SOURCE.json'), `${JSON.stringify(info, null, 2)}\n`);
   const was = before ? (JSON.parse(before) as { commit?: string }).commit : undefined;

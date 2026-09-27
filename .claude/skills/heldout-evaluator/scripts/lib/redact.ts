@@ -1,4 +1,5 @@
 /** Secret redaction shared by the scripts (the test-side copy lives in heldout-support/fixtures.ts). */
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|session/i;
@@ -101,4 +102,14 @@ export function scrubDir(dir: string, secrets: string[]): { files: number } {
     if (after !== before) { fs.writeFileSync(file, after); files++; }
   }
   return { files };
+}
+
+/** A strong random secret: upper and lower case, digits and a symbol, never a plain word (so it can be scrubbed). */
+const SECRET_SETS = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnopqrstuvwxyz', '23456789', '-_!'];
+
+export function strongSecret(length = 20): string {
+  const all = SECRET_SETS.join('');
+  const chars = [...SECRET_SETS.map((s) => s[crypto.randomInt(s.length)]), ...Array.from({ length: length - SECRET_SETS.length }, () => all[crypto.randomInt(all.length)])];
+  for (let i = chars.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [chars[i], chars[j]] = [chars[j], chars[i]]; }
+  return chars.join('');
 }

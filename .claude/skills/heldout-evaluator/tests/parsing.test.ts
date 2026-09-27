@@ -339,3 +339,15 @@ describe('command flags', () => {
     assert.deepEqual(rejected, []);
   });
 });
+
+describe('generated secrets', () => {
+  it('are long, mixed and never plain words, so artifacts can be scrubbed of them', async () => {
+    const { safeToScrub, strongSecret } = await import('../scripts/lib/redact');
+    for (let i = 0; i < 50; i++) {
+      const v = strongSecret();
+      assert.equal(v.length, 20);
+      assert.match(v, /[A-Z]/); assert.match(v, /[a-z]/); assert.match(v, /[0-9]/); assert.match(v, /[-_!]/);
+      assert.ok(safeToScrub(v));
+    }
+  });
+});

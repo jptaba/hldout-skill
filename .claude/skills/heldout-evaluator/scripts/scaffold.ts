@@ -84,7 +84,7 @@ main(() => {
     const secret = JSON.stringify([c.auth, c.testData]).match(/\b[A-Z][A-Z0-9]*_(?:[A-Z0-9]+_)*(?:PASSWORD|PASS|TOKEN|SECRET)\b/)?.[0];
     writeFile(p.testData, `${JSON.stringify(secret ? { password: `\${env:${secret}}` } : {}, null, 2)}\n`);
     console.log(`✔ created ${rel(p.testData)}${secret ? ` (password → \${env:${secret}})` : ''} — add the values your scenarios need`);
-    if (secret && !process.env[secret]) console.log(`✖ ${secret} is not set — add ${secret}=… to .env before hardening (a strong value, not a plain word, so run artifacts can be scrubbed of it)`);
+    if (secret && !process.env[secret]) console.log(`✖ ${secret} is not set. For accounts the tests create themselves: npm run heldout -- secret ${secret} --generate. For an existing account, add ${secret}=… to .env.`);
   }
 
   // ---- requirement review and hardening log: everything the contract already knows, the judgement left to write --

@@ -23,7 +23,7 @@ Check each of these refs: {{REFS}}
   - The `quote` states that criterion at the cited lines.
   - `text` doesn't add, drop or change any condition.
   - Every entry in `outcomes` follows from the quote or from another cited source line, not from assumption or common sense.
-  - `layer` (ui / api / e2e) matches what the criterion describes.
+  - `layer` (ui / api / e2e) matches what the criterion describes. "UI + API", or a UI action checked through the API, is `e2e`.
 - **R-n** (rules) and **E-n** (error cases, by their `id`): the rule, status or message is stated at the cited source, with the same value.
 - **Gaps (G-n, oracle)**:
   - The missing element really is missing from the sources, or is resolved the way the gap says.

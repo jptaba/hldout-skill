@@ -16,6 +16,7 @@ const COMMANDS: Record<string, Command> = {
   init: { script: 'init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install]', about: 'scaffold config, npm script, .gitignore, .env (never overwrites)' },
   'add-aut': { script: 'init.ts', group: 'Setup', args: '<id> --base-url <url> [--api-base-url <url>]', about: 'add another application profile' },
   doctor: { script: 'doctor.ts', group: 'Setup', args: '[--jira] [--offline]', about: 'check that everything is wired up, with a fix for each problem' },
+  secret: { script: 'secret.ts', group: 'Setup', args: 'NAME --generate [--force]', about: 'a strong random secret written to .env, never shown' },
   status: { script: 'status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
   new: { script: 'mock-jira-create.ts', group: 'Requirement', args: 'KEY --from story.md [--attach file]…', about: 'create a story in the mock Jira (no Jira needed)' },
   fetch: { script: 'jira-fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch story + attachments; binds the story to an AUT profile' },

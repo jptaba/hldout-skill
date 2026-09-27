@@ -62,7 +62,7 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | · `source` | `story.md#L23` (first line of the quote), `attachments/x.csv#L4` or `transcripts/mockup.png.md#L3` |
 | · `text` | The statement used in `scenarios.feature`. Normally the quote itself, cleaned of markdown |
 | · `outcomes` | Observable pass/fail facts, **worded with the source's literals** (the status, the message in quotes, the number). No outcome the source doesn't state; a derived boundary only one step outside a stated range |
-| · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API) |
+| · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API; a story's "UI + API" is `e2e`, not a misread) |
 | · `endpoints` | `"METHOD /path"` keys of every endpoint the AC's journey calls, including pre-steps; each must be in `endpoints[]`. Needed for api/e2e ACs, unless a mechanics gap in `gaps` stands for the missing one |
 | · `entryPoint`, `needsData` | Where a UI journey starts; `needsData`: the AC needs data the tests must create first (→ seeding). Read-only data that already exists (a catalogue) is not seeded: list it in `testData.constraints` |
 | · `gaps` | Ids of the gaps that affect this AC |

@@ -130,7 +130,7 @@ main(async () => {
     }
     // The accounts recipes' secrets too (seed.account() reads them in every test that makes an account).
     for (const [id, prof] of Object.entries(cfg.auts)) for (const n of envNamesIn(prof.accounts)) if (!process.env[n]) missing.set(n, [...(missing.get(n) ?? []), `auts.${id}.accounts`]);
-    for (const [name, keys] of missing) check('fail', 'secrets', `${name} is referenced by ${[...new Set(keys)].join(', ')} but not set`, `add ${name}=… to .env`);
+    for (const [name, keys] of missing) check('fail', 'secrets', `${name} is referenced by ${[...new Set(keys)].join(', ')} but not set`, `${H} secret ${name} --generate   (accounts the tests create), or add ${name}=… to .env (an existing account)`);
     if (!missing.size) check('ok', 'secrets', 'every ${env:…} referenced by test data is set');
     const leaks = committableLeaks(evalDir);
     for (const [name, files] of leaks) check('fail', 'secrets', `the value of ${name} is in ${files.length} file(s) git would commit: ${files.slice(0, 4).join(', ')}${files.length > 4 ? ', …' : ''}`, `replace it with \${env:${name}} or a made-up value; if it was already pushed, change the secret`);
