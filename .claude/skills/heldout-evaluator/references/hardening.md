@@ -50,7 +50,9 @@ whenever it appears (Playwright's `addLocatorHandler`), so no step has to dismis
 
 `heldout inspect` suggests, in order: role and name, label, placeholder, test id, a stable id, then the field's `name`
 attribute. An id that looks generated (a UUID, a long number) changes on every page load: it is offered last, flagged. Read-only
-text with a stable id (a detail page's fields, a total, a message) is listed in a table of its own.
+text with a stable id (a detail page's fields, a total, a message) is listed in a table of its own. The report also lists
+the API calls the page made on the app's site (method, path, status and the answer's shape, types only): how the UI
+does what it does, e.g. which call returns the signed-in user's id when the documented sign-in call doesn't.
 
 A shared sandbox that answers 429 (rate limited) is the environment, not the application: triage says so, and `heldout run`
 prints the command that paces the tests on that host, e.g.

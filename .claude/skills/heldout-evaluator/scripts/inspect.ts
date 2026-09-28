@@ -14,13 +14,14 @@
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address.
+ *   The report lists the API calls the page made (fetch/XHR on the app's site: method, path, status, answer shape).
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './lib/config';
-import { generatedId } from './lib/detect';
-import { redactSnapshot } from './lib/redact';
-import { expandSecrets, requireVaultSecrets } from './lib/secrets';
+import { generatedId, siteOf } from './lib/detect';
+import { redactSnapshot, shapeOf } from './lib/redact';
+import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -90,6 +91,20 @@ main(async () => {
     dialogs.seen.push(`${d.type()} "${d.message()}" → ${how}`);
     await (how === 'accept' ? d.accept() : d.dismiss()).catch(() => undefined);
   });
+  // The application's own API calls (fetch/XHR on its site): how the UI does what it does, e.g. which call returns an id.
+  const sites = new Set([cfg.aut.baseURL, cfg.aut.apiBaseURL].filter((u): u is string => Boolean(u)).map((u) => siteOf(new URL(u).hostname)));
+  const calls: Promise<string>[] = [];
+  page.on('response', (res) => {
+    const req = res.request();
+    if (!['fetch', 'xhr'].includes(req.resourceType())) return;
+    const u = new URL(res.url());
+    if (!sites.has(siteOf(u.hostname))) return;
+    calls.push((async () => {
+      const json: unknown = /json/i.test(res.headers()['content-type'] ?? '') ? await res.json().catch(() => undefined) : undefined;
+      const shape = json === undefined ? '-' : `\`${JSON.stringify(shapeOf(json)).replace(/\|/g, '\\|').slice(0, 300)}\``;
+      return `| ${req.method()} | \`${u.pathname}${u.search ? '?…' : ''}\` | ${res.status()} | ${shape} |`;
+    })());
+  });
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
   for (const expr of cfg.aut.overlays ?? []) await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
   const out: string[] = [];
@@ -114,6 +129,8 @@ main(async () => {
       `- testIdAttribute: \`${testIdAttr}\``, '');
     if (steps.length) out.push('## Setup steps', '', '| # | action | target | result |', '| --- | --- | --- | --- |', ...stepLog, '');
     if (dialogs.seen.length) out.push('## Browser dialogs', '', ...dialogs.seen.map((x) => `- ${x}`), '');
+    const made = await Promise.all(calls);
+    if (made.length) out.push('## API calls the page made (answers as types only)', '', '| method | path | status | answer shape |', '| --- | --- | --- | --- |', ...made, '');
 
     if (!flags['no-snapshot']) {
       // Snapshots echo field values: redact whatever is typed into password inputs.
@@ -236,7 +253,11 @@ main(async () => {
   } finally {
     await browser.close();
   }
-  const report = out.join('\n');
+  // Last line of defence: no secret the steps used reaches the report (a path or address can carry one), raw or encoded.
+  const used = JSON.stringify([steps, process.argv.slice(2)]);
+  const secrets = [...new Set([...[...used.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
+    ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
+  const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), out.join('\n'));
   const file = flagStr(flags, 'out');
   if (file) { writeFile(file, report); console.log(`✔ inspection written to ${file}`); } else console.log(report);
 });

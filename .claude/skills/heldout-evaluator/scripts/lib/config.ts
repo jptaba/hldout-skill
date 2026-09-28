@@ -62,6 +62,9 @@ export interface AccountRecipe {
   authHeader?: string;
   /** Deletes the account after the test (a 401/403 answer gets a fresh token and one retry). */
   delete?: RecipeCall;
+  /** Existing accounts the tests change: restores one (e.g. clears its collection), with its auth header. Run when a test
+   *  takes the account, so a crashed earlier run leaves nothing behind, and again after the test. */
+  reset?: RecipeCall;
   /** UI sign-in: open `path`, run the steps (fill/click with a page-locator expression), then wait for `done`
    *  ("url:/profile" or a locator expression). */
   signIn?: UiForm;

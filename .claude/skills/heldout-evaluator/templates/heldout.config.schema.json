@@ -188,6 +188,29 @@
                   }
                 }
               },
+              "reset": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "Existing accounts: restores an account the tests change (clears its data), with its token; run before each test that takes it and after it"
+              },
               "signIn": {
                 "type": "object",
                 "required": [

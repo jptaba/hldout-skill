@@ -27,8 +27,8 @@ import { loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
 /** What the tests' seeding did, from the seed-ledger attachments: data created, cleaned, already gone, kept, and left behind. */
-function seedSummary(results: unknown): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[] } {
-  const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, keptBy: {} as Record<string, number>, leftovers: [] as string[] };
+function seedSummary(results: unknown): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[]; accounts: { used: number; reset: number; notReset: string[] } } {
+  const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, keptBy: {} as Record<string, number>, leftovers: [] as string[], accounts: { used: 0, reset: 0, notReset: [] as string[] } };
   const walk = (v: unknown, title: string): void => {
     if (Array.isArray(v)) { v.forEach((x) => walk(x, title)); return; }
     if (!v || typeof v !== 'object') return;
@@ -37,6 +37,12 @@ function seedSummary(results: unknown): { created: number; cleaned: number; alre
     if (o.name === 'seed-ledger' && typeof o.body === 'string') {
       try {
         const ledger = JSON.parse(Buffer.from(o.body, 'base64').toString('utf8')) as { records?: { label: string; kind?: string; cleanup?: string; created?: unknown; error?: string; reused?: boolean }[] };
+        // Existing accounts are taken, not created: counted apart, with their reset.
+        for (const r of (ledger.records ?? []).filter((x) => x.kind === 'account' && x.created !== undefined)) {
+          sum.accounts.used++;
+          if (r.cleanup === 'done') sum.accounts.reset++;
+          else if (r.cleanup === 'failed') sum.accounts.notReset.push(`${t}: ${JSON.stringify(r.created ?? null).slice(0, 100)} — ${r.error ?? 'reset failed'}`);
+        }
         for (const r of (ledger.records ?? []).filter((x) => (x.kind === 'data' || x.kind === 'scenario-created') && !x.reused && !(x.error && x.created === undefined && x.cleanup !== 'failed'))) {
           sum.created++;
           if (r.cleanup === 'done') { if (/already gone/.test(r.error ?? '')) sum.alreadyGone++; else sum.cleaned++; }
@@ -183,6 +189,12 @@ main(async () => {
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
   const seeded = seedSummary(readJson<unknown>(resultsFile));
   const leftovers = seeded.leftovers;
+  const acc = seeded.accounts;
+  if (acc.used) {
+    const reset = acc.reset || acc.notReset.length ? ` — reset after the test ${acc.reset} time(s)${acc.notReset.length ? `, NOT reset ${acc.notReset.length} time(s)` : ''}` : ' (the recipe has no reset: what a test adds to them stays)';
+    console.log(`  👤 existing accounts: taken ${acc.used} time(s)${reset}`);
+    for (const x of acc.notReset) console.log(`     ${x}`);
+  }
   if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: the application offers no delete, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
@@ -201,4 +213,5 @@ main(async () => {
   }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
   else if (!NON_EVAL_RUN.test(runName)) console.log(`\nNext: npm run heldout -- verdict ${key}`);
+  else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (contract ${key} --resolve Gn …, hardening/hardening-log.md), then: npm run heldout -- run ${key} --label eval`);
 });

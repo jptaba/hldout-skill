@@ -80,14 +80,18 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
     ...(lookup ? { lookup: { ...call(lookup), id: lookup.save!.id } } : {}),
     ...(authLine ? { authHeader: `${authLine[0]}: ${authLine[1]}` } : {}),
     ...(del && create ? { delete: call(del) } : {}),
-    ...(signIn ? { signIn: signInFromSteps(signIn) } : {}),
+    ...(signIn ? { signIn: signInFromSteps(signIn, create ? [] : [{ username: username!, password }]) } : {}),
   };
 }
 
 /** The recipe's UI sign-in from inspect steps: ${var:…} → ${username}, secret references → ${password}. */
-export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; done?: string }): NonNullable<AccountRecipe['signIn']> {
-  const toUi = (v = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, '${password}');
-  return { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value) } : { click: s.target! })) };
+export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; done?: string }, existing: ExistingAccount[] = []): NonNullable<AccountRecipe['signIn']> {
+  // A secret reference is the user name when an existing account names it so, or when it fills a user-name / e-mail
+  // field (the inspected steps of an account whose user name is in Vault too); otherwise the password.
+  const isUsername = (ref: string, target = '') => existing.some((a) => a.username === ref)
+    || (!existing.some((a) => a.password === ref) && !/pass/i.test(target) && /user|e-?mail|login|name/i.test(target));
+  const toUi = (v = '', target = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, (ref) => (isUsername(ref, target) ? '${username}' : '${password}'));
+  return { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value, s.target) } : { click: s.target! })) };
 }
 
 
@@ -186,6 +190,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
         out.push({ step: `id of ${a.username}`, ok: id !== undefined && id !== null, detail: id !== undefined && id !== null ? `${l.status}, ${r.lookup.id} found` : `${l.status}, no "${r.lookup.id}" in the answer` });
       }
     }
+    if (r.reset && out.every((x) => x.ok)) out.push({ step: `reset ${r.reset.method} ${r.reset.path}`, ok: true, detail: 'runs when a test takes an account and after it (not run by this check: it changes the accounts\' data)' });
     // The UI sign-in, once, as the first account.
     const first = r.existing?.[0];
     if (opts.ui && r.signIn && first && out.every((x) => x.ok)) {

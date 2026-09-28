@@ -110,7 +110,7 @@ export const uniqueId = (prefix = 'qa'): string => unique(prefix).replace(/\s+/g
 
 export interface SeedRecord {
   label: string;
-  kind: 'data' | 'pre-step' | 'auth' | 'readiness' | 'scenario-created';
+  kind: 'data' | 'pre-step' | 'auth' | 'readiness' | 'scenario-created' | 'account';
   created?: unknown; cleanup?: 'done' | 'skipped' | 'failed' | 'none'; reused?: boolean; error?: string;
 }
 
@@ -140,7 +140,8 @@ export interface Seed {
   /**
    * A test account from the AUT profile's `accounts` recipe, signed in over the API when the recipe has a `token` call.
    * Created (unique user name, deleted after the test when the recipe has `delete`), or one of the `existing` accounts:
-   * each parallel worker gets its own share, and each call in a test the next one (never deleted). A failure is BLOCKED.
+   * each parallel worker gets its own share, and each call in a test the next one (never deleted; the recipe's `reset`,
+   * when set, restores it before and after the test). A failure is BLOCKED.
    */
   account(label?: string, options?: { username?: string }): Promise<Account>;
 }
@@ -160,7 +161,7 @@ interface RecipeCall { method: string; path: string; body?: Json; form?: Record<
 interface AccountRecipe {
   password?: string; username?: string; authHeader?: string; before?: (RecipeCall & { save: Record<string, string> })[];
   create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string }[];
-  token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall;
+  token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall; reset?: RecipeCall;
   signIn?: UiForm; signUp?: UiForm;
 }
 const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
@@ -481,9 +482,17 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           }
           return account;
         };
+        /** The recipe's reset of an existing account; a 401/403 (a sign-in during the test revoked the token) retries once. */
+        const reset = async (first: boolean) => {
+          let res = await send(r!.reset!, account.token);
+          if ((res.status === 401 || res.status === 403) && r!.token) { await account.refresh(); res = await send(r!.reset!, account.token); }
+          if (first && !res.ok) throw new Error(`reset ${r!.reset!.method} ${r!.reset!.path} for ${account.username} → ${res.status} ${res.text.slice(0, 200)}`);
+          return res;
+        };
         if (r && !r.create && !r.signUp) {
           // Existing accounts: this worker's share of the list, one per call within a test; never created or deleted.
-          return seedApi.create(label, async () => {
+          const rec: SeedRecord = { label, kind: 'account', cleanup: r.reset ? undefined : 'none' };
+          const taken = await pre(rec, async () => {
             const pool = r.existing ?? [];
             const workers = Math.max(1, testInfo.config.workers);
             const mine = pool.filter((_, i) => i % workers === testInfo.parallelIndex);
@@ -492,8 +501,13 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
             vars.username = String(resolveEnv(a.username));
             vars.password = String(resolveEnv(a.password));
             vars.id = a.id ? String(resolveEnv(a.id)) : undefined;
-            return ready();
+            await ready();
+            // An account the tests change starts clean, whatever an earlier (crashed) run left.
+            if (r.reset) await reset(true);
+            return account;
           });
+          if (r.reset) cleanups.push({ rec, run: () => reset(false) });
+          return taken;
         }
         return seedApi.create(label, async () => {
           if (!r?.create && !r?.signUp) throw new Error(NO_RECIPE);

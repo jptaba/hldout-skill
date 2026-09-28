@@ -99,7 +99,15 @@ Add as many as the suite needs. Each parallel worker gets its own share, so no t
 the same time, and `heldout run` never starts more workers than there are accounts. A test that calls `seed.account()`
 twice (a second user) gets the next account of its share: record that with `heldout accounts --aut <profile> --per-test 2`,
 and runs start half as many workers. Existing accounts are never deleted, and data a test adds
-to them stays unless the test removes it: undo it with `seed.track(…)`, or reset the account in a `seed.step`.
+to them stays unless something removes it. When the application has a call that restores an account (empty its
+cart, clear its collection), save it once as the recipe's `reset`: it runs, with the account's token, when a test
+takes the account (so a crashed earlier run leaves nothing behind) and again after the test (the seed ledger shows it).
+
+```bash
+npm run heldout -- accounts --aut <profile> --reset 'DELETE /BookStore/v1/Books?UserId=${id}'
+```
+
+Without one, undo what the test added with `seed.track(…)`.
 
 **Signing in.** `token` signs an account in over the API (`token` is where the answer carries it; `id`, optionally,
 where it carries the account id). When the sign-in answer has no id, `lookup` is a call made after signing in (a

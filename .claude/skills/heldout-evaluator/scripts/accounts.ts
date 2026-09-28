@@ -6,6 +6,8 @@
  *   heldout accounts --aut <profile> --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1
  *   heldout accounts --aut <profile> --add-existing --username-vault secret/qa/app#user1 --password-vault secret/qa/app#password1
  *       [--id <account id>]   secrets stay where they are: .env / the environment (--…-env NAME) or Vault (--…-vault path#field)
+ *   heldout accounts --aut <profile> --reset "DELETE /api/cart?user=${id}"   tests change them: the call that restores one,
+ *       run when a test takes the account and again after it
  *
  * Accounts the tests create (with or without a way to delete them), from the api-probe chain hardening already ran:
  *   heldout accounts --key KEY --from-chain hardening/chain.json
@@ -56,6 +58,8 @@ main(async () => {
   };
   const merge = (list: ExistingAccount[], add: ExistingAccount[]) => [...list.filter((a) => !add.some((b) => b.username === a.username)), ...add];
   let changed = false;
+  /** Set when this command only added an existing account: only that one is checked. */
+  let added: ExistingAccount | undefined;
 
   const chainFile = flagStr(flags, 'from-chain');
   const signInSteps = flagStr(flags, 'sign-in-steps') ? JSON.parse(fs.readFileSync(find(flagStr(flags, 'sign-in-steps')!), 'utf8'))
@@ -64,7 +68,7 @@ main(async () => {
   // The UI sign-in on its own, once the API part is saved.
   if (signInSteps && !chainFile) {
     if (!cfg.aut.accounts) throw new Error('save how tests get accounts first (--add-existing or --from-chain), then the UI sign-in');
-    const signIn = signInFromSteps({ path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') });
+    const signIn = signInFromSteps({ path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') }, cfg.aut.accounts.existing);
     save({ ...cfg.aut.accounts, signIn });
     console.log(`✔ UI sign-in saved for auts.${cfg.autId}.accounts (${signIn.steps.length} step(s), starting at ${signIn.path})`);
     changed = true;
@@ -74,7 +78,7 @@ main(async () => {
       signInSteps ? { path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') } : undefined);
     const before = cfg.aut.accounts ?? {};
     save({ ...before, ...found, ...(found.existing ? { existing: merge(before.existing ?? [], found.existing) } : {}) });
-    console.log(`✔ auts.${cfg.autId}.accounts: ${found.create ? `tests create accounts${found.delete ? ' and delete them' : ' (no delete: they stay, tagged by name)'}` : `existing account ${found.existing![0].username} added`}${found.token ? ', sign-in over the API' : ''}${found.signIn ? ', UI sign-in' : ''}`);
+    console.log(`✔ auts.${cfg.autId}.accounts: ${found.create ? `tests create accounts${found.delete ? ' and delete them' : ' (no delete: they stay, tagged by name)'}` : `existing account ${found.existing![0].username} ${(before.existing ?? []).some((a) => a.username === found.existing![0].username) ? '(already in the list)' : 'added'}`}${found.token ? ', sign-in over the API' : ''}${found.signIn ? ', UI sign-in' : ''}`);
     changed = true;
   }
 
@@ -102,6 +106,16 @@ main(async () => {
     changed = true;
   }
 
+  const resetCall = flagStr(flags, 'reset');
+  if (resetCall) {
+    const m = resetCall.match(/^\s*([A-Za-z]+)\s+(\S+)\s*$/);
+    if (!m) throw new Error('--reset "METHOD path", the call that restores an existing account (with its token), e.g. --reset "DELETE /BookStore/v1/Books?UserId=${id}"');
+    if (!cfg.aut.accounts?.existing?.length) throw new Error('--reset applies to existing accounts (add them first with --add-existing)');
+    save({ ...cfg.aut.accounts, reset: { method: m[1].toUpperCase(), path: `/${unmangleMsysPath(m[2]).replace(/^\/+/, '')}` } });
+    console.log(`✔ existing accounts are reset with ${m[1].toUpperCase()} ${m[2]} when a test takes one and again after it (not run by this check: it changes the accounts' data)`);
+    changed = true;
+  }
+
   const perTest = flagStr(flags, 'per-test');
   if (perTest) {
     const n = Number(perTest);
@@ -126,8 +140,9 @@ main(async () => {
     if (!username || !password) throw new Error('--add-existing needs a user name (--username, --username-env or --username-vault) and a password (--password-env or --password-vault)');
     const id = flagStr(flags, 'id');
     const before = cfg.aut.accounts ?? {};
-    save({ ...before, existing: merge(before.existing ?? [], [{ username, password, ...(id ? { id } : {}) }]) });
-    console.log(`✔ existing account ${username} added to auts.${cfg.autId}.accounts (${(cfg.aut.accounts?.existing ?? []).length} in all)${before.create ? ' — note: the recipe also creates accounts, which takes precedence; remove "create" to use the existing ones' : ''}`);
+    added = { username, password, ...(id ? { id } : {}) };
+    save({ ...before, existing: merge(before.existing ?? [], [added]) });
+    console.log(`✔ existing account ${username} ${(before.existing ?? []).some((a) => a.username === username) ? 'updated in' : 'added to'} auts.${cfg.autId}.accounts (${(cfg.aut.accounts?.existing ?? []).length} in all)${before.create ? ' — note: the recipe also creates accounts, which takes precedence; remove "create" to use the existing ones' : ''}`);
     changed = true;
   }
 
@@ -140,11 +155,12 @@ main(async () => {
   const unset = [...new Set([...JSON.stringify(recipe).matchAll(/\$\{env:(\w+)\}/g)].map((m) => m[1]))].filter((n) => process.env[n] === undefined);
   if (unset.length) console.log(`  ✖ not set yet: ${unset.join(', ')} — add ${unset.map((n) => `${n}=…`).join(' ')} to .env (git-ignored), or set them in the environment (CI variables)`);
   if (problems.length || unset.length) { process.exitCode = 1; return; }
-  const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), profile: cfg.autId, ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute, overlays: cfg.aut.overlays } });
+  const onlyAdded = added && !flags.check && [chainFile, signInSteps, signUpSteps, lookup, resetCall, perTest, flags['no-delete']].every((x) => !x);
+  const steps = await checkAccountRecipe(onlyAdded ? { ...recipe, existing: [added!] } : recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), profile: cfg.autId, ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute, overlays: cfg.aut.overlays } });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
   const pool = createsAccounts(recipe) ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));
   console.log(`✔ accounts ready${pool ? ` (${recipe.existing?.length} existing${(recipe.perTest ?? 1) > 1 ? `, ${recipe.perTest} per test` : ''}; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account();${recipe.signIn ? ' await signIn(page, me);' : ''}`);
-  console.log(`  in the spec: import { ${recipe.signIn ? 'signIn, ' : ''}type Account } from '<…>/heldout-support/fixtures' — seed.account() and me.headers need nothing else`);
+  if (recipe.token || recipe.signIn) console.log(`  in the spec: import { ${recipe.signIn ? 'signIn, ' : ''}type Account } from '<…>/heldout-support/fixtures' — seed.account() and me.headers need nothing else`);
   if (!recipe.token && !recipe.signIn) console.log(`  next: save how to sign in — the api-probe chain of the sign-in call (heldout accounts --from-chain …), and/or the UI steps (--sign-in-json …)`);
 });

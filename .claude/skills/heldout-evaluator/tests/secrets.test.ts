@@ -4,7 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import { expandSecrets, kv2Path, loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../scripts/lib/secrets';
 import { validateConfig } from '../scripts/lib/config';
-import { recipeFromChain } from '../scripts/lib/accounts';
+import { recipeFromChain, signInFromSteps } from '../scripts/lib/accounts';
 
 /** A fake Vault: KV v2 at secret/qa/app, KV v1 at kv1/legacy, a forbidden path, and AppRole login. */
 let server: http.Server;
@@ -99,6 +99,22 @@ describe('an api-probe chain that signs in as an existing account', () => {
       token: { method: 'POST', path: '/api/login', body: { userName: '${username}', password: '${password}' }, token: 'token', id: 'userId' },
       authHeader: 'Authorization: Bearer ${token}',
     });
+  });
+});
+
+describe('a UI sign-in inspected as an account whose user name is in Vault too', () => {
+  const steps = [
+    { do: 'fill', target: "getByRole('textbox', { name: 'UserName' })", value: '${vault:secret/qa/app#user3}' },
+    { do: 'fill', target: "getByRole('textbox', { name: 'Password' })", value: '${vault:secret/qa/app#password3}' },
+    { do: 'click', target: "getByRole('button', { name: 'Login' })" },
+  ];
+  const values = (r: ReturnType<typeof signInFromSteps>) => r.steps.map((s) => ('value' in s ? s.value : undefined));
+  it('fills the user name and the password, by the existing account that names them', () => {
+    const r = signInFromSteps({ path: '/login', steps }, [{ username: '${vault:secret/qa/app#user3}', password: '${vault:secret/qa/app#password3}' }]);
+    assert.deepEqual(values(r), ['${username}', '${password}', undefined]);
+  });
+  it('and by the field it fills when no account names them', () => {
+    assert.deepEqual(values(signInFromSteps({ path: '/login', steps })), ['${username}', '${password}', undefined]);
   });
 });
 

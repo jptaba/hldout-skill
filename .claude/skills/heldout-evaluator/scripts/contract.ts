@@ -129,7 +129,7 @@ main(async () => {
   const all = [...findings, ...reviewFindings];
   console.log(`Requirement contract ${key}: ${c.acceptanceCriteria.length} AC(s), ${c.endpoints.length} endpoint(s), ${c.rules.length} rule(s), ${c.errorModel.length} error case(s), ${c.gaps.length} gap(s), ${c.coverage.length} coverage entr(ies) · hash ${contractHash(c)}`);
   for (const f of all.filter((x) => !listed.has(x.code))) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
-  if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored (${c.acceptanceCriteria.length} quote(s) found at their cited lines), fully covered (every numbered line, in ${c.coverage.length} coverage entr${c.coverage.length === 1 ? 'y' : 'ies'}), grounded${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : ' (review pending)'}`);
+  if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored (${c.acceptanceCriteria.length} quote(s) found at their cited lines), fully covered (every numbered line, in ${c.coverage.length} coverage entr${c.coverage.length === 1 ? 'y' : 'ies'}), grounded (every expected status, number, message and path found in the sources)${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : '; the independent review is next (heldout-contract-reviewer subagent)'}`);
   const questions = openQuestions(c);
   if (questions.length) {
     console.log(`\nQuestions for the user (${questions.length}) — ask the user (AskUserQuestion in Claude Code, in the chat elsewhere); unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);

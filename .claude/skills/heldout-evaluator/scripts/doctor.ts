@@ -198,7 +198,7 @@ main(async () => {
         const steps = await checkAccountRecipe(p.accounts, p.apiBaseURL ?? p.baseURL, { profile: id, ui: { baseURL: p.baseURL, blockHosts: p.blockHosts, testIdAttribute: p.testIdAttribute, overlays: p.overlays } });
         const bad = steps.find((x) => !x.ok);
         if (bad) check('fail', `AUT ${id}`, `accounts recipe: ${bad.step} → ${bad.detail}`, `fix auts.${id}.accounts in heldout.config.json (try the calls with heldout api-probe --chain)`);
-        else if (!createsAccounts(p.accounts)) check('ok', `AUT ${id}`, `${p.accounts.existing?.length ?? 0} existing test account(s) sign in${p.accounts.lookup ? ' and resolve their ids' : ''} (runs use at most ${Math.max(1, Math.floor((p.accounts.existing?.length ?? 0) / Math.max(1, p.accounts.perTest ?? 1)))} parallel workers)`);
+        else if (!createsAccounts(p.accounts)) check('ok', `AUT ${id}`, `${p.accounts.existing?.length ?? 0} existing test account(s) ${p.accounts.token ? 'sign in over the API' : p.accounts.signIn ? 'set (the first signs in through the UI)' : 'set (how to sign in is saved while hardening the first story that signs in)'}${p.accounts.lookup ? ' and resolve their ids' : ''} (runs use at most ${Math.max(1, Math.floor((p.accounts.existing?.length ?? 0) / Math.max(1, p.accounts.perTest ?? 1)))} parallel workers)`);
         else check('ok', `AUT ${id}`, `accounts recipe works: ${steps.map((x) => x.step.split(' ')[0]).join(' → ')}`);
       } catch (e) { check('fail', `AUT ${id}`, `accounts recipe: ${(e as Error).message}`, 'check the recipe paths and the API URL'); }
     }

@@ -175,6 +175,7 @@ function ensureGitignore(): void {
 main(async () => {
   const { _, flags } = parseArgs();
   const configFile = path.join(ROOT, 'heldout.config.json');
+  const existingProject = fs.existsSync(configFile);
 
   // Started from a skill outside this project: install (or update) the project's copy, then continue from it.
   const toSkill = path.relative(ROOT, SKILL_DIR);
@@ -286,6 +287,11 @@ main(async () => {
   }
   if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags, !flagStr(flags, 'profile'));
 
+  // Run again in a set-up project (a skill update): nothing to onboard.
+  if (existingProject && !flagStr(flags, 'base-url') && !(needInstall && !flags.install)) {
+    console.log('\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; evaluations carry on as before)');
+    return;
+  }
   console.log('\nNext:');
   if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');
   console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor          checks config, AUT reachability, Jira, browser`);

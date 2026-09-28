@@ -13,7 +13,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, assertIssueKey, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
+import { ROOT, assertIssueKey, createsAccounts, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
 import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint, type RequirementContract } from './lib/contract';
 import { TEST_TYPES } from './lib/gherkin';
 
@@ -129,6 +129,11 @@ main(() => {
   });
   const hasUi = c.acceptanceCriteria.some((a) => a.layer !== 'api');
   const accounts = Boolean(cfg.aut.accounts);
+  const creates = createsAccounts(cfg.aut.accounts);
+  const existing = cfg.aut.accounts?.existing?.length ?? 0;
+  const whoAccounts = creates
+    ? `makes a test user on ${cfg.aut.name} (the profile's recipe; ${cfg.aut.accounts?.delete ? 'deleted after the test' : 'kept after the test, named so it can be found'})`
+    : `hands this test one of the ${existing} existing test accounts on ${cfg.aut.name}, for it alone; the accounts are shared with later runs and never deleted, so leave their data as you found it`;
   const spec = [
     '/**',
     ` * Held-out acceptance tests for ${key} — "${c.title}".`,
@@ -137,7 +142,7 @@ main(() => {
     `import { test, expect${c.endpoints.length ? ', expectResponse' : ''}${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
     ...(accounts ? [
       '',
-      `// Accounts: \`const me = await seed.account()\` makes a test user on ${cfg.aut.name} (the profile's recipe; deleted after the test).`,
+      `// Accounts: \`const me = await seed.account()\` ${whoAccounts}.`,
       `// \`me.headers\` authenticates API calls as it${hasUi ? '; `await signIn(page, me)` signs in through the UI (then `await me.refresh()` before more API calls)' : ''}.`,
     ] : []),
     '',
@@ -168,7 +173,7 @@ main(() => {
   ].join('\n');
   writeFile(specFile, spec);
   console.log(`✔ created ${rel(specFile)} — ${c.acceptanceCriteria.length} test stub(s), ${c.endpoints.length} endpoint helper(s)`);
-  if (accounts) console.log(`• accounts: seed.account() uses the "${cfg.autId}" profile's recipe — no seeding code needed for test users`);
+  if (accounts) console.log(`• accounts: seed.account() uses the "${cfg.autId}" profile's recipe — no seeding code needed for test users${creates ? '' : ` (${existing} existing account(s), shared with later runs: each test leaves the data it changed as it found it)`}`);
   else if (/\b(creat|regist|sign ?up)\w*\b[^.]*\b(user|account|customer)/i.test(JSON.stringify([c.testData, c.auth]))) {
     console.log(`• the tests make their own accounts: once hardening has found how (create, sign in, delete), save it as auts.${cfg.autId}.accounts in heldout.config.json — then seed.account() does it for this and every later story (references/data-and-journeys.md)`);
   }

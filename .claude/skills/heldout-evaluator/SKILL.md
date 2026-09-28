@@ -72,7 +72,8 @@ More applications: `npm run heldout -- add-aut <id> --base-url <url>`.
 - *Created by the tests:* nothing now; the recipe is saved while hardening the first story that needs users (from the
   API probe chain, or from the sign-up page when the app has no API for it: `$H accounts --sign-up-json …`).
 Repeat `--add-existing` for more accounts: each parallel worker needs its own, and runs use no more workers than
-there are accounts. `$H accounts --check` (and `doctor`) signs each one in.
+there are accounts. `$H accounts --check` (and `doctor`) signs each one in. Existing accounts are shared with later runs:
+when tests change them, save the call that restores one while hardening (`$H accounts --reset "METHOD path"`).
 
 Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptance-criteria custom field. See
 [references/jira.md](references/jira.md). Tell the user to restart their agent app (Claude Code, GitHub Copilot…) once so the Playwright MCP server and the subagents load.
