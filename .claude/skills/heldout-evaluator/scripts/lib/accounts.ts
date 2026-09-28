@@ -46,7 +46,8 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
   const token = tokenAt >= 0 ? chain.steps[tokenAt] : undefined;
   const lookupAt = chain.steps.findIndex((s, i) => i !== createAt && i !== tokenAt && saves(s, 'id') && (tokenAt < 0 || i > tokenAt));
   const lookup = lookupAt >= 0 ? chain.steps[lookupAt] : undefined;
-  const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE');
+  // Deleting the account: a DELETE on the account itself (its ${id}, or …/me), not one that removes other test data.
+  const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE' && (/\$\{id\}/.test(s.path) || /(^|\/)me\/?$/.test(s.path)));
   if (!create && !token) throw new Error('the chain neither creates an account (a step saving "id") nor signs in (a step saving "token")');
   const source = create ?? token!;
   const fields = (source.json ?? source.form ?? {}) as Record<string, unknown>;
@@ -189,7 +190,8 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   }
   if (r.delete) {
     const d = await send(r.delete, vars, token);
-    out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.slice(0, 120)} — the check account ${vars.username} was left behind`}` });
+    const refused = d.status === 401 || d.status === 403;
+    out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.slice(0, 120)} — the check account ${vars.username} was left behind${refused ? '. The application does not let tests delete accounts: heldout accounts --aut <profile> --no-delete keeps them (named qa-…) instead' : ''}`}` });
   } else out.push({ step: 'delete', ok: true, detail: `none in the recipe: the check account ${vars.username} stays in the application` });
   return out;
 }

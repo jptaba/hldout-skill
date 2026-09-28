@@ -13,6 +13,7 @@
  *   A chain that only signs in (a step saving "token") as an existing account adds that account to the list instead.
  *   heldout accounts --aut <profile> --sign-in-json '<inspect steps>' --sign-in-path /login --sign-in-done "url:/home"   the UI sign-in alone
  *
+ *   heldout accounts --aut <profile> --no-delete      the application doesn't let tests delete accounts: keep them (tagged)
  *   heldout accounts --aut <profile> --per-test 2      tests use up to 2 existing accounts at once (fewer parallel workers)
  *   heldout accounts [--key KEY | --aut <profile>] --check [--create]   sign each existing account in, or create → token →
  *       delete; with no delete in the recipe nothing is created unless --create
@@ -78,6 +79,14 @@ main(async () => {
     save({ ...(cfg.aut.accounts ?? {}), perTest: n });
     const size = cfg.aut.accounts?.existing?.length ?? 0;
     console.log(`✔ tests use up to ${n} account(s) at once: runs use at most ${Math.max(1, Math.floor(size / n))} parallel worker(s) with the ${size} existing account(s)`);
+    changed = true;
+  }
+
+  if (flags['no-delete']) {
+    if (!cfg.aut.accounts?.create) throw new Error('--no-delete applies to accounts the tests create');
+    const { delete: removed, ...rest } = cfg.aut.accounts;
+    save(rest);
+    console.log(`✔ accounts the tests create are kept (no delete${removed ? `; removed ${removed.method} ${removed.path}` : ''}): they are named ${rest.username ?? 'qa-${uid}'} so they can be found later`);
     changed = true;
   }
 

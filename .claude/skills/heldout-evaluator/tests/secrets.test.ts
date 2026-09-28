@@ -126,3 +126,15 @@ describe('a sign-up that answers with a token', () => {
     assert.deepEqual(r.delete, { method: 'DELETE', path: '/users/me' });
   });
 });
+
+describe('the account delete in a chain', () => {
+  it('is the DELETE on the account (its id or /me), not one that removes other test data', () => {
+    const r = recipeFromChain({ steps: [
+      { method: 'POST', path: 'users/register', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { id: 'id' } },
+      { method: 'POST', path: 'users/login', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { token: 'access_token' } },
+      { method: 'DELETE', path: 'favorites/${fid}', headers: { Authorization: 'Bearer ${token}' } },
+      { method: 'DELETE', path: 'users/${id}', headers: { Authorization: 'Bearer ${token}' } },
+    ] } as never);
+    assert.deepEqual(r.delete, { method: 'DELETE', path: '/users/${id}' });
+  });
+});
