@@ -75,6 +75,9 @@ main(() => {
   const covered = new Set(feature.scenarios.flatMap((s) => s.acs));
   const uncovered = feature.acs.filter((a) => !covered.has(a.id));
   const clarifications = feature.scenarios.filter((s) => s.needsClarification);
+  // One that passed means the application meets the requirement as written: the question stays for the owner, but it
+  // doesn't hold up acceptance. Only a clarification scenario that didn't pass is a warning.
+  const unsettled = clarifications.filter((s) => tri.entries.some((e) => baseScenarioId(e.scenario) === s.id && e.status !== 'passed'));
 
   // Group confirmed defects by root cause (same confirmed title) → one APP id per root cause.
   const groups = new Map<string, TriageEntry[]>();
@@ -108,7 +111,7 @@ main(() => {
   const { verdict, reason } = decideVerdict({
     integrity: integrity.status,
     confirmedAppDefects: [...groups.values()].filter((g) => g.some((e) => e.final)).map((g) => ({ refs: [...new Set(g.flatMap((e) => e.requirementRefs))] })),
-    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: clarifications.length, openQuestions: blockingQuestions.length,
+    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length,
   });
 
   const acText = (id: string) => feature.acs.find((a) => a.id === id)?.text ?? '';
@@ -305,7 +308,7 @@ main(() => {
     const poQuestions = feature.openQuestions.filter((q) => !informational(q));
     if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${testedLiterally(q) ? ' _(its literal reading is tested: see the scenarios needing clarification)_' : ' _(not tested)_'}`), '');
     if (infoQuestions.length) md.push('**For the owner\'s information** (about things no acceptance criterion requires; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
-    if (clarifications.length) md.push('**Scenarios needing clarification:**', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}`), '');
+    if (clarifications.length) md.push('**Scenarios needing clarification** (each tests the literal reading of an open question):', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}${unsettled.includes(c) ? ' — did not pass' : ' — passed: the application meets the literal reading'}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');
     if (contradicted.length) md.push('**Readings the application contradicts** (the requirement does not settle these: an assumed value, or the literal reading of an open question; not reported as defects, the owner decides):', '',
       '| Test | Rests on | Expected (by that reading) | Actual |', '| --- | --- | --- | --- |',

@@ -167,7 +167,14 @@ export function inventedLiterals(c: RequirementContract, reqDir: string): Litera
   const bases = [...new Set([...sourceText.matchAll(/https?:\/\/[^\s/"'`)<>]+(\/[a-z0-9_\-./]*[a-z0-9_\-])/g)].map((m) => m[1].replace(/\/+$/, '')))];
   const params = (s: string) => s.replace(/\{[^}]+\}|<[^>]+>|:[a-z_]+/g, '{}');
   const paramSources = params(sourceText);
-  const pathInSources = (p: string) => sourceText.includes(p) || paramSources.includes(params(p));
+  // A declared template (/contacts/{id}) filled with a value the sources give ("a malformed id, for example abc").
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const templates = [...new Set([...sourceText.matchAll(/(?<![\w/])(\/[a-z0-9_\-./]*\{[^}]+\}[a-z0-9_\-./{}]*)/g)].map((m) => m[1]))];
+  const filledFromSources = (p: string) => templates.some((t) => {
+    const hit = p.match(new RegExp(`^${t.split(/\{[^}]+\}/).map(esc).join('([^/]+)')}$`));
+    return Boolean(hit) && hit!.slice(1).every((v) => new RegExp(`(^|[^\\w-])${esc(v)}([^\\w-]|$)`).test(sourceText));
+  });
+  const pathInSources = (p: string) => sourceText.includes(p) || paramSources.includes(params(p)) || filledFromSources(p);
   const out: LiteralViolation[] = [];
   const check = (where: string, text: string | undefined, opts: { mechanics?: boolean } = {}) => {
     if (!text) return;

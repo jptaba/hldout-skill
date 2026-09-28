@@ -95,6 +95,15 @@ describe('literal grounding', () => {
     const dir = fixture();
     assert.deepEqual(inventedLiterals(contract(dir), dir), []);
   });
+  it('grounds a declared path filled with a value the sources give, and nothing else', () => {
+    const dir = fixture();
+    fs.writeFileSync(path.join(dir, 'attachments', 'api.md'), 'GET /orders/{id} returns the order. A malformed id (for example abc) is refused.\n');
+    const c = contract(dir);
+    c.acceptanceCriteria[0].outcomes.push('GET /orders/abc → 400');
+    assert.deepEqual(inventedLiterals(c, dir).filter((x) => x.kind === 'path'), []);
+    c.acceptanceCriteria[0].outcomes.push('GET /orders/xyz → 400');
+    assert.deepEqual(inventedLiterals(c, dir).filter((x) => x.kind === 'path').map((x) => x.literal), ['/orders/xyz']);
+  });
   it('grounds a JSON error body copied from the sources, and rejects an invented one', () => {
     const dir = fixture();
     const c = contract(dir);

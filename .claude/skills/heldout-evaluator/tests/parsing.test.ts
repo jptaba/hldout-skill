@@ -308,7 +308,10 @@ describe('app discovery', () => {
     const { profileIdFor } = await import('../scripts/lib/detect');
     assert.equal(profileIdFor('https://demoqa.com'), 'demoqa');
     assert.equal(profileIdFor('https://www.saucedemo.com/'), 'saucedemo');
-    assert.equal(profileIdFor('https://parabank.parasoft.com/parabank'), 'parabank-parasoft');
+    assert.equal(profileIdFor('https://parabank.parasoft.com/parabank'), 'parabank');
+    assert.equal(profileIdFor('https://thinking-tester-contact-list.herokuapp.com'), 'thinking-tester-contact-list');
+    assert.equal(profileIdFor('https://demo.owasp-juice.shop'), 'owasp-juice');
+    assert.equal(profileIdFor('https://staging.shop.example.com'), 'shop');
     assert.equal(profileIdFor('http://localhost:3000'), 'app');
     assert.equal(profileIdFor('http://10.0.0.7:8080'), 'app');
   });

@@ -102,8 +102,12 @@ export function appNameFrom(title: string | undefined, id: string): string | und
 export function profileIdFor(baseURL: string): string {
   const host = new URL(baseURL).hostname.toLowerCase();
   if (host === 'localhost' || /^[\d.]+$/.test(host) || host.includes(':')) return 'app';
-  const labels = host.split('.').filter((l) => !['www', 'app', 'web'].includes(l));
-  return (labels.length > 1 ? labels.slice(0, -1) : labels).join('-').replace(/[^a-z0-9-]/g, '-') || 'app';
+  // The first label that names the application: not the top-level domain, not a hosting provider
+  // (x.herokuapp.com, x.netlify.app), not a generic prefix (www., demo., staging.).
+  const generic = new Set(['www', 'app', 'web', 'demo', 'test', 'qa', 'dev', 'uat', 'staging', 'stage', 'preprod', 'sandbox', 'api']);
+  const hosting = new Set(['herokuapp', 'netlify', 'vercel', 'azurewebsites', 'cloudfront', 'github', 'gitlab', 'onrender', 'fly', 'pages', 'appspot', 'firebaseapp', 'amplifyapp', 'railway', 'glitch', 'repl', 'ngrok', 'azurestaticapps']);
+  const labels = host.split('.').slice(0, -1).filter((l) => !generic.has(l) && !hosting.has(l));
+  return (labels[0] ?? host.split('.')[0]).replace(/[^a-z0-9-]/g, '-') || 'app';
 }
 
 export const describeCounts = (d: AppDiscovery) => Object.entries(d.counts).filter(([, n]) => n > 0).map(([a, n]) => `${a} ×${n}`).join(', ') || 'no test-id attributes';
