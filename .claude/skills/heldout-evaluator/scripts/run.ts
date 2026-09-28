@@ -27,8 +27,8 @@ import { loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
 /** What the tests' seeding did, from the seed-ledger attachments: data created, cleaned, already gone, kept, and left behind. */
-function seedSummary(results: unknown): { created: number; cleaned: number; alreadyGone: number; kept: number; leftovers: string[] } {
-  const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, leftovers: [] as string[] };
+function seedSummary(results: unknown): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[] } {
+  const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, keptBy: {} as Record<string, number>, leftovers: [] as string[] };
   const walk = (v: unknown, title: string): void => {
     if (Array.isArray(v)) { v.forEach((x) => walk(x, title)); return; }
     if (!v || typeof v !== 'object') return;
@@ -41,7 +41,7 @@ function seedSummary(results: unknown): { created: number; cleaned: number; alre
           sum.created++;
           if (r.cleanup === 'done') { if (/already gone/.test(r.error ?? '')) sum.alreadyGone++; else sum.cleaned++; }
           else if (r.cleanup === 'failed') sum.leftovers.push(`${t}: ${r.label} — ${r.error ?? 'failed'} (${JSON.stringify(r.created ?? null).slice(0, 100)})`);
-          else sum.kept++;
+          else { sum.kept++; sum.keptBy[r.label] = (sum.keptBy[r.label] ?? 0) + 1; }
         }
       } catch { /* not a ledger */ }
     }
@@ -179,7 +179,7 @@ main(async () => {
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
   const seeded = seedSummary(readJson<unknown>(resultsFile));
   const leftovers = seeded.leftovers;
-  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept (no way to delete it, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
+  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: no delete in the recipe, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
     for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);

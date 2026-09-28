@@ -550,6 +550,9 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       if (o.data !== undefined) headers['Content-Type'] ??= 'application/json';
       const formBody = o.form ? new URLSearchParams(Object.entries(o.form).map(([k, v]) => [k, String(v)])).toString() : undefined;
       if (formBody !== undefined) headers['Content-Type'] ??= 'application/x-www-form-urlencoded';
+      // Preconditions read the application as it is now: a cached answer (a CDN, max-age) can hold ids from before a
+      // shared sandbox was reset. The request under test is sent as the test wrote it.
+      if (apiPhase !== 'test' && !Object.keys(headers).some((h) => h.toLowerCase() === 'cache-control')) headers['Cache-Control'] = 'no-cache';
       const send = () => apiContext.fetch(autUrl(process.env.AUT_API_BASE_URL ?? process.env.AUT_BASE_URL, urlPath), {
         method, headers, params: o.params, ...(o.maxRedirects !== undefined ? { maxRedirects: o.maxRedirects } : {}),
         ...(o.data !== undefined ? { data: raw ? (o.data as string) : JSON.stringify(o.data) } : formBody !== undefined ? { data: formBody } : {}),
