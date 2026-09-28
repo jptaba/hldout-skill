@@ -41,7 +41,11 @@ function seedSummary(results: unknown): { created: number; cleaned: number; alre
           sum.created++;
           if (r.cleanup === 'done') { if (/already gone/.test(r.error ?? '')) sum.alreadyGone++; else sum.cleaned++; }
           else if (r.cleanup === 'failed') sum.leftovers.push(`${t}: ${r.label} — ${r.error ?? 'failed'} (${JSON.stringify(r.created ?? null).slice(0, 100)})`);
-          else { sum.kept++; sum.keptBy[r.label] = (sum.keptBy[r.label] ?? 0) + 1; }
+          else {
+            // "(created by the scenario)" is what seed.track adds; a label that already says so doesn't need it twice.
+            const label = /by the scenario .*\(created by the scenario\)$/.test(r.label) ? r.label.replace(/ \(created by the scenario\)$/, '') : r.label;
+            sum.kept++; sum.keptBy[label] = (sum.keptBy[label] ?? 0) + 1;
+          }
         }
       } catch { /* not a ledger */ }
     }
@@ -179,7 +183,7 @@ main(async () => {
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
   const seeded = seedSummary(readJson<unknown>(resultsFile));
   const leftovers = seeded.leftovers;
-  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: no delete in the recipe, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
+  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: the application offers no delete, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
     for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);

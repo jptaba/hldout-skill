@@ -33,9 +33,10 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
 The same lines work in bash, zsh and PowerShell. The sparse clone fetches only the skill (about 2 MB, a few seconds),
 not the demo evaluations stored beside it. `init` copies the skill into `.claude/skills/heldout-evaluator/`
 and scaffolds the project. Then it visits your app once and fills in the profile:
-- the profile id, from the host name;
+- the profile id, from the host name (from the page title for localhost or an IP address);
 - the app's name, from its page title (shown in verdicts);
 - the test-id attribute the app renders;
+- the API host, when the web app calls an API on another host;
 - `blockHosts`, the ad and analytics networks the page loads.
 
 Add `--api-base-url` if the API lives elsewhere, and `--ci` for a regression pipeline (GitLab CI, or GitHub Actions
@@ -58,7 +59,7 @@ then runs the steps above.
 
 | What | Where |
 | --- | --- |
-| Applications (UI URL, API URL, test-id attribute (detected by `init`), healthcheck, `blockHosts` for ads/analytics, `maxWorkers` and `minTestIntervalMs` for rate-limited hosts) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
+| Applications (UI URL, API URL, test-id attribute (detected by `init`), healthcheck, `blockHosts` for ads/analytics, `overlays` for cookie and welcome dialogs, `maxWorkers` and `minTestIntervalMs` for rate-limited hosts) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
 | Test accounts, written once per app and used by `seed.account()` / `signIn()` in every story: existing accounts (passwords in `.env`, CI variables or HashiCorp Vault), or accounts the tests create (deleted afterwards when the app allows it) | `npm run heldout -- accounts --add-existing …` · `auts.<id>.accounts` — [data-and-journeys.md §4a](.claude/skills/heldout-evaluator/references/data-and-journeys.md) |
 | Secrets | `.env` (git-ignored), real environment variables (CI; they win over `.env`), or Vault: `${env:NAME}` / `${vault:path#field}` wherever a secret is referenced; `VAULT_ADDR` + `vault login` (or `VAULT_TOKEN`, AppRole) |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (writes `evaluations/KEY/evaluation.json`) |

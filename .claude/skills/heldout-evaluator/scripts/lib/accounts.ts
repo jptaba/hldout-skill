@@ -15,8 +15,11 @@ import { ENV_REF, expandSecrets } from './secrets';
 
 export const envNamesIn = (value: unknown): string[] => [...new Set([...JSON.stringify(value ?? {}).matchAll(ENV_REF)].map((m) => m[1]))];
 
-function fill(value: unknown, vars: Record<string, string | undefined>): unknown {
-  if (typeof value === 'string') return expandSecrets(value).replace(/\$\{(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+function fill(value: unknown, vars: Record<string, unknown>): unknown {
+  // A value that is exactly "${name}" keeps the saved value's JSON type (a number stays a number).
+  const whole = typeof value === 'string' ? value.match(/^\$\{(\w+)\}$/)?.[1] : undefined;
+  if (whole !== undefined && (typeof vars[whole] === 'number' || typeof vars[whole] === 'boolean')) return vars[whole];
+  if (typeof value === 'string') return expandSecrets(value).replace(/\$\{(\w+)\}/g, (m, n: string) => (vars[n] === undefined ? m : String(vars[n])));
   if (Array.isArray(value)) return value.map((v) => fill(v, vars));
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fill(v, vars)]));
   return value;
@@ -24,7 +27,9 @@ function fill(value: unknown, vars: Record<string, string | undefined>): unknown
 const dig = (o: unknown, dotted: string): unknown => dotted.split('.').reduce<unknown>((a, k) => (a && typeof a === 'object' ? (a as Record<string, unknown>)[k] : undefined), o);
 const SECRET = /\$\{(?:env|vault):[^}]+\}/;
 
-interface ChainStep { method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; save?: Record<string, string> }
+interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; save?: Record<string, string> }
+/** Names the recipe fills itself; anything else a call uses must come from a `before` call. */
+const RECIPE_VARS = new Set(['uid', 'username', 'password', 'id', 'token']);
 interface InspectStep { do: string; target?: string; value?: string }
 
 /**
@@ -61,7 +66,15 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
   const call = (s: ChainStep): RecipeCall => ({ method: (s.method ?? 'GET').toUpperCase(), path: `/${s.path.replace(/^\/+/, '')}`,
     ...(s.json !== undefined ? { body: swap(s.json) } : {}), ...(s.form ? { form: swap(s.form) as Record<string, string> } : {}) });
   const authLine = [...chain.steps].flatMap((s) => Object.entries(s.headers ?? {})).find(([, v]) => v.includes('${token}'));
+  // Values the account calls take from earlier steps (a security-question id, a CSRF token): those steps run first.
+  const firstAt = Math.min(...[createAt, tokenAt].filter((i) => i >= 0));
+  const used = new Set([create, token, lookup, del].filter(Boolean).flatMap((s) => [...JSON.stringify([s!.path, s!.json ?? s!.form ?? null, s!.headers ?? null]).matchAll(/\$\{(\w+)\}/g)].map((m) => m[1]))
+    .filter((n) => !RECIPE_VARS.has(n)));
+  const before = chain.steps.slice(0, firstAt).filter((s) => Object.keys(s.save ?? {}).some((n) => used.has(n)));
+  const missing = [...used].filter((n) => !before.some((s) => s.save && n in s.save));
+  if (missing.length) throw new Error(`the account calls use ${missing.map((n) => `\${${n}}`).join(', ')}, which no earlier step of the chain saves — save it in a step before the account is created or signed in`);
   return {
+    ...(before.length ? { before: before.map((s) => ({ ...call(s), save: Object.fromEntries(Object.entries(s.save!).filter(([n]) => used.has(n))) })) } : {}),
     ...(create ? { password, ...(username ? { username } : {}), create: { ...call(create), id: create.save!.id, ...(saves(create, 'token') ? { token: create.save!.token } : {}) } } : { existing: [{ username: username!, password }] }),
     ...(token ? { token: { ...call(token), token: token.save!.token, ...(token.save!.id ? { id: token.save!.id } : {}) } } : {}),
     ...(lookup ? { lookup: { ...call(lookup), id: lookup.save!.id } } : {}),
@@ -81,7 +94,7 @@ export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; do
 export interface RecipeStep { step: string; ok: boolean; detail: string }
 
 /** Run the recipe's UI sign-in in a headless browser as the given account; the error message, or undefined when it worked. */
-async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, string | undefined>, blockHosts: string[] = [], testIdAttribute = 'data-testid'): Promise<string | undefined> {
+async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, unknown>, blockHosts: string[] = [], testIdAttribute = 'data-testid', overlays: string[] = []): Promise<string | undefined> {
   const signIn = r.signIn!;
   let chromium: { launch(o: object): Promise<{ newContext(): Promise<UiContext>; close(): Promise<void> }> };
   try {
@@ -97,6 +110,7 @@ async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, 
     const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'];
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     const locate = (expr: string) => new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page as unknown as Record<string, (...a: unknown[]) => unknown>)[h].bind(page))) as UiLocator;
+    for (const expr of overlays) await page.addLocatorHandler(locate(expr), async (l: UiLocator) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
     await page.goto(resolveUrl(baseURL, signIn.path), { waitUntil: 'domcontentloaded' });
     for (const st of signIn.steps) {
       if (st.fill !== undefined) await locate(st.fill).fill(String(fill(st.value ?? '', vars)), { timeout: 15_000 });
@@ -111,15 +125,15 @@ async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, 
 }
 interface UiLocator { fill(v: string, o: object): Promise<void>; click(o: object): Promise<void>; first(): UiLocator; waitFor(o: object): Promise<void> }
 interface UiContext { route(match: (u: URL) => boolean, handler: (route: { abort(): Promise<void> }) => Promise<void>): Promise<void>; newPage(): Promise<UiPage> }
-interface UiPage { goto(url: string, o: object): Promise<unknown>; waitForURL(match: (u: URL) => boolean, o: object): Promise<void> }
+interface UiPage { addLocatorHandler(l: UiLocator, h: (l: UiLocator) => Promise<void>): Promise<void>; goto(url: string, o: object): Promise<unknown>; waitForURL(match: (u: URL) => boolean, o: object): Promise<void> }
 
 /**
  * Check the recipe live. Existing accounts: each signs in over the API (nothing is created or deleted). Created
  * accounts: create → token → delete; when the application offers no delete, nothing is created unless `createUndeletable`.
  */
-export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; ui?: { baseURL: string; blockHosts?: string[]; testIdAttribute?: string } } = {}): Promise<RecipeStep[]> {
+export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; profile?: string; ui?: { baseURL: string; blockHosts?: string[]; testIdAttribute?: string; overlays?: string[] } } = {}): Promise<RecipeStep[]> {
   const out: RecipeStep[] = [];
-  const send = async (c: RecipeCall, vars: Record<string, string | undefined>, token?: string) => {
+  const send = async (c: RecipeCall, vars: Record<string, unknown>, token?: string) => {
     const headers: Record<string, string> = { Accept: 'application/json' };
     let body: string | undefined;
     if (c.body !== undefined) { body = JSON.stringify(fill(c.body, { ...vars, token })); headers['Content-Type'] = 'application/json'; }
@@ -137,7 +151,19 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     try { json = JSON.parse(text); } catch { json = undefined; }
     return { status: res.status, ok: res.ok, json, text };
   };
-  const signInOverApi = async (vars: Record<string, string | undefined>, label: string) => {
+  /** The recipe's `before` calls, their saved values put into vars; false when one failed (recorded). */
+  const runBefore = async (vars: Record<string, unknown>) => {
+    for (const b of r.before ?? []) {
+      const res = await send(b, vars);
+      const got = Object.entries(b.save).map(([n, d]) => [n, dig(res.json, d)] as const);
+      const lacking = got.filter(([, v]) => v === undefined || v === null).map(([n]) => b.save[n]);
+      out.push({ step: `before ${b.method} ${b.path}`, ok: res.ok && !lacking.length, detail: !res.ok ? `${res.status} ${res.text.replace(/\s+/g, ' ').slice(0, 120)}` : lacking.length ? `${res.status}, no "${lacking.join('", "')}" in the answer` : `${res.status}, ${Object.keys(b.save).join(', ')} found` });
+      if (!res.ok || lacking.length) return false;
+      for (const [n, v] of got) vars[n] = v;
+    }
+    return true;
+  };
+  const signInOverApi = async (vars: Record<string, unknown>, label: string) => {
     if (!r.token) return undefined;
     const t = await send(r.token, vars);
     const value = dig(t.json, r.token.token);
@@ -152,6 +178,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
       const unresolved = [a.username, a.password].filter((v) => /\$\{(env|vault):/.test(String(fill(v, {}))));
       if (unresolved.length) { out.push({ step: `account ${a.username}`, ok: false, detail: `not set: ${unresolved.join(', ')}` }); continue; }
       if (!r.token) { out.push({ step: `account ${a.username}`, ok: true, detail: 'credentials set; the UI sign-in is checked by the first test that signs in' }); continue; }
+      if (!(await runBefore(vars))) return out;
       const token = await signInOverApi(vars, a.username);
       if (token && !vars.id && r.lookup) {
         const l = await send(r.lookup, vars, token);
@@ -162,7 +189,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     // The UI sign-in, once, as the first account.
     const first = r.existing?.[0];
     if (opts.ui && r.signIn && first && out.every((x) => x.ok)) {
-      const failed = await uiSignIn(r, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts, opts.ui.testIdAttribute);
+      const failed = await uiSignIn(r, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays);
       out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as ${first.username}` });
     }
     return out;
@@ -172,11 +199,12 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     out.push({ step: `create ${r.create.method} ${r.create.path}`, ok: true, detail: 'not run: the application offers no delete, so a check account would stay behind (heldout accounts --check --create makes one on purpose)' });
     return out;
   }
-  const vars: Record<string, string | undefined> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}`, password: String(fill(r.password ?? '', {})) };
+  const vars: Record<string, unknown> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}`, password: String(fill(r.password ?? '', {})) };
   vars.username = String(fill(r.username ?? 'qa-${uid}', vars));
+  if (!(await runBefore(vars))) return out;
   const created = await send(r.create, vars);
   const id = dig(created.json, r.create.id);
-  out.push({ step: `create ${r.create.method} ${r.create.path}`, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.slice(0, 120)}` });
+  out.push({ step: `create ${r.create.method} ${r.create.path}`, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 120)}` });
   if (!created.ok || id === undefined) return out;
   vars.id = String(id);
   const fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;
@@ -184,7 +212,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   const signedIn = r.token ? await signInOverApi(vars, `${r.token.method} ${r.token.path}`) : undefined;
   let token = signedIn ?? (typeof fromCreate === 'string' ? fromCreate : undefined);
   if (opts.ui && r.signIn) {
-    const failed = await uiSignIn(r, opts.ui.baseURL, vars, opts.ui.blockHosts, opts.ui.testIdAttribute);
+    const failed = await uiSignIn(r, opts.ui.baseURL, vars, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays);
     out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as the check account` });
     // Many applications revoke earlier tokens at a UI sign-in: take a fresh one for the delete.
     if (r.token) token = (await signInOverApi(vars, 'again after the UI sign-in')) ?? token;
@@ -192,7 +220,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   if (r.delete) {
     const d = await send(r.delete, vars, token);
     const refused = d.status === 401 || d.status === 403;
-    out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.slice(0, 120)} — the check account ${vars.username} was left behind${refused ? '. The application does not let tests delete accounts: heldout accounts --aut <profile> --no-delete keeps them (named qa-…) instead' : ''}`}` });
+    out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.replace(/\s+/g, ' ').slice(0, 120)} — the check account ${vars.username} was left behind${refused ? `. The application does not let tests delete accounts: heldout accounts --aut ${opts.profile ?? '<profile>'} --no-delete keeps them (named qa-…) instead` : ''}`}` });
   } else out.push({ step: 'delete', ok: true, detail: `none in the recipe: the check account ${vars.username} stays in the application` });
   return out;
 }

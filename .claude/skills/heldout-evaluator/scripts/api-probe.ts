@@ -83,12 +83,16 @@ function decode(v: unknown, how?: string): unknown {
   return parsed(b64(v));
 }
 async function runChain(file: string, base: string, cfgName: string, outFile?: string): Promise<void> {
-  const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, string>; steps: ChainStep[] };
+  const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, unknown>; steps: ChainStep[] };
   const vars: Record<string, string> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
   const interpVars = (s: string): string => s.replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
   const interp = (s: string): string => interpVars(env(s));
-  const deep = (v: unknown): unknown => (typeof v === 'string' ? interp(v) : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
-  for (const [k, v] of Object.entries(chain.vars ?? {})) vars[k] = interp(v);
+  // A body value that is exactly "${name}" keeps the saved value's JSON type ({"BasketId": "${bid}"} sends 6, not "6").
+  const typed: Record<string, unknown> = {};
+  const whole = (s: string) => s.match(/^\$\{([A-Za-z_][\w]*)\}$/)?.[1];
+  const deep = (v: unknown): unknown => (typeof v === 'string' ? (whole(v) !== undefined && typed[whole(v)!] !== undefined ? typed[whole(v)!] : interp(v))
+    : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
+  for (const [k, v] of Object.entries(chain.vars ?? {})) { if (typeof v === 'string') vars[k] = interp(v); else { vars[k] = String(v); typed[k] = v; } }
   const lines = [`# API chain — ${file}`, '', `- AUT: ${cfgName} · ${base} · captured ${new Date().toISOString()}`, ''];
   let failed = 0;
   for (const [i, s] of chain.steps.entries()) {
@@ -101,7 +105,12 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     else if (s.form) { body = new URLSearchParams(deep(s.form) as Record<string, string>).toString(); headers['Content-Type'] ??= 'application/x-www-form-urlencoded'; }
     else if (s.raw !== undefined) body = interp(s.raw);
     const r = await send(url, method, headers, body);
-    for (const [name, dotted] of Object.entries(s.save ?? {})) { const v = dig(r.json, dotted); if (v !== undefined) vars[name] = String(v); }
+    for (const [name, dotted] of Object.entries(s.save ?? {})) {
+      const v = dig(r.json, dotted);
+      if (v === undefined) continue;
+      vars[name] = String(v);
+      if (typeof v === 'number' || typeof v === 'boolean') typed[name] = v; else delete typed[name];
+    }
     const exp = s.expect === undefined ? undefined : ([] as number[]).concat(s.expect);
     const checks = (s.notContains ?? []).map((c) => {
       const d = decode(dig(r.json, c.field), c.decode);

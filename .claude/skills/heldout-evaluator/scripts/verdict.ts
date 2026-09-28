@@ -144,7 +144,7 @@ main(() => {
   const stepsOf = (id: string) => [...feature.background, ...(feature.scenarios.find((s) => s.id === baseScenarioId(id))?.steps ?? [])];
   const durationS = meta.stats ? Math.round(meta.stats.duration / 1000) : Math.round((Date.parse(meta.finishedAt) - Date.parse(meta.startedAt)) / 1000);
   const reqCount = integrity.files.reduce((n, f) => n + f.currentAssertions, 0);
-  const tiersUsed = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8').match(/^\*\*Tiers? used:\*\*\s*(.+)$/m)?.[1] : undefined;
+  const tiersUsed = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8').match(/^\*\*Tiers? used:\*\*[ \t]*(\S.*)$/m)?.[1] : undefined; // same line only: an empty value is "not recorded"
   // A table cell: the first sentence, capped; the full account stays in the hardening log.
   const firstSentence = tiersUsed?.replace(/`/g, '').split(/(?<=\.)\s/)[0]; // no code spans: a cut must not break markdown
   const tierLine = firstSentence && firstSentence.length > 160 ? `${firstSentence.slice(0, 160).replace(/\s+\S*$/, '')}… (see hardening log)` : firstSentence;
@@ -166,7 +166,7 @@ main(() => {
     `| Tests | ${s.total} total · ${s.passed} passed · ${s.failed} failed · ${s.flaky} flaky · ${s.skipped} skipped (from ${feature.scenarios.length} scenarios) |`,
     `| Held-out integrity | ${integrityCell} |`,
     ...(meta.preflight === 'skipped' ? ['| ⚠️ Preflight | **skipped** for the final run (--skip-preflight): the traceability lint and AUT healthcheck were not enforced |'] : []),
-    `| Hardening | ${esc(tierLine ?? 'see hardening log')} |`,
+    `| Hardening | ${esc(tierLine ?? 'not recorded: the hardening log has no "Tiers used" line')} |`,
     ...(missingRuns.length ? [`| ⚠️ Run history | run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} were deleted: their results are not part of this record |`] : []),
     `| Evaluator | ${esc(flagStr(flags, 'evaluator') ?? 'Claude Code — heldout-evaluator skill')} |`,
     `| Generated | ${new Date().toISOString()} |`, '',
@@ -306,7 +306,15 @@ main(() => {
         ...contractGaps.map((g) => `| ${g.id} | ${esc(g.element)} | ${g.kind === 'oracle' ? 'expected behaviour' : 'how to exercise'} | ${g.affects.join(', ')} | ${how[g.resolution] ?? g.resolution}${g.value ? `: ${esc(g.value)}` : ''} |`), '');
     }
     const poQuestions = feature.openQuestions.filter((q) => !informational(q));
-    if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${testedLiterally(q) ? ' _(its literal reading is tested: see the scenarios needing clarification)_' : ' _(not tested)_'}`), '');
+    // How each question was handled: tested under an assumption, covered by an assumption, tested literally, or not at all.
+    const handled = (q: string) => {
+      const ids: string[] = q.match(/\bG\d+\b/g) ?? [];
+      const byAssumption = feature.scenarios.filter((s) => s.assumes.some((g) => ids.includes(g))).map((s) => s.id);
+      if (byAssumption.length) return ` _(tested under the assumption below: ${byAssumption.join(', ')})_`;
+      if (ids.length && ids.every((id) => feature.assumptions.some((a) => new RegExp(`^${id}\\b`).test(a)))) return ' _(handled by an assumption below)_';
+      return testedLiterally(q) ? ' _(its literal reading is tested: see the scenarios needing clarification)_' : ' _(not tested)_';
+    };
+    if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${handled(q)}`), '');
     if (infoQuestions.length) md.push('**For the owner\'s information** (about things no acceptance criterion requires; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
     if (clarifications.length) md.push('**Scenarios needing clarification** (each tests the literal reading of an open question):', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}${unsettled.includes(c) ? ' — did not pass' : ' — passed: the application meets the literal reading'}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');

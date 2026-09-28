@@ -365,8 +365,8 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>4 apps</b><span>onboarded end to end in 8 rounds, with no app-specific code</span></div>
-    <div class="stat"><b>138</b><span>self-tests guarding the skill's own logic</span></div>
+    <div class="stat"><b>5 apps</b><span>onboarded end to end in 9 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>143</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
 
@@ -591,7 +591,7 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
     { "click": "getByRole(\"button\", { name: \"Submit\", exact: true })" } ] }
 }</pre></div>
   <div class="grid two">
-    <div class="card"><h4><span class="tag">create · token · lookup</span></h4><p>How a user is made and signed in over the API. <code>lookup</code> is an optional "who am I" call for apps whose sign-in answer carries no id.</p></div>
+    <div class="card"><h4><span class="tag">before · create · token · lookup</span></h4><p>How a user is made and signed in over the API. <code>before</code> fetches what those calls need first, such as a CSRF token. <code>lookup</code> is a "who am I" call for apps whose sign-in answer carries no id.</p></div>
     <div class="card"><h4><span class="tag">delete</span></h4><p>Optional. Without it, created accounts are kept and tagged. <code>doctor</code> then never creates a throw-away check account.</p></div>
     <div class="card"><h4><span class="tag">existing[]</span></h4><p>Accounts someone else made. The user name may be literal or a reference. The password is always <code>${env:…}</code> or <code>${vault:…}</code>.</p></div>
     <div class="card"><h4><span class="tag">signIn</span></h4><p>The UI sign-in as recorded steps, and how to know it worked. <code>signIn(page, me)</code> replays it as a precondition.</p></div>
@@ -774,6 +774,7 @@ test('SCN-001: A customer adds a product to favourites', { tag: ['@AC-1', '@type
     <div class="fall">↓ always there</div>
     <div class="tier"><div class="lv">3<small>Bundled</small></div><div><h4><code>inspect</code>, <code>api-probe --chain</code>, <code>run --capture</code></h4><p>An ARIA snapshot with ranked unique locators and probes. API calls or whole call chains with status, timing, shape and a redacted body. A snapshot after every step of a run.</p></div></div>
   </div>
+  <p>Cookie banners and welcome dialogs that the app itself shows go in the profile's <code>overlays</code>: the button that closes each. Tests, the UI sign-in and the inspector click it whenever it appears, so no test has to deal with it.</p>
   <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract CL-3 --resolve G1 --value … --evidence hardening/inspect-login.md</code>. Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
   <p>The first story that needs users also produces the accounts recipe: the probe chain that signed up and signed in becomes <code>accounts --from-chain</code>, and the login steps from <code>inspect</code> become the UI sign-in.</p>
 </section>
@@ -990,7 +991,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Eight rounds from an empty folder to a published verdict, on four apps. Every hiccup was fixed in the skill before the next round.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Nine rounds from an empty folder to a published verdict, on five apps. Every hiccup was fixed in the skill before the next round.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1004,6 +1005,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
       <tr><td>6</td><td>DQ-2 · DemoQA</td><td>existing accounts from .env and a real HashiCorp Vault</td><td><span class="badge b-pass">PASS</span> 21/21, no password in any artifact</td></tr>
       <tr><td>7</td><td>CL-3 · Contact List App</td><td>users created and deleted; UI sign-in checked in a browser</td><td><span class="badge b-pass">PASS</span> 20/20, as the key</td></tr>
       <tr><td>8</td><td>TOOL-4 · Toolshop</td><td>API on another host; users kept by design; two users in one test</td><td><span class="badge b-pass">PASS</span> 11/11, as the key</td></tr>
+      <tr><td>9</td><td>JS-2 · OWASP Juice Shop (local Docker)</td><td>a sign-up that needs a lookup first; cookie and welcome overlays; a basket-privacy defect</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
     </tbody>
   </table></div>
   <p class="small">The full report, with every defect the rounds found in the skill and how it was fixed, is in <a href="../demo/EVALUATOR-TEST-REPORT.md">demo/EVALUATOR-TEST-REPORT.md</a>.</p>

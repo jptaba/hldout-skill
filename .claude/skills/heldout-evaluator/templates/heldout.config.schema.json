@@ -38,6 +38,13 @@
             "pattern": "^https?://",
             "description": "API origin for the api fixture and api-probe. Defaults to baseURL."
           },
+          "overlays": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Page-locator expressions of the button that closes a banner or dialog that can cover the page at any time (cookie consent, welcome dialog): clicked whenever it appears"
+          },
           "blockHosts": {
             "type": "array",
             "items": {
@@ -124,6 +131,40 @@
               "authHeader": {
                 "type": "string",
                 "description": "Default \"Authorization: Bearer ${token}\""
+              },
+              "before": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Calls made first, each time an account is made or signed in (a CSRF token, a valid security-question id…); save maps a name to a dotted path in the answer, usable as ${name} below",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "method",
+                    "path",
+                    "save"
+                  ],
+                  "properties": {
+                    "method": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "body": {},
+                    "form": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "save": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
               },
               "delete": {
                 "type": "object",

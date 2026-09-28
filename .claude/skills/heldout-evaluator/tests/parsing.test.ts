@@ -221,6 +221,11 @@ describe('failure signatures across runs', () => {
     assert.equal(maskVolatile('[REQ AC-10] 401 vs 403'), '[REQ AC-10] 401 vs 403');
     assert.notEqual(maskVolatile('"Your account has been locked."'), maskVolatile('"Epic sadface: Sorry"'));
   });
+  it('match a "must not be X" failure whatever X is this run (a seeded id)', async () => {
+    const { signature } = await import('../scripts/lib/triage-model');
+    const entry = (id: string) => ({ scenario: 'SCN-007', status: 'failed', error: { headline: "[REQ AC-6] does not return B's basket", reqTag: 'AC-6', expected: `not ${id}`, received: id, message: '' } }) as never;
+    assert.equal(signature(entry('46')), signature(entry('69')));
+  });
   it('depend on the failure only, not on the evidence triage picked for it', async () => {
     const { signature } = await import('../scripts/lib/triage-model');
     const error = { headline: '[REQ AC-6] an error is shown', reqTag: 'AC-6', received: 'hidden', message: '' };
@@ -284,6 +289,7 @@ describe('Git Bash path rewriting', () => {
     assert.equal(unmangleMsysPath('C:\\Program Files\\Git\\products'), '/products');
     assert.equal(unmangleMsysPath('/health'), '/health');
     assert.equal(unmangleMsysPath('api;C:\\Program Files\\Git\\products'), 'api:/products');
+    assert.equal(unmangleMsysPath('#C:/Program Files/Git/login'), '#/login'); // SPA hash route
     assert.equal(resolveUrl('https://x.test', 'C:/Program Files/Git/api/ping'), 'https://x.test/api/ping');
   });
 });

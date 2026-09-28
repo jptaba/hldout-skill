@@ -63,7 +63,9 @@ function installSkillFrom(source: string): void {
   const edited = fs.existsSync(PROJECT_SKILL) ? TEMPLATE_COPIES.filter(([, t]) => fs.existsSync(path.join(ROOT, t)) && !refresh.some(([, r]) => r === t)) : [];
   fs.rmSync(PROJECT_SKILL, { recursive: true, force: true });
   fs.cpSync(source, PROJECT_SKILL, { recursive: true, filter: (f) => !path.relative(source, f).split(/[\\/]/).some((p) => p === 'node_modules' || p === '.git') });
-  const commit = git(source, 'rev-parse', '--short', 'HEAD');
+  // A working tree with uncommitted changes to the skill is not that commit: say so.
+  const head = git(source, 'rev-parse', '--short', 'HEAD');
+  const commit = head && git(source, 'status', '--porcelain', '--', '.') ? `${head}+local changes` : head;
   // Where to pull from and what to run again to update (paths in the form the local git prints them).
   const repo = git(source, 'rev-parse', '--show-toplevel');
   const info = { from: repo ?? source, update: `${repo ? `git -C "${repo}" pull, then ` : ''}npx -y tsx "${path.join(source, 'scripts', 'heldout.ts').split(path.sep).join('/')}" init`,
@@ -94,7 +96,7 @@ function profileFrom(flags: Flags, base: Record<string, unknown> = {}) {
 }
 
 /** Visit the start page once and fill in what the flags didn't give: name, test-id attribute, blockHosts. */
-async function discover(configFile: string, id: string, flags: Flags): Promise<void> {
+async function discover(configFile: string, id: string, flags: Flags, renameGeneric = false): Promise<void> {
   const cfg = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   const profile = cfg.auts[id];
   if (!profile) return;
@@ -104,6 +106,13 @@ async function discover(configFile: string, id: string, flags: Flags): Promise<v
   if (!flagStr(flags, 'name') && name) {
     profile.name = name;
     say('✔', `name: "${name}" (from the page title, shown in verdicts; --name overrides)`);
+  }
+  // localhost or an IP address says nothing about the application: name the profile after its title instead.
+  const slug = (name ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  if (renameGeneric && id === 'app' && slug && slug !== id && !cfg.auts[slug]) {
+    cfg.auts = Object.fromEntries(Object.entries(cfg.auts).map(([k, v]) => [k === id ? slug : k, v]));
+    if (cfg.defaultAut === id) cfg.defaultAut = slug;
+    say('✔', `profile id: ${slug} (from the page title; ${new URL(profile.baseURL).host} doesn't name the app; --profile overrides)`);
   }
   if (flagStr(flags, 'test-id-attr')) { /* given */ } else if (d.attribute) {
     profile.testIdAttribute = d.attribute;
@@ -251,7 +260,7 @@ main(async () => {
     console.log('\n▶ npm install'); if (npm(['install', '--no-fund', '--no-audit']).status !== 0) throw new Error('npm install failed — see the output above');
     console.log('▶ npx playwright install chromium'); if (npx(['playwright', 'install', 'chromium']).status !== 0) throw new Error('Chromium install failed — see the output above');
   }
-  if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags);
+  if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags, !flagStr(flags, 'profile'));
 
   console.log('\nNext:');
   if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');

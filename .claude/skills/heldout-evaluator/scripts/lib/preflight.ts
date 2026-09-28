@@ -109,6 +109,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   if (stubs) err('unfinished-scaffold', `${stubs} TODO(scenario) marker(s) from "heldout scaffold" remain in scenarios.feature / the spec — write the journeys and assertions`);
   const todo = (src.match(/TODO\(harden\)/g) ?? []).length;
   if (todo) (opts.allowUnhardened ? warn : err)('unhardened', `${todo} TODO(harden) marker(s) remain`);
+  // Once hardened, the log says which browser/API tiers were used; the verdict quotes it.
+  if (!opts.allowUnhardened && fs.existsSync(p.hardeningLog) && !/^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'))) {
+    warn('hardening-log-empty', `${rel(p.hardeningLog)} has no "Tiers used" — record the tiers you used and what hardening changed (the verdict quotes it)`);
+  }
   if (/\bwaitForTimeout\(/.test(src)) warn('hard-wait', 'page.waitForTimeout() found — use web-first assertions instead');
   if (/\btest\.(only|fixme)\(|\.skip\(/.test(src)) err('focused-or-skipped', 'test.only / test.fixme / skip found — requirement scenarios must all run');
 

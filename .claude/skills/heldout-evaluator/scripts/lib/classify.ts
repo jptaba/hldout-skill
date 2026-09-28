@@ -52,13 +52,17 @@ export function parseError(raw: string): ParsedError {
   const line = (re: RegExp) => message.match(re)?.[1]?.trim();
   const headline = message.split('\n').find((l) => l.trim())?.replace(/^Error:\s*/, '').trim() ?? '';
   const diff = parseDiff(message);
+  const expected = line(/^\s*Expected(?: [a-z ]+)?:\s*(.*)$/m) ?? diff?.expected;
+  const matcher = line(/expect\([^)]*\)\.((?:not\.)?to\w+)/);
+  // ".not.toBe(x)" failing prints only "Expected: not x": what was received is x itself.
+  const receivedNot = /^not\.to(Be|Equal|StrictEqual)$/.test(matcher ?? '') && expected?.startsWith('not ') ? expected.slice(4) : undefined;
   return {
     headline,
     // Only the failing assertion's own message counts: the code frame below it can show a neighbouring [REQ …].
     reqTag: headline.match(/\[REQ ([^\]]+)\]/)?.[1],
-    matcher: line(/expect\([^)]*\)\.((?:not\.)?to\w+)/),
-    expected: line(/^\s*Expected(?: [a-z ]+)?:\s*(.*)$/m) ?? diff?.expected,
-    received: line(/^\s*Received(?: [a-z ]+)?:\s*(.*)$/m) ?? diff?.received,
+    matcher,
+    expected,
+    received: line(/^\s*Received(?: [a-z ]+)?:\s*(.*)$/m) ?? diff?.received ?? receivedNot,
     locator: line(/^\s*Locator:\s*(.*)$/m) ?? line(/waiting for ((?:locator|getBy\w+)\(.*\))\s*$/m),
     message: message.slice(0, 2500),
   };

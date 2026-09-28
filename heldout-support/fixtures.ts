@@ -134,8 +134,9 @@ export interface Seed {
   once<T>(key: string, label: string, make: () => Promise<T>, ttlMs?: number): Promise<T>;
   /** Readiness / eventual consistency: poll `probe` until `ready(value)` holds or the timeout expires (→ BLOCKED). */
   until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts?: { timeoutMs?: number; intervalMs?: number }): Promise<T>;
-  /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). */
-  track<T>(label: string, created: T, cleanup: (created: T) => Promise<unknown>): T;
+  /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). Without a
+   *  cleanup (the application offers no way to delete it), the record is listed as kept by design. */
+  track<T>(label: string, created: T, cleanup?: (created: T) => Promise<unknown>): T;
   /**
    * A test account from the AUT profile's `accounts` recipe, signed in over the API when the recipe has a `token` call.
    * Created (unique user name, deleted after the test when the recipe has `delete`), or one of the `existing` accounts:
@@ -148,13 +149,16 @@ export interface Seed {
 export interface Account {
   id: string; username: string; password: string; token?: string;
   headers: Record<string, string>;
+  /** The body of the latest sign-in answer (or of the create answer when it carried the token), for values it carries
+   *  besides the token, e.g. `(me.signInBody as { authentication: { bid: number } }).authentication.bid`. */
+  signInBody?: Json;
   /** Sign in over the API again (a UI sign-in revokes earlier tokens on many applications). */
   refresh(): Promise<void>;
 }
 
 interface RecipeCall { method: string; path: string; body?: Json; form?: Record<string, string> }
 interface AccountRecipe {
-  password?: string; username?: string; authHeader?: string;
+  password?: string; username?: string; authHeader?: string; before?: (RecipeCall & { save: Record<string, string> })[];
   create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string }[];
   token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall;
   signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
@@ -163,8 +167,11 @@ const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS
 const NO_RECIPE = 'the AUT profile has no "accounts" recipe in heldout.config.json (how to create, sign in and delete a test account on this application; see references/data-and-journeys.md)';
 
 /** Fill ${env:NAME} and ${name} placeholders of a recipe value. */
-function fillRecipe(value: Json, vars: Record<string, string | undefined>): Json {
-  if (typeof value === 'string') return (resolveEnv(value) as string).replace(/\$\{(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+function fillRecipe(value: Json, vars: Record<string, unknown>): Json {
+  // A value that is exactly "${name}" keeps the saved value's JSON type (a number stays a number).
+  const whole = typeof value === 'string' ? value.match(/^\$\{(\w+)\}$/)?.[1] : undefined;
+  if (whole !== undefined && (typeof vars[whole] === 'number' || typeof vars[whole] === 'boolean')) return vars[whole] as Json;
+  if (typeof value === 'string') return (resolveEnv(value) as string).replace(/\$\{(\w+)\}/g, (m, n: string) => (vars[n] === undefined ? m : String(vars[n])));
   if (Array.isArray(value)) return value.map((v) => fillRecipe(v, vars));
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fillRecipe(v, vars)]));
   return value;
@@ -227,6 +234,13 @@ export async function blockThirdParty(context: import('@playwright/test').Browse
   await context.route((url) => list.some((h) => url.hostname === h || url.hostname.endsWith(`.${h}`)), (route) => route.abort());
 }
 
+/** Close the profile's overlays (cookie consent, welcome dialogs) whenever they appear, before any action or check. */
+export async function dismissOverlays(page: Page, overlays = process.env.AUT_OVERLAYS ?? '[]'): Promise<void> {
+  for (const expr of JSON.parse(overlays || '[]') as string[]) {
+    await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
+  }
+}
+
 /**
  * Robust entry-point navigation: wait for DOMContentLoaded, then let 'load' settle for at most
  * `settleMs` without failing (third-party assets can keep 'load' pending forever).
@@ -284,6 +298,9 @@ const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
 /** Redact secrets from headers / JSON bodies before they are attached to reports. */
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 8 || value == null) return value;
+  // An object that says how it is recorded (a seed.account() account: its id and user name only).
+  const toJSON = (value as { toJSON?: () => unknown }).toJSON;
+  if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), depth + 1);
   if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
   if (typeof value === 'object') {
     return Object.fromEntries(Object.entries(value as Record<string, unknown>)
@@ -327,6 +344,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   // environment, not the application: wait as told and load again, twice at most.
   page: async ({ page }, use) => {
     await blockThirdParty(page.context(), process.env.AUT_BLOCK_HOSTS);
+    await dismissOverlays(page);
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
       let res = await goto(autUrl(process.env.AUT_BASE_URL, url), options);
@@ -393,15 +411,15 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           }
         });
       },
-      track<T>(label: string, created: T, cleanup: (created: T) => Promise<unknown>): T {
-        const rec: SeedRecord = { label: `${label} (created by the scenario)`, kind: 'scenario-created', created: redact(created) };
+      track<T>(label: string, created: T, cleanup?: (created: T) => Promise<unknown>): T {
+        const rec: SeedRecord = { label: `${label} (created by the scenario)`, kind: 'scenario-created', created: redact(created), ...(cleanup ? {} : { cleanup: 'none' as const }) };
         ledger.push(rec);
-        cleanups.push({ rec, run: () => cleanup(created) });
+        if (cleanup) cleanups.push({ rec, run: () => cleanup(created) });
         return created;
       },
       async account(label = 'account', options = {}): Promise<Account> {
         const r = accountRecipe();
-        const vars: Record<string, string | undefined> = { uid: uniqueId('').replace(/^-/, '') };
+        const vars: Record<string, unknown> = { uid: uniqueId('').replace(/^-/, '') };
         const send = async (c: RecipeCall, token?: string) => {
           // A placeholder without a value would be sent literally (e.g. an e-mail "qa-${uid}@…"): never send that.
           const unfilled = JSON.stringify([fillRecipe(c.path, { ...vars, token }), c.body !== undefined ? fillRecipe(c.body, { ...vars, token }) : null, c.form ? fillRecipe(c.form, { ...vars, token }) : null]).match(/\$\{[^}]+\}/)?.[0];
@@ -412,22 +430,38 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
             ...(token ? { headers: authHeader(r!, token) } : {}),
           });
         };
+        // The recipe's "before" calls (a CSRF token, a valid security-question id…), run before creating or signing in.
+        const before = async () => {
+          for (const b of r?.before ?? []) {
+            const res = await send(b);
+            if (!res.ok) throw new Error(`${b.method} ${b.path} → ${res.status} ${res.text.slice(0, 200)}`);
+            for (const [n, dotted] of Object.entries(b.save)) {
+              const v = dig(res.body, dotted);
+              if (v === undefined || v === null) throw new Error(`${b.method} ${b.path} → ${res.status}, but the answer has no "${dotted}"`);
+              vars[n] = v;
+            }
+          }
+        };
         const account = {} as Account;
-        const ready = async (tokenFromCreate?: unknown) => {
+        // In the seed ledger and the verdict, an account is its id and user name (not its token or sign-in answer).
+        Object.defineProperty(account, 'toJSON', { value: () => ({ id: account.id, username: account.username }), enumerable: false });
+        const ready = async (tokenFromCreate?: unknown, createBody?: Json) => {
           Object.assign(account, {
-            id: vars.id, username: vars.username, password: vars.password!, headers: {},
+            id: vars.id, username: vars.username, password: vars.password, headers: {},
             async refresh() {
               if (!r?.token) return;
+              await before();
               const t = await send(r.token);
               const token = dig(t.body, r.token.token);
               if (typeof token !== 'string' || !token) throw new Error(`${r.token.method} ${r.token.path} → ${t.status}, but the response has no "${r.token.token}"${t.status === 400 || t.status === 401 ? ' (wrong user name or password?)' : ''}`);
               account.token = token;
               account.headers = authHeader(r, token);
+              account.signInBody = t.body as Json;
               if (!account.id && r.token.id) { const id = dig(t.body, r.token.id); if (id !== undefined && id !== null) account.id = String(id); }
             },
           });
           // The create answer may already carry a token; otherwise sign in.
-          if (typeof tokenFromCreate === 'string' && tokenFromCreate) { account.token = tokenFromCreate; account.headers = authHeader(r!, tokenFromCreate); } else await account.refresh();
+          if (typeof tokenFromCreate === 'string' && tokenFromCreate) { account.token = tokenFromCreate; account.headers = authHeader(r!, tokenFromCreate); account.signInBody = createBody; } else await account.refresh();
           if (!account.id && r?.lookup) {
             const l = await send(r.lookup, account.token);
             const id = dig(l.body, r.lookup.id);
@@ -454,12 +488,13 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           if (!r?.create) throw new Error(NO_RECIPE);
           vars.password = String(resolveEnv(r.password ?? ''));
           vars.username = options.username ?? String(fillRecipe(r.username ?? 'qa-${uid}', vars));
+          await before();
           const res = await send(r.create);
           if (!res.ok) throw new Error(`${r.create.method} ${r.create.path} → ${res.status} ${res.text.slice(0, 200)}`);
           const id = dig(res.body, r.create.id);
           if (id === undefined || id === null || id === '') throw new Error(`${r.create.method} ${r.create.path} → ${res.status}, but the response has no "${r.create.id}"`);
           vars.id = String(id);
-          return ready(r.create.token ? dig(res.body, r.create.token) : undefined);
+          return ready(r.create.token ? dig(res.body, r.create.token) : undefined, res.body as Json);
         }, r?.delete ? async () => {
           let res = await send(r.delete!, account.token);
           // A sign-in during the test (UI or API) may have revoked the token: take a fresh one and retry once.

@@ -21,6 +21,12 @@ describe('parseError', () => {
     const e = parseError(pw(['Error: a confirmation was shown (precondition)', '', '  41 |   expect(dialogs).toHaveLength(1);', '> 42 |   await expect(msg, "[REQ AC-8] no success message").toHaveCount(0);']));
     assert.equal(e.reqTag, undefined);
   });
+  it('a failing .not.toBe prints no Received line: what was received is the value it must not be', () => {
+    const e = parseError(pw(["Error: [REQ AC-6] GET /rest/basket/{id} for B's basket does not return it", '', 'expect(received).not.toBe(expected) // Object.is equality', '', 'Expected: not 46']));
+    assert.equal(e.matcher, 'not.toBe');
+    assert.equal(e.expected, 'not 46');
+    assert.equal(e.received, '46');
+  });
   it('strips ANSI colour codes', () => {
     assert.equal(parseError('\u001b[31mError: boom\u001b[39m').headline, 'boom');
   });

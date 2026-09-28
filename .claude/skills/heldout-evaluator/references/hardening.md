@@ -43,6 +43,14 @@ Third-party ads, analytics or consent banners that inject text or overlays make 
 their hosts in the profile's `blockHosts` (`heldout.config.json`). The fixtures and `heldout inspect` abort those
 requests. A `--repeat-each` run exposes this kind of noise.
 
+The application's own banners and dialogs (a cookie consent, a welcome dialog, a newsletter pop-up) can't be blocked:
+list the button that closes each in the profile's `overlays`, e.g.
+`["getByRole('button', { name: 'dismiss cookie message' })"]`. The tests, the UI sign-in and `heldout inspect` click it
+whenever it appears (Playwright's `addLocatorHandler`), so no step has to dismiss it.
+
+`heldout inspect` steps wait for an address with `{ "do": "wait", "target": "url:/search" }`, the same form as an accounts
+recipe's `done`. Hash routes work as `--url "#/login"`, also under Git Bash.
+
 The Playwright MCP server is one browser per Claude Code session. When several agents evaluate stories in parallel,
 they would drive the same page: use `heldout mcp-probe` (its own server per call) or tier 3 instead.
 

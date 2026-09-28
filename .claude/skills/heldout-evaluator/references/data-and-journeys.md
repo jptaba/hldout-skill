@@ -127,6 +127,18 @@ For accounts the tests create, the recipe instead has `password` (a reference), 
 allows it, `delete`. Strings may use `${username}`, `${password}`, `${id}`, `${token}`, `${uid}`, `${env:NAME}` and
 `${vault:path#field}`.
 
+Some applications need a value before an account can be made or signed in: a CSRF token, or a valid security-question
+id for the sign-up form. List those calls in `before`; each `save`s values from its answer for the calls after it. A
+chain step before the create or sign-in step whose saved value those steps use becomes a `before` call automatically
+(`heldout accounts --from-chain`). A value that is exactly `"${name}"` keeps its JSON type, so a saved number is sent as
+a number.
+
+```json
+"before": [{ "method": "GET", "path": "/api/SecurityQuestions", "save": { "qid": "data.0.id" } }],
+"create": { "method": "POST", "path": "/api/Users", "id": "data.id",
+            "body": { "email": "${username}", "password": "${password}", "securityQuestion": { "id": "${qid}" } } }
+```
+
 `heldout accounts --check` and `heldout doctor` check the recipe live. They sign each existing account in, or
 create → sign in → delete. With no `delete`, nothing is created unless `--check --create`. `heldout run` reads
 Vault once before the tests, hands the values to the test process in memory only, and scrubs every account secret
@@ -137,7 +149,11 @@ const me = await seed.account();                         // BLOCKED if it fails
 await api.get(`/api/users/${me.id}`, { headers: me.headers });
 await signIn(page, me);                                  // UI sign-in, as a precondition ([SEED] … on failure)
 await me.refresh();                                      // new API token, if the UI sign-in revoked the old one
+const bid = (me.signInBody as { authentication: { bid: number } }).authentication.bid;  // other values of the sign-in answer
 ```
+
+When the application offers no way to delete what a scenario creates (a registration under test, on an app that can't
+delete users), record it anyway with `seed.track(label, created)` and no cleanup: the run lists it as kept by design.
 
 A created account's cleanup reuses its token and takes a fresh one only when the delete answers 401 or 403. A cleanup
 that returns an HTTP error answer is recorded as failed, and `heldout run` lists it as data left behind. When the

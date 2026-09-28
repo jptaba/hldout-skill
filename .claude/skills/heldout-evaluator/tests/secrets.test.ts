@@ -138,3 +138,41 @@ describe('the account delete in a chain', () => {
     assert.deepEqual(r.delete, { method: 'DELETE', path: '/users/${id}' });
   });
 });
+
+describe('a sign-up that needs a value from an earlier call', () => {
+  const chain = { steps: [
+    { method: 'GET', path: 'api/SecurityQuestions', save: { qid: 'data.0.id', unused: 'data.1.id' } },
+    { method: 'POST', path: 'api/Users', json: { email: 'qa-${uid}@example.com', password: '${env:PW}', securityQuestion: { id: '${qid}' } }, save: { id: 'data.id' } },
+    { method: 'POST', path: 'rest/user/login', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { token: 'authentication.token' } },
+  ] };
+  it('keeps that call as a "before" step, saving only what the account calls use', () => {
+    const r = recipeFromChain(chain as never);
+    assert.deepEqual(r.before, [{ method: 'GET', path: '/api/SecurityQuestions', save: { qid: 'data.0.id' } }]);
+    assert.deepEqual(r.create?.body, { email: '${username}', password: '${password}', securityQuestion: { id: '${qid}' } });
+  });
+  it('refuses a chain whose account calls use a value no earlier step saves', () => {
+    assert.throws(() => recipeFromChain({ steps: chain.steps.slice(1) } as never), /use \$\{qid\}, which no earlier step of the chain saves/);
+  });
+  it('runs it live and sends the saved number as a number', async () => {
+    const { checkAccountRecipe } = await import('../scripts/lib/accounts');
+    let sent: unknown;
+    const app = http.createServer((req, res) => {
+      let b = ''; req.on('data', (c) => { b += c; }); req.on('end', () => {
+        const json = (status: number, body: unknown) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(body)); };
+        if (req.url === '/api/SecurityQuestions') return json(200, { data: [{ id: 3 }] });
+        if (req.url === '/api/Users') { sent = JSON.parse(b).securityQuestion; return json(201, { data: { id: 7 } }); }
+        if (req.url === '/rest/user/login') return json(200, { authentication: { token: 'jwt', bid: 4 } });
+        json(404, {});
+      });
+    });
+    await new Promise<void>((r) => app.listen(0, '127.0.0.1', () => r()));
+    try {
+      process.env.PW_BEFORE_TEST = 'Pw-Before-1234';
+      const r = recipeFromChain({ steps: chain.steps.map((s) => ({ ...s, json: s.json && JSON.parse(JSON.stringify(s.json).replace('${env:PW}', '${env:PW_BEFORE_TEST}')) })) } as never);
+      const steps = await checkAccountRecipe(r, `http://127.0.0.1:${(app.address() as AddressInfo).port}`, { createUndeletable: true });
+      assert.deepEqual(steps.map((s) => s.ok), [true, true, true, true]);
+      assert.match(steps[0].step, /^before GET \/api\/SecurityQuestions/);
+      assert.deepEqual(sent, { id: 3 });
+    } finally { app.close(); delete process.env.PW_BEFORE_TEST; }
+  });
+});

@@ -101,7 +101,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder eight times, on four applications. Each
+After the blind round, the whole journey was repeated from an empty folder nine times, on five applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -116,6 +116,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 6 | DQ-2 (DemoQA) | **existing accounts**: 2 with passwords in `.env`, 2 entirely in a real HashiCorp Vault (KV v2); `vault login` token, `VAULT_TOKEN` and AppRole | ✅ 21/21, no password in any artifact | 4 (all fixed) |
 | 7 | CL-3 (Contact List, new app) | tests create their own users and delete them; UI sign-in saved on its own and checked in a browser; a mock-up transcribed | ✅ PASS, 20/20 (as the key) | 6 (all fixed) |
 | 8 | TOOL-4 (Toolshop, new app) | API on a separate host; users created with no delete permission (kept, tagged); two accounts in one test; favourites cleaned up | ✅ PASS, 11/11 (as the key) | 5 (all fixed) |
+| 9 | JS-2 (OWASP Juice Shop in Docker, new app) | a localhost app; sign-up needing a lookup first; users kept by design; two users in one test; cookie and welcome overlays; the FAIL path with a security defect | ✅ FAIL, 2/2 defects (as the key) | 9 (all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -142,6 +143,11 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   and retry once on 502, 503 and 504.
 - **Separate API hosts are found at onboarding.** `init` watches the requests the web app makes and records the API
   host when it differs from the web host (Toolshop). `doctor` warns when the configured API host disagrees.
+- **Round 9 (Juice Shop) made test users and pages work for more apps.** A recipe can run `before` calls (a CSRF
+  token, a security-question id) and keeps number types. Tests read other sign-in values from `me.signInBody`. The
+  profile's `overlays` close cookie and welcome dialogs whenever they appear. A `localhost` app gets its profile id from
+  its title. Hash routes survive Git Bash. Confirmed decisions now carry over when the failing value is a per-run id,
+  so CI keeps recognising a known defect.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports

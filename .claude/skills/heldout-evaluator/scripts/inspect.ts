@@ -11,7 +11,7 @@
  * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait, target?, value?, url? }
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
- *   A "wait" step with a target waits until its first match is in the DOM.
+ *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address.
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
@@ -49,7 +49,8 @@ async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
     case 'uncheck': await t().uncheck(); break;
     case 'hover': await t().hover(); break;
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
-    case 'wait': await (s.target ? t().first().waitFor({ state: 'attached' }) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
+    // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
+    case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
     default: throw new Error(`Unknown step "${s.do}"`);
   }
 }
@@ -75,6 +76,8 @@ main(async () => {
   const blocked = (cfg.aut.blockHosts ?? []).map((h) => h.toLowerCase());
   if (blocked.length) await context.route((u) => blocked.some((h) => u.hostname === h || u.hostname.endsWith(`.${h}`)), (r) => r.abort());
   const page = await context.newPage();
+  // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
+  for (const expr of cfg.aut.overlays ?? []) await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
   const out: string[] = [];
   try {
     await page.goto(target);

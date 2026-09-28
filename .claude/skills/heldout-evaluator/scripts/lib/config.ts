@@ -17,6 +17,10 @@ export interface AutProfile {
   healthcheck?: string[];
   /** Third-party hosts (ads, analytics, consent) the browser blocks: not part of the AUT, and a source of flakiness. */
   blockHosts?: string[];
+  /** Banners and dialogs that can cover the page at any time (cookie consent, a welcome dialog, a newsletter pop-up): a
+   *  page-locator expression of the button that closes each. Tests, the UI sign-in and heldout inspect click it
+   *  whenever it appears (Playwright's addLocatorHandler). */
+  overlays?: string[];
   /** Most parallel workers the host tolerates (shared sandboxes behind rate limits / bot protection); caps --workers. */
   maxWorkers?: number;
   /** Minimum gap between test starts (ms), across workers: for hosts that ban bursts of traffic. */
@@ -41,6 +45,9 @@ export interface AccountRecipe {
   password?: string;
   /** User-name template for created accounts; ${uid} is unique per account. Default "qa-${uid}". */
   username?: string;
+  /** Calls made first, each time an account is made or signed in (a CSRF token, a valid security-question id…): `save`
+   *  maps a name to the dotted path of a value in the answer, usable as ${name} in the calls below. */
+  before?: (RecipeCall & { save: Record<string, string> })[];
   /** Creates the account; `id` (and optionally `token`) are where the answer carries the new id (and a token). */
   create?: RecipeCall & { id: string; token?: string };
   /** Accounts that already exist (someone made them; the tests never create or delete them). */
@@ -159,6 +166,7 @@ export function validateConfig(raw: unknown): string[] {
     const prof = p as Record<string, unknown>;
     if (!isUrl(prof.baseURL)) out.push(`auts.${id}.baseURL must be an http(s) URL (got ${JSON.stringify(prof.baseURL)})`);
     if (prof.apiBaseURL !== undefined && !isUrl(prof.apiBaseURL)) out.push(`auts.${id}.apiBaseURL must be an http(s) URL (got ${JSON.stringify(prof.apiBaseURL)})`);
+    if (prof.overlays !== undefined && (!Array.isArray(prof.overlays) || prof.overlays.some((h) => typeof h !== 'string' || !h.trim()))) out.push(`auts.${id}.overlays must be a list of page-locator expressions, e.g. ["getByRole('button', { name: 'Accept cookies' })"]`);
     if (prof.blockHosts !== undefined && (!Array.isArray(prof.blockHosts) || prof.blockHosts.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.blockHosts must be a list of host names, e.g. ["doubleclick.net"]`);
     const acc = prof.accounts as Record<string, Record<string, unknown> | string | undefined> | undefined;
     if (acc !== undefined) {
@@ -182,6 +190,13 @@ export function validateConfig(raw: unknown): string[] {
       if (acc.token !== undefined && (!call('token') || typeof (acc.token as Record<string, unknown>).token !== 'string')) out.push(`auts.${id}.accounts.token needs method, path and token (the dotted path of the token in the response)`);
       if (acc.lookup !== undefined && (!call('lookup') || typeof (acc.lookup as Record<string, unknown>).id !== 'string')) out.push(`auts.${id}.accounts.lookup needs method, path and id (the dotted path of the account id in the answer)`);
       if (acc.delete !== undefined && !call('delete')) out.push(`auts.${id}.accounts.delete needs method and path`);
+      if (acc.before !== undefined) {
+        const list = Array.isArray(acc.before) ? acc.before as Record<string, unknown>[] : [];
+        if (!list.length) out.push(`auts.${id}.accounts.before must be a list of calls`);
+        list.forEach((b, i) => {
+          if (typeof b?.method !== 'string' || typeof b?.path !== 'string' || !b.save || typeof b.save !== 'object') out.push(`auts.${id}.accounts.before[${i}] needs method, path and save ({ "name": "dotted.path" })`);
+        });
+      }
     }
     if (prof.minTestIntervalMs !== undefined && !(Number.isInteger(prof.minTestIntervalMs) && (prof.minTestIntervalMs as number) >= 0)) out.push(`auts.${id}.minTestIntervalMs must be a whole number of milliseconds`);
     if (prof.maxWorkers !== undefined && !(Number.isInteger(prof.maxWorkers) && (prof.maxWorkers as number) >= 1)) out.push(`auts.${id}.maxWorkers must be a whole number ≥ 1`);
@@ -220,6 +235,7 @@ export function autEnv(cfg: HeldoutConfig): Record<string, string> {
     AUT_API_BASE_URL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL,
     AUT_TEST_ID_ATTRIBUTE: cfg.aut.testIdAttribute ?? 'data-testid',
     AUT_BLOCK_HOSTS: (cfg.aut.blockHosts ?? []).join(','),
+    AUT_OVERLAYS: JSON.stringify(cfg.aut.overlays ?? []),
     AUT_MIN_TEST_INTERVAL_MS: String(cfg.aut.minTestIntervalMs ?? 0),
     ...(cfg.aut.accounts ? { AUT_ACCOUNTS: JSON.stringify(cfg.aut.accounts) } : {}),
   };
@@ -233,8 +249,9 @@ export function unmangleMsysPath(value: string): string {
   // Path-list form: "api:/products" → "api;C:\Program Files\Git\products".
   const list = value.match(/^([A-Za-z]+);[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i);
   if (list) return `${list[1]}:/${list[2].replace(/\\/g, '/')}`;
-  const m =value.match(/^[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i) ?? value.match(/^[A-Za-z]:[\\/](?:msys64|msys2)[\\/](.*)$/i);
-  return m ? `/${m[1].replace(/\\/g, '/')}` : value;
+  // A hash route ("#/login", "#!/login") is rewritten too: "#C:/Program Files/Git/login".
+  const m = value.match(/^(#!?)?[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i) ?? value.match(/^(#!?)?[A-Za-z]:[\\/](?:msys64|msys2)[\\/](.*)$/i);
+  return m ? `${m[1] ?? ''}/${m[2].replace(/\\/g, '/')}` : value;
 }
 
 /** Resolve a path against an origin ("", "/", "cart", "/app/cart" or a full URL). */

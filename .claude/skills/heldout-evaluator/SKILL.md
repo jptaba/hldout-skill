@@ -53,8 +53,9 @@ Run from a skill folder outside the project (a clone anywhere), `init` first cop
 - `mock-jira/` and `evaluations/`
 
 `--install` also installs the dependencies and Chromium. `--ci [gitlab|github]` adds a regression pipeline (GitLab CI unless the remote is GitHub). Unless flags give
-them, one visit of the start page fills in the profile: its id (from the host), name (page title), test-id attribute and
-`blockHosts` (ad/analytics networks).
+them, one visit of the start page fills in the profile: its id (from the host, or the title for localhost), name (page
+title), test-id attribute, API host (where the page's own API calls go) and `blockHosts` (ad/analytics networks).
+Cookie and welcome dialogs the app shows go in `overlays` (see references/hardening.md).
 
 More applications: `npm run heldout -- add-aut <id> --base-url <url>`.
 

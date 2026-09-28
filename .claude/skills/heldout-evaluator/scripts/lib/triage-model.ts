@@ -146,7 +146,13 @@ export function maskVolatile(s?: string): string | undefined {
  * (assertion, expected, received, locator), never what triage derived from it — a better triage must not drop a
  * human's confirmed decision.
  */
-export const signature = (e: TriageEntry) => JSON.stringify([e.error?.reqTag, maskVolatile(e.error?.headline), maskVolatile(e.error?.expected), maskVolatile(e.error?.received), maskVolatile(e.error?.locator)]);
+export const signature = (e: TriageEntry) => {
+  // "Expected: not 46, received 46": the failure is receiving the one value it must not be, whichever value that is
+  // (often an id seeded for this run), so the same failure next run has the same signature.
+  const unwanted = e.error?.expected?.startsWith('not ') && e.error.expected.slice(4) === e.error.received;
+  const [expected, received] = unwanted ? ['not <unwanted>', '<unwanted>'] : [maskVolatile(e.error?.expected), maskVolatile(e.error?.received)];
+  return JSON.stringify([e.error?.reqTag, maskVolatile(e.error?.headline), expected, received, maskVolatile(e.error?.locator)]);
+};
 
 interface PwSpec { title: string; tests: { status: string; results: { error?: { message?: string } }[] }[] }
 interface PwSuite { suites?: PwSuite[]; specs?: PwSpec[] }
