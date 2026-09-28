@@ -473,8 +473,15 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
     for (const c of cleanups.reverse()) {
       if (process.env.HELDOUT_KEEP_DATA === '1') { c.rec.cleanup = 'skipped'; continue; }
       apiPhase = 'cleanup';
-      // A cleanup that returns an HTTP error answer (e.g. a DELETE refused with 401) did not clean up.
-      try { const out = await c.run() as { status?: unknown } | undefined; if (typeof out?.status === 'number' && out.status >= 400) throw new Error(`HTTP ${out.status}`); c.rec.cleanup = 'done'; } catch (e) { c.rec.cleanup = 'failed'; c.rec.error = (e as Error).message.split('\n')[0]; } finally { apiPhase = 'test'; }
+      // A cleanup answered 404/410 finds the data already gone (the scenario deleted it): that is clean. Any other
+      // HTTP error answer (e.g. a DELETE refused with 401) did not clean up.
+      try {
+        const out = await c.run() as { status?: unknown } | undefined;
+        const status = typeof out?.status === 'number' ? out.status : undefined;
+        if (status === 404 || status === 410) { c.rec.cleanup = 'done'; c.rec.error = `already gone (HTTP ${status})`; }
+        else if (status !== undefined && status >= 400) throw new Error(`HTTP ${status}`);
+        else c.rec.cleanup = 'done';
+      } catch (e) { c.rec.cleanup = 'failed'; c.rec.error = (e as Error).message.split('\n')[0]; } finally { apiPhase = 'test'; }
     }
     if (ledger.length) await testInfo.attach('seed-ledger', { body: JSON.stringify({ tag, records: ledger }, null, 2), contentType: 'application/json' });
   },

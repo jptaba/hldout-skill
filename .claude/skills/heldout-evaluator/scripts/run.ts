@@ -26,9 +26,9 @@ import { loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
-/** "<test title>: <label> (<created>)" for every seed record whose cleanup failed, from the seed-ledger attachments. */
-function failedCleanups(results: unknown): string[] {
-  const out: string[] = [];
+/** What the tests' seeding did, from the seed-ledger attachments: data created, cleaned, already gone, kept, and left behind. */
+function seedSummary(results: unknown): { created: number; cleaned: number; alreadyGone: number; kept: number; leftovers: string[] } {
+  const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, leftovers: [] as string[] };
   const walk = (v: unknown, title: string): void => {
     if (Array.isArray(v)) { v.forEach((x) => walk(x, title)); return; }
     if (!v || typeof v !== 'object') return;
@@ -36,14 +36,19 @@ function failedCleanups(results: unknown): string[] {
     const t = typeof o.title === 'string' && Array.isArray(o.tests) ? o.title : title;
     if (o.name === 'seed-ledger' && typeof o.body === 'string') {
       try {
-        const ledger = JSON.parse(Buffer.from(o.body, 'base64').toString('utf8')) as { records?: { label: string; cleanup?: string; created?: unknown }[] };
-        for (const r of ledger.records ?? []) if (r.cleanup === 'failed') out.push(`${t}: ${r.label} (${JSON.stringify(r.created ?? null).slice(0, 120)})`);
+        const ledger = JSON.parse(Buffer.from(o.body, 'base64').toString('utf8')) as { records?: { label: string; kind?: string; cleanup?: string; created?: unknown; error?: string; reused?: boolean }[] };
+        for (const r of (ledger.records ?? []).filter((x) => (x.kind === 'data' || x.kind === 'scenario-created') && !x.reused)) {
+          sum.created++;
+          if (r.cleanup === 'done') { if (/already gone/.test(r.error ?? '')) sum.alreadyGone++; else sum.cleaned++; }
+          else if (r.cleanup === 'failed') sum.leftovers.push(`${t}: ${r.label} — ${r.error ?? 'failed'} (${JSON.stringify(r.created ?? null).slice(0, 100)})`);
+          else sum.kept++;
+        }
       } catch { /* not a ledger */ }
     }
     for (const x of Object.values(o)) walk(x, t);
   };
   walk(results, '');
-  return [...new Set(out)];
+  return sum;
 }
 
 /** Hash of the skill's scripts and the test support code, so two runs can be told apart if the skill changed between them. */
@@ -172,11 +177,15 @@ main(async () => {
   console.log(`  run dir: ${rel(runDir)}`);
   console.log(`  html:    npx playwright show-report ${rel(path.join(runDir, 'html'))}`);
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
-  const leftovers = failedCleanups(readJson<unknown>(resultsFile));
+  const seeded = seedSummary(readJson<unknown>(resultsFile));
+  const leftovers = seeded.leftovers;
+  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept (no way to delete it, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
     for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);
-    console.log('  Remove it (api-probe --chain) and fix the cleanup: when its call answers 401, take a fresh token and retry (a sign-in during the test may have revoked the one it had).');
+    console.log('  Remove it (api-probe --chain), then fix the cleanup:');
+    if (leftovers.some((l) => /HTTP 40[13]/.test(l))) console.log('    HTTP 401/403: the token was revoked (often by a UI sign-in in the test) — take a fresh one in the cleanup and retry, as seed.account() does');
+    if (leftovers.some((l) => !/HTTP 40[13]/.test(l))) console.log('    other errors: replay the cleanup call with heldout api-probe to see what the application answers');
   }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
 });
