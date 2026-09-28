@@ -104,6 +104,13 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     if (s.json !== undefined) { body = JSON.stringify(deep(s.json)); headers['Content-Type'] ??= 'application/json'; }
     else if (s.form) { body = new URLSearchParams(deep(s.form) as Record<string, string>).toString(); headers['Content-Type'] ??= 'application/x-www-form-urlencoded'; }
     else if (s.raw !== undefined) body = interp(s.raw);
+    // A value an earlier step should have saved but didn't: never send "${id}" literally.
+    const unfilled = [...new Set([...JSON.stringify([s.path, s.headers ?? null, body ?? null]).matchAll(/\$\{([A-Za-z_]\w*)\}/g)].map((m) => m[1]).filter((n) => vars[n] === undefined))];
+    if (unfilled.length) {
+      failed++;
+      lines.push(`${i + 1}. **${s.name ?? `step ${i + 1}`}** — \`${method} ${s.path}\` → not sent: ${unfilled.map((n) => `\${${n}}`).join(', ')} has no value (the step that saves it failed or didn't run)`, '');
+      continue;
+    }
     const r = await send(url, method, headers, body);
     for (const [name, dotted] of Object.entries(s.save ?? {})) {
       const v = dig(r.json, dotted);

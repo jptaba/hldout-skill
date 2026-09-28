@@ -311,6 +311,14 @@ describe('compact run digest', () => {
 });
 
 describe('app discovery', () => {
+  it('finds the app root of a page someone pasted, and keeps an app mounted under a folder', async () => {
+    const { appRootOf } = await import('../scripts/lib/detect');
+    const site = (titles: Record<string, string>) => async (u: string) => titles[u];
+    assert.equal(await appRootOf('https://demoqa.com/books', site({ 'https://demoqa.com/books': 'demosite', 'https://demoqa.com/': 'demosite' })), 'https://demoqa.com/');
+    assert.equal(await appRootOf('https://host.test/app/login', site({ 'https://host.test/app/login': 'Shop', 'https://host.test/': 'Company', 'https://host.test/app/': 'Shop' })), 'https://host.test/app/');
+    assert.equal(await appRootOf('https://host.test/app/', site({ 'https://host.test/app/': 'Shop', 'https://host.test/': 'Other' })), 'https://host.test/app/');
+    assert.equal(await appRootOf('https://host.test/', site({})), 'https://host.test/');
+  });
   it('tells generated ids (new on every page load) from stable ones', async () => {
     const { generatedId } = await import('../scripts/lib/detect');
     assert.equal(generatedId('689bc902-233f-4fc5-add9-f49c5587a21e'), true);
@@ -370,7 +378,7 @@ describe('generated secrets', () => {
     for (let i = 0; i < 50; i++) {
       const v = strongSecret();
       assert.equal(v.length, 20);
-      assert.match(v, /[A-Z]/); assert.match(v, /[a-z]/); assert.match(v, /[0-9]/); assert.match(v, /[-_!]/);
+      assert.match(v, /[A-Z]/); assert.match(v, /[a-z]/); assert.match(v, /[0-9]/); assert.match(v, /[!@*]/);
       assert.ok(safeToScrub(v));
     }
   });

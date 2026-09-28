@@ -49,7 +49,8 @@ list the button that closes each in the profile's `overlays`, e.g.
 whenever it appears (Playwright's `addLocatorHandler`), so no step has to dismiss it.
 
 `heldout inspect` suggests, in order: role and name, label, placeholder, test id, a stable id, then the field's `name`
-attribute. An id that looks generated (a UUID, a long number) changes on every page load: it is offered last, flagged.
+attribute. An id that looks generated (a UUID, a long number) changes on every page load: it is offered last, flagged. Read-only
+text with a stable id (a detail page's fields, a total, a message) is listed in a table of its own.
 
 A shared sandbox that answers 429 (rate limited) is the environment, not the application: triage says so, and `heldout run`
 prints the command that paces the tests on that host, e.g.

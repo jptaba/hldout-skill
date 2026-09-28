@@ -105,7 +105,9 @@ export function scrubDir(dir: string, secrets: string[]): { files: number } {
 }
 
 /** A strong random secret: upper and lower case, digits and a symbol, never a plain word (so it can be scrubbed). */
-const SECRET_SETS = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnopqrstuvwxyz', '23456789', '-_!'];
+// Upper and lower case, a digit and a symbol, each at least once: what most password policies ask for. The symbols are the
+// ones those policies accept (many reject - _ .) that are also safe in a URL path, JSON, a shell and .env.
+const SECRET_SETS = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnopqrstuvwxyz', '23456789', '!@*'];
 
 export function strongSecret(length = 20): string {
   const all = SECRET_SETS.join('');

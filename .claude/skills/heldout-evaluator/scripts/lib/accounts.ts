@@ -207,7 +207,10 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   if (r.create) {
     const created = await send(r.create, vars);
     const id = dig(created.json, r.create.id);
-    out.push({ step: how, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 120)}` });
+    // An application whose password rules reject the test password says so: the fix is a new generated one.
+    const passwordEnv = /\$\{env:(\w+)\}/.exec(r.password ?? '')?.[1];
+    const policy = !created.ok && /passw/i.test(created.text) && passwordEnv ? ` — if the application's password rules reject ${passwordEnv}: npm run heldout -- secret ${passwordEnv} --generate --force (upper and lower case, digits and one of ! @ *)` : '';
+    out.push({ step: how, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 160)}${policy}` });
     if (!created.ok || id === undefined) return out;
     vars.id = String(id);
     fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;

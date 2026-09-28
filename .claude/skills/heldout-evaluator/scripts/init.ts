@@ -20,7 +20,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, SKILL_DIR, flagStr, main, parseArgs, rel, unmangleMsysPath, type Flags } from './lib/config';
-import { appNameFrom, baseUrlOf, describeCounts, discoverApp, profileIdFor } from './lib/detect';
+import { appNameFrom, appRootOf, baseUrlOf, describeCounts, discoverApp, profileIdFor } from './lib/detect';
 
 const FILES: [template: string, target: string][] = [
   ['heldout.config.json', 'heldout.config.json'],
@@ -102,7 +102,17 @@ async function discover(configFile: string, id: string, flags: Flags, renameGene
   const cfg = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   const profile = cfg.auts[id];
   if (!profile) return;
-  const d = await discoverApp(profile.baseURL);
+  // The address given may be one page of the app ("…/books"): paths resolve from the app's root.
+  const given = profile.baseURL as string;
+  const root = await appRootOf(given);
+  if (root !== profile.baseURL && root !== `${profile.baseURL}/`) {
+    const page = new URL(profile.baseURL).pathname;
+    if (profile.apiBaseURL === profile.baseURL && !flagStr(flags, 'api-base-url')) profile.apiBaseURL = root;
+    profile.baseURL = root;
+    say('✔', `base URL: ${root} (the app's root; ${page} is one of its pages, so paths such as /login resolve from the root)`);
+  }
+  // The page that was given is the one its owner cares about: discovery visits it too (its ads, its test ids).
+  const d = await discoverApp(profile.baseURL, given !== profile.baseURL ? [given] : []);
   if (d.error) { say('•', `could not open ${profile.baseURL} (${d.error}) — profile left as configured; heldout doctor re-checks it`); return; }
   const name = appNameFrom(d.title, id);
   if (!flagStr(flags, 'name') && name) {
@@ -128,7 +138,7 @@ async function discover(configFile: string, id: string, flags: Flags, renameGene
   const block = d.adDomains.filter((h) => !(profile.blockHosts ?? []).includes(h));
   if (block.length) {
     profile.blockHosts = [...(profile.blockHosts ?? []), ...block];
-    say('✔', `blockHosts: ${block.join(', ')} (ad/analytics networks on the start page; they inject content and make tests flaky)`);
+    say('✔', `blockHosts: ${block.join(', ')} (ad/analytics networks the pages loaded; they inject content and make tests flaky)`);
   }
   fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
 }

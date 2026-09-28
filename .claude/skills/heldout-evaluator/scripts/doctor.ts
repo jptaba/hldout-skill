@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { ROOT, SKILL_DIR, createsAccounts, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './lib/config';
-import { describeCounts, discoverApp } from './lib/detect';
+import { appRootOf, describeCounts, discoverApp } from './lib/detect';
 import { createTracker } from './lib/jira';
 import { safeToScrub } from './lib/redact';
 import { checkAccountRecipe, envNamesIn } from './lib/accounts';
@@ -184,6 +184,12 @@ main(async () => {
       const apiBase = cfg!.auts[id]?.apiBaseURL ?? cfg!.auts[id]?.baseURL;
       if (d.apiOrigin && apiBase && !apiBase.startsWith(d.apiOrigin)) check('warn', `AUT ${id}`, `the web app sends its API requests to ${d.apiOrigin}, but apiBaseURL is ${apiBase}`, `set auts.${id}.apiBaseURL to "${d.apiOrigin}" in heldout.config.json if that is the API the requirements describe`);
     });
+    // A base URL that is one page of the app ("…/books") makes every path resolve under that page.
+    for (const id of Object.keys(testIds)) {
+      const base = cfg.auts[id].baseURL;
+      const root = await appRootOf(base);
+      if (root !== base && root !== `${base}/`) check('warn', `AUT ${id}`, `baseURL ${base} is a page of the app, not its root: paths such as /login would resolve under it`, `set auts.${id}.baseURL (and apiBaseURL, if the same) to "${root}" in heldout.config.json`);
+    }
     // Accounts recipes, run live (create → token → delete) so a broken one never surfaces as BLOCKED scenarios.
     for (const id of ids) {
       const p = cfg.auts[id];

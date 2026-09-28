@@ -376,8 +376,8 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>6 apps</b><span>onboarded end to end in 10 rounds, with no app-specific code</span></div>
-    <div class="stat"><b>146</b><span>self-tests guarding the skill's own logic</span></div>
+    <div class="stat"><b>6 apps</b><span>onboarded end to end in 11 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>147</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
 
@@ -1015,7 +1015,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Ten rounds from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Eleven rounds from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1031,6 +1031,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
       <tr><td>8</td><td>TOOL-4 · Toolshop</td><td>API on another host; users kept by design; two users in one test</td><td><span class="badge b-pass">PASS</span> 11/11, as the key</td></tr>
       <tr><td>9</td><td>JS-2 · OWASP Juice Shop (local Docker)</td><td>a sign-up that needs a lookup first; cookie and welcome overlays; a basket-privacy defect</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
       <tr><td>10</td><td>PB-4 · ParaBank (rate-limited demo)</td><td>users only on the sign-up page; a 429 mid-run; a "shall" nobody can observe</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 11/11, as the key</td></tr>
+      <tr><td>11</td><td>DQ-2 · DemoQA, from the published repository</td><td>a page address as the base URL; a strict password policy; a contract fixed after review</td><td><span class="badge b-pass">PASS</span> 21/21, as the key</td></tr>
     </tbody>
   </table></div>
   <p class="small">The full report, with every defect the rounds found in the skill and how it was fixed, is in <a href="../demo/EVALUATOR-TEST-REPORT.md">demo/EVALUATOR-TEST-REPORT.md</a>.</p>

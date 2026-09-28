@@ -34,7 +34,7 @@ export interface AppDiscovery {
 const countIn = (html: string) => Object.fromEntries(TEST_ID_ATTRIBUTES.map((a) => [a, (html.match(new RegExp(`\\s${a}=`, 'g')) ?? []).length]));
 const best = (counts: Record<string, number>) => Object.entries(counts).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-async function rendered(url: string): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[] } | undefined> {
+async function rendered(url: string, also: string[] = []): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[] } | undefined> {
   let chromium: { launch(o: object): Promise<{ newPage(): Promise<PageLike>; close(): Promise<void> }> } | undefined;
   try {
     const req = createRequire(path.join(ROOT, 'package.json'));
@@ -59,7 +59,7 @@ async function rendered(url: string): Promise<{ counts: Record<string, number>; 
     const links = await page.evaluate((origin: string) => [...new Set([...document.querySelectorAll('header a[href], nav a[href], [role="navigation"] a[href]')]
       .map((a) => (a as HTMLAnchorElement).href).filter((h) => h.startsWith(origin) && !h.includes('#') && !/logout|signout|delete/i.test(h)))].slice(0, 4), new URL(url).origin)
       .catch(() => [] as string[]);
-    for (const link of links.filter((l) => l.replace(/\/$/, '') !== url.replace(/\/$/, ''))) {
+    for (const link of [...new Set([...also, ...links])].filter((l) => l.replace(/\/$/, '') !== url.replace(/\/$/, ''))) {
       await page.goto(link, { waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(() => undefined);
       await page.waitForLoadState('networkidle', { timeout: 3_000 }).catch(() => undefined);
       const more = await countOnPage().catch(() => ({} as Record<string, number>));
@@ -77,9 +77,9 @@ interface PageLike {
   evaluate<T, A>(fn: (arg: A) => T, arg: A): Promise<T>;
 }
 
-export async function discoverApp(url: string): Promise<AppDiscovery> {
+export async function discoverApp(url: string, also: string[] = []): Promise<AppDiscovery> {
   try {
-    const r = await rendered(url);
+    const r = await rendered(url, also);
     if (r) {
       const own = new URL(url).origin;
       const byOrigin = r.apiCalls.filter((o) => o !== own && !adDomainsOf([new URL(o).hostname]).length).reduce<Record<string, number>>((a, o) => ({ ...a, [o]: (a[o] ?? 0) + 1 }), {});
@@ -134,6 +134,32 @@ export function baseUrlOf(url: string): string {
   u.hash = ''; u.search = '';
   if (/\/[^/]+\.[a-z0-9]{2,5}$/i.test(u.pathname)) u.pathname = u.pathname.replace(/[^/]+$/, '');
   return u.toString();
+}
+
+/**
+ * The root of the application a page belongs to. Someone may paste the address of any page ("https://host/books"): paths
+ * such as "/profile" must resolve from the app's root, not from that page. The candidates are the page's parent folders,
+ * shortest first; the first that serves the same app (the same page title in its HTML) is the root. An app mounted
+ * under a folder ("https://host/app/…") keeps that folder when the host's root is something else.
+ */
+export async function appRootOf(url: string, fetchTitle: (u: string) => Promise<string | undefined> = htmlTitle): Promise<string> {
+  const u = new URL(baseUrlOf(url));
+  const parts = u.pathname.split('/').filter(Boolean);
+  if (!parts.length) return u.toString();
+  const own = await fetchTitle(u.toString());
+  if (!own) return u.toString();
+  for (let n = 0; n < parts.length; n++) {
+    const candidate = new URL(`/${parts.slice(0, n).map((p) => `${p}/`).join('')}`, u.origin).toString();
+    if ((await fetchTitle(candidate)) === own) return candidate;
+  }
+  return u.toString();
+}
+async function htmlTitle(url: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(10_000), redirect: 'follow' });
+    if (!res.ok || !/html/i.test(res.headers.get('content-type') ?? '')) return undefined;
+    return (await res.text()).match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || undefined;
+  } catch { return undefined; }
 }
 
 /** An id a framework or the server generated, likely different on the next page load (a UUID, a long hex or number run). */

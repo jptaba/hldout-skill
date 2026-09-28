@@ -129,10 +129,10 @@ main(async () => {
   const all = [...findings, ...reviewFindings];
   console.log(`Requirement contract ${key}: ${c.acceptanceCriteria.length} AC(s), ${c.endpoints.length} endpoint(s), ${c.rules.length} rule(s), ${c.errorModel.length} error case(s), ${c.gaps.length} gap(s), ${c.coverage.length} coverage entr(ies) · hash ${contractHash(c)}`);
   for (const f of all.filter((x) => !listed.has(x.code))) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
-  if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored, fully covered, grounded${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : ' (review pending)'}`);
+  if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored (${c.acceptanceCriteria.length} quote(s) found at their cited lines), fully covered (${c.coverage.length} source line(s) accounted for), grounded${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : ' (review pending)'}`);
   const questions = openQuestions(c);
   if (questions.length) {
-    console.log(`\nQuestions for the user (${questions.length}) — ask with AskUserQuestion; unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
+    console.log(`\nQuestions for the user (${questions.length}) — ask the user (AskUserQuestion in Claude Code, in the chat elsewhere); unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
     for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);
   }
   const discover = toDiscover(c);

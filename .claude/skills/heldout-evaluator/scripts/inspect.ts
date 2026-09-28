@@ -186,6 +186,21 @@ main(async () => {
     out.push('## Visible interactive / test-id elements (best unique locator)', '',
       '| role | accessible name | test id | type | suggested locator |', '| --- | --- | --- | --- | --- |', ...[...new Set(rows)], '');
 
+    // Read-only text a test checks (a detail page's fields, a total, a message) often has an id but no role: list it too.
+    const texts = await page.evaluate(() => [...document.querySelectorAll('[id]')].filter((el) => {
+      const r = (el as HTMLElement).getBoundingClientRect();
+      if (!r.width || !r.height || el.matches('a,button,input,select,textarea,label,[role],script,style')) return false;
+      if (el.querySelector('a,button,input,select,textarea')) return false;
+      if (document.querySelectorAll(`[id="${CSS.escape(el.id)}"]`).length !== 1) return false; // repeated ids locate nothing reliably
+      const t = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+      return t.length > 0 && t.length <= 120;
+    }).map((el) => ({ id: el.id, text: (el.textContent ?? '').replace(/\s+/g, ' ').trim() })).slice(0, 80)).catch(() => [] as { id: string; text: string }[]);
+    const stable = texts.filter((t) => !generatedId(t.id));
+    if (stable.length) {
+      out.push('## Text with a stable id (read-only values: details, totals, messages)', '', '| locator | text |', '| --- | --- |',
+        ...stable.map((t) => `| \`locator(${q(/^[A-Za-z_][\w-]*$/.test(t.id) ? `#${t.id}` : `[id="${t.id}"]`)})\` | ${t.text.replace(/\|/g, '\\|').slice(0, 100)} |`), '');
+    }
+
     const probes = flagList(flags, 'probe');
     if (probes.length) {
       out.push('## Locator probes', '', '| expression | count | visible | text / value |', '| --- | --- | --- | --- |');
