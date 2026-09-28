@@ -41,8 +41,8 @@ export interface AccountRecipe {
   password?: string;
   /** User-name template for created accounts; ${uid} is unique per account. Default "qa-${uid}". */
   username?: string;
-  /** Creates the account; `id` is the dotted path of the new account's id in the response body. */
-  create?: RecipeCall & { id: string };
+  /** Creates the account; `id` (and optionally `token`) are where the answer carries the new id (and a token). */
+  create?: RecipeCall & { id: string; token?: string };
   /** Accounts that already exist (someone made them; the tests never create or delete them). */
   existing?: ExistingAccount[];
   /** The most existing accounts one test uses at once (default 1): runs use at most existing.length / perTest workers. */

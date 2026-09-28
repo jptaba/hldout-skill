@@ -155,7 +155,7 @@ export interface Account {
 interface RecipeCall { method: string; path: string; body?: Json; form?: Record<string, string> }
 interface AccountRecipe {
   password?: string; username?: string; authHeader?: string;
-  create?: RecipeCall & { id: string }; existing?: { username: string; password: string; id?: string }[];
+  create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string }[];
   token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall;
   signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
 }
@@ -402,13 +402,18 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       async account(label = 'account', options = {}): Promise<Account> {
         const r = accountRecipe();
         const vars: Record<string, string | undefined> = { uid: uniqueId('').replace(/^-/, '') };
-        const send = async (c: RecipeCall, token?: string) => api.call(c.method, String(fillRecipe(c.path, { ...vars, token })), {
-          ...(c.body !== undefined ? { data: fillRecipe(c.body, { ...vars, token }) } : {}),
-          ...(c.form ? { form: fillRecipe(c.form, { ...vars, token }) as Record<string, string> } : {}),
-          ...(token ? { headers: authHeader(r!, token) } : {}),
-        });
+        const send = async (c: RecipeCall, token?: string) => {
+          // A placeholder without a value would be sent literally (e.g. an e-mail "qa-${uid}@…"): never send that.
+          const unfilled = JSON.stringify([fillRecipe(c.path, { ...vars, token }), c.body !== undefined ? fillRecipe(c.body, { ...vars, token }) : null, c.form ? fillRecipe(c.form, { ...vars, token }) : null]).match(/\$\{[^}]+\}/)?.[0];
+          if (unfilled) throw new Error(`${c.method} ${c.path}: ${unfilled} has no value here, so the request was not sent`);
+          return api.call(c.method, String(fillRecipe(c.path, { ...vars, token })), {
+            ...(c.body !== undefined ? { data: fillRecipe(c.body, { ...vars, token }) } : {}),
+            ...(c.form ? { form: fillRecipe(c.form, { ...vars, token }) as Record<string, string> } : {}),
+            ...(token ? { headers: authHeader(r!, token) } : {}),
+          });
+        };
         const account = {} as Account;
-        const ready = async () => {
+        const ready = async (tokenFromCreate?: unknown) => {
           Object.assign(account, {
             id: vars.id, username: vars.username, password: vars.password!, headers: {},
             async refresh() {
@@ -421,7 +426,8 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
               if (!account.id && r.token.id) { const id = dig(t.body, r.token.id); if (id !== undefined && id !== null) account.id = String(id); }
             },
           });
-          await account.refresh();
+          // The create answer may already carry a token; otherwise sign in.
+          if (typeof tokenFromCreate === 'string' && tokenFromCreate) { account.token = tokenFromCreate; account.headers = authHeader(r!, tokenFromCreate); } else await account.refresh();
           if (!account.id && r?.lookup) {
             const l = await send(r.lookup, account.token);
             const id = dig(l.body, r.lookup.id);
@@ -453,7 +459,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           const id = dig(res.body, r.create.id);
           if (id === undefined || id === null || id === '') throw new Error(`${r.create.method} ${r.create.path} → ${res.status}, but the response has no "${r.create.id}"`);
           vars.id = String(id);
-          return ready();
+          return ready(r.create.token ? dig(res.body, r.create.token) : undefined);
         }, r?.delete ? async () => {
           let res = await send(r.delete!, account.token);
           // A sign-in during the test (UI or API) may have revoked the token: take a fresh one and retry once.

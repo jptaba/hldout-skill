@@ -111,3 +111,18 @@ describe('an application whose accounts can be created but not deleted', () => {
     assert.match(steps[0].detail, /not run: the application offers no delete/);
   });
 });
+
+describe('a sign-up that answers with a token', () => {
+  it('is the create step (not a sign-in), and its token is used; the login step refreshes it', () => {
+    const r = recipeFromChain({ steps: [
+      { method: 'POST', path: 'users', json: { firstName: 'QA', email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { id: 'user._id', token: 'token' } },
+      { method: 'POST', path: 'users/login', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { token: 'token' } },
+      { method: 'DELETE', path: 'users/me', headers: { Authorization: 'Bearer ${token}' } },
+    ] } as never);
+    assert.equal(r.existing, undefined);
+    assert.deepEqual(r.create, { method: 'POST', path: '/users', body: { firstName: 'QA', email: '${username}', password: '${password}' }, id: 'user._id', token: 'token' });
+    assert.equal(r.username, 'qa-${uid}@example.com');
+    assert.deepEqual(r.token, { method: 'POST', path: '/users/login', body: { email: '${username}', password: '${password}' }, token: 'token' });
+    assert.deepEqual(r.delete, { method: 'DELETE', path: '/users/me' });
+  });
+});

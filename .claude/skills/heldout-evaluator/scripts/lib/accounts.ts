@@ -34,12 +34,15 @@ interface InspectStep { do: string; target?: string; value?: string }
  * (${var:…} → ${username}, secret references → ${password}).
  */
 export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: string; steps: InspectStep[]; done?: string }): AccountRecipe {
-  const tokenAt = chain.steps.findIndex((s) => s.save && 'token' in s.save);
+  const saves = (s: ChainStep, k: string) => Boolean(s.save && k in s.save);
+  // Creating an account: a step saving the new account's "id" whose body is unique per run (${uid}); it may also
+  // answer with a token. Signing in: another step saving "token". Looking the id up: a later step saving "id".
+  const createAt = chain.steps.findIndex((s) => saves(s, 'id') && JSON.stringify(s.json ?? s.form ?? {}).includes('${uid}'));
+  const create = createAt >= 0 ? chain.steps[createAt] : undefined;
+  const tokenAt = chain.steps.findIndex((s, i) => i !== createAt && saves(s, 'token'));
   const token = tokenAt >= 0 ? chain.steps[tokenAt] : undefined;
-  // A step saving "id" before signing in creates the account; one after it looks the account's id up.
-  const idAt = chain.steps.findIndex((s, i) => s.save && 'id' in s.save && !('token' in s.save) && i !== tokenAt);
-  const create = idAt >= 0 && (tokenAt < 0 || idAt < tokenAt) ? chain.steps[idAt] : undefined;
-  const lookup = idAt >= 0 && !create ? chain.steps[idAt] : undefined;
+  const lookupAt = chain.steps.findIndex((s, i) => i !== createAt && i !== tokenAt && saves(s, 'id') && (tokenAt < 0 || i > tokenAt));
+  const lookup = lookupAt >= 0 ? chain.steps[lookupAt] : undefined;
   const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE');
   if (!create && !token) throw new Error('the chain neither creates an account (a step saving "id") nor signs in (a step saving "token")');
   const source = create ?? token!;
@@ -56,7 +59,7 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
   const authLine = [...chain.steps].flatMap((s) => Object.entries(s.headers ?? {})).find(([, v]) => v.includes('${token}'));
   const toUi = (v = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, '${password}');
   return {
-    ...(create ? { password, ...(username ? { username } : {}), create: { ...call(create), id: create.save!.id } } : { existing: [{ username: username!, password }] }),
+    ...(create ? { password, ...(username ? { username } : {}), create: { ...call(create), id: create.save!.id, ...(saves(create, 'token') ? { token: create.save!.token } : {}) } } : { existing: [{ username: username!, password }] }),
     ...(token ? { token: { ...call(token), token: token.save!.token, ...(token.save!.id ? { id: token.save!.id } : {}) } } : {}),
     ...(lookup ? { lookup: { ...call(lookup), id: lookup.save!.id } } : {}),
     ...(authLine ? { authHeader: `${authLine[0]}: ${authLine[1]}` } : {}),
@@ -83,6 +86,9 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
       const line = String(fill(r.authHeader ?? 'Authorization: Bearer ${token}', { token }));
       headers[line.slice(0, line.indexOf(':')).trim()] = line.slice(line.indexOf(':') + 1).trim();
     }
+    // A placeholder without a value would be sent literally (e.g. an e-mail "qa-${uid}@…"): never send that.
+    const unfilled = `${fill(c.path, { ...vars, token })} ${body ?? ''}`.match(/\$\{[^}]+\}/)?.[0];
+    if (unfilled) throw new Error(`${c.method} ${c.path}: ${unfilled} has no value here, so the request was not sent`);
     const res = await fetch(resolveUrl(apiBaseURL, String(fill(c.path, { ...vars, token }))), { method: c.method, headers, body, signal: AbortSignal.timeout(30_000) });
     const text = await res.text();
     let json: unknown;
@@ -125,7 +131,10 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   out.push({ step: `create ${r.create.method} ${r.create.path}`, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.slice(0, 120)}` });
   if (!created.ok || id === undefined) return out;
   vars.id = String(id);
-  const token = await signInOverApi(vars, `${r.token?.method} ${r.token?.path}`);
+  const fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;
+  if (r.create.token) out.push({ step: 'token from the create answer', ok: typeof fromCreate === 'string' && Boolean(fromCreate), detail: typeof fromCreate === 'string' && fromCreate ? `${r.create.token} found` : `no "${r.create.token}" in the answer` });
+  const signedIn = r.token ? await signInOverApi(vars, `${r.token.method} ${r.token.path}`) : undefined;
+  const token = signedIn ?? (typeof fromCreate === 'string' ? fromCreate : undefined);
   if (r.delete) {
     const d = await send(r.delete, vars, token);
     out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.slice(0, 120)} — the check account ${vars.username} was left behind`}` });
