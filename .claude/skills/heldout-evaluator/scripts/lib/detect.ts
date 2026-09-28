@@ -82,7 +82,10 @@ export async function discoverApp(url: string, also: string[] = []): Promise<App
     const r = await rendered(url, also);
     if (r) {
       const own = new URL(url).origin;
-      const byOrigin = r.apiCalls.filter((o) => o !== own && !adDomainsOf([new URL(o).hostname]).length).reduce<Record<string, number>>((a, o) => ({ ...a, [o]: (a[o] ?? 0) + 1 }), {});
+      // The app's own API lives on its own site (api.example.com for www.example.com); ad and analytics scripts call
+      // JSON endpoints of their own too, on other sites, and are never the API.
+      const sameSite = (o: string) => siteOf(new URL(o).hostname) === siteOf(new URL(url).hostname);
+      const byOrigin = r.apiCalls.filter((o) => o !== own && sameSite(o) && !adDomainsOf([new URL(o).hostname]).length).reduce<Record<string, number>>((a, o) => ({ ...a, [o]: (a[o] ?? 0) + 1 }), {});
       const [apiOrigin] = Object.entries(byOrigin).sort((a, b) => b[1] - a[1]).map(([o]) => o);
       // Only when the app calls that origin more than its own (a CDN or widget answering JSON now and then is not the API).
       const ownCalls = r.apiCalls.filter((o) => o === own).length;
@@ -136,29 +139,56 @@ export function baseUrlOf(url: string): string {
   return u.toString();
 }
 
+/** The site a host belongs to: its last two labels, or three under a two-letter second level ("shop.co.uk"). */
+export function siteOf(host: string): string {
+  const labels = host.toLowerCase().split('.');
+  if (labels.length <= 2 || /^\d+$/.test(labels.at(-1)!)) return host.toLowerCase();
+  const n = labels.at(-2)!.length <= 3 && labels.at(-1)!.length === 2 ? 3 : 2;
+  return labels.slice(-n).join('.');
+}
+
 /**
  * The root of the application a page belongs to. Someone may paste the address of any page ("https://host/books"): paths
  * such as "/profile" must resolve from the app's root, not from that page. The candidates are the page's parent folders,
  * shortest first; the first that serves the same app (the same page title in its HTML) is the root. An app mounted
  * under a folder ("https://host/app/…") keeps that folder when the host's root is something else.
  */
-export async function appRootOf(url: string, fetchTitle: (u: string) => Promise<string | undefined> = htmlTitle): Promise<string> {
+export interface PageFacts { title?: string; links: string[] }
+export async function appRootOf(url: string, fetchPage: (u: string) => Promise<PageFacts | undefined> = pageFacts): Promise<string> {
   const u = new URL(baseUrlOf(url));
   const parts = u.pathname.split('/').filter(Boolean);
   if (!parts.length) return u.toString();
-  const own = await fetchTitle(u.toString());
-  if (!own) return u.toString();
-  for (let n = 0; n < parts.length; n++) {
-    const candidate = new URL(`/${parts.slice(0, n).map((p) => `${p}/`).join('')}`, u.origin).toString();
-    if ((await fetchTitle(candidate)) === own) return candidate;
+  const page = await fetchPage(u.toString());
+  if (!page) return u.toString();
+  // 1. The page's own links: a site's links share its root ("/parabank/…" on ParaBank, "/" on most sites).
+  const dirs = page.links.map((l) => { try { const x = new URL(l, u); return x.origin === u.origin ? x.pathname.replace(/[^/]*$/, '') : undefined; } catch { return undefined; } })
+    .filter((d): d is string => Boolean(d));
+  if (dirs.length >= 3) {
+    let prefix = dirs[0];
+    for (const d of dirs) while (!d.startsWith(prefix)) prefix = prefix.replace(/[^/]*\/$/, '');
+    if (u.pathname.startsWith(prefix)) return new URL(prefix, u.origin).toString();
   }
+  // 2. No usable links (a single-page app's HTML): the shortest parent folder that serves the same app (same title).
+  if (page.title) {
+    for (let n = 0; n < parts.length; n++) {
+      const candidate = new URL(`/${parts.slice(0, n).map((p) => `${p}/`).join('')}`, u.origin).toString();
+      if ((await fetchPage(candidate))?.title === page.title) return candidate;
+    }
+  }
+  // 3. One page name ("/contactList", no trailing slash) on a host whose root serves a page: the root. A folder given
+  //    with a trailing slash ("/app/") is kept as it is.
+  if (parts.length === 1 && !u.pathname.endsWith('/') && await fetchPage(new URL('/', u.origin).toString())) return new URL('/', u.origin).toString();
   return u.toString();
 }
-async function htmlTitle(url: string): Promise<string | undefined> {
+async function pageFacts(url: string): Promise<PageFacts | undefined> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10_000), redirect: 'follow' });
     if (!res.ok || !/html/i.test(res.headers.get('content-type') ?? '')) return undefined;
-    return (await res.text()).match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || undefined;
+    const html = await res.text();
+    return {
+      title: html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || undefined,
+      links: [...html.matchAll(/<a\s[^>]*href=["']([^"'#][^"']*)["']/gi)].map((m) => m[1]).filter((h) => !/^(mailto|tel|javascript):/i.test(h)),
+    };
   } catch { return undefined; }
 }
 

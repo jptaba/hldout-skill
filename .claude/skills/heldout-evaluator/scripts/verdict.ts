@@ -84,7 +84,8 @@ main(() => {
   const clarifications = feature.scenarios.filter((s) => s.needsClarification);
   // One that passed means the application meets the requirement as written: the question stays for the owner, but it
   // doesn't hold up acceptance. Only a clarification scenario that didn't pass is a warning.
-  const unsettled = clarifications.filter((s) => tri.entries.some((e) => baseScenarioId(e.scenario) === s.id && e.status !== 'passed'));
+  // A clarification scenario already counted as a reading the application contradicts is not counted twice.
+  const unsettled = clarifications.filter((s) => tri.entries.some((e) => baseScenarioId(e.scenario) === s.id && e.status !== 'passed' && !contradicted.includes(e)));
 
   // Group confirmed defects by root cause (same confirmed title) → one APP id per root cause.
   const groups = new Map<string, TriageEntry[]>();

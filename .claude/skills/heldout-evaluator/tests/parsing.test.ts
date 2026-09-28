@@ -312,8 +312,16 @@ describe('compact run digest', () => {
 
 describe('app discovery', () => {
   it('finds the app root of a page someone pasted, and keeps an app mounted under a folder', async () => {
-    const { appRootOf } = await import('../scripts/lib/detect');
-    const site = (titles: Record<string, string>) => async (u: string) => titles[u];
+    const { appRootOf, siteOf } = await import('../scripts/lib/detect');
+    // The page's links decide first: a site's links share its root.
+    const linked = (links: string[]) => async () => ({ title: 'Some page', links });
+    assert.equal(await appRootOf('https://automationexercise.com/products', linked(['/', '/products', '/view_cart', '/login', '/contact_us'])), 'https://automationexercise.com/');
+    assert.equal(await appRootOf('https://parabank.parasoft.com/parabank/billpay.htm', linked(['/parabank/index.htm', 'about.htm', '/parabank/services.htm', 'https://www.parasoft.com/'])), 'https://parabank.parasoft.com/parabank/');
+    assert.equal(siteOf('api.practicesoftwaretesting.com'), 'practicesoftwaretesting.com');
+    assert.equal(siteOf('shop.example.co.uk'), 'example.co.uk');
+    assert.notEqual(siteOf('ep1.adtrafficquality.google'), siteOf('automationexercise.com'));
+    // Without links (a single-page app's HTML), the shortest parent folder with the same title.
+    const site = (titles: Record<string, string>) => async (u: string) => (titles[u] ? { title: titles[u], links: [] } : undefined);
     assert.equal(await appRootOf('https://demoqa.com/books', site({ 'https://demoqa.com/books': 'demosite', 'https://demoqa.com/': 'demosite' })), 'https://demoqa.com/');
     assert.equal(await appRootOf('https://host.test/app/login', site({ 'https://host.test/app/login': 'Shop', 'https://host.test/': 'Company', 'https://host.test/app/': 'Shop' })), 'https://host.test/app/');
     assert.equal(await appRootOf('https://host.test/app/', site({ 'https://host.test/app/': 'Shop', 'https://host.test/': 'Other' })), 'https://host.test/app/');
