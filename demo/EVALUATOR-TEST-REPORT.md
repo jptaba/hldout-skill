@@ -101,7 +101,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder twenty-one times, on six applications. Each
+After the blind round, the whole journey was repeated from an empty folder twenty-three times, on six applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -125,6 +125,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 15 | DQ-2 (DemoQA, from the published repository) | **existing accounts only** (user creation forbidden by the story): 2 with passwords in `.env`, 2 entirely in a real HashiCorp Vault; the user's id found in the login page's own API call; a reset that empties each shared account before and after every test; a skill update mid-round; then the whole story again from a fresh onboarding | ✅ PASS, 21/21 (as the key), no password in any artifact; again from a fresh onboarding (15b): PASS 21/21, the tests and runs needed no fix | 12 + 5 wording (all fixed) |
 | 16 | CL-3 (Contact List, from the published repository), then twice more from a fresh onboarding | tests create and delete their own users; a UI sign-in saved and checked live; a native confirm on a page that loads its record after opening; two review → fix → re-review loops | ✅ PASS, 20/20 (as the key), in all three runs; the third needed no fix to the tests or the run | 22 over the three runs (10, 6, 6; all fixed) |
 | 17 | TOOL-4 (Toolshop, from the published repository), then again from a fresh onboarding | ACs in a custom field and a PO comment that changes a status; API on its own host; users the app won't let tests delete, now named `hldout-…`; a DELETE in the probe chain answered 403 | ✅ PASS, 11/11 (as the key), in both runs; the second needed no fix to the tests or the run | 16 over the two runs (10, 6; all fixed) |
+| 18 | JS-2 (OWASP Juice Shop in Docker, from the published repository), then again from a fresh onboarding | the FAIL path; a localhost app with a hash-route address; overlays found by `init`; a security question fetched before sign-up; a deliberately short password as the evidence | ✅ FAIL, 2/2 defects (as the key), in both runs; the second needed no fix to the tests or the run | 13 over the two runs (10, 3; all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -210,6 +211,16 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   is allowed) no longer becomes the recipe's delete, and a delete saved earlier goes when the chain has none; before, the
   live check made a user and left it behind. The inspector's list of the page's own API calls leaves out CDN beacons and
   static files and shows the host of an API on its own host.
+- **Round 18 (JS-2 on Juice Shop, twice; the FAIL path) made evidence faithful and overlays automatic.** `init` now finds
+  the buttons that close what covers the start page (Juice Shop's cookie message and welcome banner) and saves them as
+  the profile's overlays. One overlay's button covered by another (the welcome dialog over the cookie banner) is
+  clicked by dispatching the click, where the sign-in check and the inspector had timed out. The literal values a probe
+  or a test sends stay readable: the verdict's reproduction of "a 4-character password is accepted" had shown the
+  password as a secret placeholder, so a reviewer would have replayed it with the real, long password and seen no
+  defect. Real secrets are still redacted and scrubbed from every artifact. After a re-run, triage points to
+  `--carry-from auto` when an earlier run confirmed the same failures. The contract reference now says where sign-up
+  and sign-in belong when they are what an AC is about, that "rejected", "refused" or "fails" is judged as written
+  with a non-required gap for the exact status, and that a source limiting what is tested rules out derived boundaries.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports
