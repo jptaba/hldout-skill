@@ -103,12 +103,13 @@ main(async () => {
   if (grep) args.push('--grep', grep);
   // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
   // Existing accounts are shared out among workers, so there are never more workers than accounts.
-  const pool = cfg.aut.accounts && !cfg.aut.accounts.create ? cfg.aut.accounts.existing?.length : undefined;
+  const pool = cfg.aut.accounts && !cfg.aut.accounts.create && cfg.aut.accounts.existing?.length
+    ? Math.max(1, Math.floor(cfg.aut.accounts.existing.length / Math.max(1, cfg.aut.accounts.perTest ?? 1))) : undefined;
   const cap = [cfg.aut.maxWorkers, pool].filter((x): x is number => Boolean(x)).reduce<number | undefined>((a, b) => (a === undefined ? b : Math.min(a, b)), undefined);
   const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
   const workers = cap ? Math.min(asked ?? cap, cap) : asked;
   if (workers) args.push('--workers', String(workers));
-  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap}: ${cap === pool ? `${pool} existing test account(s) in the "${cfg.autId}" profile` : `the "${cfg.autId}" profile's maxWorkers`})`);
+  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap}: ${cap === pool ? `${cfg.aut.accounts?.existing?.length} existing test account(s)${(cfg.aut.accounts?.perTest ?? 1) > 1 ? `, ${cfg.aut.accounts?.perTest} per test,` : ''} in the "${cfg.autId}" profile` : `the "${cfg.autId}" profile's maxWorkers`})`);
   // Stability check during hardening: run each test N times to expose races that one green run hides.
   if (flagStr(flags, 'repeat-each')) args.push('--repeat-each', flagStr(flags, 'repeat-each')!);
 

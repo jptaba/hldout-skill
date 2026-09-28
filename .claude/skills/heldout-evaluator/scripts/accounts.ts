@@ -12,6 +12,7 @@
  *       [--sign-in-steps signin.json | --sign-in-json '<inspect steps>'] --sign-in-path /login --sign-in-done "url:/profile"
  *   A chain that only signs in (a step saving "token") as an existing account adds that account to the list instead.
  *
+ *   heldout accounts --aut <profile> --per-test 2      tests use up to 2 existing accounts at once (fewer parallel workers)
  *   heldout accounts [--key KEY | --aut <profile>] --check [--create]   sign each existing account in, or create → token →
  *       delete; with no delete in the recipe nothing is created unless --create
  *   heldout accounts [--key KEY | --aut <profile>]                      show the recipe
@@ -58,6 +59,16 @@ main(async () => {
     const before = cfg.aut.accounts ?? {};
     save({ ...before, ...found, ...(found.existing ? { existing: merge(before.existing ?? [], found.existing) } : {}) });
     console.log(`✔ auts.${cfg.autId}.accounts: ${found.create ? `tests create accounts${found.delete ? ' and delete them' : ' (no delete: they stay, tagged by name)'}` : `existing account ${found.existing![0].username} added`}${found.token ? ', sign-in over the API' : ''}${found.signIn ? ', UI sign-in' : ''}`);
+    changed = true;
+  }
+
+  const perTest = flagStr(flags, 'per-test');
+  if (perTest) {
+    const n = Number(perTest);
+    if (!Number.isInteger(n) || n < 1) throw new Error('--per-test takes a whole number: the most accounts one test uses at once');
+    save({ ...(cfg.aut.accounts ?? {}), perTest: n });
+    const size = cfg.aut.accounts?.existing?.length ?? 0;
+    console.log(`✔ tests use up to ${n} account(s) at once: runs use at most ${Math.max(1, Math.floor(size / n))} parallel worker(s) with the ${size} existing account(s)`);
     changed = true;
   }
 

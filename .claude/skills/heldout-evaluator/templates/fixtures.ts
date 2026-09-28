@@ -437,7 +437,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
             const workers = Math.max(1, testInfo.config.workers);
             const mine = pool.filter((_, i) => i % workers === testInfo.parallelIndex);
             const a = mine[accountsTaken++];
-            if (!a) throw new Error(`this test needs ${accountsTaken} account(s), but worker ${testInfo.parallelIndex + 1} of ${workers} has ${mine.length} of the ${pool.length} existing account(s) — add accounts to the profile's accounts.existing (heldout accounts --add-existing …) or run fewer workers`);
+            if (!a) throw new Error(`tests use ${accountsTaken} accounts at once: npm run heldout -- accounts --aut ${process.env.HELDOUT_AUT ?? '<profile>'} --per-test ${accountsTaken} (runs then use fewer workers), or add accounts — worker ${testInfo.parallelIndex + 1} of ${workers} has ${mine.length} of ${pool.length}`);
             vars.username = String(resolveEnv(a.username));
             vars.password = String(resolveEnv(a.password));
             vars.id = a.id ? String(resolveEnv(a.id)) : undefined;

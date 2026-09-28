@@ -96,7 +96,8 @@ npm run heldout -- accounts --aut <profile> --add-existing --username-vault secr
 
 Add as many as the suite needs. Each parallel worker gets its own share, so no two tests use the same account at
 the same time, and `heldout run` never starts more workers than there are accounts. A test that calls `seed.account()`
-twice (a second user) gets the next account of its share. Existing accounts are never deleted, and data a test adds
+twice (a second user) gets the next account of its share: record that with `heldout accounts --aut <profile> --per-test 2`,
+and runs start half as many workers. Existing accounts are never deleted, and data a test adds
 to them stays unless the test removes it: undo it with `seed.track(…)`, or reset the account in a `seed.step`.
 
 **Signing in.** `token` signs an account in over the API (`token` is where the answer carries it; `id`, optionally,

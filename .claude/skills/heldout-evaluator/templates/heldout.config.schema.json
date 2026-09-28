@@ -231,6 +231,11 @@
                     "description": "Dotted path of the account id in the answer"
                   }
                 }
+              },
+              "perTest": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "The most existing accounts one test uses at once (default 1). Runs use at most existing / perTest parallel workers"
               }
             },
             "anyOf": [

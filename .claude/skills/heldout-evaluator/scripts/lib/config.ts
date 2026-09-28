@@ -45,6 +45,8 @@ export interface AccountRecipe {
   create?: RecipeCall & { id: string };
   /** Accounts that already exist (someone made them; the tests never create or delete them). */
   existing?: ExistingAccount[];
+  /** The most existing accounts one test uses at once (default 1): runs use at most existing.length / perTest workers. */
+  perTest?: number;
   /** Signs in over the API; `token` is the dotted path of the token in the response body, `id` optionally of the account id. */
   token?: RecipeCall & { token: string; id?: string };
   /** Reads the account id after signing in (a "who am I" call, with the auth header); `id` is where the answer carries it. */
