@@ -106,6 +106,7 @@ describe('repro', () => {
 describe('decideVerdict', () => {
   const base = { integrity: 'PRESERVED' as const, confirmedAppDefects: [], failures: 0, flaky: 0, uncoveredAcs: 0, clarifications: 0, openQuestions: 0 };
   it('violated integrity trumps everything', () => assert.equal(decideVerdict({ ...base, integrity: 'VIOLATED', confirmedAppDefects: [{ refs: ['AC-1'] }] }).verdict, 'INCONCLUSIVE'));
+  it('a stated requirement nobody verified is a warning, not a pass', () => { const v = decideVerdict({ ...base, unverifiedRequirements: 1 }); assert.equal(v.verdict, 'PASS_WITH_WARNINGS'); assert.match(v.reason, /1 stated requirement\(s\) not verified/); });
   it('confirmed defects → FAIL', () => assert.equal(decideVerdict({ ...base, confirmedAppDefects: [{ refs: ['AC-1'] }], failures: 1 }).verdict, 'FAIL'));
   it('unexplained failures → INCONCLUSIVE', () => assert.equal(decideVerdict({ ...base, failures: 1 }).verdict, 'INCONCLUSIVE'));
   it('warnings → PASS_WITH_WARNINGS', () => assert.equal(decideVerdict({ ...base, openQuestions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
@@ -310,6 +311,20 @@ describe('compact run digest', () => {
 });
 
 describe('app discovery', () => {
+  it('tells generated ids (new on every page load) from stable ones', async () => {
+    const { generatedId } = await import('../scripts/lib/detect');
+    assert.equal(generatedId('689bc902-233f-4fc5-add9-f49c5587a21e'), true);
+    assert.equal(generatedId(':r3:'), true);
+    assert.equal(generatedId('mat-input-104729'), true);
+    for (const id of ['customer.firstName', 'loginButton', 'repeatedPassword', 'mat-input-3']) assert.equal(generatedId(id), false, id);
+  });
+  it('turns a page address copied from the browser into a base URL', async () => {
+    const { baseUrlOf } = await import('../scripts/lib/detect');
+    assert.equal(baseUrlOf('https://parabank.parasoft.com/parabank/index.htm'), 'https://parabank.parasoft.com/parabank/');
+    assert.equal(baseUrlOf('http://localhost:3000/#/login'), 'http://localhost:3000/');
+    assert.equal(baseUrlOf('https://app.test/shop?lang=en'), 'https://app.test/shop');
+    assert.equal(baseUrlOf('https://api.test/v1.2'), 'https://api.test/v1.2'); // a version is not a file name
+  });
   it('derives a readable profile id from the host', async () => {
     const { profileIdFor } = await import('../scripts/lib/detect');
     assert.equal(profileIdFor('https://demoqa.com'), 'demoqa');

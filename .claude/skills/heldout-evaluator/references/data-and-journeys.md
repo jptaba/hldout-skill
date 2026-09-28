@@ -80,6 +80,7 @@ application. Pick the way that fits the application and your permissions:
 | --- | --- | --- |
 | lets tests create and delete users | created per test, deleted afterwards | saved while hardening the first story: `heldout accounts --key KEY --from-chain <probe chain>` |
 | lets tests create users, but not delete them | created per test, kept (tagged `qa-…` by name) | the same, from a chain without a DELETE step |
+| makes users only on its sign-up page (no API for it) | created per test in a browser of their own, kept | `heldout accounts --sign-up-json … --sign-up-path … --lookup …` (below) |
 | can't create users, or you may not | **existing** accounts someone already made | `heldout accounts --add-existing …`, once per account |
 
 **Existing accounts.** The user name may be literal. A password is always a reference, because the config file is
@@ -126,6 +127,19 @@ For accounts the tests create, the recipe instead has `password` (a reference), 
 (`${uid}` is unique), `create` (`id` is where the answer carries the new account's id) and, if the application
 allows it, `delete`. Strings may use `${username}`, `${password}`, `${id}`, `${token}`, `${uid}`, `${env:NAME}` and
 `${vault:path#field}`.
+
+When the sign-up page is the only way to make an account, save the form (the `heldout inspect` steps that fill it:
+`${var:…}` becomes the new user name, a secret reference the password) and how to read the new account's id:
+
+```bash
+npm run heldout -- accounts --aut <profile> --sign-up-path register.htm --sign-up-done "getByText('Your account was created')" \
+  --password-env APP_USER_PASSWORD --sign-up-json '<inspect steps>' \
+  --lookup 'GET services/login/${username}/${password}' --lookup-id id
+npm run heldout -- accounts --aut <profile> --check --create     # makes one account on the page, reads its id, signs in
+```
+
+`seed.account()` then fills the sign-up page in a short-lived browser of its own before the test, so the test's page
+starts signed out and `signIn(page, me)` works as usual.
 
 Some applications need a value before an account can be made or signed in: a CSRF token, or a valid security-question
 id for the sign-up form. List those calls in `before`; each `save`s values from its answer for the calls after it. A

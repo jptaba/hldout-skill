@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './lib/config';
+import { generatedId } from './lib/detect';
 import { redactSnapshot } from './lib/redact';
 import { expandSecrets, requireVaultSecrets } from './lib/secrets';
 
@@ -23,6 +24,8 @@ interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
   tag: string; role: string; name: string; testId: string; id: string; placeholder: string; label: string;
   type: string; visible: boolean; text: string;
+  /** The form field's name attribute (stable, and what the server reads). */
+  field: string;
 }
 
 const vars: Record<string, string> = {};
@@ -148,6 +151,7 @@ main(async () => {
           tag: el.tagName.toLowerCase(), role: implicitRole(el), name: name.trim().slice(0, 80),
           testId: el.getAttribute(attr) ?? '', id: el.id, placeholder: el.getAttribute('placeholder') ?? '', label,
           type, visible: rect.width > 0 && rect.height > 0 && getComputedStyle(h).visibility !== 'hidden', text,
+          field: ['input', 'select', 'textarea'].includes(el.tagName.toLowerCase()) ? el.getAttribute('name') ?? '' : '',
         };
       });
     }, testIdAttr);
@@ -161,10 +165,14 @@ main(async () => {
       if (c.placeholder) options.push(`getByPlaceholder(${q(c.placeholder)}, { exact: true })`);
       if (c.testId) options.push(`getByTestId(${q(c.testId)})`);
       // "#customer.firstName" would mean id=customer + class=firstName: ids that aren't plain CSS identifiers use [id="…"].
-      if (c.id) options.push(`locator(${q(/^[A-Za-z_][\w-]*$/.test(c.id) ? `#${c.id}` : `[id="${c.id.replace(/"/g, '\\"')}"]`)})`);
+      const idLocator = c.id ? `locator(${q(/^[A-Za-z_][\w-]*$/.test(c.id) ? `#${c.id}` : `[id="${c.id.replace(/"/g, '\\"')}"]`)})` : '';
+      if (idLocator && !generatedId(c.id)) options.push(idLocator);
+      if (c.field) options.push(`locator(${q(`[name="${c.field.replace(/"/g, '\\"')}"]`)})`);
+      // A generated id changes from one page load to the next: only when nothing else identifies the element, and flagged.
+      if (idLocator && generatedId(c.id)) options.push(`${idLocator} ⚠ generated id: may change on every load`);
       let best = ''; let count = 0;
       for (const o of options) {
-        count = await locate(page, o).count().catch(() => 0);
+        count = await locate(page, o.replace(/ ⚠ .*$/, '')).count().catch(() => 0);
         if (count === 1) { best = o; break; }
       }
       // No unique candidate: offer the non-exact role locator when it matches, never one that matches nothing.
@@ -173,7 +181,7 @@ main(async () => {
         const n = await locate(page, loose).count().catch(() => 0);
         if (n) best = n === 1 ? loose : `${loose} ⚠ matches ${n}: add .nth() or scope it`;
       }
-      rows.push(`| ${c.role || c.tag} | ${c.name.replace(/\|/g, '\\|') || '-'} | ${c.testId || '-'} | ${c.type || '-'} | \`${best || '(no stable locator)'}\` |`);
+      rows.push(`| ${c.role || c.tag} | ${c.name.replace(/\|/g, '\\|') || (c.field ? `(name="${c.field}")` : '-')} | ${c.testId || '-'} | ${c.type || '-'} | \`${best || '(no stable locator)'}\` |`);
     }
     out.push('## Visible interactive / test-id elements (best unique locator)', '',
       '| role | accessible name | test id | type | suggested locator |', '| --- | --- | --- | --- | --- |', ...[...new Set(rows)], '');

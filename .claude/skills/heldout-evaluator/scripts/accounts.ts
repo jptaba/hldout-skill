@@ -13,6 +13,12 @@
  *   A chain that only signs in (a step saving "token") as an existing account adds that account to the list instead.
  *   heldout accounts --aut <profile> --sign-in-json '<inspect steps>' --sign-in-path /login --sign-in-done "url:/home"   the UI sign-in alone
  *
+ * Accounts that only the application's sign-up page can make (no API for it): the form, found with heldout inspect, and
+ * how to read the new account's id:
+ *   heldout accounts --aut <profile> --sign-up-json '<inspect steps>' --sign-up-path register.htm --sign-up-done "<locator>"
+ *       --password-env APP_USER_PASSWORD [--username 'qa-${uid}'] [--lookup "GET services/login/${username}/${password}" --lookup-id id]
+ *   In the steps, ${var:…} is the new user name and ${env:…} / ${vault:…} the password.
+ *
  *   heldout accounts --aut <profile> --no-delete      the application doesn't let tests delete accounts: keep them (tagged)
  *   heldout accounts --aut <profile> --per-test 2      tests use up to 2 existing accounts at once (fewer parallel workers)
  *   heldout accounts [--key KEY | --aut <profile>] --check [--create]   sign each existing account in, or create → token →
@@ -21,7 +27,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './lib/config';
+import { ROOT, createsAccounts, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './lib/config';
 import { checkAccountRecipe, recipeFromChain, signInFromSteps } from './lib/accounts';
 import { loadVaultSecrets } from './lib/secrets';
 
@@ -72,6 +78,30 @@ main(async () => {
     changed = true;
   }
 
+  // The sign-up page, for applications with no API to make accounts.
+  const signUpSteps = flagStr(flags, 'sign-up-steps') ? JSON.parse(fs.readFileSync(find(flagStr(flags, 'sign-up-steps')!), 'utf8'))
+    : flagStr(flags, 'sign-up-json') ? JSON.parse(flagStr(flags, 'sign-up-json')!) : undefined;
+  if (signUpSteps) {
+    if (!flagStr(flags, 'sign-up-path')) throw new Error('--sign-up-path is required with sign-up steps (the page the form is on, e.g. register.htm)');
+    const password = reference('password', undefined, flagStr(flags, 'password-env'), flagStr(flags, 'password-vault'), false) ?? cfg.aut.accounts?.password;
+    if (!password) throw new Error('give the password the new accounts get: --password-env NAME (then: npm run heldout -- secret NAME --generate) or --password-vault path#field');
+    const signUp = signInFromSteps({ path: unmangleMsysPath(flagStr(flags, 'sign-up-path')!), steps: signUpSteps, done: flagStr(flags, 'sign-up-done') });
+    const { create: _api, existing: _existing, ...rest } = cfg.aut.accounts ?? {};
+    void _api; void _existing;
+    save({ ...rest, password, username: flagStr(flags, 'username') ?? rest.username ?? 'qa-${uid}', signUp });
+    console.log(`✔ auts.${cfg.autId}.accounts: tests make their accounts on the sign-up page ${signUp.path} (${signUp.steps.length} step(s))${cfg.aut.accounts?.delete ? '' : ', and keep them (no delete)'}`);
+    changed = true;
+  }
+  const lookup = flagStr(flags, 'lookup');
+  if (lookup) {
+    const m = lookup.match(/^\s*([A-Za-z]+)\s+(\S+)\s*$/);
+    if (!m || !flagStr(flags, 'lookup-id')) throw new Error('--lookup "METHOD path" with --lookup-id <dotted path of the id in the answer>, e.g. --lookup "GET services/bank/login/${username}/${password}" --lookup-id id');
+    if (!cfg.aut.accounts) throw new Error('save how tests get accounts first, then the id lookup');
+    save({ ...cfg.aut.accounts, lookup: { method: m[1].toUpperCase(), path: `/${unmangleMsysPath(m[2]).replace(/^\/+/, '')}`, id: flagStr(flags, 'lookup-id')! } });
+    console.log(`✔ the new account's id: ${m[1].toUpperCase()} ${m[2]} → ${flagStr(flags, 'lookup-id')}`);
+    changed = true;
+  }
+
   const perTest = flagStr(flags, 'per-test');
   if (perTest) {
     const n = Number(perTest);
@@ -83,8 +113,8 @@ main(async () => {
   }
 
   if (flags['no-delete']) {
-    if (!cfg.aut.accounts?.create) throw new Error('--no-delete applies to accounts the tests create');
-    const { delete: removed, ...rest } = cfg.aut.accounts;
+    if (!createsAccounts(cfg.aut.accounts)) throw new Error('--no-delete applies to accounts the tests create');
+    const { delete: removed, ...rest } = cfg.aut.accounts!;
     save(rest);
     console.log(`✔ accounts the tests create are kept (no delete${removed ? `; removed ${removed.method} ${removed.path}` : ''}): they are named ${rest.username ?? 'qa-${uid}'} so they can be found later`);
     changed = true;
@@ -113,7 +143,7 @@ main(async () => {
   const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), profile: cfg.autId, ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute, overlays: cfg.aut.overlays } });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
-  const pool = recipe.create ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));
+  const pool = createsAccounts(recipe) ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));
   console.log(`✔ accounts ready${pool ? ` (${recipe.existing?.length} existing${(recipe.perTest ?? 1) > 1 ? `, ${recipe.perTest} per test` : ''}; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account();${recipe.signIn ? ' await signIn(page, me);' : ''}`);
   console.log(`  in the spec: import { ${recipe.signIn ? 'signIn, ' : ''}type Account } from '<…>/heldout-support/fixtures' — seed.account() and me.headers need nothing else`);
   if (!recipe.token && !recipe.signIn) console.log(`  next: save how to sign in — the api-probe chain of the sign-in call (heldout accounts --from-chain …), and/or the UI steps (--sign-in-json …)`);

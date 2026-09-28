@@ -124,3 +124,17 @@ export function profileIdFor(baseURL: string): string {
 }
 
 export const describeCounts = (d: AppDiscovery) => Object.entries(d.counts).filter(([, n]) => n > 0).map(([a, n]) => `${a} ×${n}`).join(', ') || 'no test-id attributes';
+
+/**
+ * The address of a page someone copied from the browser ("…/parabank/index.htm", "…/#/login", "…?lang=en") as a base
+ * URL: its folder, so that paths such as "billpay.htm" resolve beside it.
+ */
+export function baseUrlOf(url: string): string {
+  const u = new URL(url);
+  u.hash = ''; u.search = '';
+  if (/\/[^/]+\.[a-z0-9]{2,5}$/i.test(u.pathname)) u.pathname = u.pathname.replace(/[^/]+$/, '');
+  return u.toString();
+}
+
+/** An id a framework or the server generated, likely different on the next page load (a UUID, a long hex or number run). */
+export const generatedId = (id: string) => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(id) || /[0-9a-f]{12,}/i.test(id) || /\d{5,}/.test(id) || /^:r[\w]*:$/.test(id);

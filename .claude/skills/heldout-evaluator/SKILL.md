@@ -64,7 +64,8 @@ More applications: `npm run heldout -- add-aut <id> --base-url <url>`.
   run `npm run heldout -- secret APP_PASSWORD_1 --ask` in a terminal of their own (hidden prompt), or to set it as a CI variable.
 - *Existing, Vault:* put `VAULT_ADDR` in `.env`; the user runs `vault login` once (or sets `VAULT_TOKEN` / AppRole). Then
   `$H accounts --add-existing --username-vault <path#field> --password-vault <path#field>`.
-- *Created by the tests:* nothing now; the recipe is saved while hardening the first story that needs users.
+- *Created by the tests:* nothing now; the recipe is saved while hardening the first story that needs users (from the
+  API probe chain, or from the sign-up page when the app has no API for it: `$H accounts --sign-up-json …`).
 Repeat `--add-existing` for more accounts: each parallel worker needs its own, and runs use no more workers than
 there are accounts. `$H accounts --check` (and `doctor`) signs each one in.
 

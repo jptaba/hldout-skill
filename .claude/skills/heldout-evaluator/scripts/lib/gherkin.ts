@@ -41,6 +41,8 @@ export interface Scenario {
   needsClarification: boolean;
   /** @assumes:G<n> — the expectation rests on an assumed oracle value (a contract gap), not on the requirement. */
   assumes: string[];
+  /** @NFR-n — the contract's non-functional requirements this scenario verifies. */
+  nfrs: string[];
   outline: boolean;
   /** Examples rows (header first) for Scenario Outlines. */
   examples: string[][];
@@ -110,6 +112,7 @@ export function readFeature(file: string): FeatureDoc {
         steps: [],
         needsClarification: pendingTags.includes('@needs-clarification'),
         assumes: pendingTags.filter((t) => /^@assumes:G\d+$/.test(t)).map((t) => t.slice(9)),
+        nfrs: pendingTags.filter((t) => /^@NFR-\d+$/.test(t)).map((t) => t.slice(1)),
         outline: Boolean(scn[1]),
         examples: [],
       };

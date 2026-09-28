@@ -53,6 +53,8 @@ main(() => {
       '# Requirement review: requirement-review.md', '#',
       '# Acceptance criteria (verbatim from the contract):',
       ...c.acceptanceCriteria.map((a) => `# ${a.id}: ${a.text}`), '#',
+      ...(c.nonFunctional?.length ? ['# Non-functional requirements (verify with a scenario tagged @NFR-n, or they are reported as not verified):',
+        ...c.nonFunctional.map((n) => `# ${n.id}: ${n.text}`), '#'] : []),
       ...eps.map((e) => `# ENDPOINT: ${e.method} ${e.path}${e.success ? ` — ${e.success}` : ''}`),
       ...(eps.length ? ['#'] : []),
       ...c.gaps.filter((g) => g.resolution === 'assumed').map((g) => `# ASSUMPTION: ${g.id} — ${g.element}: ${g.value ?? ''}`),
@@ -84,7 +86,7 @@ main(() => {
     const secret = JSON.stringify([c.auth, c.testData]).match(/\b[A-Z][A-Z0-9]*_(?:[A-Z0-9]+_)*(?:PASSWORD|PASS|TOKEN|SECRET)\b/)?.[0];
     writeFile(p.testData, `${JSON.stringify(secret ? { password: `\${env:${secret}}` } : {}, null, 2)}\n`);
     console.log(`✔ created ${rel(p.testData)}${secret ? ` (password → \${env:${secret}})` : ''} — add the values your scenarios need`);
-    if (secret && !process.env[secret]) console.log(`✖ ${secret} is not set. For accounts the tests create themselves: npm run heldout -- secret ${secret} --generate. For an existing account, add ${secret}=… to .env.`);
+    if (secret && !process.env[secret]) console.log(`• next: set ${secret}. For accounts the tests create themselves: npm run heldout -- secret ${secret} --generate. For an existing account, add ${secret}=… to .env.`);
   }
 
   // ---- requirement review and hardening log: everything the contract already knows, the judgement left to write --

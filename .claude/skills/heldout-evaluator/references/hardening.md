@@ -48,6 +48,13 @@ list the button that closes each in the profile's `overlays`, e.g.
 `["getByRole('button', { name: 'dismiss cookie message' })"]`. The tests, the UI sign-in and `heldout inspect` click it
 whenever it appears (Playwright's `addLocatorHandler`), so no step has to dismiss it.
 
+`heldout inspect` suggests, in order: role and name, label, placeholder, test id, a stable id, then the field's `name`
+attribute. An id that looks generated (a UUID, a long number) changes on every page load: it is offered last, flagged.
+
+A shared sandbox that answers 429 (rate limited) is the environment, not the application: triage says so, and `heldout run`
+prints the command that paces the tests on that host, e.g.
+`npm run heldout -- init --profile <id> --max-workers 1 --min-test-interval-ms 10000`.
+
 `heldout inspect` steps wait for an address with `{ "do": "wait", "target": "url:/search" }`, the same form as an accounts
 recipe's `done`. Hash routes work as `--url "#/login"`, also under Git Bash.
 

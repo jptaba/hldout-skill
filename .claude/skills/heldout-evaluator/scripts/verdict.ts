@@ -8,9 +8,10 @@
  * application defects → INCONCLUSIVE on unexplained failures → PASS_WITH_WARNINGS → PASS).
  * Application defects that share a root-cause title (the title given when confirming them in triage) are grouped.
  */
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
+import { NON_EVAL_RUN, ROOT, SKILL_DIR, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
 import type { Category } from './lib/classify';
 import { baseScenarioId, readFeature } from './lib/gherkin';
 import { oracleDigest, readContract } from './lib/contract';
@@ -36,11 +37,17 @@ main(() => {
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
   const allRuns = listRuns(p.runs).filter((r) => fs.existsSync(path.join(p.runs, r, 'run-meta.json')));
-  const runs = allRuns.filter((r) => fs.existsSync(path.join(p.runs, r, 'triage.json')));
   // Non-evaluation runs (hardening dry-runs, single-test reproductions, robustness probes) never become the final run.
   const NON_EVAL = NON_EVAL_RUN;
-  const finalRun = flagStr(flags, 'run') ?? runs.filter((r) => !NON_EVAL.test(r)).at(-1) ?? runs.at(-1);
-  if (!finalRun) throw new Error('No triaged run found. Run: heldout run KEY, then heldout triage KEY.');
+  const finalRun = flagStr(flags, 'run') ?? allRuns.filter((r) => !NON_EVAL.test(r)).at(-1);
+  if (!finalRun) throw new Error(`No evaluation run yet (hardening runs don't count). Run: npm run heldout -- run ${key} --label eval`);
+  // The final run is always the latest evaluation run. A run with nothing to triage (everything passed) may never have
+  // been triaged: classify it now rather than fall back to an older run.
+  if (!fs.existsSync(path.join(p.runs, finalRun, 'triage.json'))) {
+    const again = spawnSync(process.execPath, [...process.execArgv, path.join(SKILL_DIR, 'scripts', 'heldout.ts'), 'triage', key, '--run', finalRun], { stdio: 'inherit', cwd: ROOT });
+    if (again.status !== 0 || !fs.existsSync(path.join(p.runs, finalRun, 'triage.json'))) throw new Error(`${finalRun} has not been triaged: npm run heldout -- triage ${key}`);
+  }
+  const runs = allRuns.filter((r) => fs.existsSync(path.join(p.runs, r, 'triage.json')));
   // Runs are numbered 01, 02…; a missing number means a run was deleted, and its result with it.
   const numbers = listRuns(p.runs).map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
   const missingRuns = numbers.length ? Array.from({ length: Math.max(...numbers) }, (_, i) => i + 1).filter((n) => !numbers.includes(n)) : [];
@@ -108,10 +115,11 @@ main(() => {
   };
   const blockingQuestions = feature.openQuestions.filter((q) => !informational(q) && !testedLiterally(q));
   const infoQuestions = feature.openQuestions.filter(informational);
+  const unverifiedNfrs = (contract.nonFunctional ?? []).filter((n) => !feature.scenarios.some((s) => s.nfrs.includes(n.id)));
   const { verdict, reason } = decideVerdict({
     integrity: integrity.status,
     confirmedAppDefects: [...groups.values()].filter((g) => g.some((e) => e.final)).map((g) => ({ refs: [...new Set(g.flatMap((e) => e.requirementRefs))] })),
-    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length,
+    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length, unverifiedRequirements: unverifiedNfrs.length,
   });
 
   const acText = (id: string) => feature.acs.find((a) => a.id === id)?.text ?? '';
@@ -295,6 +303,15 @@ main(() => {
   });
   md.push('## Coverage by test type', '', '| Test type | Scenarios | Tests | Passed | Failed | Flaky | Defects |', '| --- | --- | --- | --- | --- | --- | --- |',
     ...coverageByType.map((c) => `| ${c.type} | ${c.scenarios} | ${c.tests} | ${c.passed} | ${c.failed} | ${c.flaky} | ${c.defects.join(', ') || '-'} |`), '');
+
+  const nfrs = contract.nonFunctional ?? [];
+  if (nfrs.length) {
+    md.push('## Non-functional requirements', '', '| Requirement | Source | Verified by |', '| --- | --- | --- |',
+      ...nfrs.map((n) => {
+        const by = feature.scenarios.filter((s) => s.nfrs.includes(n.id)).map((s) => s.id);
+        return `| ${n.id}: ${esc(n.text)} | ${n.source} | ${by.length ? by.join(', ') : '⚠ not verified by this evaluation: the owner decides how it is accepted'} |`;
+      }), '');
+  }
 
   const contractGaps = contract.gaps;
   if (feature.openQuestions.length || clarifications.length || feature.assumptions.length || contractGaps.length || contradicted.length) {

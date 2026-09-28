@@ -17,7 +17,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { assertIssueKey, autEnv, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
+import { NON_EVAL_RUN, assertIssueKey, autEnv, createsAccounts, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
 import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
 import { scrubDir, secretValuesFor } from './lib/redact';
 import { failedTests } from './lib/triage-model';
@@ -112,7 +112,7 @@ main(async () => {
   if (grep) args.push('--grep', grep);
   // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
   // Existing accounts are shared out among workers, so there are never more workers than accounts.
-  const pool = cfg.aut.accounts && !cfg.aut.accounts.create && cfg.aut.accounts.existing?.length
+  const pool = cfg.aut.accounts && !createsAccounts(cfg.aut.accounts) && cfg.aut.accounts.existing?.length
     ? Math.max(1, Math.floor(cfg.aut.accounts.existing.length / Math.max(1, cfg.aut.accounts.perTest ?? 1))) : undefined;
   const cap = [cfg.aut.maxWorkers, pool].filter((x): x is number => Boolean(x)).reduce<number | undefined>((a, b) => (a === undefined ? b : Math.min(a, b)), undefined);
   const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
@@ -191,5 +191,14 @@ main(async () => {
     if (leftovers.some((l) => /HTTP 40[13]/.test(l))) console.log('    HTTP 401/403: the token was revoked (often by a UI sign-in in the test) — take a fresh one in the cleanup and retry, as seed.account() does');
     if (leftovers.some((l) => !/HTTP 40[13]/.test(l))) console.log('    other errors: replay the cleanup call with heldout api-probe to see what the application answers');
   }
+  // A host that rate-limited this run will do it again: say how to pace the tests, with the command that does it.
+  const throttled = [...(Array.isArray(health) ? health : []), ...postHealth].some((h) => h.status === 429)
+    || /\b429\b|rate limit/i.test(fs.existsSync(path.join(runDir, 'console.log')) ? fs.readFileSync(path.join(runDir, 'console.log'), 'utf8') : '');
+  if (throttled && !(cfg.aut.maxWorkers === 1 && cfg.aut.minTestIntervalMs)) {
+    console.log(`\n⚠ ${cfg.aut.name} rate-limited this run (HTTP 429). Pace the tests on this host, then run again:`);
+    console.log(`  npm run heldout -- init --profile ${cfg.autId} --max-workers 1 --min-test-interval-ms 10000`);
+    console.log('  (one worker, test starts at least 10 s apart; the failures above are the environment, not the application)');
+  }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
+  else if (!NON_EVAL_RUN.test(runName)) console.log(`\nNext: npm run heldout -- verdict ${key}`);
 });

@@ -161,7 +161,7 @@ interface AccountRecipe {
   password?: string; username?: string; authHeader?: string; before?: (RecipeCall & { save: Record<string, string> })[];
   create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string }[];
   token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall;
-  signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
+  signIn?: UiForm; signUp?: UiForm;
 }
 const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
 const NO_RECIPE = 'the AUT profile has no "accounts" recipe in heldout.config.json (how to create, sign in and delete a test account on this application; see references/data-and-journeys.md)';
@@ -191,6 +191,18 @@ function locate(page: Page, expr: string): Locator {
   return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
 }
 
+type UiForm = { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
+/** Open the form's page, fill/click its steps (recipe placeholders filled from vars) and wait until it is done. */
+async function fillForm(page: Page, form: UiForm, vars: Record<string, unknown>): Promise<void> {
+  await gotoPage(page, form.path);
+  for (const s of form.steps) {
+    if (s.fill !== undefined) await locate(page, s.fill).fill(String(fillRecipe(s.value ?? '', vars)));
+    else if (s.click !== undefined) await locate(page, s.click).click();
+  }
+  if (form.done?.startsWith('url:')) await expect(page).toHaveURL(new RegExp(form.done.slice(4).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), { timeout: 15_000 });
+  else if (form.done) await expect(locate(page, form.done).first()).toBeVisible({ timeout: 15_000 });
+}
+
 /**
  * Sign in through the UI as a seed.account() account, with the recipe's `signIn` steps. A precondition: a failure is
  * `[SEED] …` (BLOCKED). Afterwards call account.refresh() before API calls if the application revokes older tokens.
@@ -200,14 +212,7 @@ export async function signIn(page: Page, account: Account): Promise<void> {
   await base.step(`[SEED] sign in as ${account.username}`, async () => {
     try {
       if (!r) throw new Error(`${NO_RECIPE.replace('"accounts" recipe', '"accounts.signIn" recipe')}`);
-      await gotoPage(page, r.path);
-      const vars = { username: account.username, password: account.password, id: account.id };
-      for (const s of r.steps) {
-        if (s.fill !== undefined) await locate(page, s.fill).fill(String(fillRecipe(s.value ?? '', vars)));
-        else if (s.click !== undefined) await locate(page, s.click).click();
-      }
-      if (r.done?.startsWith('url:')) await expect(page).toHaveURL(new RegExp(r.done.slice(4).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), { timeout: 15_000 });
-      else if (r.done) await expect(locate(page, r.done).first()).toBeVisible({ timeout: 15_000 });
+      await fillForm(page, r, { username: account.username, password: account.password, id: account.id });
     } catch (err) {
       throw new Error(`[SEED] sign in as ${account.username}: precondition could not be established — ${(err as Error).message}`);
     }
@@ -246,7 +251,13 @@ export async function dismissOverlays(page: Page, overlays = process.env.AUT_OVE
  * `settleMs` without failing (third-party assets can keep 'load' pending forever).
  */
 export async function gotoPage(page: import('@playwright/test').Page, path: string, settleMs = 10_000): Promise<void> {
-  await page.goto(autUrl(process.env.AUT_BASE_URL, path), { waitUntil: 'domcontentloaded' });
+  // A 429 page (rate limit) is the environment: wait as told and load again, twice at most (any page, fixture or not).
+  let res = await page.goto(autUrl(process.env.AUT_BASE_URL, path), { waitUntil: 'domcontentloaded' });
+  for (let attempt = 0; res?.status() === 429 && attempt < 2; attempt++) {
+    await new Promise((r) => setTimeout(r, Math.min(Number(res!.headers()['retry-after']) || 10, 120) * 1000));
+    res = await page.goto(autUrl(process.env.AUT_BASE_URL, path), { waitUntil: 'domcontentloaded' });
+  }
+  if (res?.status() === 429) throw new Error(`${path} answered 429 (rate limited) three times: the host is throttling the tests — pace them with the profile's maxWorkers / minTestIntervalMs`);
   await page.waitForLoadState('load', { timeout: settleMs }).catch(() => undefined);
 }
 
@@ -358,7 +369,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   },
 
   // Depends on `api` so the API client (used by cleanups) is torn down only after the seed teardown ran.
-  seed: async ({ api }, use, testInfo) => {
+  seed: async ({ api, playwright }, use, testInfo) => {
     void api;
     const ledger: SeedRecord[] = [];
     const cleanups: { rec: SeedRecord; run: () => Promise<unknown> }[] = [];
@@ -470,7 +481,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           }
           return account;
         };
-        if (r && !r.create) {
+        if (r && !r.create && !r.signUp) {
           // Existing accounts: this worker's share of the list, one per call within a test; never created or deleted.
           return seedApi.create(label, async () => {
             const pool = r.existing ?? [];
@@ -485,10 +496,24 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           });
         }
         return seedApi.create(label, async () => {
-          if (!r?.create) throw new Error(NO_RECIPE);
+          if (!r?.create && !r?.signUp) throw new Error(NO_RECIPE);
           vars.password = String(resolveEnv(r.password ?? ''));
           vars.username = options.username ?? String(fillRecipe(r.username ?? 'qa-${uid}', vars));
           await before();
+          if (!r.create) {
+            // Only the sign-up page makes accounts: fill it in a browser of its own, then sign in over the API / look up the id.
+            const browser = await playwright.chromium.launch({ headless: !process.env.HELDOUT_HEADED });
+            try {
+              const context = await browser.newContext({ baseURL: process.env.AUT_BASE_URL });
+              await blockThirdParty(context, process.env.AUT_BLOCK_HOSTS);
+              const page = await context.newPage();
+              await dismissOverlays(page);
+              await fillForm(page, r.signUp!, vars);
+            } catch (err) {
+              throw new Error(`sign-up at ${r.signUp!.path} as ${String(vars.username)}: ${(err as Error).message.split('\n')[0]}`);
+            } finally { await browser.close(); }
+            return ready();
+          }
           const res = await send(r.create);
           if (!res.ok) throw new Error(`${r.create.method} ${r.create.path} → ${res.status} ${res.text.slice(0, 200)}`);
           const id = dig(res.body, r.create.id);

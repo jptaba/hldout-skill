@@ -365,8 +365,8 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>5 apps</b><span>onboarded end to end in 9 rounds, with no app-specific code</span></div>
-    <div class="stat"><b>143</b><span>self-tests guarding the skill's own logic</span></div>
+    <div class="stat"><b>6 apps</b><span>onboarded end to end in 10 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>146</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
 
@@ -570,7 +570,7 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
         <text class="t-m" x="160" y="332" text-anchor="middle">await signIn(page, me);</text>
       </svg>
     </div>
-    <figcaption>The recipe is written from what hardening already probed, so nobody writes sign-up or sign-in code by hand.</figcaption>
+    <figcaption>The recipe is written from what hardening already probed, so nobody writes sign-up or sign-in code by hand. An app whose only way to make users is its sign-up page gets a <code>signUp</code> form in the recipe: each account is then made in a short-lived browser before the test.</figcaption>
   </figure>
 
   <h3>Anatomy of a recipe</h3>
@@ -594,7 +594,7 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
     <div class="card"><h4><span class="tag">before · create · token · lookup</span></h4><p>How a user is made and signed in over the API. <code>before</code> fetches what those calls need first, such as a CSRF token. <code>lookup</code> is a "who am I" call for apps whose sign-in answer carries no id.</p></div>
     <div class="card"><h4><span class="tag">delete</span></h4><p>Optional. Without it, created accounts are kept and tagged. <code>doctor</code> then never creates a throw-away check account.</p></div>
     <div class="card"><h4><span class="tag">existing[]</span></h4><p>Accounts someone else made. The user name may be literal or a reference. The password is always <code>${env:…}</code> or <code>${vault:…}</code>.</p></div>
-    <div class="card"><h4><span class="tag">signIn</span></h4><p>The UI sign-in as recorded steps, and how to know it worked. <code>signIn(page, me)</code> replays it as a precondition.</p></div>
+    <div class="card"><h4><span class="tag">signIn · signUp</span></h4><p>The UI sign-in as recorded steps, and how to know it worked. <code>signIn(page, me)</code> replays it as a precondition. <code>signUp</code> is the same for an app's sign-up page.</p></div>
   </div>
 
   <h3>Watch it: the recipe checked live</h3>
@@ -925,7 +925,7 @@ test('SCN-001: A customer adds a product to favourites', { tag: ['@AC-1', '@type
     <div class="rung"><div class="i">1</div><div><span class="badge b-inc">INCONCLUSIVE</span></div><div class="small">The integrity freeze was violated: an expectation changed without an audited amendment.</div></div>
     <div class="rung"><div class="i">2</div><div><span class="badge b-fail">FAIL</span></div><div class="small">At least one application defect was reproduced by the evaluator.</div></div>
     <div class="rung"><div class="i">3</div><div><span class="badge b-inc">INCONCLUSIVE</span></div><div class="small">Failures remain that are unconfirmed, script, environment or needs-investigation.</div></div>
-    <div class="rung"><div class="i">4</div><div><span class="badge b-pww">PASS WITH WARNINGS</span></div><div class="small">All passed, but flaky tests, uncovered criteria, open questions or readings the app contradicts remain.</div></div>
+    <div class="rung"><div class="i">4</div><div><span class="badge b-pww">PASS WITH WARNINGS</span></div><div class="small">All passed, but flaky tests, uncovered criteria, open questions, readings the app contradicts, or stated requirements nobody could verify remain.</div></div>
     <div class="rung"><div class="i">5</div><div><span class="badge b-pass">PASS</span></div><div class="small">All passed and every acceptance criterion is covered.</div></div>
   </div>
   <p>A finding from a real FAIL verdict, DQ-3 on DemoQA, abbreviated:</p>
@@ -991,7 +991,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Nine rounds from an empty folder to a published verdict, on five apps. Every hiccup was fixed in the skill before the next round.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Ten rounds from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1006,6 +1006,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
       <tr><td>7</td><td>CL-3 · Contact List App</td><td>users created and deleted; UI sign-in checked in a browser</td><td><span class="badge b-pass">PASS</span> 20/20, as the key</td></tr>
       <tr><td>8</td><td>TOOL-4 · Toolshop</td><td>API on another host; users kept by design; two users in one test</td><td><span class="badge b-pass">PASS</span> 11/11, as the key</td></tr>
       <tr><td>9</td><td>JS-2 · OWASP Juice Shop (local Docker)</td><td>a sign-up that needs a lookup first; cookie and welcome overlays; a basket-privacy defect</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
+      <tr><td>10</td><td>PB-4 · ParaBank (rate-limited demo)</td><td>users only on the sign-up page; a 429 mid-run; a "shall" nobody can observe</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 11/11, as the key</td></tr>
     </tbody>
   </table></div>
   <p class="small">The full report, with every defect the rounds found in the skill and how it was fixed, is in <a href="../demo/EVALUATOR-TEST-REPORT.md">demo/EVALUATOR-TEST-REPORT.md</a>.</p>

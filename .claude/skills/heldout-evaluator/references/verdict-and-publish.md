@@ -6,7 +6,8 @@
 npm run heldout -- verdict KEY [--run NN-label] [--evaluator "name"] [--exit-code]
 ```
 
-The verdict uses the latest run whose label doesn't start with `harden` (override with `--run`).
+The verdict uses the latest evaluation run: not a hardening, reproduction or probe run (override with `--run`). A run
+where everything passed needs no triage by hand; the verdict triages it itself.
 `--exit-code` returns 0 for PASS / PASS_WITH_WARNINGS, 1 for FAIL and 2 for INCONCLUSIVE (CI gate).
 
 | Verdict (recommendation) | Rule (first match wins) |
@@ -14,7 +15,7 @@ The verdict uses the latest run whose label doesn't start with `harden` (overrid
 | `INCONCLUSIVE` | integrity VIOLATED (the oracle changed without an amendment or re-freeze) |
 | `FAIL` | ≥ 1 application defect reproduced by the evaluator |
 | `INCONCLUSIVE` | failures remain that are unconfirmed, script, environment or needs-investigation |
-| `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications, contradicted assumptions or open questions remain. An open question only about non-required oracle gaps that affect no AC is listed "for the owner's information" and doesn't downgrade a PASS |
+| `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications, contradicted assumptions, open questions or stated requirements no scenario verified (`@NFR-n`) remain. An open question only about non-required oracle gaps that affect no AC is listed "for the owner's information" and doesn't downgrade a PASS |
 | `PASS` | all passed and every AC is covered |
 
 ## What `verdict.md` contains (written for a reviewer)

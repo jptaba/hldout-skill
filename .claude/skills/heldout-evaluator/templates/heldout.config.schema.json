@@ -277,6 +277,40 @@
                 "type": "integer",
                 "minimum": 1,
                 "description": "The most existing accounts one test uses at once (default 1). Runs use at most existing / perTest parallel workers"
+              },
+              "signUp": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "steps"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fill": {
+                          "type": "string"
+                        },
+                        "click": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "done": {
+                    "type": "string",
+                    "description": "\"url:/profile\" or a page-locator expression that appears once signed in"
+                  }
+                },
+                "description": "UI sign-up, for applications whose accounts can only be made on their sign-up page: open path, fill/click the steps, wait for done. The id comes from lookup or the token answer"
               }
             },
             "anyOf": [

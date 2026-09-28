@@ -64,8 +64,15 @@ export interface AccountRecipe {
   delete?: RecipeCall;
   /** UI sign-in: open `path`, run the steps (fill/click with a page-locator expression), then wait for `done`
    *  ("url:/profile" or a locator expression). */
-  signIn?: { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
+  signIn?: UiForm;
+  /** UI sign-up, for applications whose accounts can only be made on their sign-up page (no API): the same shape as
+   *  signIn, run in a browser of its own before the test. The id comes from `lookup` or the `token` answer. */
+  signUp?: UiForm;
 }
+/** A form filled in the browser: open `path`, fill/click the steps (page-locator expressions), wait for `done`. */
+export interface UiForm { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string }
+/** Whether the tests make their own accounts (over the API, or on the sign-up page). */
+export const createsAccounts = (r?: AccountRecipe) => Boolean(r?.create || r?.signUp);
 
 export interface HeldoutConfig {
   /** Named AUT profiles. A story is bound to one via evaluations/<KEY>/evaluation.json. */
@@ -172,10 +179,12 @@ export function validateConfig(raw: unknown): string[] {
     if (acc !== undefined) {
       const call = (k: string) => typeof acc[k] === 'object' && typeof (acc[k] as Record<string, unknown>).method === 'string' && typeof (acc[k] as Record<string, unknown>).path === 'string';
       const existing = acc.existing as unknown;
-      if (acc.create === undefined && existing === undefined) out.push(`auts.${id}.accounts needs "create" (tests make their accounts) or "existing" (accounts that already exist)`);
-      if (acc.create !== undefined) {
-        if (!call('create') || typeof (acc.create as Record<string, unknown>).id !== 'string') out.push(`auts.${id}.accounts.create needs method, path and id (the dotted path of the new account's id in the response)`);
-        if (typeof acc.password !== 'string') out.push(`auts.${id}.accounts.password is required with create (e.g. "\${env:APP_USER_PASSWORD}")`);
+      if (acc.create === undefined && acc.signUp === undefined && existing === undefined) out.push(`auts.${id}.accounts needs "create" (tests make their accounts over the API), "signUp" (on the sign-up page) or "existing" (accounts that already exist)`);
+      if (acc.create !== undefined && (!call('create') || typeof (acc.create as Record<string, unknown>).id !== 'string')) out.push(`auts.${id}.accounts.create needs method, path and id (the dotted path of the new account's id in the response)`);
+      if ((acc.create !== undefined || acc.signUp !== undefined) && typeof acc.password !== 'string') out.push(`auts.${id}.accounts.password is required when tests make accounts (e.g. "\${env:APP_USER_PASSWORD}")`);
+      for (const k of ['signIn', 'signUp']) {
+        const form = acc[k] as Record<string, unknown> | undefined;
+        if (form !== undefined && (typeof form !== 'object' || typeof form.path !== 'string' || !Array.isArray(form.steps))) out.push(`auts.${id}.accounts.${k} needs path and steps`);
       }
       if (existing !== undefined) {
         const list = Array.isArray(existing) ? existing as Record<string, unknown>[] : [];

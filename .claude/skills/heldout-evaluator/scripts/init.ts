@@ -20,7 +20,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, SKILL_DIR, flagStr, main, parseArgs, rel, unmangleMsysPath, type Flags } from './lib/config';
-import { appNameFrom, describeCounts, discoverApp, profileIdFor } from './lib/detect';
+import { appNameFrom, baseUrlOf, describeCounts, discoverApp, profileIdFor } from './lib/detect';
 
 const FILES: [template: string, target: string][] = [
   ['heldout.config.json', 'heldout.config.json'],
@@ -82,14 +82,16 @@ function installSkillFrom(source: string): void {
 }
 
 function profileFrom(flags: Flags, base: Record<string, unknown> = {}) {
-  const baseURL = flagStr(flags, 'base-url') ?? (base.baseURL as string);
+  const given = flagStr(flags, 'base-url');
+  const baseURL = given ? baseUrlOf(given) : (base.baseURL as string);
+  if (given && baseURL !== given && baseURL !== `${given}/`) say('✔', `base URL: ${baseURL} (the folder of the page you gave, so paths like "page.htm" resolve beside it)`);
   const hc = flagStr(flags, 'healthcheck');
   return {
     ...base,
     name: flagStr(flags, 'name') ?? (baseURL ? profileIdFor(baseURL) : base.name),
     baseURL,
     // A new --base-url implies the API lives there too unless --api-base-url says otherwise.
-    apiBaseURL: flagStr(flags, 'api-base-url') ?? (flagStr(flags, 'base-url') ? baseURL : (base.apiBaseURL ?? baseURL)),
+    apiBaseURL: (flagStr(flags, 'api-base-url') ? baseUrlOf(flagStr(flags, 'api-base-url')!) : undefined) ?? (flagStr(flags, 'base-url') ? baseURL : (base.apiBaseURL ?? baseURL)),
     testIdAttribute: flagStr(flags, 'test-id-attr') ?? base.testIdAttribute ?? 'data-testid',
     healthcheck: hc ? hc.split(',').map((x) => unmangleMsysPath(x.trim())).filter(Boolean) : (base.healthcheck ?? ['/']),
   };
@@ -259,6 +261,18 @@ main(async () => {
     const npx = (args: string[]) => spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { stdio: 'inherit', cwd: ROOT, shell: process.platform === 'win32' });
     console.log('\n▶ npm install'); if (npm(['install', '--no-fund', '--no-audit']).status !== 0) throw new Error('npm install failed — see the output above');
     console.log('▶ npx playwright install chromium'); if (npx(['playwright', 'install', 'chromium']).status !== 0) throw new Error('Chromium install failed — see the output above');
+  }
+  // Pacing for a host that rate-limits bursts of traffic (heldout run suggests it after a 429).
+  const maxWorkers = flagStr(flags, 'max-workers'); const interval = flagStr(flags, 'min-test-interval-ms');
+  if (maxWorkers || interval) {
+    const cfg = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    const id = flagStr(flags, 'profile') ?? cfg.defaultAut;
+    if (!cfg.auts[id]) throw new Error(`no AUT profile "${id}" in heldout.config.json`);
+    const n = (v: string, name: string, min: number) => { const x = Number(v); if (!Number.isInteger(x) || x < min) throw new Error(`--${name} takes a whole number ≥ ${min}`); return x; };
+    if (maxWorkers) cfg.auts[id].maxWorkers = n(maxWorkers, 'max-workers', 1);
+    if (interval) cfg.auts[id].minTestIntervalMs = n(interval, 'min-test-interval-ms', 0);
+    fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
+    say('✔', `auts.${id}: ${maxWorkers ? `at most ${cfg.auts[id].maxWorkers} worker(s)` : ''}${maxWorkers && interval ? ', ' : ''}${interval ? `tests start at least ${cfg.auts[id].minTestIntervalMs} ms apart` : ''}`);
   }
   if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags, !flagStr(flags, 'profile'));
 

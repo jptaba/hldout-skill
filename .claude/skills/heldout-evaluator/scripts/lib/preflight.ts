@@ -46,7 +46,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const ids = new Map<string, number>();
   for (const s of f.scenarios) {
     ids.set(s.id, (ids.get(s.id) ?? 0) + 1);
-    if (!s.acs.length) err('scenario-without-ac', `${s.id} has no @AC-n tag`);
+    if (!s.acs.length && !s.nfrs.length) err('scenario-without-ac', `${s.id} has no @AC-n (or @NFR-n) tag`);
     for (const ac of s.acs) if (!f.acs.some((a) => a.id === ac)) err('unknown-ac', `${s.id} is tagged @${ac}, which is not in the AC list`);
     if (s.outline && s.examples.length < 2) err('outline-without-examples', `${s.id} is a Scenario Outline without Examples rows`);
     if (!s.steps.some((x) => /^Then\b/.test(x))) warn('no-then', `${s.id} has no Then step (nothing observable is asserted)`);
@@ -76,6 +76,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     // Reviewer observations are notes for the contract's builder (shown by `heldout contract`), not test-suite problems.
     for (const x of checkReview(contract, readReview(p.base), { requireReview: true }).filter((f) => f.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
     out.push(...checkFeatureAgainstContract(contract, f));
+    // A non-functional requirement the story states is verified by a scenario tagged @NFR-n, or reported as not verified.
+    for (const n of contract.nonFunctional ?? []) {
+      if (!f.scenarios.some((s) => s.nfrs.includes(n.id))) warn('nfr-not-verified', `${n.id} is not verified by any scenario — tag the scenario that checks it @${n.id}; otherwise the verdict lists it as not verified (at most PASS WITH WARNINGS)`);
+    }
   }
   for (const e of typeErrors(p.tests)) err('spec-type-error', e);
   for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any scenario`);

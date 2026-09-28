@@ -94,8 +94,8 @@ export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; do
 export interface RecipeStep { step: string; ok: boolean; detail: string }
 
 /** Run the recipe's UI sign-in in a headless browser as the given account; the error message, or undefined when it worked. */
-async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, unknown>, blockHosts: string[] = [], testIdAttribute = 'data-testid', overlays: string[] = []): Promise<string | undefined> {
-  const signIn = r.signIn!;
+async function uiForm(form: NonNullable<AccountRecipe['signIn']>, baseURL: string, vars: Record<string, unknown>, blockHosts: string[] = [], testIdAttribute = 'data-testid', overlays: string[] = []): Promise<string | undefined> {
+  const signIn = form;
   let chromium: { launch(o: object): Promise<{ newContext(): Promise<UiContext>; close(): Promise<void> }> };
   try {
     const pw = await import(pathToFileURL(createRequire(path.join(ROOT, 'package.json')).resolve('@playwright/test')).href);
@@ -172,7 +172,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     return token;
   };
 
-  if (!r.create) {
+  if (!r.create && !r.signUp) {
     for (const a of r.existing ?? []) {
       const vars = { username: String(fill(a.username, {})), password: String(fill(a.password, {})), id: a.id ? String(fill(a.id, {})) : undefined };
       const unresolved = [a.username, a.password].filter((v) => /\$\{(env|vault):/.test(String(fill(v, {}))));
@@ -189,30 +189,46 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     // The UI sign-in, once, as the first account.
     const first = r.existing?.[0];
     if (opts.ui && r.signIn && first && out.every((x) => x.ok)) {
-      const failed = await uiSignIn(r, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays);
+      const failed = await uiForm(r.signIn, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays);
       out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as ${first.username}` });
     }
     return out;
   }
 
+  const how = r.create ? `create ${r.create.method} ${r.create.path}` : `sign-up at ${r.signUp!.path}`;
   if (!r.delete && !opts.createUndeletable) {
-    out.push({ step: `create ${r.create.method} ${r.create.path}`, ok: true, detail: 'not run: the application offers no delete, so a check account would stay behind (heldout accounts --check --create makes one on purpose)' });
+    out.push({ step: how, ok: true, detail: 'not run: the application offers no delete, so a check account would stay behind (heldout accounts --check --create makes one on purpose)' });
     return out;
   }
   const vars: Record<string, unknown> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}`, password: String(fill(r.password ?? '', {})) };
   vars.username = String(fill(r.username ?? 'qa-${uid}', vars));
   if (!(await runBefore(vars))) return out;
-  const created = await send(r.create, vars);
-  const id = dig(created.json, r.create.id);
-  out.push({ step: `create ${r.create.method} ${r.create.path}`, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 120)}` });
-  if (!created.ok || id === undefined) return out;
-  vars.id = String(id);
-  const fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;
-  if (r.create.token) out.push({ step: 'token from the create answer', ok: typeof fromCreate === 'string' && Boolean(fromCreate), detail: typeof fromCreate === 'string' && fromCreate ? `${r.create.token} found` : `no "${r.create.token}" in the answer` });
+  let fromCreate: unknown;
+  if (r.create) {
+    const created = await send(r.create, vars);
+    const id = dig(created.json, r.create.id);
+    out.push({ step: how, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 120)}` });
+    if (!created.ok || id === undefined) return out;
+    vars.id = String(id);
+    fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;
+    if (r.create.token) out.push({ step: 'token from the create answer', ok: typeof fromCreate === 'string' && Boolean(fromCreate), detail: typeof fromCreate === 'string' && fromCreate ? `${r.create.token} found` : `no "${r.create.token}" in the answer` });
+  } else {
+    // The sign-up page is the only way to make an account: fill it in a browser, as the tests do.
+    const failed = opts.ui ? await uiForm(r.signUp!, opts.ui.baseURL, vars, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays) : 'no browser settings given';
+    out.push({ step: how, ok: !failed, detail: failed ?? `made ${String(vars.username)}` });
+    if (failed) return out;
+  }
   const signedIn = r.token ? await signInOverApi(vars, `${r.token.method} ${r.token.path}`) : undefined;
   let token = signedIn ?? (typeof fromCreate === 'string' ? fromCreate : undefined);
+  if (!vars.id && r.lookup) {
+    const l = await send(r.lookup, vars, token);
+    const id = dig(l.json, r.lookup.id);
+    out.push({ step: `id ${r.lookup.method} ${r.lookup.path}`, ok: id !== undefined && id !== null, detail: id !== undefined && id !== null ? `${l.status}, ${r.lookup.id} found` : `${l.status}, no "${r.lookup.id}" in the answer` });
+    if (id === undefined || id === null) return out;
+    vars.id = String(id);
+  }
   if (opts.ui && r.signIn) {
-    const failed = await uiSignIn(r, opts.ui.baseURL, vars, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays);
+    const failed = await uiForm(r.signIn, opts.ui.baseURL, vars, opts.ui.blockHosts, opts.ui.testIdAttribute, opts.ui.overlays);
     out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as the check account` });
     // Many applications revoke earlier tokens at a UI sign-in: take a fresh one for the delete.
     if (r.token) token = (await signInOverApi(vars, 'again after the UI sign-in')) ?? token;
