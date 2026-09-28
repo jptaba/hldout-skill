@@ -13,6 +13,10 @@ Jira story + attachments + comments
   → verdict.md (traceability, reproduction steps, evidence) → Jira comment + attachment → you decide
 ```
 
+**Architecture and field guide:** [docs/architecture.html](docs/architecture.html) explains every capability with diagrams, plain-English
+summaries, replays of real terminal sessions and recordings of the tests driving a real app. Git hosts show HTML as source,
+so open it from a clone (or a Pages site) in a browser.
+
 ## Adopt it in another project (about 1 minute)
 
 Get the skill once, from wherever your team keeps it (GitLab, GitHub, a file share). Then run its `init` from the
@@ -23,6 +27,8 @@ git clone --depth 1 --filter=blob:none --sparse <skill-repository-url> "$HOME/he
 git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluator
 npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install
 ```
+
+![A real onboarding: sparse clone, init --install and doctor on Practice Software Testing](docs/media/onboarding.gif)
 
 The same lines work in bash, zsh and PowerShell. The sparse clone fetches only the skill (about 2 MB, a few seconds),
 not the demo evaluations stored beside it. `init` copies the skill into `.claude/skills/heldout-evaluator/`
@@ -101,6 +107,8 @@ never as the requirement failing. Strategy:
 [data-and-journeys.md](.claude/skills/heldout-evaluator/references/data-and-journeys.md).
 
 ## Demos and evaluator testing
+
+![A real run of a story's held-out suite, then its verdict and the publish to the mock Jira](docs/media/sample-run.gif)
 
 Nine stories across three AUTs (three each, mixing UI and API), each with a machine-readable answer key written
 by a separate author agent before evaluation ([demo/answer-keys/](demo/answer-keys/)). Each was evaluated **blind**:

@@ -28,7 +28,9 @@ async function reachable(url: string): Promise<{ ok: boolean; detail: string }> 
   const t = Date.now();
   try {
     const r = await fetch(url, { signal: AbortSignal.timeout(15_000), redirect: 'follow' });
-    return { ok: r.status < 500, detail: `${r.status} in ${Date.now() - t} ms` };
+    const ms = Date.now() - t;
+    // A 4xx still proves the server is up and answering (APIs often have nothing at their root).
+    return { ok: r.status < 500, detail: r.status < 400 ? `${r.status} in ${ms} ms` : `reachable in ${ms} ms (the server answers ${r.status} at this address; APIs often have nothing at their root)` };
   } catch (e) {
     const cause = (e as { cause?: { code?: string } }).cause?.code;
     return { ok: false, detail: `${(e as Error).message}${cause ? ` (${cause})` : ''}` };

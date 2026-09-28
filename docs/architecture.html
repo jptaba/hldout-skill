@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Held-out Evaluator Architecture</title>
+<meta name="description" content="How the held-out evaluator works: onboarding, test users, secrets, the requirement contract, tests, integrity, hardening, seeding, runs, triage, verdicts and CI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAF9F5; --bg-2: #F0EEE6; --surface: #FFFFFF; --surface-2: #F5F4EE;
+  --text: #141413; --muted: #5E5D59; --faint: #87867F; --line: #E3E0D5; --line-2: #D1CFC5;
+  --acc: #D97757; --acc-strong: #C15F3C; --acc-soft: #F7E6DD; --acc-ink: #8A3A20;
+  --blue: #5B8EC2; --blue-soft: #E4EDF6; --green: #6B8A4E; --green-soft: #E7EEDD;
+  --amber: #B8871F; --amber-soft: #F6ECD3; --red: #B8463C; --red-soft: #F6E0DC;
+  --violet: #7D6CB5; --violet-soft: #ECE8F6;
+  --term-bg: #1F1E1D; --term-bar: #2B2A27; --term-text: #ECE9DF; --term-muted: #8F8C84;
+  --serif: "Source Serif 4", "Tiempos Text", Georgia, "Times New Roman", serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, "Segoe UI Symbol", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace;
+  --shadow: 0 1px 2px rgba(20,20,19,.04), 0 6px 20px rgba(20,20,19,.06);
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1F1E1D; --bg-2: #262624; --surface: #2A2927; --surface-2: #302F2C;
+    --text: #F2F0E8; --muted: #B8B5AA; --faint: #8C8A82; --line: #3B3A36; --line-2: #4A4944;
+    --acc: #D97757; --acc-strong: #E58F71; --acc-soft: #42302A; --acc-ink: #F3BCA5;
+    --blue: #8DB3DB; --blue-soft: #25303C; --green: #A3BA84; --green-soft: #2B3226;
+    --amber: #DDB661; --amber-soft: #3A3222; --red: #E5837A; --red-soft: #3F2825;
+    --violet: #B3A5DE; --violet-soft: #312D3E;
+    --term-bg: #141413; --term-bar: #22211F;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1F1E1D; --bg-2: #262624; --surface: #2A2927; --surface-2: #302F2C;
+  --text: #F2F0E8; --muted: #B8B5AA; --faint: #8C8A82; --line: #3B3A36; --line-2: #4A4944;
+  --acc: #D97757; --acc-strong: #E58F71; --acc-soft: #42302A; --acc-ink: #F3BCA5;
+  --blue: #8DB3DB; --blue-soft: #25303C; --green: #A3BA84; --green-soft: #2B3226;
+  --amber: #DDB661; --amber-soft: #3A3222; --red: #E5837A; --red-soft: #3F2825;
+  --violet: #B3A5DE; --violet-soft: #312D3E;
+  --term-bg: #141413; --term-bar: #22211F;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: var(--acc-strong); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+h2 { font-size: clamp(1.7rem, 3.2vw, 2.25rem); margin: 0 0 .4rem; }
+h3 { font-size: 1.3rem; margin: 2.2rem 0 .6rem; }
+h4 { font-size: 1.05rem; margin: 1.4rem 0 .4rem; font-family: var(--sans); font-weight: 600; letter-spacing: 0; }
+p { margin: .6rem 0 1rem; }
+code, kbd { font-family: var(--mono); font-size: .86em; background: var(--surface-2); border: 1px solid var(--line); padding: .08em .38em; border-radius: 6px; }
+small, .small { font-size: .86rem; color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0; }
+
+/* ---------- top bar ---------- */
+.topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 12px 20px;
+  background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-weight: 600; font-size: 1.05rem; color: var(--text); text-decoration: none; }
+.brand svg { width: 26px; height: 26px; }
+.topbar .spacer { flex: 1; }
+.iconbtn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text);
+  border-radius: 999px; padding: 6px 12px; font: 500 .85rem var(--sans); cursor: pointer; }
+.iconbtn:hover { border-color: var(--acc); }
+.iconbtn svg { width: 16px; height: 16px; }
+.menubtn { display: none; }
+.brand { white-space: nowrap; }
+@media (max-width: 520px) { .topbar { padding: 10px 14px; gap: 10px; } .iconbtn .lbltxt, #themeLbl { display: none; } .iconbtn { padding: 7px 9px; } .brand { font-size: .98rem; } }
+
+/* ---------- layout ---------- */
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; gap: 40px; padding: 0 24px; }
+nav.toc { position: sticky; top: 70px; align-self: start; max-height: calc(100vh - 90px); overflow: auto; padding: 26px 0 40px; font-size: .9rem; }
+nav.toc .grp { font: 600 .72rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 18px 0 6px 12px; }
+nav.toc a { display: block; padding: 5px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+nav.toc a:hover { color: var(--text); background: var(--surface-2); }
+nav.toc a.active { color: var(--acc-strong); border-left-color: var(--acc); background: var(--acc-soft); font-weight: 500; }
+main { min-width: 0; max-width: 900px; padding-bottom: 80px; }
+section { padding: 40px 0 8px; }
+.kicker { font: 600 .78rem var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--acc-strong); margin-bottom: .5rem; display: flex; align-items: center; gap: 8px; }
+.kicker::before { content: ""; width: 18px; height: 2px; background: var(--acc); border-radius: 2px; }
+.lede { font-size: 1.12rem; color: var(--muted); max-width: 70ch; }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 0 16px; gap: 0; }
+  nav.toc { display: none; position: fixed; inset: 58px 0 auto 0; max-height: calc(100vh - 58px); background: var(--bg); border-bottom: 1px solid var(--line); padding: 10px 16px 24px; z-index: 25; }
+  nav.toc.open { display: block; }
+  .menubtn { display: inline-flex; }
+}
+
+/* ---------- hero ---------- */
+.hero { padding: 56px 0 24px; position: relative; }
+.hero .spark { width: 64px; height: 64px; margin-bottom: 18px; }
+.hero h1 { font-size: clamp(2.3rem, 5.6vw, 3.6rem); margin: 0 0 .6rem; }
+.hero h1 em { font-style: italic; color: var(--acc-strong); font-weight: 600; }
+.hero .lede { font-size: 1.22rem; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin: 28px 0 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+.stat b { display: block; font: 600 1.6rem var(--serif); color: var(--acc-strong); }
+.stat span { font-size: .84rem; color: var(--muted); line-height: 1.35; display: block; }
+@media (max-width: 700px) { .stats { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+.rail { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 26px 0 6px; }
+.rail .chip { position: relative; padding: 7px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line-2); font: 500 .86rem var(--sans); color: var(--text);
+  animation: railpulse 10s infinite; }
+.rail .arr { color: var(--faint); font-size: .9rem; font-style: normal; }
+@keyframes railpulse { 0%, 12%, 100% { background: var(--surface); border-color: var(--line-2); color: var(--text); }
+  4%, 8% { background: var(--acc); border-color: var(--acc); color: #fff; } }
+.rail .chip:nth-of-type(1) { animation-delay: 0s; } .rail .chip:nth-of-type(2) { animation-delay: 1s; }
+.rail .chip:nth-of-type(3) { animation-delay: 2s; } .rail .chip:nth-of-type(4) { animation-delay: 3s; }
+.rail .chip:nth-of-type(5) { animation-delay: 4s; } .rail .chip:nth-of-type(6) { animation-delay: 5s; }
+.rail .chip:nth-of-type(7) { animation-delay: 6s; } .rail .chip:nth-of-type(8) { animation-delay: 7s; }
+.rail .chip:nth-of-type(9) { animation-delay: 8s; } .rail .chip:nth-of-type(10) { animation-delay: 9s; }
+
+/* ---------- callouts & cards ---------- */
+.plain { position: relative; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--acc); border-radius: 12px; padding: 16px 20px 14px; margin: 18px 0 22px; box-shadow: var(--shadow); }
+.plain .lbl { font: 600 .74rem var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--acc-strong); display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+.plain .lbl svg { width: 15px; height: 15px; }
+.plain p { margin: .35rem 0 .5rem; }
+.plain p:last-child { margin-bottom: 0; }
+.tech { font-size: .95rem; }
+.tech .lbl { font: 600 .74rem var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--faint); margin: 18px 0 4px; }
+ul.clean { padding-left: 1.1rem; margin: .4rem 0 1rem; }
+ul.clean li { margin: .28rem 0; }
+ul.clean li::marker { color: var(--acc); }
+
+.grid { display: grid; gap: 14px; margin: 16px 0 20px; }
+.grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+@media (max-width: 760px) { .grid.two, .grid.three { grid-template-columns: minmax(0,1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.card h4 { margin: 0 0 .35rem; display: flex; align-items: center; gap: 8px; }
+.card p { margin: .2rem 0 .4rem; font-size: .93rem; color: var(--muted); }
+.card .tag { font: 500 .72rem var(--mono); color: var(--acc-strong); }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+
+.badge { display: inline-flex; align-items: center; gap: 5px; font: 600 .74rem var(--sans); letter-spacing: .03em; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.b-pass { background: var(--green-soft); color: var(--green); }
+.b-pww { background: var(--amber-soft); color: var(--amber); }
+.b-fail { background: var(--red-soft); color: var(--red); }
+.b-inc { background: var(--violet-soft); color: var(--violet); }
+.b-blue { background: var(--blue-soft); color: var(--blue); }
+.b-acc { background: var(--acc-soft); color: var(--acc-strong); }
+.b-muted { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+
+/* ---------- figures ---------- */
+figure { margin: 22px 0 26px; }
+.fig { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); overflow-x: auto; }
+.fig svg.dia { display: block; width: 100%; min-width: 660px; height: auto; }
+figcaption { font-size: .86rem; color: var(--muted); margin-top: 10px; padding: 0 4px; }
+svg.dia text { fill: var(--text); font-family: var(--sans); font-size: 13px; }
+svg.dia .t-b { font-weight: 600; }
+svg.dia .t-h { font-family: var(--serif); font-weight: 600; font-size: 15px; }
+svg.dia .t-s { fill: var(--muted); font-size: 11.5px; }
+svg.dia .t-m { font-family: var(--mono); font-size: 11.5px; fill: var(--acc-ink); }
+svg.dia .t-acc { fill: var(--acc-strong); }
+svg.dia .t-green { fill: var(--green); } svg.dia .t-red { fill: var(--red); } svg.dia .t-amber { fill: var(--amber); } svg.dia .t-blue { fill: var(--blue); }
+svg.dia .box { fill: var(--surface-2); stroke: var(--line-2); stroke-width: 1.2; }
+svg.dia .box.acc { fill: var(--acc-soft); stroke: var(--acc); }
+svg.dia .box.blue { fill: var(--blue-soft); stroke: var(--blue); }
+svg.dia .box.green { fill: var(--green-soft); stroke: var(--green); }
+svg.dia .box.amber { fill: var(--amber-soft); stroke: var(--amber); }
+svg.dia .box.red { fill: var(--red-soft); stroke: var(--red); }
+svg.dia .box.violet { fill: var(--violet-soft); stroke: var(--violet); }
+svg.dia .box.plain { fill: var(--surface); }
+svg.dia .box.dash { stroke-dasharray: 6 5; }
+svg.dia .frame { fill: none; stroke: var(--acc); stroke-width: 1.4; stroke-dasharray: 7 6; }
+svg.dia .edge { fill: none; stroke: var(--faint); stroke-width: 1.5; marker-end: url(#ah); }
+svg.dia .edge.both { marker-start: url(#ah-start); }
+svg.dia .edge.acc { stroke: var(--acc); marker-end: url(#ah-acc); }
+svg.dia .edge.red { stroke: var(--red); stroke-dasharray: 5 5; marker-end: none; }
+svg.dia .edge.ret { stroke-dasharray: 4 4; }
+svg.dia .flow { stroke-dasharray: 6 7; animation: flow 1.1s linear infinite; }
+svg.dia .life { stroke: var(--line-2); stroke-width: 1.2; stroke-dasharray: 3 5; }
+svg.dia .band { fill: var(--acc-soft); opacity: .55; }
+svg.dia .band2 { fill: var(--surface-2); }
+svg.dia .fill-surface { fill: var(--surface); } svg.dia .fill-line { fill: var(--line); } svg.dia .fill-line2 { fill: var(--line-2); }
+svg.dia .fill-acc { fill: var(--acc); } svg.dia .fill-green { fill: var(--green); } svg.dia .fill-blue { fill: var(--blue); }
+.ahd { fill: var(--faint); } .ahd-acc { fill: var(--acc); }
+@keyframes flow { to { stroke-dashoffset: -26; } }
+
+/* ---------- tables ---------- */
+.tbl { overflow-x: auto; margin: 14px 0 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 .76rem var(--sans); letter-spacing: .05em; text-transform: uppercase; color: var(--faint); background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td code { white-space: nowrap; }
+
+/* ---------- code ---------- */
+.code { position: relative; margin: 14px 0 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+.code .hd { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); font: 500 .76rem var(--mono); color: var(--muted); }
+.code .hd .spacer { flex: 1; }
+.code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 12.8px/1.6 var(--mono); color: var(--text); }
+.copy { border: 1px solid var(--line-2); background: var(--surface); color: var(--muted); border-radius: 7px; font: 500 .72rem var(--sans); padding: 3px 9px; cursor: pointer; }
+.copy:hover { color: var(--acc-strong); border-color: var(--acc); }
+.tk-k { color: var(--acc-strong); } .tk-s { color: var(--green); } .tk-c { color: var(--faint); font-style: italic; }
+.tk-n { color: var(--blue); } .tk-t { color: var(--violet); } .tk-f { color: var(--blue); }
+
+/* ---------- terminal replay ---------- */
+.term { margin: 18px 0 8px; border-radius: 14px; overflow: hidden; background: var(--term-bg); box-shadow: 0 10px 34px rgba(20,20,19,.22); border: 1px solid #00000030; }
+.term .bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: var(--term-bar); color: var(--term-muted); font: 500 .76rem var(--sans); }
+.term .bar i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.term .bar i:nth-child(1) { background: #E5715E; } .term .bar i:nth-child(2) { background: #E2B546; } .term .bar i:nth-child(3) { background: #7FB069; }
+.term .bar .ttl { margin-left: 8px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.term .screen { height: 420px; overflow-y: auto; padding: 14px 16px 18px; font: 12.5px/1.55 var(--mono); color: var(--term-text); white-space: pre-wrap; word-break: break-word; scrollbar-width: thin; scrollbar-color: #4a4944 transparent; }
+.term .ln { min-height: 1.55em; }
+.term .ps { color: #D97757; } .term .pd { color: #8FB3DA; } .term .cmd { color: #FFFFFF; }
+.term .ok { color: #A6C98A; } .term .err { color: #EE8B80; } .term .warn { color: #E7C165; } .term .dim { color: var(--term-muted); }
+.term .acc { color: #F0A283; font-weight: 600; } .term .hd { color: #FFFFFF; font-weight: 600; } .term .okl { color: #C9C6BC; } .term .okl b { color: #A6C98A; font-weight: 500; }
+.term .cur { display: inline-block; width: .6em; height: 1.1em; vertical-align: -0.18em; background: #D97757; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.term .ctl { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--term-bar); color: var(--term-muted); font: 500 .76rem var(--sans); }
+.term .ctl button { background: #ffffff12; color: #EDEAE0; border: 1px solid #ffffff22; border-radius: 7px; padding: 4px 10px; font: 600 .76rem var(--sans); cursor: pointer; min-width: 34px; }
+.term .ctl button:hover { border-color: #D97757; }
+.term .ctl input[type=range] { flex: 1; accent-color: #D97757; min-width: 60px; }
+.term .ctl .clock { font-family: var(--mono); min-width: 88px; text-align: right; }
+.termnote { font-size: .84rem; color: var(--muted); margin: 6px 4px 22px; }
+@media (max-width: 600px) { .term .screen { height: 360px; font-size: 11.5px; } }
+
+/* ---------- video ---------- */
+.vid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); margin: 16px 0 22px; }
+.vid video { width: 100%; height: auto; display: block; background: #fff; aspect-ratio: 16 / 9; }
+.vid .side { padding: 14px 16px 16px; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: start; }
+.vid .side .meta { grid-column: 1; }
+.vid .side ol { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 10px; }
+@media (max-width: 760px) { .vid .side { grid-template-columns: minmax(0,1fr); } .vid .side ol { grid-template-columns: minmax(0,1fr); } }
+.vid .side h4 { margin: 0 0 .2rem; font-size: .95rem; }
+.vid .side .sub { font-size: .78rem; color: var(--faint); margin-bottom: 8px; }
+.vid ol { list-style: none; margin: 0; padding: 0; font-size: .84rem; }
+.vid li { padding: 6px 8px 6px 28px; border-radius: 8px; position: relative; color: var(--muted); line-height: 1.4; transition: background .2s, color .2s; }
+.vid li::before { content: ""; position: absolute; left: 9px; top: 11px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--line-2); background: var(--surface); }
+.vid li.done { color: var(--text); }
+.vid li.done::before { background: var(--green); border-color: var(--green); }
+.vid li.now { background: var(--acc-soft); color: var(--text); font-weight: 500; }
+.vid li.now::before { background: var(--acc); border-color: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 25%, transparent); }
+.vid li .how { display: block; font-size: .74rem; color: var(--faint); font-weight: 400; }
+.vid .tabs { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; grid-column: 2; grid-row: 1; }
+@media (max-width: 760px) { .vid .tabs { grid-column: 1; grid-row: auto; justify-content: flex-start; } }
+
+.pill { border: 1px solid var(--line-2); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 4px 11px; font: 500 .78rem var(--sans); cursor: pointer; }
+.pill.on { background: var(--acc); border-color: var(--acc); color: #fff; }
+
+/* ---------- phase list ---------- */
+.phases { display: grid; gap: 10px; margin: 18px 0 24px; counter-reset: ph; }
+.phase { display: grid; grid-template-columns: 46px minmax(0,1fr) minmax(0, 250px); gap: 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
+.phase .n { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--acc-soft); color: var(--acc-strong); font: 700 1rem var(--serif); }
+.phase h4 { margin: 2px 0 2px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.phase p { margin: 0; font-size: .9rem; color: var(--muted); }
+.phase .cmd { font: 500 .78rem var(--mono); color: var(--acc-ink); margin-top: 5px; display: block; word-break: break-word; }
+.phase .ex { font-size: .8rem; color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.phase .ex b { display: block; font: 600 .68rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin-bottom: 2px; }
+@media (max-width: 760px) { .phase { grid-template-columns: 40px minmax(0,1fr); } .phase .ex { grid-column: 2; } }
+
+/* ---------- ladder, tiers, steps ---------- */
+.ladder { display: grid; gap: 8px; margin: 16px 0 22px; }
+.ladder .rung { display: grid; grid-template-columns: 34px 170px minmax(0,1fr); gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.ladder .rung .i { font: 700 .95rem var(--serif); color: var(--faint); text-align: center; }
+@media (max-width: 640px) { .ladder .rung { grid-template-columns: 26px minmax(0,1fr); } .ladder .rung > :last-child { grid-column: 2; } }
+.tiers { display: grid; gap: 0; margin: 16px 0 22px; }
+.tier { display: grid; grid-template-columns: 90px minmax(0,1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
+.tier .lv { font: 700 1.5rem var(--serif); color: var(--acc-strong); line-height: 1; }
+.tier .lv small { display: block; font: 600 .68rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin-top: 4px; }
+.tier h4 { margin: 0 0 .2rem; }
+.tier p { margin: 0; font-size: .9rem; color: var(--muted); }
+.fall { text-align: center; font-size: .78rem; color: var(--faint); padding: 5px 0; }
+.flowrow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 14px 0 20px; }
+.flowrow .st { flex: 1 1 150px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .84rem; color: var(--muted); box-shadow: var(--shadow); }
+.flowrow .st b { display: block; color: var(--text); font-size: .9rem; margin-bottom: 2px; }
+.flowrow .st code { font-size: .74rem; }
+.flowrow .ar { align-self: center; color: var(--acc); font-weight: 700; }
+@media (max-width: 760px) { .flowrow .ar { display: none; } }
+.workers { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin: 12px 0 8px; }
+.worker { border: 1px dashed var(--line-2); border-radius: 12px; padding: 10px; background: var(--surface-2); }
+.worker .w { font: 600 .72rem var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
+.acct { display: flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 5px 8px; font: 500 .74rem var(--mono); margin: 5px 0; }
+.acct::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+/* verdict excerpt */
+.verdict { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; margin: 16px 0 22px; }
+.verdict .vh { padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--red-soft); }
+.verdict .vh b { font-family: var(--serif); font-size: 1.1rem; }
+.verdict .vb { padding: 12px 18px 16px; font-size: .9rem; }
+.verdict .vb h5 { font: 600 .98rem var(--serif); margin: 10px 0 6px; }
+.verdict .kv { display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 4px 14px; font-size: .85rem; }
+.verdict .kv div:nth-child(odd) { color: var(--faint); }
+@media (max-width: 640px) { .verdict .kv { grid-template-columns: minmax(0,1fr); } }
+.checks { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: .86rem; }
+.checks span::before { content: "☐ "; color: var(--acc); }
+
+.tree { font: 12.5px/1.6 var(--mono); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto; box-shadow: var(--shadow); white-space: pre; }
+.tree .c { color: var(--faint); }
+footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60px; color: var(--faint); font-size: .86rem; }
+
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+.spin { animation: spin 60s linear infinite; transform-origin: 50% 50%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .spin, .rail .chip, svg.dia .flow, .term .cur { animation: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahd" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="ah-start" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahd" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="ah-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahd-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <button class="iconbtn menubtn" id="menuBtn" aria-label="Contents" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lbltxt">Contents</span></button>
+  <a class="brand" href="#top"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#D97757" stroke-width="9" stroke-linecap="round"><path d="M60 50H92M58.7 55L79.4 67M55 58.7L71 86.4M50 60V84M45 58.7L29 86.4M41.3 55L20.6 67M40 50H8M41.3 45L20.6 33M45 41.3L29 13.6M50 40V16M55 41.3L71 13.6M58.7 45L79.4 33"/></g></svg>Held-out Evaluator</a>
+  <span class="spacer"></span>
+  <button class="iconbtn" id="themeBtn" aria-label="Switch colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><span id="themeLbl">Theme</span></button>
+</header>
+
+<div class="layout" id="top">
+<nav class="toc" id="toc" aria-label="Contents">
+  <div class="grp">Start here</div>
+  <a href="#overview">In plain English</a>
+  <a href="#system">The system at a glance</a>
+  <a href="#pipeline">One story, end to end</a>
+  <div class="grp">Setting up</div>
+  <a href="#onboarding">Onboarding</a>
+  <a href="#accounts">Test users</a>
+  <a href="#secrets">Secrets and Vault</a>
+  <div class="grp">Evaluating a story</div>
+  <a href="#contract">Requirement contract</a>
+  <a href="#tests">Scenarios and tests</a>
+  <a href="#integrity">Integrity freeze</a>
+  <a href="#hardening">Hardening</a>
+  <a href="#seeding">Seeding and teardown</a>
+  <a href="#run">Running</a>
+  <a href="#triage">Triage</a>
+  <a href="#verdict">Verdict</a>
+  <a href="#publish">Publishing to Jira</a>
+  <a href="#ci">CI regression runs</a>
+  <div class="grp">Reference</div>
+  <a href="#evidence">Does it work?</a>
+  <a href="#reference">Commands and layout</a>
+</nav>
+
+<main>
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <svg class="spark spin" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#D97757" stroke-width="7.5" stroke-linecap="round"><path d="M60 50H92M58.7 55L79.4 67M55 58.7L71 86.4M50 60V84M45 58.7L29 86.4M41.3 55L20.6 67M40 50H8M41.3 45L20.6 33M45 41.3L29 13.6M50 40V16M55 41.3L71 13.6M58.7 45L79.4 33"/></g></svg>
+  <div class="kicker">Architecture and field guide</div>
+  <h1>The <em>held-out</em> evaluator</h1>
+  <p class="lede">A Claude Code skill that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
+  <div class="rail" aria-label="Pipeline">
+    <span class="chip">Fetch</span><i class="arr">›</i><span class="chip">Contract</span><i class="arr">›</i><span class="chip">Scenarios</span><i class="arr">›</i><span class="chip">Draft tests</span><i class="arr">›</i><span class="chip">Freeze</span><i class="arr">›</i><span class="chip">Harden</span><i class="arr">›</i><span class="chip">Run</span><i class="arr">›</i><span class="chip">Triage</span><i class="arr">›</i><span class="chip">Verdict</span><i class="arr">›</i><span class="chip">Publish</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
+    <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
+    <div class="stat"><b>4 apps</b><span>onboarded end to end in 8 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>138</b><span>self-tests guarding the skill's own logic</span></div>
+  </div>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="reveal">
+  <div class="kicker">Start here</div>
+  <h2>In plain English</h2>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>Imagine an exam written by someone who has read the syllabus but has never seen the student's homework. That is a <b>held-out test</b>. The term comes from machine learning, where you keep some data aside so a model can't simply memorise the answers.</p>
+    <p>Here, the "syllabus" is a Jira story and the "student" is your application. The evaluator reads only the story, its attachments and its comments. It never looks at the application's code or the developers' own tests. So when a test fails, it's a sign that the application drifted from what was asked for, not that the test copied a mistake.</p>
+    <p>It never files bugs by itself. It writes a verdict with evidence and reproduction steps, and a person confirms or rejects each finding.</p>
+  </div>
+  <div class="grid three">
+    <div class="card"><h4><span class="dot" style="background:var(--acc)"></span>Independent</h4><p>Tests come from the requirement only. The expected values are sealed before the tests ever touch the application.</p></div>
+    <div class="card"><h4><span class="dot" style="background:var(--blue)"></span>Evidence first</h4><p>Every requirement is quoted from cited lines. Every failure is reproduced live and shipped with curl commands, screenshots and traces.</p></div>
+    <div class="card"><h4><span class="dot" style="background:var(--green)"></span>A person decides</h4><p>The verdict is a recommendation with a confirm, reject or clarify box per finding. It creates no Jira issues.</p></div>
+  </div>
+  <div class="tech">
+    <div class="lbl">Who does what</div>
+    <ul class="clean">
+      <li><b>You</b> ask Claude Code: <i>"Run a held-out evaluation of ABC-123."</i> You answer questions only you can answer, such as what a vague criterion means.</li>
+      <li><b>Claude</b> follows the skill: it reads the story, writes scenarios and tests, hardens them against the app, triages failures and writes the verdict.</li>
+      <li><b>Two subagents</b> build and independently review the requirement contract, each in a fresh context.</li>
+      <li><b>The <code>heldout</code> command line</b> does everything mechanical: fetching, checking, freezing, running, rendering and publishing. It is deterministic TypeScript, so the same inputs give the same checks.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ SYSTEM ============ -->
+<section id="system" class="reveal">
+  <div class="kicker">Architecture</div>
+  <h2>The system at a glance</h2>
+  <p class="lede">Everything runs inside your project and a Claude Code session. The application is only ever touched from the outside, the way a user or an API client would.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 470" role="img" aria-label="System context: Jira, secrets and CI around a Claude Code session that drives Playwright against the application, never reading its source code, and writes evidence into the project">
+        <rect class="frame" x="360" y="16" width="280" height="318" rx="18"/>
+        <text class="t-h" x="500" y="44" text-anchor="middle">Claude Code session</text>
+        <rect class="box acc" x="378" y="60" width="244" height="58" rx="10"/><text class="t-b" x="500" y="84" text-anchor="middle">heldout-evaluator skill</text><text class="t-s" x="500" y="103" text-anchor="middle">SKILL.md · references · guardrails</text>
+        <rect class="box violet" x="378" y="126" width="244" height="58" rx="10"/><text class="t-b" x="500" y="150" text-anchor="middle">Two subagents</text><text class="t-s" x="500" y="169" text-anchor="middle">contract extractor · contract reviewer</text>
+        <rect class="box" x="378" y="192" width="244" height="58" rx="10"/><text class="t-b" x="500" y="216" text-anchor="middle">heldout command line</text><text class="t-s" x="500" y="235" text-anchor="middle">20 TypeScript commands</text>
+        <rect class="box blue" x="378" y="258" width="244" height="58" rx="10"/><text class="t-b" x="500" y="282" text-anchor="middle">Playwright</text><text class="t-s" x="500" y="301" text-anchor="middle">browser · API client · MCP server</text>
+
+        <rect class="box plain" x="20" y="36" width="230" height="96" rx="12"/><text class="t-b" x="135" y="66" text-anchor="middle">Jira Cloud or mock Jira</text><text class="t-s" x="135" y="86" text-anchor="middle">stories, attachments,</text><text class="t-s" x="135" y="102" text-anchor="middle">product-owner comments</text>
+        <path class="edge acc flow" d="M250 70 H356"/><text class="t-s" x="304" y="62" text-anchor="middle">fetch</text>
+        <path class="edge" d="M360 106 H254"/><text class="t-s" x="305" y="124" text-anchor="middle">publish verdict</text>
+        <rect class="box green" x="20" y="162" width="230" height="62" rx="12"/><text class="t-b" x="135" y="189" text-anchor="middle">Reviewer (a person)</text><text class="t-s" x="135" y="208" text-anchor="middle">confirms or rejects each finding</text>
+        <path class="edge" d="M135 132 V158"/>
+        <rect class="box plain" x="20" y="252" width="230" height="80" rx="12"/><text class="t-b" x="135" y="279" text-anchor="middle">Secrets</text><text class="t-s" x="135" y="298" text-anchor="middle">.env · CI variables</text><text class="t-s" x="135" y="315" text-anchor="middle">HashiCorp Vault</text>
+        <path class="edge" d="M250 292 H356"/><text class="t-s" x="304" y="284" text-anchor="middle">in memory only</text>
+
+        <rect class="box acc" x="750" y="36" width="190" height="112" rx="12"/><text class="t-b" x="845" y="64" text-anchor="middle">Application under test</text><text class="t-s" x="845" y="84" text-anchor="middle">web app (UI)</text><text class="t-s" x="845" y="101" text-anchor="middle">API, possibly on</text><text class="t-s" x="845" y="117" text-anchor="middle">another host</text><text class="t-s" x="845" y="136" text-anchor="middle">any stack</text>
+        <path class="edge acc flow" d="M640 86 H746"/><text class="t-s" x="695" y="78" text-anchor="middle">UI · HTTP</text><text class="t-s" x="695" y="104" text-anchor="middle">black box</text>
+        <rect class="box red dash" x="750" y="178" width="190" height="62" rx="12"/><text class="t-b" x="845" y="204" text-anchor="middle">Source code, dev tests</text><text class="t-s" x="845" y="223" text-anchor="middle">and fixtures of the app</text>
+        <path class="edge red" d="M640 209 H750"/><circle cx="695" cy="209" r="11" class="fill-surface" style="stroke:var(--red)"/><text x="695" y="214" text-anchor="middle" class="t-red t-b">✕</text><text class="t-s t-red" x="695" y="234" text-anchor="middle">never read</text>
+        <rect class="box plain" x="750" y="268" width="190" height="64" rx="12"/><text class="t-b" x="845" y="295" text-anchor="middle">CI pipeline</text><text class="t-s" x="845" y="314" text-anchor="middle">GitLab CI · GitHub Actions</text>
+        <path class="edge" d="M750 300 H644"/><text class="t-s" x="695" y="292" text-anchor="middle">regression</text>
+
+        <rect class="box plain" x="280" y="378" width="440" height="80" rx="12"/><text class="t-b" x="500" y="404" text-anchor="middle">Your project (git)</text><text class="t-s" x="500" y="423" text-anchor="middle">heldout.config.json · .env (ignored) · heldout-support/fixtures.ts</text><text class="t-s" x="500" y="441" text-anchor="middle">evaluations/KEY/: contract, scenarios, tests, runs, verdict</text>
+        <path class="edge both" d="M500 338 V374"/><text class="t-s" x="514" y="361">evidence, history</text>
+      </svg>
+    </div>
+    <figcaption>The only way in is the front door. Claude drives a browser and an HTTP client against the app. The app's code, tests and fixtures are deliberately out of reach.</figcaption>
+  </figure>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>Nothing about your application is baked into the skill. Where the app lives, how users sign in and which secrets it needs all sit in your project's <code>heldout.config.json</code> and <code>.env</code>. The same skill evaluates a shop, a banking demo or an internal admin tool.</p>
+  </div>
+</section>
+
+<!-- ============ PIPELINE ============ -->
+<section id="pipeline" class="reveal">
+  <div class="kicker">The flow</div>
+  <h2>One story, end to end</h2>
+  <p class="lede">Ten phases, always in order. The right-hand column shows what each one produced for a real story: CL-3, "Edit and delete a contact", on the Contact List App.</p>
+  <div class="phases">
+    <div class="phase"><div class="n">1</div><div><h4>Fetch <span class="badge b-muted">script</span></h4><p>Pulls the story, attachments and comments, and binds the story to an application profile. A later fetch notices when the requirement changed.</p><span class="cmd">heldout fetch KEY</span></div><div class="ex"><b>CL-3</b>story + 1 attachment (an API contract)</div></div>
+    <div class="phase"><div class="n">2</div><div><h4>Contract <span class="badge b-inc">subagents</span></h4><p>One subagent turns the story into a structured, cited requirement contract. A second one reviews it in a fresh context. Scripts check that every item is grounded.</p><span class="cmd">heldout contract KEY --pack · heldout contract KEY</span></div><div class="ex"><b>CL-3</b>11 acceptance criteria · 5 gaps · reviewed</div></div>
+    <div class="phase"><div class="n">3</div><div><h4>Scenarios <span class="badge b-acc">Claude</span></h4><p>Rewrites each criterion as Gherkin scenarios, each tagged with its criteria, a test type and its source line.</p><span class="cmd">heldout scaffold KEY → scenarios.feature</span></div><div class="ex"><b>CL-3</b>14 scenarios (functional, negative, integration)</div></div>
+    <div class="phase"><div class="n">4</div><div><h4>Draft tests <span class="badge b-acc">Claude</span></h4><p>Translates the scenarios one to one into Playwright TypeScript for the UI and the API. Guessed locators are marked for hardening.</p><span class="cmd">tests/*.spec.ts · heldout lint KEY</span></div><div class="ex"><b>CL-3</b>1 spec file, 20 tests</div></div>
+    <div class="phase"><div class="n">5</div><div><h4>Freeze <span class="badge b-muted">script</span></h4><p>Seals every expected value before the tests meet the real application.</p><span class="cmd">heldout integrity KEY --snapshot</span></div><div class="ex"><b>CL-3</b>33 requirement assertions frozen</div></div>
+    <div class="phase"><div class="n">6</div><div><h4>Harden <span class="badge b-acc">Claude</span></h4><p>Makes locators, waits and API plumbing work against the live app, without touching what is expected.</p><span class="cmd">heldout inspect · api-probe --chain · run --label harden</span></div><div class="ex"><b>CL-3</b>tier 3 · accounts recipe saved · 0 open TODOs</div></div>
+    <div class="phase"><div class="n">7</div><div><h4>Run <span class="badge b-muted">script</span></h4><p>Preflight checks, then the full suite. Each run gets its own numbered folder that is never deleted.</p><span class="cmd">heldout run KEY --label eval</span></div><div class="ex"><b>CL-3</b>20 passed in 9.7 s · 36 records created, none left behind</div></div>
+    <div class="phase"><div class="n">8</div><div><h4>Triage <span class="badge b-acc">Claude</span></h4><p>Classifies each failure as a script defect or an application defect, and reproduces every application defect live.</p><span class="cmd">heldout triage KEY [--set …]</span></div><div class="ex"><b>CL-3</b>nothing to triage</div></div>
+    <div class="phase"><div class="n">9</div><div><h4>Verdict <span class="badge b-muted">script</span></h4><p>Renders the recommendation with traceability, reproduction steps and evidence.</p><span class="cmd">heldout verdict KEY → verdict.md, verdict.json</span></div><div class="ex"><b>CL-3</b><span class="badge b-pass">PASS</span> matches the answer key</div></div>
+    <div class="phase"><div class="n">10</div><div><h4>Publish <span class="badge b-muted">script</span></h4><p>Attaches the verdict to the story, posts a summary comment and sets a label. Nothing else.</p><span class="cmd">heldout publish KEY</span></div><div class="ex"><b>CL-3</b>comment + attachment + label heldout-pass</div></div>
+  </div>
+  <p class="small">At any point, <code>npm run heldout -- status KEY</code> shows where a story is and prints the next command.</p>
+</section>
+
+<!-- ============ ONBOARDING ============ -->
+<section id="onboarding" class="reveal">
+  <div class="kicker">Setting up</div>
+  <h2>Onboarding</h2>
+  <p class="lede">Three commands take an empty folder to a project that is ready to evaluate stories. They work in bash, zsh and PowerShell, from any git host.</p>
+  <div class="code"><div class="hd">terminal<span class="spacer"></span><button class="copy" data-copy="onb">Copy</button></div><pre id="onb" data-lang="sh">git clone --depth 1 --filter=blob:none --sparse &lt;skill-repository-url&gt; "$HOME/heldout-skill"
+git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluator
+npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install</pre></div>
+
+  <h3>Watch it: a real onboarding</h3>
+  <p>This is a recording of those commands on Practice Software Testing (Toolshop), a public demo shop, followed by <code>doctor</code>. Nothing was edited except the folder names. Notice what <code>init</code> worked out by itself: the app's name, its test-id attribute, and that its API lives on a different host.</p>
+  <div class="term" data-cast="onboarding" data-title="~/toolshop-qa — onboarding">
+  </div>
+  <p class="termnote">Replay of captured output. Long pauses, such as npm install, are shortened. Press play, drag the bar to scrub, or change the speed.</p>
+
+  <h3>What <code>init</code> does</h3>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 230" role="img" aria-label="Onboarding flow: skill repository, sparse clone, init, doctor; init installs the skill, scaffolds the project, installs dependencies, discovers the app and optionally writes a CI job">
+        <rect class="box plain" x="20" y="24" width="170" height="64" rx="12"/><text class="t-b" x="105" y="51" text-anchor="middle">Skill repository</text><text class="t-s" x="105" y="70" text-anchor="middle">GitLab · GitHub · any git</text>
+        <path class="edge" d="M190 56 H226"/>
+        <rect class="box plain" x="230" y="24" width="190" height="64" rx="12"/><text class="t-b" x="325" y="51" text-anchor="middle">Sparse clone</text><text class="t-s" x="325" y="70" text-anchor="middle">~/heldout-skill · about 2 MB</text>
+        <path class="edge" d="M420 56 H456"/>
+        <rect class="box acc" x="460" y="24" width="180" height="64" rx="12"/><text class="t-b" x="550" y="51" text-anchor="middle">heldout init</text><text class="t-s" x="550" y="70" text-anchor="middle">run from your project</text>
+        <path class="edge acc flow" d="M640 56 H686"/>
+        <rect class="box green" x="690" y="24" width="250" height="64" rx="12"/><text class="t-b" x="815" y="51" text-anchor="middle">heldout doctor</text><text class="t-s" x="815" y="70" text-anchor="middle">each problem comes with its fix</text>
+        <path class="edge" d="M550 88 C550 112, 106 110, 106 136"/>
+        <path class="edge" d="M550 88 C550 112, 292 110, 292 136"/>
+        <path class="edge" d="M550 88 C550 112, 478 110, 478 136"/>
+        <path class="edge" d="M550 88 C550 112, 664 110, 664 136"/>
+        <path class="edge" d="M550 88 C550 112, 850 110, 850 136"/>
+        <rect class="box" x="20" y="140" width="172" height="72" rx="10"/><text class="t-b" x="106" y="167" text-anchor="middle">Install or update</text><text class="t-s" x="106" y="186" text-anchor="middle">the skill + SOURCE.json</text><text class="t-s" x="106" y="202" text-anchor="middle">(where it came from)</text>
+        <rect class="box" x="206" y="140" width="172" height="72" rx="10"/><text class="t-b" x="292" y="167" text-anchor="middle">Scaffold</text><text class="t-s" x="292" y="186" text-anchor="middle">config · fixtures · .env</text><text class="t-s" x="292" y="202" text-anchor="middle">subagents · .mcp.json</text>
+        <rect class="box" x="392" y="140" width="172" height="72" rx="10"/><text class="t-b" x="478" y="167" text-anchor="middle">--install</text><text class="t-s" x="478" y="186" text-anchor="middle">npm install</text><text class="t-s" x="478" y="202" text-anchor="middle">+ Chromium</text>
+        <rect class="box acc" x="578" y="140" width="172" height="72" rx="10"/><text class="t-b" x="664" y="167" text-anchor="middle">Discover the app</text><text class="t-s" x="664" y="186" text-anchor="middle">one browser visit</text><text class="t-s" x="664" y="202" text-anchor="middle">fills in the profile</text>
+        <rect class="box" x="764" y="140" width="176" height="72" rx="10"/><text class="t-b" x="852" y="167" text-anchor="middle">--ci gitlab | github</text><text class="t-s" x="852" y="186" text-anchor="middle">a regression pipeline</text><text class="t-s" x="852" y="202" text-anchor="middle">(GitLab by default)</text>
+      </svg>
+    </div>
+    <figcaption><code>init</code> never overwrites your config, <code>.env</code> or evaluations. Running it again after <code>git pull</code> updates the skill and refreshes the template copies you haven't changed.</figcaption>
+  </figure>
+
+  <h3>Discovery: one visit fills in the profile</h3>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 330" role="img" aria-label="Discovery: a headless browser visits the start page and derives the profile id, the name, the test-id attribute, the API host and the ad networks to block">
+        <rect class="box plain" x="20" y="18" width="330" height="292" rx="14"/>
+        <rect x="20" y="18" width="330" height="36" rx="14" class="fill-line"/><rect x="20" y="40" width="330" height="14" class="fill-line"/>
+        <circle cx="40" cy="36" r="5" style="fill:#E5715E"/><circle cx="56" cy="36" r="5" style="fill:#E2B546"/><circle cx="72" cy="36" r="5" style="fill:#7FB069"/>
+        <rect x="88" y="27" width="248" height="18" rx="9" class="fill-surface"/><text class="t-s" x="100" y="40">practicesoftwaretesting.com</text>
+        <rect x="36" y="66" width="298" height="22" rx="5" class="fill-line"/><text class="t-s" x="46" y="81">Toolshop · Home · Categories · Contact · Sign in</text>
+        <g>
+          <rect x="36" y="98" width="92" height="70" rx="7" class="fill-line"/><rect x="139" y="98" width="92" height="70" rx="7" class="fill-line"/><rect x="242" y="98" width="92" height="70" rx="7" class="fill-line"/>
+          <rect x="36" y="176" width="92" height="70" rx="7" class="fill-line"/><rect x="139" y="176" width="92" height="70" rx="7" class="fill-line"/><rect x="242" y="176" width="92" height="70" rx="7" class="fill-line"/>
+          <text class="t-m" x="44" y="161">data-test</text><text class="t-m" x="147" y="161">data-test</text><text class="t-m" x="250" y="161">data-test</text>
+          <text class="t-m" x="44" y="239">data-test</text><text class="t-m" x="147" y="239">data-test</text><text class="t-m" x="250" y="239">data-test</text>
+        </g>
+        <rect x="36" y="258" width="298" height="40" rx="7" class="fill-surface" style="stroke:var(--line-2)"/>
+        <text class="t-m" x="46" y="274" style="fill:var(--blue)">GET api.practicesoftwaretesting.com</text><text class="t-m" x="46" y="290" style="fill:var(--blue)">    /products → 200 JSON</text>
+
+        <path class="edge acc flow" d="M350 80 C390 80, 390 44, 426 44"/>
+        <path class="edge acc flow" d="M350 110 C390 110, 390 102, 426 102"/>
+        <path class="edge acc flow" d="M350 170 C390 170, 390 160, 426 160"/>
+        <path class="edge acc flow" d="M350 276 C390 276, 390 218, 426 218"/>
+        <path class="edge acc flow" d="M350 290 C395 290, 395 276, 426 276"/>
+        <rect class="box" x="430" y="18" width="510" height="52" rx="10"/><text class="t-b" x="446" y="39">Profile id</text><text class="t-m" x="580" y="39">practicesoftwaretesting</text><text class="t-s" x="446" y="58">from the host name, minus hosting-provider domains</text>
+        <rect class="box" x="430" y="76" width="510" height="52" rx="10"/><text class="t-b" x="446" y="97">Name</text><text class="t-m" x="580" y="97">"Practice Software Testing"</text><text class="t-s" x="446" y="116">from the page title; shown in every verdict</text>
+        <rect class="box" x="430" y="134" width="510" height="52" rx="10"/><text class="t-b" x="446" y="155">Test-id attribute</text><text class="t-m" x="580" y="155">data-test ×357</text><text class="t-s" x="446" y="174">counted on the start page and up to 4 pages its navigation links to</text>
+        <rect class="box acc" x="430" y="192" width="510" height="52" rx="10"/><text class="t-b" x="446" y="213">API host</text><text class="t-m" x="580" y="213">https://api.practicesoftwaretesting.com</text><text class="t-s" x="446" y="232">where the page's own JSON fetch/XHR calls go</text>
+        <rect class="box" x="430" y="250" width="510" height="52" rx="10"/><text class="t-b" x="446" y="271">blockHosts</text><text class="t-m" x="580" y="271">ad and analytics networks</text><text class="t-s" x="446" y="290">blocked in every test: they inject content and cause flakiness</text>
+      </svg>
+    </div>
+    <figcaption>Values from the real Toolshop onboarding above. Any flag you pass, such as <code>--api-base-url</code>, wins over what discovery finds. <code>doctor</code> repeats the check later and warns if the app and the profile disagree.</figcaption>
+  </figure>
+
+  <h3>Doctor: the pre-flight check</h3>
+  <div class="grid three">
+    <div class="card"><h4>Runtime</h4><p>Node, Playwright, tsx, TypeScript and Chromium are installed.</p></div>
+    <div class="card"><h4>Config and files</h4><p>The config matches its JSON schema. Fixtures, subagents and the MCP server are in place.</p></div>
+    <div class="card"><h4>Secrets</h4><p>Every referenced secret is set. No secret value has slipped into a file git would commit.</p></div>
+    <div class="card"><h4>Application</h4><p>Each URL answers. The test-id attribute, API host and ad networks still match the profile.</p></div>
+    <div class="card"><h4>Test accounts</h4><p>The accounts recipe is exercised live: sign in, or create, sign in and delete.</p></div>
+    <div class="card"><h4>Jira and Vault</h4><p>Mock or Cloud mode works. Vault references resolve with the token you have.</p></div>
+  </div>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>You give it the address of your app, and it sets everything else up. It then visits the app once, the way you would, and writes down what it noticed. If anything is missing later, <code>doctor</code> tells you what's wrong and the exact command that fixes it.</p>
+    <p><b>Updating</b> is the same two steps: <code>git -C "$HOME/heldout-skill" pull</code>, then the same <code>init</code> line. <code>doctor</code> shows which version is installed and where it came from.</p>
+  </div>
+</section>
+
+<!-- ============ ACCOUNTS ============ -->
+<section id="accounts" class="reveal">
+  <div class="kicker">Setting up</div>
+  <h2>Test users</h2>
+  <p class="lede">Most stories need a signed-in user. How tests get one is written once per application, as the profile's <b>accounts recipe</b>, and every story on that app reuses it.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 370" role="img" aria-label="Decision tree: if tests cannot create users, use existing accounts; if they can create but not delete, created accounts are kept and tagged; if they can create and delete, accounts are created and deleted per test">
+        <rect class="box acc" x="330" y="16" width="300" height="62" rx="12"/><text class="t-b" x="480" y="43" text-anchor="middle">Can the tests create users</text><text class="t-b" x="480" y="62" text-anchor="middle">through the app's API?</text>
+        <path class="edge" d="M330 47 H160 V126"/><text class="t-s t-b" x="245" y="40" text-anchor="middle">no, or not allowed</text>
+        <path class="edge" d="M630 47 H660 V126"/><text class="t-s t-b" x="648" y="40" text-anchor="middle">yes</text>
+        <rect class="box green" x="20" y="130" width="280" height="120" rx="12"/><text class="t-b" x="160" y="157" text-anchor="middle">Existing accounts</text><text class="t-s" x="160" y="178" text-anchor="middle">someone already made them</text><text class="t-s" x="160" y="196" text-anchor="middle">passwords in .env, CI variables or Vault</text><text class="t-s" x="160" y="214" text-anchor="middle">never deleted · shared out per worker</text><text class="t-m" x="160" y="237" text-anchor="middle">accounts --add-existing</text>
+        <rect class="box" x="520" y="130" width="280" height="62" rx="12"/><text class="t-b" x="660" y="157" text-anchor="middle">Can they delete them</text><text class="t-b" x="660" y="176" text-anchor="middle">afterwards?</text>
+        <path class="edge" d="M600 192 L530 246"/><text class="t-s t-b" x="548" y="222" text-anchor="middle">yes</text>
+        <path class="edge" d="M720 192 L800 246"/><text class="t-s t-b" x="782" y="222" text-anchor="middle">no</text>
+        <rect class="box blue" x="380" y="250" width="270" height="104" rx="12"/><text class="t-b" x="515" y="276" text-anchor="middle">Created per test, deleted after</text><text class="t-s" x="515" y="296" text-anchor="middle">create → sign in → … → delete</text><text class="t-s" x="515" y="314" text-anchor="middle">e.g. Contact List App</text><text class="t-m" x="515" y="338" text-anchor="middle">accounts --from-chain</text>
+        <rect class="box amber" x="670" y="250" width="270" height="104" rx="12"/><text class="t-b" x="805" y="276" text-anchor="middle">Created per test, kept</text><text class="t-s" x="805" y="296" text-anchor="middle">named qa-… so they can be found</text><text class="t-s" x="805" y="314" text-anchor="middle">e.g. Toolshop</text><text class="t-m" x="805" y="338" text-anchor="middle">accounts --no-delete</text>
+        <text class="t-s" x="160" y="290" text-anchor="middle">All three give tests the same call:</text>
+        <text class="t-m" x="160" y="312" text-anchor="middle">const me = await seed.account();</text>
+        <text class="t-m" x="160" y="332" text-anchor="middle">await signIn(page, me);</text>
+      </svg>
+    </div>
+    <figcaption>The recipe is written from what hardening already probed, so nobody writes sign-up or sign-in code by hand.</figcaption>
+  </figure>
+
+  <h3>Anatomy of a recipe</h3>
+  <p>This is the real recipe the CL-3 evaluation saved for the Contact List App. The password is a reference to <code>.env</code>, never a value, because this file is committed.</p>
+  <div class="code"><div class="hd">heldout.config.json → auts.contact-list.accounts</div><pre data-lang="json">{
+  "password": "${env:CL_USER_PASSWORD}",
+  "username": "qa-${uid}@example.com",
+  "create": { "method": "POST", "path": "/users",
+              "body": { "firstName": "QA", "lastName": "Heldout", "email": "${username}", "password": "${password}" },
+              "id": "user._id", "token": "token" },
+  "token":  { "method": "POST", "path": "/users/login",
+              "body": { "email": "${username}", "password": "${password}" }, "token": "token" },
+  "authHeader": "Authorization: Bearer ${token}",
+  "delete": { "method": "DELETE", "path": "/users/me" },
+  "signIn": { "path": "/", "done": "url:/contactList", "steps": [
+    { "fill": "getByRole(\"textbox\", { name: \"Email\", exact: true })", "value": "${username}" },
+    { "fill": "getByRole(\"textbox\", { name: \"Password\", exact: true })", "value": "${password}" },
+    { "click": "getByRole(\"button\", { name: \"Submit\", exact: true })" } ] }
+}</pre></div>
+  <div class="grid two">
+    <div class="card"><h4><span class="tag">create · token · lookup</span></h4><p>How a user is made and signed in over the API. <code>lookup</code> is an optional "who am I" call for apps whose sign-in answer carries no id.</p></div>
+    <div class="card"><h4><span class="tag">delete</span></h4><p>Optional. Without it, created accounts are kept and tagged. <code>doctor</code> then never creates a throw-away check account.</p></div>
+    <div class="card"><h4><span class="tag">existing[]</span></h4><p>Accounts someone else made. The user name may be literal or a reference. The password is always <code>${env:…}</code> or <code>${vault:…}</code>.</p></div>
+    <div class="card"><h4><span class="tag">signIn</span></h4><p>The UI sign-in as recorded steps, and how to know it worked. <code>signIn(page, me)</code> replays it as a precondition.</p></div>
+  </div>
+
+  <h3>Watch it: the recipe checked live</h3>
+  <div class="term" data-cast="accounts" data-title="~/contacts-qa — accounts --check"></div>
+  <p class="termnote">Real output. The check account is created, signed in over the API and in a real browser, then deleted.</p>
+
+  <h3>Sharing existing accounts between parallel workers</h3>
+  <p>Two tests must never use the same account at the same time. Existing accounts are split between Playwright workers, and <code>heldout run</code> never starts more workers than the pool allows.</p>
+  <div class="workers" aria-label="Six existing accounts split across three workers">
+    <div class="worker"><div class="w">Worker 1</div><div class="acct">qa.user1</div><div class="acct">qa.user2</div></div>
+    <div class="worker"><div class="w">Worker 2</div><div class="acct">qa.user3</div><div class="acct">qa.user4</div></div>
+    <div class="worker"><div class="w">Worker 3</div><div class="acct">qa.user5</div><div class="acct">qa.user6</div></div>
+  </div>
+  <p class="small">Workers = floor(accounts ÷ accounts-per-test). A test that needs two users at once, such as "each customer sees only their own favourites", is recorded with <code>accounts --per-test 2</code>.</p>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>Some apps let you create test users freely. Some let you create them but not delete them. Some don't let you create them at all, and you use accounts your team already has. The evaluator handles all three. You describe your situation once, and every test simply asks for "a signed-in user".</p>
+  </div>
+</section>
+
+<!-- ============ SECRETS ============ -->
+<section id="secrets" class="reveal">
+  <div class="kicker">Setting up</div>
+  <h2>Secrets and HashiCorp Vault</h2>
+  <p class="lede">A secret is always referenced, never written. The same reference works on a laptop, in CI and against Vault.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 310" role="img" aria-label="Secrets flow: env references resolve from the real environment or .env; vault references resolve from HashiCorp Vault using a login token, VAULT_TOKEN or AppRole; values reach the test process in memory and are scrubbed from artifacts afterwards">
+        <rect class="box plain" x="20" y="30" width="260" height="64" rx="12"/><text class="t-m" x="150" y="57" text-anchor="middle">${env:APP_PASSWORD_1}</text><text class="t-s" x="150" y="78" text-anchor="middle">in config, test data or accounts</text>
+        <rect class="box plain" x="20" y="150" width="260" height="64" rx="12"/><text class="t-m" x="150" y="177" text-anchor="middle">${vault:secret/qa/app#password1}</text><text class="t-s" x="150" y="198" text-anchor="middle">KV v2 or v1 path, then #field</text>
+        <path class="edge" d="M280 62 H326"/><path class="edge" d="M280 182 H326"/>
+        <rect class="box" x="330" y="20" width="290" height="84" rx="12"/><text class="t-b" x="475" y="46" text-anchor="middle">Real environment variable</text><text class="t-s" x="475" y="66" text-anchor="middle">(a CI variable) wins over</text><text class="t-s" x="475" y="84" text-anchor="middle">.env, which git ignores</text>
+        <rect class="box violet" x="330" y="130" width="290" height="104" rx="12"/><text class="t-b" x="475" y="156" text-anchor="middle">HashiCorp Vault</text><text class="t-s" x="475" y="176" text-anchor="middle">token from vault login (~/.vault-token),</text><text class="t-s" x="475" y="194" text-anchor="middle">VAULT_TOKEN, or AppRole</text><text class="t-s" x="475" y="212" text-anchor="middle">VAULT_ADDR · VAULT_NAMESPACE</text>
+        <path class="edge acc flow" d="M620 62 H676"/><path class="edge acc flow" d="M620 182 C650 182, 650 80, 676 80"/>
+        <rect class="box acc" x="680" y="20" width="260" height="84" rx="12"/><text class="t-b" x="810" y="46" text-anchor="middle">Test process</text><text class="t-s" x="810" y="66" text-anchor="middle">values held in memory only;</text><text class="t-s" x="810" y="84" text-anchor="middle">Vault is read once per run</text>
+        <path class="edge" d="M810 104 V126"/>
+        <rect class="box green" x="680" y="130" width="260" height="104" rx="12"/><text class="t-b" x="810" y="156" text-anchor="middle">After every run</text><text class="t-s" x="810" y="176" text-anchor="middle">each secret is scrubbed</text><text class="t-s" x="810" y="194" text-anchor="middle">from every text artifact; logs and</text><text class="t-s" x="810" y="212" text-anchor="middle">curl lines are redacted as written</text>
+        <rect class="box red" x="330" y="258" width="610" height="40" rx="10"/><text class="t-s" x="635" y="283" text-anchor="middle" style="fill:var(--red)">doctor fails if any secret value appears in a file git would commit</text>
+      </svg>
+    </div>
+  </figure>
+  <div class="grid two">
+    <div class="card"><h4>Put a password in <code>.env</code> without seeing it</h4><p><code>heldout secret APP_PASSWORD_1 --ask</code> reads it at a hidden prompt. <code>--generate</code> makes a strong one for accounts the tests create.</p></div>
+    <div class="card"><h4>Refuses literal passwords</h4><p><code>accounts --add-existing --password …</code> is rejected. It points you to <code>--password-env</code> or <code>--password-vault</code> instead.</p></div>
+  </div>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>Your config says <i>where</i> a password lives, never <i>what</i> it is. On your laptop it comes from a private file. In CI it comes from the pipeline's protected variables. In a bigger company it comes from Vault. The evaluator also checks that no password leaked into anything you might commit.</p>
+  </div>
+</section>
+
+<!-- ============ CONTRACT ============ -->
+<section id="contract" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>The requirement contract</h2>
+  <p class="lede">Stories come in every shape: an acceptance-criteria field, bullets, Given/When/Then, a table, a CSV of rules, a mock-up image, a correction in a comment. A model reads them. Scripts prove that what it wrote is really in the sources.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 395" role="img" aria-label="Contract flow: story and attachments become a numbered evidence pack, an extractor subagent writes the contract, four guards check it, and gaps are split into mechanics and oracle gaps">
+        <rect class="box plain" x="20" y="24" width="180" height="84" rx="12"/><text class="t-b" x="110" y="50" text-anchor="middle">Story, attachments,</text><text class="t-b" x="110" y="69" text-anchor="middle">comments, mock-ups</text><text class="t-s" x="110" y="90" text-anchor="middle">any format</text>
+        <path class="edge" d="M200 66 H236"/>
+        <rect class="box" x="240" y="24" width="170" height="84" rx="12"/><text class="t-b" x="325" y="50" text-anchor="middle">Evidence pack</text><text class="t-s" x="325" y="70" text-anchor="middle">every line numbered</text><text class="t-m" x="325" y="90" text-anchor="middle">contract --pack</text>
+        <path class="edge" d="M410 66 H446"/>
+        <rect class="box violet" x="450" y="24" width="190" height="84" rx="12"/><text class="t-b" x="545" y="50" text-anchor="middle">Extractor subagent</text><text class="t-s" x="545" y="70" text-anchor="middle">fresh context,</text><text class="t-s" x="545" y="88" text-anchor="middle">reads the pack only</text>
+        <path class="edge acc flow" d="M640 66 H676"/>
+        <rect class="box acc" x="680" y="24" width="260" height="84" rx="12"/><text class="t-b" x="810" y="50" text-anchor="middle">requirement-contract.json</text><text class="t-s" x="810" y="70" text-anchor="middle">criteria quoted and cited, rules,</text><text class="t-s" x="810" y="88" text-anchor="middle">endpoints, gaps, coverage ledger</text>
+        <path class="edge" d="M810 108 V128 H127 V150"/><path class="edge" d="M362 128 V150"/><path class="edge" d="M597 128 V150"/><path class="edge" d="M832 128 V150"/>
+        <rect class="box" x="20" y="154" width="215" height="88" rx="12"/><text class="t-b" x="127" y="180" text-anchor="middle">① Anchoring</text><text class="t-s" x="127" y="200" text-anchor="middle">each criterion's quote appears</text><text class="t-s" x="127" y="218" text-anchor="middle">verbatim at its cited lines</text>
+        <rect class="box" x="255" y="154" width="215" height="88" rx="12"/><text class="t-b" x="362" y="180" text-anchor="middle">② Coverage ledger</text><text class="t-s" x="362" y="200" text-anchor="middle">every numbered line is captured</text><text class="t-s" x="362" y="218" text-anchor="middle">or dismissed with a reason</text>
+        <rect class="box" x="490" y="154" width="215" height="88" rx="12"/><text class="t-b" x="597" y="180" text-anchor="middle">③ Literal grounding</text><text class="t-s" x="597" y="200" text-anchor="middle">every status, number, message</text><text class="t-s" x="597" y="218" text-anchor="middle">and path exists in the sources</text>
+        <rect class="box violet" x="725" y="154" width="215" height="88" rx="12"/><text class="t-b" x="832" y="180" text-anchor="middle">④ Independent review</text><text class="t-s" x="832" y="200" text-anchor="middle">a reviewer subagent, bound</text><text class="t-s" x="832" y="218" text-anchor="middle">to the contract's hash</text>
+        <text class="t-s" x="940" y="262" text-anchor="end">findings go back to the extractor, up to 3 rounds</text>
+        <text class="t-h" x="480" y="292" text-anchor="middle">Anything missing becomes a gap</text>
+        <rect class="box blue" x="20" y="304" width="450" height="80" rx="12"/><text class="t-b" x="245" y="329" text-anchor="middle">Mechanics gap: HOW to exercise the app</text><text class="t-s" x="245" y="349" text-anchor="middle">a route, a label, a request field the story doesn't name</text><text class="t-s" x="245" y="368" text-anchor="middle">→ discovered in the app while hardening, with evidence</text>
+        <rect class="box amber" x="490" y="304" width="450" height="80" rx="12"/><text class="t-b" x="715" y="329" text-anchor="middle">Oracle gap: WHAT is correct</text><text class="t-s" x="715" y="349" text-anchor="middle">a status, a message, a limit the story doesn't state</text><text class="t-s" x="715" y="368" text-anchor="middle">→ from the requirement or from you; never read off the app</text>
+      </svg>
+    </div>
+  </figure>
+  <p>One acceptance criterion from the CL-3 contract, exactly as the extractor wrote it:</p>
+  <div class="code"><div class="hd">evaluations/CL-3/requirement-contract.json</div><pre data-lang="json">{
+  "id": "AC-2",
+  "quote": "Changing a value (for example the city) and pressing Submit saves the change and returns the user to the Contact Details page, which shows the new value.",
+  "source": "story.md#L26",
+  "layer": "ui",
+  "outcomes": [
+    "after changing a value (e.g. the city) and pressing Submit, the user is on the Contact Details page",
+    "the Contact Details page shows the new value"
+  ],
+  "gaps": ["G1", "G2", "G3"]
+}</pre></div>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>Before writing any test, the evaluator writes down exactly what the story promises, with a line reference for every claim, like footnotes in an essay. A second, independent reader checks the footnotes. If the story doesn't say what the right answer is, the evaluator asks you. It never peeks at what the app does and calls that the answer.</p>
+  </div>
+</section>
+
+<!-- ============ TESTS ============ -->
+<section id="tests" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Scenarios and tests</h2>
+  <p class="lede"><code>heldout scaffold</code> writes the feature header and test stubs from the contract. Claude writes one scenario per behaviour and translates each one into a Playwright test.</p>
+  <div class="code"><div class="hd">evaluations/CL-3/scenarios.feature</div><pre data-lang="gherkin">  # from story.md AC-2
+  @SCN-002 @AC-2 @priority:P1 @type:functional @layer:ui
+  Scenario: Editing the city saves it and shows it on the Contact Details page
+    Given I am signed in and have a contact in Anytown
+    And I am on that contact's Edit Contact page
+    When I change the city to a new value and press Submit
+    Then I am on the Contact Details page
+    And it shows the new city</pre></div>
+  <p>Each scenario carries its criteria, a test type such as functional, negative, boundary, security or integration, a layer and the source line it came from. Ambiguity is never resolved silently: it becomes <code># ASSUMPTION:</code>, <code># OPEN-QUESTION:</code> or <code>@needs-clarification</code>, and all three show up in the verdict.</p>
+  <p>The matching test, from the TOOL-4 evaluation on Toolshop:</p>
+  <div class="code"><div class="hd">evaluations/TOOL-4/tests/tool-4.spec.ts</div><pre data-lang="ts">// @req-constants-start — expected outcomes copied verbatim from TOOL-4 (never edit during hardening)
+const REQ = {
+  STATUS: { CREATED: 201, NO_CONTENT: 204, UNAUTHORIZED: 401, CONFLICT: 409 },
+  ADDED_MESSAGE: 'Product added to your favorites list.',
+} as const;
+// @req-constants-end
+
+test('SCN-001: A customer adds a product to favourites', { tag: ['@AC-1', '@type:functional', '@layer:api', '@P1'] }, async ({ api, journey, seed }) => {
+  let me!: Account; let p!: Product; let res!: ApiResponse&lt;Favourite&gt;;
+  await journey.step('Given I am a signed-in customer and know an existing product', async () => { me = await seed.account(); [p] = await products(api, seed, 1); });
+  await journey.step('When I POST /favorites with that product_id', async () => {
+    res = await api.post(EP.favorites, { headers: me.headers, data: { product_id: p.id } });
+    if (res.status === REQ.STATUS.CREATED) seed.track('favourite added by the scenario', res.body, (f) => api.delete(EP.favorite(f.id), { headers: me.headers }));
+  });
+  await journey.step('Then the answer is 201 with the favourite\'s id and the product id', async () => {
+    expect.soft(res.status, '[REQ AC-1] POST /favorites → 201').toBe(REQ.STATUS.CREATED);
+    expect.soft(res.body?.product_id, '[REQ AC-1] POST /favorites answers the product id').toBe(p.id);
+  });
+});</pre></div>
+  <div class="grid three">
+    <div class="card"><h4><span class="tag">[REQ AC-n]</span></h4><p>An assertion message that ties a check to its criterion. Only these can make a test fail as a requirement failure.</p></div>
+    <div class="card"><h4><span class="tag">journey.step</span></h4><p>Each Gherkin line becomes a step, so failures, screenshots and the verdict speak the scenario's language.</p></div>
+    <div class="card"><h4><span class="tag">seed.*</span></h4><p>Preconditions are seeded through the API and cleaned up afterwards. A failed seed reads as BLOCKED, never as the app failing.</p></div>
+  </div>
+  <p><code>heldout lint</code> checks traceability: every criterion has a scenario and a [REQ] assertion, every scenario has a type and a test with matching tags, every declared endpoint is used, and no test is focused, skipped or waiting on a fixed sleep. It also type-checks the story's specs, so a draft that doesn't compile can't be frozen.</p>
+</section>
+
+<!-- ============ INTEGRITY ============ -->
+<section id="integrity" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>The integrity freeze</h2>
+  <p class="lede">The most important guardrail: hardening may change <b>how</b> a test works, never <b>what</b> it expects.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 280" role="img" aria-label="Integrity: the draft is frozen, hardening changes mechanics only, and the integrity check reports preserved, amended or violated">
+        <rect class="box plain" x="20" y="30" width="200" height="84" rx="12"/><text class="t-b" x="120" y="57" text-anchor="middle">Draft tests</text><text class="t-m" x="120" y="77" text-anchor="middle">tests/*.spec.ts</text><text class="t-s" x="120" y="96" text-anchor="middle">written from the contract</text>
+        <path class="edge acc" d="M220 72 H266"/><text class="t-s" x="243" y="64" text-anchor="middle">freeze</text>
+        <rect class="box acc" x="270" y="30" width="220" height="84" rx="12"/><text class="t-b" x="380" y="57" text-anchor="middle">Frozen draft</text><text class="t-m" x="380" y="77" text-anchor="middle">draft/ + integrity.json</text><text class="t-s" x="380" y="96" text-anchor="middle">every [REQ] assertion, hashed</text>
+        <path class="edge" d="M490 72 H536"/>
+        <rect class="box blue" x="540" y="30" width="180" height="84" rx="12"/><text class="t-b" x="630" y="57" text-anchor="middle">Hardening</text><text class="t-s" x="630" y="77" text-anchor="middle">against the</text><text class="t-s" x="630" y="95" text-anchor="middle">live application</text>
+        <path class="edge" d="M720 72 H766"/>
+        <rect class="box" x="770" y="30" width="170" height="84" rx="12"/><text class="t-b" x="855" y="57" text-anchor="middle">heldout integrity</text><text class="t-s" x="855" y="77" text-anchor="middle">compares the tests</text><text class="t-s" x="855" y="95" text-anchor="middle">with the freeze</text>
+        <rect class="box red" x="270" y="146" width="220" height="116" rx="12"/><text class="t-b t-red" x="380" y="172" text-anchor="middle">✕ may not change</text><text class="t-s" x="380" y="194" text-anchor="middle">expected values</text><text class="t-s" x="380" y="213" text-anchor="middle">[REQ …] assertions</text><text class="t-s" x="380" y="232" text-anchor="middle">the REQ constants block</text><text class="t-s" x="380" y="251" text-anchor="middle">expectResponse(…) checks</text>
+        <rect class="box green" x="540" y="146" width="180" height="116" rx="12"/><text class="t-b t-green" x="630" y="172" text-anchor="middle">✓ may change</text><text class="t-s" x="630" y="194" text-anchor="middle">locators and waits</text><text class="t-s" x="630" y="213" text-anchor="middle">navigation</text><text class="t-s" x="630" y="232" text-anchor="middle">API plumbing</text><text class="t-s" x="630" y="251" text-anchor="middle">timeouts</text>
+        <rect class="box plain" x="770" y="146" width="170" height="116" rx="12"/><text class="t-b t-green" x="855" y="176" text-anchor="middle">PRESERVED</text><text class="t-b t-amber" x="855" y="204" text-anchor="middle">AMENDED</text><text class="t-s" x="855" y="221" text-anchor="middle">audited, in the verdict</text><text class="t-b t-red" x="855" y="247" text-anchor="middle">VIOLATED → INCONCLUSIVE</text>
+        <path class="edge" d="M855 114 V142"/>
+      </svg>
+    </div>
+  </figure>
+  <p>There are only two audited exceptions, and both are listed in the verdict. <code>integrity --amend</code> fixes a buggy assertion <i>implementation</i>, such as an over-strict regular expression. <code>integrity --snapshot --reason</code> re-freezes after the requirement itself was revised.</p>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>The answer key is sealed in an envelope before the practice round. During practice you may fix your pen or find the right room, but you may not change the answers. If someone does, the result is thrown out as inconclusive.</p>
+  </div>
+</section>
+
+<!-- ============ HARDENING ============ -->
+<section id="hardening" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Hardening</h2>
+  <p class="lede">A draft is written blind, so its locators and API plumbing are educated guesses. Hardening makes them real, using the first browser tier the session actually has.</p>
+  <div class="tiers">
+    <div class="tier"><div class="lv">1<small>IDE browser</small></div><div><h4>Browser tools of the host IDE</h4><p>An integrated browser, or Claude in Chrome. Navigate, read the page and act step by step.</p></div></div>
+    <div class="fall">↓ not available? fall through</div>
+    <div class="tier"><div class="lv">2<small>Playwright MCP</small></div><div><h4>The Playwright MCP server, set up by <code>init</code></h4><p>Accessibility snapshots and actions, each returning the Playwright code it ran. Where the tools aren't loaded, such as in CI, <code>heldout mcp-probe</code> drives the same server.</p></div></div>
+    <div class="fall">↓ always there</div>
+    <div class="tier"><div class="lv">3<small>Bundled</small></div><div><h4><code>inspect</code>, <code>api-probe --chain</code>, <code>run --capture</code></h4><p>An ARIA snapshot with ranked unique locators and probes. API calls or whole call chains with status, timing, shape and a redacted body. A snapshot after every step of a run.</p></div></div>
+  </div>
+  <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract CL-3 --resolve G1 --value … --evidence hardening/inspect-login.md</code>. Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
+  <p>The first story that needs users also produces the accounts recipe: the probe chain that signed up and signed in becomes <code>accounts --from-chain</code>, and the login steps from <code>inspect</code> become the UI sign-in.</p>
+</section>
+
+<!-- ============ SEEDING ============ -->
+<section id="seeding" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Seeding and teardown</h2>
+  <p class="lede">Every test creates the data it needs, uniquely named, and removes it afterwards, even when the test fails. It never relies on records that happen to exist.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 566" role="img" aria-label="Sequence of one UI test: seed an account and a contact through the API, sign in through the browser, run the scenario, then tear down in reverse order">
+        <rect class="box plain" x="30" y="16" width="160" height="44" rx="10"/><text class="t-b" x="110" y="43" text-anchor="middle">Test</text>
+        <rect class="box acc" x="270" y="16" width="160" height="44" rx="10"/><text class="t-b" x="350" y="43" text-anchor="middle">seed (ledger)</text>
+        <rect class="box" x="520" y="16" width="160" height="44" rx="10"/><text class="t-b" x="600" y="43" text-anchor="middle">App API</text>
+        <rect class="box blue" x="760" y="16" width="160" height="44" rx="10"/><text class="t-b" x="840" y="43" text-anchor="middle">Browser</text>
+        <path class="life" d="M110 60 V556 M350 60 V556 M600 60 V556 M840 60 V556"/>
+        <rect class="band2" x="20" y="72" width="920" height="212" rx="10"/><text class="t-s t-b" x="30" y="92">Given: preconditions, the [SEED] phase</text>
+        <path class="edge" d="M110 124 H346"/><text x="230" y="117" text-anchor="middle" class="t-m">seed.account()</text>
+        <path class="edge" d="M350 146 H596"/><text x="475" y="139" text-anchor="middle" class="t-m">POST /users</text>
+        <path class="edge ret" d="M600 166 H354"/><text x="475" y="181" text-anchor="middle" class="t-s">201 · id + token</text>
+        <path class="edge" d="M110 204 H346"/><text x="230" y="197" text-anchor="middle" class="t-m">seed.create('contact')</text>
+        <path class="edge" d="M350 224 H596"/><text x="475" y="217" text-anchor="middle" class="t-m">POST /contacts</text>
+        <path class="edge ret" d="M600 244 H354"/><text x="475" y="259" text-anchor="middle" class="t-s">201 · contact id</text>
+        <path class="edge" d="M110 272 H836"/><text x="720" y="265" text-anchor="middle" class="t-m">signIn(page, me)</text>
+        <rect class="band" x="20" y="294" width="920" height="96" rx="10"/><text class="t-s t-b" x="30" y="314" style="fill:var(--acc-ink)">When / Then: the scenario itself, [REQ AC-n] assertions</text>
+        <path class="edge acc" d="M110 344 H836"/><text x="660" y="337" text-anchor="middle" class="t-s">change the city, press Submit, read the page</text>
+        <path class="edge acc" d="M110 374 H596"/><text x="480" y="367" text-anchor="middle" class="t-m">GET /contacts/{id}</text>
+        <rect class="band2" x="20" y="400" width="920" height="156" rx="10"/><text class="t-s t-b" x="30" y="420">Teardown: reverse order, even when the test failed</text>
+        <path class="edge" d="M350 452 H596"/><text x="475" y="445" text-anchor="middle" class="t-m">DELETE /contacts/{id}</text>
+        <path class="edge ret" d="M600 472 H354"/><text x="475" y="487" text-anchor="middle" class="t-s">200, or 404/410 = already gone</text>
+        <path class="edge" d="M350 516 H596"/><text x="475" y="509" text-anchor="middle" class="t-m">DELETE /users/me</text>
+        <path class="edge ret" d="M600 536 H354"/><text x="475" y="551" text-anchor="middle" class="t-s">200</text>
+        <text x="110" y="484" text-anchor="middle" class="t-s">cleanup never</text><text x="110" y="500" text-anchor="middle" class="t-s">fails a test</text>
+      </svg>
+    </div>
+    <figcaption>The shape of CL-3's SCN-002, the scenario in the first video below. Every seed and cleanup call lands in the seed ledger, which is attached to the test and shown in the verdict's reproduction steps.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <thead><tr><th>Helper</th><th>Use it for</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>seed.account()</code></td><td>a signed-in user from the profile's recipe</td><td>created, or one of the existing accounts</td></tr>
+      <tr><td><code>seed.create(label, make, cleanup)</code></td><td>data the scenario needs, removed afterwards</td><td>a contact, a booking, a cart line</td></tr>
+      <tr><td><code>seed.track(label, value, cleanup)</code></td><td>data the action under test created</td><td>the favourite the POST just added</td></tr>
+      <tr><td><code>seed.once(key, label, fn)</code></td><td>a shared pre-step, once per worker</td><td>a staff token</td></tr>
+      <tr><td><code>seed.step(label, fn)</code></td><td>a lookup that must succeed</td><td>find the id of the seeded record</td></tr>
+      <tr><td><code>seed.until(label, probe, ok)</code></td><td>waiting for eventual consistency</td><td>until the record is listed</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid two">
+    <div class="card"><h4>Resilient by design</h4><p>Seed calls retry once on dropped connections and 502, 503 or 504, wait on <code>Retry-After</code> for 429, and ask the server for fresh answers.</p></div>
+    <div class="card"><h4>One line tells you what happened</h4><p>Every run ends with a summary: records created, cleaned up, already gone, kept by design, or left behind, with advice for each kind of cleanup error.</p></div>
+  </div>
+  <div class="code"><div class="hd">end of a real CL-3 run</div><pre data-lang="sh">  🧹 test data: 36 created — 33 cleaned up, 3 already gone (the test deleted it), 0 left behind</pre></div>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>Each test sets its own table, eats, and clears up. If setting the table fails, the test says "couldn't set up" rather than blaming the recipe it was meant to check. Afterwards you get a one-line receipt of what was created and what, if anything, was left behind.</p>
+  </div>
+</section>
+
+<!-- ============ RUN ============ -->
+<section id="run" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Running</h2>
+  <p class="lede">A run checks the ground before it starts, keeps everything it produced, and never reuses a folder.</p>
+  <div class="flowrow">
+    <div class="st"><b>Preflight</b>traceability lint, contract and review, three healthcheck samples per URL</div><span class="ar">›</span>
+    <div class="st"><b>Secrets</b>Vault read once; values passed in memory</div><span class="ar">›</span>
+    <div class="st"><b>Workers</b>capped by the profile and the account pool</div><span class="ar">›</span>
+    <div class="st"><b>Playwright</b>UI and API tests, traces kept for failures</div><span class="ar">›</span>
+    <div class="st"><b>After</b>scrub secrets, summary, test-data receipt</div>
+  </div>
+  <p>A down or degraded application aborts the run before any test starts, so an outage is never mistaken for a defect. Each run lands in <code>runs/NN-label/</code> with results, JUnit, the HTML report, traces and screenshots. Runs are history: they are never deleted or renumbered. Inside Claude Code, a run prints a short digest, one line per failing test, and keeps the full output in the run folder.</p>
+
+  <h3>Watch it: run, verdict, publish</h3>
+  <div class="term" data-cast="run" data-title="~/contacts-qa — run CL-3 → verdict → publish"></div>
+  <p class="termnote">Real output from the Contact List App: 20 tests, 36 records created and none left behind, a PASS verdict, and a simulated upload to the mock Jira.</p>
+
+  <h3>Watch it: the tests driving the real app</h3>
+  <p>Playwright recordings of three UI scenarios from that suite, slowed to 0.9 seconds per action so you can follow along. The account that signs in was created by <code>seed.account()</code> moments earlier and is deleted afterwards.</p>
+  <div class="vid" id="vid">
+    <video id="vidEl" muted playsinline preload="metadata" controls src="media/cl3-edit-city.webm"></video>
+    <div class="side">
+      <div class="meta"><h4 id="vidTitle">SCN-002 · Editing the city saves it</h4>
+      <div class="sub" id="vidSub">AC-2 · functional · UI</div></div>
+      <ol id="vidSteps"></ol>
+      <div class="tabs" role="tablist">
+        <button class="pill on" data-v="0" role="tab">Edit a contact</button>
+        <button class="pill" data-v="1" role="tab">Invalid e-mail</button>
+        <button class="pill" data-v="2" role="tab">Delete a contact</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRIAGE ============ -->
+<section id="triage" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Triage</h2>
+  <p class="lede">A failing test is a question, not an answer. Was the test wrong about the mechanics, or is the app wrong about the requirement?</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Category</th><th>Meaning</th><th>Effect on the verdict</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-fail">APPLICATION_DEFECT</span></td><td>The app doesn't do what the requirement says, reproduced live</td><td>FAIL, pending the reviewer</td></tr>
+      <tr><td><span class="badge b-blue">SCRIPT_DEFECT</span></td><td>The test is wrong about mechanics: a locator, a wait, a path, a payload shape</td><td>repair, then re-run everything</td></tr>
+      <tr><td><span class="badge b-muted">ENVIRONMENT_ISSUE</span></td><td>The app is down, the network failed, a gateway answered 502 to 504</td><td>re-run; INCONCLUSIVE if it persists</td></tr>
+      <tr><td><span class="badge b-pww">FLAKY</span></td><td>Failed, then passed on retry, or failed only some repeats</td><td>PASS WITH WARNINGS</td></tr>
+      <tr><td><span class="badge b-inc">BLOCKED</span></td><td>A precondition couldn't be set up, so the scenario wasn't evaluated</td><td>INCONCLUSIVE until the seed works</td></tr>
+      <tr><td><span class="badge b-inc">NEEDS_INVESTIGATION</span></td><td>Not enough evidence yet</td><td>INCONCLUSIVE until resolved</td></tr>
+    </tbody>
+  </table></div>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 400" role="img" aria-label="Triage decision tree separating script defects from application defects">
+        <rect class="box acc" x="270" y="14" width="420" height="56" rx="12"/><text class="t-b" x="480" y="38" text-anchor="middle">Did the app reach the state the earlier</text><text class="t-b" x="480" y="57" text-anchor="middle">steps should have produced?</text>
+        <path class="edge" d="M270 42 H185 V110"/><text class="t-s t-b" x="228" y="34" text-anchor="middle">no</text>
+        <path class="edge" d="M690 42 H750 V110"/><text class="t-s t-b" x="720" y="34" text-anchor="middle">yes</text>
+        <rect class="box" x="20" y="114" width="330" height="56" rx="12"/><text class="t-b" x="185" y="138" text-anchor="middle">Did an earlier action fail silently?</text><text class="t-s" x="185" y="157" text-anchor="middle">wrong element, endpoint or credentials plumbing</text>
+        <path class="edge" d="M110 170 V222"/><text class="t-s" x="98" y="200" text-anchor="end">yes</text>
+        <path class="edge" d="M260 170 V222"/><text class="t-s" x="272" y="200">no</text>
+        <rect class="box blue" x="20" y="226" width="170" height="52" rx="10"/><text class="t-b t-blue" x="105" y="257" text-anchor="middle">SCRIPT_DEFECT</text>
+        <rect class="box red" x="200" y="226" width="150" height="52" rx="10"/><text class="t-b t-red" x="275" y="249" text-anchor="middle">APPLICATION</text><text class="t-s" x="275" y="267" text-anchor="middle">at the earlier step</text>
+        <rect class="box" x="560" y="114" width="380" height="56" rx="12"/><text class="t-b" x="750" y="138" text-anchor="middle">Is the element or endpoint the step</text><text class="t-b" x="750" y="157" text-anchor="middle">needs present and declared?</text>
+        <path class="edge" d="M600 170 V192 H470 V222"/><text class="t-s" x="535" y="210" text-anchor="middle">locator missed</text>
+        <path class="edge" d="M720 170 V222"/><text class="t-s" x="708" y="200" text-anchor="end">absent</text>
+        <path class="edge" d="M880 170 V222"/><text class="t-s" x="892" y="200">present</text>
+        <rect class="box blue" x="390" y="226" width="160" height="52" rx="10"/><text class="t-b t-blue" x="470" y="257" text-anchor="middle">SCRIPT_DEFECT</text>
+        <rect class="box red" x="620" y="226" width="170" height="52" rx="10"/><text class="t-b t-red" x="705" y="249" text-anchor="middle">APPLICATION</text><text class="t-s" x="705" y="267" text-anchor="middle">the story names it</text>
+        <rect class="box" x="800" y="226" width="140" height="52" rx="10"/><text class="t-b" x="870" y="249" text-anchor="middle">Value equals</text><text class="t-b" x="870" y="267" text-anchor="middle">the requirement?</text>
+        <path class="edge" d="M830 278 C830 300, 720 300, 720 330"/><text class="t-s" x="760" y="304" text-anchor="middle">equal</text>
+        <path class="edge" d="M900 278 V330"/><text class="t-s" x="912" y="306">different</text>
+        <rect class="box blue" x="610" y="334" width="220" height="52" rx="10"/><text class="t-b t-blue" x="720" y="357" text-anchor="middle">SCRIPT_DEFECT</text><text class="t-s" x="720" y="375" text-anchor="middle">fix + audited amendment</text>
+        <rect class="box red" x="840" y="334" width="100" height="52" rx="10"/><text class="t-b t-red" x="890" y="365" text-anchor="middle">APPLICATION</text>
+        <rect class="box green" x="20" y="320" width="520" height="66" rx="12"/><text class="t-b" x="280" y="346" text-anchor="middle">No application defect without live reproduction</text><text class="t-s" x="280" y="366" text-anchor="middle">replayed in a browser tier or with api-probe, saved under runs/NN/confirm/</text>
+      </svg>
+    </div>
+    <figcaption>The automatic pass is a hypothesis built from the failure's ARIA snapshot, its <code>[REQ]</code> message and the full, redacted API exchange. Claude confirms each one live and records the decision with <code>triage --set</code>.</figcaption>
+  </figure>
+  <p>Script defects are repaired, mechanics only, and the <b>whole</b> suite runs again. Decisions carry over only to failures with an identical signature. After three repair cycles, anything still unexplained stays NEEDS_INVESTIGATION.</p>
+</section>
+
+<!-- ============ VERDICT ============ -->
+<section id="verdict" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>The verdict</h2>
+  <p class="lede">A recommendation for a person, with evidence they can check in minutes. The first matching rule wins.</p>
+  <div class="ladder">
+    <div class="rung"><div class="i">1</div><div><span class="badge b-inc">INCONCLUSIVE</span></div><div class="small">The integrity freeze was violated: an expectation changed without an audited amendment.</div></div>
+    <div class="rung"><div class="i">2</div><div><span class="badge b-fail">FAIL</span></div><div class="small">At least one application defect was reproduced by the evaluator.</div></div>
+    <div class="rung"><div class="i">3</div><div><span class="badge b-inc">INCONCLUSIVE</span></div><div class="small">Failures remain that are unconfirmed, script, environment or needs-investigation.</div></div>
+    <div class="rung"><div class="i">4</div><div><span class="badge b-pww">PASS WITH WARNINGS</span></div><div class="small">All passed, but flaky tests, uncovered criteria, open questions or readings the app contradicts remain.</div></div>
+    <div class="rung"><div class="i">5</div><div><span class="badge b-pass">PASS</span></div><div class="small">All passed and every acceptance criterion is covered.</div></div>
+  </div>
+  <p>A finding from a real FAIL verdict, DQ-3 on DemoQA, abbreviated:</p>
+  <div class="verdict">
+    <div class="vh"><b>APP-1 · SCN-006 · AC-6: GET /moved answers 301 without a Location header</b></div>
+    <div class="vb">
+      <div class="kv">
+        <div>Suggested severity</div><div>Major</div>
+        <div>Requirement AC-6</div><div>GET /moved responds 301 with a Location header that points to the site home page</div>
+        <div>Source</div><div><code>story.md#L69-L72</code></div>
+        <div>Test type · layer</div><div>contract · api</div>
+        <div>Classification</div><div>APPLICATION_DEFECT, reproduced live</div>
+      </div>
+      <h5>How to reproduce</h5>
+      <div class="code" style="margin:6px 0 10px"><pre data-lang="sh">curl -i -X GET 'https://demoqa.com/moved'
+npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
+      <p class="small" style="margin:0">Evaluator's analysis: the endpoint answers 301 with no Location header at all. The target is only in a JSON body, <code>{"url":"demoqa.com"}</code>.</p>
+      <div class="checks"><span>Confirm as defect</span><span>Not a defect (explain)</span><span>Requirement needs clarification</span></div>
+    </div>
+  </div>
+  <div class="tech">
+    <div class="lbl">What else is in verdict.md</div>
+    <ul class="clean">
+      <li>A header with the verdict and why, the app profile, the final run, counts, integrity status and the tiers used.</li>
+      <li>Test results, requirement coverage, and a traceability matrix from criterion to source, scenario, type, layer, tests and finding.</li>
+      <li>Coverage by test type, repaired script defects, audited amendments and re-freezes.</li>
+      <li>Gaps, assumptions and open questions, and observations outside the criteria.</li>
+      <li>The method, the full run history and links to every artifact. <code>verdict.json</code> has the same content for machines.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ PUBLISH ============ -->
+<section id="publish" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Publishing to Jira</h2>
+  <div class="grid two">
+    <div class="card"><h4><span class="dot" style="background:var(--green)"></span>What it does</h4><p>Attaches <code>verdict.md</code> with a timestamped name, posts a summary comment in Atlassian Document Format, and sets the label <code>heldout-&lt;verdict&gt;</code>.</p></div>
+    <div class="card"><h4><span class="dot" style="background:var(--red)"></span>What it never does</h4><p>Create issues, change a status or assign anyone. The reviewer reads the evidence and decides.</p></div>
+  </div>
+  <p>No Jira subscription? The <b>mock Jira</b> is a folder of files shaped exactly like Jira Cloud's REST API. <code>heldout new ABC-1 --from story.md</code> writes a story into it. Publishing renders the issue page in <code>ISSUE_VIEW.md</code> and writes the exact requests a real Jira would have received to <code>mock-jira/outbox/</code>. Switching to <code>JIRA_MODE=cloud</code> changes nothing else. In cloud mode, Claude confirms with you before publishing.</p>
+</section>
+
+<!-- ============ CI ============ -->
+<section id="ci" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>CI regression runs</h2>
+  <p class="lede">Once a story is evaluated, its held-out suite becomes a regression check. <code>init --ci</code> writes a GitLab CI job, or a GitHub Actions workflow for a GitHub remote.</p>
+  <div class="flowrow">
+    <div class="st"><b>Trigger</b>a pipeline with <code>HELDOUT_KEY=ABC-123</code>, a schedule or a deploy</div><span class="ar">›</span>
+    <div class="st"><b>Install</b><code>npm ci</code> and Chromium</div><span class="ar">›</span>
+    <div class="st"><b>Run</b><code>heldout run KEY --label ci</code></div><span class="ar">›</span>
+    <div class="st"><b>Carry over</b><code>triage --carry-from auto</code></div><span class="ar">›</span>
+    <div class="st"><b>Gate</b><code>verdict KEY --exit-code</code>: 0 pass, 1 fail, 2 inconclusive</div>
+  </div>
+  <p>Known, confirmed findings carry over by signature. Any <b>new</b> failure stays unconfirmed, so the pipeline reports INCONCLUSIVE and asks a person to investigate with the skill. CI never classifies a new defect by itself. Secrets come from masked CI variables of the same names, or from Vault through <code>VAULT_TOKEN</code> or AppRole. The verdict, the run folder and JUnit results are kept as job artifacts.</p>
+</section>
+
+<!-- ============ EVIDENCE ============ -->
+<section id="evidence" class="reveal">
+  <div class="kicker">Reference</div>
+  <h2>Does it work?</h2>
+  <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
+  <div class="grid three">
+    <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Eight rounds from an empty folder to a published verdict, on four apps. Every hiccup was fixed in the skill before the next round.</p></div>
+    <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Round</th><th>Story and app</th><th>What it exercised</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>DQ-2 · DemoQA</td><td>first onboarding; accounts created by the tests</td><td><span class="badge b-pass">PASS</span> 21/21</td></tr>
+      <tr><td>2</td><td>DQ-2 · DemoQA</td><td>install from a git clone; skill update; accounts recipe</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 21/21</td></tr>
+      <tr><td>3</td><td>AE-1 · Automation Exercise</td><td>an ad-heavy app; a product-owner comment; clarifications</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> as the key</td></tr>
+      <tr><td>4</td><td>DQ-3 · DemoQA</td><td>the FAIL path; audited amendments</td><td><span class="badge b-fail">FAIL</span> 2/2 defects</td></tr>
+      <tr><td>5</td><td>AE-3 · Automation Exercise</td><td>a form specified by an image mock-up</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14</td></tr>
+      <tr><td>6</td><td>DQ-2 · DemoQA</td><td>existing accounts from .env and a real HashiCorp Vault</td><td><span class="badge b-pass">PASS</span> 21/21, no password in any artifact</td></tr>
+      <tr><td>7</td><td>CL-3 · Contact List App</td><td>users created and deleted; UI sign-in checked in a browser</td><td><span class="badge b-pass">PASS</span> 20/20, as the key</td></tr>
+      <tr><td>8</td><td>TOOL-4 · Toolshop</td><td>API on another host; users kept by design; two users in one test</td><td><span class="badge b-pass">PASS</span> 11/11, as the key</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">The full report, with every defect the rounds found in the skill and how it was fixed, is in <a href="../demo/EVALUATOR-TEST-REPORT.md">demo/EVALUATOR-TEST-REPORT.md</a>.</p>
+</section>
+
+<!-- ============ REFERENCE ============ -->
+<section id="reference" class="reveal">
+  <div class="kicker">Reference</div>
+  <h2>Commands and layout</h2>
+  <p>Everything goes through one entry point: <code>npm run heldout -- &lt;command&gt;</code>. Each command rejects flags it doesn't read, so a typo never passes silently.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Group</th><th>Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Setup</td><td><code>init</code> · <code>add-aut</code></td><td>install or update the skill, scaffold the project, add another application</td></tr>
+      <tr><td></td><td><code>doctor</code> · <code>status [KEY]</code></td><td>check the setup; see where each story is and what's next</td></tr>
+      <tr><td></td><td><code>secret NAME --generate | --ask</code></td><td>a secret into <code>.env</code> without showing it</td></tr>
+      <tr><td></td><td><code>accounts …</code></td><td>test accounts: existing, or created by the tests; checked live</td></tr>
+      <tr><td>Requirement</td><td><code>new</code> · <code>fetch</code></td><td>write a story into the mock Jira; fetch a story and bind it to an app</td></tr>
+      <tr><td></td><td><code>contract</code> · <code>scaffold</code></td><td>evidence pack and contract checks; scenarios and stubs from the contract</td></tr>
+      <tr><td>Tests</td><td><code>lint</code> · <code>integrity</code></td><td>traceability and type checks; freeze and verify</td></tr>
+      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3</td></tr>
+      <tr><td>Run</td><td><code>run</code> · <code>triage</code></td><td>preflight and run; classify and record decisions</td></tr>
+      <tr><td>Report</td><td><code>verdict</code> · <code>publish</code> · <code>scrub</code></td><td>render; post to Jira; remove secrets from old artifacts</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Where things live</h3>
+<div class="tree">your-project/
+├── .claude/
+│   ├── skills/heldout-evaluator/   <span class="c">the skill: SKILL.md, references/, scripts/, templates/, tests/</span>
+│   └── agents/                     <span class="c">contract extractor and contract reviewer subagents</span>
+├── heldout.config.json             <span class="c">application profiles, accounts recipes (committed, no secrets)</span>
+├── .env                            <span class="c">secrets (git-ignored)</span>
+├── heldout-support/fixtures.ts     <span class="c">api, journey, seed, signIn, expectResponse</span>
+├── playwright.config.ts · .mcp.json
+├── mock-jira/                      <span class="c">file-based Jira: issues/, outbox/</span>
+└── evaluations/KEY/
+    ├── requirement/                <span class="c">story.md, attachments/, transcripts/, CHANGES.md, history/</span>
+    ├── requirement-contract.json   <span class="c">+ .review.json, bound to the contract's hash</span>
+    ├── requirement-review.md · scenarios.feature · test-data.json
+    ├── tests/*.spec.ts · draft/    <span class="c">the draft/ copy is the frozen oracle</span>
+    ├── hardening/                  <span class="c">hardening log, integrity.json, amendments, probes</span>
+    ├── runs/NN-label/              <span class="c">results, JUnit, HTML report, artifacts, triage (never renumbered)</span>
+    └── verdict.md · verdict.json</div>
+  <h3>Non-negotiable guardrails</h3>
+  <ul class="clean">
+    <li><b>Held-out isolation.</b> Tests come only from the story, its attachments and black-box observation.</li>
+    <li><b>Hardening changes how, never what.</b> Two audited exceptions, both shown in the verdict.</li>
+    <li><b>No application defect without live reproduction.</b></li>
+    <li><b>A person decides.</b> No issues are created, transitioned or assigned.</li>
+    <li><b>A bounded repair loop</b> of at most three cycles.</li>
+    <li><b>Runs are history.</b> Never deleted, renamed or renumbered.</li>
+    <li><b>Seed, don't assume;</b> and secrets stay references.</li>
+  </ul>
+</section>
+
+<footer>
+  Held-out Evaluator · a Claude Code skill · Architecture and field guide.<br>
+  GIF versions of the replays for READMEs and slides: <a href="media/onboarding.gif">onboarding.gif</a> · <a href="media/sample-run.gif">sample-run.gif</a>.<br>
+  Recordings and excerpts are real outputs from the evaluator's own test rounds on public demo applications: Practice Software Testing (Toolshop), the Contact List App and DemoQA.
+</footer>
+</main>
+</div>
+
+<script>
+const CASTS = {"onboarding":{"cwd":"~/toolshop-qa","steps":[{"cmd":"git clone --depth 1 --filter=blob:none --sparse https://github.com/jptaba/hldout-skill.git \"$HOME/heldout-skill\"","ms":1369,"events":[[55,"Cloning into '~/heldout-skill'...\n"]]},{"cmd":"git -C \"$HOME/heldout-skill\" sparse-checkout set .claude/skills/heldout-evaluator","ms":784,"events":[]},{"cmd":"npx -y tsx \"$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts\" init --base-url https://practicesoftwaretesting.com --install","ms":12161,"events":[[2011,"✔ installed the skill → .claude/skills/heldout-evaluator (from https://github.com/jptaba/hldout-skill.git)\n"],[2218,"✔ created heldout.config.json\n"],[2219,"✔ created playwright.config.ts\n"],[2220,"✔ created heldout-support/fixtures.ts\n"],[2221,"✔ created tsconfig.json\n"],[2223,"✔ created .mcp.json\n"],[2224,"✔ created .env.example\n"],[2225,"✔ created .env (git-ignored — secrets go here)\n"],[2226,"✔ created package.json (+ @playwright/test, tsx, typescript, @types/node) — npm script \"heldout\"\n"],[2227,"✔ created .gitignore (+ 9 entries)\n"],[2229,"✔ created .claude/agents/heldout-contract-extractor.md\n"],[2230,"✔ created .claude/agents/heldout-contract-reviewer.md\n\n▶ npm install\n"],[3775,"\nadded 10 packages in 1s\n"],[3799,"▶ npx playwright install chromium\n"],[12097,"✔ name: \"Practice Software Testing\" (from the page title, shown in verdicts; --name overrides)\n"],[12098,"✔ test-id attribute: data-test (on https://practicesoftwaretesting.com: data-test ×357)\n"],[12098,"✔ API: https://api.practicesoftwaretesting.com (the web app sends its requests there; --api-base-url overrides)\n"],[12099,"\nNext:\n  1. npm run heldout -- doctor          checks config, AUT reachability, Jira, browser\n"],[12100,"  2. Ask Claude: \"Run a held-out evaluation of ABC-123\"   (no Jira? npm run heldout -- new ABC-1 --from story.md)\n  Test users, when stories need them (Claude asks when it gets there):\n     accounts that already exist  npm run heldout -- accounts --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1\n                                  (password in .env: npm run heldout -- secret APP_PASSWORD_1 --ask; or in Vault: --password-vault secret/qa/app#password)\n     accounts the tests create    saved while hardening the first story that needs them (npm run heldout -- accounts --from-chain …)\n  Restart Claude Code once so it loads .mcp.json (Playwright MCP, browser tier 2).\n"]]},{"cmd":"npm run heldout -- doctor","ms":8018,"events":[[455,"\n> toolshop-qa@0.0.0 heldout\n> tsx .claude/skills/heldout-evaluator/scripts/heldout.ts doctor\n\n"],[7971,"\nskill\n"],[7971,"  ✔ installed 2026-09-28 from https://github.com/jptaba/hldout-skill.git @ 0fb6b73 — to update: git -C \"~/heldout-skill\" pull, then npx -y tsx \"~/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts\" init (from this folder)\n\nruntime\n  ✔ Node 22.17.0\n  ✔ @playwright/test installed\n  ✔ tsx installed\n  ✔ typescript installed\n  ✔ Chromium installed\n\nconfig\n"],[7972,"  ✔ heldout.config.json valid — 1 AUT profile(s), default \"practicesoftwaretesting\"\n\nfiles\n  ✔ playwright.config.ts\n  ✔ heldout-support/fixtures.ts\n  ✔ tsconfig.json\n\nsubagents\n  ✔ .claude/agents/heldout-contract-extractor.md\n  ✔ .claude/agents/heldout-contract-reviewer.md\n\nbrowser tiers\n  ✔ Playwright MCP configured (.mcp.json) — tier 2 after a Claude Code restart\n\nsecrets\n  ✔ every ${env:…} referenced by test data and accounts is set\n  ✔ no .env secret value in files git would commit\n\nAUT practicesoftwaretesting\n  ✔ https://practicesoftwaretesting.com/ → 200 in 450 ms\n  ✔ https://api.practicesoftwaretesting.com/ → reachable in 464 ms (the server answers 404 at this address; APIs often have nothing at their root)\n  ✔ test-id attribute data-test is used by the app (data-test ×357)\n\nJira\n  ✔ mock mode — stories live in mock-jira/ (create one: npm run heldout -- new ABC-1 --from story.md)\n\n✔ 0 problem(s), 0 warning(s). Ready — ask Claude: \"Run a held-out evaluation of <KEY>\".\n"]]}]},"accounts":{"cwd":"~/contacts-qa","steps":[{"cmd":"npm run heldout -- accounts --check","ms":5836,"events":[[458,"\n> contacts-qa@0.0.0 heldout\n> tsx .claude/skills/heldout-evaluator/scripts/heldout.ts accounts --check\n\n"],[5791,"  ✔ create POST /users → 201, user._id found\n"],[5791,"  ✔ token from the create answer → token found\n  ✔ token POST /users/login → 200, signed in\n  ✔ UI sign-in at / → signed in as the check account\n  ✔ token again after the UI sign-in → 200, signed in\n  ✔ delete DELETE /users/me → 200\n✔ accounts ready. In tests: const me = await seed.account(); await signIn(page, me);\n  in the spec: import { signIn, type Account } from '<…>/heldout-support/fixtures' — seed.account() and me.headers need nothing else\n"]]}]},"run":{"cwd":"~/contacts-qa","steps":[{"cmd":"npm run heldout -- run CL-3 --label eval","ms":12585,"events":[[469,"\n> contacts-qa@0.0.0 heldout\n> tsx .claude/skills/heldout-evaluator/scripts/heldout.ts run CL-3 --label eval\n\n"],[783,"Preflight CL-3 → AUT \"contact-list\" (Contact List App)\n"],[982,"  ✔ traceability lint clean\n"],[1583,"  ✔ health https://thinking-tester-contact-list.herokuapp.com/ → 200 (slowest 353 ms of 353/182/65)\n"],[1583,"\n"],[1587,"▶ CL-3 run 05-eval against Contact List App (UI https://thinking-tester-contact-list.herokuapp.com)\n  npx playwright test evaluations/CL-3/tests/ --workers 4\n\n"],[2727,"\nRunning 20 tests using 4 workers\n"],[2727,"\n"],[5847,"  ok  3 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:55:7 › CL-3 Edit and delete a contact › SCN-001: The edit form is pre-filled with the contact's current values @AC-1 @type:functional @layer:ui @P1 (2.5s)\n"],[6272,"  ok  1 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:81:7 › CL-3 Edit and delete a contact › SCN-003: An edit in the web app is what the API returns @AC-3 @type:integration @layer:e2e @P1 (2.9s)\n"],[6304,"  ok  4 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:65:7 › CL-3 Edit and delete a contact › SCN-002: Editing the city saves it and shows it on the Contact Details page @AC-2 @type:functional @layer:ui @P1 (3.0s)\n"],[6349,"  ok  2 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:98:7 › CL-3 Edit and delete a contact › SCN-004: Emptying the phone in the web app clears it @AC-3 @type:integration @layer:e2e @P2 (3.0s)"],[6349,"\n"],[7102,"  ok  6 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:138:7 › CL-3 Edit and delete a contact › SCN-006: PUT replaces the contact @AC-5 @type:functional @layer:api @P1 (818ms)\n"],[7287,"  ok  7 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:149:7 › CL-3 Edit and delete a contact › SCN-007: PUT clears the optional fields it does not send @AC-5 @type:functional @layer:api @P2 (971ms)\n"],[7520,"  ok  8 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:160:7 › CL-3 Edit and delete a contact › SCN-008: PATCH changes only the fields it sends @AC-6 @type:functional @layer:api @P1 (1.2s)\n"],[8023,"  ok  9 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:180:9 › CL-3 Edit and delete a contact › SCN-009.1: An update that would lose the first or last name is refused (PUT without firstName) @AC-7 @type:negative @layer:api @P1 (908ms)\n"],[8141,"  ok 10 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:180:9 › CL-3 Edit and delete a contact › SCN-009.2: An update that would lose the first or last name is refused (PUT without lastName) @AC-7 @type:negative @layer:api @P1 (844ms)\n"],[8555,"  ok 11 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:180:9 › CL-3 Edit and delete a contact › SCN-009.3: An update that would lose the first or last name is refused (PUT with firstName \"\") @AC-7 @type:negative @layer:api @P1 (1.0s)\n"],[8779,"  ok  5 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:117:7 › CL-3 Edit and delete a contact › SCN-005: An invalid e-mail is refused and nothing is stored @AC-4 @type:negative @layer:ui @P1 (2.9s)\n"],[8988,"  ok 12 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:180:9 › CL-3 Edit and delete a contact › SCN-009.4: An update that would lose the first or last name is refused (PATCH with lastName \"\") @AC-7 @type:negative @layer:api @P1 (955ms)\n"],[9669,"  ok 15 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:230:7 › CL-3 Edit and delete a contact › SCN-012: DELETE answers \"Contact deleted\" @AC-9 @type:functional @layer:api @P1 (877ms)\n"],[10268,"  ok 16 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:239:7 › CL-3 Edit and delete a contact › SCN-013: A deleted contact is gone for good @AC-10 @type:negative @layer:api @P1 (1.3s)\n"],[10269,"  ok 17 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:261:9 › CL-3 Edit and delete a contact › SCN-014.1: A malformed contact id is refused (GET) @AC-11 @type:negative @layer:api @P2 (587ms)\n"],[10573,"  ok 13 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:194:7 › CL-3 Edit and delete a contact › SCN-010: Cancelling the delete keeps the contact @AC-8 @type:functional @layer:ui @P2 (2.4s)\n"],[10768,"  ok 14 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:213:7 › CL-3 Edit and delete a contact › SCN-011: Confirming the delete removes the contact @AC-8 @type:functional @layer:ui @P1 (2.2s)\n"],[11012,"  ok 19 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:261:9 › CL-3 Edit and delete a contact › SCN-014.2: A malformed contact id is refused (PUT) @AC-11 @type:negative @layer:api @P2 (731ms)\n"],[11015,"  ok 18 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:261:9 › CL-3 Edit and delete a contact › SCN-014.3: A malformed contact id is refused (PATCH) @AC-11 @type:negative @layer:api @P2 (735ms)\n"],[11213,"  ok 20 [chromium] › evaluations\\CL-3\\tests\\cl-3.spec.ts:261:9 › CL-3 Edit and delete a contact › SCN-014.4: A malformed contact id is refused (DELETE) @AC-11 @type:negative @layer:api @P2 (627ms)\n"],[12115,"\n"],[12116,"  20 passed (9.7s)\n"],[12545,"\n■ 05-eval: passed 20, failed 0, flaky 0, skipped 0 (10 s)\n"],[12545,"  run dir: evaluations/CL-3/runs/05-eval\n  html:    npx playwright show-report evaluations/CL-3/runs/05-eval/html\n"],[12548,"  🧹 test data: 36 created — 33 cleaned up, 3 already gone (the test deleted it), 0 left behind\n"]]},{"cmd":"npm run heldout -- verdict CL-3","ms":823,"events":[[494,"\n> contacts-qa@0.0.0 heldout\n> tsx .claude/skills/heldout-evaluator/scripts/heldout.ts verdict CL-3\n\n"],[791,"Verdict for CL-3: ✅ PASS\n  Every scenario passed and every acceptance criterion is covered.\n  → evaluations/CL-3/verdict.md\n  → evaluations/CL-3/verdict.json\n"]]},{"cmd":"npm run heldout -- publish CL-3","ms":803,"events":[[471,"\n> contacts-qa@0.0.0 heldout\n> tsx .claude/skills/heldout-evaluator/scripts/heldout.ts publish CL-3\n\n"],[771,"✔ Published CL-3 verdict to mock Jira (simulated upload)\n"],[771,"  attachment: heldout-verdict-CL-3-202609280314.md (id 10225, 14671 B)\n  comment:    id 20002\n  labels:     heldout-pass\n  issue:      https://your-domain.atlassian.net/browse/CL-3\n  view:       mock-jira/issues/CL-3/ISSUE_VIEW.md\n  REST log:   mock-jira/outbox/ (requests a real Jira would have received)\n"]]}]}};
+</script>
+<script>
+(function () {
+  'use strict';
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } } };
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- theme ----------
+  const root = document.documentElement;
+  const saved = store.get('heldout-doc-theme');
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  const isDark = () => root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const lbl = document.getElementById('themeLbl');
+  const paint = () => { lbl.textContent = isDark() ? 'Light' : 'Dark'; };
+  paint();
+  document.getElementById('themeBtn').addEventListener('click', () => { const next = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', next); store.set('heldout-doc-theme', next); paint(); });
+
+  // ---------- mobile menu + active section ----------
+  const toc = document.getElementById('toc');
+  const menuBtn = document.getElementById('menuBtn');
+  menuBtn.addEventListener('click', () => { const open = toc.classList.toggle('open'); menuBtn.setAttribute('aria-expanded', String(open)); });
+  toc.addEventListener('click', (e) => { if (e.target.tagName === 'A') { toc.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); } });
+  const links = [...toc.querySelectorAll('a')];
+  const byId = Object.fromEntries(links.map((a) => [a.getAttribute('href').slice(1), a]));
+  if ('IntersectionObserver' in window) {
+    const spy = new IntersectionObserver((entries) => {
+      for (const en of entries) if (en.isIntersecting && byId[en.target.id]) { links.forEach((l) => l.classList.remove('active')); byId[en.target.id].classList.add('active'); }
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    document.querySelectorAll('main section[id]').forEach((s) => spy.observe(s));
+    const rev = new IntersectionObserver((entries) => { for (const en of entries) if (en.isIntersecting) { en.target.classList.add('in'); rev.unobserve(en.target); } }, { rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.reveal').forEach((el) => rev.observe(el));
+  } else document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+
+  // ---------- syntax highlighting (tiny, token based) ----------
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const RULES = {
+    json: [[/"(?:[^"\\]|\\.)*"(?=\s*:)/y, 'tk-f'], [/"(?:[^"\\]|\\.)*"/y, 'tk-s'], [/\b(?:true|false|null)\b|-?\d+(?:\.\d+)?/y, 'tk-n']],
+    ts: [[/\/\/.*/y, 'tk-c'], [/'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"/y, 'tk-s'], [/\b(?:const|let|await|async|return|import|from|type|interface|as|if|new)\b/y, 'tk-k'], [/\b(?:test|expect|seed|journey|api|page)\b/y, 'tk-f'], [/\b\d+\b/y, 'tk-n']],
+    gherkin: [[/#.*/y, 'tk-c'], [/@[\w:.-]+/y, 'tk-t'], [/\b(?:Scenario|Feature|Given|When|Then|And|But)\b/y, 'tk-k'], [/"[^"]*"/y, 'tk-s']],
+    sh: [[/#.*/y, 'tk-c'], [/'[^']*'|"[^"]*"/y, 'tk-s'], [/(?:^|(?<=\s))--?[\w-]+/y, 'tk-t'], [/\b(?:git|npx|npm|curl)\b/y, 'tk-k'], [/🧹/y, 'tk-k']],
+  };
+  function highlight(text, lang) {
+    const rules = RULES[lang]; if (!rules) return esc(text);
+    let out = '', i = 0, plain = '';
+    while (i < text.length) {
+      let hit = null;
+      for (const [re, cls] of rules) { re.lastIndex = i; const m = re.exec(text); if (m && m.index === i && m[0].length) { hit = [m[0], cls]; break; } }
+      if (hit) { out += esc(plain) + '<span class="' + hit[1] + '">' + esc(hit[0]) + '</span>'; plain = ''; i += hit[0].length; }
+      else { plain += text[i]; i++; }
+    }
+    return out + esc(plain);
+  }
+  document.querySelectorAll('pre[data-lang]').forEach((pre) => { pre.innerHTML = highlight(pre.textContent, pre.dataset.lang); });
+  document.querySelectorAll('button.copy').forEach((b) => b.addEventListener('click', async () => {
+    const txt = document.getElementById(b.dataset.copy).textContent;
+    try { await navigator.clipboard.writeText(txt); b.textContent = 'Copied'; } catch (e) { b.textContent = 'Select and copy'; }
+    setTimeout(() => { b.textContent = 'Copy'; }, 1600);
+  }));
+
+  // ---------- terminal replays ----------
+  function timeline(cast) {
+    const ops = []; let t = 500; const TYPE = 26, MAXGAP = 1300, LINE = 22;
+    for (const s of cast.steps) {
+      if (ops.length) ops.push({ t, kind: 'line', text: '' });
+      const typeMs = Math.min(1500, s.cmd.length * TYPE);
+      ops.push({ t, kind: 'prompt', cmd: s.cmd, typeMs });
+      t += typeMs + 380;
+      let base = t, last = 0, carry = '', blank = 0;
+      for (const [et, text] of s.events) {
+        base += Math.min(Math.max(0, et - last), MAXGAP); last = et;
+        const parts = (carry + text).split('\n'); carry = parts.pop();
+        for (const ln of parts) {
+          if (!ln.trim()) { if (blank++) continue; } else blank = 0;
+          ops.push({ t: base, kind: 'line', text: ln }); base += LINE;
+        }
+      }
+      if (carry.trim()) { ops.push({ t: base, kind: 'line', text: carry }); base += LINE; }
+      t = base + 1000;
+    }
+    return { ops, duration: t + 1200, real: cast.steps.reduce((a, s) => a + s.ms, 0) };
+  }
+  function lineClass(s) {
+    if (/^\s*✔/.test(s)) return 'ok';
+    if (/^\s*✖/.test(s)) return 'err';
+    if (/^\s*⚠/.test(s)) return 'warn';
+    if (/^\s*(•|·)/.test(s)) return 'dim';
+    if (/^\s*(▶|■)/.test(s) || /🧹/.test(s) || /^Verdict for/.test(s)) return 'acc';
+    if (/^> /.test(s)) return 'dim';
+    if (/^\s*→/.test(s) || /^\s{2,}(run dir|html|attachment|comment|labels|issue|view|REST log|full output):/.test(s)) return 'dim';
+    if (/^(Next:|Preflight |Running \d+ tests)/.test(s) || /^[a-z][a-z ]+$/.test(s) || /^AUT \S+$/.test(s) || /^Jira$/.test(s)) return 'hd';
+    return '';
+  }
+  function fmt(ms) { const s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  window.HeldoutReplays = {};
+  document.querySelectorAll('.term[data-cast]').forEach((el) => {
+    const cast = CASTS[el.dataset.cast]; if (!cast) return;
+    const tl = timeline(cast);
+    el.innerHTML = '<div class="bar"><i></i><i></i><i></i><span class="ttl"></span><span>real time ' + fmt(tl.real) + '</span></div><div class="screen" tabindex="0" aria-live="off"></div>' +
+      '<div class="ctl"><button class="pp" aria-label="Play">▶</button><button class="rs" aria-label="Restart">↺</button><button class="sp" aria-label="Speed">1×</button><input type="range" min="0" max="1000" value="0" aria-label="Position"><span class="clock">0:00 / ' + fmt(tl.duration) + '</span></div>';
+    el.querySelector('.ttl').textContent = el.dataset.title || '';
+    const screen = el.querySelector('.screen'), pp = el.querySelector('.pp'), rs = el.querySelector('.rs'), sp = el.querySelector('.sp'), bar = el.querySelector('input'), clock = el.querySelector('.clock');
+    let T = 0, playing = false, speed = 1, lastKey = '', raf = 0, prev = 0;
+    const cwd = cast.cwd;
+    function stateKey(t) { let n = 0, typed = 0; for (const op of tl.ops) { if (op.t > t) break; n++; if (op.kind === 'prompt') typed = Math.min(op.cmd.length, Math.floor((t - op.t) / (op.typeMs / Math.max(1, op.cmd.length)))); } return n + ':' + typed; }
+    function render(t) {
+      const key = stateKey(t); if (key === lastKey) return; lastKey = key;
+      let html = '', open = false;
+      for (let i = 0; i < tl.ops.length; i++) {
+        const op = tl.ops[i]; if (op.t > t) break;
+        if (op.kind === 'prompt') {
+          const chars = Math.min(op.cmd.length, Math.floor((t - op.t) / (op.typeMs / Math.max(1, op.cmd.length))));
+          const next = tl.ops[i + 1]; open = !next || next.t > t;
+          html += '<div class="ln"><span class="pd">' + esc(cwd) + '</span> <span class="ps">$</span> <span class="cmd">' + esc(op.cmd.slice(0, chars)) + '</span>' + (open ? '<span class="cur"></span>' : '') + '</div>';
+        } else {
+          const cls = lineClass(op.text);
+          let body = esc(op.text);
+          if (/^\s+ok\s+\d+/.test(op.text)) body = body.replace(/^(\s+)ok/, '$1<b>ok</b>');
+          html += '<div class="ln ' + (/^\s+ok\s+\d+/.test(op.text) ? 'okl' : cls) + '">' + (body || ' ') + '</div>';
+        }
+      }
+      if (!open && t < tl.duration) html += '<div class="ln"><span class="cur"></span></div>';
+      screen.innerHTML = html; screen.scrollTop = screen.scrollHeight;
+    }
+    function sync() { bar.value = String(Math.round((T / tl.duration) * 1000)); clock.textContent = fmt(T) + ' / ' + fmt(tl.duration); pp.textContent = playing ? '❚❚' : '▶'; pp.setAttribute('aria-label', playing ? 'Pause' : 'Play'); }
+    function frame(now) {
+      if (!playing) return;
+      T = Math.min(tl.duration, T + (now - prev) * speed); prev = now;
+      render(T); sync();
+      if (T >= tl.duration) { playing = false; sync(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    function play() { if (T >= tl.duration) T = 0; playing = true; prev = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); sync(); }
+    function pause() { playing = false; cancelAnimationFrame(raf); sync(); }
+    function seek(t) { T = Math.max(0, Math.min(tl.duration, t)); lastKey = ''; render(T); sync(); }
+    pp.addEventListener('click', () => (playing ? pause() : play()));
+    rs.addEventListener('click', () => { seek(0); play(); });
+    sp.addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; sp.textContent = speed + '×'; });
+    bar.addEventListener('input', () => seek((Number(bar.value) / 1000) * tl.duration));
+    window.HeldoutReplays[el.dataset.cast] = { duration: tl.duration, key: stateKey, seek, play, pause, el };
+    if (reduced) { seek(tl.duration); return; }
+    seek(0);
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((en) => { if (en[0].isIntersecting) { play(); io.disconnect(); } }, { threshold: 0.45 });
+      io.observe(el);
+    }
+  });
+
+  // ---------- videos with live step captions ----------
+  const VIDEOS = [
+    { src: 'media/cl3-edit-city.webm', title: 'SCN-002 · Editing the city saves it', sub: 'AC-2 · functional · UI', steps: [
+      [-1, 'Given I am signed in and have a contact in Anytown', 'seed.account() and seed.create() over the API, before the browser opens'],
+      [0, 'And I am on that contact’s Edit Contact page', 'signIn(page, me) replays the recipe’s UI sign-in'],
+      [5.8, 'When I change the city to a new value and press Submit', ''],
+      [7.6, 'Then I am on the Contact Details page', ''],
+      [7.8, 'And it shows the new city', '[REQ AC-2]']] },
+    { src: 'media/cl3-invalid-email.webm', title: 'SCN-005 · An invalid e-mail is refused', sub: 'AC-4 · negative · UI', steps: [
+      [-1, 'Given I am signed in and have a contact', 'seeded over the API'],
+      [0, 'And I am on that contact’s Edit Contact page', 'UI sign-in from the recipe'],
+      [6.2, 'When I enter the e-mail "not-an-email" and press Submit', ''],
+      [8.1, 'Then I stay on the Edit Contact page', ''],
+      [8.3, 'And a message containing "Email is invalid" is shown', '[REQ AC-4]'],
+      [8.5, 'And GET /contacts/{id} returns the contact unchanged', 'checked through the API']] },
+    { src: 'media/cl3-delete-contact.webm', title: 'SCN-011 · Confirming the delete removes the contact', sub: 'AC-8 · functional · UI', steps: [
+      [0, 'Given I am signed in and on a contact’s Contact Details page', 'account and contact seeded, then the UI sign-in'],
+      [5.1, 'When I press "Delete Contact" and confirm the dialog', '"Are you sure you want to delete this contact?"'],
+      [6.1, 'Then I am on the Contact List page', ''],
+      [6.3, 'And the contact is no longer listed', '[REQ AC-8]']] },
+  ];
+  const vEl = document.getElementById('vidEl'), vSteps = document.getElementById('vidSteps');
+  let cur = 0;
+  function loadVideo(i, autoplay) {
+    cur = i; const v = VIDEOS[i];
+    document.getElementById('vidTitle').textContent = v.title; document.getElementById('vidSub').textContent = v.sub;
+    vSteps.innerHTML = v.steps.map((s) => '<li><span>' + esc(s[1]) + '</span>' + (s[2] ? '<span class="how">' + esc(s[2]) + '</span>' : '') + '</li>').join('');
+    if (!vEl.src.endsWith(v.src)) vEl.src = v.src;
+    document.querySelectorAll('#vid .pill').forEach((p) => p.classList.toggle('on', Number(p.dataset.v) === i));
+    mark(0);
+    if (autoplay) vEl.play().catch(() => {});
+  }
+  function mark(time) {
+    const steps = VIDEOS[cur].steps, lis = vSteps.children;
+    let now = -1; steps.forEach((s, k) => { if (time >= s[0]) now = k; });
+    const ended = vEl.ended;
+    for (let k = 0; k < lis.length; k++) { lis[k].classList.toggle('done', ended || k < now || steps[k][0] < 0); lis[k].classList.toggle('now', !ended && k === now && steps[k][0] >= 0); }
+  }
+  vEl.addEventListener('timeupdate', () => mark(vEl.currentTime));
+  vEl.addEventListener('ended', () => { mark(vEl.duration); setTimeout(() => loadVideo((cur + 1) % VIDEOS.length, true), 2200); });
+  document.querySelectorAll('#vid .pill').forEach((p) => p.addEventListener('click', () => loadVideo(Number(p.dataset.v), true)));
+  loadVideo(0, false);
+  if (!reduced && 'IntersectionObserver' in window) {
+    const vio = new IntersectionObserver((en) => { if (en[0].isIntersecting) vEl.play().catch(() => {}); else vEl.pause(); }, { threshold: 0.5 });
+    vio.observe(document.getElementById('vid'));
+  }
+})();
+</script>
+</body>
+</html>
