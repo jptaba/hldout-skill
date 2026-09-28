@@ -68,7 +68,7 @@ main(async () => {
     ...(v.openQuestions?.length ? [p(txt('Open questions (not tested): ', 'strong'), v.openQuestions.join(' · '))] : []),
     ...(v.uncoveredCriteria.length ? [p(txt('Not covered: ', 'strong'), v.uncoveredCriteria.join(', '))] : []),
     ul([[txt('Full report attached: '), txt(uploadName, 'code')], [txt(`Final run: ${v.finalRun}`)]]),
-    p(txt('Posted automatically by the heldout-evaluator Claude skill.', 'em')),
+    p(txt('Posted automatically by the heldout-evaluator skill.', 'em')),
   );
 
   if (flags['dry-run']) {

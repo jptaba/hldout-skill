@@ -43,7 +43,7 @@ function help(): void {
     console.log(`  ${name.padEnd(10)} ${c.about}\n  ${' '.repeat(10)} ${c.args}`);
   }
   console.log('\nFirst time here?  heldout init --base-url https://your-app --install   then   heldout doctor');
-  console.log('Then ask Claude:   "Run a held-out evaluation of ABC-123"');
+  console.log('Then ask Opus:     "Run a held-out evaluation of ABC-123"');
 }
 
 const [cmd, ...rest] = process.argv.slice(2);

@@ -158,7 +158,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports
   `expectResponse` for API checks. `triage --set SCN-007` confirms every failing row of an outline with one decision.
-- **Quieter, faster runs.** Under Claude Code, a run prints a digest (one line per failing test) and keeps the full
+- **Quieter, faster runs.** Inside an agent session (Claude Code on its own, GitHub Copilot with `--quiet`), a run prints a digest (one line per failing test) and keeps the full
   output in the run folder. Cleanup reuses tokens (DQ-2: 88 s → 67 s). Dropped connections on preconditions are
   retried.
 
@@ -181,7 +181,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 ## 6. Limitations and honest caveats
 
 1. **Same model family throughout.** The authors, contract builders, reviewers and evaluators were separate agents,
-   and the evaluators never saw the answer keys. All of them were Claude models, though, so shared blind spots are possible.
+   and the evaluators never saw the answer keys. All of them were the same model (Opus), though, so shared blind spots are possible.
 2. **The skill changed during the round.** Fixes landed while later evaluations were running, and evaluators noticed
    it (docs and fixtures changing mid-run). Each run records a fingerprint of the skill (`run-meta.json`). The nine
    verdicts were re-rendered with the final skill, but the tests were not re-run.

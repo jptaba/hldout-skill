@@ -58,7 +58,7 @@ prints the command that paces the tests on that host, e.g.
 `heldout inspect` steps wait for an address with `{ "do": "wait", "target": "url:/search" }`, the same form as an accounts
 recipe's `done`. Hash routes work as `--url "#/login"`, also under Git Bash.
 
-The Playwright MCP server is one browser per Claude Code session. When several agents evaluate stories in parallel,
+The Playwright MCP server is one browser per agent session. When several agents evaluate stories in parallel,
 they would drive the same page: use `heldout mcp-probe` (its own server per call) or tier 3 instead.
 
 If a tier's tools are missing or fail, fall to the next one and say so in the log. Never report a

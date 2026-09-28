@@ -1,4 +1,7 @@
-# Held-out Evaluator — Claude Code skill
+# Held-out Evaluator — an AI agent skill
+
+Works in any agent app that loads skills: Claude Code, GitHub Copilot, and others. The examples say "Opus" for the AI
+model doing the work.
 
 A project skill ([.claude/skills/heldout-evaluator](.claude/skills/heldout-evaluator/SKILL.md)) that
 evaluates a Jira story against any web application or API using **held-out** Playwright tests,
@@ -45,15 +48,31 @@ when the remote is GitHub). Then:
 1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
    secrets (including any secret value that has slipped into a file git would commit) and the accounts recipe. Every
    problem comes with the command that fixes it.
-2. Restart Claude Code once, so the Playwright MCP server and the two subagents load.
-3. Ask Claude: **"Run a held-out evaluation of ABC-123"**. No Jira yet? Run `npm run heldout -- new ABC-1 --from story.md` first.
+2. Restart your agent app (Claude Code, GitHub Copilot…) once, so the Playwright MCP server and the two subagents load.
+3. Ask Opus: **"Run a held-out evaluation of ABC-123"**. No Jira yet? Run `npm run heldout -- new ABC-1 --from story.md` first.
 
 **Update:** `git -C "$HOME/heldout-skill" pull`, then run the same `init` line again. It replaces the project's copy of
 the skill. It also refreshes `playwright.config.ts`, `heldout-support/fixtures.ts` and the subagents, unless you changed
 them, and it never touches your config, `.env` or evaluations. `doctor` shows which version is installed.
 
-Or just ask Claude to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
+Or just ask Opus to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
 then runs the steps above.
+
+## Claude Code or GitHub Copilot
+
+The examples in this README name Claude Code, but nothing depends on it. `init` sets up files that both apps read as
+they are:
+
+| What | File | Claude Code | GitHub Copilot (VS Code agent mode) |
+| --- | --- | --- | --- |
+| The skill | `.claude/skills/heldout-evaluator/SKILL.md` | ✔ | ✔ (also reads `.github/skills/`) |
+| The two subagents (contract extractor, reviewer) | `.claude/agents/*.md` | ✔ | ✔ (Claude-format agents in `.claude/agents/`) |
+| Playwright MCP server (browser tier 2) | `.mcp.json` | ✔ | ✔ (portable `mcpServers` format) |
+| The `heldout` command line | `npm run heldout -- …` | ✔ | ✔ (plain Node, any terminal) |
+
+In Copilot, pick **Claude Opus** in the model picker and use agent mode. Two differences: the agent asks you its
+questions in the chat (Claude Code shows a question dialog), and a run prints its short digest when told to: the agent
+passes `--quiet` to `heldout run`, or set `HELDOUT_QUIET=1`. Claude Code does this on its own.
 
 ## Point it at your application and Jira
 

@@ -138,9 +138,9 @@ main(async () => {
   // Playwright's CLI straight through node, no shell: arguments such as --grep "SCN-01|SCN-00[89]" reach it intact.
   const cli = path.resolve('node_modules', '@playwright', 'test', 'cli.js');
   if (!fs.existsSync(cli)) throw new Error('@playwright/test is not installed in this project — run: npm run heldout -- init --install (or npm i -D @playwright/test)');
-  // An agent (Claude Code sets CLAUDECODE=1) reads every line it is shown: keep Playwright's full output in the run
-  // folder and print a digest. People see the live output; --verbose forces it, --quiet forces the digest.
-  const quiet = Boolean(flags.quiet) || (process.env.CLAUDECODE === '1' && !flags.verbose);
+  // An agent reads every line it is shown: keep Playwright's full output in the run folder and print a digest. Claude Code
+  // says it is there (CLAUDECODE=1); other agent apps set HELDOUT_QUIET=1 or pass --quiet. --verbose forces the live output.
+  const quiet = Boolean(flags.quiet) || ((process.env.CLAUDECODE === '1' || process.env.HELDOUT_QUIET === '1') && !flags.verbose);
   const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: quiet ? ['inherit', 'pipe', 'pipe'] : 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
   if (quiet) writeFile(path.join(runDir, 'console.log'), `${res.stdout ?? ''}${res.stderr ?? ''}`);
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.

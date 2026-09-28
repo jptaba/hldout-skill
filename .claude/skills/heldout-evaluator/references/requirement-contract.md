@@ -36,6 +36,9 @@ Delegate the two steps to subagents: the builder and the reviewer must not share
 - Agent tool, `subagent_type: "heldout-contract-extractor"`, prompt "Build the requirement contract for KEY".
 - Then `subagent_type: "heldout-contract-reviewer"`, prompt "Review the requirement contract for KEY".
 
+In other agent apps (GitHub Copilot…), run each as its own custom agent or a fresh chat with the same prompt and the
+instructions in `.claude/agents/heldout-contract-extractor.md` / `heldout-contract-reviewer.md`.
+
 If the reviewer reports findings, send them back to the builder ("Fix the requirement contract for KEY: <findings>"),
 re-run the checks and review again. Stop after 3 rounds and surface what is still disputed as open questions.
 `--review-prompt` refuses a contract that still fails the mechanical checks, so an unfinished contract can't be reviewed.

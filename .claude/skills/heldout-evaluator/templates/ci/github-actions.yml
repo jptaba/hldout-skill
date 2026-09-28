@@ -3,7 +3,7 @@
 # Re-runs an already-evaluated story's held-out suite (e.g. after a deploy) and re-renders the verdict.
 # Failures whose signature matches a decision already confirmed by the evaluator carry over.
 # Any NEW failure stays unconfirmed, so the verdict becomes INCONCLUSIVE (exit code 2): run the
-# heldout-evaluator skill in Claude Code to investigate it. CI never classifies a new defect by itself.
+# heldout-evaluator skill in your agent app to investigate it. CI never classifies a new defect by itself.
 name: held-out regression
 
 on:

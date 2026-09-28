@@ -5,6 +5,11 @@ description: Held-out acceptance evaluation of a Jira story against any web appl
 
 # Held-out Evaluator
 
+Works in any agent app that loads skills: Claude Code and GitHub Copilot both read this skill, the two subagents in
+`.claude/agents/` and the Playwright MCP server in `.mcp.json`. Tool names below such as `AskUserQuestion` and the Agent
+tool are Claude Code's examples. In GitHub Copilot, ask the user in the chat, run each subagent with Copilot's `agent`
+tool (or as a fresh chat with the agent's instructions), and pass `--quiet` to `heldout run` so it prints a digest.
+
 A **held-out test** is an independent oracle: written from the requirement alone, never from the
 application's code or its developers' tests, so it catches an implementation that drifted from what
 the story asked for. This skill runs the whole loop for one Jira story:
@@ -70,7 +75,7 @@ Repeat `--add-existing` for more accounts: each parallel worker needs its own, a
 there are accounts. `$H accounts --check` (and `doctor`) signs each one in.
 
 Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptance-criteria custom field. See
-[references/jira.md](references/jira.md). Tell the user to restart Claude Code once so `.mcp.json` and the subagents load.
+[references/jira.md](references/jira.md). Tell the user to restart their agent app (Claude Code, GitHub Copilot…) once so the Playwright MCP server and the subagents load.
 
 ## Pipeline
 
@@ -96,7 +101,7 @@ Self-tests for the skill's own logic: `npm run test:skill`.
 Pick the first tier whose tools are actually available in this session (check your tool list):
 
 1. **Tier 1 — IDE browser tool**: the browser-control tools the host IDE exposes (an integrated
-   browser, or Claude in Chrome `mcp__claude-in-chrome__*`).
+   browser, or a browser extension the agent drives, such as `mcp__claude-in-chrome__*`).
 2. **Tier 2 — Playwright MCP** (`mcp__playwright__browser_*`), configured by `.mcp.json`. If the tools are not loaded natively (pending approval, CI), drive the same server with `heldout mcp-probe` (bundled stdio client). Always wait for a readiness anchor on SPAs, and never conclude absence from an unrendered snapshot.
 3. **Tier 3 — bundled tools** (always available): `heldout inspect` (ARIA snapshot, ranked unique
    locators, `--probe`, `--steps-json`, `--wait-for`), `heldout run KEY --label harden --capture`

@@ -176,7 +176,7 @@ main(() => {
     ...(meta.preflight === 'skipped' ? ['| ⚠️ Preflight | **skipped** for the final run (--skip-preflight): the traceability lint and AUT healthcheck were not enforced |'] : []),
     `| Hardening | ${esc(tierLine ?? 'not recorded: the hardening log has no "Tiers used" line')} |`,
     ...(missingRuns.length ? [`| ⚠️ Run history | run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} were deleted: their results are not part of this record |`] : []),
-    `| Evaluator | ${esc(flagStr(flags, 'evaluator') ?? 'Claude Code — heldout-evaluator skill')} |`,
+    `| Evaluator | ${esc(flagStr(flags, 'evaluator') ?? 'Opus — heldout-evaluator skill')} |`,
     `| Generated | ${new Date().toISOString()} |`, '',
   ];
 

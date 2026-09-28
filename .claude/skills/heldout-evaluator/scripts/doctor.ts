@@ -95,10 +95,10 @@ main(async () => {
   const agentsDir = path.join(SKILL_DIR, 'templates', 'agents');
   for (const f of fs.existsSync(agentsDir) ? fs.readdirSync(agentsDir) : []) {
     if (fs.existsSync(path.join(ROOT, '.claude', 'agents', f))) check('ok', 'subagents', `.claude/agents/${f}`);
-    else check('warn', 'subagents', `.claude/agents/${f} is missing (contract building / independent review subagent)`, `${H} init   (then restart Claude Code)`);
+    else check('warn', 'subagents', `.claude/agents/${f} is missing (contract building / independent review subagent)`, `${H} init   (then restart your agent app)`);
   }
   const mcp = path.join(ROOT, '.mcp.json');
-  if (fs.existsSync(mcp) && /playwright\/mcp/.test(fs.readFileSync(mcp, 'utf8'))) check('ok', 'browser tiers', 'Playwright MCP configured (.mcp.json) — tier 2 after a Claude Code restart');
+  if (fs.existsSync(mcp) && /playwright\/mcp/.test(fs.readFileSync(mcp, 'utf8'))) check('ok', 'browser tiers', 'Playwright MCP configured (.mcp.json) — tier 2 after restarting your agent app');
   else check('warn', 'browser tiers', 'Playwright MCP not configured — hardening falls back to the bundled inspector', `${H} init`);
 
   /**
@@ -227,7 +227,7 @@ main(async () => {
   }
   const fails = results.filter((r) => r.level === 'fail').length;
   const warns = results.filter((r) => r.level === 'warn').length;
-  console.log(`\n${fails ? '✖' : '✔'} ${fails} problem(s), ${warns} warning(s).${fails ? '' : ' Ready — ask Claude: "Run a held-out evaluation of <KEY>".'}`);
+  console.log(`\n${fails ? '✖' : '✔'} ${fails} problem(s), ${warns} warning(s).${fails ? '' : ' Ready — ask Opus: "Run a held-out evaluation of <KEY>".'}`);
   if (fails) process.exit(1);
 });
 
