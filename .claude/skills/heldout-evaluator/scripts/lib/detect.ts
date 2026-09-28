@@ -25,6 +25,8 @@ export interface AppDiscovery {
   attribute?: string; counts: Record<string, number>; via: 'browser' | 'html' | 'none'; error?: string;
   /** document.title of the start page. */
   title?: string;
+  /** The origin the web app sends its JSON requests to, when that isn't its own (an API on another host). */
+  apiOrigin?: string;
   /** Ad/analytics networks the start page loaded (AD_DOMAINS entries). */
   adDomains: string[];
 }
@@ -32,7 +34,7 @@ export interface AppDiscovery {
 const countIn = (html: string) => Object.fromEntries(TEST_ID_ATTRIBUTES.map((a) => [a, (html.match(new RegExp(`\\s${a}=`, 'g')) ?? []).length]));
 const best = (counts: Record<string, number>) => Object.entries(counts).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-async function rendered(url: string): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string> } | undefined> {
+async function rendered(url: string): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[] } | undefined> {
   let chromium: { launch(o: object): Promise<{ newPage(): Promise<PageLike>; close(): Promise<void> }> } | undefined;
   try {
     const req = createRequire(path.join(ROOT, 'package.json'));
@@ -45,6 +47,9 @@ async function rendered(url: string): Promise<{ counts: Record<string, number>; 
     const page = await browser.newPage();
     const hosts = new Set<string>();
     page.on('request', (r) => { try { hosts.add(new URL(r.url()).hostname); } catch { /* data: and the like */ } });
+    // JSON answers to the page's own fetch/XHR calls: where the application's API lives.
+    const apiCalls: string[] = [];
+    page.on('response', (r) => { try { if (['xhr', 'fetch'].includes(r.request().resourceType()) && /json/i.test(r.headers()['content-type'] ?? '')) apiCalls.push(new URL(r.url()).origin); } catch { /* ignore */ } });
     const countOnPage = () => page.evaluate((attrs: readonly string[]) => Object.fromEntries(attrs.map((a) => [a, document.querySelectorAll(`[${a}]`).length])), TEST_ID_ATTRIBUTES);
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
     await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => undefined);
@@ -60,11 +65,12 @@ async function rendered(url: string): Promise<{ counts: Record<string, number>; 
       const more = await countOnPage().catch(() => ({} as Record<string, number>));
       for (const [k, n] of Object.entries(more)) counts[k] = (counts[k] ?? 0) + n;
     }
-    return { counts, title, hosts };
+    return { counts, title, hosts, apiCalls };
   } finally { await browser.close(); }
 }
 interface PageLike {
   on(event: 'request', fn: (r: { url(): string }) => void): void;
+  on(event: 'response', fn: (r: { url(): string; headers(): Record<string, string>; request(): { resourceType(): string } }) => void): void;
   title(): Promise<string>;
   goto(url: string, o: object): Promise<unknown>;
   waitForLoadState(state: string, o: object): Promise<unknown>;
@@ -74,7 +80,14 @@ interface PageLike {
 export async function discoverApp(url: string): Promise<AppDiscovery> {
   try {
     const r = await rendered(url);
-    if (r) return { attribute: best(r.counts), counts: r.counts, via: 'browser', title: r.title || undefined, adDomains: adDomainsOf(r.hosts) };
+    if (r) {
+      const own = new URL(url).origin;
+      const byOrigin = r.apiCalls.filter((o) => o !== own && !adDomainsOf([new URL(o).hostname]).length).reduce<Record<string, number>>((a, o) => ({ ...a, [o]: (a[o] ?? 0) + 1 }), {});
+      const [apiOrigin] = Object.entries(byOrigin).sort((a, b) => b[1] - a[1]).map(([o]) => o);
+      // Only when the app calls that origin more than its own (a CDN or widget answering JSON now and then is not the API).
+      const ownCalls = r.apiCalls.filter((o) => o === own).length;
+      return { attribute: best(r.counts), counts: r.counts, via: 'browser', title: r.title || undefined, adDomains: adDomainsOf(r.hosts), ...(apiOrigin && byOrigin[apiOrigin] > ownCalls ? { apiOrigin } : {}) };
+    }
   } catch (e) { /* no usable browser: fall back to the served HTML */ void e; }
   try {
     const html = await (await fetch(url, { signal: AbortSignal.timeout(15_000) })).text();

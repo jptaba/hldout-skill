@@ -108,7 +108,12 @@ async function discover(configFile: string, id: string, flags: Flags): Promise<v
   if (flagStr(flags, 'test-id-attr')) { /* given */ } else if (d.attribute) {
     profile.testIdAttribute = d.attribute;
     say('✔', `test-id attribute: ${d.attribute} (on ${profile.baseURL}: ${describeCounts(d)}${d.via === 'html' ? '; served HTML only — install Chromium for a rendered check' : ''})`);
-  } else say('•', `test-id attribute: none on the start page or the pages its navigation links to — keeping "${profile.testIdAttribute}"; tests will use roles and labels`);
+  } else if (d.via === 'html') say('•', `test-id attribute: none in the served HTML — keeping "${profile.testIdAttribute}"; heldout doctor renders the app once Playwright is installed and reports the attribute and the API host`);
+  else say('•', `test-id attribute: none on the start page or the pages its navigation links to — keeping "${profile.testIdAttribute}"; tests will use roles and labels`);
+  if (!flagStr(flags, 'api-base-url') && d.apiOrigin && (!profile.apiBaseURL || profile.apiBaseURL === profile.baseURL)) {
+    profile.apiBaseURL = d.apiOrigin;
+    say('✔', `API: ${d.apiOrigin} (the web app sends its requests there; --api-base-url overrides)`);
+  }
   const block = d.adDomains.filter((h) => !(profile.blockHosts ?? []).includes(h));
   if (block.length) {
     profile.blockHosts = [...(profile.blockHosts ?? []), ...block];

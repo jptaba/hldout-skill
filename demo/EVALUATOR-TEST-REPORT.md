@@ -101,10 +101,10 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder five times. Each round installed the skill
-the way a team would, from a git repository with no GitHub-specific steps. It then went through `init`, `doctor`, the
-story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the verdict and publishing. Every
-hiccup was fixed in the skill before the next round.
+After the blind round, the whole journey was repeated from an empty folder eight times, on four applications. Each
+round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
+through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
+verdict and publishing. Every hiccup was fixed in the skill before the next round.
 
 | Round | Story (AUT) | Path exercised | Result | Skill hiccups found |
 | --- | --- | --- | --- | --- |
@@ -114,6 +114,8 @@ hiccup was fixed in the skill before the next round.
 | 4 | DQ-3 (DemoQA) | the FAIL path: defects, audited amendments, grouped confirmation | ✅ FAIL, 2/2 defects (as the key) | 2 bugs, 2 wording |
 | 5 | AE-3 (Automation Exercise) | an image mock-up transcribed into the contract, review → fix → re-review | ✅ 14/14 (PASS WITH WARNINGS: invalid-e-mail question) | 1 hint |
 | 6 | DQ-2 (DemoQA) | **existing accounts**: 2 with passwords in `.env`, 2 entirely in a real HashiCorp Vault (KV v2); `vault login` token, `VAULT_TOKEN` and AppRole | ✅ 21/21, no password in any artifact | 4 (all fixed) |
+| 7 | CL-3 (Contact List, new app) | tests create their own users and delete them; UI sign-in saved on its own and checked in a browser; a mock-up transcribed | ✅ PASS, 20/20 (as the key) | 6 (all fixed) |
+| 8 | TOOL-4 (Toolshop, new app) | API on a separate host; users created with no delete permission (kept, tagged); two accounts in one test; favourites cleaned up | ✅ PASS, 11/11 (as the key) | 5 (all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -134,6 +136,12 @@ hiccup was fixed in the skill before the next round.
   Vault is reached with the `vault login` token, `VAULT_TOKEN` or AppRole, read once per run, and never written to disk.
   `heldout secret NAME --ask` takes a password at a hidden prompt. Apps that let tests create users but not delete
   them are supported too, and `doctor` never leaves a check account behind on them.
+- **Seeding and teardown say what happened.** Every run ends with one line: how much test data was created, cleaned
+  up, already gone, kept by design (such as accounts on an app that forbids deleting them) or left behind, with advice
+  for each kind of cleanup error. A cleanup answered 404 or 410 counts as already gone. Seed calls ask for fresh answers
+  and retry once on 502, 503 and 504.
+- **Separate API hosts are found at onboarding.** `init` watches the requests the web app makes and records the API
+  host when it differs from the web host (Toolshop). `doctor` warns when the configured API host disagrees.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports

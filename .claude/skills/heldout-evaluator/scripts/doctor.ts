@@ -179,6 +179,8 @@ main(async () => {
       else check('warn', `AUT ${id}`, `testIdAttribute is "${configured}" but the app renders ${describeCounts(d)}`, `set auts.${id}.testIdAttribute to "${d.attribute}" in heldout.config.json`);
       const unblocked = d.adDomains.filter((h) => !(cfg!.auts[id]?.blockHosts ?? []).includes(h));
       if (unblocked.length) check('warn', `AUT ${id}`, `the start page loads ad/analytics networks that are not blocked: ${unblocked.join(', ')}`, `add them to auts.${id}.blockHosts in heldout.config.json (they inject content and make tests flaky)`);
+      const apiBase = cfg!.auts[id]?.apiBaseURL ?? cfg!.auts[id]?.baseURL;
+      if (d.apiOrigin && apiBase && !apiBase.startsWith(d.apiOrigin)) check('warn', `AUT ${id}`, `the web app sends its API requests to ${d.apiOrigin}, but apiBaseURL is ${apiBase}`, `set auts.${id}.apiBaseURL to "${d.apiOrigin}" in heldout.config.json if that is the API the requirements describe`);
     });
     // Accounts recipes, run live (create → token → delete) so a broken one never surfaces as BLOCKED scenarios.
     for (const id of ids) {
