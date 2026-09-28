@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Held-out Evaluator</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cg%20fill%3D%22none%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20stroke%3D%22%23141413%22%20d%3D%22M25.82%2012.98A20%2020%200%200%201%2038.18%2012.98M51.02%2025.82A20%2020%200%200%201%2051.02%2038.18M49.82%2041.08A20%2020%200%200%201%2041.08%2049.82M38.18%2051.02A20%2020%200%200%201%2025.82%2051.02M22.92%2049.82A20%2020%200%200%201%2014.18%2041.08M12.98%2038.18A20%2020%200%200%201%2012.98%2025.82M14.18%2022.92A20%2020%200%200%201%2022.92%2014.18%22%2F%3E%3Cpath%20stroke%3D%22%23D97757%22%20d%3D%22M45.32%209.94A20%2020%200%200%201%2054.06%2018.68%22%2F%3E%3Cpath%20stroke%3D%22%23D97757%22%20d%3D%22M23.5%2032.5L29.5%2038.5L41%2027%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <meta name="description" content="How the held-out evaluator works: onboarding, test users, secrets, the requirement contract, tests, integrity, hardening, seeding, runs, triage, verdicts and CI.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,7 +98,19 @@ section { padding: 40px 0 8px; }
 
 /* ---------- hero ---------- */
 .hero { padding: 56px 0 24px; position: relative; }
-.hero .spark { width: 64px; height: 64px; margin-bottom: 18px; }
+/* The Held-out Evaluator mark: a ring of segments (the data), one held out, and a check (evaluated). */
+.mark { display: block; }
+.mark path { fill: none; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
+.mark .ring { stroke: var(--text); }
+.mark .out, .mark .tick { stroke: var(--acc); }
+.hero .mark { width: 76px; height: 76px; margin-bottom: 18px; }
+.hero .mark .out { animation: holdout 3.2s ease-in-out infinite; }
+@keyframes holdout { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-3px, 3px); } }
+.brand .mark { width: 26px; height: 26px; }
+.brand .org { display: inline-flex; align-items: center; background: #fff; border-radius: 8px; padding: 4px 8px; box-shadow: inset 0 0 0 1px rgba(20,20,19,.08); }
+.brand .org img { height: 22px; width: auto; display: block; }
+@media (max-width: 520px) { .brand .lbltxt { display: none; } }
+.brand .sep { width: 1px; height: 24px; background: var(--line-2); margin: 0 2px; }
 .hero h1 { font-size: clamp(2.3rem, 5.6vw, 3.6rem); margin: 0 0 .6rem; }
 .hero h1 em { font-style: italic; color: var(--acc-strong); font-weight: 600; }
 .hero .lede { font-size: 1.22rem; }
@@ -301,11 +314,9 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
 .reveal.in { opacity: 1; transform: none; }
-.spin { animation: spin 60s linear infinite; transform-origin: 50% 50%; }
-@keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  .spin, .rail .chip, svg.dia .flow, .term .cur { animation: none; }
+  .hero .mark .out, .rail .chip, svg.dia .flow, .term .cur { animation: none; }
   html { scroll-behavior: auto; }
 }
 </style>
@@ -321,7 +332,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 
 <header class="topbar">
   <button class="iconbtn menubtn" id="menuBtn" aria-label="Contents" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lbltxt">Contents</span></button>
-  <a class="brand" href="#top"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#D97757" stroke-width="9" stroke-linecap="round"><path d="M60 50H92M58.7 55L79.4 67M55 58.7L71 86.4M50 60V84M45 58.7L29 86.4M41.3 55L20.6 67M40 50H8M41.3 45L20.6 33M45 41.3L29 13.6M50 40V16M55 41.3L71 13.6M58.7 45L79.4 33"/></g></svg>Held-out Evaluator</a>
+  <a class="brand" href="#top"><span class="org"><img src="media/us-bank-logo.svg" alt="U.S. Bank"></span><span class="sep" aria-hidden="true"></span><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg><span class="lbltxt">Held-out Evaluator</span></a>
   <span class="spacer"></span>
   <button class="iconbtn" id="themeBtn" aria-label="Switch colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><span id="themeLbl">Theme</span></button>
 </header>
@@ -355,7 +366,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 <main>
 <!-- ============ HERO ============ -->
 <div class="hero">
-  <svg class="spark spin" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#D97757" stroke-width="7.5" stroke-linecap="round"><path d="M60 50H92M58.7 55L79.4 67M55 58.7L71 86.4M50 60V84M45 58.7L29 86.4M41.3 55L20.6 67M40 50H8M41.3 45L20.6 33M45 41.3L29 13.6M50 40V16M55 41.3L71 13.6M58.7 45L79.4 33"/></g></svg>
+  <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Held-out Evaluator"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg>
   <div class="kicker">The complete guide</div>
   <h1>The <em>held-out</em> evaluator</h1>
   <p class="lede">A Claude Code skill that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
