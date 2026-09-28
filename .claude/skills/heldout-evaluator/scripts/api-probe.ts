@@ -66,7 +66,7 @@ const dig = (obj: unknown, dotted: string) => dotted.split('.').reduce<unknown>(
  * pre-steps (listed, but not the evidence). "expect" (status or list) marks each step ✔/✖; "expectBody"
  * ({ "dotted.path": value }) does the same for body fields — for APIs that answer HTTP 200 and put the outcome
  * in the body (e.g. { "responseCode": 400 }).
- *   { "vars": {...}, "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "var": "dotted.path" }, "expect"?: 201, "setup"?: true, "show"?: ["total", "data.length", "token|jwt"] } ] }
+ *   { "vars": {...}, "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "var": "dotted.path" }, "expect"?: 201, "setup"?: true, "show"?: ["total", "data.length", "token|jwt", "header:content-type"] } ] }   (a 3xx always shows its Location)
  * "field|jwt" / "field|base64" decodes a field before showing it (secret-named keys stay redacted).
  * "notContains": [{ "field": "token", "decode"?: "jwt", "value": "${env:PASSWORD}" }] checks a value does NOT appear
  * in a field (a leak check) without ever printing the value; a hit marks the step ✖.
@@ -137,8 +137,11 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : r.text;
     lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''} → **${r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.
+    // A redirect is its Location header: always show it (or its absence). "header:<name>" in show reads any header.
+    if (r.status >= 300 && r.status < 400) lines.push(`   \`Location\` = \`${r.headers.location ?? '(none)'}\``);
     if (s.show?.length) lines.push(`   ${s.show.map((f) => {
       const [field, how] = f.split('|');
+      if (field.startsWith('header:')) return `\`${f}\` = \`${JSON.stringify(redactHeaders({ [field.slice(7)]: r.headers[field.slice(7).toLowerCase()] ?? '(none)' })[field.slice(7)])}\``;
       const v = field.endsWith('.length') ? (dig(r.json, field.slice(0, -7)) as unknown[] | undefined)?.length : decode(dig(r.json, field), how);
       return `\`${f}\` = \`${JSON.stringify(redact(v))}\``;
     }).join(' · ')}`);

@@ -101,7 +101,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder twelve times, on six applications. Each
+After the blind round, the whole journey was repeated from an empty folder thirteen times, on six applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -120,6 +120,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 10 | PB-4 (ParaBank, rate-limited shared demo) | users only on the sign-up page (no API); a page address pasted as the base URL; a 429 mid-run; an unverifiable "shall" | ✅ PASS WITH WARNINGS, 11/11 (as the key) | 8 (all fixed) |
 | 11 | DQ-2 (DemoQA, from the published repository) | a page address pasted as the base URL; a strict password policy; UI sign-in and the token it revokes; a two-reviewer contract loop | ✅ PASS, 21/21 (as the key) | 7 (all fixed) |
 | 12 | AE-1 (Automation Exercise, from the published repository) | an ad script mistaken for the API; a product page as the base URL; a PO comment replacing an AC; an open question tested literally | ✅ PASS WITH WARNINGS, 13/14 (as the key: the open question) | 3 (all fixed) |
+| 13 | DQ-3 (DemoQA, from the published repository) | the FAIL path: a redirect without Location, a misspelled message; a PO path correction; new tabs and page-issued requests | ✅ FAIL, 2/2 defects (as the key) | 3 (all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -164,6 +165,9 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 - **Round 12 (AE-1) made discovery robust on ad-heavy sites.** An ad script's JSON calls were taken for the app's API:
   only a host on the app's own site is suggested now. A page address is traced to the app root through the page's own
   links first (`/products` → `/`, `/parabank/billpay.htm` → `/parabank/`). The verdict no longer counts one scenario twice.
+- **Round 13 (DQ-3, the FAIL path) sharpened evidence.** An API chain shows a redirect's `Location` (or its absence) on
+  every 3xx, and `show` reads any header as `header:<name>`. The contract check's pass line counts coverage entries, not
+  lines, and the reference says where intended 4xx answers belong.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports
