@@ -577,6 +577,14 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         started = Date.now();
         res = await send();
       }
+      // A gateway error while setting up or cleaning up (502/503/504) is the environment: one more try after a pause.
+      // The request under test is never repeated: its answer is what the test judges.
+      if (apiPhase !== 'test' && [502, 503, 504].includes(res.status()) && !retriedAfter) {
+        retriedAfter = `HTTP ${res.status()}`;
+        await sleep(2000);
+        started = Date.now();
+        res = await send();
+      }
       const durationMs = Date.now() - started;
       const text = await res.text();
       let body: unknown = text;

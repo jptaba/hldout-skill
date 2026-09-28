@@ -37,7 +37,7 @@ function seedSummary(results: unknown): { created: number; cleaned: number; alre
     if (o.name === 'seed-ledger' && typeof o.body === 'string') {
       try {
         const ledger = JSON.parse(Buffer.from(o.body, 'base64').toString('utf8')) as { records?: { label: string; kind?: string; cleanup?: string; created?: unknown; error?: string; reused?: boolean }[] };
-        for (const r of (ledger.records ?? []).filter((x) => (x.kind === 'data' || x.kind === 'scenario-created') && !x.reused)) {
+        for (const r of (ledger.records ?? []).filter((x) => (x.kind === 'data' || x.kind === 'scenario-created') && !x.reused && !(x.error && x.created === undefined && x.cleanup !== 'failed'))) {
           sum.created++;
           if (r.cleanup === 'done') { if (/already gone/.test(r.error ?? '')) sum.alreadyGone++; else sum.cleaned++; }
           else if (r.cleanup === 'failed') sum.leftovers.push(`${t}: ${r.label} — ${r.error ?? 'failed'} (${JSON.stringify(r.created ?? null).slice(0, 100)})`);
