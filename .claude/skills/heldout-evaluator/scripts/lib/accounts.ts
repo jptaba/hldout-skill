@@ -7,7 +7,10 @@
  *
  * Strings may use ${username}, ${password}, ${id}, ${token}, ${uid}, ${env:NAME} and ${vault:path#field}.
  */
-import { resolveUrl, type AccountRecipe, type ExistingAccount, type RecipeCall } from './config';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { ROOT, resolveUrl, type AccountRecipe, type ExistingAccount, type RecipeCall } from './config';
 import { ENV_REF, expandSecrets } from './secrets';
 
 export const envNamesIn = (value: unknown): string[] => [...new Set([...JSON.stringify(value ?? {}).matchAll(ENV_REF)].map((m) => m[1]))];
@@ -57,25 +60,62 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
   const call = (s: ChainStep): RecipeCall => ({ method: (s.method ?? 'GET').toUpperCase(), path: `/${s.path.replace(/^\/+/, '')}`,
     ...(s.json !== undefined ? { body: swap(s.json) } : {}), ...(s.form ? { form: swap(s.form) as Record<string, string> } : {}) });
   const authLine = [...chain.steps].flatMap((s) => Object.entries(s.headers ?? {})).find(([, v]) => v.includes('${token}'));
-  const toUi = (v = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, '${password}');
   return {
     ...(create ? { password, ...(username ? { username } : {}), create: { ...call(create), id: create.save!.id, ...(saves(create, 'token') ? { token: create.save!.token } : {}) } } : { existing: [{ username: username!, password }] }),
     ...(token ? { token: { ...call(token), token: token.save!.token, ...(token.save!.id ? { id: token.save!.id } : {}) } } : {}),
     ...(lookup ? { lookup: { ...call(lookup), id: lookup.save!.id } } : {}),
     ...(authLine ? { authHeader: `${authLine[0]}: ${authLine[1]}` } : {}),
     ...(del && create ? { delete: call(del) } : {}),
-    ...(signIn ? { signIn: { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value) } : { click: s.target! })) } } : {}),
+    ...(signIn ? { signIn: signInFromSteps(signIn) } : {}),
   };
+}
+
+/** The recipe's UI sign-in from inspect steps: ${var:…} → ${username}, secret references → ${password}. */
+export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; done?: string }): NonNullable<AccountRecipe['signIn']> {
+  const toUi = (v = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, '${password}');
+  return { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value) } : { click: s.target! })) };
 }
 
 
 export interface RecipeStep { step: string; ok: boolean; detail: string }
 
+/** Run the recipe's UI sign-in in a headless browser as the given account; the error message, or undefined when it worked. */
+async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, string | undefined>, blockHosts: string[] = []): Promise<string | undefined> {
+  const signIn = r.signIn!;
+  let chromium: { launch(o: object): Promise<{ newContext(): Promise<UiContext>; close(): Promise<void> }> };
+  try {
+    const pw = await import(pathToFileURL(createRequire(path.join(ROOT, 'package.json')).resolve('@playwright/test')).href);
+    chromium = pw.chromium ?? pw.default?.chromium;
+  } catch { return 'Playwright is not installed here (npm run heldout -- init --install)'; }
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    if (blockHosts.length) await context.route((u: URL) => blockHosts.some((h) => u.hostname === h || u.hostname.endsWith(`.${h}`)), (route: { abort(): Promise<void> }) => route.abort());
+    const page = await context.newPage();
+    const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'];
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const locate = (expr: string) => new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page as unknown as Record<string, (...a: unknown[]) => unknown>)[h].bind(page))) as UiLocator;
+    await page.goto(resolveUrl(baseURL, signIn.path), { waitUntil: 'domcontentloaded' });
+    for (const st of signIn.steps) {
+      if (st.fill !== undefined) await locate(st.fill).fill(String(fill(st.value ?? '', vars)), { timeout: 15_000 });
+      else if (st.click !== undefined) await locate(st.click).click({ timeout: 15_000 });
+    }
+    if (signIn.done?.startsWith('url:')) await page.waitForURL((u: URL) => u.pathname.includes(signIn.done!.slice(4)) || u.href.includes(signIn.done!.slice(4)), { timeout: 15_000 });
+    else if (signIn.done) await locate(signIn.done).first().waitFor({ state: 'visible', timeout: 15_000 });
+    return undefined;
+  } catch (err) {
+    return (err as Error).message.split('\n')[0];
+  } finally { await browser.close(); }
+}
+interface UiLocator { fill(v: string, o: object): Promise<void>; click(o: object): Promise<void>; first(): UiLocator; waitFor(o: object): Promise<void> }
+interface UiContext { route(match: (u: URL) => boolean, handler: (route: { abort(): Promise<void> }) => Promise<void>): Promise<void>; newPage(): Promise<UiPage> }
+interface UiPage { goto(url: string, o: object): Promise<unknown>; waitForURL(match: (u: URL) => boolean, o: object): Promise<void> }
+
 /**
  * Check the recipe live. Existing accounts: each signs in over the API (nothing is created or deleted). Created
  * accounts: create → token → delete; when the application offers no delete, nothing is created unless `createUndeletable`.
  */
-export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean } = {}): Promise<RecipeStep[]> {
+export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; ui?: { baseURL: string; blockHosts?: string[] } } = {}): Promise<RecipeStep[]> {
   const out: RecipeStep[] = [];
   const send = async (c: RecipeCall, vars: Record<string, string | undefined>, token?: string) => {
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -117,6 +157,12 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
         out.push({ step: `id of ${a.username}`, ok: id !== undefined && id !== null, detail: id !== undefined && id !== null ? `${l.status}, ${r.lookup.id} found` : `${l.status}, no "${r.lookup.id}" in the answer` });
       }
     }
+    // The UI sign-in, once, as the first account.
+    const first = r.existing?.[0];
+    if (opts.ui && r.signIn && first && out.every((x) => x.ok)) {
+      const failed = await uiSignIn(r, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts);
+      out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as ${first.username}` });
+    }
     return out;
   }
 
@@ -134,7 +180,13 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   const fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;
   if (r.create.token) out.push({ step: 'token from the create answer', ok: typeof fromCreate === 'string' && Boolean(fromCreate), detail: typeof fromCreate === 'string' && fromCreate ? `${r.create.token} found` : `no "${r.create.token}" in the answer` });
   const signedIn = r.token ? await signInOverApi(vars, `${r.token.method} ${r.token.path}`) : undefined;
-  const token = signedIn ?? (typeof fromCreate === 'string' ? fromCreate : undefined);
+  let token = signedIn ?? (typeof fromCreate === 'string' ? fromCreate : undefined);
+  if (opts.ui && r.signIn) {
+    const failed = await uiSignIn(r, opts.ui.baseURL, vars, opts.ui.blockHosts);
+    out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as the check account` });
+    // Many applications revoke earlier tokens at a UI sign-in: take a fresh one for the delete.
+    if (r.token) token = (await signInOverApi(vars, 'again after the UI sign-in')) ?? token;
+  }
   if (r.delete) {
     const d = await send(r.delete, vars, token);
     out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.slice(0, 120)} — the check account ${vars.username} was left behind`}` });

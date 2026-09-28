@@ -11,6 +11,7 @@
  *   heldout accounts --key KEY --from-chain hardening/chain.json
  *       [--sign-in-steps signin.json | --sign-in-json '<inspect steps>'] --sign-in-path /login --sign-in-done "url:/profile"
  *   A chain that only signs in (a step saving "token") as an existing account adds that account to the list instead.
+ *   heldout accounts --aut <profile> --sign-in-json '<inspect steps>' --sign-in-path /login --sign-in-done "url:/home"   the UI sign-in alone
  *
  *   heldout accounts --aut <profile> --per-test 2      tests use up to 2 existing accounts at once (fewer parallel workers)
  *   heldout accounts [--key KEY | --aut <profile>] --check [--create]   sign each existing account in, or create → token →
@@ -20,7 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './lib/config';
-import { checkAccountRecipe, recipeFromChain } from './lib/accounts';
+import { checkAccountRecipe, recipeFromChain, signInFromSteps } from './lib/accounts';
 import { loadVaultSecrets } from './lib/secrets';
 
 /** A value given as literal, as an environment variable name, or as a Vault path#field. */
@@ -50,10 +51,18 @@ main(async () => {
   let changed = false;
 
   const chainFile = flagStr(flags, 'from-chain');
+  const signInSteps = flagStr(flags, 'sign-in-steps') ? JSON.parse(fs.readFileSync(find(flagStr(flags, 'sign-in-steps')!), 'utf8'))
+    : flagStr(flags, 'sign-in-json') ? JSON.parse(flagStr(flags, 'sign-in-json')!) : undefined;
+  if (signInSteps && !flagStr(flags, 'sign-in-path')) throw new Error('--sign-in-path is required with sign-in steps (the page the sign-in starts on, e.g. /login)');
+  // The UI sign-in on its own, once the API part is saved.
+  if (signInSteps && !chainFile) {
+    if (!cfg.aut.accounts) throw new Error('save how tests get accounts first (--add-existing or --from-chain), then the UI sign-in');
+    const signIn = signInFromSteps({ path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') });
+    save({ ...cfg.aut.accounts, signIn });
+    console.log(`✔ UI sign-in saved for auts.${cfg.autId}.accounts (${signIn.steps.length} step(s), starting at ${signIn.path})`);
+    changed = true;
+  }
   if (chainFile) {
-    const signInSteps = flagStr(flags, 'sign-in-steps') ? JSON.parse(fs.readFileSync(find(flagStr(flags, 'sign-in-steps')!), 'utf8'))
-      : flagStr(flags, 'sign-in-json') ? JSON.parse(flagStr(flags, 'sign-in-json')!) : undefined;
-    if (signInSteps && !flagStr(flags, 'sign-in-path')) throw new Error('--sign-in-path is required with sign-in steps (the page the sign-in starts on, e.g. /login)');
     const found = recipeFromChain(JSON.parse(fs.readFileSync(find(chainFile), 'utf8')),
       signInSteps ? { path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') } : undefined);
     const before = cfg.aut.accounts ?? {};
@@ -92,7 +101,7 @@ main(async () => {
   const unset = [...new Set([...JSON.stringify(recipe).matchAll(/\$\{env:(\w+)\}/g)].map((m) => m[1]))].filter((n) => process.env[n] === undefined);
   if (unset.length) console.log(`  ✖ not set yet: ${unset.join(', ')} — add ${unset.map((n) => `${n}=…`).join(' ')} to .env (git-ignored), or set them in the environment (CI variables)`);
   if (problems.length || unset.length) { process.exitCode = 1; return; }
-  const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create) });
+  const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts } });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
   const pool = recipe.create ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));
