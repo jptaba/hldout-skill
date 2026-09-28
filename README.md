@@ -1,3 +1,5 @@
+<img src="docs/media/heldout-evaluator-logo.svg" alt="" width="72" align="right">
+
 # Held-out Evaluator — an AI agent skill
 
 Works in any agent app that loads skills: Claude Code, GitHub Copilot, and others. The examples say "Opus" for the AI
@@ -130,25 +132,27 @@ never as the requirement failing. Strategy:
 
 ![A real run of a story's held-out suite, then its verdict and the publish to the mock Jira](docs/media/sample-run.gif)
 
-Nine stories across three AUTs (three each, mixing UI and API), each with a machine-readable answer key written
-by a separate author agent before evaluation ([demo/answer-keys/](demo/answer-keys/)). Each was evaluated **blind**:
-a fresh agent with only the skill and the story. **Result: 8/9 verdicts as expected, 12/12 defects found, 1 disputed
-false positive.** See [demo/SCORECARD.md](demo/SCORECARD.md) (`npx tsx demo/score.ts`) and the full
-[evaluator test report](demo/EVALUATOR-TEST-REPORT.md).
+**Sample evaluations, made with the current skill.** Each was run end to end from a fresh onboarding, twice, and matches
+the answer key written for it before evaluation. Every one is complete: the story and its evidence pack, the requirement
+contract and its independent review, the scenarios, the frozen draft and the hardened tests, the hardening log, the
+runs (results, screenshots, API exchanges and live confirmations; the HTML reports and traces stay local), the triage
+and the verdict, and what was published to the mock Jira.
 
-| Story | AUT | Designed to test | Verdict |
+| Story | AUT | What it shows | Verdict |
 | --- | --- | --- | --- |
-| [AE-1](evaluations/AE-1/verdict.md) | Automation Exercise | search API + UI, a loosely worded status | ⚠️ PASS WITH WARNINGS |
-| [AE-2](evaluations/AE-2/verdict.md) | Automation Exercise | account API with in-body result codes + sign-in UI | ❌ FAIL (3) |
-| [AE-3](evaluations/AE-3/verdict.md) | Automation Exercise | brands API ↔ UI, a form specified by an image mock-up | ⚠️ PASS WITH WARNINGS |
-| [PB-1](evaluations/PB-1/verdict.md) | ParaBank | registration, sign-in, customer REST | ❌ FAIL (1) |
-| [PB-2](evaluations/PB-2/verdict.md) | ParaBank | opening accounts, rules in a CSV attachment | ❌ FAIL (3) |
-| [PB-3](evaluations/PB-3/verdict.md) | ParaBank | transfers, a PO comment replacing an AC | ❌ FAIL (2) |
-| [DQ-1](evaluations/DQ-1/verdict.md) | DemoQA | token API, a PO status override, a JWT leak | ❌ FAIL (2) |
-| [DQ-2](evaluations/DQ-2/verdict.md) | DemoQA | Book Store API + UI, a 401 matrix | ✅ PASS |
-| [DQ-3](evaluations/DQ-3/verdict.md) | DemoQA | new-tab and status links, a PO path correction | ❌ FAIL (2) |
+| [DQ-2](evaluations/DQ-2/verdict.md) | DemoQA | existing test accounts only (passwords in `.env` and in HashiCorp Vault), the user id found in the page's own API call, a reset that keeps shared accounts clean | ✅ PASS |
+| [CL-3](evaluations/CL-3/verdict.md) | Contact List | users the tests create and delete, a UI sign-in, a native confirm dialog, a page that loads its record after opening | ✅ PASS |
+| [TOOL-4](evaluations/TOOL-4/verdict.md) | Practice Software Testing (Toolshop) | criteria in a Jira custom field, a PO comment that changes a status, an API on its own host, users the app won't let tests delete | ✅ PASS |
+| [JS-2](evaluations/JS-2/verdict.md) | OWASP Juice Shop (local Docker) | the FAIL path: a too-short password accepted and another customer's basket readable, each reproduced live | ❌ FAIL (2) |
 
-Robustness checks (tampering, AUT down or degraded, malformed evaluation, Jira Cloud adapter, pre-step failure, contract gates):
-[demo/robustness/](demo/robustness/). Simulated Jira results are in `mock-jira/issues/<KEY>/ISSUE_VIEW.md`, and the
-REST calls a real Jira would have received are in [mock-jira/outbox/](mock-jira/outbox/). Human-readable answer key:
-[demo/INJECTED_DEFECTS.md](demo/INJECTED_DEFECTS.md) (the evaluator does not read it).
+The DQ-2 sample uses a variant of the story in which user creation is switched off (its `requirement/story.md`); the
+accounts it used no longer exist, so re-running it needs accounts of your own (`heldout accounts --add-existing`).
+Simulated Jira results are in `mock-jira/issues/<KEY>/ISSUE_VIEW.md`, and the REST calls a real Jira would have
+received are in [mock-jira/outbox/](mock-jira/outbox/).
+
+**Stories to try.** [demo/stories/](demo/stories/) holds 22 stories on six public applications (Automation Exercise,
+Contact List, DemoQA, OWASP Juice Shop, ParaBank, Toolshop), each with a machine-readable answer key written before any
+evaluation ([demo/answer-keys/](demo/answer-keys/)). `npx tsx demo/score.ts` scores the evaluations in `evaluations/`
+against them → [demo/SCORECARD.md](demo/SCORECARD.md). How the skill was tested, round by round, and every defect
+found in it: the [evaluator test report](demo/EVALUATOR-TEST-REPORT.md). The evaluations of earlier rounds, made by
+earlier versions of the skill, are kept in the repository history (tag `blind-round-evaluations`).

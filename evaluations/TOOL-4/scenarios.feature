@@ -10,73 +10,70 @@
 # AC-5: On the web shop, a signed-in customer who clicks "Add to favourites" on a product page sees "Product added to your favorites list." and the product then appears on the "Favorites" page of their account.
 # AC-6: DELETE /favorites/{favoriteId} removes the favourite (204) and it no longer appears in GET /favorites.
 #
-# ENDPOINT: POST /favorites — 201 with the favourite (its id and the product id)
-# ENDPOINT: GET /favorites — the customer's own favourites
-# ENDPOINT: DELETE /favorites/{favoriteId} — 204
-# ENDPOINT: POST /users/login — token for Authorization: Bearer <token>
-# ENDPOINT: POST /users/register
-# ENDPOINT: GET /products/search
+# ENDPOINT: POST /favorites — 201 with the favourite (its id and the product id) (story.md#L23)
+# ENDPOINT: GET /favorites
+# ENDPOINT: DELETE /favorites/{favoriteId} — 204 (story.md#L28)
 #
-# ASSUMPTION: G7 — response field names for the favourite's id and the product id (AC-1): id for the favourite's id, product_id for the product id (same name as the request field in story.md#L19)
 
-# ASSUMPTION: G1 — duplicates answer 409: the Product Owner's comment explicitly supersedes the technical note's 422 (story.md#L34).
-# ASSUMPTION: Each scenario registers its own customer(s) via POST /users/register and signs in via POST /users/login; favourites are removed after the test.
+# SEED-ENDPOINT: GET /products — find existing products to favourite (G2)
+# SEED-ENDPOINT: POST /users/register — each test's own customer (the accounts recipe)
+# ASSUMPTION: every test registers its own customer (seed.account()); customers the application doesn't let tests delete are kept, named hldout-….
+# ASSUMPTION: favourites a test adds are removed afterwards (DELETE /favorites/{favoriteId}); one added in the web shop is found through GET /favorites and removed the same way.
 
 @story:TOOL-4
 Feature: Favourites for signed-in customers
 
-  # from story.md#L23
+  # from story.md AC-1
   @SCN-001 @AC-1 @priority:P1 @type:functional @layer:api
-  Scenario: A signed-in customer adds a favourite
-    Given I am a signed-in customer and know an in-stock product
-    When I POST the product to /favorites
-    Then the response status is 201
-    And the favourite has an id and the product id I sent
+  Scenario: A customer adds a product to favourites
+    Given I am a signed-in customer and know an existing product
+    When I POST /favorites with that product_id
+    Then the answer is 201 with the favourite's id and the product id
 
-  # from story.md#L24, story.md#L34
-  @SCN-002 @AC-2 @priority:P1 @type:negative @layer:api
-  Scenario: Adding the same favourite twice is rejected with 409
-    Given I am a signed-in customer with the product in my favourites
-    When I POST the same product to /favorites again
-    Then the response status is 409
-    And GET /favorites contains the product once
+  # from story.md AC-2, PO comment (story.md#L34)
+  @SCN-002 @AC-2 @priority:P1 @type:idempotency @layer:api
+  Scenario: Adding a product that is already a favourite is refused
+    Given I am a signed-in customer with a product in my favourites
+    When I POST /favorites with the same product_id again
+    Then the answer is 409
+    And GET /favorites contains that product exactly once
 
-  # from story.md#L25
+  # from story.md AC-3
   @SCN-003 @AC-3 @priority:P1 @type:security @layer:api
-  Scenario: A customer sees only their own favourites
-    Given another customer has a favourite product
-    And I am a signed-in customer with a different favourite
-    When I GET /favorites
-    Then my favourite is listed
-    And the other customer's favourite is not
+  Scenario: Each customer sees only their own favourites
+    Given customer A has favourited one product and customer B another
+    When each of them requests GET /favorites
+    Then A's list has A's favourite and not B's
+    And B's list has B's favourite and not A's
 
-  # from story.md#L26
+  # from story.md AC-4
   @SCN-004 @AC-4 @priority:P1 @type:security @layer:api
-  Scenario Outline: <request> with <credentials> is refused with 401
-    When I send <request> with <credentials>
-    Then the response status is 401
-    Examples:
-      | request                  | credentials       |
-      | POST /favorites          | no token          |
-      | GET /favorites           | no token          |
-      | DELETE /favorites/{id}   | no token          |
-      | POST /favorites          | an invalid token  |
-      | GET /favorites           | an invalid token  |
-      | DELETE /favorites/{id}   | an invalid token  |
+  Scenario Outline: The favourites endpoints refuse calls without a valid token
+    Given a customer has a favourite
+    When a client sends <call> <credential>
+    Then the answer is 401
 
-  # from story.md#L27
-  @SCN-005 @AC-5 @priority:P1 @type:integration @layer:e2e
-  Scenario: Adding a favourite on the web shop
-    Given I am signed in on the web shop as a registered customer
-    And I am on the product page of an in-stock product
+    Examples:
+      | call                               | credential            |
+      | POST /favorites                    | without a token       |
+      | GET /favorites                     | without a token       |
+      | DELETE /favorites/{favoriteId}     | without a token       |
+      | POST /favorites                    | with an invalid token |
+      | GET /favorites                     | with an invalid token |
+      | DELETE /favorites/{favoriteId}     | with an invalid token |
+
+  # from story.md AC-5
+  @SCN-005 @AC-5 @priority:P1 @type:integration @layer:ui
+  Scenario: Adding to favourites in the web shop
+    Given I am a signed-in customer on a product page
     When I click "Add to favourites"
     Then I see "Product added to your favorites list."
-    And the product appears on the Favorites page of my account
+    And the product appears on the "Favorites" page of my account
 
-  # from story.md#L28
+  # from story.md AC-6
   @SCN-006 @AC-6 @priority:P1 @type:functional @layer:api
   Scenario: Removing a favourite
-    Given I am a signed-in customer with the product in my favourites
-    When I DELETE the favourite
-    Then the response status is 204
+    Given I am a signed-in customer with a product in my favourites
+    When I DELETE /favorites/{favoriteId}
+    Then the answer is 204
     And GET /favorites no longer contains it

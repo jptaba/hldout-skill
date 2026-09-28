@@ -1,1 +1,0 @@
-[{"do":"click","target":"locator('.brands_products').getByRole('link').filter({ hasText: /^\\s*(\\(\\d+\\)\\s*)?Mast & Harbour\\s*(\\(\\d+\\)\\s*)?$/ })"}]

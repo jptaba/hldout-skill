@@ -107,10 +107,6 @@ section { padding: 40px 0 8px; }
 .hero .mark .out { animation: holdout 3.2s ease-in-out infinite; }
 @keyframes holdout { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-3px, 3px); } }
 .brand .mark { width: 26px; height: 26px; }
-.brand .org { display: inline-flex; align-items: center; background: #fff; border-radius: 8px; padding: 4px 8px; box-shadow: inset 0 0 0 1px rgba(20,20,19,.08); }
-.brand .org img { height: 22px; width: auto; display: block; }
-@media (max-width: 520px) { .brand .lbltxt { display: none; } }
-.brand .sep { width: 1px; height: 24px; background: var(--line-2); margin: 0 2px; }
 .hero h1 { font-size: clamp(2.3rem, 5.6vw, 3.6rem); margin: 0 0 .6rem; }
 .hero h1 em { font-style: italic; color: var(--acc-strong); font-weight: 600; }
 .hero .lede { font-size: 1.22rem; }
@@ -332,7 +328,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 
 <header class="topbar">
   <button class="iconbtn menubtn" id="menuBtn" aria-label="Contents" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lbltxt">Contents</span></button>
-  <a class="brand" href="#top"><span class="org"><img src="media/us-bank-logo.svg" alt="U.S. Bank"></span><span class="sep" aria-hidden="true"></span><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg><span class="lbltxt">Held-out Evaluator</span></a>
+  <a class="brand" href="#top"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg><span class="lbltxt">Held-out Evaluator</span></a>
   <span class="spacer"></span>
   <button class="iconbtn" id="themeBtn" aria-label="Switch colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><span id="themeLbl">Theme</span></button>
 </header>

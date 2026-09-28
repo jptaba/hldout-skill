@@ -1,0 +1,9 @@
+{ "steps": [
+  { "name": "security questions", "method": "GET", "path": "api/SecurityQuestions", "save": { "qid": "data.0.id" }, "expect": 200, "setup": true },
+  { "name": "register A", "method": "POST", "path": "api/Users", "json": { "email": "hldout-${uid}-a@example.com", "password": "${env:JS_USER_PASSWORD}", "passwordRepeat": "${env:JS_USER_PASSWORD}", "securityQuestion": { "id": "${qid}" }, "securityAnswer": "hldout" }, "expect": 201, "setup": true },
+  { "name": "register B", "method": "POST", "path": "api/Users", "json": { "email": "hldout-${uid}-b@example.com", "password": "${env:JS_USER_PASSWORD}", "passwordRepeat": "${env:JS_USER_PASSWORD}", "securityQuestion": { "id": "${qid}" }, "securityAnswer": "hldout" }, "expect": 201, "setup": true },
+  { "name": "A logs in", "method": "POST", "path": "rest/user/login", "json": { "email": "hldout-${uid}-a@example.com", "password": "${env:JS_USER_PASSWORD}" }, "save": { "tokenA": "authentication.token", "bidA": "authentication.bid" }, "expect": 200, "setup": true },
+  { "name": "B logs in", "method": "POST", "path": "rest/user/login", "json": { "email": "hldout-${uid}-b@example.com", "password": "${env:JS_USER_PASSWORD}" }, "save": { "bidB": "authentication.bid" }, "expect": 200, "setup": true },
+  { "name": "A reads B's basket with A's token", "method": "GET", "path": "rest/basket/${bidB}", "headers": { "Authorization": "Bearer ${tokenA}" }, "show": ["status", "data.id", "data.UserId"] },
+  { "name": "A reads A's own basket", "method": "GET", "path": "rest/basket/${bidA}", "headers": { "Authorization": "Bearer ${tokenA}" }, "expect": 200, "show": ["data.id", "data.UserId"] }
+] }

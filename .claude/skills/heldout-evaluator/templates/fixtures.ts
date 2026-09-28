@@ -14,11 +14,18 @@
  *
  * Assertion convention: every assertion that encodes a requirement carries a message tagged
  * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics.
+ *
+ * Secret redaction and the page helpers come from the skill installed in this project, so the tests and the skill's
+ * own tools (inspect, the accounts check) redact and locate the same way.
  */
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page } from '@playwright/test';
+import { closeOverlays, locateOn } from '../.claude/skills/heldout-evaluator/scripts/lib/page';
+import { redact, redactHeaders, redactSnapshot } from '../.claude/skills/heldout-evaluator/scripts/lib/redact';
+
+export { redact, redactSnapshot };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TestData = Record<string, any>;
@@ -189,11 +196,7 @@ function authHeader(r: AccountRecipe, token: string): Record<string, string> {
 const dig = (o: unknown, dotted: string): unknown => dotted.split('.').reduce<unknown>((a, k) => (a && typeof a === 'object' ? (a as Record<string, unknown>)[k] : undefined), o);
 
 /** A page-locator expression from config ("getByPlaceholder('UserName')") evaluated against the page. */
-function locate(page: Page, expr: string): Locator {
-  const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'] as const;
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
-}
+const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 
 type UiForm = { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
 /** Open the form's page, fill/click its steps (recipe placeholders filled from vars) and wait until it is done. */
@@ -245,10 +248,7 @@ export async function blockThirdParty(context: import('@playwright/test').Browse
 
 /** Close the profile's overlays (cookie consent, welcome dialogs) whenever they appear, before any action or check. */
 export async function dismissOverlays(page: Page, overlays = process.env.AUT_OVERLAYS ?? '[]'): Promise<void> {
-  for (const expr of JSON.parse(overlays || '[]') as string[]) {
-    // One overlay can cover another's button (a welcome dialog over the cookie banner): then the click is dispatched to it.
-    await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 2_000 }).catch(() => l.dispatchEvent('click')).catch(() => undefined); });
-  }
+  await closeOverlays(page, JSON.parse(overlays || '[]') as string[]);
 }
 
 /**
@@ -306,40 +306,6 @@ export function checkShape(value: unknown, schema: Record<string, ShapeRule>, la
   return out;
 }
 
-const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|session/i;
-// Header NAMES that carry credentials (incl. misspellings like "Authorisation") and VALUES that look like credentials.
-const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
-const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
-
-/**
- * Redact secrets from headers / JSON bodies before they are attached to reports. `testValues`: a request the test
- * sends keeps a short value under a secret-looking key (a deliberately too-short password is the point of the call,
- * and a reviewer must see it to reproduce); real secrets are longer, and the run scrubs their values from every artifact.
- */
-export function redact(value: unknown, depth = 0, testValues = false): unknown {
-  if (depth > 8 || value == null) return value;
-  // An object that says how it is recorded (a seed.account() account: its id and user name only).
-  const toJSON = (value as { toJSON?: () => unknown }).toJSON;
-  if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), depth + 1, testValues);
-  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1, testValues));
-  if (typeof value === 'object') {
-    const hide = (k: string, v: unknown) => SECRET_KEY.test(k) && typeof v !== 'object' && !(testValues && typeof v === 'string' && v.length < 8);
-    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, hide(k, v) ? '***redacted***' : redact(v, depth + 1, testValues)]));
-  }
-  return value;
-}
-/**
- * ARIA snapshots include the current value of text fields — password fields too. Redact the values of the
- * page's password inputs wherever they appear, and any value shown for a textbox whose name looks secret.
- */
-export function redactSnapshot(yaml: string, secretValues: string[] = []): string {
-  let out = yaml;
-  for (const v of secretValues.filter((x) => x && x.length >= 3)) out = out.split(v).join('***redacted***');
-  return out.replace(/^(\s*- textbox "[^"]*(?:pass(?:word|code)?|pin|secret|token)[^"]*"[^:\n]*):\s*\S.*$/gim, '$1: ***redacted***');
-}
-const redactHeaders = (h: Record<string, string>) =>
-  Object.fromEntries(Object.entries(h).map(([k, v]) => [k, SECRET_HEADER.test(k) || SECRET_VALUE.test(String(v)) ? '***redacted***' : v]));
 const clip = (s: string, n = 4000) => (s.length > n ? `${s.slice(0, n)}… (${s.length - n} more chars)` : s);
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -676,7 +642,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       let body: unknown = text;
       if (/json/i.test(res.headers()['content-type'] ?? '') || /^\s*[[{]/.test(text)) { try { body = JSON.parse(text); } catch { /* keep text */ } }
       const exchange = {
-        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form, 0, true) : redact(o.data, 0, true), ...(retriedAfter ? { retriedAfter } : {}) },
+        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form, { testValues: true }) : redact(o.data, { testValues: true }), ...(retriedAfter ? { retriedAfter } : {}) },
         response: { status: res.status(), durationMs, headers: redactHeaders(res.headers()), body: typeof body === 'string' ? clip(body) : redact(body) },
       };
       n++;

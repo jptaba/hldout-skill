@@ -1,7 +1,0 @@
-[
-  {"do":"goto","url":"index.htm"},
-  {"do":"fill","target":"locator('input[name=\"username\"]')","value":"hxinsp1790510591"},
-  {"do":"fill","target":"locator('input[name=\"password\"]')","value":"${env:PB_USER_PASSWORD}"},
-  {"do":"click","target":"getByRole('button', { name: 'Log In' })"},
-  {"do":"goto","url":"openaccount.htm"}
-]

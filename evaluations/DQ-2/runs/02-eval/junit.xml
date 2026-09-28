@@ -1,0 +1,46 @@
+<testsuites id="" name="" tests="21" failures="0" skipped="0" errors="0" time="106.363796">
+<testsuite name="DQ-2\tests\dq-2.spec.ts" timestamp="2026-09-28T19:27:48.453Z" hostname="chromium" tests="21" failures="0" skipped="0" time="201.791" errors="0">
+<testcase name="DQ-2 Personal book collection › SCN-001: The catalogue lists every book with all its fields" classname="DQ-2\tests\dq-2.spec.ts" time="3.295">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-002: Looking one book up returns its catalogue entry" classname="DQ-2\tests\dq-2.spec.ts" time="3.446">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-003: The Book Store page lists every catalogue book" classname="DQ-2\tests\dq-2.spec.ts" time="12.799">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-004.1: The search box filters by title, author or publisher (&quot;javascript&quot;)" classname="DQ-2\tests\dq-2.spec.ts" time="6.928">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-004.2: The search box filters by title, author or publisher (&quot;zakas&quot;)" classname="DQ-2\tests\dq-2.spec.ts" time="7.932">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-004.3: The search box filters by title, author or publisher (&quot;No Starch&quot;)" classname="DQ-2\tests\dq-2.spec.ts" time="5.496">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-005: A search term that matches no book leaves no book rows" classname="DQ-2\tests\dq-2.spec.ts" time="6.16">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-006: A book&apos;s detail page shows its catalogue data" classname="DQ-2\tests\dq-2.spec.ts" time="8.065">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-007: Adding books to my collection" classname="DQ-2\tests\dq-2.spec.ts" time="6.614">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-008: A book added through the API appears on my Profile page" classname="DQ-2\tests\dq-2.spec.ts" time="18.347">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-009: Adding a book that is already in my collection is refused" classname="DQ-2\tests\dq-2.spec.ts" time="7.236">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-010: Deleting one book on the Profile page" classname="DQ-2\tests\dq-2.spec.ts" time="18.104">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-011: Removing one book through the API" classname="DQ-2\tests\dq-2.spec.ts" time="6.215">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-012: Removing a book that is not in my collection is refused" classname="DQ-2\tests\dq-2.spec.ts" time="10.296">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-013.1: An ISBN that is not in the catalogue is refused (look it up with GET /BookStore/v1/Book)" classname="DQ-2\tests\dq-2.spec.ts" time="11.669">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-013.2: An ISBN that is not in the catalogue is refused (add it with POST /BookStore/v1/Books)" classname="DQ-2\tests\dq-2.spec.ts" time="10.681">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-014.1: Collection calls without a valid token are refused (adds a book to A&apos;s collection without a token)" classname="DQ-2\tests\dq-2.spec.ts" time="16.015">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-014.2: Collection calls without a valid token are refused (deletes a book from A&apos;s collection without a token)" classname="DQ-2\tests\dq-2.spec.ts" time="13.714">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-014.3: Collection calls without a valid token are refused (reads A&apos;s collection without a token)" classname="DQ-2\tests\dq-2.spec.ts" time="11.049">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-014.4: Collection calls without a valid token are refused (reads B&apos;s collection with A&apos;s token)" classname="DQ-2\tests\dq-2.spec.ts" time="8.612">
+</testcase>
+<testcase name="DQ-2 Personal book collection › SCN-014.5: Collection calls without a valid token are refused (adds a book to B&apos;s collection with A&apos;s token)" classname="DQ-2\tests\dq-2.spec.ts" time="9.118">
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,16 @@
+
+Running 11 tests using 4 workers
+
+  ok  1 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:39:7 › TOOL-4 Favourites for signed-in customers › SCN-001: A customer adds a product to favourites @AC-1 @type:functional @layer:api @P1 (3.3s)
+  ok  4 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:91:9 › TOOL-4 Favourites for signed-in customers › SCN-004.1: The favourites endpoints refuse calls without a valid token (POST /favorites without a token) @AC-4 @type:security @layer:api @P1 (3.6s)
+  ok  3 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:53:7 › TOOL-4 Favourites for signed-in customers › SCN-002: Adding a product that is already a favourite is refused @AC-2 @type:idempotency @layer:api @P1 (4.0s)
+  ok  2 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:65:7 › TOOL-4 Favourites for signed-in customers › SCN-003: Each customer sees only their own favourites @AC-3 @type:security @layer:api @P1 (6.2s)
+  ok  5 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:91:9 › TOOL-4 Favourites for signed-in customers › SCN-004.2: The favourites endpoints refuse calls without a valid token (GET /favorites without a token) @AC-4 @type:security @layer:api @P1 (3.3s)
+  ok  6 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:91:9 › TOOL-4 Favourites for signed-in customers › SCN-004.3: The favourites endpoints refuse calls without a valid token (DELETE /favorites/{favoriteId} without a token) @AC-4 @type:security @layer:api @P1 (3.2s)
+  ok  7 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:91:9 › TOOL-4 Favourites for signed-in customers › SCN-004.4: The favourites endpoints refuse calls without a valid token (POST /favorites with an invalid token) @AC-4 @type:security @layer:api @P1 (3.2s)
+  ok  8 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:91:9 › TOOL-4 Favourites for signed-in customers › SCN-004.5: The favourites endpoints refuse calls without a valid token (GET /favorites with an invalid token) @AC-4 @type:security @layer:api @P1 (3.5s)
+  ok  9 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:91:9 › TOOL-4 Favourites for signed-in customers › SCN-004.6: The favourites endpoints refuse calls without a valid token (DELETE /favorites/{favoriteId} with an invalid token) @AC-4 @type:security @layer:api @P1 (4.1s)
+  ok 11 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:127:7 › TOOL-4 Favourites for signed-in customers › SCN-006: Removing a favourite @AC-6 @type:functional @layer:api @P1 (4.3s)
+  ok 10 [chromium] › evaluations\TOOL-4\tests\tool-4.spec.ts:104:7 › TOOL-4 Favourites for signed-in customers › SCN-005: Adding to favourites in the web shop @AC-5 @type:integration @layer:ui @P1 (8.8s)
+
+  11 passed (17.1s)

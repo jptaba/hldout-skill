@@ -1,11 +1,1 @@
-{
-  "user": { "namePrefix": "qa-dq2-", "password": "${env:DQ_USER_PASSWORD}" },
-  "books": {
-    "git": { "isbn": "9781449325862", "title": "Git Pocket Guide" },
-    "es6": { "isbn": "9781593277574", "title": "Understanding ECMAScript 6" },
-    "jsPatterns": { "isbn": "9781449331818", "title": "Learning JavaScript Design Patterns" }
-  },
-  "unknownIsbnCandidates": ["9780000000002", "9789999999991", "1234567890123"],
-  "noMatchSearchTerm": "qzxv no such book",
-  "invalidToken": "invalid.token.value"
-}
+{}

@@ -1,9 +1,9 @@
 [
   {
-    "at": "2026-09-26T23:20:41.845Z",
+    "at": "2026-09-28T20:29:41.711Z",
     "mode": "mock",
     "verdict": "PASS",
-    "attachment": "heldout-verdict-TOOL-4-202609262320.md",
+    "attachment": "heldout-verdict-TOOL-4-202609282029.md",
     "commentId": "20002",
     "labels": [
       "heldout-pass"

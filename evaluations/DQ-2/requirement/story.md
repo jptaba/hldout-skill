@@ -7,7 +7,7 @@ priority: High
 labels: []
 source: mock-jira
 url: https://your-domain.atlassian.net/browse/DQ-2
-fetchedAt: 2026-09-27T05:31:50.259Z
+fetchedAt: 2026-09-28T19:15:32.253Z
 ---
 
 # DQ-2: Personal book collection - browse the catalogue and manage my books
@@ -26,7 +26,8 @@ error responses are specified in the attached **api-contract.md**.
 
 ## Accounts and data
 
-- Each run creates its own user through `POST /Account/v1/User` with a unique user name (for example `qa-<timestamp>`) and the password from the environment variable `DQ_USER_PASSWORD`, and deletes it at the end with `DELETE /Account/v1/User/{UUID}`.
+- User creation is switched off in the QA environment. Tests use the QA team's pre-provisioned test users (user names and passwords are kept in the team's secret store, never in the test code). Do not create or delete users.
+- These users are shared by every run, so each test leaves the collection of every user it used empty.
 - A token for API calls is obtained with `POST /Account/v1/GenerateToken` (see the contract).
 - Books used in the examples are part of the standard catalogue, e.g. 9781449325862 "Git Pocket Guide", 9781593277574 "Understanding ECMAScript 6", 9781449331818 "Learning JavaScript Design Patterns".
 

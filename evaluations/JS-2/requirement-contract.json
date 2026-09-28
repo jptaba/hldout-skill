@@ -2,28 +2,28 @@
   "key": "JS-2",
   "title": "Customer registration, login and basket",
   "revision": {
-    "story": "e80ffdb000d9f5aa",
+    "story": "afe54c2b7c8696f6",
     "attachments": {
       "api-contract.md": "6f51a1ee247910db"
     }
   },
-  "context": "A visitor registers as a customer, logs in to receive an authentication token, and uses that token to manage their shopping basket. Each customer has exactly one basket. Covers registration rules, the login token, adding an item to one's own basket, and isolation between different customers' baskets (story.md#L19-L22).",
-  "actors": [
-    "visitor (becomes a customer by registering)",
-    "customer (registered, logged in with a Bearer token)"
-  ],
   "sourcesRead": [
     {
       "file": "story.md",
       "read": true,
-      "contributes": "context, AC-1..AC-6 table, out of scope, PO comment with password rules"
+      "contributes": "context, AC-1..AC-6, out of scope, PO comment with the password rules, test data"
     },
     {
       "file": "attachments/api-contract.md",
       "read": true,
-      "contributes": "endpoints, request/response shapes, Bearer auth, duplicate e-mail error"
+      "contributes": "endpoints (register, security questions, login, add basket item, read basket, products), request/response bodies, Bearer auth, duplicate e-mail error"
     }
   ],
+  "actors": [
+    "visitor (registers to become a customer)",
+    "customer"
+  ],
+  "context": "A visitor can become a customer by registering, then log in to receive an authentication token, and use that token to manage their shopping basket. Each customer has exactly one basket. The story covers the registration rules, the login token, adding an item to one's own basket, and the isolation between different customers' baskets. Registration and login details are in attachment api-contract.md; the password rules are clarified in the product owner's comment.",
   "acceptanceCriteria": [
     {
       "id": "AC-1",
@@ -31,11 +31,14 @@
       "source": "story.md#L33",
       "text": "Registering with a unique e-mail, a rule-compliant password (sent as both password and passwordRepeat), and a security question id + security answer creates the customer: the response is HTTP 201 and its body describes the new user with the submitted email and role = customer.",
       "layer": "api",
-      "endpoints": ["GET /api/SecurityQuestions", "POST /api/Users"],
+      "endpoints": [
+        "POST /api/Users",
+        "GET /api/SecurityQuestions"
+      ],
       "outcomes": [
         "HTTP 201",
-        "body data.email equals the submitted e-mail",
-        "body data.role = \"customer\""
+        "the body describes the new user with the submitted `email` (in `data`, attachments/api-contract.md#L19-L20)",
+        "the new user has `role` = `customer`"
       ]
     },
     {
@@ -44,28 +47,36 @@
       "source": "story.md#L34",
       "text": "Registering with an e-mail that already belongs to a customer is rejected with HTTP 400 and a validation error whose message states the e-mail must be unique. No second account is created.",
       "layer": "api",
-      "endpoints": ["GET /api/SecurityQuestions", "POST /api/Users"],
+      "endpoints": [
+        "POST /api/Users",
+        "GET /api/SecurityQuestions"
+      ],
       "needsData": true,
       "outcomes": [
-        "second registration with the same e-mail → HTTP 400",
-        "validation error whose message states the e-mail must be unique",
-        "no second account is created"
+        "registering an already registered e-mail → HTTP 400",
+        "a validation error whose message states the e-mail must be unique",
+        "no second account is created for that e-mail"
       ],
-      "gaps": ["G6", "G7"]
+      "gaps": [
+        "G3"
+      ]
     },
     {
       "id": "AC-3",
       "quote": "Registration enforces the password rules in the PO comment: a password shorter than the minimum length is rejected with **HTTP 400** and the customer is **not** created (a follow-up login with that e-mail/password fails).",
       "source": "story.md#L35",
-      "text": "Registration enforces the password rules in the PO comment: a password shorter than the minimum length (5 characters) is rejected with HTTP 400 and the customer is not created (a follow-up login with that e-mail/password fails).",
+      "text": "Registration enforces the password rules in the PO comment: a password shorter than the minimum length is rejected with HTTP 400 and the customer is not created (a follow-up login with that e-mail/password fails).",
       "layer": "api",
-      "endpoints": ["GET /api/SecurityQuestions", "POST /api/Users", "POST /rest/user/login"],
-      "outcomes": [
-        "4-character password → HTTP 400",
-        "3-character password → HTTP 400",
-        "the customer is not created: a follow-up login with that e-mail/password fails"
+      "endpoints": [
+        "POST /api/Users",
+        "GET /api/SecurityQuestions",
+        "POST /rest/user/login"
       ],
-      "gaps": ["G5"]
+      "outcomes": [
+        "registering with a 4-character password → HTTP 400 (minimum is 5 characters, story.md#L50, story.md#L53)",
+        "registering with a 3-character password → HTTP 400 (story.md#L53)",
+        "the customer is not created: a follow-up login with that e-mail/password fails"
+      ]
     },
     {
       "id": "AC-4",
@@ -73,12 +84,13 @@
       "source": "story.md#L36",
       "text": "Logging in via POST /rest/user/login with a registered customer's correct e-mail and password returns HTTP 200 and a body containing an authentication token (a JWT used as a Bearer token) and the customer's basket id (bid).",
       "layer": "api",
-      "endpoints": ["GET /api/SecurityQuestions", "POST /api/Users", "POST /rest/user/login"],
-      "needsData": true,
+      "endpoints": [
+        "POST /rest/user/login"
+      ],
       "outcomes": [
         "HTTP 200",
-        "body authentication.token is present and is a JWT",
-        "body authentication.bid (the customer's basket id) is present"
+        "the body contains an authentication `token` that is a JWT (`authentication.token`, attachments/api-contract.md#L33)",
+        "the body contains the customer's basket id `bid` (`authentication.bid`, attachments/api-contract.md#L33)"
       ]
     },
     {
@@ -87,15 +99,21 @@
       "source": "story.md#L37",
       "text": "Using their own token, a customer can add a product to their own basket via POST /api/BasketItems; after that customer logs in through the UI, the basket page at /#/basket lists that product with the quantity that was added.",
       "layer": "e2e",
-      "endpoints": ["GET /api/SecurityQuestions", "POST /api/Users", "POST /rest/user/login", "GET /api/Products", "POST /api/BasketItems"],
-      "entryPoint": "UI login (route not stated, see G1), then the basket page at /#/basket",
-      "needsData": true,
-      "outcomes": [
-        "POST /api/BasketItems with the customer's own token and own bid adds the product to that basket",
-        "after the customer logs in through the UI, /#/basket lists that product",
-        "the listed quantity equals the quantity that was added"
+      "endpoints": [
+        "GET /api/Products",
+        "POST /api/BasketItems"
       ],
-      "gaps": ["G1", "G2", "G3"]
+      "entryPoint": "UI login, then the basket page at /#/basket",
+      "outcomes": [
+        "the customer adds a product to their own basket (`BasketId` = their `bid`) via POST /api/BasketItems with their own token",
+        "after the customer logs in through the UI, the basket page at /#/basket lists that product",
+        "the basket page shows that product with the quantity that was added"
+      ],
+      "gaps": [
+        "G1",
+        "G2",
+        "G5"
+      ]
     },
     {
       "id": "AC-6",
@@ -103,245 +121,402 @@
       "source": "story.md#L38",
       "text": "Basket contents are private to their owner: a customer must be able to read only their own basket. A request to GET /rest/basket/{id} authenticated as customer A but targeting customer B's basket id must be refused and must not return B's basket. Verify with two customers you create.",
       "layer": "api",
-      "endpoints": ["GET /api/SecurityQuestions", "POST /api/Users", "POST /rest/user/login", "GET /rest/basket/{id}"],
+      "endpoints": [
+        "GET /rest/basket/{id}"
+      ],
       "needsData": true,
       "outcomes": [
-        "customer A can read A's own basket via GET /rest/basket/{A's bid}",
-        "GET /rest/basket/{B's bid} with A's token is refused",
-        "that response does not return B's basket (not B's basket id, UserId or Products)"
+        "customer A can read their own basket via GET /rest/basket/{id} with A's basket id",
+        "GET /rest/basket/{id} authenticated as customer A with customer B's basket id is refused",
+        "that response does not return B's basket"
       ],
-      "gaps": ["G4"]
+      "gaps": [
+        "G4"
+      ]
     }
   ],
   "endpoints": [
     {
-      "method": "POST",
-      "path": "/api/Users",
-      "requestFields": ["email", "password", "passwordRepeat", "securityQuestion", "securityAnswer"],
-      "request": "{ email: <unique e-mail>, password, passwordRepeat, securityQuestion: { id: <id from GET /api/SecurityQuestions> }, securityAnswer }",
-      "success": "HTTP 201, body { \"data\": { \"id\", \"email\", \"role\": \"customer\" } }",
-      "source": "attachments/api-contract.md#L7"
-    },
-    {
       "method": "GET",
       "path": "/api/SecurityQuestions",
-      "request": "lists the valid security-question ids",
-      "source": "attachments/api-contract.md#L24"
+      "source": "attachments/api-contract.md#L24",
+      "success": "the list of valid security-question ids (status not stated)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Users",
+      "source": "attachments/api-contract.md#L7",
+      "success": "201 {data:{id, email, role:\"customer\"}}",
+      "requestFields": [
+        "email",
+        "password",
+        "passwordRepeat",
+        "securityQuestion",
+        "securityAnswer"
+      ],
+      "request": "JSON body (Content-Type: application/json): {email, password, passwordRepeat, securityQuestion: {id: <one of the ids from GET /api/SecurityQuestions>}, securityAnswer}"
     },
     {
       "method": "POST",
       "path": "/rest/user/login",
-      "requestFields": ["email", "password"],
-      "request": "{ email, password }",
-      "success": "HTTP 200, body { \"authentication\": { \"token\": <JWT>, \"bid\": <basket id>, \"umail\": <e-mail> } }",
-      "source": "attachments/api-contract.md#L27"
-    },
-    {
-      "method": "POST",
-      "path": "/api/BasketItems",
-      "auth": "required",
-      "requestFields": ["BasketId", "ProductId", "quantity"],
-      "request": "{ BasketId: <bid>, ProductId: <product id>, quantity: <n> }; adds the product to that basket",
-      "source": "attachments/api-contract.md#L38"
-    },
-    {
-      "method": "GET",
-      "path": "/rest/basket/{id}",
-      "auth": "required",
-      "request": "returns the basket identified by {id}, including its Products array and the owning UserId",
-      "source": "attachments/api-contract.md#L45"
+      "source": "attachments/api-contract.md#L27",
+      "success": "200 {authentication:{token, bid, umail}}",
+      "requestFields": [
+        "email",
+        "password"
+      ],
+      "request": "JSON body (Content-Type: application/json): {email, password}"
     },
     {
       "method": "GET",
       "path": "/api/Products",
-      "request": "source of valid product ids",
-      "source": "attachments/api-contract.md#L48"
+      "source": "attachments/api-contract.md#L48",
+      "success": "valid product ids (status not stated)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/BasketItems",
+      "source": "attachments/api-contract.md#L38",
+      "auth": "required",
+      "success": "adds the product to that basket (status not stated)",
+      "requestFields": [
+        "BasketId",
+        "ProductId",
+        "quantity"
+      ],
+      "request": "Authorization: Bearer <token>; JSON body (Content-Type: application/json): {BasketId: <bid>, ProductId: <product id>, quantity: <n>}"
+    },
+    {
+      "method": "GET",
+      "path": "/rest/basket/{id}",
+      "source": "attachments/api-contract.md#L45",
+      "auth": "required",
+      "success": "the basket identified by {id}, including its `Products` array and the owning `UserId` (status not stated)",
+      "request": "Authorization: Bearer <token>"
     }
   ],
+  "auth": {
+    "mechanism": "Authorization: Bearer <token>, the JWT `token` returned by POST /rest/user/login",
+    "credentials": "customers the tests register themselves with a unique e-mail per run; the password comes from the environment variable JS_USER_PASSWORD",
+    "source": "attachments/api-contract.md#L4, attachments/api-contract.md#L35, story.md#L25-L27"
+  },
   "rules": [
     {
       "id": "R1",
-      "text": "The password must be at least 5 characters long; anything shorter than 5 characters must be rejected at registration and the account not created.",
-      "source": "story.md#L50"
+      "text": "Each customer has exactly one basket.",
+      "source": "story.md#L20"
     },
     {
       "id": "R2",
-      "text": "The password must be at most 40 characters long (no status or message stated for a longer password; no AC exercises it).",
-      "source": "story.md#L50"
+      "text": "The password must be at least 5 characters long (and at most 40). Anything shorter than 5 characters must be rejected at registration and the account not created; a 3- or 4-character password is a clear reject case.",
+      "source": "story.md#L50, story.md#L53"
     },
     {
       "id": "R3",
-      "text": "Treat the password as case-sensitive and store it hashed; per the PO this is not to be tested beyond a too-short password being refused.",
+      "text": "The password is case-sensitive and stored hashed (not tested here beyond that a too-short password is refused).",
       "source": "story.md#L51"
-    },
-    {
-      "id": "R4",
-      "text": "Each customer has exactly one basket.",
-      "source": "story.md#L20"
     }
   ],
   "errorModel": [
     {
       "id": "E1",
-      "case": "Registering with an e-mail that already belongs to a customer: validation error whose message states the e-mail must be unique (exact wording not stated, see G6)",
+      "case": "registering an e-mail that already belongs to a customer",
       "status": 400,
-      "source": "story.md#L34"
+      "body": "a validation error whose message states the e-mail must be unique",
+      "source": "story.md#L34, attachments/api-contract.md#L22"
     },
     {
       "id": "E2",
-      "case": "Registering with a password shorter than the minimum length (5 characters); the customer is not created",
+      "case": "registering with a password shorter than 5 characters",
       "status": 400,
-      "source": "story.md#L35"
+      "source": "story.md#L35, story.md#L50"
     },
     {
       "id": "E3",
-      "case": "GET /rest/basket/{id} authenticated as customer A targeting customer B's basket id: refused, B's basket not returned (status not stated, see G4)",
+      "case": "reading another customer's basket (GET /rest/basket/{id} as customer A with customer B's basket id): refused, B's basket not returned (status not stated, see G4)",
       "source": "story.md#L38"
     }
   ],
-  "auth": {
-    "mechanism": "Authorization: Bearer <token>, where token is the JWT returned by POST /rest/user/login in authentication.token",
-    "credentials": "customers created by the tests themselves: unique e-mail per run, password from environment variable JS_USER_PASSWORD",
-    "source": "attachments/api-contract.md#L4"
-  },
   "testData": {
-    "strategy": "Tests create their own customers via POST /api/Users with a unique e-mail per run; the password comes from environment variable JS_USER_PASSWORD (satisfies the password rules). Security-question ids from GET /api/SecurityQuestions; product ids from GET /api/Products. AC-6 uses two customers created by the test.",
+    "strategy": "tests create their own customers with a unique e-mail per run (POST /api/Users); the password is provided out of band via the environment variable JS_USER_PASSWORD, a value that satisfies the password rules",
     "constraints": [
-      "unique e-mail per run",
-      "password from JS_USER_PASSWORD (well above the 5-character minimum)",
-      "AC-3 reject cases use a 3- or 4-character password"
+      "JS_USER_PASSWORD is well above the 5-character minimum (story.md#L53-L54)",
+      "valid security-question ids come from GET /api/SecurityQuestions",
+      "valid product ids come from GET /api/Products (existing catalogue, not seeded)",
+      "AC-6 is verified with two customers the tests create"
     ],
-    "source": "story.md#L25"
+    "cleanup": "not stated in the sources",
+    "source": "story.md#L25-L27, story.md#L53-L54, story.md#L38, attachments/api-contract.md#L24, attachments/api-contract.md#L48"
   },
   "outOfScope": [
-    "Checkout and payment",
-    "coupons",
-    "password reset",
-    "the \"Remember me\" option",
-    "deleting a basket item",
-    "testing that the password is case-sensitive and stored hashed (story.md#L51)"
+    "Checkout and payment; coupons; password reset; the \"Remember me\" option; deleting a basket item.",
+    "Password case-sensitivity and hashed storage: \"not our concern to test here beyond that a too-short password is refused\" (story.md#L51)"
   ],
   "gaps": [
     {
       "id": "G1",
-      "element": "UI login journey for AC-5: login page route, e-mail/password field labels and submit control",
+      "element": "UI login page: its route and how the e-mail, password and log-in controls are found",
       "kind": "mechanics",
       "required": true,
-      "affects": ["AC-5"],
-      "tried": [
-        { "where": "story", "result": "L37 says the customer logs in through the UI but names no login route or labels; only the basket page /#/basket is named" },
-        { "where": "attachments", "result": "api-contract.md describes the API only" }
+      "affects": [
+        "AC-5"
       ],
-      "resolution": "open"
+      "tried": [
+        {
+          "where": "story",
+          "result": "L37 says the customer 'logs in through the UI' but names no route or labels"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md describes the API only"
+        },
+        {
+          "where": "aut",
+          "result": "#/login: #email, #password, #loginButton; lands on #/search (the profile's UI sign-in; its overlays close the welcome and cookie banners)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "#/login: #email, #password, #loginButton; lands on #/search (the profile's UI sign-in; its overlays close the welcome and cookie banners)",
+      "evidence": "hardening/api-account.md, runs/01-harden"
     },
     {
       "id": "G2",
-      "element": "how the basket page at /#/basket identifies a product (e.g. which product attribute is shown) and where it shows the quantity",
+      "element": "basket page /#/basket: how the listed products and their quantities are found",
       "kind": "mechanics",
       "required": true,
-      "affects": ["AC-5"],
-      "tried": [
-        { "where": "story", "result": "L37 says the page lists that product with the quantity, without naming what is displayed" },
-        { "where": "attachments", "result": "api-contract.md L48 only says product ids come from GET /api/Products" }
+      "affects": [
+        "AC-5"
       ],
-      "resolution": "open"
+      "tried": [
+        {
+          "where": "story",
+          "result": "L37 gives the route /#/basket, no labels or layout"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md describes the API only"
+        },
+        {
+          "where": "aut",
+          "result": "#/basket: a row per product (role row with its name), quantity in mat-cell.mat-column-quantity"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "#/basket: a row per product (role row with its name), quantity in mat-cell.mat-column-quantity",
+      "evidence": "runs/01-harden"
     },
     {
       "id": "G3",
-      "element": "success status/body of POST /api/BasketItems",
+      "element": "how to observe that no second account was created for an already registered e-mail",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L34 states 'No second account is created.' without saying how to check it"
+        },
+        {
+          "where": "attachments",
+          "result": "no endpoint to list or look up users is stated (only POST /api/Users and POST /rest/user/login)"
+        },
+        {
+          "where": "aut",
+          "result": "logging in with the e-mail still signs in the first customer (same user id): no second account"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "logging in with the e-mail still signs in the first customer (same user id): no second account",
+      "evidence": "runs/01-harden"
+    },
+    {
+      "id": "G4",
+      "element": "what answer counts as 'refused' when customer A requests customer B's basket: no status or error body is stated (401, 403, 404, or an error in a 200 body?). The outcome is judged as written: the request is refused and B's basket is not returned",
       "kind": "oracle",
       "required": false,
-      "affects": ["AC-5"],
+      "affects": [
+        "AC-6"
+      ],
       "tried": [
-        { "where": "story", "result": "L37: \"can add a product\"; no status" },
-        { "where": "attachments", "result": "api-contract.md L42: \"Adds the product to that basket.\"; no status" }
+        {
+          "where": "story",
+          "result": "L38: 'must be refused and must not return B's basket', no status"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md#L45-L47 states no error case for GET /rest/basket/{id}"
+        }
       ],
       "resolution": "open"
     },
     {
-      "id": "G4",
-      "element": "what \"refused\" means for customer A reading customer B's basket (status and body not stated)",
-      "kind": "oracle",
-      "required": false,
-      "affects": ["AC-6"],
-      "tried": [
-        { "where": "story", "result": "L38: \"must be refused and must not return B's basket\"; no status" },
-        { "where": "attachments", "result": "api-contract.md L45-L47: requires Bearer token; no error case stated" }
-      ],
-      "resolution": "assumed",
-      "value": "refused = the response is not a success (not 2xx); no specific status is asserted. The \"must not return B's basket\" outcome is asserted independently."
-    },
-    {
       "id": "G5",
-      "element": "what a failed follow-up login looks like in AC-3 (status/body not stated)",
+      "element": "success status of POST /api/BasketItems is not stated; AC-5 is judged by the basket page listing the product",
       "kind": "oracle",
       "required": false,
-      "affects": ["AC-3"],
-      "tried": [
-        { "where": "story", "result": "L35: \"a follow-up login with that e-mail/password fails\"; no status" },
-        { "where": "attachments", "result": "api-contract.md L27-L35 give only the HTTP 200 success shape of POST /rest/user/login" }
+      "affects": [
+        "AC-5"
       ],
-      "resolution": "assumed",
-      "value": "the login fails = POST /rest/user/login does not answer HTTP 200 with an authentication token; no specific error status is asserted"
-    },
-    {
-      "id": "G6",
-      "element": "exact wording of the duplicate e-mail validation message",
-      "kind": "oracle",
-      "required": false,
-      "affects": ["AC-2"],
       "tried": [
-        { "where": "story", "result": "L34: \"a validation error whose message states the e-mail must be unique\"; no exact text" },
-        { "where": "attachments", "result": "api-contract.md L22: \"a validation error indicating the e-mail must be unique\"; no exact text" }
-      ],
-      "resolution": "assumed",
-      "value": "the error message mentions that the e-mail must be unique (contains \"unique\", case-insensitive); no exact text is asserted"
-    },
-    {
-      "id": "G7",
-      "element": "how to observe that no second account is created after a duplicate registration (no user lookup endpoint is named)",
-      "kind": "mechanics",
-      "required": false,
-      "affects": ["AC-2"],
-      "tried": [
-        { "where": "story", "result": "L34: \"No second account is created.\"; no way to check it is named" },
-        { "where": "attachments", "result": "api-contract.md names no endpoint to list or look up users" }
+        {
+          "where": "story",
+          "result": "L37: 'a customer can add a product to their own basket', no status"
+        },
+        {
+          "where": "attachments",
+          "result": "api-contract.md#L42: 'Adds the product to that basket.', no status"
+        }
       ],
       "resolution": "open"
     }
   ],
   "coverage": [
-    { "lines": "story.md#L19-L22", "as": "context, R4", "note": "story context; L20 states one basket per customer" },
-    { "lines": "story.md#L24", "as": "context", "note": "pointer to the attachment api-contract.md, which is part of this story's sources" },
-    { "lines": "story.md#L25", "as": "context, test-data", "note": "pointer to the PO comment (L48-L54) and start of the test data statement" },
-    { "lines": "story.md#L26-L27", "as": "test-data" },
-    { "lines": "story.md#L31", "as": "not-a-requirement", "note": "table header row of the acceptance criteria table" },
-    { "lines": "story.md#L33", "as": "AC-1" },
-    { "lines": "story.md#L34", "as": "AC-2, E1" },
-    { "lines": "story.md#L35", "as": "AC-3, E2" },
-    { "lines": "story.md#L36", "as": "AC-4" },
-    { "lines": "story.md#L37", "as": "AC-5, G1, G2" },
-    { "lines": "story.md#L38", "as": "AC-6, E3" },
-    { "lines": "story.md#L42", "as": "out-of-scope" },
-    { "lines": "story.md#L48", "as": "context", "note": "PO comment intro: clarifies the password rules referenced by AC-1 and AC-3 (captured as R1, R2)" },
-    { "lines": "story.md#L50", "as": "R1, R2, AC-3" },
-    { "lines": "story.md#L51", "as": "R3, out-of-scope", "note": "PO says case-sensitivity and hashing are not to be tested here" },
-    { "lines": "story.md#L53", "as": "AC-3, example", "note": "3- or 4-character password as reject cases" },
-    { "lines": "story.md#L54", "as": "test-data, AC-1", "note": "JS_USER_PASSWORD is well above the minimum, so AC-1 happy path is unaffected" },
-    { "lines": "attachments/api-contract.md#L3-L4", "as": "context, auth" },
-    { "lines": "attachments/api-contract.md#L7", "as": "endpoint" },
-    { "lines": "attachments/api-contract.md#L9-L18", "as": "endpoint", "note": "POST /api/Users request body" },
-    { "lines": "attachments/api-contract.md#L19-L20", "as": "AC-1, endpoint" },
-    { "lines": "attachments/api-contract.md#L22", "as": "AC-2, E1, G6" },
-    { "lines": "attachments/api-contract.md#L24", "as": "endpoint, test-data" },
-    { "lines": "attachments/api-contract.md#L27", "as": "endpoint" },
-    { "lines": "attachments/api-contract.md#L29", "as": "endpoint" },
-    { "lines": "attachments/api-contract.md#L31-L35", "as": "AC-4, endpoint, auth" },
-    { "lines": "attachments/api-contract.md#L38", "as": "endpoint, auth" },
-    { "lines": "attachments/api-contract.md#L40", "as": "endpoint" },
-    { "lines": "attachments/api-contract.md#L42", "as": "AC-5, G3" },
-    { "lines": "attachments/api-contract.md#L45", "as": "endpoint, auth" },
-    { "lines": "attachments/api-contract.md#L47", "as": "AC-6, endpoint" },
-    { "lines": "attachments/api-contract.md#L48", "as": "endpoint, test-data" }
+    {
+      "lines": "story.md#L19",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L20",
+      "as": "context, R1"
+    },
+    {
+      "lines": "story.md#L21-L22",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "context, test-data"
+    },
+    {
+      "lines": "story.md#L26-L27",
+      "as": "test-data, auth"
+    },
+    {
+      "lines": "story.md#L33",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L34",
+      "as": "AC-2, E1"
+    },
+    {
+      "lines": "story.md#L35",
+      "as": "AC-3, E2"
+    },
+    {
+      "lines": "story.md#L36",
+      "as": "AC-4"
+    },
+    {
+      "lines": "story.md#L37",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L38",
+      "as": "AC-6, E3, test-data"
+    },
+    {
+      "lines": "story.md#L42",
+      "as": "out-of-scope"
+    },
+    {
+      "lines": "story.md#L48",
+      "as": "context",
+      "note": "introduces the PO's password rules for AC-1 and AC-3 (captured as R2)"
+    },
+    {
+      "lines": "story.md#L50",
+      "as": "R2, E2"
+    },
+    {
+      "lines": "story.md#L51",
+      "as": "R3, out-of-scope"
+    },
+    {
+      "lines": "story.md#L53",
+      "as": "AC-3, R2, test-data"
+    },
+    {
+      "lines": "story.md#L54",
+      "as": "test-data"
+    },
+    {
+      "lines": "attachments/api-contract.md#L3-L4",
+      "as": "endpoint, auth"
+    },
+    {
+      "lines": "attachments/api-contract.md#L7",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L9",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L11-L17",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L19-L20",
+      "as": "endpoint, AC-1"
+    },
+    {
+      "lines": "attachments/api-contract.md#L22",
+      "as": "E1, AC-2"
+    },
+    {
+      "lines": "attachments/api-contract.md#L24",
+      "as": "endpoint, test-data"
+    },
+    {
+      "lines": "attachments/api-contract.md#L27",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L29",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L31",
+      "as": "endpoint, AC-4"
+    },
+    {
+      "lines": "attachments/api-contract.md#L33",
+      "as": "endpoint, AC-4"
+    },
+    {
+      "lines": "attachments/api-contract.md#L35",
+      "as": "auth, AC-4"
+    },
+    {
+      "lines": "attachments/api-contract.md#L38",
+      "as": "endpoint, auth"
+    },
+    {
+      "lines": "attachments/api-contract.md#L40",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L42",
+      "as": "endpoint, G5"
+    },
+    {
+      "lines": "attachments/api-contract.md#L45",
+      "as": "endpoint, auth"
+    },
+    {
+      "lines": "attachments/api-contract.md#L47",
+      "as": "endpoint, AC-6"
+    },
+    {
+      "lines": "attachments/api-contract.md#L48",
+      "as": "endpoint, test-data"
+    }
   ]
 }

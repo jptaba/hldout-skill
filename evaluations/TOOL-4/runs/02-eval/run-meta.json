@@ -2,15 +2,15 @@
   "key": "TOOL-4",
   "run": "02-eval",
   "label": "eval",
-  "startedAt": "2026-09-26T23:20:21.241Z",
-  "finishedAt": "2026-09-26T23:20:37.794Z",
-  "autId": "toolshop",
+  "startedAt": "2026-09-28T20:29:21.101Z",
+  "finishedAt": "2026-09-28T20:29:39.597Z",
+  "autId": "practicesoftwaretesting",
   "aut": {
-    "name": "Toolshop (practicesoftwaretesting.com, Angular + Laravel API)",
-    "baseURL": "https://practicesoftwaretesting.com",
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
     "apiBaseURL": "https://api.practicesoftwaretesting.com"
   },
-  "command": "npx playwright test evaluations/TOOL-4/tests/ --workers 3",
+  "command": "npx playwright test evaluations/TOOL-4/tests/ --workers 4",
   "grep": null,
   "capture": false,
   "preflight": {
@@ -19,23 +19,11 @@
         "url": "https://practicesoftwaretesting.com/",
         "ok": true,
         "status": 200,
-        "ms": 491,
+        "ms": 459,
         "samples": [
-          491,
-          436,
-          315
-        ],
-        "slow": false
-      },
-      {
-        "url": "https://api.practicesoftwaretesting.com/products",
-        "ok": true,
-        "status": 200,
-        "ms": 493,
-        "samples": [
-          493,
-          456,
-          470
+          459,
+          447,
+          152
         ],
         "slow": false
       }
@@ -47,32 +35,21 @@
         "url": "https://practicesoftwaretesting.com/",
         "ok": true,
         "status": 200,
-        "ms": 442,
+        "ms": 313,
         "samples": [
-          301,
-          442,
-          134
-        ],
-        "slow": false
-      },
-      {
-        "url": "https://api.practicesoftwaretesting.com/products",
-        "ok": true,
-        "status": 200,
-        "ms": 469,
-        "samples": [
-          469,
-          461,
-          468
+          305,
+          313,
+          157
         ],
         "slow": false
       }
     ]
   },
+  "skill": "62328028abe6b988",
   "exitCode": 0,
   "stats": {
-    "startTime": "2026-09-26T23:20:22.728Z",
-    "duration": 13581.79,
+    "startTime": "2026-09-28T20:29:21.628Z",
+    "duration": 17096.505999999998,
     "expected": 11,
     "skipped": 0,
     "unexpected": 0,

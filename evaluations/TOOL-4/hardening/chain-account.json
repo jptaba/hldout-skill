@@ -1,0 +1,9 @@
+{ "steps": [
+  { "name": "register", "method": "POST", "path": "users/register", "json": { "first_name": "Hldout", "last_name": "Test", "email": "hldout-${uid}@example.com", "password": "${env:TS_USER_PASSWORD}" }, "save": { "id": "id" }, "expect": 201, "show": ["id", "email"] },
+  { "name": "log in", "method": "POST", "path": "users/login", "json": { "email": "hldout-${uid}@example.com", "password": "${env:TS_USER_PASSWORD}" }, "save": { "token": "access_token" }, "expect": 200, "show": ["token_type", "access_token|jwt"] },
+  { "name": "a product", "method": "GET", "path": "products", "save": { "pid": "data.0.id" }, "expect": 200, "show": ["data.0.id", "data.0.name"] },
+  { "name": "add favourite", "method": "POST", "path": "favorites", "headers": { "Authorization": "Bearer ${token}" }, "json": { "product_id": "${pid}" }, "save": { "fid": "id" }, "expect": 201, "show": ["id", "product_id"] },
+  { "name": "list favourites", "method": "GET", "path": "favorites", "headers": { "Authorization": "Bearer ${token}" }, "expect": 200, "show": ["length"] },
+  { "name": "remove favourite", "method": "DELETE", "path": "favorites/${fid}", "headers": { "Authorization": "Bearer ${token}" }, "expect": 204 },
+  { "name": "delete the user (permission?)", "method": "DELETE", "path": "users/${id}", "headers": { "Authorization": "Bearer ${token}" } }
+] }

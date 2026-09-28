@@ -1,0 +1,26 @@
+
+Running 21 tests using 2 workers
+
+  ok  2 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:56:7 › DQ-2 Personal book collection › SCN-001: The catalogue lists every book with all its fields @AC-1 @type:contract @layer:api @P1 (3.3s)
+  ok  1 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:69:7 › DQ-2 Personal book collection › SCN-002: Looking one book up returns its catalogue entry @AC-2 @type:functional @layer:api @P1 (3.4s)
+  ok  4 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:95:9 › DQ-2 Personal book collection › SCN-004.1: The search box filters by title, author or publisher ("javascript") @AC-4 @type:functional @layer:ui @P1 (6.9s)
+  ok  3 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:79:7 › DQ-2 Personal book collection › SCN-003: The Book Store page lists every catalogue book @AC-3 @type:integration @layer:e2e @P1 (12.8s)
+  ok  5 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:95:9 › DQ-2 Personal book collection › SCN-004.2: The search box filters by title, author or publisher ("zakas") @AC-4 @type:functional @layer:ui @P1 (7.9s)
+  ok  6 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:95:9 › DQ-2 Personal book collection › SCN-004.3: The search box filters by title, author or publisher ("No Starch") @AC-4 @type:functional @layer:ui @P1 (5.5s)
+  ok  7 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:107:7 › DQ-2 Personal book collection › SCN-005: A search term that matches no book leaves no book rows @AC-4 @type:negative @layer:ui @P2 (6.2s)
+  ok  8 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:115:7 › DQ-2 Personal book collection › SCN-006: A book's detail page shows its catalogue data @AC-5 @type:functional @layer:ui @P1 (8.1s)
+  ok  9 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:128:7 › DQ-2 Personal book collection › SCN-007: Adding books to my collection @AC-6 @type:functional @layer:api @P1 (6.6s)
+  ok 11 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:155:7 › DQ-2 Personal book collection › SCN-009: Adding a book that is already in my collection is refused @AC-8 @type:idempotency @layer:api @P1 (7.2s)
+  ok 10 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:140:7 › DQ-2 Personal book collection › SCN-008: A book added through the API appears on my Profile page @AC-7 @type:integration @layer:e2e @P1 (18.3s)
+  ok 13 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:191:7 › DQ-2 Personal book collection › SCN-011: Removing one book through the API @AC-10 @type:functional @layer:api @P1 (6.2s)
+  ok 12 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:167:7 › DQ-2 Personal book collection › SCN-010: Deleting one book on the Profile page @AC-9 @type:integration @layer:e2e @P1 (18.1s)
+  ok 14 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:201:7 › DQ-2 Personal book collection › SCN-012: Removing a book that is not in my collection is refused @AC-10 @type:negative @layer:api @P2 (10.3s)
+  ok 15 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:215:9 › DQ-2 Personal book collection › SCN-013.1: An ISBN that is not in the catalogue is refused (look it up with GET /BookStore/v1/Book) @AC-11 @type:negative @layer:api @P1 (11.7s)
+  ok 16 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:215:9 › DQ-2 Personal book collection › SCN-013.2: An ISBN that is not in the catalogue is refused (add it with POST /BookStore/v1/Books) @AC-11 @type:negative @layer:api @P1 (10.7s)
+  ok 17 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:236:9 › DQ-2 Personal book collection › SCN-014.1: Collection calls without a valid token are refused (adds a book to A's collection without a token) @AC-12 @type:security @layer:api @P1 (16.0s)
+  ok 18 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:236:9 › DQ-2 Personal book collection › SCN-014.2: Collection calls without a valid token are refused (deletes a book from A's collection without a token) @AC-12 @type:security @layer:api @P1 (13.7s)
+  ok 19 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:236:9 › DQ-2 Personal book collection › SCN-014.3: Collection calls without a valid token are refused (reads A's collection without a token) @AC-12 @type:security @layer:api @P1 (11.0s)
+  ok 20 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:236:9 › DQ-2 Personal book collection › SCN-014.4: Collection calls without a valid token are refused (reads B's collection with A's token) @AC-12 @type:security @layer:api @P1 (8.6s)
+  ok 21 [chromium] › evaluations\DQ-2\tests\dq-2.spec.ts:236:9 › DQ-2 Personal book collection › SCN-014.5: Collection calls without a valid token are refused (adds a book to B's collection with A's token) @AC-12 @type:security @layer:api @P1 (9.1s)
+
+  21 passed (1.8m)

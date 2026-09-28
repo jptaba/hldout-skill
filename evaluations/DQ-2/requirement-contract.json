@@ -2,7 +2,7 @@
   "key": "DQ-2",
   "title": "Personal book collection - browse the catalogue and manage my books",
   "revision": {
-    "story": "d3f80aa394e2966e",
+    "story": "38a179de75c954d8",
     "attachments": {
       "api-contract.md": "629eca1c137c0118"
     }
@@ -11,23 +11,23 @@
     {
       "file": "story.md",
       "read": true,
-      "contributes": "user story, context (/books, /profile, API contract pointer), accounts and test data, AC-1..AC-12 (table)"
+      "contributes": "user story, context (routes /books and /profile), accounts and data constraints, AC-1 to AC-12"
     },
     {
       "file": "attachments/api-contract.md",
       "read": true,
-      "contributes": "base URL and JSON bodies, Bearer auth, GenerateToken, account endpoints, error envelope and error table (1200/1205/1206/1210), Book object fields, BookStore endpoints with bodies, statuses and errors"
+      "contributes": "base URL and JSON bodies, Bearer authentication and token endpoint, error envelope and error table, Book object fields, endpoints with bodies, statuses and errors"
     }
   ],
   "actors": [
-    "a signed-in reader (story.md#L17)"
+    "signed-in reader"
   ],
-  "context": "A signed-in reader browses and searches the Book Store catalogue on /books and keeps a personal collection shown on /profile; clients manage the collection through the Book Store API specified in the attached api-contract.md (story.md#L17-L19, story.md#L23-L25). The API is on the same host as the web site and uses JSON bodies (attachments/api-contract.md#L3).",
+  "context": "A signed-in reader browses and searches the Book Store catalogue on the Book Store page (/books) and keeps a personal collection of books, shown on the Profile page (/profile). Clients manage the collection through the Book Store API specified in the attached api-contract.md.",
   "acceptanceCriteria": [
     {
       "id": "AC-1",
       "quote": "`GET /BookStore/v1/Books` returns **200** with a `books` list; every entry carries all catalogue fields listed in the contract (isbn, title, subTitle, author, publish_date, publisher, pages, description, website).",
-      "source": "story.md#L37",
+      "source": "story.md#L38",
       "text": "GET /BookStore/v1/Books returns 200 with a books list; every entry carries all catalogue fields listed in the contract (isbn, title, subTitle, author, publish_date, publisher, pages, description, website).",
       "layer": "api",
       "endpoints": [
@@ -35,14 +35,14 @@
       ],
       "outcomes": [
         "200",
-        "body has a `books` list",
-        "every entry in `books` carries isbn, title, subTitle, author, publish_date, publisher, pages, description and website"
+        "the body has a `books` list",
+        "every entry carries isbn, title, subTitle, author, publish_date, publisher, pages, description and website"
       ]
     },
     {
       "id": "AC-2",
       "quote": "Looking up one book with `GET /BookStore/v1/Book?ISBN=<isbn>` returns **200** with the same data as that book's entry in the catalogue.",
-      "source": "story.md#L38",
+      "source": "story.md#L39",
       "text": "Looking up one book with GET /BookStore/v1/Book?ISBN=<isbn> returns 200 with the same data as that book's entry in the catalogue.",
       "layer": "api",
       "endpoints": [
@@ -57,379 +57,343 @@
     {
       "id": "AC-3",
       "quote": "The Book Store page `/books` lists every book returned by the catalogue API, each with its title, author and publisher.",
-      "source": "story.md#L39",
+      "source": "story.md#L40",
       "text": "The Book Store page /books lists every book returned by the catalogue API, each with its title, author and publisher.",
       "layer": "e2e",
       "entryPoint": "/books",
       "endpoints": [
         "GET /BookStore/v1/Books"
       ],
-      "gaps": [
-        "G2"
-      ],
       "outcomes": [
         "every book returned by GET /BookStore/v1/Books is listed on /books",
         "each listed book shows its title, author and publisher"
+      ],
+      "gaps": [
+        "G2"
       ]
     },
     {
       "id": "AC-4",
       "quote": "The search box on `/books` (placeholder \"Type to search\") filters the list while typing, case-insensitively, on title, author or publisher. Examples: \"javascript\" shows exactly Learning JavaScript Design Patterns, Speaking JavaScript, Programming JavaScript Applications and Eloquent JavaScript, Second Edition; \"zakas\" shows only Understanding ECMAScript 6; \"No Starch\" shows only Eloquent JavaScript, Second Edition and Understanding ECMAScript 6. A term that matches no book leaves no book rows in the list.",
-      "source": "story.md#L40",
+      "source": "story.md#L41",
       "text": "The search box on /books (placeholder \"Type to search\") filters the list while typing, case-insensitively, on title, author or publisher. Examples: \"javascript\" shows exactly Learning JavaScript Design Patterns, Speaking JavaScript, Programming JavaScript Applications and Eloquent JavaScript, Second Edition; \"zakas\" shows only Understanding ECMAScript 6; \"No Starch\" shows only Eloquent JavaScript, Second Edition and Understanding ECMAScript 6. A term that matches no book leaves no book rows in the list.",
       "layer": "ui",
       "entryPoint": "/books",
-      "gaps": [
-        "G2"
-      ],
       "outcomes": [
         "the search box has the placeholder \"Type to search\"",
-        "the list filters while typing, without submitting",
+        "the list is filtered while typing, without a separate submit",
+        "matching is case-insensitive, on title, author or publisher",
         "\"javascript\" shows exactly Learning JavaScript Design Patterns, Speaking JavaScript, Programming JavaScript Applications and Eloquent JavaScript, Second Edition",
         "\"zakas\" shows only Understanding ECMAScript 6",
         "\"No Starch\" shows only Eloquent JavaScript, Second Edition and Understanding ECMAScript 6",
         "a term that matches no book leaves no book rows in the list"
+      ],
+      "gaps": [
+        "G2"
       ]
     },
     {
       "id": "AC-5",
       "quote": "Clicking a book title on `/books` opens that book's detail page, showing its ISBN, title, sub title, author, publisher and total pages as in the catalogue.",
-      "source": "story.md#L41",
+      "source": "story.md#L42",
       "text": "Clicking a book title on /books opens that book's detail page, showing its ISBN, title, sub title, author, publisher and total pages as in the catalogue.",
       "layer": "ui",
       "entryPoint": "/books",
+      "endpoints": [
+        "GET /BookStore/v1/Books"
+      ],
+      "outcomes": [
+        "clicking a book title on /books opens that book's detail page",
+        "the detail page shows the book's ISBN, title, sub title, author, publisher and total pages",
+        "each shown value equals the book's entry in the catalogue (isbn, title, subTitle, author, publisher, pages)"
+      ],
       "gaps": [
         "G2",
         "G3"
-      ],
-      "outcomes": [
-        "clicking a book title opens that book's detail page",
-        "the detail page shows ISBN, title, sub title, author, publisher and total pages equal to that book's catalogue entry (isbn, title, subTitle, author, publisher, pages; the catalogue values are only reference data)"
       ]
     },
     {
       "id": "AC-6",
       "quote": "Adding books to a user's collection with `POST /BookStore/v1/Books` returns **201** and echoes the added ISBNs; `GET /Account/v1/User/{UUID}` then lists those books in the user's `books`.",
-      "source": "story.md#L42",
+      "source": "story.md#L43",
       "text": "Adding books to a user's collection with POST /BookStore/v1/Books returns 201 and echoes the added ISBNs; GET /Account/v1/User/{UUID} then lists those books in the user's books.",
       "layer": "api",
-      "needsData": true,
       "endpoints": [
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
         "POST /BookStore/v1/Books",
-        "GET /Account/v1/User/{UUID}",
-        "DELETE /Account/v1/User/{UUID}"
-      ],
-      "gaps": [
-        "G1"
+        "GET /Account/v1/User/{UUID}"
       ],
       "outcomes": [
         "201",
-        "the response `books` lists the added ISBNs",
+        "the response echoes the added ISBNs",
         "GET /Account/v1/User/{UUID} then lists those books in the user's `books`"
+      ],
+      "gaps": [
+        "G1"
       ]
     },
     {
       "id": "AC-7",
       "quote": "A book added through the API appears on the Profile page after the user signs in on `/login`, with its title, author and publisher.",
-      "source": "story.md#L43",
+      "source": "story.md#L44",
       "text": "A book added through the API appears on the Profile page after the user signs in on /login, with its title, author and publisher.",
       "layer": "e2e",
       "entryPoint": "/login",
       "needsData": true,
       "endpoints": [
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
-        "POST /BookStore/v1/Books",
-        "DELETE /Account/v1/User/{UUID}"
+        "POST /BookStore/v1/Books"
+      ],
+      "outcomes": [
+        "after the user signs in on /login, the Profile page (/profile) shows the book added through the API",
+        "the book is shown with its title, author and publisher"
       ],
       "gaps": [
         "G1",
         "G4",
         "G5"
-      ],
-      "outcomes": [
-        "after signing in on /login, the Profile page (/profile) lists the book added through the API",
-        "the listed book shows its title, author and publisher"
       ]
     },
     {
       "id": "AC-8",
       "quote": "Adding a book that is already in the user's collection is rejected with the \"already present\" error from the contract; the collection still contains that book exactly once.",
-      "source": "story.md#L44",
+      "source": "story.md#L45",
       "text": "Adding a book that is already in the user's collection is rejected with the \"already present\" error from the contract; the collection still contains that book exactly once.",
       "layer": "api",
       "needsData": true,
       "endpoints": [
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
         "POST /BookStore/v1/Books",
-        "GET /Account/v1/User/{UUID}",
-        "DELETE /Account/v1/User/{UUID}"
+        "GET /Account/v1/User/{UUID}"
+      ],
+      "outcomes": [
+        "adding the book again is rejected with the E4 error: 400, code 1210, message \"ISBN already present in the User's Collection!\"",
+        "the collection still contains that book exactly once"
       ],
       "gaps": [
         "G1"
-      ],
-      "outcomes": [
-        "adding the same ISBN again → 400",
-        "error `code` \"1210\" and `message` \"ISBN already present in the User's Collection!\" (E4)",
-        "GET /Account/v1/User/{UUID} lists that book exactly once"
       ]
     },
     {
       "id": "AC-9",
       "quote": "On the Profile page, deleting one book (the row's delete icon, then confirming \"Do you want to delete this book?\" with OK) removes that row only; the other books remain. Afterwards the user's collection in the API no longer contains the deleted book and still contains the others.",
-      "source": "story.md#L45",
+      "source": "story.md#L46",
       "text": "On the Profile page, deleting one book (the row's delete icon, then confirming \"Do you want to delete this book?\" with OK) removes that row only; the other books remain. Afterwards the user's collection in the API no longer contains the deleted book and still contains the others.",
       "layer": "e2e",
-      "entryPoint": "/login",
+      "entryPoint": "/profile",
       "needsData": true,
       "endpoints": [
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
         "POST /BookStore/v1/Books",
-        "GET /Account/v1/User/{UUID}",
-        "DELETE /Account/v1/User/{UUID}"
+        "GET /Account/v1/User/{UUID}"
+      ],
+      "outcomes": [
+        "the row's delete icon asks \"Do you want to delete this book?\"",
+        "after confirming with OK, that row is removed",
+        "the other books' rows remain",
+        "the user's collection in the API no longer contains the deleted book",
+        "the user's collection in the API still contains the others"
       ],
       "gaps": [
         "G1",
         "G4",
         "G5"
-      ],
-      "outcomes": [
-        "the confirmation \"Do you want to delete this book?\" is shown after clicking the row's delete icon",
-        "after confirming with OK, that row is removed and the other books remain on the Profile page",
-        "GET /Account/v1/User/{UUID} no longer lists the deleted book and still lists the others"
       ]
     },
     {
       "id": "AC-10",
       "quote": "`DELETE /BookStore/v1/Book` removes one book from the collection and returns **204**; the other books remain. Removing a book that is not in the collection is rejected with the \"not in user's collection\" error from the contract.",
-      "source": "story.md#L46",
+      "source": "story.md#L47",
       "text": "DELETE /BookStore/v1/Book removes one book from the collection and returns 204; the other books remain. Removing a book that is not in the collection is rejected with the \"not in user's collection\" error from the contract.",
       "layer": "api",
       "needsData": true,
       "endpoints": [
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
         "POST /BookStore/v1/Books",
         "DELETE /BookStore/v1/Book",
-        "GET /Account/v1/User/{UUID}",
-        "DELETE /Account/v1/User/{UUID}"
+        "GET /Account/v1/User/{UUID}"
+      ],
+      "outcomes": [
+        "204",
+        "the removed book is no longer in the collection",
+        "the other books remain in the collection",
+        "removing a book that is not in the collection is rejected with the E3 error: 400, code 1206, message \"ISBN supplied is not available in User's Collection!\""
       ],
       "gaps": [
         "G1"
-      ],
-      "outcomes": [
-        "deleting a book in the collection → 204",
-        "GET /Account/v1/User/{UUID} no longer lists that book and still lists the other books",
-        "deleting a book not in the collection → 400",
-        "error `code` \"1206\" and `message` \"ISBN supplied is not available in User's Collection!\" (E3)"
       ]
     },
     {
       "id": "AC-11",
       "quote": "An ISBN that is not in the catalogue is rejected with the \"not available in Books Collection\" error from the contract, both for the lookup (`GET /BookStore/v1/Book`) and when adding it to a collection; nothing is added.",
-      "source": "story.md#L47",
+      "source": "story.md#L48",
       "text": "An ISBN that is not in the catalogue is rejected with the \"not available in Books Collection\" error from the contract, both for the lookup (GET /BookStore/v1/Book) and when adding it to a collection; nothing is added.",
       "layer": "api",
-      "needsData": true,
       "endpoints": [
-        "GET /BookStore/v1/Books",
         "GET /BookStore/v1/Book",
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
         "POST /BookStore/v1/Books",
-        "GET /Account/v1/User/{UUID}",
-        "DELETE /Account/v1/User/{UUID}"
+        "GET /Account/v1/User/{UUID}"
+      ],
+      "outcomes": [
+        "GET /BookStore/v1/Book with an ISBN not in the catalogue is rejected with the E2 error: 400, code 1205, message \"ISBN supplied is not available in Books Collection!\"",
+        "POST /BookStore/v1/Books with that ISBN is rejected with the E2 error: 400, code 1205, message \"ISBN supplied is not available in Books Collection!\"",
+        "nothing is added to the collection"
       ],
       "gaps": [
         "G1"
-      ],
-      "outcomes": [
-        "GET /BookStore/v1/Book with an ISBN not in the catalogue → 400",
-        "adding an ISBN not in the catalogue with POST /BookStore/v1/Books → 400",
-        "both answer error `code` \"1205\" and `message` \"ISBN supplied is not available in Books Collection!\" (E2)",
-        "GET /Account/v1/User/{UUID} shows nothing was added to the collection"
       ]
     },
     {
       "id": "AC-12",
       "quote": "Collection calls without a valid token are refused with the \"not authorized\" error from the contract: adding, deleting and reading a user's collection without a token, and reading or adding to another user's collection with one's own token.",
-      "source": "story.md#L48",
+      "source": "story.md#L49",
       "text": "Collection calls without a valid token are refused with the \"not authorized\" error from the contract: adding, deleting and reading a user's collection without a token, and reading or adding to another user's collection with one's own token.",
       "layer": "api",
-      "needsData": true,
       "endpoints": [
-        "POST /Account/v1/User",
-        "POST /Account/v1/GenerateToken",
         "POST /BookStore/v1/Books",
         "DELETE /BookStore/v1/Book",
-        "GET /Account/v1/User/{UUID}",
-        "DELETE /Account/v1/User/{UUID}"
+        "GET /Account/v1/User/{UUID}"
+      ],
+      "outcomes": [
+        "adding (POST /BookStore/v1/Books) without a token is refused with the E1 error: 401, code 1200, message \"User not authorized!\"",
+        "deleting (DELETE /BookStore/v1/Book) without a token is refused with the E1 error: 401, code 1200, message \"User not authorized!\"",
+        "reading a user's collection (GET /Account/v1/User/{UUID}) without a token is refused with the E1 error: 401, code 1200, message \"User not authorized!\"",
+        "reading another user's collection (GET /Account/v1/User/{UUID}) with one's own token is refused with the E1 error: 401, code 1200, message \"User not authorized!\"",
+        "adding to another user's collection (POST /BookStore/v1/Books with the other user's userId) with one's own token is refused with the E1 error: 401, code 1200, message \"User not authorized!\""
       ],
       "gaps": [
         "G1"
-      ],
-      "outcomes": [
-        "POST /BookStore/v1/Books without a token → 401",
-        "DELETE /BookStore/v1/Book without a token → 401",
-        "GET /Account/v1/User/{UUID} without a token → 401",
-        "POST /BookStore/v1/Books, DELETE /BookStore/v1/Book and GET /Account/v1/User/{UUID} with an invalid token → 401 (\"no/invalid token\", attachments/api-contract.md#L51, #L55, #L62)",
-        "GET /Account/v1/User/{UUID} for another user's UUID with one's own token → 401",
-        "POST /BookStore/v1/Books with another user's `userId` and one's own token → 401",
-        "each answers error `code` \"1200\" and `message` \"User not authorized!\" (E1)"
       ]
     }
   ],
   "endpoints": [
     {
+      "method": "POST",
+      "path": "/Account/v1/GenerateToken",
+      "source": "attachments/api-contract.md#L9",
+      "success": "200 { \"token\": \"<jwt>\", \"expires\": \"<ISO-8601>\", \"status\": \"Success\", \"result\": \"User authorized successfully.\" }",
+      "requestFields": [
+        "userName",
+        "password"
+      ],
+      "request": "JSON body { \"userName\": \"...\", \"password\": \"...\" } with Content-Type: application/json (api-contract.md#L3, #L9); obtains the Bearer token (story.md#L31)"
+    },
+    {
       "method": "GET",
       "path": "/BookStore/v1/Books",
       "source": "attachments/api-contract.md#L42",
       "auth": "none",
-      "success": "200 { \"books\": [ <Book>, ... ] } - the whole catalogue (attachments/api-contract.md#L43)"
+      "success": "200 { \"books\": [ <Book>, ... ] } - the whole catalogue"
     },
     {
       "method": "GET",
       "path": "/BookStore/v1/Book",
       "source": "attachments/api-contract.md#L45",
       "auth": "none",
-      "success": "200 <Book> (attachments/api-contract.md#L46)",
-      "request": "query parameter ISBN={isbn}; unknown ISBN -> 400 / 1205"
+      "success": "200 <Book>",
+      "request": "?ISBN=<isbn>"
     },
     {
       "method": "POST",
       "path": "/BookStore/v1/Books",
       "source": "attachments/api-contract.md#L48",
       "auth": "required",
-      "success": "201 { \"books\": [ { \"isbn\": \"...\" }, ... ] } - the ISBNs that were added (attachments/api-contract.md#L50)",
+      "success": "201 { \"books\": [ { \"isbn\": \"...\" }, ... ] } - the ISBNs that were added",
       "requestFields": [
         "userId",
         "collectionOfIsbns"
       ],
-      "request": "JSON body { \"userId\": \"<UUID>\", \"collectionOfIsbns\": [ { \"isbn\": \"...\" }, ... ] } (L49), Content-Type: application/json (L3), Authorization: Bearer <token> (L7). Errors: unknown ISBN -> 400 / 1205; already in the collection -> 400 / 1210; no/invalid token or another user's userId -> 401 / 1200 (L51)"
+      "request": "JSON body { \"userId\": \"<UUID>\", \"collectionOfIsbns\": [ { \"isbn\": \"...\" }, ... ] } with Content-Type: application/json and Authorization: Bearer <token>"
     },
     {
       "method": "DELETE",
       "path": "/BookStore/v1/Book",
       "source": "attachments/api-contract.md#L53",
       "auth": "required",
-      "success": "204, empty body (attachments/api-contract.md#L55)",
+      "success": "204, empty body",
       "requestFields": [
         "isbn",
         "userId"
       ],
-      "request": "JSON body { \"isbn\": \"...\", \"userId\": \"<UUID>\" } (L54), Content-Type: application/json (L3), Authorization: Bearer <token> (L7). Errors: ISBN not in the user's collection -> 400 / 1206; no/invalid token -> 401 / 1200 (L55)"
+      "request": "JSON body { \"isbn\": \"...\", \"userId\": \"<UUID>\" } with Content-Type: application/json and Authorization: Bearer <token>"
     },
     {
       "method": "DELETE",
       "path": "/BookStore/v1/Books",
       "source": "attachments/api-contract.md#L57",
       "auth": "required",
-      "success": "204, empty body (attachments/api-contract.md#L58)",
-      "request": "query parameter UserId={UUID}; removes all books of the user; Authorization: Bearer <token> (L7)"
+      "success": "204, empty body - removes all books of the user",
+      "request": "?UserId=<UUID>, with Authorization: Bearer <token>; used to leave each used collection empty (story.md#L30)"
     },
     {
       "method": "GET",
       "path": "/Account/v1/User/{UUID}",
       "source": "attachments/api-contract.md#L60",
       "auth": "required",
-      "success": "200 { \"userId\": \"<UUID>\", \"username\": \"...\", \"books\": [ <Book>, ... ] } (attachments/api-contract.md#L61)",
-      "request": "Authorization: Bearer <token> (L7). No/invalid token, or another user's UUID -> 401 / 1200 (L62)"
-    },
-    {
-      "method": "POST",
-      "path": "/Account/v1/User",
-      "source": "attachments/api-contract.md#L12",
-      "success": "201, returns userID (attachments/api-contract.md#L12)",
-      "request": "creates the run's user with a unique user name and the password from DQ_USER_PASSWORD (story.md#L29); request field names not stated (G1); Content-Type: application/json (L3)",
-      "requestFields": [
-        "userName",
-        "password"
-      ]
-    },
-    {
-      "method": "POST",
-      "path": "/Account/v1/GenerateToken",
-      "source": "attachments/api-contract.md#L9",
-      "success": "200 { \"token\": \"<jwt>\", \"expires\": \"<ISO-8601>\", \"status\": \"Success\", \"result\": \"User authorized successfully.\" } (attachments/api-contract.md#L10)",
-      "requestFields": [
-        "userName",
-        "password"
-      ],
-      "request": "JSON body { \"userName\": \"...\", \"password\": \"...\" } (L9), Content-Type: application/json (L3)"
-    },
-    {
-      "method": "DELETE",
-      "path": "/Account/v1/User/{UUID}",
-      "source": "attachments/api-contract.md#L13",
-      "auth": "required",
-      "success": "204 (attachments/api-contract.md#L13)",
-      "request": "Authorization: Bearer <token> (L7); used to delete the run's user at the end (story.md#L29)"
+      "success": "200 { \"userId\": \"<UUID>\", \"username\": \"...\", \"books\": [ <Book>, ... ] }",
+      "request": "Authorization: Bearer <token>"
     }
   ],
-  "auth": {
-    "mechanism": "protected calls send Authorization: Bearer <token>; the token is obtained with POST /Account/v1/GenerateToken and body { \"userName\", \"password\" }",
-    "credentials": "the run's own user (unique user name, e.g. qa-<timestamp>) with the password from environment variable DQ_USER_PASSWORD (story.md#L29)",
-    "source": "attachments/api-contract.md#L7, attachments/api-contract.md#L9-L10, story.md#L30"
-  },
   "rules": [
     {
       "id": "R1",
-      "text": "All errors have the body { \"code\": \"<string>\", \"message\": \"<string>\" }; the error code is a string.",
-      "source": "attachments/api-contract.md#L17"
+      "text": "A Book object has the fields isbn (string), title (string), subTitle (string), author (string), publish_date (string, ISO-8601), publisher (string), pages (number), description (string) and website (string, URL).",
+      "source": "attachments/api-contract.md#L30-L38"
     },
     {
       "id": "R2",
-      "text": "Book object fields: isbn (string), title (string), subTitle (string), author (string), publish_date (string, ISO-8601), publisher (string), pages (number), description (string), website (string, URL). Example: isbn \"9781449325862\", title \"Git Pocket Guide\", subTitle \"A Working Introduction\", author \"Richard E. Silverman\", publish_date \"2020-06-04T08:48:39.000Z\", publisher \"O'Reilly Media\", pages 234.",
-      "source": "attachments/api-contract.md#L28-L38"
+      "text": "All errors have the body { \"code\": \"<string>\", \"message\": \"<string>\" }.",
+      "source": "attachments/api-contract.md#L17"
     }
   ],
   "errorModel": [
     {
       "id": "E1",
-      "case": "Not authorized: no/invalid token, another user's userId on POST /BookStore/v1/Books, or another user's UUID on GET /Account/v1/User/{UUID}",
+      "case": "Not authorized: a protected call with no or an invalid token (POST /BookStore/v1/Books, DELETE /BookStore/v1/Book, GET /Account/v1/User/{UUID}), or with another user's userId (POST /BookStore/v1/Books) or UUID (GET /Account/v1/User/{UUID})",
       "status": 401,
       "body": "{ \"code\": \"1200\", \"message\": \"User not authorized!\" }",
-      "source": "attachments/api-contract.md#L21, attachments/api-contract.md#L51, attachments/api-contract.md#L55, attachments/api-contract.md#L62"
+      "source": "attachments/api-contract.md#L21, attachments/api-contract.md#L17, attachments/api-contract.md#L51, attachments/api-contract.md#L55, attachments/api-contract.md#L62"
     },
     {
       "id": "E2",
-      "case": "ISBN not in catalogue (GET /BookStore/v1/Book, POST /BookStore/v1/Books)",
+      "case": "ISBN not in catalogue: GET /BookStore/v1/Book with an unknown ISBN, or POST /BookStore/v1/Books with an unknown ISBN",
       "status": 400,
       "body": "{ \"code\": \"1205\", \"message\": \"ISBN supplied is not available in Books Collection!\" }",
-      "source": "attachments/api-contract.md#L22, attachments/api-contract.md#L46, attachments/api-contract.md#L51"
+      "source": "attachments/api-contract.md#L22, attachments/api-contract.md#L17, attachments/api-contract.md#L46, attachments/api-contract.md#L51"
     },
     {
       "id": "E3",
-      "case": "ISBN not in user's collection (DELETE /BookStore/v1/Book)",
+      "case": "ISBN not in user's collection: DELETE /BookStore/v1/Book for an ISBN that is not in the user's collection",
       "status": 400,
       "body": "{ \"code\": \"1206\", \"message\": \"ISBN supplied is not available in User's Collection!\" }",
-      "source": "attachments/api-contract.md#L23, attachments/api-contract.md#L55"
+      "source": "attachments/api-contract.md#L23, attachments/api-contract.md#L17, attachments/api-contract.md#L55"
     },
     {
       "id": "E4",
-      "case": "ISBN already in user's collection (POST /BookStore/v1/Books)",
+      "case": "ISBN already in user's collection: POST /BookStore/v1/Books with an ISBN already in the collection",
       "status": 400,
       "body": "{ \"code\": \"1210\", \"message\": \"ISBN already present in the User's Collection!\" }",
-      "source": "attachments/api-contract.md#L24, attachments/api-contract.md#L51"
+      "source": "attachments/api-contract.md#L24, attachments/api-contract.md#L17, attachments/api-contract.md#L51"
     }
   ],
-  "testData": {
-    "strategy": "each run creates its own user through POST /Account/v1/User with a unique user name (for example qa-<timestamp>) and the password from environment variable DQ_USER_PASSWORD, and a token with POST /Account/v1/GenerateToken (story.md#L29-L30); books are added to that user's collection through POST /BookStore/v1/Books (AC-6, story.md#L42); AC-12's \"another user's collection\" cases (story.md#L48) need a second such user",
-    "constraints": [
-      "books used in the examples are part of the standard catalogue, e.g. 9781449325862 \"Git Pocket Guide\", 9781593277574 \"Understanding ECMAScript 6\", 9781449331818 \"Learning JavaScript Design Patterns\" (story.md#L31)",
-      "the password comes from the environment variable DQ_USER_PASSWORD (story.md#L29)"
-    ],
-    "cleanup": "delete each created user at the end with DELETE /Account/v1/User/{UUID}",
-    "source": "story.md#L29-L31, story.md#L48"
+  "auth": {
+    "mechanism": "Protected calls send Authorization: Bearer <token>; the token is obtained with POST /Account/v1/GenerateToken, body { \"userName\": \"...\", \"password\": \"...\" }",
+    "credentials": "the QA team's pre-provisioned test users; user names and passwords are kept in the team's secret store, never in the test code",
+    "source": "attachments/api-contract.md#L7-L10, story.md#L29, story.md#L31"
   },
+  "testData": {
+    "strategy": "Tests use the QA team's pre-provisioned test users (credentials from the team's secret store); user creation is switched off, so no user is created or deleted. Books come from the standard catalogue.",
+    "constraints": [
+      "User creation is switched off in the QA environment; do not create or delete users (story.md#L29)",
+      "The test users are shared by every run (story.md#L30)",
+      "Catalogue books used in the examples: 9781449325862 \"Git Pocket Guide\", 9781593277574 \"Understanding ECMAScript 6\", 9781449331818 \"Learning JavaScript Design Patterns\" (story.md#L32)"
+    ],
+    "cleanup": "Each test leaves the collection of every user it used empty (story.md#L30); DELETE /BookStore/v1/Books?UserId={UUID} removes all books of the user (api-contract.md#L58)",
+    "source": "story.md#L29-L32, attachments/api-contract.md#L58"
+  },
+  "outOfScope": [
+    "Creating users (POST /Account/v1/User): user creation is switched off; tests must not create users (story.md#L29, api-contract.md#L12)",
+    "Deleting users (DELETE /Account/v1/User/{UUID}): tests must not delete users (story.md#L29, api-contract.md#L13)"
+  ],
   "gaps": [
     {
       "id": "G1",
-      "element": "request body field names for creating a user with POST /Account/v1/User (the story says a user name and a password; neither source names the fields)",
+      "element": "how a test obtains the UUID (userId) of a pre-provisioned test user, needed in POST /BookStore/v1/Books, DELETE /BookStore/v1/Book and GET /Account/v1/User/{UUID}",
       "kind": "mechanics",
       "required": true,
       "affects": [
@@ -444,24 +408,28 @@
       "tried": [
         {
           "where": "story",
-          "result": "story.md#L29 names the endpoint, a unique user name and the password, but no body fields"
+          "result": "L29: pre-provisioned users, credentials in the secret store; L31: token from POST /Account/v1/GenerateToken. No UUID source named"
         },
         {
           "where": "attachments",
-          "result": "api-contract.md#L12 gives the endpoint, 201 and the returned userID, but no request body (only GenerateToken at L9 shows { userName, password })"
+          "result": "api-contract.md L10: GenerateToken returns token, expires, status, result (no userId); L12: only user creation returns userID, and creation is switched off (story.md L29)"
+        },
+        {
+          "where": "config",
+          "result": "profile demoqa accounts.existing lists user names and passwords only"
         },
         {
           "where": "aut",
-          "result": "POST /Account/v1/User takes JSON { \"userName\": \"<name>\", \"password\": \"<password>\" } and answers 201 with { \"userID\", \"username\", \"books\": [] }"
+          "result": "POST /Account/v1/Login (what the login page calls) answers userId; saved as the accounts recipe lookup"
         }
       ],
       "resolution": "discovered-in-aut",
-      "value": "POST /Account/v1/User takes JSON { \"userName\": \"<name>\", \"password\": \"<password>\" } and answers 201 with { \"userID\", \"username\", \"books\": [] }",
-      "evidence": "api-probe chain → evaluations/DQ-2/hardening/api-mechanics.md (step 1: 201, userID returned)"
+      "value": "POST /Account/v1/Login (what the login page calls) answers userId; saved as the accounts recipe lookup",
+      "evidence": "hardening/inspect-signin.md, hardening/api-account.md"
     },
     {
       "id": "G2",
-      "element": "how the catalogue list on /books is rendered (book rows, title/author/publisher cells, title link, search box locator)",
+      "element": "Book Store page /books: how the book rows, each row's title (link), author and publisher, and the search box are found",
       "kind": "mechanics",
       "required": true,
       "affects": [
@@ -472,20 +440,20 @@
       "tried": [
         {
           "where": "story",
-          "result": "story.md#L39-L41 give the route /books, the placeholder \"Type to search\" and the columns title, author, publisher, but no locators or row structure"
+          "result": "L23 and L40-L42 give the route /books and the search box placeholder \"Type to search\"; no locators for rows or columns"
         },
         {
           "where": "aut",
-          "result": "/books renders an ARIA table; each book is a row with a link named by the title (opens the detail page) and cells for author and publisher; the header row (Image, Title, Author, Publisher) has no link; the search box is textbox \"Type to search\""
+          "result": "rows: getByRole('row') with a title link (8, one per catalogue book); author and publisher are cells of the row; search: getByPlaceholder('Type to search')"
         }
       ],
       "resolution": "discovered-in-aut",
-      "value": "/books renders an ARIA table; each book is a row with a link named by the title (opens the detail page) and cells for author and publisher; the header row (Image, Title, Author, Publisher) has no link; the search box is textbox \"Type to search\"",
-      "evidence": "tier-2 walk evaluations/DQ-2/hardening/tier2/books.md; tier-3 probes evaluations/DQ-2/hardening/inspect-books.md"
+      "value": "rows: getByRole('row') with a title link (8, one per catalogue book); author and publisher are cells of the row; search: getByPlaceholder('Type to search')",
+      "evidence": "hardening/inspect-books.md"
     },
     {
       "id": "G3",
-      "element": "route and field labels of a book's detail page (how ISBN, title, sub title, author, publisher and total pages are shown)",
+      "element": "book detail page: its route and how the ISBN, title, sub title, author, publisher and total pages are found",
       "kind": "mechanics",
       "required": true,
       "affects": [
@@ -494,20 +462,20 @@
       "tried": [
         {
           "where": "story",
-          "result": "story.md#L41 says clicking a title opens the detail page; no route or labels"
+          "result": "L42: reached by clicking a book title on /books; no route or labels"
         },
         {
           "where": "aut",
-          "result": "clicking a title opens /books?search=<isbn>; the detail page shows label/value pairs in wrappers #ISBN-wrapper, #title-wrapper, #subtitle-wrapper, #author-wrapper, #publisher-wrapper, #pages-wrapper"
+          "result": "clicking the title opens /books?search=<isbn>; values in #ISBN-wrapper, #title-wrapper, #subtitle-wrapper, #author-wrapper, #publisher-wrapper, #pages-wrapper"
         }
       ],
       "resolution": "discovered-in-aut",
-      "value": "clicking a title opens /books?search=<isbn>; the detail page shows label/value pairs in wrappers #ISBN-wrapper, #title-wrapper, #subtitle-wrapper, #author-wrapper, #publisher-wrapper, #pages-wrapper",
-      "evidence": "tier-2 walk evaluations/DQ-2/hardening/tier2/books.md (detail snapshot); tier-3 probes evaluations/DQ-2/hardening/inspect-detail.md (each wrapper 1 match)"
+      "value": "clicking the title opens /books?search=<isbn>; values in #ISBN-wrapper, #title-wrapper, #subtitle-wrapper, #author-wrapper, #publisher-wrapper, #pages-wrapper",
+      "evidence": "hardening/inspect-detail.md"
     },
     {
       "id": "G4",
-      "element": "sign-in form on /login (field labels, submit control) and how the Profile page is reached after sign-in",
+      "element": "sign-in page /login: how the user name and password fields and the sign-in action are found",
       "kind": "mechanics",
       "required": true,
       "affects": [
@@ -517,20 +485,20 @@
       "tried": [
         {
           "where": "story",
-          "result": "story.md#L43 says the user signs in on /login; story.md#L23-L24 give /profile; no form fields"
+          "result": "L44 names the route /login only"
         },
         {
           "where": "aut",
-          "result": "/login has textboxes \"UserName\" and \"Password\" and button \"Login\"; a successful sign-in lands on /profile. Note: a sign-in issues a new token and revokes previously issued tokens for that user"
+          "result": "UserName and Password textboxes, Login button; lands on /profile (saved as the profile's UI sign-in)"
         }
       ],
       "resolution": "discovered-in-aut",
-      "value": "/login has textboxes \"UserName\" and \"Password\" and button \"Login\"; a successful sign-in lands on /profile. Note: a sign-in issues a new token and revokes previously issued tokens for that user",
-      "evidence": "tier-2 walk evaluations/DQ-2/hardening/tier2/profile.md; token revocation evaluations/DQ-2/hardening/token-rotation.md"
+      "value": "UserName and Password textboxes, Login button; lands on /profile (saved as the profile's UI sign-in)",
+      "evidence": "hardening/inspect-signin.md"
     },
     {
       "id": "G5",
-      "element": "Profile page book rows (title/author/publisher cells), the row's delete icon, and how the \"Do you want to delete this book?\" confirmation is presented and confirmed with OK",
+      "element": "Profile page /profile: how the book rows (title, author, publisher), a row's delete icon and the confirmation \"Do you want to delete this book?\" with its OK are found (browser dialog or in-page modal)",
       "kind": "mechanics",
       "required": true,
       "affects": [
@@ -540,116 +508,102 @@
       "tried": [
         {
           "where": "story",
-          "result": "story.md#L43, L45 describe the row contents, the delete icon, the confirmation text and OK, but no locators or dialog type"
+          "result": "L24 gives the route /profile; L46 names the delete icon, the confirmation text and OK; no locators"
         },
         {
           "where": "aut",
-          "result": "Profile page lists the collection as table rows (title link, author, publisher cells) with a per-row \"Delete\" icon (title=\"Delete\"); clicking it opens modal dialog \"Delete Book\" with the text \"Do you want to delete this book?\" and buttons OK / Cancel"
+          "result": "rows as on /books; delete icon #delete-record-<isbn>; in-page dialog 'Do you want to delete this book?' with OK #closeSmallModal-ok, then a native 'Book deleted.' alert"
         }
       ],
       "resolution": "discovered-in-aut",
-      "value": "Profile page lists the collection as table rows (title link, author, publisher cells) with a per-row \"Delete\" icon (title=\"Delete\"); clicking it opens modal dialog \"Delete Book\" with the text \"Do you want to delete this book?\" and buttons OK / Cancel",
-      "evidence": "tier-2 walk evaluations/DQ-2/hardening/tier2/profile.md; tier-3 evaluations/DQ-2/hardening/inspect-delete.md (dialog, text and OK each 1 match)"
-    },
-    {
-      "id": "G6",
-      "element": "no acceptance criterion covers DELETE /BookStore/v1/Books?UserId={UUID} (remove all books of the user); is it in scope, and what must it do beyond 204?",
-      "kind": "oracle",
-      "required": false,
-      "affects": [],
-      "tried": [
-        {
-          "where": "story",
-          "result": "AC-1..AC-12 (story.md#L37-L48) never mention removing all books"
-        },
-        {
-          "where": "attachments",
-          "result": "api-contract.md#L57-L58: removes all books of the user, 204, empty body"
-        }
-      ],
-      "resolution": "open"
+      "value": "rows as on /books; delete icon #delete-record-<isbn>; in-page dialog 'Do you want to delete this book?' with OK #closeSmallModal-ok, then a native 'Book deleted.' alert",
+      "evidence": "runs/01-harden"
     }
   ],
   "coverage": [
     {
       "lines": "story.md#L17-L19",
       "as": "context",
-      "note": "user story; the capabilities it names are covered by AC-1..AC-12"
+      "note": "user story: a signed-in reader browses/searches the catalogue and keeps a collection shown on the profile; captured in actors and context, and by AC-1 to AC-12"
     },
     {
-      "lines": "story.md#L23-L25",
+      "lines": "story.md#L23-L24",
+      "as": "context, AC-3, AC-4, AC-5, AC-7, AC-9",
+      "note": "routes /books and /profile, used as entry points"
+    },
+    {
+      "lines": "story.md#L25",
       "as": "context",
-      "note": "routes /books and /profile (entry points of AC-3..AC-5, AC-7, AC-9) and the pointer to api-contract.md, which is attached and captured"
+      "note": "points to the attached api-contract.md, which is part of this story's sources"
     },
     {
       "lines": "story.md#L29",
-      "as": "test-data, endpoint, G1"
+      "as": "test-data, auth, out-of-scope, G1"
     },
     {
       "lines": "story.md#L30",
-      "as": "auth, endpoint"
-    },
-    {
-      "lines": "story.md#L31",
       "as": "test-data"
     },
     {
-      "lines": "story.md#L35",
-      "as": "not-a-requirement",
-      "note": "header row of the acceptance-criteria table"
+      "lines": "story.md#L31",
+      "as": "endpoint, auth"
     },
     {
-      "lines": "story.md#L37",
-      "as": "AC-1"
+      "lines": "story.md#L32",
+      "as": "test-data"
     },
     {
       "lines": "story.md#L38",
-      "as": "AC-2"
+      "as": "AC-1"
     },
     {
       "lines": "story.md#L39",
-      "as": "AC-3"
+      "as": "AC-2"
     },
     {
       "lines": "story.md#L40",
-      "as": "AC-4"
+      "as": "AC-3"
     },
     {
       "lines": "story.md#L41",
-      "as": "AC-5"
+      "as": "AC-4"
     },
     {
       "lines": "story.md#L42",
-      "as": "AC-6"
+      "as": "AC-5"
     },
     {
       "lines": "story.md#L43",
-      "as": "AC-7"
+      "as": "AC-6"
     },
     {
       "lines": "story.md#L44",
-      "as": "AC-8"
+      "as": "AC-7"
     },
     {
       "lines": "story.md#L45",
-      "as": "AC-9"
+      "as": "AC-8"
     },
     {
       "lines": "story.md#L46",
-      "as": "AC-10"
+      "as": "AC-9"
     },
     {
       "lines": "story.md#L47",
-      "as": "AC-11"
+      "as": "AC-10"
     },
     {
       "lines": "story.md#L48",
+      "as": "AC-11"
+    },
+    {
+      "lines": "story.md#L49",
       "as": "AC-12"
     },
     {
       "lines": "attachments/api-contract.md#L3",
-      "as": "endpoint, context",
-      "note": "API on the web site's host (apiBaseURL); Content-Type: application/json noted in each endpoint's request"
+      "as": "endpoint",
+      "note": "API on the web site's origin (config apiBaseURL); JSON bodies with Content-Type: application/json, noted in each endpoint's request"
     },
     {
       "lines": "attachments/api-contract.md#L7",
@@ -657,20 +611,21 @@
     },
     {
       "lines": "attachments/api-contract.md#L9-L10",
-      "as": "auth, endpoint"
+      "as": "endpoint, auth, G1"
     },
     {
-      "lines": "attachments/api-contract.md#L12-L13",
-      "as": "endpoint, test-data"
+      "lines": "attachments/api-contract.md#L12",
+      "as": "endpoint, out-of-scope, G1",
+      "note": "GET /Account/v1/User/{UUID} is an endpoint; POST /Account/v1/User is out of scope (story.md#L29)"
+    },
+    {
+      "lines": "attachments/api-contract.md#L13",
+      "as": "out-of-scope",
+      "note": "DELETE /Account/v1/User/{UUID}: tests must not delete users (story.md#L29)"
     },
     {
       "lines": "attachments/api-contract.md#L17",
-      "as": "R1, error-model"
-    },
-    {
-      "lines": "attachments/api-contract.md#L19",
-      "as": "error-model",
-      "note": "header row of the error table"
+      "as": "R2, error-model"
     },
     {
       "lines": "attachments/api-contract.md#L21",
@@ -689,8 +644,9 @@
       "as": "E4"
     },
     {
-      "lines": "attachments/api-contract.md#L28-L38",
-      "as": "R2, AC-1"
+      "lines": "attachments/api-contract.md#L30-L38",
+      "as": "R1, AC-1, example",
+      "note": "field list checked by AC-1; the Example column (Git Pocket Guide) is an example"
     },
     {
       "lines": "attachments/api-contract.md#L43",
@@ -698,7 +654,7 @@
     },
     {
       "lines": "attachments/api-contract.md#L46",
-      "as": "endpoint, AC-2, AC-11, E2"
+      "as": "endpoint, AC-2, E2"
     },
     {
       "lines": "attachments/api-contract.md#L49-L50",
@@ -706,15 +662,19 @@
     },
     {
       "lines": "attachments/api-contract.md#L51",
-      "as": "endpoint, AC-8, AC-11, AC-12, E1, E2, E4"
+      "as": "E1, E2, E4"
     },
     {
-      "lines": "attachments/api-contract.md#L54-L55",
-      "as": "endpoint, AC-10, AC-12, E1, E3"
+      "lines": "attachments/api-contract.md#L54",
+      "as": "endpoint"
+    },
+    {
+      "lines": "attachments/api-contract.md#L55",
+      "as": "endpoint, AC-10, E1, E3"
     },
     {
       "lines": "attachments/api-contract.md#L58",
-      "as": "endpoint, G6"
+      "as": "endpoint, test-data"
     },
     {
       "lines": "attachments/api-contract.md#L61",
@@ -722,7 +682,7 @@
     },
     {
       "lines": "attachments/api-contract.md#L62",
-      "as": "AC-12, E1"
+      "as": "E1"
     }
   ]
 }

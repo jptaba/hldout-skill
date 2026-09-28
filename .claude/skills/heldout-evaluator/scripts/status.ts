@@ -28,7 +28,9 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const failures = meta?.stats ? meta.stats.unexpected + meta.stats.flaky : 0;
   const pending = triage ? triage.entries.filter((e) => e.status !== 'passed' && !e.final).length : failures;
   const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string }>(p.verdictJson) : undefined;
-  const verdictStale = verdict && lastEval && fs.statSync(p.verdictJson).mtimeMs < fs.statSync(path.join(p.runs, lastEval)).mtimeMs;
+  // Stale when a later evaluation run exists than the one the verdict judged (by run name: file times change with a
+  // clone or a copy, the recorded final run does not).
+  const verdictStale = Boolean(verdict && lastEval && verdict.finalRun && verdict.finalRun < lastEval);
   const published = fs.existsSync(path.join(p.base, 'publish-log.json')) ? readJson<{ at: string; verdict: string }[]>(path.join(p.base, 'publish-log.json')).at(-1) : undefined;
   const integrity = fs.existsSync(p.integrity) ? readJson<{ status: string }>(p.integrity).status : undefined;
   const todo = (src.match(/TODO\(harden\)/g) ?? []).length;

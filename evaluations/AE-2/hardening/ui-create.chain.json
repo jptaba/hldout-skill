@@ -1,2 +1,0 @@
-{ "vars": { "email": "hxprobe.ui.b1@example.com" },
-  "steps": [ { "name": "create UI probe customer", "setup": true, "method": "POST", "path": "api/createAccount", "form": { "name": "QA Probe UI", "email": "${email}", "password": "${env:AE_USER_PASSWORD}", "firstname": "Asha", "lastname": "Rao", "address1": "12 MG Road", "country": "India", "zipcode": "560001", "state": "Karnataka", "city": "Bengaluru", "mobile_number": "9800000000" }, "expect": 200, "show": ["responseCode", "message"] } ] }

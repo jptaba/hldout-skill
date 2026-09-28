@@ -17,9 +17,9 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, assertIssueKey, autEnv, createsAccounts, dataPrefix, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
+import { NON_EVAL_RUN, ROOT, assertIssueKey, autEnv, createsAccounts, dataPrefix, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
 import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
-import { scrubDir, secretValuesFor } from './lib/redact';
+import { relativizePaths, scrubDir, secretValuesFor } from './lib/redact';
 import { failedTests } from './lib/triage-model';
 import { envNamesIn } from './lib/accounts';
 import { loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
@@ -152,6 +152,8 @@ main(async () => {
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
   const secrets = secretValuesFor(p.testData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(vaultValues)].filter(Boolean));
   const scrubbed = scrubDir(runDir, secrets.values);
+  // …and the machine's own folder names: paths in the evidence are relative to the project.
+  relativizePaths(runDir, ROOT);
   if (scrubbed.files) console.log(`
   🔒 scrubbed secret values from ${scrubbed.files} run artifact(s)`);
   if (secrets.weak.length) console.log(`  ⚠ not scrubbed literally (value is a plain word or too short — use a stronger test secret): ${secrets.weak.join(', ')}`);

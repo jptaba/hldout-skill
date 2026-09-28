@@ -11,6 +11,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { ROOT, resolveUrl, type AccountRecipe, type ExistingAccount, type RecipeCall } from './config';
+import { closeOverlays, locateOn } from './page';
 import { ENV_REF, expandSecrets } from './secrets';
 
 export const envNamesIn = (value: unknown): string[] => [...new Set([...JSON.stringify(value ?? {}).matchAll(ENV_REF)].map((m) => m[1]))];
@@ -113,11 +114,8 @@ async function uiForm(form: NonNullable<AccountRecipe['signIn']>, baseURL: strin
     const context = await browser.newContext();
     if (blockHosts.length) await context.route((u: URL) => blockHosts.some((h) => u.hostname === h || u.hostname.endsWith(`.${h}`)), (route: { abort(): Promise<void> }) => route.abort());
     const page = await context.newPage();
-    const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'];
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    const locate = (expr: string) => new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page as unknown as Record<string, (...a: unknown[]) => unknown>)[h].bind(page))) as UiLocator;
-    // One overlay can cover another's button (a welcome dialog over the cookie banner): then the click is dispatched to it.
-    for (const expr of overlays) await page.addLocatorHandler(locate(expr), async (l: UiLocator) => { await l.click({ timeout: 2_000 }).catch(() => l.dispatchEvent('click')).catch(() => undefined); });
+    const locate = (expr: string) => locateOn<UiLocator>(page, expr);
+    await closeOverlays(page, overlays);
     await page.goto(resolveUrl(baseURL, signIn.path), { waitUntil: 'domcontentloaded' });
     for (const st of signIn.steps) {
       if (st.fill !== undefined) await locate(st.fill).fill(String(fill(st.value ?? '', vars)), { timeout: 15_000 });

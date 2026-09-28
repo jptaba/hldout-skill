@@ -1,0 +1,3789 @@
+{
+  "key": "JS-2",
+  "run": "02-eval",
+  "generatedAt": "2026-09-28T23:03:23.981Z",
+  "summary": {
+    "total": 8,
+    "passed": 4,
+    "failed": 4,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: A visitor registers with a unique e-mail and a rule-compliant password",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Registering an e-mail that already belongs to a customer is rejected",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003.1",
+      "title": "SCN-003.1: A password shorter than 5 characters is rejected and no customer is created (4 characters)",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-3",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-37f44-er-is-created-4-characters--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-37f44-er-is-created-4-characters--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-37f44-er-is-created-4-characters--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutusnrx40",
+          "records": [
+            {
+              "label": "a security question id",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": 1
+            },
+            {
+              "label": "customer registered by the scenario (created by the scenario)",
+              "kind": "scenario-created",
+              "created": {
+                "id": 145,
+                "email": "hldout-lusnrxtg-1@example.com"
+              },
+              "cleanup": "none"
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/Users",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-lusnrxtg-1@example.com",
+                "password": "Qx9!",
+                "passwordRepeat": "Qx9!",
+                "securityQuestion": {
+                  "id": 1
+                },
+                "securityAnswer": "heldout"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 58,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "location": "/api/Users/145",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "321",
+                "etag": "W/\"141-geLO2sbIeJWXXXQ1OPTXdD+WhKg\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "username": "",
+                  "role": "customer",
+                  "deluxeToken": "***redacted***",
+                  "lastLoginIp": "0.0.0.0",
+                  "profileImage": "/assets/public/images/uploads/default.svg",
+                  "isActive": true,
+                  "id": 145,
+                  "email": "hldout-lusnrxtg-1@example.com",
+                  "updatedAt": "2026-09-28T23:03:15.657Z",
+                  "createdAt": "2026-09-28T23:03:15.657Z",
+                  "deletedAt": null
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/rest/user/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-lusnrxtg-1@example.com",
+                "password": "Qx9!"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 39,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "828",
+                "etag": "W/\"33c-6onMa2+iOAe4IJOtow1KJkxapb8\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "authentication": {
+                  "token": "***redacted***",
+                  "bid": 113,
+                  "umail": "hldout-lusnrxtg-1@example.com"
+                }
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/Users",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "hldout-lusnrxtg-1@example.com",
+              "password": "Qx9!",
+              "passwordRepeat": "Qx9!",
+              "securityQuestion": {
+                "id": 1
+              },
+              "securityAnswer": "heldout"
+            }
+          },
+          "response": {
+            "status": 201,
+            "durationMs": 58,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "location": "/api/Users/145",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "321",
+              "etag": "W/\"141-geLO2sbIeJWXXXQ1OPTXdD+WhKg\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "username": "",
+                "role": "customer",
+                "deluxeToken": "***redacted***",
+                "lastLoginIp": "0.0.0.0",
+                "profileImage": "/assets/public/images/uploads/default.svg",
+                "isActive": true,
+                "id": 145,
+                "email": "hldout-lusnrxtg-1@example.com",
+                "updatedAt": "2026-09-28T23:03:15.657Z",
+                "createdAt": "2026-09-28T23:03:15.657Z",
+                "deletedAt": null
+              }
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 79,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-3] POST /rest/user/login after a 4-character registration fails (no customer was created)",
+          "reqTag": "AC-3",
+          "expected": "false",
+          "received": "true"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-3] POST /api/Users with a 4-character password (minimum 5) → 400",
+        "reqTag": "AC-3",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "201",
+        "message": "Error: [REQ AC-3] POST /api/Users with a 4-character password (minimum 5) → 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 201\n\n   at ..\\heldout-support\\fixtures.ts:282\n\n  280 |  */\n  281 | export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {\n> 282 |   expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);\n      |                                                              ^\n  283 |   if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);\n  284 | }\n  285 |\n    at expectResponse (./heldout-support\\fixtures.ts:282:62)\n    at body (./evaluations\\JS-2\\tests\\js-2.spec.ts:104:23)\n    at ./heldout-support\\fixtures.ts:608:34\n    at ./evaluations\\JS-2\\tests\\js-2.spec.ts:103:7"
+      },
+      "failingStep": "Then registering with a 4-character password → HTTP 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/Users → 201",
+          "Requirement assertion [REQ AC-3] failed.",
+          "Expected: 400",
+          "Received: 201",
+          "Also failed: [REQ AC-3] POST /rest/user/login after a 4-character registration fails (no customer was created) — expected false, received true"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "title": "Registration accepts passwords shorter than 5 characters",
+        "rationale": "AC-3 with the PO comment requires a password shorter than 5 characters to be rejected with 400 and no customer created. Live: a 4- and a 3-character password are answered 201 and the customer can log in.",
+        "evidence": "runs/02-eval/confirm/short-password.md",
+        "confirmedAt": "2026-09-28T23:03:35.104Z"
+      }
+    },
+    {
+      "scenario": "SCN-003.2",
+      "title": "SCN-003.2: A password shorter than 5 characters is rejected and no customer is created (3 characters)",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-3",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-4e62c-er-is-created-3-characters--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-4e62c-er-is-created-3-characters--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-4e62c-er-is-created-3-characters--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutusnrz50",
+          "records": [
+            {
+              "label": "a security question id",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": 1
+            },
+            {
+              "label": "customer registered by the scenario (created by the scenario)",
+              "kind": "scenario-created",
+              "created": {
+                "id": 144,
+                "email": "hldout-lusnrzii-1@example.com"
+              },
+              "cleanup": "none"
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/Users",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-lusnrzii-1@example.com",
+                "password": "Qx9",
+                "passwordRepeat": "Qx9",
+                "securityQuestion": {
+                  "id": 1
+                },
+                "securityAnswer": "heldout"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 53,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "location": "/api/Users/144",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "321",
+                "etag": "W/\"141-yAi6We9s9X8aSH9yJqZYXAm7si0\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "username": "",
+                  "role": "customer",
+                  "deluxeToken": "***redacted***",
+                  "lastLoginIp": "0.0.0.0",
+                  "profileImage": "/assets/public/images/uploads/default.svg",
+                  "isActive": true,
+                  "id": 144,
+                  "email": "hldout-lusnrzii-1@example.com",
+                  "updatedAt": "2026-09-28T23:03:15.652Z",
+                  "createdAt": "2026-09-28T23:03:15.652Z",
+                  "deletedAt": null
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/rest/user/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-lusnrzii-1@example.com",
+                "password": "Qx9"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 29,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "828",
+                "etag": "W/\"33c-IsB4NBsOVrma1KkYtLa1aDpS4tc\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "authentication": {
+                  "token": "***redacted***",
+                  "bid": 112,
+                  "umail": "hldout-lusnrzii-1@example.com"
+                }
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/Users",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "hldout-lusnrzii-1@example.com",
+              "password": "Qx9",
+              "passwordRepeat": "Qx9",
+              "securityQuestion": {
+                "id": 1
+              },
+              "securityAnswer": "heldout"
+            }
+          },
+          "response": {
+            "status": 201,
+            "durationMs": 53,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "location": "/api/Users/144",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "321",
+              "etag": "W/\"141-yAi6We9s9X8aSH9yJqZYXAm7si0\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "username": "",
+                "role": "customer",
+                "deluxeToken": "***redacted***",
+                "lastLoginIp": "0.0.0.0",
+                "profileImage": "/assets/public/images/uploads/default.svg",
+                "isActive": true,
+                "id": 144,
+                "email": "hldout-lusnrzii-1@example.com",
+                "updatedAt": "2026-09-28T23:03:15.652Z",
+                "createdAt": "2026-09-28T23:03:15.652Z",
+                "deletedAt": null
+              }
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 75,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-3] POST /rest/user/login after a 3-character registration fails (no customer was created)",
+          "reqTag": "AC-3",
+          "expected": "false",
+          "received": "true"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-3] POST /api/Users with a 3-character password (minimum 5) → 400",
+        "reqTag": "AC-3",
+        "matcher": "toBe",
+        "expected": "400",
+        "received": "201",
+        "message": "Error: [REQ AC-3] POST /api/Users with a 3-character password (minimum 5) → 400\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 201\n\n   at ..\\heldout-support\\fixtures.ts:282\n\n  280 |  */\n  281 | export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {\n> 282 |   expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);\n      |                                                              ^\n  283 |   if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);\n  284 | }\n  285 |\n    at expectResponse (./heldout-support\\fixtures.ts:282:62)\n    at body (./evaluations\\JS-2\\tests\\js-2.spec.ts:104:23)\n    at ./heldout-support\\fixtures.ts:608:34\n    at ./evaluations\\JS-2\\tests\\js-2.spec.ts:103:7"
+      },
+      "failingStep": "Then registering with a 3-character password → HTTP 400",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /api/Users → 201",
+          "Requirement assertion [REQ AC-3] failed.",
+          "Expected: 400",
+          "Received: 201",
+          "Also failed: [REQ AC-3] POST /rest/user/login after a 3-character registration fails (no customer was created) — expected false, received true"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "title": "Registration accepts passwords shorter than 5 characters",
+        "rationale": "AC-3 with the PO comment requires a password shorter than 5 characters to be rejected with 400 and no customer created. Live: a 4- and a 3-character password are answered 201 and the customer can log in.",
+        "evidence": "runs/02-eval/confirm/short-password.md",
+        "confirmedAt": "2026-09-28T23:03:35.104Z"
+      }
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: A registered customer logs in and receives a JWT and their basket id",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: A product added to one's own basket through the API is listed on the basket page after a UI login",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: A customer reads their own basket but never another customer's",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-1ac60-ut-never-another-customer-s-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-1ac60-ut-never-another-customer-s-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-1ac60-ut-never-another-customer-s-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutusosu60",
+          "records": [
+            {
+              "label": "customer A",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "id": "146",
+                "username": "hldout-lusoswc3-1@example.com"
+              }
+            },
+            {
+              "label": "customer B",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "id": "147",
+                "username": "hldout-lusowm5v-2@example.com"
+              }
+            },
+            {
+              "label": "an existing product",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": {
+                "id": 1,
+                "name": "Apple Juice (1000ml)",
+                "description": "The all-time classic.",
+                "price": 1.99,
+                "deluxePrice": 0.99,
+                "image": "apple_juice.jpg",
+                "createdAt": "2026-09-28T20:32:12.935Z",
+                "updatedAt": "2026-09-28T20:32:12.935Z",
+                "deletedAt": null
+              }
+            },
+            {
+              "label": "a product in B's basket",
+              "kind": "data",
+              "cleanup": "done",
+              "created": {
+                "id": 43,
+                "ProductId": 1,
+                "BasketId": 115,
+                "quantity": 1,
+                "updatedAt": "2026-09-28T23:03:17.156Z",
+                "createdAt": "2026-09-28T23:03:17.156Z"
+              }
+            }
+          ]
+        },
+        "apiCalls": 2,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/rest/basket/114",
+              "headers": {
+                "Accept": "application/json",
+                "Authorization": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 37,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "157",
+                "etag": "W/\"9d-2wyUccjuauWLSWR9/Qi45nOh80E\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "id": 114,
+                  "coupon": null,
+                  "UserId": 146,
+                  "createdAt": "2026-09-28T23:03:17.004Z",
+                  "updatedAt": "2026-09-28T23:03:17.004Z",
+                  "Products": []
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/rest/basket/115",
+              "headers": {
+                "Accept": "application/json",
+                "Authorization": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 33,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "529",
+                "etag": "W/\"211-/TC+/xr+mWWUaqzl2AN0mavslzo\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "id": 115,
+                  "coupon": null,
+                  "UserId": 147,
+                  "createdAt": "2026-09-28T23:03:17.101Z",
+                  "updatedAt": "2026-09-28T23:03:17.101Z",
+                  "Products": [
+                    {
+                      "id": 1,
+                      "name": "Apple Juice (1000ml)",
+                      "description": "The all-time classic.",
+                      "price": 1.99,
+                      "deluxePrice": 0.99,
+                      "image": "apple_juice.jpg",
+                      "createdAt": "2026-09-28T20:32:12.935Z",
+                      "updatedAt": "2026-09-28T20:32:12.935Z",
+                      "deletedAt": null,
+                      "BasketItem": {
+                        "ProductId": 1,
+                        "BasketId": 115,
+                        "id": 43,
+                        "quantity": 1,
+                        "createdAt": "2026-09-28T23:03:17.156Z",
+                        "updatedAt": "2026-09-28T23:03:17.156Z"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 1,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/rest/basket/115",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 33,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "529",
+              "etag": "W/\"211-/TC+/xr+mWWUaqzl2AN0mavslzo\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "id": 115,
+                "coupon": null,
+                "UserId": 147,
+                "createdAt": "2026-09-28T23:03:17.101Z",
+                "updatedAt": "2026-09-28T23:03:17.101Z",
+                "Products": [
+                  {
+                    "id": 1,
+                    "name": "Apple Juice (1000ml)",
+                    "description": "The all-time classic.",
+                    "price": 1.99,
+                    "deluxePrice": 0.99,
+                    "image": "apple_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null,
+                    "BasketItem": {
+                      "ProductId": 1,
+                      "BasketId": 115,
+                      "id": 43,
+                      "quantity": 1,
+                      "createdAt": "2026-09-28T23:03:17.156Z",
+                      "updatedAt": "2026-09-28T23:03:17.156Z"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 39,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:16 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/Users",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-lusoswc3-1@example.com",
+                "password": "***redacted***",
+                "passwordRepeat": "***redacted***",
+                "securityQuestion": {
+                  "id": 1
+                },
+                "securityAnswer": "heldout"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 28,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "location": "/api/Users/146",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "321",
+                "etag": "W/\"141-DLl80qE5LYG0/GUrF7IFI7ZUsnE\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:16 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "username": "",
+                  "role": "customer",
+                  "deluxeToken": "***redacted***",
+                  "lastLoginIp": "0.0.0.0",
+                  "profileImage": "/assets/public/images/uploads/default.svg",
+                  "isActive": true,
+                  "id": 146,
+                  "email": "hldout-lusoswc3-1@example.com",
+                  "updatedAt": "2026-09-28T23:03:16.935Z",
+                  "createdAt": "2026-09-28T23:03:16.935Z",
+                  "deletedAt": null
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 32,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:16 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/rest/user/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-lusoswc3-1@example.com",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 23,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "828",
+                "etag": "W/\"33c-7BAE3bIu1fTH6ecIQJDWVHCgHS8\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "authentication": {
+                  "token": "***redacted***",
+                  "bid": 114,
+                  "umail": "hldout-lusoswc3-1@example.com"
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 31,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/Users",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-lusowm5v-2@example.com",
+                "password": "***redacted***",
+                "passwordRepeat": "***redacted***",
+                "securityQuestion": {
+                  "id": 1
+                },
+                "securityAnswer": "heldout"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 23,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "location": "/api/Users/147",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "321",
+                "etag": "W/\"141-560hj9uFnsN3+qM+tUwFJr9fWP8\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "username": "",
+                  "role": "customer",
+                  "deluxeToken": "***redacted***",
+                  "lastLoginIp": "0.0.0.0",
+                  "profileImage": "/assets/public/images/uploads/default.svg",
+                  "isActive": true,
+                  "id": 147,
+                  "email": "hldout-lusowm5v-2@example.com",
+                  "updatedAt": "2026-09-28T23:03:17.054Z",
+                  "createdAt": "2026-09-28T23:03:17.054Z",
+                  "deletedAt": null
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 19,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/rest/user/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-lusowm5v-2@example.com",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 15,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "828",
+                "etag": "W/\"33c-bi1shQm4lL0KWHheNFd0b7c9yvg\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "authentication": {
+                  "token": "***redacted***",
+                  "bid": 115,
+                  "umail": "hldout-lusowm5v-2@example.com"
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/Products",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 25,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"3e8b-IvN9F8oT3UBWSe7/k53hqBmmU/8\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "name": "Apple Juice (1000ml)",
+                    "description": "The all-time classic.",
+                    "price": 1.99,
+                    "deluxePrice": 0.99,
+                    "image": "apple_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Orange Juice (1000ml)",
+                    "description": "Made from oranges hand-picked by Uncle Dittmeyer.",
+                    "price": 2.99,
+                    "deluxePrice": 2.49,
+                    "image": "orange_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 3,
+                    "name": "Eggfruit Juice (500ml)",
+                    "description": "Now with even more exotic flavour.",
+                    "price": 8.99,
+                    "deluxePrice": 8.99,
+                    "image": "eggfruit_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 4,
+                    "name": "Raspberry Juice (1000ml)",
+                    "description": "Made from blended Raspberry Pi, water and sugar.",
+                    "price": 4.99,
+                    "deluxePrice": 4.99,
+                    "image": "raspberry_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 5,
+                    "name": "Lemon Juice (500ml)",
+                    "description": "Sour but full of vitamins.",
+                    "price": 2.99,
+                    "deluxePrice": 1.99,
+                    "image": "lemon_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 6,
+                    "name": "Banana Juice (1000ml)",
+                    "description": "Monkeys love it the most.",
+                    "price": 1.99,
+                    "deluxePrice": 1.99,
+                    "image": "banana_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 7,
+                    "name": "OWASP Juice Shop T-Shirt",
+                    "description": "Real fans wear it 24/7!",
+                    "price": 22.49,
+                    "deluxePrice": 22.49,
+                    "image": "fan_shirt.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 8,
+                    "name": "OWASP Juice Shop CTF Girlie-Shirt",
+                    "description": "For serious Capture-the-Flag heroines only!",
+                    "price": 22.49,
+                    "deluxePrice": 22.49,
+                    "image": "fan_girlie.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 9,
+                    "name": "OWASP SSL Advanced Forensic Tool (O-Saft)",
+                    "description": "O-Saft is an easy to use tool to show information about SSL certificate and tests the SSL connection according given list of ciphers and various SSL configurations. <a href=\"https://www.owasp.org/index.php/O-Saft\" target=\"_blank\">More...</a>",
+                    "price": 0.01,
+                    "deluxePrice": 0.01,
+                    "image": "orange_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.936Z",
+                    "updatedAt": "2026-09-28T20:32:12.936Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 13,
+                    "name": "OWASP Juice Shop Iron-Ons (16pcs)",
+                    "description": "Upgrade your clothes with washer safe <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">iron-ons</a> of the OWASP Juice Shop or CTF Extension logo!",
+                    "price": 14.99,
+                    "deluxePrice": 14.99,
+                    "image": "iron-on.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 14,
+                    "name": "OWASP Juice Shop Magnets (16pcs)",
+                    "description": "Your fridge will be even cooler with these OWASP Juice Shop or CTF Extension logo <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">magnets</a>!",
+                    "price": 15.99,
+                    "deluxePrice": 15.99,
+                    "image": "magnets.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 15,
+                    "name": "OWASP Juice Shop Sticker Page",
+                    "description": "Massive decoration opportunities with these OWASP Juice Shop or CTF Extension <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">sticker pages</a>! Each page has 16 stickers on it.",
+                    "price": 9.99,
+                    "deluxePrice": 9.99,
+                    "image": "sticker_page.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 16,
+                    "name": "OWASP Juice Shop Sticker Single",
+                    "description": "Super high-quality vinyl <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">sticker single</a> with the OWASP Juice Shop or CTF Extension logo! The ultimate laptop decal!",
+                    "price": 4.99,
+                    "deluxePrice": 4.99,
+                    "image": "sticker_single.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 17,
+                    "name": "OWASP Juice Shop Temporary Tattoos (16pcs)",
+                    "description": "Get one of these <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">temporary tattoos</a> to proudly wear the OWASP Juice Shop or CTF Extension logo on your skin! If you tweet a photo of yourself with the tattoo, you get a couple of our stickers for free! Please mention <a href=\"https://twitter.com/owasp_juiceshop\" target=\"_blank\"><code>@owasp_juiceshop</code></a> in your tweet!",
+                    "price": 14.99,
+                    "deluxePrice": 14.99,
+                    "image": "tattoo.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 18,
+                    "name": "OWASP Juice Shop Mug",
+                    "description": "Black mug with regular logo on one side and CTF logo on the other! Your colleagues will envy you!",
+                    "price": 21.99,
+                    "deluxePrice": 21.99,
+                    "image": "fan_mug.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 19,
+                    "name": "OWASP Juice Shop Hoodie",
+                    "description": "Mr. Robot-style apparel. But in black. And with logo.",
+                    "price": 49.99,
+                    "deluxePrice": 49.99,
+                    "image": "fan_hoodie.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 20,
+                    "name": "OWASP Juice Shop-CTF Velcro Patch",
+                    "description": "4x3.5\" embroidered patch with velcro backside. The ultimate decal for every tactical bag or backpack!",
+                    "price": 2.92,
+                    "deluxePrice": 2.92,
+                    "image": "velcro-patch.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 21,
+                    "name": "Woodruff Syrup \"Forest Master X-Treme\"",
+                    "description": "Harvested and manufactured in the Black Forest, Germany. Can cause hyperactive behavior in children. Can cause permanent green tongue when consumed undiluted.",
+                    "price": 6.99,
+                    "deluxePrice": 6.99,
+                    "image": "woodruff_syrup.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 22,
+                    "name": "Green Smoothie",
+                    "description": "Looks poisonous but is actually very good for your health! Made from green cabbage, spinach, kiwi and grass.",
+                    "price": 1.99,
+                    "deluxePrice": 1.99,
+                    "image": "green_smoothie.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 23,
+                    "name": "Quince Juice (1000ml)",
+                    "description": "Juice of the <em>Cydonia oblonga</em> fruit. Not exactly sweet but rich in Vitamin C.",
+                    "price": 4.99,
+                    "deluxePrice": 4.99,
+                    "image": "quince.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 24,
+                    "name": "Apple Pomace",
+                    "description": "Finest pressings of apples. Allergy disclaimer: Might contain traces of worms. Can be <a href=\"/#recycle\">sent back to us</a> for recycling.",
+                    "price": 0.89,
+                    "deluxePrice": 0.89,
+                    "image": "apple_pressings.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 25,
+                    "name": "Fruit Press",
+                    "description": "Fruits go in. Juice comes out. Pomace you can send back to us for recycling purposes.",
+                    "price": 89.99,
+                    "deluxePrice": 89.99,
+                    "image": "fruit_press.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 26,
+                    "name": "OWASP Juice Shop Logo (3D-printed)",
+                    "description": "This rare item was designed and handcrafted in Sweden. This is why it is so incredibly expensive despite its complete lack of purpose.",
+                    "price": 99.99,
+                    "deluxePrice": 99.99,
+                    "image": "3d_keychain.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 29,
+                    "name": "Strawberry Juice (500ml)",
+                    "description": "Sweet & tasty!",
+                    "price": 3.99,
+                    "deluxePrice": 3.99,
+                    "image": "strawberry_juice.jpeg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 30,
+                    "name": "Carrot Juice (1000ml)",
+                    "description": "As the old German saying goes: \"Carrots are good for the eyes. Or has anyone ever seen a rabbit with glasses?\"",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "carrot_juice.jpeg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 32,
+                    "name": "Pwning OWASP Juice Shop",
+                    "description": "<em>The official Companion Guide</em> by Björn Kimminich available <a href=\"https://leanpub.com/juice-shop\">for free on LeanPub</a> and also <a href=\"https://pwning.owasp-juice.shop\">readable online</a>!",
+                    "price": 5.99,
+                    "deluxePrice": 5.99,
+                    "image": "cover_small.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 33,
+                    "name": "Melon Bike (Comeback-Product 2018 Edition)",
+                    "description": "The wheels of this bicycle are made from real water melons. You might not want to ride it up/down the curb too hard.",
+                    "price": 2999,
+                    "deluxePrice": 2999,
+                    "image": "melon_bike.jpeg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 34,
+                    "name": "OWASP Juice Shop Coaster (10pcs)",
+                    "description": "Our 95mm circle coasters are printed in full color and made from thick, premium coaster board.",
+                    "price": 19.99,
+                    "deluxePrice": 19.99,
+                    "image": "coaster.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 35,
+                    "name": "OWASP Snakes and Ladders - Web Applications",
+                    "description": "This amazing web application security awareness board game is <a href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=1969196030\">available for Tabletop Simulator on Steam Workshop</a> now!",
+                    "price": 0.01,
+                    "deluxePrice": 0.01,
+                    "image": "snakes_ladders.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 36,
+                    "name": "OWASP Snakes and Ladders - Mobile Apps",
+                    "description": "This amazing mobile app security awareness board game is <a href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=1970691216\">available for Tabletop Simulator on Steam Workshop</a> now!",
+                    "price": 0.01,
+                    "deluxePrice": 0.01,
+                    "image": "snakes_ladders_m.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 37,
+                    "name": "OWASP Juice Shop Holographic Sticker",
+                    "description": "Die-cut holographic sticker. Stand out from those 08/15-sticker-covered laptops with this shiny beacon of 80's coolness!",
+                    "price": 2,
+                    "deluxePrice": 2,
+                    "image": "holo_sticker.png",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 38,
+                    "name": "OWASP Juice Shop \"King of the Hill\" Facemask",
+                    "description": "Facemask with compartment for filter from 50% cotton and 50% polyester.",
+                    "price": 13.49,
+                    "deluxePrice": 13.49,
+                    "image": "fan_facemask.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 41,
+                    "name": "Juice Shop \"Permafrost\" 2020 Edition",
+                    "description": "Exact version of <a href=\"https://github.com/juice-shop/juice-shop/releases/tag/v9.3.1-PERMAFROST\">OWASP Juice Shop that was archived on 02/02/2020</a> by the GitHub Archive Program and ultimately went into the <a href=\"https://github.blog/2020-07-16-github-archive-program-the-journey-of-the-worlds-open-source-code-to-the-arctic\">Arctic Code Vault</a> on July 8. 2020 where it will be safely stored for at least 1000 years.",
+                    "price": 9999.99,
+                    "deluxePrice": 9999.99,
+                    "image": "permafrost.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 42,
+                    "name": "Best Juice Shop Salesman Artwork",
+                    "description": "Unique digital painting depicting Stan, our most qualified and almost profitable salesman. He made a succesful carreer in selling used ships, coffins, krypts, crosses, real estate, life insurance, restaurant supplies, voodoo enhanced asbestos and courtroom souvenirs before <em>finally</em> adding his expertise to the Juice Shop marketing team.",
+                    "price": 5000,
+                    "deluxePrice": 5000,
+                    "image": "artwork2.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 43,
+                    "name": "OWASP Juice Shop Card (non-foil)",
+                    "description": "Mythic rare <em>(obviously...)</em> card \"OWASP Juice Shop\" with three distinctly useful abilities. Alpha printing, mint condition. A true collectors piece to own!",
+                    "price": 1000,
+                    "deluxePrice": 1000,
+                    "image": "card_alpha.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 45,
+                    "name": "OWASP Juice Shop LEGO™ Tower",
+                    "description": "Want to host a Juice Shop CTF in style? Build <a href=\"https://github.com/OWASP/owasp-swag/blob/master/projects/juice-shop/lego/OWASP%20JuiceShop%20Pi-server%201.2.pdf\" target=\"_blank\">your own LEGO™ tower</a> which holds four Raspberry Pi 4 models with PoE HAT modules <a href=\"https://github.com/juice-shop/multi-juicer/blob/main/guides/raspberry-pi/raspberry-pi.md\" target=\"_blank\">running a MultiJuicer Kubernetes cluster</a>! Wire to a switch and connect to your network to have an out-of-the-box ready CTF up in no time!",
+                    "price": 799,
+                    "deluxePrice": 799,
+                    "image": "lego_case.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 47,
+                    "name": "Pineapple Juice (1000ml)",
+                    "description": "Tropical refreshment from the finest sun-ripened pineapples.",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "pineapple_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 48,
+                    "name": "Melon Juice (1000ml)",
+                    "description": "Refreshing and sweet juice made from ripe melons.",
+                    "price": 2.49,
+                    "deluxePrice": 2.49,
+                    "image": "melon_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 49,
+                    "name": "Grape Juice (1000ml)",
+                    "description": "Deep purple and full of antioxidants from selected grapes.",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "grape_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 50,
+                    "name": "Dragonfruit Juice (500ml)",
+                    "description": "Exotic and vibrant juice made from dragonfruit.",
+                    "price": 3.99,
+                    "deluxePrice": 3.99,
+                    "image": "dragonfruit_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 51,
+                    "name": "Berry Juice (1000ml)",
+                    "description": "A delicious blend of fresh forest berries.",
+                    "price": 3.49,
+                    "deluxePrice": 3.49,
+                    "image": "berry_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 52,
+                    "name": "Basil Smoothie",
+                    "description": "A unique blend of fresh basil and ginger for a healthy kick.",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "basil_smoothie.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 53,
+                    "name": "Bragă (500ml)",
+                    "description": "Traditional Balkan drink made from fermented millet. Lightly sweet-sour, refreshing, and naturally energizing.",
+                    "price": 2.49,
+                    "deluxePrice": 2.49,
+                    "image": "braga.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 54,
+                    "name": "Elderflower Cordial (500ml)",
+                    "description": "Floral and fragrant soft drink made from elderflowers. Traditionally enjoyed chilled.",
+                    "price": 3.29,
+                    "deluxePrice": 3.29,
+                    "image": "elderflower_cordial.jpg",
+                    "createdAt": "2026-09-28T20:32:12.940Z",
+                    "updatedAt": "2026-09-28T20:32:12.940Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 55,
+                    "name": "Sea Buckthorn Juice (500ml)",
+                    "description": "Tangy and slightly sour juice, extremely rich in Vitamin C and antioxidants.",
+                    "price": 3.99,
+                    "deluxePrice": 3.99,
+                    "image": "sea_buckthorn_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.940Z",
+                    "updatedAt": "2026-09-28T20:32:12.940Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 56,
+                    "name": "Pomegranate Drink (500ml)",
+                    "description": "A sweet and tart refreshment inspired by classic grenadine flavors.",
+                    "price": 4.49,
+                    "deluxePrice": 4.49,
+                    "image": "pomegranate_drink.jpg",
+                    "createdAt": "2026-09-28T20:32:12.940Z",
+                    "updatedAt": "2026-09-28T20:32:12.940Z",
+                    "deletedAt": null
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/BasketItems",
+              "headers": {
+                "Accept": "application/json",
+                "Authorization": "***redacted***",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "BasketId": 115,
+                "ProductId": 1,
+                "quantity": 1
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 24,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "157",
+                "etag": "W/\"9d-b7DOPx5aW93mWkGH9uPTrwLGPN0\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "id": 43,
+                  "ProductId": 1,
+                  "BasketId": 115,
+                  "quantity": 1,
+                  "updatedAt": "2026-09-28T23:03:17.156Z",
+                  "createdAt": "2026-09-28T23:03:17.156Z"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] GET /rest/basket/{id} for B's basket with A's token does not return B's basket",
+        "reqTag": "AC-6",
+        "matcher": "not.toBe",
+        "expected": "not 115",
+        "received": "115",
+        "message": "Error: [REQ AC-6] GET /rest/basket/{id} for B's basket with A's token does not return B's basket\n\nexpect(received).not.toBe(expected) // Object.is equality\n\nExpected: not 115\n\n  181 |     });\n  182 |     await journey.step('And the request for B\\'s basket does not return B\\'s basket', async () => {\n> 183 |       expect(other.body?.data?.id ?? null, '[REQ AC-6] GET /rest/basket/{id} for B\\'s basket with A\\'s token does not return B\\'s basket').not.toBe(bidOf(b));\n      |                                                                                                                                                ^\n  184 |     });\n  185 |   });\n  186 |\n    at body (./evaluations\\JS-2\\tests\\js-2.spec.ts:183:144)\n    at ./heldout-support\\fixtures.ts:608:34\n    at ./evaluations\\JS-2\\tests\\js-2.spec.ts:182:5"
+      },
+      "failingStep": "And the request for B's basket does not return B's basket",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /rest/basket/115 → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: not 115",
+          "Received: 115"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "title": "A customer can read another customer's basket",
+        "rationale": "AC-6: a request authenticated as A for B's basket must be refused and must not return B's basket. Live: A's token on B's basket id answers 200 with B's basket (its UserId is B's).",
+        "evidence": "runs/02-eval/confirm/other-basket.md",
+        "confirmedAt": "2026-09-28T23:03:35.875Z"
+      }
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: A request for another customer's basket is refused",
+      "file": "JS-2/tests/js-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:security",
+        "@layer:api",
+        "@P1",
+        "@assumes:G4"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-13744-ustomer-s-basket-is-refused-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-13744-ustomer-s-basket-is-refused-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-13744-ustomer-s-basket-is-refused-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutuspyc80",
+          "records": [
+            {
+              "label": "customer A",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "id": "150",
+                "username": "hldout-luspydoy-1@example.com"
+              }
+            },
+            {
+              "label": "customer B",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "id": "151",
+                "username": "hldout-lusq1ke9-2@example.com"
+              }
+            },
+            {
+              "label": "an existing product",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": {
+                "id": 1,
+                "name": "Apple Juice (1000ml)",
+                "description": "The all-time classic.",
+                "price": 1.99,
+                "deluxePrice": 0.99,
+                "image": "apple_juice.jpg",
+                "createdAt": "2026-09-28T20:32:12.935Z",
+                "updatedAt": "2026-09-28T20:32:12.935Z",
+                "deletedAt": null
+              }
+            },
+            {
+              "label": "a product in B's basket",
+              "kind": "data",
+              "cleanup": "done",
+              "created": {
+                "id": 45,
+                "ProductId": 1,
+                "BasketId": 119,
+                "quantity": 1,
+                "updatedAt": "2026-09-28T23:03:18.610Z",
+                "createdAt": "2026-09-28T23:03:18.610Z"
+              }
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/rest/basket/119",
+              "headers": {
+                "Accept": "application/json",
+                "Authorization": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 24,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "529",
+                "etag": "W/\"211-wW6QGOvHzDT38h04Hk3nAVmlzLs\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "id": 119,
+                  "coupon": null,
+                  "UserId": 151,
+                  "createdAt": "2026-09-28T23:03:18.566Z",
+                  "updatedAt": "2026-09-28T23:03:18.566Z",
+                  "Products": [
+                    {
+                      "id": 1,
+                      "name": "Apple Juice (1000ml)",
+                      "description": "The all-time classic.",
+                      "price": 1.99,
+                      "deluxePrice": 0.99,
+                      "image": "apple_juice.jpg",
+                      "createdAt": "2026-09-28T20:32:12.935Z",
+                      "updatedAt": "2026-09-28T20:32:12.935Z",
+                      "deletedAt": null,
+                      "BasketItem": {
+                        "ProductId": 1,
+                        "BasketId": 119,
+                        "id": 45,
+                        "quantity": 1,
+                        "createdAt": "2026-09-28T23:03:18.610Z",
+                        "updatedAt": "2026-09-28T23:03:18.610Z"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/rest/basket/119",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 24,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "529",
+              "etag": "W/\"211-wW6QGOvHzDT38h04Hk3nAVmlzLs\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "id": 119,
+                "coupon": null,
+                "UserId": 151,
+                "createdAt": "2026-09-28T23:03:18.566Z",
+                "updatedAt": "2026-09-28T23:03:18.566Z",
+                "Products": [
+                  {
+                    "id": 1,
+                    "name": "Apple Juice (1000ml)",
+                    "description": "The all-time classic.",
+                    "price": 1.99,
+                    "deluxePrice": 0.99,
+                    "image": "apple_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null,
+                    "BasketItem": {
+                      "ProductId": 1,
+                      "BasketId": 119,
+                      "id": 45,
+                      "quantity": 1,
+                      "createdAt": "2026-09-28T23:03:18.610Z",
+                      "updatedAt": "2026-09-28T23:03:18.610Z"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 39,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/Users",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-luspydoy-1@example.com",
+                "password": "***redacted***",
+                "passwordRepeat": "***redacted***",
+                "securityQuestion": {
+                  "id": 1
+                },
+                "securityAnswer": "heldout"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 28,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "location": "/api/Users/150",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "321",
+                "etag": "W/\"141-hSODzOSROH6QDuQPAT0t16HPovE\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "username": "",
+                  "role": "customer",
+                  "deluxeToken": "***redacted***",
+                  "lastLoginIp": "0.0.0.0",
+                  "profileImage": "/assets/public/images/uploads/default.svg",
+                  "isActive": true,
+                  "id": 150,
+                  "email": "hldout-luspydoy-1@example.com",
+                  "updatedAt": "2026-09-28T23:03:18.427Z",
+                  "createdAt": "2026-09-28T23:03:18.427Z",
+                  "deletedAt": null
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 21,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/rest/user/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-luspydoy-1@example.com",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 16,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "828",
+                "etag": "W/\"33c-RS5AWKCwJBbBfY9S5LyTJ5WRyXE\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "authentication": {
+                  "token": "***redacted***",
+                  "bid": 118,
+                  "umail": "hldout-luspydoy-1@example.com"
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 25,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/Users",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-lusq1ke9-2@example.com",
+                "password": "***redacted***",
+                "passwordRepeat": "***redacted***",
+                "securityQuestion": {
+                  "id": 1
+                },
+                "securityAnswer": "heldout"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 23,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "location": "/api/Users/151",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "321",
+                "etag": "W/\"141-nxsQRyqnzIsHjHN6pXG3U5phesk\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "username": "",
+                  "role": "customer",
+                  "deluxeToken": "***redacted***",
+                  "lastLoginIp": "0.0.0.0",
+                  "profileImage": "/assets/public/images/uploads/default.svg",
+                  "isActive": true,
+                  "id": 151,
+                  "email": "hldout-lusq1ke9-2@example.com",
+                  "updatedAt": "2026-09-28T23:03:18.521Z",
+                  "createdAt": "2026-09-28T23:03:18.521Z",
+                  "deletedAt": null
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/SecurityQuestions",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 18,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"78e-MUZtLGZD7AMpMOzypJNsXd+SQcM\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "question": "Your eldest siblings middle name?",
+                    "createdAt": "2026-09-28T20:32:12.116Z",
+                    "updatedAt": "2026-09-28T20:32:12.116Z"
+                  },
+                  {
+                    "id": 2,
+                    "question": "Mother's maiden name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 3,
+                    "question": "Mother's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 4,
+                    "question": "Father's birth date? (MM/DD/YY)",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 5,
+                    "question": "Maternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 6,
+                    "question": "Paternal grandmother's first name?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 7,
+                    "question": "Name of your favorite pet?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 8,
+                    "question": "Last name of dentist when you were a teenager? (Do not include 'Dr.')",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 9,
+                    "question": "Your ZIP/postal code when you were a teenager?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 10,
+                    "question": "Company you first work for as an adult?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 11,
+                    "question": "Your favorite book?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 12,
+                    "question": "Your favorite movie?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 13,
+                    "question": "Number of one of your customer or ID cards?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  },
+                  {
+                    "id": 14,
+                    "question": "What's your favorite place to go hiking?",
+                    "createdAt": "2026-09-28T20:32:12.117Z",
+                    "updatedAt": "2026-09-28T20:32:12.117Z"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/rest/user/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "email": "hldout-lusq1ke9-2@example.com",
+                "password": "***redacted***"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 15,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "828",
+                "etag": "W/\"33c-6GZ+dWr2JzM9ukIqm/qQRQ5qTrQ\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "authentication": {
+                  "token": "***redacted***",
+                  "bid": 119,
+                  "umail": "hldout-lusq1ke9-2@example.com"
+                }
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "http://localhost:3000/api/Products",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 21,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "etag": "W/\"3e8b-IvN9F8oT3UBWSe7/k53hqBmmU/8\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "br",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5",
+                "transfer-encoding": "chunked"
+              },
+              "body": {
+                "status": "success",
+                "data": [
+                  {
+                    "id": 1,
+                    "name": "Apple Juice (1000ml)",
+                    "description": "The all-time classic.",
+                    "price": 1.99,
+                    "deluxePrice": 0.99,
+                    "image": "apple_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Orange Juice (1000ml)",
+                    "description": "Made from oranges hand-picked by Uncle Dittmeyer.",
+                    "price": 2.99,
+                    "deluxePrice": 2.49,
+                    "image": "orange_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 3,
+                    "name": "Eggfruit Juice (500ml)",
+                    "description": "Now with even more exotic flavour.",
+                    "price": 8.99,
+                    "deluxePrice": 8.99,
+                    "image": "eggfruit_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 4,
+                    "name": "Raspberry Juice (1000ml)",
+                    "description": "Made from blended Raspberry Pi, water and sugar.",
+                    "price": 4.99,
+                    "deluxePrice": 4.99,
+                    "image": "raspberry_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 5,
+                    "name": "Lemon Juice (500ml)",
+                    "description": "Sour but full of vitamins.",
+                    "price": 2.99,
+                    "deluxePrice": 1.99,
+                    "image": "lemon_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 6,
+                    "name": "Banana Juice (1000ml)",
+                    "description": "Monkeys love it the most.",
+                    "price": 1.99,
+                    "deluxePrice": 1.99,
+                    "image": "banana_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 7,
+                    "name": "OWASP Juice Shop T-Shirt",
+                    "description": "Real fans wear it 24/7!",
+                    "price": 22.49,
+                    "deluxePrice": 22.49,
+                    "image": "fan_shirt.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 8,
+                    "name": "OWASP Juice Shop CTF Girlie-Shirt",
+                    "description": "For serious Capture-the-Flag heroines only!",
+                    "price": 22.49,
+                    "deluxePrice": 22.49,
+                    "image": "fan_girlie.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 9,
+                    "name": "OWASP SSL Advanced Forensic Tool (O-Saft)",
+                    "description": "O-Saft is an easy to use tool to show information about SSL certificate and tests the SSL connection according given list of ciphers and various SSL configurations. <a href=\"https://www.owasp.org/index.php/O-Saft\" target=\"_blank\">More...</a>",
+                    "price": 0.01,
+                    "deluxePrice": 0.01,
+                    "image": "orange_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.936Z",
+                    "updatedAt": "2026-09-28T20:32:12.936Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 13,
+                    "name": "OWASP Juice Shop Iron-Ons (16pcs)",
+                    "description": "Upgrade your clothes with washer safe <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">iron-ons</a> of the OWASP Juice Shop or CTF Extension logo!",
+                    "price": 14.99,
+                    "deluxePrice": 14.99,
+                    "image": "iron-on.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 14,
+                    "name": "OWASP Juice Shop Magnets (16pcs)",
+                    "description": "Your fridge will be even cooler with these OWASP Juice Shop or CTF Extension logo <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">magnets</a>!",
+                    "price": 15.99,
+                    "deluxePrice": 15.99,
+                    "image": "magnets.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 15,
+                    "name": "OWASP Juice Shop Sticker Page",
+                    "description": "Massive decoration opportunities with these OWASP Juice Shop or CTF Extension <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">sticker pages</a>! Each page has 16 stickers on it.",
+                    "price": 9.99,
+                    "deluxePrice": 9.99,
+                    "image": "sticker_page.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 16,
+                    "name": "OWASP Juice Shop Sticker Single",
+                    "description": "Super high-quality vinyl <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">sticker single</a> with the OWASP Juice Shop or CTF Extension logo! The ultimate laptop decal!",
+                    "price": 4.99,
+                    "deluxePrice": 4.99,
+                    "image": "sticker_single.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 17,
+                    "name": "OWASP Juice Shop Temporary Tattoos (16pcs)",
+                    "description": "Get one of these <a href=\"https://www.stickeryou.com/products/owasp-juice-shop/794\" target=\"_blank\">temporary tattoos</a> to proudly wear the OWASP Juice Shop or CTF Extension logo on your skin! If you tweet a photo of yourself with the tattoo, you get a couple of our stickers for free! Please mention <a href=\"https://twitter.com/owasp_juiceshop\" target=\"_blank\"><code>@owasp_juiceshop</code></a> in your tweet!",
+                    "price": 14.99,
+                    "deluxePrice": 14.99,
+                    "image": "tattoo.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 18,
+                    "name": "OWASP Juice Shop Mug",
+                    "description": "Black mug with regular logo on one side and CTF logo on the other! Your colleagues will envy you!",
+                    "price": 21.99,
+                    "deluxePrice": 21.99,
+                    "image": "fan_mug.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 19,
+                    "name": "OWASP Juice Shop Hoodie",
+                    "description": "Mr. Robot-style apparel. But in black. And with logo.",
+                    "price": 49.99,
+                    "deluxePrice": 49.99,
+                    "image": "fan_hoodie.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 20,
+                    "name": "OWASP Juice Shop-CTF Velcro Patch",
+                    "description": "4x3.5\" embroidered patch with velcro backside. The ultimate decal for every tactical bag or backpack!",
+                    "price": 2.92,
+                    "deluxePrice": 2.92,
+                    "image": "velcro-patch.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 21,
+                    "name": "Woodruff Syrup \"Forest Master X-Treme\"",
+                    "description": "Harvested and manufactured in the Black Forest, Germany. Can cause hyperactive behavior in children. Can cause permanent green tongue when consumed undiluted.",
+                    "price": 6.99,
+                    "deluxePrice": 6.99,
+                    "image": "woodruff_syrup.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 22,
+                    "name": "Green Smoothie",
+                    "description": "Looks poisonous but is actually very good for your health! Made from green cabbage, spinach, kiwi and grass.",
+                    "price": 1.99,
+                    "deluxePrice": 1.99,
+                    "image": "green_smoothie.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 23,
+                    "name": "Quince Juice (1000ml)",
+                    "description": "Juice of the <em>Cydonia oblonga</em> fruit. Not exactly sweet but rich in Vitamin C.",
+                    "price": 4.99,
+                    "deluxePrice": 4.99,
+                    "image": "quince.jpg",
+                    "createdAt": "2026-09-28T20:32:12.937Z",
+                    "updatedAt": "2026-09-28T20:32:12.937Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 24,
+                    "name": "Apple Pomace",
+                    "description": "Finest pressings of apples. Allergy disclaimer: Might contain traces of worms. Can be <a href=\"/#recycle\">sent back to us</a> for recycling.",
+                    "price": 0.89,
+                    "deluxePrice": 0.89,
+                    "image": "apple_pressings.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 25,
+                    "name": "Fruit Press",
+                    "description": "Fruits go in. Juice comes out. Pomace you can send back to us for recycling purposes.",
+                    "price": 89.99,
+                    "deluxePrice": 89.99,
+                    "image": "fruit_press.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 26,
+                    "name": "OWASP Juice Shop Logo (3D-printed)",
+                    "description": "This rare item was designed and handcrafted in Sweden. This is why it is so incredibly expensive despite its complete lack of purpose.",
+                    "price": 99.99,
+                    "deluxePrice": 99.99,
+                    "image": "3d_keychain.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 29,
+                    "name": "Strawberry Juice (500ml)",
+                    "description": "Sweet & tasty!",
+                    "price": 3.99,
+                    "deluxePrice": 3.99,
+                    "image": "strawberry_juice.jpeg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 30,
+                    "name": "Carrot Juice (1000ml)",
+                    "description": "As the old German saying goes: \"Carrots are good for the eyes. Or has anyone ever seen a rabbit with glasses?\"",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "carrot_juice.jpeg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 32,
+                    "name": "Pwning OWASP Juice Shop",
+                    "description": "<em>The official Companion Guide</em> by Björn Kimminich available <a href=\"https://leanpub.com/juice-shop\">for free on LeanPub</a> and also <a href=\"https://pwning.owasp-juice.shop\">readable online</a>!",
+                    "price": 5.99,
+                    "deluxePrice": 5.99,
+                    "image": "cover_small.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 33,
+                    "name": "Melon Bike (Comeback-Product 2018 Edition)",
+                    "description": "The wheels of this bicycle are made from real water melons. You might not want to ride it up/down the curb too hard.",
+                    "price": 2999,
+                    "deluxePrice": 2999,
+                    "image": "melon_bike.jpeg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 34,
+                    "name": "OWASP Juice Shop Coaster (10pcs)",
+                    "description": "Our 95mm circle coasters are printed in full color and made from thick, premium coaster board.",
+                    "price": 19.99,
+                    "deluxePrice": 19.99,
+                    "image": "coaster.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 35,
+                    "name": "OWASP Snakes and Ladders - Web Applications",
+                    "description": "This amazing web application security awareness board game is <a href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=1969196030\">available for Tabletop Simulator on Steam Workshop</a> now!",
+                    "price": 0.01,
+                    "deluxePrice": 0.01,
+                    "image": "snakes_ladders.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 36,
+                    "name": "OWASP Snakes and Ladders - Mobile Apps",
+                    "description": "This amazing mobile app security awareness board game is <a href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=1970691216\">available for Tabletop Simulator on Steam Workshop</a> now!",
+                    "price": 0.01,
+                    "deluxePrice": 0.01,
+                    "image": "snakes_ladders_m.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 37,
+                    "name": "OWASP Juice Shop Holographic Sticker",
+                    "description": "Die-cut holographic sticker. Stand out from those 08/15-sticker-covered laptops with this shiny beacon of 80's coolness!",
+                    "price": 2,
+                    "deluxePrice": 2,
+                    "image": "holo_sticker.png",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 38,
+                    "name": "OWASP Juice Shop \"King of the Hill\" Facemask",
+                    "description": "Facemask with compartment for filter from 50% cotton and 50% polyester.",
+                    "price": 13.49,
+                    "deluxePrice": 13.49,
+                    "image": "fan_facemask.jpg",
+                    "createdAt": "2026-09-28T20:32:12.938Z",
+                    "updatedAt": "2026-09-28T20:32:12.938Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 41,
+                    "name": "Juice Shop \"Permafrost\" 2020 Edition",
+                    "description": "Exact version of <a href=\"https://github.com/juice-shop/juice-shop/releases/tag/v9.3.1-PERMAFROST\">OWASP Juice Shop that was archived on 02/02/2020</a> by the GitHub Archive Program and ultimately went into the <a href=\"https://github.blog/2020-07-16-github-archive-program-the-journey-of-the-worlds-open-source-code-to-the-arctic\">Arctic Code Vault</a> on July 8. 2020 where it will be safely stored for at least 1000 years.",
+                    "price": 9999.99,
+                    "deluxePrice": 9999.99,
+                    "image": "permafrost.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 42,
+                    "name": "Best Juice Shop Salesman Artwork",
+                    "description": "Unique digital painting depicting Stan, our most qualified and almost profitable salesman. He made a succesful carreer in selling used ships, coffins, krypts, crosses, real estate, life insurance, restaurant supplies, voodoo enhanced asbestos and courtroom souvenirs before <em>finally</em> adding his expertise to the Juice Shop marketing team.",
+                    "price": 5000,
+                    "deluxePrice": 5000,
+                    "image": "artwork2.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 43,
+                    "name": "OWASP Juice Shop Card (non-foil)",
+                    "description": "Mythic rare <em>(obviously...)</em> card \"OWASP Juice Shop\" with three distinctly useful abilities. Alpha printing, mint condition. A true collectors piece to own!",
+                    "price": 1000,
+                    "deluxePrice": 1000,
+                    "image": "card_alpha.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 45,
+                    "name": "OWASP Juice Shop LEGO™ Tower",
+                    "description": "Want to host a Juice Shop CTF in style? Build <a href=\"https://github.com/OWASP/owasp-swag/blob/master/projects/juice-shop/lego/OWASP%20JuiceShop%20Pi-server%201.2.pdf\" target=\"_blank\">your own LEGO™ tower</a> which holds four Raspberry Pi 4 models with PoE HAT modules <a href=\"https://github.com/juice-shop/multi-juicer/blob/main/guides/raspberry-pi/raspberry-pi.md\" target=\"_blank\">running a MultiJuicer Kubernetes cluster</a>! Wire to a switch and connect to your network to have an out-of-the-box ready CTF up in no time!",
+                    "price": 799,
+                    "deluxePrice": 799,
+                    "image": "lego_case.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 47,
+                    "name": "Pineapple Juice (1000ml)",
+                    "description": "Tropical refreshment from the finest sun-ripened pineapples.",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "pineapple_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 48,
+                    "name": "Melon Juice (1000ml)",
+                    "description": "Refreshing and sweet juice made from ripe melons.",
+                    "price": 2.49,
+                    "deluxePrice": 2.49,
+                    "image": "melon_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 49,
+                    "name": "Grape Juice (1000ml)",
+                    "description": "Deep purple and full of antioxidants from selected grapes.",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "grape_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 50,
+                    "name": "Dragonfruit Juice (500ml)",
+                    "description": "Exotic and vibrant juice made from dragonfruit.",
+                    "price": 3.99,
+                    "deluxePrice": 3.99,
+                    "image": "dragonfruit_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 51,
+                    "name": "Berry Juice (1000ml)",
+                    "description": "A delicious blend of fresh forest berries.",
+                    "price": 3.49,
+                    "deluxePrice": 3.49,
+                    "image": "berry_juice.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 52,
+                    "name": "Basil Smoothie",
+                    "description": "A unique blend of fresh basil and ginger for a healthy kick.",
+                    "price": 2.99,
+                    "deluxePrice": 2.99,
+                    "image": "basil_smoothie.png",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 53,
+                    "name": "Bragă (500ml)",
+                    "description": "Traditional Balkan drink made from fermented millet. Lightly sweet-sour, refreshing, and naturally energizing.",
+                    "price": 2.49,
+                    "deluxePrice": 2.49,
+                    "image": "braga.jpg",
+                    "createdAt": "2026-09-28T20:32:12.939Z",
+                    "updatedAt": "2026-09-28T20:32:12.939Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 54,
+                    "name": "Elderflower Cordial (500ml)",
+                    "description": "Floral and fragrant soft drink made from elderflowers. Traditionally enjoyed chilled.",
+                    "price": 3.29,
+                    "deluxePrice": 3.29,
+                    "image": "elderflower_cordial.jpg",
+                    "createdAt": "2026-09-28T20:32:12.940Z",
+                    "updatedAt": "2026-09-28T20:32:12.940Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 55,
+                    "name": "Sea Buckthorn Juice (500ml)",
+                    "description": "Tangy and slightly sour juice, extremely rich in Vitamin C and antioxidants.",
+                    "price": 3.99,
+                    "deluxePrice": 3.99,
+                    "image": "sea_buckthorn_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.940Z",
+                    "updatedAt": "2026-09-28T20:32:12.940Z",
+                    "deletedAt": null
+                  },
+                  {
+                    "id": 56,
+                    "name": "Pomegranate Drink (500ml)",
+                    "description": "A sweet and tart refreshment inspired by classic grenadine flavors.",
+                    "price": 4.49,
+                    "deluxePrice": 4.49,
+                    "image": "pomegranate_drink.jpg",
+                    "createdAt": "2026-09-28T20:32:12.940Z",
+                    "updatedAt": "2026-09-28T20:32:12.940Z",
+                    "deletedAt": null
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "http://localhost:3000/api/BasketItems",
+              "headers": {
+                "Accept": "application/json",
+                "Authorization": "***redacted***",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "BasketId": 119,
+                "ProductId": 1,
+                "quantity": 1
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 11,
+              "headers": {
+                "access-control-allow-origin": "*",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "feature-policy": "payment 'self'",
+                "x-recruiting": "/#/jobs",
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "157",
+                "etag": "W/\"9d-U2EYvTrYDUPTpXWoLC0nJPzG1hY\"",
+                "vary": "Accept-Encoding",
+                "date": "Mon, 28 Sep 2026 23:03:18 GMT",
+                "connection": "keep-alive",
+                "keep-alive": "timeout=5"
+              },
+              "body": {
+                "status": "success",
+                "data": {
+                  "id": 45,
+                  "ProductId": 1,
+                  "BasketId": 119,
+                  "quantity": 1,
+                  "updatedAt": "2026-09-28T23:03:18.610Z",
+                  "createdAt": "2026-09-28T23:03:18.610Z"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-6] GET /rest/basket/{id} for B's basket with A's token is refused (not 2xx)",
+        "reqTag": "AC-6",
+        "matcher": "not.toMatch",
+        "expected": "not /^2\\d\\d$/",
+        "received": "\"200\"",
+        "message": "Error: [REQ AC-6] GET /rest/basket/{id} for B's basket with A's token is refused (not 2xx)\n\nexpect(received).not.toMatch(expected)\n\nExpected pattern: not /^2\\d\\d$/\nReceived string:      \"200\"\n\n  190 |     await journey.step('When A requests GET /rest/basket/{id} with A\\'s token for B\\'s basket id', async () => { other = await api.get(EP.basket(bidOf(b)), { headers: a.headers }); });\n  191 |     await journey.step('Then the request is refused with a non-2xx status', async () => {\n> 192 |       expect(String(other.status), '[REQ AC-6] GET /rest/basket/{id} for B\\'s basket with A\\'s token is refused (not 2xx)').not.toMatch(/^2\\d\\d$/);\n      |                                                                                                                                 ^\n  193 |     });\n  194 |   });\n  195 | });\n    at body (./evaluations\\JS-2\\tests\\js-2.spec.ts:192:129)\n    at ./heldout-support\\fixtures.ts:608:34\n    at ./evaluations\\JS-2\\tests\\js-2.spec.ts:191:5"
+      },
+      "failingStep": "Then the request is refused with a non-2xx status",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /rest/basket/119 → 200",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: not /^2\\d\\d$/",
+          "Received: \"200\"",
+          "SCN-008 rests on an unsettled reading (assumed G4). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect."
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "title": "A customer can read another customer's basket",
+        "rationale": "Same root cause as SCN-007: the request is not refused (200).",
+        "evidence": "runs/02-eval/confirm/other-basket.md",
+        "confirmedAt": "2026-09-28T23:03:36.639Z"
+      }
+    }
+  ]
+}

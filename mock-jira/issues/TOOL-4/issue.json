@@ -129,12 +129,12 @@
     },
     "attachment": [
       {
-        "id": "10224",
-        "filename": "heldout-verdict-TOOL-4-202609262320.md",
+        "id": "10236",
+        "filename": "heldout-verdict-TOOL-4-202609282029.md",
         "mimeType": "text/markdown",
-        "size": 9144,
-        "content": "attachments/heldout-verdict-TOOL-4-202609262320.md",
-        "created": "2026-09-26T23:20:41.837Z",
+        "size": 9752,
+        "content": "attachments/heldout-verdict-TOOL-4-202609282029.md",
+        "created": "2026-09-28T20:29:41.701Z",
         "author": {
           "displayName": "Held-out Evaluator (bot)"
         }
@@ -175,7 +175,7 @@
               }
             ]
           },
-          "created": "2026-09-26T11:13:39.978Z"
+          "created": "2026-09-28T11:20:41.685Z"
         },
         {
           "id": "20002",
@@ -229,7 +229,7 @@
                   },
                   {
                     "type": "text",
-                    "text": "Toolshop (practicesoftwaretesting.com, Angular + Laravel API) (https://practicesoftwaretesting.com)"
+                    "text": "Practice Software Testing (https://practicesoftwaretesting.com/)"
                   }
                 ]
               },
@@ -478,7 +478,7 @@
                             "content": [
                               {
                                 "type": "text",
-                                "text": "integration"
+                                "text": "idempotency"
                               }
                             ]
                           }
@@ -553,7 +553,7 @@
                             "content": [
                               {
                                 "type": "text",
-                                "text": "negative"
+                                "text": "integration"
                               }
                             ]
                           }
@@ -709,7 +709,7 @@
                           },
                           {
                             "type": "text",
-                            "text": "heldout-verdict-TOOL-4-202609262320.md",
+                            "text": "heldout-verdict-TOOL-4-202609282029.md",
                             "marks": [
                               {
                                 "type": "code"
@@ -741,7 +741,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Posted automatically by the heldout-evaluator Claude skill.",
+                    "text": "Posted automatically by the heldout-evaluator skill.",
                     "marks": [
                       {
                         "type": "em"
@@ -752,7 +752,7 @@
               }
             ]
           },
-          "created": "2026-09-26T23:20:41.841Z"
+          "created": "2026-09-28T20:29:41.704Z"
         }
       ],
       "total": 2

@@ -2,6 +2,11 @@
 
 Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must be accounted for in the contract's `coverage` ledger
 (captured as a criterion / rule / endpoint / error / auth / test data / context, or dismissed as not a requirement, with a reason).
+This pack is the whole requirement: the story, its acceptance-criteria field, comments and text attachments (`requirement/raw-issue.json` is the tracker's raw answer they came from; nothing to read there).
+
+**Project configuration** (heldout.config.json: not requirement, nothing to cite or cover; a gap it answers is `found-in-config`):
+
+- AUT profile `owasp-juice-shop` "OWASP Juice Shop": web http://localhost:3000/ (API on the same origin)
 
 
 ## story.md
@@ -16,7 +21,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
   L7   | labels: []
   L8   | source: mock-jira
   L9   | url: https://your-domain.atlassian.net/browse/JS-2
-  L10  | fetchedAt: 2026-09-27T00:53:25.856Z
+  L10  | fetchedAt: 2026-09-28T20:52:37.839Z
   L11  | ---
   L12  | 
   L13  | # JS-2: Customer registration, login and basket
@@ -37,7 +42,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
   L28  | 
   L29  | ## Acceptance criteria
   L30  | 
-● L31  | | ID | Criterion | Layer |
+  L31  | | ID | Criterion | Layer |
   L32  | | --- | --- | --- |
 ● L33  | | AC-1 | Registering with a unique e-mail, a rule-compliant password (sent as both `password` and `passwordRepeat`), and a security question id + security answer creates the customer: the response is **HTTP 201** and its body describes the new user with the submitted `email` and `role` = `customer`. | API |
 ● L34  | | AC-2 | Registering with an e-mail that already belongs to a customer is rejected with **HTTP 400** and a validation error whose message states the e-mail must be unique. No second account is created. | API |
@@ -52,7 +57,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
   L43  | 
   L44  | ## Comments (clarifications from the issue)
   L45  | 
-  L46  | **Dana Ortiz (Product Owner)** — 2026-09-26:
+  L46  | **Dana Ortiz (Product Owner)** — 2026-09-28:
   L47  | 
 ● L48  | Clarifying the password rules for AC-1 and AC-3, since the description just said "rule-compliant":
   L49  | 
@@ -83,7 +88,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
 ● L7   | `POST /api/Users`
   L8   | 
 ● L9   | Request body:
-● L10  | ```json
+  L10  | ```json
 ● L11  | {
 ● L12  |   "email": "<unique e-mail>",
 ● L13  |   "password": "<password>",
@@ -91,7 +96,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
 ● L15  |   "securityQuestion": { "id": <one of the ids from GET /api/SecurityQuestions> },
 ● L16  |   "securityAnswer": "<answer>"
 ● L17  | }
-● L18  | ```
+  L18  | ```
 ● L19  | Success: **HTTP 201**, body `{ "status"?: ..., "data": { "id": <n>, "email": "...", "role": "customer", ... } }`
 ● L20  | (the response echoes the submitted e-mail and assigns `role` = `customer`).
   L21  | 
@@ -105,9 +110,9 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
 ● L29  | Request body: `{ "email": "...", "password": "..." }`
   L30  | 
 ● L31  | Success: **HTTP 200**, body:
-● L32  | ```json
+  L32  | ```json
 ● L33  | { "authentication": { "token": "<JWT>", "bid": <basket id>, "umail": "<e-mail>" } }
-● L34  | ```
+  L34  | ```
 ● L35  | The `token` is used as a `Bearer` token for authenticated calls. `bid` is the caller's basket id.
   L36  | 
   L37  | ## Add an item to a basket

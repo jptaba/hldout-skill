@@ -19,7 +19,8 @@ error responses are specified in the attached **api-contract.md**.
 
 ## Accounts and data
 
-- Each run creates its own user through `POST /Account/v1/User` with a unique user name (for example `qa-<timestamp>`) and the password from the environment variable `DQ_USER_PASSWORD`, and deletes it at the end with `DELETE /Account/v1/User/{UUID}`.
+- User creation is switched off in the QA environment. Tests use the QA team's pre-provisioned test users (user names and passwords are kept in the team's secret store, never in the test code). Do not create or delete users.
+- These users are shared by every run, so each test leaves the collection of every user it used empty.
 - A token for API calls is obtained with `POST /Account/v1/GenerateToken` (see the contract).
 - Books used in the examples are part of the standard catalogue, e.g. 9781449325862 "Git Pocket Guide", 9781593277574 "Understanding ECMAScript 6", 9781449331818 "Learning JavaScript Design Patterns".
 
@@ -42,130 +43,35 @@ error responses are specified in the attached **api-contract.md**.
 
 ## Attachments
 
-- 📎 [api-contract.md](attachments/api-contract.md) — text/markdown, 2567 B, by Product Owner on 2026-09-27T05:31:46.723Z
-- 📎 [heldout-verdict-DQ-2-202609271231.md](attachments/heldout-verdict-DQ-2-202609271231.md) — text/markdown, 17975 B, by Held-out Evaluator (bot) on 2026-09-27T12:31:19.414Z
-- 📎 [heldout-verdict-DQ-2-202609271233.md](attachments/heldout-verdict-DQ-2-202609271233.md) — text/markdown, 17972 B, by Held-out Evaluator (bot) on 2026-09-27T12:33:02.333Z
-- 📎 [heldout-verdict-DQ-2-202609271654.md](attachments/heldout-verdict-DQ-2-202609271654.md) — text/markdown, 18467 B, by Held-out Evaluator (bot) on 2026-09-27T16:54:24.042Z
-- 📎 [heldout-verdict-DQ-2-202609271656.md](attachments/heldout-verdict-DQ-2-202609271656.md) — text/markdown, 18467 B, by Held-out Evaluator (bot) on 2026-09-27T16:56:15.464Z
+- 📎 [api-contract.md](attachments/api-contract.md) — text/markdown, 2567 B, by Product Owner on 2026-09-28T19:15:31.432Z
+- 📎 [heldout-verdict-DQ-2-202609281929.md](attachments/heldout-verdict-DQ-2-202609281929.md) — text/markdown, 14017 B, by Held-out Evaluator (bot) on 2026-09-28T19:29:41.727Z
 
 ## Activity — Comments
 
-### 💬 Held-out Evaluator (bot) — 2026-09-27T12:31:19.417Z
-
-### 🧪 Held-out evaluation: PASS WITH WARNINGS (recommendation)
-
-> **WARNING:** All scenarios passed, with warnings: 1 open question(s) not tested.
-
-**AUT:** DemoQA Book Store (React UI + JSON API) (https://demoqa.com)
-
-**Tests:** 28/28 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 1
-
-#### Coverage by test type
-
-| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
-| --- | --- | --- | --- | --- |
-| contract | 1 | 1 | 0 | - |
-| functional | 11 | 11 | 0 | - |
-| idempotency | 1 | 1 | 0 | - |
-| integration | 3 | 3 | 0 | - |
-| negative | 4 | 4 | 0 | - |
-| security | 8 | 8 | 0 | - |
-
-**Open questions (not tested):** G6 — no acceptance criterion covers DELETE /BookStore/v1/Books?UserId={UUID} (remove all books of the user); is it in scope, and what must it do beyond 204?
-
-- Full report attached: `heldout-verdict-DQ-2-202609271231.md`
-- Final run: 04-rerun
-
-_Posted automatically by the heldout-evaluator Claude skill._
-
----
-
-### 💬 Held-out Evaluator (bot) — 2026-09-27T12:33:02.338Z
+### 💬 Held-out Evaluator (bot) — 2026-09-28T19:29:41.731Z
 
 ### 🧪 Held-out evaluation: PASS (recommendation)
 
 > **SUCCESS:** Every scenario passed and every acceptance criterion is covered.
 
-**AUT:** DemoQA Book Store (React UI + JSON API) (https://demoqa.com)
+**AUT:** demosite (https://demoqa.com/)
 
-**Tests:** 28/28 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 1
-
-#### Coverage by test type
-
-| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
-| --- | --- | --- | --- | --- |
-| contract | 1 | 1 | 0 | - |
-| functional | 11 | 11 | 0 | - |
-| idempotency | 1 | 1 | 0 | - |
-| integration | 3 | 3 | 0 | - |
-| negative | 4 | 4 | 0 | - |
-| security | 8 | 8 | 0 | - |
-
-**Open questions (not tested):** G6 — no acceptance criterion covers DELETE /BookStore/v1/Books?UserId={UUID} (remove all books of the user); is it in scope, and what must it do beyond 204?
-
-- Full report attached: `heldout-verdict-DQ-2-202609271233.md`
-- Final run: 04-rerun
-
-_Posted automatically by the heldout-evaluator Claude skill._
-
----
-
-### 💬 Held-out Evaluator (bot) — 2026-09-27T16:54:24.045Z
-
-### 🧪 Held-out evaluation: PASS (recommendation)
-
-> **SUCCESS:** Every scenario passed and every acceptance criterion is covered.
-
-**AUT:** DemoQA Book Store (React UI + JSON API) (https://demoqa.com)
-
-**Tests:** 28/28 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 2
+**Tests:** 21/21 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
 
 #### Coverage by test type
 
 | **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
 | --- | --- | --- | --- | --- |
 | contract | 1 | 1 | 0 | - |
-| functional | 11 | 11 | 0 | - |
+| functional | 7 | 7 | 0 | - |
 | idempotency | 1 | 1 | 0 | - |
 | integration | 3 | 3 | 0 | - |
 | negative | 4 | 4 | 0 | - |
-| security | 8 | 8 | 0 | - |
+| security | 5 | 5 | 0 | - |
 
-**Open questions (not tested):** G6 — no acceptance criterion covers DELETE /BookStore/v1/Books?UserId={UUID} (remove all books of the user); is it in scope, and what must it do beyond 204?
+- Full report attached: `heldout-verdict-DQ-2-202609281929.md`
+- Final run: 02-eval
 
-- Full report attached: `heldout-verdict-DQ-2-202609271654.md`
-- Final run: 04-rerun
-
-_Posted automatically by the heldout-evaluator Claude skill._
-
----
-
-### 💬 Held-out Evaluator (bot) — 2026-09-27T16:56:15.468Z
-
-### 🧪 Held-out evaluation: PASS (recommendation)
-
-> **SUCCESS:** Every scenario passed and every acceptance criterion is covered.
-
-**AUT:** DemoQA Book Store (React UI + JSON API) (https://demoqa.com)
-
-**Tests:** 28/28 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 2
-
-#### Coverage by test type
-
-| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
-| --- | --- | --- | --- | --- |
-| contract | 1 | 1 | 0 | - |
-| functional | 11 | 11 | 0 | - |
-| idempotency | 1 | 1 | 0 | - |
-| integration | 3 | 3 | 0 | - |
-| negative | 4 | 4 | 0 | - |
-| security | 8 | 8 | 0 | - |
-
-**Open questions (not tested):** G6 — no acceptance criterion covers DELETE /BookStore/v1/Books?UserId={UUID} (remove all books of the user); is it in scope, and what must it do beyond 204?
-
-- Full report attached: `heldout-verdict-DQ-2-202609271656.md`
-- Final run: 04-rerun
-
-_Posted automatically by the heldout-evaluator Claude skill._
+_Posted automatically by the heldout-evaluator skill._
 
 ---

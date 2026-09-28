@@ -1,0 +1,700 @@
+{
+  "key": "JS-2",
+  "verdict": "FAIL",
+  "reason": "2 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-6. Awaiting reviewer confirmation.",
+  "finalRun": "02-eval",
+  "generatedAt": "2026-09-28T23:03:37.476Z",
+  "autId": "owasp-juice-shop",
+  "aut": {
+    "name": "OWASP Juice Shop",
+    "baseURL": "http://localhost:3000/",
+    "apiBaseURL": "http://localhost:3000/",
+    "testIdAttribute": "data-testid",
+    "healthcheck": [
+      "/"
+    ],
+    "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+    "overlays": [
+      "getByRole('button', { name: 'dismiss cookie message' })",
+      "getByRole('button', { name: 'Close Welcome Banner' })"
+    ],
+    "accounts": {
+      "before": [
+        {
+          "method": "GET",
+          "path": "/api/SecurityQuestions",
+          "save": {
+            "qid": "data.0.id"
+          }
+        }
+      ],
+      "password": "${env:JS_USER_PASSWORD}",
+      "username": "hldout-${uid}@example.com",
+      "create": {
+        "method": "POST",
+        "path": "/api/Users",
+        "body": {
+          "email": "${username}",
+          "password": "${password}",
+          "passwordRepeat": "${password}",
+          "securityQuestion": {
+            "id": "${qid}"
+          },
+          "securityAnswer": "heldout"
+        },
+        "id": "data.id"
+      },
+      "token": {
+        "method": "POST",
+        "path": "/rest/user/login",
+        "body": {
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "token": "authentication.token"
+      },
+      "authHeader": "Authorization: Bearer ${token}",
+      "signIn": {
+        "path": "#/login",
+        "done": "url:/search",
+        "steps": [
+          {
+            "fill": "locator('#email')",
+            "value": "${username}"
+          },
+          {
+            "fill": "locator('#password')",
+            "value": "${password}"
+          },
+          {
+            "click": "locator('#loginButton')"
+          }
+        ]
+      }
+    }
+  },
+  "summary": {
+    "total": 8,
+    "passed": 4,
+    "failed": 4,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Registration accepts passwords shorter than 5 characters",
+      "testType": "boundary",
+      "source": "story.md AC-3 and the PO comment (story.md#L50, L53)",
+      "confirmed": true,
+      "severity": null,
+      "criteria": [
+        "AC-3"
+      ],
+      "tests": [
+        "SCN-003.1",
+        "SCN-003.2"
+      ],
+      "expected": "400",
+      "actual": "201",
+      "rationale": "AC-3 with the PO comment requires a password shorter than 5 characters to be rejected with 400 and no customer created. Live: a 4- and a 3-character password are answered 201 and the customer can log in.",
+      "liveCheck": "runs/02-eval/confirm/short-password.md",
+      "steps": [
+        "Given I know a valid security question id from GET /api/SecurityQuestions",
+        "When I POST /api/Users with a unique e-mail and a <length>-character password",
+        "Then registering with a <length>-character password → HTTP 400",
+        "And the customer is not created: a follow-up login with that e-mail and password fails"
+      ],
+      "api": {
+        "request": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/Users",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "email": "hldout-lusnrxtg-1@example.com",
+            "password": "Qx9!",
+            "passwordRepeat": "Qx9!",
+            "securityQuestion": {
+              "id": 1
+            },
+            "securityAnswer": "heldout"
+          }
+        },
+        "response": {
+          "status": 201,
+          "durationMs": 58,
+          "headers": {
+            "access-control-allow-origin": "*",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "SAMEORIGIN",
+            "feature-policy": "payment 'self'",
+            "x-recruiting": "/#/jobs",
+            "location": "/api/Users/145",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "321",
+            "etag": "W/\"141-geLO2sbIeJWXXXQ1OPTXdD+WhKg\"",
+            "vary": "Accept-Encoding",
+            "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "status": "success",
+            "data": {
+              "username": "",
+              "role": "customer",
+              "deluxeToken": "***redacted***",
+              "lastLoginIp": "0.0.0.0",
+              "profileImage": "/assets/public/images/uploads/default.svg",
+              "isActive": true,
+              "id": 145,
+              "email": "hldout-lusnrxtg-1@example.com",
+              "updatedAt": "2026-09-28T23:03:15.657Z",
+              "createdAt": "2026-09-28T23:03:15.657Z",
+              "deletedAt": null
+            }
+          }
+        }
+      },
+      "screenshot": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-37f44-er-is-created-4-characters--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/Users",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "hldout-lusnrxtg-1@example.com",
+              "password": "Qx9!",
+              "passwordRepeat": "Qx9!",
+              "securityQuestion": {
+                "id": 1
+              },
+              "securityAnswer": "heldout"
+            }
+          },
+          "response": {
+            "status": 201,
+            "durationMs": 58,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "location": "/api/Users/145",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "321",
+              "etag": "W/\"141-geLO2sbIeJWXXXQ1OPTXdD+WhKg\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "username": "",
+                "role": "customer",
+                "deluxeToken": "***redacted***",
+                "lastLoginIp": "0.0.0.0",
+                "profileImage": "/assets/public/images/uploads/default.svg",
+                "isActive": true,
+                "id": 145,
+                "email": "hldout-lusnrxtg-1@example.com",
+                "updatedAt": "2026-09-28T23:03:15.657Z",
+                "createdAt": "2026-09-28T23:03:15.657Z",
+                "deletedAt": null
+              }
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/rest/user/login",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "hldout-lusnrxtg-1@example.com",
+              "password": "Qx9!"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 39,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "828",
+              "etag": "W/\"33c-6onMa2+iOAe4IJOtow1KJkxapb8\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:15 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "authentication": {
+                "token": "***redacted***",
+                "bid": 113,
+                "umail": "hldout-lusnrxtg-1@example.com"
+              }
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run JS-2 --label repro --grep \"SCN-003\\.1:\"",
+        "npm run heldout -- run JS-2 --label repro --grep \"SCN-003\\.2:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "A customer can read another customer's basket",
+      "testType": "security",
+      "source": "story.md AC-6",
+      "confirmed": true,
+      "severity": null,
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-007"
+      ],
+      "expected": "not 115",
+      "actual": "115",
+      "rationale": "AC-6: a request authenticated as A for B's basket must be refused and must not return B's basket. Live: A's token on B's basket id answers 200 with B's basket (its UserId is B's).",
+      "liveCheck": "runs/02-eval/confirm/other-basket.md",
+      "steps": [
+        "Given customers A and B, and B has a product in their basket",
+        "When A requests GET /rest/basket/{id} with A's token for A's basket id",
+        "And A requests GET /rest/basket/{id} with A's token for B's basket id",
+        "Then A reading their own basket gets it",
+        "And the request for B's basket does not return B's basket"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:3000/rest/basket/115",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 33,
+          "headers": {
+            "access-control-allow-origin": "*",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "SAMEORIGIN",
+            "feature-policy": "payment 'self'",
+            "x-recruiting": "/#/jobs",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "529",
+            "etag": "W/\"211-/TC+/xr+mWWUaqzl2AN0mavslzo\"",
+            "vary": "Accept-Encoding",
+            "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "status": "success",
+            "data": {
+              "id": 115,
+              "coupon": null,
+              "UserId": 147,
+              "createdAt": "2026-09-28T23:03:17.101Z",
+              "updatedAt": "2026-09-28T23:03:17.101Z",
+              "Products": [
+                {
+                  "id": 1,
+                  "name": "Apple Juice (1000ml)",
+                  "description": "The all-time classic.",
+                  "price": 1.99,
+                  "deluxePrice": 0.99,
+                  "image": "apple_juice.jpg",
+                  "createdAt": "2026-09-28T20:32:12.935Z",
+                  "updatedAt": "2026-09-28T20:32:12.935Z",
+                  "deletedAt": null,
+                  "BasketItem": {
+                    "ProductId": 1,
+                    "BasketId": 115,
+                    "id": 43,
+                    "quantity": 1,
+                    "createdAt": "2026-09-28T23:03:17.156Z",
+                    "updatedAt": "2026-09-28T23:03:17.156Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "screenshot": "evaluations/JS-2/runs/02-eval/artifacts/JS-2-tests-js-2-JS-2-Custo-1ac60-ut-never-another-customer-s-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/rest/basket/114",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 37,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "157",
+              "etag": "W/\"9d-2wyUccjuauWLSWR9/Qi45nOh80E\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "id": 114,
+                "coupon": null,
+                "UserId": 146,
+                "createdAt": "2026-09-28T23:03:17.004Z",
+                "updatedAt": "2026-09-28T23:03:17.004Z",
+                "Products": []
+              }
+            }
+          }
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/rest/basket/115",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 33,
+            "headers": {
+              "access-control-allow-origin": "*",
+              "x-content-type-options": "nosniff",
+              "x-frame-options": "SAMEORIGIN",
+              "feature-policy": "payment 'self'",
+              "x-recruiting": "/#/jobs",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "529",
+              "etag": "W/\"211-/TC+/xr+mWWUaqzl2AN0mavslzo\"",
+              "vary": "Accept-Encoding",
+              "date": "Mon, 28 Sep 2026 23:03:17 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "success",
+              "data": {
+                "id": 115,
+                "coupon": null,
+                "UserId": 147,
+                "createdAt": "2026-09-28T23:03:17.101Z",
+                "updatedAt": "2026-09-28T23:03:17.101Z",
+                "Products": [
+                  {
+                    "id": 1,
+                    "name": "Apple Juice (1000ml)",
+                    "description": "The all-time classic.",
+                    "price": 1.99,
+                    "deluxePrice": 0.99,
+                    "image": "apple_juice.jpg",
+                    "createdAt": "2026-09-28T20:32:12.935Z",
+                    "updatedAt": "2026-09-28T20:32:12.935Z",
+                    "deletedAt": null,
+                    "BasketItem": {
+                      "ProductId": 1,
+                      "BasketId": 115,
+                      "id": 43,
+                      "quantity": 1,
+                      "createdAt": "2026-09-28T23:03:17.156Z",
+                      "updatedAt": "2026-09-28T23:03:17.156Z"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run JS-2 --label repro --grep \"SCN-007:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 1,
+      "tests": 2,
+      "passed": 0,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    },
+    {
+      "type": "functional",
+      "scenarios": 2,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "integration",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "security",
+      "scenarios": 2,
+      "tests": 2,
+      "passed": 0,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-2"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "Registering with a unique e-mail, a rule-compliant password (sent as both password and passwordRepeat), and a security question id + security answer creates the customer: the response is HTTP 201 and its body describes the new user with the submitted email and role = customer.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "A visitor registers with a unique e-mail and a rule-compliant password",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md AC-1"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "Registering with an e-mail that already belongs to a customer is rejected with HTTP 400 and a validation error whose message states the e-mail must be unique. No second account is created.",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "Registering an e-mail that already belongs to a customer is rejected",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md AC-2"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "Registration enforces the password rules in the PO comment: a password shorter than the minimum length is rejected with HTTP 400 and the customer is not created (a follow-up login with that e-mail/password fails).",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "A password shorter than 5 characters is rejected and no customer is created (<length> characters)",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md AC-3 and the PO comment (story.md#L50, L53)"
+          ],
+          "passed": 0,
+          "total": 2,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-003.1",
+              "status": "failed",
+              "defect": "APP-1"
+            },
+            {
+              "id": "SCN-003.2",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "Logging in via POST /rest/user/login with a registered customer's correct e-mail and password returns HTTP 200 and a body containing an authentication token (a JWT used as a Bearer token) and the customer's basket id (bid).",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "A registered customer logs in and receives a JWT and their basket id",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md AC-4 and attachments/api-contract.md#L31-L33"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "Using their own token, a customer can add a product to their own basket via POST /api/BasketItems; after that customer logs in through the UI, the basket page at /#/basket lists that product with the quantity that was added.",
+      "scenarios": [
+        {
+          "id": "SCN-006",
+          "title": "A product added to one's own basket through the API is listed on the basket page after a UI login",
+          "type": "integration",
+          "layer": "e2e",
+          "sources": [
+            "story.md AC-5"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "Basket contents are private to their owner: a customer must be able to read only their own basket. A request to GET /rest/basket/{id} authenticated as customer A but targeting customer B's basket id must be refused and must not return B's basket. Verify with two customers you create.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "A customer reads their own basket but never another customer's",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-6"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        },
+        {
+          "id": "SCN-008",
+          "title": "A request for another customer's basket is refused",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-6, \"must be refused\" (G4 assumed: not 2xx)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "inconclusive",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "failed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "G4 — what answer counts as 'refused' when customer A requests customer B's basket: no status or error body is stated (401, 403, 404, or an error in a 200 body?). The outcome is judged as written: the request is refused and B's basket is not returned",
+    "G5 — success status of POST /api/BasketItems is not stated; AC-5 is judged by the basket page listing the product"
+  ],
+  "observations": [],
+  "verdictFile": "evaluations/JS-2/verdict.md"
+}

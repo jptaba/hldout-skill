@@ -3,6 +3,10 @@
 Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must be accounted for in the contract's `coverage` ledger
 (captured as a criterion / rule / endpoint / error / auth / test data / context, or dismissed as not a requirement, with a reason).
 
+**Project configuration** (heldout.config.json: not requirement, nothing to cite or cover; a gap it answers is `found-in-config`):
+
+- AUT profile `practicesoftwaretesting` "Practice Software Testing": web https://practicesoftwaretesting.com/, API https://api.practicesoftwaretesting.com
+
 
 ## story.md
 
@@ -16,7 +20,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
   L7   | labels: []
   L8   | source: mock-jira
   L9   | url: https://your-domain.atlassian.net/browse/TOOL-4
-  L10  | fetchedAt: 2026-09-26T20:13:47.849Z
+  L10  | fetchedAt: 2026-09-28T20:20:42.557Z
   L11  | ---
   L12  | 
   L13  | # TOOL-4: Favourites for signed-in customers
@@ -38,7 +42,7 @@ Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must 
   L29  | 
   L30  | ## Comments (clarifications from the issue)
   L31  | 
-  L32  | **Priya (Product Owner)** — 2026-09-26:
+  L32  | **Priya (Product Owner)** — 2026-09-28:
   L33  | 
 ● L34  | Clarification from refinement: a duplicate favourite is a conflict, so the API must answer **409 Conflict** (not 422 as in the technical notes). The web shop can keep its current message for duplicates.
   L35  | 

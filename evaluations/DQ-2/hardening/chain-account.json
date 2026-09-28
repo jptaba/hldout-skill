@@ -1,0 +1,7 @@
+{ "steps": [
+  { "name": "sign in (token)", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${vault:secret/qa/demoqa#user3}", "password": "${vault:secret/qa/demoqa#password3}" }, "save": { "token": "token" }, "expect": 200 },
+  { "name": "the account id (as the login page reads it)", "method": "POST", "path": "Account/v1/Login", "json": { "userName": "${vault:secret/qa/demoqa#user3}", "password": "${vault:secret/qa/demoqa#password3}" }, "save": { "id": "userId" }, "expect": 200 },
+  { "name": "read my collection", "method": "GET", "path": "Account/v1/User/${id}", "headers": { "Authorization": "Bearer ${token}" }, "expect": 200, "show": ["books"] },
+  { "name": "empty my collection (the reset)", "method": "DELETE", "path": "BookStore/v1/Books?UserId=${id}", "headers": { "Authorization": "Bearer ${token}" }, "expect": 204 },
+  { "name": "empty it again (idempotent?)", "method": "DELETE", "path": "BookStore/v1/Books?UserId=${id}", "headers": { "Authorization": "Bearer ${token}" } }
+] }

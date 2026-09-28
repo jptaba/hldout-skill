@@ -1,40 +1,10 @@
 [
   {
-    "at": "2026-09-27T12:31:19.421Z",
+    "at": "2026-09-28T19:29:41.736Z",
     "mode": "mock",
-    "verdict": "PASS_WITH_WARNINGS",
-    "attachment": "heldout-verdict-DQ-2-202609271231.md",
+    "verdict": "PASS",
+    "attachment": "heldout-verdict-DQ-2-202609281929.md",
     "commentId": "20001",
-    "labels": [
-      "heldout-pass-with-warnings"
-    ]
-  },
-  {
-    "at": "2026-09-27T12:33:02.342Z",
-    "mode": "mock",
-    "verdict": "PASS",
-    "attachment": "heldout-verdict-DQ-2-202609271233.md",
-    "commentId": "20002",
-    "labels": [
-      "heldout-pass"
-    ]
-  },
-  {
-    "at": "2026-09-27T16:54:24.051Z",
-    "mode": "mock",
-    "verdict": "PASS",
-    "attachment": "heldout-verdict-DQ-2-202609271654.md",
-    "commentId": "20003",
-    "labels": [
-      "heldout-pass"
-    ]
-  },
-  {
-    "at": "2026-09-27T16:56:15.475Z",
-    "mode": "mock",
-    "verdict": "PASS",
-    "attachment": "heldout-verdict-DQ-2-202609271656.md",
-    "commentId": "20004",
     "labels": [
       "heldout-pass"
     ]

@@ -13,23 +13,23 @@ Signed-in customers can keep a personal list of favourite products, from the pro
 
 ## Attachments
 
-- 📎 [heldout-verdict-TOOL-4-202609262320.md](attachments/heldout-verdict-TOOL-4-202609262320.md) — text/markdown, 9144 B, by Held-out Evaluator (bot) on 2026-09-26T23:20:41.837Z
+- 📎 [heldout-verdict-TOOL-4-202609282029.md](attachments/heldout-verdict-TOOL-4-202609282029.md) — text/markdown, 9752 B, by Held-out Evaluator (bot) on 2026-09-28T20:29:41.701Z
 
 ## Activity — Comments
 
-### 💬 Priya (Product Owner) — 2026-09-26T11:13:39.978Z
+### 💬 Priya (Product Owner) — 2026-09-28T11:20:41.685Z
 
 Clarification from refinement: a duplicate favourite is a conflict, so the API must answer **409 Conflict** (not 422 as in the technical notes). The web shop can keep its current message for duplicates.
 
 ---
 
-### 💬 Held-out Evaluator (bot) — 2026-09-26T23:20:41.841Z
+### 💬 Held-out Evaluator (bot) — 2026-09-28T20:29:41.704Z
 
 ### 🧪 Held-out evaluation: PASS (recommendation)
 
 > **SUCCESS:** Every scenario passed and every acceptance criterion is covered.
 
-**AUT:** Toolshop (practicesoftwaretesting.com, Angular + Laravel API) (https://practicesoftwaretesting.com)
+**AUT:** Practice Software Testing (https://practicesoftwaretesting.com/)
 
 **Tests:** 11/11 passed, 0 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
 
@@ -38,13 +38,13 @@ Clarification from refinement: a duplicate favourite is a conflict, so the API m
 | **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
 | --- | --- | --- | --- | --- |
 | functional | 2 | 2 | 0 | - |
+| idempotency | 1 | 1 | 0 | - |
 | integration | 1 | 1 | 0 | - |
-| negative | 1 | 1 | 0 | - |
 | security | 7 | 7 | 0 | - |
 
-- Full report attached: `heldout-verdict-TOOL-4-202609262320.md`
+- Full report attached: `heldout-verdict-TOOL-4-202609282029.md`
 - Final run: 02-eval
 
-_Posted automatically by the heldout-evaluator Claude skill._
+_Posted automatically by the heldout-evaluator skill._
 
 ---

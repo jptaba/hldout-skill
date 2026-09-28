@@ -1,6 +1,0 @@
-[
-  { "do": "goto", "url": "login" },
-  { "do": "fill", "target": "locator('form').filter({ has: getByRole('button', { name: 'Login', exact: true }) }).getByPlaceholder('Email Address')", "value": "hxprobe.ui.b1@example.com" },
-  { "do": "fill", "target": "locator('form').filter({ has: getByRole('button', { name: 'Login', exact: true }) }).getByPlaceholder('Password')", "value": "${env:AE_USER_PASSWORD}" },
-  { "do": "click", "target": "getByRole('button', { name: 'Login', exact: true })" }
-]

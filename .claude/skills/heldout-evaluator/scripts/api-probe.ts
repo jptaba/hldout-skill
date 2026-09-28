@@ -135,7 +135,7 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     let shownBody = body ?? '';
     // The step's own literal values stay readable (a deliberately short test password is the point of the call).
     const literals = literalsOf(s.json ?? s.form);
-    try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body)), 0, literals) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''), 0, literals)); } catch { /* raw */ }
+    try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body)), { keep: literals }) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''), { keep: literals })); } catch { /* raw */ }
     const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : r.text;
     lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''} → **${r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.

@@ -2,40 +2,28 @@
   "key": "DQ-2",
   "run": "01-harden",
   "label": "harden",
-  "startedAt": "2026-09-27T12:17:24.044Z",
-  "finishedAt": "2026-09-27T12:18:49.509Z",
+  "startedAt": "2026-09-28T19:24:20.958Z",
+  "finishedAt": "2026-09-28T19:27:24.354Z",
   "autId": "demoqa",
   "aut": {
-    "name": "DemoQA Book Store (React UI + JSON API)",
-    "baseURL": "https://demoqa.com",
-    "apiBaseURL": "https://demoqa.com"
+    "name": "demosite",
+    "baseURL": "https://demoqa.com/",
+    "apiBaseURL": "https://demoqa.com/"
   },
-  "command": "npx playwright test evaluations/DQ-2/tests/ --workers 4",
+  "command": "npx playwright test evaluations/DQ-2/tests/ --workers 2 --repeat-each 2",
   "grep": null,
-  "capture": true,
+  "capture": false,
   "preflight": {
     "health": [
       {
-        "url": "https://demoqa.com/books",
+        "url": "https://demoqa.com/",
         "ok": true,
         "status": 200,
-        "ms": 725,
+        "ms": 724,
         "samples": [
-          725,
-          626,
-          131
-        ],
-        "slow": false
-      },
-      {
-        "url": "https://demoqa.com/BookStore/v1/Books",
-        "ok": true,
-        "status": 200,
-        "ms": 675,
-        "samples": [
-          675,
-          147,
-          175
+          724,
+          659,
+          123
         ],
         "slow": false
       }
@@ -44,39 +32,27 @@
   "postflight": {
     "health": [
       {
-        "url": "https://demoqa.com/books",
+        "url": "https://demoqa.com/",
         "ok": true,
         "status": 200,
-        "ms": 641,
+        "ms": 688,
         "samples": [
-          633,
-          641,
-          127
-        ],
-        "slow": false
-      },
-      {
-        "url": "https://demoqa.com/BookStore/v1/Books",
-        "ok": true,
-        "status": 200,
-        "ms": 663,
-        "samples": [
-          663,
-          120,
-          129
+          688,
+          637,
+          130
         ],
         "slow": false
       }
     ]
   },
-  "skill": "3a59386487eca13b",
-  "exitCode": 1,
+  "skill": "472e65ae47487776",
+  "exitCode": 0,
   "stats": {
-    "startTime": "2026-09-27T12:17:25.379Z",
-    "duration": 79548.852,
-    "expected": 27,
+    "startTime": "2026-09-28T19:24:21.564Z",
+    "duration": 178086.811,
+    "expected": 42,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

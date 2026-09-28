@@ -1,47 +1,33 @@
-# Requirement review — DQ-2: Personal book collection - browse the catalogue and manage my books
-
-Written from `requirement/story.md`, `requirement/attachments/api-contract.md` and `requirement-contract.json`
-only, before any access to the application.
+# Requirement review — DQ-2
 
 ## Sources used
 
 | Source | Contributes |
 | --- | --- |
-| story.md | user story; routes `/books`, `/profile`, `/login`; per-run user creation/deletion and the `DQ_USER_PASSWORD` secret; example ISBNs; AC-1..AC-12 |
-| attachments/api-contract.md | Bearer auth and GenerateToken; account endpoints; error envelope and error table (1200/1205/1206/1210); Book object fields and types; BookStore endpoints, request bodies, success statuses and error cases |
-| requirement-contract.json | reviewed contract (ACs verbatim, E1..E4, R1..R2, gaps G1..G6) |
+| story.md | user story, context (routes /books and /profile), accounts and data constraints, AC-1 to AC-12 |
+| attachments/api-contract.md | base URL and JSON bodies, Bearer authentication and token endpoint, error envelope and error table, Book object fields, endpoints with bodies, statuses and errors |
 
 ## Testability decisions
 
-| AC | Decision |
-| --- | --- |
-| AC-1 | "carries all catalogue fields" is checked as *presence* of the nine fields on every entry (functional). The field types in R2 (api-contract.md#L28-L38) are checked in a separate `contract` scenario so a type mismatch is its own finding. |
-| AC-2 | "same data as that book's entry in the catalogue" = deep equality of the lookup body with the matching `books[]` entry. Run for the three example ISBNs of story.md#L31. |
-| AC-3 | Oracle = the live catalogue API response: every returned title appears on `/books`, and each row shows that book's author and publisher. |
-| AC-4 | The search box is located by its required placeholder "Type to search" (strict: the placeholder is the requirement). "While typing" = characters are typed one by one and **no** submit/Enter is sent. The three example terms are asserted as *exact* sets of visible titles; a no-match term must leave zero book rows. Case-insensitivity is exercised by the examples themselves ("javascript" vs "JavaScript", "zakas" vs "Zakas") plus one upper-case variant of a stated example ("JAVASCRIPT" → the same four titles), which follows directly from "case-insensitively". |
-| AC-5 | Uses 9781449325862 "Git Pocket Guide" (story example). The detail values are compared with that book's catalogue entry from the API (ISBN, title, sub title, author, publisher, total pages). |
-| AC-6 | Two example books are added in one call; response `books` must echo exactly the added ISBNs; `GET /Account/v1/User/{UUID}` must list both. |
-| AC-7 | Book seeded through the API; the user signs in through the `/login` UI; the Profile page must list the book with title, author and publisher (values from the catalogue API). |
-| AC-8 | Re-adding the same ISBN → 400 / 1210 / "ISBN already present in the User's Collection!"; the collection must contain it exactly once. Typed as `idempotency` (repeated submit). |
-| AC-9 | Two books seeded; the dialog text "Do you want to delete this book?" is asserted verbatim; after OK only that row disappears; the API collection is re-read. |
-| AC-10 | Split: functional (204 + remaining books) and negative (book not in collection → 400 / 1206). The "not in collection" book is a catalogue book that was never added to this fresh user's collection. |
-| AC-11 | Split: lookup of an unknown ISBN (400 / 1205) and adding an unknown ISBN (400 / 1205 + collection still empty). The unknown ISBN is verified absent from the catalogue as a precondition (never guessed blindly). |
-| AC-12 | Scenario Outline, one row per refused call (no token ×3, invalid token ×3, other user's UUID / userId ×2). Each asserts 401 + code "1200" + "User not authorized!". A second user is seeded for the cross-user rows. |
+_How each criterion is verified (write the decision after the arrow)._
 
-"Nothing is added" / "other books remain" are verified by re-reading the user's collection through
-`GET /Account/v1/User/{UUID}` with the owner's token.
+- **AC-1** (api) GET /BookStore/v1/Books returns 200 with a books list; every entry carries all catalogue fields listed in the contract (isbn, title, subT… →
+- **AC-2** (api) Looking up one book with GET /BookStore/v1/Book?ISBN=<isbn> returns 200 with the same data as that book's entry in the catalogue. →
+- **AC-3** (e2e) The Book Store page /books lists every book returned by the catalogue API, each with its title, author and publisher. →
+- **AC-4** (ui) The search box on /books (placeholder "Type to search") filters the list while typing, case-insensitively, on title, author or publisher.… →
+- **AC-5** (ui) Clicking a book title on /books opens that book's detail page, showing its ISBN, title, sub title, author, publisher and total pages as i… →
+- **AC-6** (api) Adding books to a user's collection with POST /BookStore/v1/Books returns 201 and echoes the added ISBNs; GET /Account/v1/User/{UUID} the… →
+- **AC-7** (e2e) A book added through the API appears on the Profile page after the user signs in on /login, with its title, author and publisher. →
+- **AC-8** (api) Adding a book that is already in the user's collection is rejected with the "already present" error from the contract; the collection sti… →
+- **AC-9** (e2e) On the Profile page, deleting one book (the row's delete icon, then confirming "Do you want to delete this book?" with OK) removes that r… →
+- **AC-10** (api) DELETE /BookStore/v1/Book removes one book from the collection and returns 204; the other books remain. Removing a book that is not in th… →
+- **AC-11** (api) An ISBN that is not in the catalogue is rejected with the "not available in Books Collection" error from the contract, both for the looku… →
+- **AC-12** (api) Collection calls without a valid token are refused with the "not authorized" error from the contract: adding, deleting and reading a user… →
 
 ## Ambiguities / open questions
 
-| Item | Handling |
-| --- | --- |
-| G1 — body fields of `POST /Account/v1/User` not stated | mechanics: drafted as `{ userName, password }` (mirrors GenerateToken, api-contract.md#L9); to be confirmed in hardening. |
-| G2..G5 — UI rendering of lists, detail page, login form, profile rows, delete confirmation | mechanics: discovered during hardening. |
-| G6 — `DELETE /BookStore/v1/Books?UserId=` (remove all) has no AC | `# OPEN-QUESTION:` — not tested. |
-| Error bodies: whether `code` is compared as string | R1 says the code is a string; the error scenarios assert `code` as the string literal from the table (e.g. "1200"). |
-| AC-4 "filters the list while typing" — timing | Asserted as: after typing (no submit), the visible list equals the expected set. No latency threshold is stated, so none is asserted. |
-| AC-12 invalid token | An obviously malformed Bearer value is used; the requirement says "no/invalid token" without defining invalid. |
-
-## Revisions
-
-None.
+- G1 (mechanics, required): how a test obtains the UUID (userId) of a pre-provisioned test user, needed in POST /BookStore/v1/Books, DELETE /BookStore/v1/Book and GET /Account/v1/User/{UUID} — open
+- G2 (mechanics, required): Book Store page /books: how the book rows, each row's title (link), author and publisher, and the search box are found — open
+- G3 (mechanics, required): book detail page: its route and how the ISBN, title, sub title, author, publisher and total pages are found — open
+- G4 (mechanics, required): sign-in page /login: how the user name and password fields and the sign-in action are found — open
+- G5 (mechanics, required): Profile page /profile: how the book rows (title, author, publisher), a row's delete icon and the confirmation "Do you want to delete this book?" with its OK are found (browser dialog or in-page modal) — open

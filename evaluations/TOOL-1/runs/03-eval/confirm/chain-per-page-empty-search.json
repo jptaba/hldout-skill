@@ -1,6 +1,0 @@
-{ "steps": [
-  { "name": "AC-6: catalogue page size (API)", "method": "GET", "path": "/products", "expect": 200, "show": ["per_page", "data.length", "total"] },
-  { "name": "AC-7: unfiltered catalogue total", "method": "GET", "path": "/products", "show": ["total"] },
-  { "name": "AC-7: empty search (q present, empty)", "method": "GET", "path": "/products/search?q=", "show": ["total", "data.length"] },
-  { "name": "AC-7: search without q", "method": "GET", "path": "/products/search", "show": ["total", "data.length"] }
-] }

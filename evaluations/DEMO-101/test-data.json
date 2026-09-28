@@ -1,8 +1,0 @@
-{
-  "users": {
-    "standard": { "username": "standard_user", "password": "${env:DEMO_SHOPPER_PASSWORD}" },
-    "locked": { "username": "locked_out_user", "password": "${env:DEMO_SHOPPER_PASSWORD}" }
-  },
-  "wrongPassword": "wrong_password",
-  "checkout": { "firstName": "Test", "lastName": "Shopper", "postalCode": "90210" }
-}

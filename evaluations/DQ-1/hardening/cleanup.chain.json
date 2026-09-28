@@ -1,5 +1,0 @@
-{ "steps": [
-  { "name": "token", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "qa-dq1-harden-1790487968", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "tok": "token" }, "show": ["status"], "setup": true },
-  { "name": "user id lookup via GET", "method": "GET", "path": "Account/v1/User/f24a1c35-73cd-413b-94c2-91a7fa12d1a5", "headers": { "Authorization": "Bearer ${tok}" }, "show": ["username"] },
-  { "name": "delete walk account", "method": "DELETE", "path": "Account/v1/User/f24a1c35-73cd-413b-94c2-91a7fa12d1a5", "headers": { "Authorization": "Bearer ${tok}" }, "expect": 204 }
-] }

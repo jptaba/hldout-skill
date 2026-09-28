@@ -3,17 +3,59 @@
   "verdict": "PASS",
   "reason": "Every scenario passed and every acceptance criterion is covered.",
   "finalRun": "02-eval",
-  "generatedAt": "2026-09-26T23:20:40.503Z",
-  "autId": "toolshop",
+  "generatedAt": "2026-09-28T20:29:40.797Z",
+  "autId": "practicesoftwaretesting",
   "aut": {
-    "name": "Toolshop (practicesoftwaretesting.com, Angular + Laravel API)",
-    "baseURL": "https://practicesoftwaretesting.com",
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
     "apiBaseURL": "https://api.practicesoftwaretesting.com",
     "testIdAttribute": "data-test",
     "healthcheck": [
-      "/",
-      "api:/products"
-    ]
+      "/"
+    ],
+    "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+    "accounts": {
+      "password": "${env:TS_USER_PASSWORD}",
+      "username": "hldout-${uid}@example.com",
+      "create": {
+        "method": "POST",
+        "path": "/users/register",
+        "body": {
+          "first_name": "Hldout",
+          "last_name": "Test",
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "id": "id"
+      },
+      "token": {
+        "method": "POST",
+        "path": "/users/login",
+        "body": {
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "token": "access_token"
+      },
+      "authHeader": "Authorization: Bearer ${token}",
+      "signIn": {
+        "path": "auth/login",
+        "done": "url:/account",
+        "steps": [
+          {
+            "fill": "getByTestId('email')",
+            "value": "${username}"
+          },
+          {
+            "fill": "getByTestId('password')",
+            "value": "${password}"
+          },
+          {
+            "click": "getByTestId('login-submit')"
+          }
+        ]
+      }
+    }
   },
   "summary": {
     "total": 11,
@@ -38,7 +80,7 @@
       "defects": []
     },
     {
-      "type": "integration",
+      "type": "idempotency",
       "scenarios": 1,
       "tests": 1,
       "passed": 1,
@@ -47,7 +89,7 @@
       "defects": []
     },
     {
-      "type": "negative",
+      "type": "integration",
       "scenarios": 1,
       "tests": 1,
       "passed": 1,
@@ -72,11 +114,11 @@
       "scenarios": [
         {
           "id": "SCN-001",
-          "title": "A signed-in customer adds a favourite",
+          "title": "A customer adds a product to favourites",
           "type": "functional",
           "layer": "api",
           "sources": [
-            "story.md#L23"
+            "story.md AC-1"
           ],
           "passed": 1,
           "total": 1,
@@ -98,11 +140,11 @@
       "scenarios": [
         {
           "id": "SCN-002",
-          "title": "Adding the same favourite twice is rejected with 409",
-          "type": "negative",
+          "title": "Adding a product that is already a favourite is refused",
+          "type": "idempotency",
           "layer": "api",
           "sources": [
-            "story.md#L24, story.md#L34"
+            "story.md AC-2, PO comment (story.md#L34)"
           ],
           "passed": 1,
           "total": 1,
@@ -124,11 +166,11 @@
       "scenarios": [
         {
           "id": "SCN-003",
-          "title": "A customer sees only their own favourites",
+          "title": "Each customer sees only their own favourites",
           "type": "security",
           "layer": "api",
           "sources": [
-            "story.md#L25"
+            "story.md AC-3"
           ],
           "passed": 1,
           "total": 1,
@@ -150,11 +192,11 @@
       "scenarios": [
         {
           "id": "SCN-004",
-          "title": "<request> with <credentials> is refused with 401",
+          "title": "The favourites endpoints refuse calls without a valid token",
           "type": "security",
           "layer": "api",
           "sources": [
-            "story.md#L26"
+            "story.md AC-4"
           ],
           "passed": 6,
           "total": 6,
@@ -201,11 +243,11 @@
       "scenarios": [
         {
           "id": "SCN-005",
-          "title": "Adding a favourite on the web shop",
+          "title": "Adding to favourites in the web shop",
           "type": "integration",
-          "layer": "e2e",
+          "layer": "ui",
           "sources": [
-            "story.md#L27"
+            "story.md AC-5"
           ],
           "passed": 1,
           "total": 1,
@@ -231,7 +273,7 @@
           "type": "functional",
           "layer": "api",
           "sources": [
-            "story.md#L28"
+            "story.md AC-6"
           ],
           "passed": 1,
           "total": 1,
@@ -249,5 +291,6 @@
     }
   ],
   "openQuestions": [],
+  "observations": [],
   "verdictFile": "evaluations/TOOL-4/verdict.md"
 }

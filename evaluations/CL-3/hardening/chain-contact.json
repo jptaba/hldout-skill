@@ -1,0 +1,4 @@
+{ "steps": [
+  { "name": "sign up", "method": "POST", "path": "users", "json": { "firstName": "QA", "lastName": "Heldout", "email": "qa-probe-${uid}@example.com", "password": "${env:CL_USER_PASSWORD}" }, "save": { "token": "token" }, "expect": 201, "show": ["user.email"] },
+  { "name": "add a contact", "method": "POST", "path": "contacts", "headers": { "Authorization": "Bearer ${token}" }, "json": { "firstName": "Jane", "lastName": "Doe", "birthdate": "1985-07-14", "email": "jane.doe@example.com", "phone": "8005551234", "street1": "1 Main St.", "street2": "Apartment A", "city": "Anytown", "stateProvince": "KS", "postalCode": "12345", "country": "USA" }, "expect": 201 }
+] }

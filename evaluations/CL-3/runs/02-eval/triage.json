@@ -1,0 +1,434 @@
+{
+  "key": "CL-3",
+  "run": "02-eval",
+  "generatedAt": "2026-09-28T19:13:12.502Z",
+  "summary": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: The edit form is pre-filled with the contact's current values",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Editing the city saves it and shows it on the Contact Details page",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: An edit in the web app is what the API returns",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:integration",
+        "@layer:e2e",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: Emptying the phone in the web app clears it",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:integration",
+        "@layer:e2e",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: An invalid e-mail is refused and nothing is stored",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: PUT replaces the contact",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: PUT clears the optional fields it does not send",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: PATCH changes only the fields it sends",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009.1",
+      "title": "SCN-009.1: An update that would lose the first or last name is refused (PUT without firstName)",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009.2",
+      "title": "SCN-009.2: An update that would lose the first or last name is refused (PUT without lastName)",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009.3",
+      "title": "SCN-009.3: An update that would lose the first or last name is refused (PUT with firstName \"\")",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009.4",
+      "title": "SCN-009.4: An update that would lose the first or last name is refused (PATCH with lastName \"\")",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: Cancelling the delete keeps the contact",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Confirming the delete removes the contact",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: DELETE answers \"Contact deleted\"",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-9",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-9"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: A deleted contact is gone for good",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-10",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-10"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014.1",
+      "title": "SCN-014.1: A malformed contact id is refused (GET)",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014.2",
+      "title": "SCN-014.2: A malformed contact id is refused (PUT)",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014.3",
+      "title": "SCN-014.3: A malformed contact id is refused (PATCH)",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-014.4",
+      "title": "SCN-014.4: A malformed contact id is refused (DELETE)",
+      "file": "CL-3/tests/cl-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-11",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-11"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

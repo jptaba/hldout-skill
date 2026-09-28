@@ -165,20 +165,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Each run creates its own user through "
-                    },
-                    {
-                      "type": "text",
-                      "text": "POST /Account/v1/User",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": " with a unique user name (for example"
+                      "text": "User creation is switched off in the QA environment. Tests use the QA team's pre-provisioned test users"
                     },
                     {
                       "type": "text",
@@ -186,29 +173,7 @@
                     },
                     {
                       "type": "text",
-                      "text": "qa-<timestamp>",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": ") and the password from the environment variable "
-                    },
-                    {
-                      "type": "text",
-                      "text": "DQ_USER_PASSWORD",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": ", and deletes it at the end"
+                      "text": "(user names and passwords are kept in the team's secret store, never in the test code). Do not create or delete"
                     },
                     {
                       "type": "text",
@@ -216,20 +181,21 @@
                     },
                     {
                       "type": "text",
-                      "text": "with "
-                    },
+                      "text": "users."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
                     {
                       "type": "text",
-                      "text": "DELETE /Account/v1/User/{UUID}",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": "."
+                      "text": "These users are shared by every run, so each test leaves the collection of every user it used empty."
                     }
                   ]
                 }
@@ -1123,7 +1089,7 @@
         "mimeType": "text/markdown",
         "size": 2567,
         "content": "attachments/api-contract.md",
-        "created": "2026-09-27T05:31:46.723Z",
+        "created": "2026-09-28T19:15:31.432Z",
         "author": {
           "displayName": "Product Owner"
         }

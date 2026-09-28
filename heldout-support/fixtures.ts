@@ -14,11 +14,18 @@
  *
  * Assertion convention: every assertion that encodes a requirement carries a message tagged
  * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics.
+ *
+ * Secret redaction and the page helpers come from the skill installed in this project, so the tests and the skill's
+ * own tools (inspect, the accounts check) redact and locate the same way.
  */
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page } from '@playwright/test';
+import { closeOverlays, locateOn } from '../.claude/skills/heldout-evaluator/scripts/lib/page';
+import { redact, redactHeaders, redactSnapshot } from '../.claude/skills/heldout-evaluator/scripts/lib/redact';
+
+export { redact, redactSnapshot };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TestData = Record<string, any>;
@@ -97,20 +104,23 @@ export const scenarioIdOf = (title: string) => title.match(/^(SCN-\d+(?:\.\d+)?)
  */
 let apiPhase: 'test' | 'seed' | 'cleanup' = 'test';
 
+/** The AUT profile's data prefix (default "hldout"): every name the tests make starts with it, so test data is easy to find and sweep. */
+export const DATA_PREFIX = process.env.AUT_DATA_PREFIX || 'hldout';
+
 let uniqueCounter = 0;
-/** Collision-free value for shared AUTs: unique('Guest') → "Guest k3x9q2-1". */
-export function unique(prefix = 'heldout'): string {
+/** Collision-free value for shared AUTs: unique() → "hldout k3x9q2-1", unique('Guest') → "Guest k3x9q2-1". */
+export function unique(prefix = DATA_PREFIX): string {
   uniqueCounter += 1;
   return `${prefix} ${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}-${uniqueCounter}`;
 }
-/** unique() without spaces, for e-mails, user names and slugs: uniqueId('qa') → "qa-k3x9q2-1". Keep prefixes short where the AUT limits length. */
-export const uniqueId = (prefix = 'qa'): string => unique(prefix).replace(/\s+/g, '-');
+/** unique() without spaces, for e-mails, user names and slugs: uniqueId() → "hldout-k3x9q2-1". Keep prefixes short where the AUT limits length. */
+export const uniqueId = (prefix = DATA_PREFIX): string => unique(prefix).replace(/\s+/g, '-');
 
 // ---- data seeding -------------------------------------------------------------------------------
 
 export interface SeedRecord {
   label: string;
-  kind: 'data' | 'pre-step' | 'auth' | 'readiness' | 'scenario-created';
+  kind: 'data' | 'pre-step' | 'auth' | 'readiness' | 'scenario-created' | 'account';
   created?: unknown; cleanup?: 'done' | 'skipped' | 'failed' | 'none'; reused?: boolean; error?: string;
 }
 
@@ -140,7 +150,8 @@ export interface Seed {
   /**
    * A test account from the AUT profile's `accounts` recipe, signed in over the API when the recipe has a `token` call.
    * Created (unique user name, deleted after the test when the recipe has `delete`), or one of the `existing` accounts:
-   * each parallel worker gets its own share, and each call in a test the next one (never deleted). A failure is BLOCKED.
+   * each parallel worker gets its own share, and each call in a test the next one (never deleted; the recipe's `reset`,
+   * when set, restores it before and after the test). A failure is BLOCKED.
    */
   account(label?: string, options?: { username?: string }): Promise<Account>;
 }
@@ -160,7 +171,7 @@ interface RecipeCall { method: string; path: string; body?: Json; form?: Record<
 interface AccountRecipe {
   password?: string; username?: string; authHeader?: string; before?: (RecipeCall & { save: Record<string, string> })[];
   create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string }[];
-  token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall;
+  token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall; reset?: RecipeCall;
   signIn?: UiForm; signUp?: UiForm;
 }
 const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
@@ -185,11 +196,7 @@ function authHeader(r: AccountRecipe, token: string): Record<string, string> {
 const dig = (o: unknown, dotted: string): unknown => dotted.split('.').reduce<unknown>((a, k) => (a && typeof a === 'object' ? (a as Record<string, unknown>)[k] : undefined), o);
 
 /** A page-locator expression from config ("getByPlaceholder('UserName')") evaluated against the page. */
-function locate(page: Page, expr: string): Locator {
-  const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'] as const;
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
-}
+const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 
 type UiForm = { path: string; steps: { fill?: string; click?: string; value?: string }[]; done?: string };
 /** Open the form's page, fill/click its steps (recipe placeholders filled from vars) and wait until it is done. */
@@ -241,9 +248,7 @@ export async function blockThirdParty(context: import('@playwright/test').Browse
 
 /** Close the profile's overlays (cookie consent, welcome dialogs) whenever they appear, before any action or check. */
 export async function dismissOverlays(page: Page, overlays = process.env.AUT_OVERLAYS ?? '[]'): Promise<void> {
-  for (const expr of JSON.parse(overlays || '[]') as string[]) {
-    await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
-  }
+  await closeOverlays(page, JSON.parse(overlays || '[]') as string[]);
 }
 
 /**
@@ -301,35 +306,6 @@ export function checkShape(value: unknown, schema: Record<string, ShapeRule>, la
   return out;
 }
 
-const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|session/i;
-// Header NAMES that carry credentials (incl. misspellings like "Authorisation") and VALUES that look like credentials.
-const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
-const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
-
-/** Redact secrets from headers / JSON bodies before they are attached to reports. */
-export function redact(value: unknown, depth = 0): unknown {
-  if (depth > 8 || value == null) return value;
-  // An object that says how it is recorded (a seed.account() account: its id and user name only).
-  const toJSON = (value as { toJSON?: () => unknown }).toJSON;
-  if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), depth + 1);
-  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
-  if (typeof value === 'object') {
-    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, SECRET_KEY.test(k) && typeof v !== 'object' ? '***redacted***' : redact(v, depth + 1)]));
-  }
-  return value;
-}
-/**
- * ARIA snapshots include the current value of text fields — password fields too. Redact the values of the
- * page's password inputs wherever they appear, and any value shown for a textbox whose name looks secret.
- */
-export function redactSnapshot(yaml: string, secretValues: string[] = []): string {
-  let out = yaml;
-  for (const v of secretValues.filter((x) => x && x.length >= 3)) out = out.split(v).join('***redacted***');
-  return out.replace(/^(\s*- textbox "[^"]*(?:pass(?:word|code)?|pin|secret|token)[^"]*"[^:\n]*):\s*\S.*$/gim, '$1: ***redacted***');
-}
-const redactHeaders = (h: Record<string, string>) =>
-  Object.fromEntries(Object.entries(h).map(([k, v]) => [k, SECRET_HEADER.test(k) || SECRET_VALUE.test(String(v)) ? '***redacted***' : v]));
 const clip = (s: string, n = 4000) => (s.length > n ? `${s.slice(0, n)}… (${s.length - n} more chars)` : s);
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -374,7 +350,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
     const ledger: SeedRecord[] = [];
     const cleanups: { rec: SeedRecord; run: () => Promise<unknown> }[] = [];
     let accountsTaken = 0; // existing accounts handed out in this test
-    const tag = `hx${Date.now().toString(36).slice(-5)}${testInfo.workerIndex}${testInfo.repeatEachIndex}`;
+    const tag = `${DATA_PREFIX}${Date.now().toString(36).slice(-5)}${testInfo.workerIndex}${testInfo.repeatEachIndex}`;
     /** Run a precondition in the [seed] phase with ledger + BLOCKED semantics. */
     const pre = async <T,>(rec: SeedRecord, run: () => Promise<T>): Promise<T> => {
       ledger.push(rec);
@@ -432,7 +408,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         const r = accountRecipe();
         const vars: Record<string, unknown> = { uid: uniqueId('').replace(/^-/, '') };
         const send = async (c: RecipeCall, token?: string) => {
-          // A placeholder without a value would be sent literally (e.g. an e-mail "qa-${uid}@…"): never send that.
+          // A placeholder without a value would be sent literally (e.g. an e-mail "hldout-${uid}@…"): never send that.
           const unfilled = JSON.stringify([fillRecipe(c.path, { ...vars, token }), c.body !== undefined ? fillRecipe(c.body, { ...vars, token }) : null, c.form ? fillRecipe(c.form, { ...vars, token }) : null]).match(/\$\{[^}]+\}/)?.[0];
           if (unfilled) throw new Error(`${c.method} ${c.path}: ${unfilled} has no value here, so the request was not sent`);
           return api.call(c.method, String(fillRecipe(c.path, { ...vars, token })), {
@@ -481,9 +457,17 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           }
           return account;
         };
+        /** The recipe's reset of an existing account; a 401/403 (a sign-in during the test revoked the token) retries once. */
+        const reset = async (first: boolean) => {
+          let res = await send(r!.reset!, account.token);
+          if ((res.status === 401 || res.status === 403) && r!.token) { await account.refresh(); res = await send(r!.reset!, account.token); }
+          if (first && !res.ok) throw new Error(`reset ${r!.reset!.method} ${r!.reset!.path} for ${account.username} → ${res.status} ${res.text.slice(0, 200)}`);
+          return res;
+        };
         if (r && !r.create && !r.signUp) {
           // Existing accounts: this worker's share of the list, one per call within a test; never created or deleted.
-          return seedApi.create(label, async () => {
+          const rec: SeedRecord = { label, kind: 'account', cleanup: r.reset ? undefined : 'none' };
+          const taken = await pre(rec, async () => {
             const pool = r.existing ?? [];
             const workers = Math.max(1, testInfo.config.workers);
             const mine = pool.filter((_, i) => i % workers === testInfo.parallelIndex);
@@ -492,13 +476,18 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
             vars.username = String(resolveEnv(a.username));
             vars.password = String(resolveEnv(a.password));
             vars.id = a.id ? String(resolveEnv(a.id)) : undefined;
-            return ready();
+            await ready();
+            // An account the tests change starts clean, whatever an earlier (crashed) run left.
+            if (r.reset) await reset(true);
+            return account;
           });
+          if (r.reset) cleanups.push({ rec, run: () => reset(false) });
+          return taken;
         }
         return seedApi.create(label, async () => {
           if (!r?.create && !r?.signUp) throw new Error(NO_RECIPE);
           vars.password = String(resolveEnv(r.password ?? ''));
-          vars.username = options.username ?? String(fillRecipe(r.username ?? 'qa-${uid}', vars));
+          vars.username = options.username ?? String(fillRecipe(r.username ?? `${DATA_PREFIX}-\${uid}`, vars));
           await before();
           if (!r.create) {
             // Only the sign-up page makes accounts: fill it in a browser of its own, then sign in over the API / look up the id.
@@ -653,7 +642,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       let body: unknown = text;
       if (/json/i.test(res.headers()['content-type'] ?? '') || /^\s*[[{]/.test(text)) { try { body = JSON.parse(text); } catch { /* keep text */ } }
       const exchange = {
-        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form) : redact(o.data), ...(retriedAfter ? { retriedAfter } : {}) },
+        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form, { testValues: true }) : redact(o.data, { testValues: true }), ...(retriedAfter ? { retriedAfter } : {}) },
         response: { status: res.status(), durationMs, headers: redactHeaders(res.headers()), body: typeof body === 'string' ? clip(body) : redact(body) },
       };
       n++;

@@ -7,7 +7,7 @@ priority: High
 labels: []
 source: mock-jira
 url: https://your-domain.atlassian.net/browse/JS-2
-fetchedAt: 2026-09-27T00:53:25.856Z
+fetchedAt: 2026-09-28T20:52:37.839Z
 ---
 
 # JS-2: Customer registration, login and basket
@@ -43,7 +43,7 @@ Checkout and payment; coupons; password reset; the "Remember me" option; deletin
 
 ## Comments (clarifications from the issue)
 
-**Dana Ortiz (Product Owner)** — 2026-09-26:
+**Dana Ortiz (Product Owner)** — 2026-09-28:
 
 Clarifying the password rules for AC-1 and AC-3, since the description just said "rule-compliant":
 

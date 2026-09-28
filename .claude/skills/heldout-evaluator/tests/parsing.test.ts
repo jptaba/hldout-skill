@@ -115,6 +115,25 @@ describe('decideVerdict', () => {
   it('amended integrity still allows PASS', () => assert.equal(decideVerdict({ ...base, integrity: 'AMENDED' }).verdict, 'PASS'));
 });
 
+describe('run artifacts name no local folders', () => {
+  it('rewrites the project path, natively, with forward slashes and JSON-escaped, to a relative one', async () => {
+    const { relativizePaths } = await import('../scripts/lib/redact');
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-rel-'));
+    const run = path.join(root, 'evaluations', 'X-1', 'runs', '01-eval');
+    fs.mkdirSync(run, { recursive: true });
+    const spec = path.join(root, 'evaluations', 'X-1', 'tests', 'x.spec.ts');
+    fs.writeFileSync(path.join(run, 'console.log'), `at ${spec}:12:3\nat ${spec.split(path.sep).join('/')}:4:1\n`);
+    fs.writeFileSync(path.join(run, 'results.json'), JSON.stringify({ file: spec, rootDir: root }));
+    assert.equal(relativizePaths(run, root).files, 2);
+    const log = fs.readFileSync(path.join(run, 'console.log'), 'utf8');
+    assert.doesNotMatch(log, /heldout-rel-/);
+    assert.match(log, /at \.[\\/]evaluations[\\/]X-1[\\/]tests[\\/]x\.spec\.ts:12:3/);
+    const json = JSON.parse(fs.readFileSync(path.join(run, 'results.json'), 'utf8')) as { file: string; rootDir: string };
+    assert.equal(json.rootDir, '.');
+    assert.match(json.file, /^\.[\\/]evaluations/);
+  });
+});
+
 describe('redaction', () => {
   it('redacts credential headers by name (incl. misspellings) and by value', async () => {
     const { redactHeaders } = await import('../scripts/lib/redact');
@@ -127,10 +146,13 @@ describe('redaction', () => {
   it('shows the literal values a probe or a test sends (a too-short password is the evidence), never a secret', async () => {
     const { redact, literalsOf } = await import('../scripts/lib/redact');
     const step = { email: 'hldout-1@example.com', password: 'abcd', token: '${env:API_TOKEN}' };
-    assert.deepEqual(redact({ ...step, token: 'eyJ.real.token' }, 0, literalsOf(step)), { email: 'hldout-1@example.com', password: 'abcd', token: '***redacted***' });
-    const { redact: fixtureRedact } = await import('../templates/fixtures');
-    assert.deepEqual(fixtureRedact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!' }, 0, true), { password: 'abc', passwordRepeat: '***redacted***' });
-    assert.deepEqual(fixtureRedact({ password: 'abc' }), { password: '***redacted***' });
+    assert.deepEqual(redact({ ...step, token: 'eyJ.real.token' }, { keep: literalsOf(step) }), { email: 'hldout-1@example.com', password: 'abcd', token: '***redacted***' });
+    assert.deepEqual(redact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!' }, { testValues: true }), { password: 'abc', passwordRepeat: '***redacted***' });
+    assert.deepEqual(redact({ password: 'abc' }), { password: '***redacted***' });
+    // An account is recorded as its toJSON says: id and user name, never its password or token.
+    const account = { id: '7', username: 'hldout-x', password: 'Str0ng-Generated-Pw!' };
+    Object.defineProperty(account, 'toJSON', { value: () => ({ id: account.id, username: account.username }) });
+    assert.deepEqual(redact({ me: account }), { me: { id: '7', username: 'hldout-x' } });
   });
 });
 
@@ -248,16 +270,13 @@ describe('failure signatures across runs', () => {
 });
 
 describe('snapshot redaction', () => {
-  it('removes password values from ARIA snapshots (skill and fixture copies agree)', async () => {
+  it('removes password values from ARIA snapshots (the scripts and the fixtures share it)', async () => {
     const { redactSnapshot } = await import('../scripts/lib/redact');
-    const { redactSnapshot: fixtureCopy } = await import('../templates/fixtures');
     const yaml = '- textbox "Email": qa1@example.com\n- textbox "Password" [disabled]: Fixture-00000!q\n- text: echo Fixture-00000!q';
-    for (const fn of [redactSnapshot, fixtureCopy]) {
-      const out = fn(yaml, ['Fixture-00000!q']);
-      assert.ok(!out.includes('Fixture-00000!q'));
-      assert.match(out, /textbox "Email": qa1@example.com/);
-      assert.match(fn('- textbox "Passcode": 1234'), /Passcode": \*\*\*redacted\*\*\*/);
-    }
+    const out = redactSnapshot(yaml, ['Fixture-00000!q']);
+    assert.ok(!out.includes('Fixture-00000!q'));
+    assert.match(out, /textbox "Email": qa1@example.com/);
+    assert.match(redactSnapshot('- textbox "Passcode": 1234'), /Passcode": \*\*\*redacted\*\*\*/);
   });
 });
 

@@ -1,0 +1,30 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-28T00:00:00Z",
+  "contractHash": "13cff35b701eaaf8",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L33, attachments/api-contract.md#L19-L20", "note": "Quote, text, outcomes and layer (API) match the criterion and cited response body." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L34, attachments/api-contract.md#L22", "note": "Quote/text/outcomes match; 400 + unique-email validation error + no second account are all in the quote." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L35, story.md#L50, story.md#L53", "note": "3/4-character reject cases are explicitly stated at L53; follow-up login failure matches the quote." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L36, attachments/api-contract.md#L33", "note": "200 + token (JWT/Bearer) + bid all traceable to the quote and the login response body." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L37", "note": "Layer 'e2e' correctly reflects the table's 'API + UI' (API add, UI-checked basket page) per the review rule." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L38", "note": "Own-basket read, cross-customer refusal, and 'verify with two customers you create' all match the quote." },
+    { "ref": "R1", "verdict": "supported", "evidence": "story.md#L20", "note": "\"Each customer has exactly one basket.\" quoted verbatim." },
+    { "ref": "R2", "verdict": "supported", "evidence": "story.md#L50, story.md#L53", "note": "Minimum 5 (max 40) and the 3/4-character reject example both appear at the cited lines." },
+    { "ref": "R3", "verdict": "supported", "evidence": "story.md#L51", "note": "Case-sensitive, hashed storage, and the 'not our concern beyond refusal' caveat all match L51." },
+    { "ref": "E1", "verdict": "supported", "evidence": "story.md#L34, attachments/api-contract.md#L22", "note": "400 + duplicate-email validation message matches both sources." },
+    { "ref": "E2", "verdict": "supported", "evidence": "story.md#L35, story.md#L50", "note": "400 for too-short password matches AC-3 and the PO comment; no body value is invented." },
+    { "ref": "E3", "verdict": "supported", "evidence": "story.md#L38", "note": "Refused / B's basket not returned, status explicitly left unstated (see G4), matches the quote." },
+    { "ref": "G4", "verdict": "supported", "evidence": "story.md#L38, attachments/api-contract.md#L45-L47", "note": "Sources genuinely give no status/body for the refusal case; oracle gap and 'judged as written' resolution are accurate." },
+    { "ref": "G5", "verdict": "supported", "evidence": "story.md#L37, attachments/api-contract.md#L42", "note": "Neither source states a success status for POST /api/BasketItems; correctly framed as an oracle gap resolved via the basket page." },
+    { "ref": "GET /api/SecurityQuestions", "verdict": "supported", "evidence": "attachments/api-contract.md#L24", "note": "Method and path match." },
+    { "ref": "POST /api/Users", "verdict": "supported", "evidence": "attachments/api-contract.md#L7", "note": "Method and path match." },
+    { "ref": "POST /rest/user/login", "verdict": "supported", "evidence": "attachments/api-contract.md#L27", "note": "Method and path match." },
+    { "ref": "GET /api/Products", "verdict": "supported", "evidence": "attachments/api-contract.md#L48", "note": "Method and path match." },
+    { "ref": "POST /api/BasketItems", "verdict": "supported", "evidence": "attachments/api-contract.md#L38", "note": "Method and path match." },
+    { "ref": "GET /rest/basket/{id}", "verdict": "supported", "evidence": "attachments/api-contract.md#L45", "note": "Method and path match." }
+  ],
+  "missed": [],
+  "observations": [],
+  "summary": "Every AC, rule, error case, cited gap and endpoint in the contract is grounded at the lines it cites, with no added, dropped or altered conditions found. All ● lines in the evidence pack are accounted for in the coverage ledger; no requirement-bearing content was found uncaptured."
+}

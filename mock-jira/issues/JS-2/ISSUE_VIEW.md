@@ -3,7 +3,7 @@
 
 | Type | Status | Priority | Labels |
 | --- | --- | --- | --- |
-| Story | Ready for QA | High | - |
+| Story | Ready for QA | High | `heldout-fail` |
 
 ## Description
 
@@ -36,11 +36,12 @@ Checkout and payment; coupons; password reset; the "Remember me" option; deletin
 
 ## Attachments
 
-- 📎 [api-contract.md](attachments/api-contract.md) — text/markdown, 1645 B, by Product Owner on 2026-09-27T00:53:21.110Z
+- 📎 [api-contract.md](attachments/api-contract.md) — text/markdown, 1645 B, by Product Owner on 2026-09-28T20:52:36.981Z
+- 📎 [heldout-verdict-JS-2-202609282303.md](attachments/heldout-verdict-JS-2-202609282303.md) — text/markdown, 23284 B, by Held-out Evaluator (bot) on 2026-09-28T23:03:38.350Z
 
 ## Activity — Comments
 
-### 💬 Dana Ortiz (Product Owner) — 2026-09-26T15:53:21.111Z
+### 💬 Dana Ortiz (Product Owner) — 2026-09-28T11:52:36.983Z
 
 Clarifying the password rules for AC-1 and AC-3, since the description just said "rule-compliant":
 
@@ -49,5 +50,43 @@ Clarifying the password rules for AC-1 and AC-3, since the description just said
 
 So for AC-3, a 3- or 4-character password is a clear reject case. The `JS_USER_PASSWORD` value the tests use  
 is well above the minimum, so the happy-path AC-1 should not be affected.
+
+---
+
+### 💬 Held-out Evaluator (bot) — 2026-09-28T23:03:38.354Z
+
+### 🧪 Held-out evaluation: FAIL (recommendation)
+
+> **ERROR:** 2 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-3, AC-6. Awaiting reviewer confirmation.
+
+**AUT:** OWASP Juice Shop (http://localhost:3000/)
+
+**Tests:** 4/8 passed, 4 failed, 0 flaky  **·  Held-out integrity:** PRESERVED  **·  Script defects self-repaired:** 0
+
+#### Coverage by test type
+
+| **Test type** | **Tests** | **Passed** | **Failed** | **Findings** |
+| --- | --- | --- | --- | --- |
+| boundary | 2 | 0 | 2 | APP-1 |
+| functional | 2 | 2 | 0 | - |
+| integration | 1 | 1 | 0 | - |
+| negative | 1 | 1 | 0 | - |
+| security | 2 | 0 | 2 | APP-2 |
+
+#### Findings for review (2)
+
+| **ID** | **Suggested severity** | **Criteria** | **Type** | **Finding** | **Expected (requirement)** | **Actual (AUT)** |
+| --- | --- | --- | --- | --- | --- | --- |
+| APP-1 | - | AC-3 | boundary | Registration accepts passwords shorter than 5 characters | 400 | 201 |
+| APP-2 | - | AC-6 | security | A customer can read another customer's basket | not 115 | 115 |
+
+_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._
+
+**Open questions (not tested):** G4 — what answer counts as 'refused' when customer A requests customer B's basket: no status or error body is stated (401, 403, 404, or an error in a 200 body?). The outcome is judged as written: the request is refused and B's basket is not returned · G5 — success status of POST /api/BasketItems is not stated; AC-5 is judged by the basket page listing the product
+
+- Full report attached: `heldout-verdict-JS-2-202609282303.md`
+- Final run: 02-eval
+
+_Posted automatically by the heldout-evaluator skill._
 
 ---

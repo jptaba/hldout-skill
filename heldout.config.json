@@ -1,149 +1,265 @@
 {
-  "defaultAut": "swag-labs",
+  "$schema": ".claude/skills/heldout-evaluator/templates/heldout.config.schema.json",
+  "defaultAut": "demoqa",
   "auts": {
-    "swag-labs": {
-      "name": "Swag Labs (saucedemo.com demo shop)",
-      "baseURL": "https://www.saucedemo.com",
-      "testIdAttribute": "data-test",
+    "demoqa": {
+      "name": "demosite",
+      "baseURL": "https://demoqa.com/",
+      "apiBaseURL": "https://demoqa.com/",
+      "testIdAttribute": "data-testid",
       "healthcheck": [
         "/"
       ],
-      "notes": "UI only. Public demo credentials are shown on its login page."
-    },
-    "shady-meadows": {
-      "name": "Shady Meadows B&B (Restful Booker Platform demo)",
-      "baseURL": "https://automationintesting.online",
-      "apiBaseURL": "https://automationintesting.online",
-      "testIdAttribute": "data-testid",
-      "healthcheck": [
-        "/",
-        "api:/api/room"
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+      "blockHosts": [
+        "criteo.com",
+        "criteo.net",
+        "doubleclick.net",
+        "google-analytics.com",
+        "googlesyndication.com",
+        "googletagmanager.com",
+        "googletagservices.com",
+        "id5-sync.com",
+        "openx.net"
       ],
-      "notes": "UI + JSON API. Shared public sandbox: data is reset periodically and other people write to it."
+      "accounts": {
+        "existing": [
+          {
+            "username": "qa-existing-mulmm7gq-1",
+            "password": "${env:APP_PASSWORD_1}"
+          },
+          {
+            "username": "qa-existing-mulmm8w3-2",
+            "password": "${env:APP_PASSWORD_2}"
+          },
+          {
+            "username": "${vault:secret/qa/demoqa#user4}",
+            "password": "${vault:secret/qa/demoqa#password4}"
+          },
+          {
+            "username": "${vault:secret/qa/demoqa#user3}",
+            "password": "${vault:secret/qa/demoqa#password3}"
+          }
+        ],
+        "perTest": 2,
+        "token": {
+          "method": "POST",
+          "path": "/Account/v1/GenerateToken",
+          "body": {
+            "userName": "${username}",
+            "password": "${password}"
+          },
+          "token": "token"
+        },
+        "lookup": {
+          "method": "POST",
+          "path": "/Account/v1/Login",
+          "body": {
+            "userName": "${username}",
+            "password": "${password}"
+          },
+          "id": "userId"
+        },
+        "authHeader": "Authorization: Bearer ${token}",
+        "signIn": {
+          "path": "login",
+          "done": "url:/profile",
+          "steps": [
+            {
+              "fill": "getByRole('textbox', { name: 'UserName', exact: true })",
+              "value": "${username}"
+            },
+            {
+              "fill": "getByRole('textbox', { name: 'Password', exact: true })",
+              "value": "${password}"
+            },
+            {
+              "click": "getByRole('button', { name: 'Login', exact: true })"
+            }
+          ]
+        },
+        "reset": {
+          "method": "DELETE",
+          "path": "/BookStore/v1/Books?UserId=${id}"
+        }
+      }
     },
-    "restful-booker": {
-      "name": "Restful Booker (booking API demo)",
-      "baseURL": "https://restful-booker.herokuapp.com",
-      "apiBaseURL": "https://restful-booker.herokuapp.com",
+    "thinking-tester-contact-list": {
+      "name": "Contact List App",
+      "baseURL": "https://thinking-tester-contact-list.herokuapp.com/",
+      "apiBaseURL": "https://thinking-tester-contact-list.herokuapp.com/",
       "testIdAttribute": "data-testid",
-      "healthcheck": [
-        "api:/ping"
-      ],
-      "notes": "API only. Shared public sandbox, data resets periodically."
-    },
-    "the-internet": {
-      "name": "The Internet (UI test playground)",
-      "baseURL": "https://the-internet.herokuapp.com",
-      "apiBaseURL": "https://the-internet.herokuapp.com",
-      "testIdAttribute": "data-test",
       "healthcheck": [
         "/"
       ],
-      "notes": "UI only. Some pages load slow third-party assets: the load event can hang."
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+      "accounts": {
+        "password": "${env:CL_USER_PASSWORD}",
+        "username": "qa-${uid}@example.com",
+        "create": {
+          "method": "POST",
+          "path": "/users",
+          "body": {
+            "firstName": "QA",
+            "lastName": "Heldout",
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "id": "user._id",
+          "token": "token"
+        },
+        "token": {
+          "method": "POST",
+          "path": "/users/login",
+          "body": {
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "token": "token"
+        },
+        "authHeader": "Authorization: Bearer ${token}",
+        "delete": {
+          "method": "DELETE",
+          "path": "/users/me"
+        },
+        "signIn": {
+          "path": "/",
+          "done": "url:/contactList",
+          "steps": [
+            {
+              "fill": "getByRole('textbox', { name: 'Email', exact: true })",
+              "value": "${username}"
+            },
+            {
+              "fill": "getByRole('textbox', { name: 'Password', exact: true })",
+              "value": "${password}"
+            },
+            {
+              "click": "getByRole('button', { name: 'Submit', exact: true })"
+            }
+          ]
+        }
+      }
     },
-    "conduit": {
-      "name": "Conduit (RealWorld demo, Angular + JSON API)",
-      "baseURL": "https://conduit.bondaracademy.com",
-      "apiBaseURL": "https://conduit-api.bondaracademy.com",
-      "testIdAttribute": "data-testid",
-      "healthcheck": [
-        "/",
-        "api:/api/tags"
-      ],
-      "notes": "UI (Angular SPA) + JSON API with JWT (Authorization: Token <jwt>). Shared sandbox: list/comment visibility is scoped per user. Users cannot be deleted via the API."
-    },
-    "toolshop": {
-      "name": "Toolshop (practicesoftwaretesting.com, Angular + Laravel API)",
-      "baseURL": "https://practicesoftwaretesting.com",
+    "practicesoftwaretesting": {
+      "name": "Practice Software Testing",
+      "baseURL": "https://practicesoftwaretesting.com/",
       "apiBaseURL": "https://api.practicesoftwaretesting.com",
       "testIdAttribute": "data-test",
       "healthcheck": [
-        "/",
-        "api:/products"
-      ]
+        "/"
+      ],
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+      "accounts": {
+        "password": "${env:TS_USER_PASSWORD}",
+        "username": "hldout-${uid}@example.com",
+        "create": {
+          "method": "POST",
+          "path": "/users/register",
+          "body": {
+            "first_name": "Hldout",
+            "last_name": "Test",
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "id": "id"
+        },
+        "token": {
+          "method": "POST",
+          "path": "/users/login",
+          "body": {
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "token": "access_token"
+        },
+        "authHeader": "Authorization: Bearer ${token}",
+        "signIn": {
+          "path": "auth/login",
+          "done": "url:/account",
+          "steps": [
+            {
+              "fill": "getByTestId('email')",
+              "value": "${username}"
+            },
+            {
+              "fill": "getByTestId('password')",
+              "value": "${password}"
+            },
+            {
+              "click": "getByTestId('login-submit')"
+            }
+          ]
+        }
+      }
     },
-    "toolshop-rc": {
-      "name": "Toolshop release candidate (with-bugs build)",
-      "baseURL": "https://with-bugs.practicesoftwaretesting.com",
-      "apiBaseURL": "https://api-with-bugs.practicesoftwaretesting.com",
-      "testIdAttribute": "data-test",
-      "healthcheck": [
-        "/",
-        "api:/products"
-      ]
-    },
-    "contact-list": {
-      "name": "Contact List App (thinking-tester, UI + REST API)",
-      "baseURL": "https://thinking-tester-contact-list.herokuapp.com",
-      "apiBaseURL": "https://thinking-tester-contact-list.herokuapp.com",
+    "owasp-juice-shop": {
+      "name": "OWASP Juice Shop",
+      "baseURL": "http://localhost:3000/",
+      "apiBaseURL": "http://localhost:3000/",
       "testIdAttribute": "data-testid",
       "healthcheck": [
         "/"
-      ]
-    },
-    "juice-shop": {
-      "name": "OWASP Juice Shop (public demo)",
-      "baseURL": "https://demo.owasp-juice.shop",
-      "apiBaseURL": "https://demo.owasp-juice.shop",
-      "testIdAttribute": "id",
-      "healthcheck": [
-        "/",
-        "api:/api/Products"
       ],
-      "notes": "Angular SPA (hash routes) + REST API on the same origin; JWT Bearer. Shared demo, may be reset at any time."
-    },
-    "automation-exercise": {
-      "name": "Automation Exercise (demo shop + practice API)",
-      "baseURL": "https://automationexercise.com",
-      "apiBaseURL": "https://automationexercise.com",
-      "testIdAttribute": "data-qa",
-      "healthcheck": [
-        "/",
-        "api:/api/productsList"
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+      "overlays": [
+        "getByRole('button', { name: 'dismiss cookie message' })",
+        "getByRole('button', { name: 'Close Welcome Banner' })"
       ],
-      "notes": "UI + form-encoded API under /api.",
-      "blockHosts": [
-        "googlesyndication.com",
-        "doubleclick.net",
-        "googleadservices.com",
-        "google-analytics.com",
-        "googletagmanager.com",
-        "fundingchoicesmessages.google.com",
-        "adservice.google.com"
-      ]
-    },
-    "parabank": {
-      "name": "ParaBank (Parasoft demo bank, UI + REST)",
-      "baseURL": "https://parabank.parasoft.com/parabank/",
-      "apiBaseURL": "https://parabank.parasoft.com/parabank/services/bank/",
-      "testIdAttribute": "data-testid",
-      "healthcheck": [
-        "/index.htm",
-        "api:/openapi.yaml"
-      ],
-      "notes": "Shared demo DB that anyone can reset; register your own customer per test run. Behind Cloudflare: bursts of traffic are rate limited (Error 1015) or challenged, so tests run one worker at a time, at least 12 s apart.",
-      "maxWorkers": 1,
-      "minTestIntervalMs": 12000
-    },
-    "demoqa": {
-      "name": "DemoQA Book Store (React UI + JSON API)",
-      "baseURL": "https://demoqa.com",
-      "apiBaseURL": "https://demoqa.com",
-      "testIdAttribute": "id",
-      "healthcheck": [
-        "/books",
-        "api:/BookStore/v1/Books"
-      ],
-      "notes": "Users can be deleted via the API.",
-      "blockHosts": [
-        "googlesyndication.com",
-        "doubleclick.net",
-        "googleadservices.com",
-        "google-analytics.com",
-        "googletagmanager.com",
-        "fundingchoicesmessages.google.com",
-        "adservice.google.com"
-      ]
+      "accounts": {
+        "before": [
+          {
+            "method": "GET",
+            "path": "/api/SecurityQuestions",
+            "save": {
+              "qid": "data.0.id"
+            }
+          }
+        ],
+        "password": "${env:JS_USER_PASSWORD}",
+        "username": "hldout-${uid}@example.com",
+        "create": {
+          "method": "POST",
+          "path": "/api/Users",
+          "body": {
+            "email": "${username}",
+            "password": "${password}",
+            "passwordRepeat": "${password}",
+            "securityQuestion": {
+              "id": "${qid}"
+            },
+            "securityAnswer": "heldout"
+          },
+          "id": "data.id"
+        },
+        "token": {
+          "method": "POST",
+          "path": "/rest/user/login",
+          "body": {
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "token": "authentication.token"
+        },
+        "authHeader": "Authorization: Bearer ${token}",
+        "signIn": {
+          "path": "#/login",
+          "done": "url:/search",
+          "steps": [
+            {
+              "fill": "locator('#email')",
+              "value": "${username}"
+            },
+            {
+              "fill": "locator('#password')",
+              "value": "${password}"
+            },
+            {
+              "click": "locator('#loginButton')"
+            }
+          ]
+        }
+      }
     }
   },
   "jira": {

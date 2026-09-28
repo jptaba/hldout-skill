@@ -8,19 +8,23 @@ evaluator** then ran the skill end to end: a fresh general-purpose agent that sa
 the answer key or another evaluation. Scores come from `npx tsx demo/score.ts` → [SCORECARD.md](SCORECARD.md).
 112 unit and integration tests cover the skill itself (`npm run test:skill`).
 
+> The evaluations, run folders and robustness notes of the rounds below were made by earlier versions of the skill.
+> They are kept in the repository history under the tag `blind-round-evaluations` (`git checkout blind-round-evaluations
+> -- evaluations demo/robustness`). The `evaluations/` folder now holds samples made with the current skill.
+
 ## 1. Blind evaluation results
 
 | Story | AUT | What it tests | Expected | Actual | Defects found | False positives | Tests (passed/total) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [AE-1](../evaluations/AE-1/verdict.md) | Automation Exercise (UI + form API) | product search API + UI; a status the story words loosely | PASS_WITH_WARNINGS | ✅ PASS_WITH_WARNINGS | — | 0 | 19/20 |
-| [AE-2](../evaluations/AE-2/verdict.md) | Automation Exercise | account API (always HTTP 200, code in the body) + shop sign-in | FAIL | ✅ FAIL | 3/3 | 0 | 32/38 |
-| [AE-3](../evaluations/AE-3/verdict.md) | Automation Exercise | brands API ↔ sidebar, Contact Us form from an image mock-up | PASS | ❌ PASS_WITH_WARNINGS | — | 0 | 16/16 |
-| [PB-1](../evaluations/PB-1/verdict.md) | ParaBank (UI + REST, Cloudflare) | registration, sign-in, customer REST | FAIL ¹ | ✅ FAIL | 1/1 | 0 | 13/14 |
-| [PB-2](../evaluations/PB-2/verdict.md) | ParaBank | open account: page + service + rules in a CSV attachment | FAIL | ✅ FAIL | 2/2 | 1 ² | 9/13 |
-| [PB-3](../evaluations/PB-3/verdict.md) | ParaBank | transfers; a PO comment replaces one AC | FAIL | ✅ FAIL | 2/2 | 0 | 6/12 |
-| [DQ-1](../evaluations/DQ-1/verdict.md) | DemoQA (React UI + JSON API) | account/token API; a PO comment changes a status; JWT leak | FAIL | ✅ FAIL | 2/2 | 0 | 24/27 |
-| [DQ-2](../evaluations/DQ-2/verdict.md) | DemoQA | Book Store catalogue, collection API, profile UI, 401 matrix | PASS | ✅ PASS | — | 0 | 28/28 |
-| [DQ-3](../evaluations/DQ-3/verdict.md) | DemoQA | Links page: new-tab links, status links, a PO path correction | FAIL | ✅ FAIL | 2/2 | 0 | 24/32 |
+| AE-1 | Automation Exercise (UI + form API) | product search API + UI; a status the story words loosely | PASS_WITH_WARNINGS | ✅ PASS_WITH_WARNINGS | — | 0 | 19/20 |
+| AE-2 | Automation Exercise | account API (always HTTP 200, code in the body) + shop sign-in | FAIL | ✅ FAIL | 3/3 | 0 | 32/38 |
+| AE-3 | Automation Exercise | brands API ↔ sidebar, Contact Us form from an image mock-up | PASS | ❌ PASS_WITH_WARNINGS | — | 0 | 16/16 |
+| PB-1 | ParaBank (UI + REST, Cloudflare) | registration, sign-in, customer REST | FAIL ¹ | ✅ FAIL | 1/1 | 0 | 13/14 |
+| PB-2 | ParaBank | open account: page + service + rules in a CSV attachment | FAIL | ✅ FAIL | 2/2 | 1 ² | 9/13 |
+| PB-3 | ParaBank | transfers; a PO comment replaces one AC | FAIL | ✅ FAIL | 2/2 | 0 | 6/12 |
+| DQ-1 | DemoQA (React UI + JSON API) | account/token API; a PO comment changes a status; JWT leak | FAIL | ✅ FAIL | 2/2 | 0 | 24/27 |
+| DQ-2 | DemoQA | Book Store catalogue, collection API, profile UI, 401 matrix | PASS | ✅ PASS | — | 0 | 28/28 |
+| DQ-3 | DemoQA | Links page: new-tab links, status links, a PO path correction | FAIL | ✅ FAIL | 2/2 | 0 | 24/32 |
 | **Total** | 3 AUTs | | | **8/9 verdicts** | **12/12** | **1** | |
 
 1. **AUT drift.** PB-1's key was written expecting PASS. By evaluation time the shared ParaBank demo answered every
@@ -92,10 +96,10 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 | # | Check | Result |
 | --- | --- | --- |
-| R1 | Tampering: expected value aligned with the AUT; matcher weakened inline; failing test skipped | ✅ integrity VIOLATED → INCONCLUSIVE; skip blocked by lint. [R1-tamper.md](robustness/R1-tamper.md) |
-| R3 | Malformed evaluation (11 injected traceability errors) | ✅ all rejected by lint. [R3-broken-feature.md](robustness/R3-broken-feature.md) |
-| R5 | API pre-step failure (wrong credentials) | ✅ BLOCKED / NEEDS_INVESTIGATION, no false defects. [R5-prestep-failure.md](robustness/R5-prestep-failure.md) |
-| R7 | Contract gates: paraphrased AC, invented endpoint or quote, oracle read off the AUT, oracle changed after the freeze, attachment changed | ✅ all rejected. [R7-contract-gates.md](robustness/R7-contract-gates.md) |
+| R1 | Tampering: expected value aligned with the AUT; matcher weakened inline; failing test skipped | ✅ integrity VIOLATED → INCONCLUSIVE; skip blocked by lint. |
+| R3 | Malformed evaluation (11 injected traceability errors) | ✅ all rejected by lint. |
+| R5 | API pre-step failure (wrong credentials) | ✅ BLOCKED / NEEDS_INVESTIGATION, no false defects. |
+| R7 | Contract gates: paraphrased AC, invented endpoint or quote, oracle read off the AUT, oracle changed after the freeze, attachment changed | ✅ all rejected. |
 | — | Jira Cloud adapter against a fake Jira REST server | ✅ `tests/jira-cloud.test.ts` |
 | — | Real rate-limiting WAF (Cloudflare 1015 on ParaBank), AUT restart (502), database reset | ✅ handled as ENVIRONMENT after fix #8; no false defects |
 
@@ -221,6 +225,12 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   `--carry-from auto` when an earlier run confirmed the same failures. The contract reference now says where sign-up
   and sign-in belong when they are what an AC is about, that "rejected", "refused" or "fails" is judged as written
   with a non-required gap for the exact status, and that a source limiting what is tested rules out derived boundaries.
+- **Cleanup after round 18.** The repository keeps only what a new team needs: the skill, four complete sample
+  evaluations made with the current skill (DQ-2, CL-3, TOOL-4, JS-2), the stories and answer keys to try, and this
+  report; the earlier evaluations are under the tag `blind-round-evaluations`. Run artifacts now name files relative to
+  the project, not by the machine's folders. `heldout status` judges a verdict stale by the run it judged, not by file
+  times (after a clone every committed verdict looked stale). The tests' fixtures take secret redaction and the page
+  helpers (locator expressions, overlays) from the installed skill instead of keeping copies that drifted apart.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports

@@ -1,7 +1,0 @@
-{
-  "key": "DEMO-606", "aut": "the-internet", "writtenAt": "2026-09-26 (before evaluation)",
-  "expectedVerdict": "FAIL",
-  "defects": [{ "id": "D1", "criteria": ["AC-1"], "origin": "genuine (intermittent)", "keywords": ["unsuccesful", "typo", "spelling", "misspel"], "description": "failure message shows 'unsuccesful' (typo) ~50% of the time" }],
-  "seededScriptDefects": [],
-  "traps": ["nondeterministic server outcome: a single-sample test would be flaky; the evaluator must not dismiss it as FLAKY"]
-}

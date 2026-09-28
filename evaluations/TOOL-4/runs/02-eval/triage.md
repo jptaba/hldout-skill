@@ -1,13 +1,13 @@
 # Triage — TOOL-4 / run 02-eval
 
-Generated 2026-09-26T23:20:39.179Z
+Generated 2026-09-28T20:29:40.768Z
 
 **11/11 passed**, 0 failed, 0 flaky, 0 skipped.
 
 | Test | Type | Criteria | Status | Auto classification | Confidence | Confirmed |
 | --- | --- | --- | --- | --- | --- | --- |
 | SCN-001 | functional | AC-1 | passed | - | - | - |
-| SCN-002 | negative | AC-2 | passed | - | - | - |
+| SCN-002 | idempotency | AC-2 | passed | - | - | - |
 | SCN-003 | security | AC-3 | passed | - | - | - |
 | SCN-004.1 | security | AC-4 | passed | - | - | - |
 | SCN-004.2 | security | AC-4 | passed | - | - | - |

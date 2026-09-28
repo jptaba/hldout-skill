@@ -1,9 +1,0 @@
-# url: https://practicesoftwaretesting.com/auth/login
-# step: Given a registered customer on the web shop's sign-in page
-- text: View the
-- link "Documentation":
-  - /url: https://testsmith-io.github.io/practice-software-testing/#/
-- text: for this application. Practice Black Box Testing & Bug Hunting
-- button "Testing Guide"
-- button "🐛 Bug Hunting"
-- button "Show live shop activity"

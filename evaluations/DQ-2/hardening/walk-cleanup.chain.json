@@ -1,4 +1,0 @@
-{ "vars": { "name": "qa-dq2-walk-1790511350", "uid2": "6eb033d0-525d-4f9b-a73c-62a36cf2790f" }, "steps": [
-  { "name": "token", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${name}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "tok": "token" }, "setup": true },
-  { "name": "delete walk user", "method": "DELETE", "path": "Account/v1/User/${uid2}", "headers": { "Authorization": "Bearer ${tok}" }, "expect": 204 }
-] }

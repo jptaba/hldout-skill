@@ -1,7 +1,0 @@
-{
-  "account": {
-    "password": "${env:DQ_USER_PASSWORD}",
-    "userNamePrefix": "qa-dq1",
-    "wrongPasswordSuffix": "Xy9#"
-  }
-}

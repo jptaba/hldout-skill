@@ -1,9 +1,0 @@
-{
-  "staff": { "username": "admin", "password": "${env:SHADY_STAFF_PASSWORD}" },
-  "wrongPassword": "definitely-not-the-password",
-  "enquiry": {
-    "email": "qa.guest@example.com",
-    "phone": "01234567890",
-    "message": "QA held-out evaluation enquiry — please ignore this message."
-  }
-}

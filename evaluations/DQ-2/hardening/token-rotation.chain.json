@@ -1,9 +1,0 @@
-{ "vars": { "name": "qa-dq2-tok-${uid}" }, "steps": [
-  { "name": "create user", "method": "POST", "path": "Account/v1/User", "json": { "userName": "${name}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "u": "userID" }, "setup": true },
-  { "name": "token A", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${name}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "a": "token" } },
-  { "name": "read with A", "method": "GET", "path": "Account/v1/User/${u}", "headers": { "Authorization": "Bearer ${a}" }, "show": ["username"] },
-  { "name": "token B (a second sign-in)", "method": "POST", "path": "Account/v1/GenerateToken", "json": { "userName": "${name}", "password": "${env:DQ_USER_PASSWORD}" }, "save": { "b": "token" } },
-  { "name": "read with A after B was issued", "method": "GET", "path": "Account/v1/User/${u}", "headers": { "Authorization": "Bearer ${a}" } },
-  { "name": "read with B", "method": "GET", "path": "Account/v1/User/${u}", "headers": { "Authorization": "Bearer ${b}" }, "show": ["username"] },
-  { "name": "cleanup", "method": "DELETE", "path": "Account/v1/User/${u}", "headers": { "Authorization": "Bearer ${b}" } }
-] }

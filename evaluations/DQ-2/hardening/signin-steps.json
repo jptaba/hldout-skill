@@ -1,0 +1,4 @@
+[{"do":"fill","target":"getByRole('textbox', { name: 'UserName', exact: true })","value":"${vault:secret/qa/demoqa#user3}"},
+ {"do":"fill","target":"getByRole('textbox', { name: 'Password', exact: true })","value":"${vault:secret/qa/demoqa#password3}"},
+ {"do":"click","target":"getByRole('button', { name: 'Login', exact: true })"},
+ {"do":"wait","url":"url:/profile"}]

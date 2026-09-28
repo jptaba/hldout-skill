@@ -7,7 +7,7 @@ priority: High
 labels: []
 source: mock-jira
 url: https://your-domain.atlassian.net/browse/TOOL-4
-fetchedAt: 2026-09-26T20:13:47.849Z
+fetchedAt: 2026-09-28T20:20:42.557Z
 ---
 
 # TOOL-4: Favourites for signed-in customers
@@ -29,7 +29,7 @@ Signed-in customers can keep a personal list of favourite products, from the pro
 
 ## Comments (clarifications from the issue)
 
-**Priya (Product Owner)** — 2026-09-26:
+**Priya (Product Owner)** — 2026-09-28:
 
 Clarification from refinement: a duplicate favourite is a conflict, so the API must answer **409 Conflict** (not 422 as in the technical notes). The web shop can keep its current message for duplicates.
 

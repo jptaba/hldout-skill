@@ -1,6 +1,0 @@
-field,required,min_length,max_length,format,length_error_message
-Name,yes,2,50,any printable characters,Name must be between 2 and 50 characters.
-Email,yes,,,"local@domain.tld — must contain a domain AND a top-level domain (e.g. guest@example.com; guest@example is invalid)",
-Phone,yes,11,21,"digits, spaces and a leading +",Phone must be between 11 and 21 characters.
-Subject,yes,5,100,any printable characters,Subject must be between 5 and 100 characters.
-Message,yes,20,2000,any printable characters,Message must be between 20 and 2000 characters.

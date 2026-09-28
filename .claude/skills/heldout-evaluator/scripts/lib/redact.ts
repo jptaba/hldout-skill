@@ -1,4 +1,7 @@
-/** Secret redaction shared by the scripts (the test-side copy lives in heldout-support/fixtures.ts). */
+/**
+ * Secret redaction, shared by the scripts and the tests' fixtures (heldout-support/fixtures.ts imports it from the
+ * installed skill). Node built-ins only, so it loads anywhere.
+ */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,12 +10,27 @@ const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|se
 const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
 const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
 
-export function redact(value: unknown, depth = 0, keep: ReadonlySet<unknown> = new Set()): unknown {
+export interface RedactOptions {
+  /** Values shown even under a secret-looking key: the literals a probe step was written with (literalsOf). */
+  keep?: ReadonlySet<unknown>;
+  /** A request a test sends: a short value under a secret-looking key is a test value (a deliberately too-short
+   *  password is the evidence, and a reviewer must see it to reproduce); real secrets are longer, and every run
+   *  scrubs their values from its artifacts. */
+  testValues?: boolean;
+}
+
+/** Redact secrets from JSON bodies before they reach a report. An object with toJSON (a seed.account() account) is
+ *  recorded as that says (its id and user name only). */
+export function redact(value: unknown, opts: RedactOptions = {}, depth = 0): unknown {
   if (depth > 8 || value == null) return value;
-  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1, keep));
+  const toJSON = (value as { toJSON?: () => unknown }).toJSON;
+  if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), opts, depth + 1);
+  if (Array.isArray(value)) return value.map((v) => redact(v, opts, depth + 1));
   if (typeof value === 'object') {
+    const hide = (k: string, v: unknown) => SECRET_KEY.test(k) && typeof v !== 'object' && !opts.keep?.has(v)
+      && !(opts.testValues && typeof v === 'string' && v.length < 8);
     return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, SECRET_KEY.test(k) && typeof v !== 'object' && !keep.has(v) ? '***redacted***' : redact(v, depth + 1, keep)]));
+      .map(([k, v]) => [k, hide(k, v) ? '***redacted***' : redact(v, opts, depth + 1)]));
   }
   return value;
 }
@@ -40,7 +58,7 @@ export function shapeOf(value: unknown, depth = 0): unknown {
 /**
  * ARIA snapshots include the current value of text fields — password fields too. Redact the given secret
  * values (e.g. the page's password inputs) wherever they appear, and any value shown for a textbox whose
- * accessible name looks secret. (Same logic as redactSnapshot in heldout-support/fixtures.ts.)
+ * accessible name looks secret.
  */
 export function redactSnapshot(yaml: string, secretValues: string[] = []): string {
   let out = yaml;
@@ -81,6 +99,28 @@ const TEXT_ARTIFACT = /\.(md|ya?ml|txt|xml|json|log)$/i;
 const scrubText = (s: string, secrets: string[]) => redactSnapshot(secrets.reduce((acc, v) => acc.split(v).join('***redacted***'), s));
 
 /** Scrub secret values from every text artifact under `dir` (incl. base64 attachment bodies in results.json). */
+/**
+ * Run artifacts (stack traces, junit, results) name files by their absolute path, which carries the machine's user
+ * and folder names into committed evidence: make them relative to the project ("./evaluations/…").
+ */
+export function relativizePaths(dir: string, root: string): { files: number } {
+  let files = 0;
+  if (!fs.existsSync(dir)) return { files };
+  const native = path.resolve(root);
+  // The root as it is written natively, with forward slashes, and inside JSON (backslashes doubled); longest first.
+  const roots = [...new Set([native, native.split(path.sep).join('/'), JSON.stringify(native).slice(1, -1)])];
+  const pairs: [string, string][] = roots.flatMap((r) => [[`${r}\\\\`, './'], [`${r}\\`, './'], [`${r}/`, './'], [r, '.']] as [string, string][])
+    .sort((a, b) => b[0].length - a[0].length);
+  for (const rel of fs.readdirSync(dir, { recursive: true, encoding: 'utf8' })) {
+    const file = path.join(dir, rel);
+    if (!TEXT_ARTIFACT.test(file) || !fs.statSync(file).isFile()) continue;
+    const before = fs.readFileSync(file, 'utf8');
+    const after = pairs.reduce((s, [from, to]) => s.split(from).join(to), before);
+    if (after !== before) { fs.writeFileSync(file, after); files++; }
+  }
+  return { files };
+}
+
 export function scrubDir(dir: string, secrets: string[]): { files: number } {
   let files = 0;
   if (!fs.existsSync(dir)) return { files };

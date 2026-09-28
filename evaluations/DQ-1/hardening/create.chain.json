@@ -1,1 +1,0 @@
-{ "steps": [ { "name": "create walk account", "method": "POST", "path": "Account/v1/User", "json": { "userName": "qa-dq1-harden-1790487968", "password": "${env:DQ_USER_PASSWORD}" }, "show": ["userID","username"], "expect": 201 } ] }

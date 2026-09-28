@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './lib/config';
 import { generatedId, siteOf } from './lib/detect';
+import { closeOverlays, locateOn } from './lib/page';
 import { redactSnapshot, shapeOf } from './lib/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
 
@@ -35,13 +36,7 @@ const vars: Record<string, string> = {};
 /** ${env:NAME} (.env or the environment) and ${vault:path#field} (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
 const env = (s = '') => expandSecrets(s).replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
 
-function locate(page: Page, expr: string): Locator {
-  // Deliberately evaluates a locator expression authored by the evaluator (local tool, trusted input).
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  // Nested locators inside the expression (filter({ has: getByTestId('x') })) resolve against the page too.
-  const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'] as const;
-  return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
-}
+const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 
 /** How to answer the next browser dialog (a "dialog" step), and every dialog seen, for the report. */
 const dialogs = { next: [] as string[], seen: [] as string[] };
@@ -112,8 +107,7 @@ main(async () => {
     })());
   });
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
-  // One overlay can cover another's button (a welcome dialog over the cookie banner): then the click is dispatched to it.
-  for (const expr of cfg.aut.overlays ?? []) await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 2_000 }).catch(() => l.dispatchEvent('click')).catch(() => undefined); });
+  await closeOverlays(page, cfg.aut.overlays);
   const out: string[] = [];
   try {
     await page.goto(target);

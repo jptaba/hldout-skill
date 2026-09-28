@@ -1,7 +1,0 @@
-rule_id,field,rule,valid_example,invalid_example
-R1,firstname,required non-empty string,Ada,(missing)
-R2,lastname,required non-empty string,Lovelace,(missing)
-R3,totalprice,required integer >= 0,0,-1
-R4,depositpaid,required boolean,true,(missing)
-R5,bookingdates.checkin,required date YYYY-MM-DD,2026-10-01,(missing)
-R6,bookingdates.checkout,required date YYYY-MM-DD strictly after checkin,checkin + 1 day,checkin - 4 days

@@ -1,9 +1,0 @@
-{ "vars": { "user": "pb1h487730" },
-  "steps": [
-    { "name": "login JSON", "method": "GET", "path": "login/${user}/${env:PB_USER_PASSWORD}", "save": { "cid": "id" } },
-    { "name": "login XML (Accept */*)", "method": "GET", "path": "login/${user}/${env:PB_USER_PASSWORD}", "headers": { "Accept": "*/*" } },
-    { "name": "login wrong password", "method": "GET", "path": "login/${user}/Wr0ngPw-hx71" },
-    { "name": "customer by id (no auth)", "method": "GET", "path": "customers/${cid}" },
-    { "name": "accounts of customer (no auth)", "method": "GET", "path": "customers/${cid}/accounts" },
-    { "name": "login unknown user", "method": "GET", "path": "login/${user}zz/${env:PB_USER_PASSWORD}" }
-  ] }

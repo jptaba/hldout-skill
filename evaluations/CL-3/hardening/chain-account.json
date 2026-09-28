@@ -1,0 +1,5 @@
+{ "steps": [
+  { "name": "sign up", "method": "POST", "path": "users", "json": { "firstName": "QA", "lastName": "Heldout", "email": "qa-${uid}@example.com", "password": "${env:CL_USER_PASSWORD}" }, "save": { "id": "user._id", "token": "token" }, "expect": 201 },
+  { "name": "log in", "method": "POST", "path": "users/login", "json": { "email": "qa-${uid}@example.com", "password": "${env:CL_USER_PASSWORD}" }, "save": { "token": "token" }, "expect": 200 },
+  { "name": "delete the user", "method": "DELETE", "path": "users/me", "headers": { "Authorization": "Bearer ${token}" }, "expect": 200 }
+] }

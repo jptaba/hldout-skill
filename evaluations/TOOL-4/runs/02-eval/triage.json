@@ -1,7 +1,7 @@
 {
   "key": "TOOL-4",
   "run": "02-eval",
-  "generatedAt": "2026-09-26T23:20:39.179Z",
+  "generatedAt": "2026-09-28T20:29:40.768Z",
   "summary": {
     "total": 11,
     "passed": 11,
@@ -12,13 +12,14 @@
   "entries": [
     {
       "scenario": "SCN-001",
-      "title": "SCN-001: A signed-in customer adds a favourite",
+      "title": "SCN-001: A customer adds a product to favourites",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-1",
         "@type:functional",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-1"
@@ -32,18 +33,19 @@
     },
     {
       "scenario": "SCN-002",
-      "title": "SCN-002: Adding the same favourite twice is rejected with 409",
+      "title": "SCN-002: Adding a product that is already a favourite is refused",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-2",
-        "@type:negative",
-        "@layer:api"
+        "@type:idempotency",
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-2"
       ],
-      "testType": "negative",
+      "testType": "idempotency",
       "layer": "api",
       "evidence": {
         "attempts": 1
@@ -52,13 +54,14 @@
     },
     {
       "scenario": "SCN-003",
-      "title": "SCN-003: A customer sees only their own favourites",
+      "title": "SCN-003: Each customer sees only their own favourites",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-3",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-3"
@@ -72,13 +75,14 @@
     },
     {
       "scenario": "SCN-004.1",
-      "title": "SCN-004.1: POST /favorites with no token is refused with 401",
+      "title": "SCN-004.1: The favourites endpoints refuse calls without a valid token (POST /favorites without a token)",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-4",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-4"
@@ -92,13 +96,14 @@
     },
     {
       "scenario": "SCN-004.2",
-      "title": "SCN-004.2: GET /favorites with no token is refused with 401",
+      "title": "SCN-004.2: The favourites endpoints refuse calls without a valid token (GET /favorites without a token)",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-4",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-4"
@@ -112,13 +117,14 @@
     },
     {
       "scenario": "SCN-004.3",
-      "title": "SCN-004.3: DELETE /favorites/{id} with no token is refused with 401",
+      "title": "SCN-004.3: The favourites endpoints refuse calls without a valid token (DELETE /favorites/{favoriteId} without a token)",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-4",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-4"
@@ -132,13 +138,14 @@
     },
     {
       "scenario": "SCN-004.4",
-      "title": "SCN-004.4: POST /favorites with an invalid token is refused with 401",
+      "title": "SCN-004.4: The favourites endpoints refuse calls without a valid token (POST /favorites with an invalid token)",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-4",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-4"
@@ -152,13 +159,14 @@
     },
     {
       "scenario": "SCN-004.5",
-      "title": "SCN-004.5: GET /favorites with an invalid token is refused with 401",
+      "title": "SCN-004.5: The favourites endpoints refuse calls without a valid token (GET /favorites with an invalid token)",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-4",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-4"
@@ -172,13 +180,14 @@
     },
     {
       "scenario": "SCN-004.6",
-      "title": "SCN-004.6: DELETE /favorites/{id} with an invalid token is refused with 401",
+      "title": "SCN-004.6: The favourites endpoints refuse calls without a valid token (DELETE /favorites/{favoriteId} with an invalid token)",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-4",
         "@type:security",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-4"
@@ -192,19 +201,20 @@
     },
     {
       "scenario": "SCN-005",
-      "title": "SCN-005: Adding a favourite on the web shop",
+      "title": "SCN-005: Adding to favourites in the web shop",
       "file": "TOOL-4/tests/tool-4.spec.ts",
       "status": "passed",
       "tags": [
         "@AC-5",
         "@type:integration",
-        "@layer:e2e"
+        "@layer:ui",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-5"
       ],
       "testType": "integration",
-      "layer": "e2e",
+      "layer": "ui",
       "evidence": {
         "attempts": 1
       },
@@ -218,7 +228,8 @@
       "tags": [
         "@AC-6",
         "@type:functional",
-        "@layer:api"
+        "@layer:api",
+        "@P1"
       ],
       "requirementRefs": [
         "AC-6"
