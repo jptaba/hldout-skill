@@ -100,11 +100,12 @@ main(() => {
   const repaired = runs.filter((r) => r < finalRun).flatMap((r) => readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries
     .filter((e) => e.final?.category === 'SCRIPT_DEFECT').map((e) => ({ run: r, e, now: tri.entries.find((x) => x.scenario === e.scenario)?.status ?? 'n/a' })));
 
-  // An open question only about something no criterion requires (non-required oracle gaps affecting no AC) is for
-  // the owner's information: acceptance of the story doesn't wait on it. Any other open question is a warning.
+  // An open question about a non-required oracle gap is for the owner's information: "not required" means the criteria
+  // it touches can be evaluated without the answer (the reviewer confirmed that), so acceptance doesn't wait on it.
+  // An open question about a required gap is a warning.
   const informational = (q: string) => {
     const ids = q.match(/\bG\d+\b/g) ?? [];
-    return ids.length > 0 && ids.every((id) => contract.gaps.some((g) => g.id === id && g.kind === 'oracle' && !g.required && !g.affects.length));
+    return ids.length > 0 && ids.every((id) => contract.gaps.some((g) => g.id === id && g.kind === 'oracle' && !g.required));
   };
   // A question a @needs-clarification scenario tests (its literal reading) is not "untested".
   const testedLiterally = (q: string) => {
@@ -333,7 +334,7 @@ main(() => {
       return testedLiterally(q) ? ' _(its literal reading is tested: see the scenarios needing clarification)_' : ' _(not tested)_';
     };
     if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${handled(q)}`), '');
-    if (infoQuestions.length) md.push('**For the owner\'s information** (about things no acceptance criterion requires; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
+    if (infoQuestions.length) md.push('**For the owner\'s information** (questions the criteria can be judged without, as the review confirmed; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
     if (clarifications.length) md.push('**Scenarios needing clarification** (each tests the literal reading of an open question):', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}${unsettled.includes(c) ? ' — did not pass' : ' — passed: the application meets the literal reading'}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');
     if (contradicted.length) md.push('**Readings the application contradicts** (the requirement does not settle these: an assumed value, or the literal reading of an open question; not reported as defects, the owner decides):', '',

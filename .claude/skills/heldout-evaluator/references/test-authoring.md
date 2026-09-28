@@ -101,6 +101,9 @@ test.describe('<KEY> <summary>', () => {
   handled the action (a validation message, a request, the form re-rendered) — or, when there is none, a bounded
   wait for the unwanted outcome (`await expect(success).toBeVisible({ timeout: 5_000 })` expected to fail, via
   `expect.poll` over the window) — and say which in the step title.
+- **"Not shown" is `toBeHidden()`, not `toHaveCount(0)`.** Pages often keep a message in the markup, hidden until it is
+  needed (a success banner, an error box): `toHaveCount(0)` then fails although nothing is shown. `heldout inspect`'s
+  probe table says whether an element is visible.
 
 ## Data seeding and entry points
 

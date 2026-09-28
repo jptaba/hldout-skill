@@ -376,7 +376,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>6 apps</b><span>onboarded end to end in 13 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>6 apps</b><span>onboarded end to end in 14 rounds, with no app-specific code</span></div>
     <div class="stat"><b>147</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
@@ -1015,7 +1015,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Thirteen rounds from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Fourteen rounds from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1024,7 +1024,6 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
       <tr><td>1</td><td>DQ-2 · DemoQA</td><td>first onboarding; accounts created by the tests</td><td><span class="badge b-pass">PASS</span> 21/21</td></tr>
       <tr><td>2</td><td>DQ-2 · DemoQA</td><td>install from a git clone; skill update; accounts recipe</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 21/21</td></tr>
       <tr><td>3</td><td>AE-1 · Automation Exercise</td><td>an ad-heavy app; a product-owner comment; clarifications</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> as the key</td></tr>
-      <tr><td>13</td><td>DQ-3 · DemoQA</td><td>the FAIL path: a redirect without Location, a misspelled message, a PO path correction</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
       <tr><td>4</td><td>DQ-3 · DemoQA</td><td>the FAIL path; audited amendments</td><td><span class="badge b-fail">FAIL</span> 2/2 defects</td></tr>
       <tr><td>5</td><td>AE-3 · Automation Exercise</td><td>a form specified by an image mock-up</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14</td></tr>
       <tr><td>6</td><td>DQ-2 · DemoQA</td><td>existing accounts from .env and a real HashiCorp Vault</td><td><span class="badge b-pass">PASS</span> 21/21, no password in any artifact</td></tr>
@@ -1035,6 +1034,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
       <tr><td>11</td><td>DQ-2 · DemoQA, from the published repository</td><td>a page address as the base URL; a strict password policy; a contract fixed after review</td><td><span class="badge b-pass">PASS</span> 21/21, as the key</td></tr>
       <tr><td>12</td><td>AE-1 · Automation Exercise</td><td>an ad script mistaken for the API; a PO comment replacing a criterion; an open question tested literally</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> as the key</td></tr>
       <tr><td>13</td><td>DQ-3 · DemoQA</td><td>the FAIL path: a redirect without Location, a misspelled message, a PO path correction</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
+      <tr><td>14</td><td>AE-3 · Automation Exercise</td><td>an image mock-up; native confirm dialogs; three non-required open questions</td><td><span class="badge b-pass">PASS</span> 15/15, as the key</td></tr>
     </tbody>
   </table></div>
   <p class="small">The full report, with every defect the rounds found in the skill and how it was fixed, is in <a href="../demo/EVALUATOR-TEST-REPORT.md">demo/EVALUATOR-TEST-REPORT.md</a>.</p>

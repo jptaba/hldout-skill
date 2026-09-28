@@ -8,7 +8,9 @@
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
  *
- * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait, target?, value?, url? }
+ * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|dialog, target?, value?, url? }
+ *   { "do": "dialog", "value": "accept" | "dismiss" } answers the next browser dialog (alert, confirm, prompt) that way;
+ *   dialogs nobody answers are dismissed. Every dialog shown is listed in the report.
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address.
@@ -40,6 +42,9 @@ function locate(page: Page, expr: string): Locator {
   return new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page[h] as (...a: unknown[]) => Locator).bind(page))) as Locator;
 }
 
+/** How to answer the next browser dialog (a "dialog" step), and every dialog seen, for the report. */
+const dialogs = { next: [] as string[], seen: [] as string[] };
+
 async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
   const t = () => locate(page, env(s.target ?? ''));
   switch (s.do) {
@@ -51,6 +56,7 @@ async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
     case 'check': await t().check(); break;
     case 'uncheck': await t().uncheck(); break;
     case 'hover': await t().hover(); break;
+    case 'dialog': dialogs.next.push(s.value === 'accept' ? 'accept' : 'dismiss'); break;
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
     // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
     case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
@@ -79,6 +85,11 @@ main(async () => {
   const blocked = (cfg.aut.blockHosts ?? []).map((h) => h.toLowerCase());
   if (blocked.length) await context.route((u) => blocked.some((h) => u.hostname === h || u.hostname.endsWith(`.${h}`)), (r) => r.abort());
   const page = await context.newPage();
+  page.on('dialog', async (d) => {
+    const how = dialogs.next.shift() ?? 'dismiss';
+    dialogs.seen.push(`${d.type()} "${d.message()}" → ${how}`);
+    await (how === 'accept' ? d.accept() : d.dismiss()).catch(() => undefined);
+  });
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
   for (const expr of cfg.aut.overlays ?? []) await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
   const out: string[] = [];
@@ -102,6 +113,7 @@ main(async () => {
       `- URL: ${page.url()}`, `- Title: ${await page.title()}`, `- Captured: ${new Date().toISOString()}`,
       `- testIdAttribute: \`${testIdAttr}\``, '');
     if (steps.length) out.push('## Setup steps', '', '| # | action | target | result |', '| --- | --- | --- | --- |', ...stepLog, '');
+    if (dialogs.seen.length) out.push('## Browser dialogs', '', ...dialogs.seen.map((x) => `- ${x}`), '');
 
     if (!flags['no-snapshot']) {
       // Snapshots echo field values: redact whatever is typed into password inputs.

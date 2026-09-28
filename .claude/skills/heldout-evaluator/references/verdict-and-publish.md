@@ -15,7 +15,7 @@ where everything passed needs no triage by hand; the verdict triages it itself.
 | `INCONCLUSIVE` | integrity VIOLATED (the oracle changed without an amendment or re-freeze) |
 | `FAIL` | ≥ 1 application defect reproduced by the evaluator |
 | `INCONCLUSIVE` | failures remain that are unconfirmed, script, environment or needs-investigation |
-| `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications, contradicted assumptions, open questions or stated requirements no scenario verified (`@NFR-n`) remain. An open question only about non-required oracle gaps that affect no AC is listed "for the owner's information" and doesn't downgrade a PASS |
+| `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications, contradicted assumptions, open questions or stated requirements no scenario verified (`@NFR-n`) remain. An open question about a non-required oracle gap (the criteria it touches can be evaluated without the answer, as the review confirmed) is listed "for the owner's information" and doesn't downgrade a PASS; one about a required gap does |
 | `PASS` | all passed and every AC is covered |
 
 ## What `verdict.md` contains (written for a reviewer)

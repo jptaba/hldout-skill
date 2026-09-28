@@ -61,7 +61,7 @@ main(async () => {
     const binaries = requirementFiles(p.requirement).filter((f) => BINARY.test(f));
     writeFile(packFile, evidencePack(key, p.requirement, binaries, { profile: cfg.autId, name: cfg.aut.name, baseURL: cfg.aut.baseURL, apiBaseURL: cfg.aut.apiBaseURL }));
     const untranscribed = binaries.filter((b) => !fs.existsSync(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`)));
-    if (fs.existsSync(file)) console.log(`= ${rel(file)} exists — not overwritten`);
+    if (fs.existsSync(file)) console.log(`= ${rel(file)} kept (your work so far; only the evidence pack is rebuilt)`);
     else { writeFile(file, `${JSON.stringify(contract, null, 2)}\n`); console.log(`✔ empty contract bound to this requirement revision → ${rel(file)}`); }
     console.log(`✔ evidence pack → ${rel(packFile)} (${contract.sourcesRead.length} source(s)${untranscribed.length ? `; ${untranscribed.length} non-text attachment(s) to transcribe first` : binaries.length ? `; ${binaries.length} transcript(s)` : ''})`);
     console.log('\nNext:');

@@ -101,7 +101,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder thirteen times, on six applications. Each
+After the blind round, the whole journey was repeated from an empty folder fourteen times, on six applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -121,6 +121,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 11 | DQ-2 (DemoQA, from the published repository) | a page address pasted as the base URL; a strict password policy; UI sign-in and the token it revokes; a two-reviewer contract loop | ✅ PASS, 21/21 (as the key) | 7 (all fixed) |
 | 12 | AE-1 (Automation Exercise, from the published repository) | an ad script mistaken for the API; a product page as the base URL; a PO comment replacing an AC; an open question tested literally | ✅ PASS WITH WARNINGS, 13/14 (as the key: the open question) | 3 (all fixed) |
 | 13 | DQ-3 (DemoQA, from the published repository) | the FAIL path: a redirect without Location, a misspelled message; a PO path correction; new tabs and page-issued requests | ✅ FAIL, 2/2 defects (as the key) | 3 (all fixed) |
+| 14 | AE-3 (Automation Exercise, from the published repository) | an image mock-up transcribed and reviewed; native confirm dialogs; three non-required open questions; two audited amendments | ✅ PASS, 15/15 (as the key) | 4 (all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -168,6 +169,10 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 - **Round 13 (DQ-3, the FAIL path) sharpened evidence.** An API chain shows a redirect's `Location` (or its absence) on
   every 3xx, and `show` reads any header as `header:<name>`. The contract check's pass line counts coverage entries, not
   lines, and the reference says where intended 4xx answers belong.
+- **Round 14 (AE-3) aligned the verdict with its answer key.** An open question about a gap the review marked "not
+  required" is listed for the owner and no longer lowers a PASS (AE-3 now PASS, as the key; round 5 gave warnings). The
+  inspector answers browser dialogs (`{"do": "dialog", "value": "accept"}`) and lists every dialog it saw. The test guide
+  warns that "not shown" is `toBeHidden()`: two assertions that counted a hidden banner were fixed by audited amendments.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports
