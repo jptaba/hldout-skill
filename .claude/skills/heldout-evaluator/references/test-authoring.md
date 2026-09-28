@@ -101,6 +101,10 @@ test.describe('<KEY> <summary>', () => {
   handled the action (a validation message, a request, the form re-rendered) — or, when there is none, a bounded
   wait for the unwanted outcome (`await expect(success).toBeVisible({ timeout: 5_000 })` expected to fail, via
   `expect.poll` over the window) — and say which in the step title.
+- **A page that loads its record after it opens** (a details or edit page of a single-page app): the address changes
+  first, and its buttons and fields work only once the record is there. Before acting, wait for a value the page loads
+  (`await expect(page.locator('#lastName'), 'the contact is shown (precondition)').toHaveText(c.lastName)`), not only
+  for the URL. Otherwise a click can do nothing, now and then: a flaky "the dialog never appeared".
 - **"Not shown" is `toBeHidden()`, not `toHaveCount(0)`.** Pages often keep a message in the markup, hidden until it is
   needed (a success banner, an error box): `toHaveCount(0)` then fails although nothing is shown. `heldout inspect`'s
   probe table says whether an element is visible.

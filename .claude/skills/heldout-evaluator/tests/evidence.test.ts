@@ -168,7 +168,7 @@ describe('independent review', () => {
     r.items[1] = { ref: 'AC-2', verdict: 'misread', note: 'the source says sixth, not seventh' };
     r.items.pop();
     r.missed.push({ lines: 'story.md#L19', note: 'duplicate rule' });
-    assert.deepEqual(codes(checkReview(c, r)).sort(), ['review-incomplete', 'review-misread', 'review-missed']);
+    assert.deepEqual(codes(checkReview(c, r)).sort(), ['review-misread', 'review-missed', 'review-unanswered']);
   });
 });
 

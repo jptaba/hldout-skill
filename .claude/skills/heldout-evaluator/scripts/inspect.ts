@@ -100,8 +100,10 @@ main(async () => {
     const u = new URL(res.url());
     if (!sites.has(siteOf(u.hostname))) return;
     calls.push((async () => {
-      const json: unknown = /json/i.test(res.headers()['content-type'] ?? '') ? await res.json().catch(() => undefined) : undefined;
-      const shape = json === undefined ? '-' : `\`${JSON.stringify(shapeOf(json)).replace(/\|/g, '\\|').slice(0, 300)}\``;
+      const isJson = /json/i.test(res.headers()['content-type'] ?? '');
+      const json: unknown = isJson ? await res.json().catch(() => undefined) : undefined;
+      // A browser drops an answer's body once the page navigates away (a sign-in that redirects): api-probe reads it.
+      const shape = json !== undefined ? `\`${JSON.stringify(shapeOf(json)).replace(/\|/g, '\\|').slice(0, 300)}\`` : isJson ? '(JSON not kept: the page moved on; read it with heldout api-probe)' : '-';
       return `| ${req.method()} | \`${u.pathname}${u.search ? '?…' : ''}\` | ${res.status()} | ${shape} |`;
     })());
   });

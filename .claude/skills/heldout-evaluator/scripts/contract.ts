@@ -71,8 +71,8 @@ main(async () => {
       console.log(`     then run heldout contract ${key} --pack again so its lines are numbered (the extractor subagent can do this as its first step)`);
     }
     console.log(`  1. Build the contract from the evidence pack — delegate to the heldout-contract-extractor subagent, or follow ${rel(path.join(SKILL_DIR, 'references', 'requirement-contract.md'))}`);
-    console.log(`  2. heldout contract ${key}                  (anchoring, coverage, grounded literals)`);
-    console.log(`  3. Independent review — the heldout-contract-reviewer subagent writes ${REVIEW_FILE}; then re-run step 2`);
+    console.log(`  2. heldout contract ${key} --allow-unreviewed   (the builder's check: anchoring, coverage, grounded literals)`);
+    console.log(`  3. Independent review — the heldout-contract-reviewer subagent writes ${REVIEW_FILE}; then: heldout contract ${key}   (clean, including the review)`);
     return;
   }
 
@@ -131,11 +131,17 @@ main(async () => {
   for (const f of all.filter((x) => !listed.has(x.code))) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
   if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored (${c.acceptanceCriteria.length} quote(s) found at their cited lines), fully covered (every numbered line, in ${c.coverage.length} coverage entr${c.coverage.length === 1 ? 'y' : 'ies'}), grounded (every expected status, number, message and path found in the sources)${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : '; the independent review is next (heldout-contract-reviewer subagent)'}`);
   const questions = openQuestions(c);
+  const discover = toDiscover(c);
+  // After recording one gap, the lists would repeat themselves: say what is left in a line.
+  if (gapFlag && !all.some((f) => f.level === 'error')) {
+    console.log(`  still to discover: ${discover.map((g) => g.id).join(', ') || 'nothing'} · open questions: ${questions.map((g) => g.id).join(', ') || 'none'}   (heldout contract ${key} lists them)`);
+    writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
+    return;
+  }
   if (questions.length) {
-    console.log(`\nQuestions for the user (${questions.length}) — ask the user (AskUserQuestion in Claude Code, in the chat elsewhere); unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
+    console.log(`\nQuestions for the user (${questions.length}) — the main agent asks the user (AskUserQuestion in Claude Code, in the chat elsewhere; a builder subagent leaves them open); unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
     for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);
   }
-  const discover = toDiscover(c);
   if (discover.length) {
     console.log(`\nTo discover from the application during hardening (${discover.length}) — record each as discovered-in-aut with evidence:`);
     for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);

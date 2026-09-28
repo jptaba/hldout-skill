@@ -292,7 +292,7 @@ export function checkReview(c: RequirementContract, review: ContractReview | und
     return out;
   }
   const byRef = new Map(review.items.map((i) => [i.ref, i]));
-  for (const ref of reviewRefs(c)) if (!byRef.has(ref)) out.push({ level: 'error', code: 'review-incomplete', message: `the review has no verdict for ${ref}` });
+  for (const ref of reviewRefs(c)) if (!byRef.has(ref)) out.push({ level: 'error', code: 'review-unanswered', message: `the review has no verdict for ${ref}` });
   for (const i of review.items) if (i.verdict !== 'supported') out.push({ level: 'error', code: `review-${i.verdict}`, message: `reviewer: ${i.ref} is ${i.verdict}${i.note ? ` — ${i.note}` : ''}${i.evidence ? ` (${i.evidence})` : ''}` });
   for (const m of review.missed ?? []) out.push({ level: 'error', code: 'review-missed', message: `reviewer: ${m.lines} states something the contract does not capture — ${m.note}` });
   for (const o of review.observations ?? []) out.push({ level: 'warn', code: 'review-observation', message: `reviewer: ${o.field} — ${o.note}` });
