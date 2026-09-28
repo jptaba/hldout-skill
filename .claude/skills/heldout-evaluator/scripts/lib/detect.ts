@@ -29,12 +29,23 @@ export interface AppDiscovery {
   apiOrigin?: string;
   /** Ad/analytics networks the start page loaded (AD_DOMAINS entries). */
   adDomains: string[];
+  /** Buttons that close a banner or dialog covering the start page (cookie consent, a welcome dialog): profile overlays. */
+  overlays?: string[];
+}
+
+/**
+ * Of the names of the buttons visible on the start page, those that close something covering it: "Close Welcome
+ * Banner", "dismiss cookie message", "Accept all cookies", "Got it". Buttons that act on the app itself are left alone.
+ */
+export function overlayButtonsIn(names: string[]): string[] {
+  const closes = /^(close|dismiss|hide)\b.*\b(banner|cookies?|consent|dialog|message|notice|popup|pop-up|welcome|newsletter|announcement)\b|^(accept|allow|agree to)( all)? cookies\b|^(got it|i agree|accept all)!?$/i;
+  return [...new Set(names.map((n) => n.replace(/\s+/g, ' ').trim()).filter((n) => n.length <= 60 && closes.test(n)))];
 }
 
 const countIn = (html: string) => Object.fromEntries(TEST_ID_ATTRIBUTES.map((a) => [a, (html.match(new RegExp(`\\s${a}=`, 'g')) ?? []).length]));
 const best = (counts: Record<string, number>) => Object.entries(counts).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-async function rendered(url: string, also: string[] = []): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[] } | undefined> {
+async function rendered(url: string, also: string[] = []): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[]; buttons: string[] } | undefined> {
   let chromium: { launch(o: object): Promise<{ newPage(): Promise<PageLike>; close(): Promise<void> }> } | undefined;
   try {
     const req = createRequire(path.join(ROOT, 'package.json'));
@@ -55,6 +66,11 @@ async function rendered(url: string, also: string[] = []): Promise<{ counts: Rec
     await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => undefined);
     const title = (await page.title()).trim();
     const counts = await countOnPage();
+    // The names of the visible buttons, for the banners and dialogs that cover the page (overlays).
+    const buttons = await page.evaluate((sel: string) => [...document.querySelectorAll(sel)]
+      .filter((el) => { const r = (el as HTMLElement).getBoundingClientRect(); return r.width > 0 && r.height > 0; })
+      .map((el) => (el.getAttribute('aria-label') || (el as HTMLElement).innerText || '').trim()), 'button, [role="button"]')
+      .catch(() => [] as string[]);
     // Test ids often sit on forms, not on the start page: add up to 4 pages linked from the navigation (same origin).
     const links = await page.evaluate((origin: string) => [...new Set([...document.querySelectorAll('header a[href], nav a[href], [role="navigation"] a[href]')]
       .map((a) => (a as HTMLAnchorElement).href).filter((h) => h.startsWith(origin) && !h.includes('#') && !/logout|signout|delete/i.test(h)))].slice(0, 4), new URL(url).origin)
@@ -65,7 +81,7 @@ async function rendered(url: string, also: string[] = []): Promise<{ counts: Rec
       const more = await countOnPage().catch(() => ({} as Record<string, number>));
       for (const [k, n] of Object.entries(more)) counts[k] = (counts[k] ?? 0) + n;
     }
-    return { counts, title, hosts, apiCalls };
+    return { counts, title, hosts, apiCalls, buttons };
   } finally { await browser.close(); }
 }
 interface PageLike {
@@ -89,7 +105,7 @@ export async function discoverApp(url: string, also: string[] = []): Promise<App
       const [apiOrigin] = Object.entries(byOrigin).sort((a, b) => b[1] - a[1]).map(([o]) => o);
       // Only when the app calls that origin more than its own (a CDN or widget answering JSON now and then is not the API).
       const ownCalls = r.apiCalls.filter((o) => o === own).length;
-      return { attribute: best(r.counts), counts: r.counts, via: 'browser', title: r.title || undefined, adDomains: adDomainsOf(r.hosts), ...(apiOrigin && byOrigin[apiOrigin] > ownCalls ? { apiOrigin } : {}) };
+      return { attribute: best(r.counts), counts: r.counts, via: 'browser', title: r.title || undefined, adDomains: adDomainsOf(r.hosts), overlays: overlayButtonsIn(r.buttons), ...(apiOrigin && byOrigin[apiOrigin] > ownCalls ? { apiOrigin } : {}) };
     }
   } catch (e) { /* no usable browser: fall back to the served HTML */ void e; }
   try {

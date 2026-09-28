@@ -254,5 +254,10 @@ main(() => {
     console.log(`  ${e.scenario.padEnd(10)} ${shown} ${e.error!.headline.slice(0, 80)}`);
   }
   console.log(`\n  ${rel(path.join(runDir, 'triage.md'))}`);
-  if (report.entries.some((x) => x.auto && !x.final)) console.log('\nNext: investigate each pending failure live (references/triage.md), then confirm with --set.');
+  // Failures an earlier run already confirmed, identically: say so, rather than asking for the investigation again.
+  const earlier = carryFrom ? undefined : runs.filter((r) => r < runName && fs.existsSync(path.join(p.runs, r, 'triage.json'))
+    && readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries.some((x) => x.final)).at(-1);
+  const same = earlier ? report.entries.filter((e) => e.status === 'failed' && !e.final && readJson<TriageReport>(path.join(p.runs, earlier, 'triage.json')).entries.some((x) => x.scenario === e.scenario && x.final && signature(x) === signature(e))) : [];
+  if (same.length) console.log(`\n↻ ${same.map((e) => e.scenario).join(', ')}: the same failure${same.length > 1 ? 's were' : ' was'} confirmed in ${earlier} (identical signature). Reuse ${same.length > 1 ? 'those decisions' : 'that decision'}: npm run heldout -- triage ${key} --carry-from auto`);
+  if (report.entries.some((x) => x.auto && !x.final && !same.includes(x))) console.log('\nNext: investigate each pending failure live (references/triage.md), then confirm with --set.');
 });

@@ -116,7 +116,8 @@ async function uiForm(form: NonNullable<AccountRecipe['signIn']>, baseURL: strin
     const helpers = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'locator'];
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     const locate = (expr: string) => new Function('page', ...helpers, `return page.${expr.replace(/^page\./, '')};`)(page, ...helpers.map((h) => (page as unknown as Record<string, (...a: unknown[]) => unknown>)[h].bind(page))) as UiLocator;
-    for (const expr of overlays) await page.addLocatorHandler(locate(expr), async (l: UiLocator) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
+    // One overlay can cover another's button (a welcome dialog over the cookie banner): then the click is dispatched to it.
+    for (const expr of overlays) await page.addLocatorHandler(locate(expr), async (l: UiLocator) => { await l.click({ timeout: 2_000 }).catch(() => l.dispatchEvent('click')).catch(() => undefined); });
     await page.goto(resolveUrl(baseURL, signIn.path), { waitUntil: 'domcontentloaded' });
     for (const st of signIn.steps) {
       if (st.fill !== undefined) await locate(st.fill).fill(String(fill(st.value ?? '', vars)), { timeout: 15_000 });
@@ -129,7 +130,7 @@ async function uiForm(form: NonNullable<AccountRecipe['signIn']>, baseURL: strin
     return (err as Error).message.split('\n')[0];
   } finally { await browser.close(); }
 }
-interface UiLocator { fill(v: string, o: object): Promise<void>; click(o: object): Promise<void>; first(): UiLocator; waitFor(o: object): Promise<void> }
+interface UiLocator { fill(v: string, o: object): Promise<void>; click(o: object): Promise<void>; dispatchEvent(type: string): Promise<void>; first(): UiLocator; waitFor(o: object): Promise<void> }
 interface UiContext { route(match: (u: URL) => boolean, handler: (route: { abort(): Promise<void> }) => Promise<void>): Promise<void>; newPage(): Promise<UiPage> }
 interface UiPage { addLocatorHandler(l: UiLocator, h: (l: UiLocator) => Promise<void>): Promise<void>; goto(url: string, o: object): Promise<unknown>; waitForURL(match: (u: URL) => boolean, o: object): Promise<void> }
 

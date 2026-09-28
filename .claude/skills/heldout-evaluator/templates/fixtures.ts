@@ -246,7 +246,8 @@ export async function blockThirdParty(context: import('@playwright/test').Browse
 /** Close the profile's overlays (cookie consent, welcome dialogs) whenever they appear, before any action or check. */
 export async function dismissOverlays(page: Page, overlays = process.env.AUT_OVERLAYS ?? '[]'): Promise<void> {
   for (const expr of JSON.parse(overlays || '[]') as string[]) {
-    await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
+    // One overlay can cover another's button (a welcome dialog over the cookie banner): then the click is dispatched to it.
+    await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 2_000 }).catch(() => l.dispatchEvent('click')).catch(() => undefined); });
   }
 }
 
@@ -310,16 +311,21 @@ const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|se
 const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
 const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
 
-/** Redact secrets from headers / JSON bodies before they are attached to reports. */
-export function redact(value: unknown, depth = 0): unknown {
+/**
+ * Redact secrets from headers / JSON bodies before they are attached to reports. `testValues`: a request the test
+ * sends keeps a short value under a secret-looking key (a deliberately too-short password is the point of the call,
+ * and a reviewer must see it to reproduce); real secrets are longer, and the run scrubs their values from every artifact.
+ */
+export function redact(value: unknown, depth = 0, testValues = false): unknown {
   if (depth > 8 || value == null) return value;
   // An object that says how it is recorded (a seed.account() account: its id and user name only).
   const toJSON = (value as { toJSON?: () => unknown }).toJSON;
-  if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), depth + 1);
-  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
+  if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), depth + 1, testValues);
+  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1, testValues));
   if (typeof value === 'object') {
+    const hide = (k: string, v: unknown) => SECRET_KEY.test(k) && typeof v !== 'object' && !(testValues && typeof v === 'string' && v.length < 8);
     return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, SECRET_KEY.test(k) && typeof v !== 'object' ? '***redacted***' : redact(v, depth + 1)]));
+      .map(([k, v]) => [k, hide(k, v) ? '***redacted***' : redact(v, depth + 1, testValues)]));
   }
   return value;
 }
@@ -670,7 +676,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       let body: unknown = text;
       if (/json/i.test(res.headers()['content-type'] ?? '') || /^\s*[[{]/.test(text)) { try { body = JSON.parse(text); } catch { /* keep text */ } }
       const exchange = {
-        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form) : redact(o.data), ...(retriedAfter ? { retriedAfter } : {}) },
+        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form, 0, true) : redact(o.data, 0, true), ...(retriedAfter ? { retriedAfter } : {}) },
         response: { status: res.status(), durationMs, headers: redactHeaders(res.headers()), body: typeof body === 'string' ? clip(body) : redact(body) },
       };
       n++;

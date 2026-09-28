@@ -112,7 +112,8 @@ main(async () => {
     })());
   });
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
-  for (const expr of cfg.aut.overlays ?? []) await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 5_000 }).catch(() => undefined); });
+  // One overlay can cover another's button (a welcome dialog over the cookie banner): then the click is dispatched to it.
+  for (const expr of cfg.aut.overlays ?? []) await page.addLocatorHandler(locate(page, expr), async (l) => { await l.click({ timeout: 2_000 }).catch(() => l.dispatchEvent('click')).catch(() => undefined); });
   const out: string[] = [];
   try {
     await page.goto(target);

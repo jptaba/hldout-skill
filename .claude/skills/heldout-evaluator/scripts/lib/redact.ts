@@ -7,14 +7,23 @@ const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|se
 const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
 const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
 
-export function redact(value: unknown, depth = 0): unknown {
+export function redact(value: unknown, depth = 0, keep: ReadonlySet<unknown> = new Set()): unknown {
   if (depth > 8 || value == null) return value;
-  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
+  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1, keep));
   if (typeof value === 'object') {
     return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, SECRET_KEY.test(k) && typeof v !== 'object' ? '***redacted***' : redact(v, depth + 1)]));
+      .map(([k, v]) => [k, SECRET_KEY.test(k) && typeof v !== 'object' && !keep.has(v) ? '***redacted***' : redact(v, depth + 1, keep)]));
   }
   return value;
+}
+
+/** The literal values a request written by the evaluator contains (not ${env:…}/${vault:…} references): test values such
+ *  as a deliberately short password, shown in reports even under a secret-looking key, since the request file holds them. */
+export function literalsOf(value: unknown, out = new Set<unknown>()): Set<unknown> {
+  if (typeof value === 'string') { if (!/\$\{/.test(value)) out.add(value); }
+  else if (Array.isArray(value)) value.forEach((v) => literalsOf(v, out));
+  else if (value && typeof value === 'object') Object.values(value).forEach((v) => literalsOf(v, out));
+  return out;
 }
 
 export const redactHeaders = (h: Record<string, string>) =>

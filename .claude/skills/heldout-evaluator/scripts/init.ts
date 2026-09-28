@@ -86,7 +86,10 @@ function installSkillFrom(source: string): void {
 function profileFrom(flags: Flags, base: Record<string, unknown> = {}) {
   const given = flagStr(flags, 'base-url');
   const baseURL = given ? baseUrlOf(given) : (base.baseURL as string);
-  if (given && baseURL !== given && baseURL !== `${given}/`) say('✔', `base URL: ${baseURL} (the folder of the page you gave, so paths like "page.htm" resolve beside it)`);
+  if (given && baseURL !== given && baseURL !== `${given}/`) {
+    const route = new URL(given).hash;
+    say('✔', `base URL: ${baseURL} (${route ? `the app's address without the ${route} route; tests open routes such as #/login from it` : 'the folder of the page you gave, so paths like "page.htm" resolve beside it'})`);
+  }
   const hc = flagStr(flags, 'healthcheck');
   return {
     ...base,
@@ -141,6 +144,11 @@ async function discover(configFile: string, id: string, flags: Flags, renameGene
   if (block.length) {
     profile.blockHosts = [...(profile.blockHosts ?? []), ...block];
     say('✔', `blockHosts: ${block.join(', ')} (ad/analytics networks the pages loaded; they inject content and make tests flaky)`);
+  }
+  const overlays = (d.overlays ?? []).map((n) => `getByRole('button', { name: '${n.replace(/'/g, "\\'")}' })`).filter((o) => !(profile.overlays ?? []).includes(o));
+  if (overlays.length) {
+    profile.overlays = [...(profile.overlays ?? []), ...overlays];
+    say('✔', `overlays: ${d.overlays!.map((n) => `"${n}"`).join(', ')} (buttons that close what covers the start page; tests, the UI sign-in and inspect click them whenever they appear)`);
   }
   const prefix = profile.dataPrefix ?? 'hldout';
   say('•', `test data: every name the tests make here starts with "${prefix}" (users ${prefix}-…, records "${prefix} …"), so it is easy to find and sweep; --data-prefix <letters> if the app's rules need another`);

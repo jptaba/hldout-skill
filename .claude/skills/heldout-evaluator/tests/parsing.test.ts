@@ -124,6 +124,14 @@ describe('redaction', () => {
     assert.equal(r['X-Session-Id'], '***redacted***');
     assert.equal(r.Accept, 'application/json');
   });
+  it('shows the literal values a probe or a test sends (a too-short password is the evidence), never a secret', async () => {
+    const { redact, literalsOf } = await import('../scripts/lib/redact');
+    const step = { email: 'hldout-1@example.com', password: 'abcd', token: '${env:API_TOKEN}' };
+    assert.deepEqual(redact({ ...step, token: 'eyJ.real.token' }, 0, literalsOf(step)), { email: 'hldout-1@example.com', password: 'abcd', token: '***redacted***' });
+    const { redact: fixtureRedact } = await import('../templates/fixtures');
+    assert.deepEqual(fixtureRedact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!' }, 0, true), { password: 'abc', passwordRepeat: '***redacted***' });
+    assert.deepEqual(fixtureRedact({ password: 'abc' }), { password: '***redacted***' });
+  });
 });
 
 describe('mergeRepeats (--repeat-each)', async () => {
@@ -363,6 +371,11 @@ describe('app discovery', () => {
     const { adDomainsOf } = await import('../scripts/lib/detect');
     assert.deepEqual(adDomainsOf(['demoqa.com', 'securepubads.g.doubleclick.net', 'pagead2.googlesyndication.com', 'www.googletagmanager.com', 'cdn.example.com', 'notdoubleclick.net']),
       ['doubleclick.net', 'googlesyndication.com', 'googletagmanager.com']);
+  });
+  it('takes as overlays only the buttons that close a banner or dialog covering the page', async () => {
+    const { overlayButtonsIn } = await import('../scripts/lib/detect');
+    assert.deepEqual(overlayButtonsIn(['Close Welcome Banner', 'dismiss cookie message', 'Add to Basket', 'Accept all cookies', 'Close', 'Login', 'Got it', 'Close account']),
+      ['Close Welcome Banner', 'dismiss cookie message', 'Accept all cookies', 'Got it']);
   });
 });
 
