@@ -142,6 +142,8 @@ async function discover(configFile: string, id: string, flags: Flags, renameGene
     profile.blockHosts = [...(profile.blockHosts ?? []), ...block];
     say('✔', `blockHosts: ${block.join(', ')} (ad/analytics networks the pages loaded; they inject content and make tests flaky)`);
   }
+  const prefix = profile.dataPrefix ?? 'hldout';
+  say('•', `test data: every name the tests make here starts with "${prefix}" (users ${prefix}-…, records "${prefix} …"), so it is easy to find and sweep; --data-prefix <letters> if the app's rules need another`);
   fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
 }
 

@@ -398,7 +398,7 @@ describe('accounts recipe from an api-probe chain', () => {
     const chain = { steps: [
       { method: 'POST', path: 'Account/v1/User', json: { userName: 'hldout-${uid}', password: '${env:APP_PW}' }, save: { id: 'userID' } },
       { method: 'POST', path: 'Account/v1/GenerateToken', json: { userName: 'hldout-${uid}', password: '${env:APP_PW}' }, save: { token: 'token' } },
-      { method: 'DELETE', path: 'Account/v1/User/${id}', headers: { Authorization: 'Bearer ${token}' } },
+      { method: 'DELETE', path: 'Account/v1/User/${id}', headers: { Authorization: 'Bearer ${token}' }, expect: 200 },
     ] };
     const signIn = { path: '/login', done: 'url:/profile', steps: [
       { do: 'fill', target: "getByPlaceholder('UserName')", value: '${var:user}' },

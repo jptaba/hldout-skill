@@ -66,7 +66,8 @@ export function evidencePack(key: string, reqDir: string, binaryAttachments: str
   const out = [
     `# Evidence pack — ${key}`, '',
     'Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must be accounted for in the contract\'s `coverage` ledger',
-    '(captured as a criterion / rule / endpoint / error / auth / test data / context, or dismissed as not a requirement, with a reason).', '',
+    '(captured as a criterion / rule / endpoint / error / auth / test data / context, or dismissed as not a requirement, with a reason).',
+    'This pack is the whole requirement: the story, its acceptance-criteria field, comments and text attachments (`requirement/raw-issue.json` is the tracker\'s raw answer they came from; nothing to read there).', '',
   ];
   if (binaryAttachments.length) {
     out.push('**Non-text attachments** — open each with the Read tool and transcribe what it states into `requirement/transcripts/<file>.md`',

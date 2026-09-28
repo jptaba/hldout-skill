@@ -133,7 +133,8 @@ login form (`--sign-in-json … --sign-in-path /login --sign-in-done url:/profil
 
 For accounts the tests create, the recipe instead has `password` (a reference), an optional `username` template
 (`${uid}` is unique), `create` (`id` is where the answer carries the new account's id) and, if the application
-allows it, `delete`. Strings may use `${username}`, `${password}`, `${id}`, `${token}`, `${uid}`, `${env:NAME}` and
+allows it, `delete`: from a chain, the DELETE on the account whose `expect` is a 2xx (a DELETE step without one
+only probes whether the application allows it, and makes no `delete`). Strings may use `${username}`, `${password}`, `${id}`, `${token}`, `${uid}`, `${env:NAME}` and
 `${vault:path#field}`.
 
 When the sign-up page is the only way to make an account, save the form (the `heldout inspect` steps that fill it:

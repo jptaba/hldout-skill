@@ -143,7 +143,7 @@ describe('a sign-up that answers with a token', () => {
     const r = recipeFromChain({ steps: [
       { method: 'POST', path: 'users', json: { firstName: 'QA', email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { id: 'user._id', token: 'token' } },
       { method: 'POST', path: 'users/login', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { token: 'token' } },
-      { method: 'DELETE', path: 'users/me', headers: { Authorization: 'Bearer ${token}' } },
+      { method: 'DELETE', path: 'users/me', headers: { Authorization: 'Bearer ${token}' }, expect: 200 },
     ] } as never);
     assert.equal(r.existing, undefined);
     assert.deepEqual(r.create, { method: 'POST', path: '/users', body: { firstName: 'QA', email: '${username}', password: '${password}' }, id: 'user._id', token: 'token' });
@@ -159,9 +159,17 @@ describe('the account delete in a chain', () => {
       { method: 'POST', path: 'users/register', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { id: 'id' } },
       { method: 'POST', path: 'users/login', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { token: 'access_token' } },
       { method: 'DELETE', path: 'favorites/${fid}', headers: { Authorization: 'Bearer ${token}' } },
-      { method: 'DELETE', path: 'users/${id}', headers: { Authorization: 'Bearer ${token}' } },
+      { method: 'DELETE', path: 'users/${id}', headers: { Authorization: 'Bearer ${token}' }, expect: 200 },
     ] } as never);
     assert.deepEqual(r.delete, { method: 'DELETE', path: '/users/${id}' });
+  });
+  it('is not taken from a step that only probes whether deleting is allowed (no 2xx "expect")', () => {
+    const r = recipeFromChain({ steps: [
+      { method: 'POST', path: 'users/register', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { id: 'id' } },
+      { method: 'POST', path: 'users/login', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { token: 'access_token' } },
+      { name: 'delete the user (permission?)', method: 'DELETE', path: 'users/${id}', headers: { Authorization: 'Bearer ${token}' } },
+    ] } as never);
+    assert.equal(r.delete, undefined);
   });
 });
 

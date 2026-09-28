@@ -27,7 +27,7 @@ function fill(value: unknown, vars: Record<string, unknown>): unknown {
 const dig = (o: unknown, dotted: string): unknown => dotted.split('.').reduce<unknown>((a, k) => (a && typeof a === 'object' ? (a as Record<string, unknown>)[k] : undefined), o);
 const SECRET = /\$\{(?:env|vault):[^}]+\}/;
 
-interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; save?: Record<string, string> }
+interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; save?: Record<string, string>; expect?: number | number[] }
 /** Names the recipe fills itself; anything else a call uses must come from a `before` call. */
 const RECIPE_VARS = new Set(['uid', 'username', 'password', 'id', 'token']);
 interface InspectStep { do: string; target?: string; value?: string }
@@ -36,7 +36,7 @@ interface InspectStep { do: string; target?: string; value?: string }
  * An accounts recipe from the api-probe chain hardening already ran:
  *  - a step saving "id" (and not "token") creates the account; its body value holding ${uid} is the user name;
  *  - the step saving "token" signs in (its saved "id", if any, is where the sign-in answer carries the account id);
- *  - a DELETE removes the account.
+ *  - a DELETE on the account that the chain expects to succeed ("expect": 2xx) removes it.
  * Without a create step the chain signed in as an existing account: the token step's user-name and password values
  * (${env:…} or ${vault:…}) become the first entry of `existing`. UI sign-in steps come from inspect
  * (${var:…} → ${username}, secret references → ${password}).
@@ -52,7 +52,9 @@ export function recipeFromChain(chain: { steps: ChainStep[] }, signIn?: { path: 
   const lookupAt = chain.steps.findIndex((s, i) => i !== createAt && i !== tokenAt && saves(s, 'id') && (tokenAt < 0 || i > tokenAt));
   const lookup = lookupAt >= 0 ? chain.steps[lookupAt] : undefined;
   // Deleting the account: a DELETE on the account itself (its ${id}, or …/me), not one that removes other test data.
-  const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE' && (/\$\{id\}/.test(s.path) || /(^|\/)me\/?$/.test(s.path)));
+  // Only one the chain expects to succeed: a DELETE without a 2xx "expect" probes whether the application allows it.
+  const expectsSuccess = (s: ChainStep) => [s.expect ?? []].flat().some((x) => x >= 200 && x < 300);
+  const del = chain.steps.find((s) => (s.method ?? 'GET').toUpperCase() === 'DELETE' && (/\$\{id\}/.test(s.path) || /(^|\/)me\/?$/.test(s.path)) && expectsSuccess(s));
   if (!create && !token) throw new Error('the chain neither creates an account (a step saving "id") nor signs in (a step saving "token")');
   const source = create ?? token!;
   const fields = (source.json ?? source.form ?? {}) as Record<string, unknown>;

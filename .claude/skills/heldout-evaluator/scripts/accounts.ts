@@ -77,7 +77,10 @@ main(async () => {
     const found = recipeFromChain(JSON.parse(fs.readFileSync(find(chainFile), 'utf8')),
       signInSteps ? { path: unmangleMsysPath(flagStr(flags, 'sign-in-path')!), steps: signInSteps, done: flagStr(flags, 'sign-in-done') } : undefined);
     const before = cfg.aut.accounts ?? {};
-    save({ ...before, ...found, ...(found.existing ? { existing: merge(before.existing ?? [], found.existing) } : {}) });
+    // A chain that creates accounts describes their whole life: a delete saved earlier goes when this chain has none.
+    const kept: AccountRecipe = { ...before };
+    if (found.create && !found.delete) delete kept.delete;
+    save({ ...kept, ...found, ...(found.existing ? { existing: merge(before.existing ?? [], found.existing) } : {}) });
     console.log(`✔ auts.${cfg.autId}.accounts: ${found.create ? `tests create accounts${found.delete ? ' and delete them' : ' (no delete: they stay, tagged by name)'}` : `existing account ${found.existing![0].username} ${(before.existing ?? []).some((a) => a.username === found.existing![0].username) ? '(already in the list)' : 'added'}`}${found.token ? ', sign-in over the API' : ''}${found.signIn ? ', UI sign-in' : ''}`);
     changed = true;
   }

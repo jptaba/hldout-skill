@@ -68,8 +68,8 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | · `quote` | **Verbatim** from the source. The normaliser ignores case, markdown emphasis, quote styles, dashes and whitespace, nothing else. For a Gherkin scenario, quote the whole block |
 | · `source` | `story.md#L23` (first line of the quote), `attachments/x.csv#L4` or `transcripts/mockup.png.md#L3` |
 | · `text` | The statement used in `scenarios.feature`. Normally the quote itself, cleaned of markdown |
-| · `outcomes` | Observable pass/fail facts, **worded with the source's literals** (the status, the message in quotes, the number). No outcome the source doesn't state; a derived boundary only one step outside a stated range |
-| · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API; a story's "UI + API" is `e2e`, not a misread). An AC with no stated layer takes the one its wording names: an API call → `api`, a page → `ui`, both → `e2e` |
+| · `outcomes` | Observable pass/fail facts, **worded with the source's literals** (the status, the message in quotes, the number). No outcome the source doesn't state; a derived boundary only one step outside a stated range. "Without a valid token" covers both a missing and an invalid token: an outcome for each |
+| · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API; a story's "UI + API" is `e2e`, not a misread). An AC with no stated layer takes the one its wording names: an API call → `api`, a page → `ui`, both → `e2e`; naming neither, the layer of the expected value that settles it (a status code from a clarification → `api`) |
 | · `endpoints` | `"METHOD /path"` keys of every endpoint the AC's journey calls, including pre-steps (creating the record it acts on); each must be in `endpoints[]`. Signing up and signing in are not listed on an AC: the profile's accounts recipe makes those calls for every test (they are in `endpoints[]` when a source states them). `seed.account()` gives each test a user with its API token and id, created or taken from the existing accounts; how the recipe gets them is completed during hardening, so what no source or config says yet (e.g. where an existing user's id comes from) is a mechanics gap. Needed for api/e2e ACs, unless a mechanics gap in `gaps` stands for the missing one |
 | · `entryPoint`, `needsData` | Where a UI journey starts; `needsData`: the AC needs data the tests must create first (→ seeding), before the action the AC is about. A record that is only the target of a request the AC expects to be rejected (deleting a favourite without a token) is data too. An AC whose own action creates the data ("adding a book returns 201") doesn't need it, and neither does one whose only precondition is a signed-in user (`seed.account()` provides users). Read-only data that already exists (a catalogue) is not seeded: list it in `testData.constraints` |
 | · `gaps` | Ids of the gaps that affect this AC |
@@ -202,18 +202,19 @@ Completed during hardening: G2 gets `{ "where": "aut", "result": "API docs: DELE
 ### 4. Custom field plus a conflicting comment
 
 ```text
-● L19 | **Technical notes:** … Duplicate favourites are rejected with 422.
-● L24 | - AC-2: Adding a product that is already a favourite is rejected and the list still contains it once.
-● L33 | Clarification from refinement: a duplicate favourite is a conflict, so the API must answer **409 Conflict** (not 422 as in the technical notes).
+● L12 | **Technical notes:** … Saving a search that is already saved is rejected with 422.
+● L17 | - AC-3: Saving a search that is already saved is rejected and the list still contains it once.
+● L28 | Clarification from refinement: an already saved search is a conflict, so the API must answer **409 Conflict** (not 422 as in the technical notes).
 ```
 ```json
-{ "id": "AC-2", "quote": "Adding a product that is already a favourite is rejected and the list still contains it once.", "source": "story.md#L24",
-  "outcomes": ["duplicate → 409", "the list contains the product once"], "gaps": ["G1"] }
+{ "id": "AC-3", "quote": "Saving a search that is already saved is rejected and the list still contains it once.", "source": "story.md#L17",
+  "outcomes": ["duplicate → 409", "the list contains the search once"], "gaps": ["G1"] }
 { "id": "G1", "element": "status for a duplicate: technical notes say 422, the PO comment says 409", "kind": "oracle", "required": true,
-  "affects": ["AC-2"], "tried": [{ "where": "story", "result": "L19: 422; L24: \"rejected\"; L33: 409, explicitly superseding L19" }],
-  "resolution": "found-in-requirement", "value": "409", "evidence": "story.md#L33 (PO comment supersedes L19)" }
+  "affects": ["AC-3"], "tried": [{ "where": "story", "result": "L12: 422; L17: \"rejected\"; L28: 409, explicitly superseding L12" }],
+  "resolution": "found-in-requirement", "value": "409", "evidence": "story.md#L28 (PO comment supersedes L12)" }
 ```
-coverage: `L19` → `G1`, `L24` → `AC-2`, `L33` → `G1`.
+coverage: `L12` → `G1`, `L17` → `AC-3`, `L28` → `G1`. A `source` field holds citations only; a note such as
+"supersedes L12" goes in `evidence` or `tried`.
 
 ### 5. Prose "shall" statements without a heading
 
