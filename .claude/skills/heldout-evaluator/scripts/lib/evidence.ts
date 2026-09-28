@@ -286,7 +286,7 @@ export function readReview(evalDir: string): ContractReview | undefined {
 export function checkReview(c: RequirementContract, review: ContractReview | undefined, opts: { requireReview?: boolean } = {}): ContractFinding[] {
   const out: ContractFinding[] = [];
   if (!review) {
-    out.push({ level: opts.requireReview ? 'error' : 'warn', code: 'not-reviewed', message: 'The contract has not been independently reviewed — run the heldout-contract-reviewer subagent (see references/requirement-contract.md). Before the review, the builder checks with: heldout contract <KEY> --allow-unreviewed' });
+    out.push({ level: opts.requireReview ? 'error' : 'warn', code: 'not-reviewed', message: `The contract has not been independently reviewed — run the heldout-contract-reviewer subagent (see references/requirement-contract.md)${opts.requireReview ? '. Before the review, the builder checks with: heldout contract <KEY> --allow-unreviewed' : ''}` });
     return out;
   }
   if (review.contractHash !== contractHash(c)) {

@@ -32,7 +32,8 @@ Check each of these refs: {{REFS}}
 - **Endpoints** (`METHOD /path` refs): the method and path appear at the cited source line.
 
 Out of scope: mechanics gaps (HOW to exercise the app: routes, labels, request fields) and the endpoints they list as
-their source. The evaluator completes those from the application later, and they may cite files outside the pack.
+their source, and an AC's `endpoints`, `entryPoint` and `needsData` (the calls and data its test uses, e.g. reading the
+stored record back to check it did not change). The evaluator completes those from the application later, and they may cite files outside the pack.
 Only check that a gap labelled `mechanics` really is about HOW and not about WHAT is correct; if it hides an expected
 behaviour, report it under `missed`.
 

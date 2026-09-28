@@ -26,7 +26,7 @@ function render(c: RequirementContract, review: ContractReview | undefined, revi
   const esc = (s: string) => s.replace(/\|/g, '\\|');
   return [
     `# Requirement contract — ${c.key}: ${c.title}`, '',
-    '_Built by the evaluator from the story and its attachments. Every criterion is quoted from a cited line, every source line is accounted for, every expected value is grounded in the sources, and an independent reviewer checked it._', '',
+    `_Built by the evaluator from the story and its attachments. Every criterion is quoted from a cited line, every source line is accounted for, and every expected value is grounded in the sources${reviewOk ? '; an independent reviewer checked it' : ''}._`, '',
     `**Independent review:** ${review ? `${reviewOk ? '✅ all items supported' : '❌ open findings'} — ${review.reviewer}, ${review.reviewedAt.slice(0, 16)}` : '⚠️ not reviewed'}`, '',
     '## Sources read', '', '| Source | Contributes |', '| --- | --- |',
     ...c.sourcesRead.map((s) => `| ${s.file} | ${s.contributes ?? ''} |`), '',
@@ -148,6 +148,6 @@ main(async () => {
   }
   if (!review && !findings.some((f) => f.level === 'error')) console.log(`\nNext: independent review — heldout-contract-reviewer subagent (instructions: heldout contract ${key} --review-prompt)`);
   writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
-  console.log(`  → ${rel(path.join(p.base, 'requirement-contract.md'))}`);
+  console.log(`  → ${rel(path.join(p.base, 'requirement-contract.md'))} (the contract for people to read)`);
   if (all.some((f) => f.level === 'error')) process.exit(1);
 });
