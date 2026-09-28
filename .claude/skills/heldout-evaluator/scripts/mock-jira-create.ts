@@ -43,7 +43,14 @@ main(() => {
 
   const acFrom = flagStr(flags, 'ac-from');
   const acField = cfg.jira.acceptanceCriteriaField || 'customfield_10035';
-  if (acFrom && !cfg.jira.acceptanceCriteriaField) console.log(`⚠ --ac-from writes ${acField}; set jira.acceptanceCriteriaField to it in heldout.config.json so fetch reads it`);
+  // The mock Jira is ours: point fetch at the field the criteria are written to, rather than asking the user to.
+  if (acFrom && !cfg.jira.acceptanceCriteriaField) {
+    const file = path.join(ROOT, 'heldout.config.json');
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
+    raw.jira = { ...raw.jira, acceptanceCriteriaField: acField };
+    fs.writeFileSync(file, `${JSON.stringify(raw, null, 2)}\n`);
+    console.log(`✔ jira.acceptanceCriteriaField set to ${acField} (where --ac-from writes the criteria), so fetch reads them`);
+  }
   const comments = flagList(flags, 'comment-from').map((file, i) => {
     let text = fs.readFileSync(file, 'utf8').trim();
     const author = text.match(/^Author:\s*(.+)$/m)?.[1] ?? 'Product Owner';
