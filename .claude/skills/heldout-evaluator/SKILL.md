@@ -148,7 +148,8 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   secrets that aren't plain words: a word like `password` can't be scrubbed without rewriting the evidence.
   Traces and the HTML report stay local.
 - **Shared environments:** create data with `unique()` names (`uniqueId()` where spaces aren't allowed: e-mails,
-  user names, slugs), and keep traffic modest.
+  user names, slugs), and keep traffic modest. Every name starts with the profile's data prefix (`hldout` unless the
+  app's rules need another: `init --profile <id> --data-prefix <prefix>`), so test data is easy to find and sweep.
 
 ## Output layout (per story)
 

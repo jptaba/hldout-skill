@@ -5,6 +5,8 @@
  *                [--test-id-attr data-testid] [--healthcheck "/,api:/health"]
  *                [--jira mock|cloud] [--jira-url https://<site>.atlassian.net] [--ac-field customfield_10035]
  *                [--install] [--ci]
+ *   heldout init [--profile <id>] --data-prefix qa        the prefix of the names tests make (default "hldout")
+ *   heldout init [--profile <id>] --max-workers 1 --min-test-interval-ms 10000   pacing for a rate-limited host
  *   heldout add-aut <profile> --base-url … [--api-base-url …] [--name …] [--test-id-attr …] [--healthcheck …]
  *
  * Creates or completes: heldout.config.json (with $schema for editor help), playwright.config.ts,
@@ -284,6 +286,17 @@ main(async () => {
     if (interval) cfg.auts[id].minTestIntervalMs = n(interval, 'min-test-interval-ms', 0);
     fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
     say('✔', `auts.${id}: ${maxWorkers ? `at most ${cfg.auts[id].maxWorkers} worker(s)` : ''}${maxWorkers && interval ? ', ' : ''}${interval ? `tests start at least ${cfg.auts[id].minTestIntervalMs} ms apart` : ''}`);
+  }
+  // The prefix of every name the tests make on this AUT (default "hldout"), for an application whose rules need another.
+  const prefix = flagStr(flags, 'data-prefix');
+  if (prefix) {
+    const cfg = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    const id = flagStr(flags, 'profile') ?? cfg.defaultAut;
+    if (!cfg.auts[id]) throw new Error(`no AUT profile "${id}" in heldout.config.json`);
+    if (!/^[A-Za-z][A-Za-z0-9._-]{0,15}$/.test(prefix)) throw new Error('--data-prefix starts with a letter and uses at most 16 letters, digits, dots, dashes or underscores');
+    cfg.auts[id].dataPrefix = prefix;
+    fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
+    say('✔', `auts.${id}: names the tests make start with "${prefix}" (users ${prefix}-…, records "${prefix} …")`);
   }
   if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags, !flagStr(flags, 'profile'));
 

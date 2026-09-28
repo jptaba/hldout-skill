@@ -97,14 +97,17 @@ export const scenarioIdOf = (title: string) => title.match(/^(SCN-\d+(?:\.\d+)?)
  */
 let apiPhase: 'test' | 'seed' | 'cleanup' = 'test';
 
+/** The AUT profile's data prefix (default "hldout"): every name the tests make starts with it, so test data is easy to find and sweep. */
+export const DATA_PREFIX = process.env.AUT_DATA_PREFIX || 'hldout';
+
 let uniqueCounter = 0;
-/** Collision-free value for shared AUTs: unique('Guest') → "Guest k3x9q2-1". */
-export function unique(prefix = 'heldout'): string {
+/** Collision-free value for shared AUTs: unique() → "hldout k3x9q2-1", unique('Guest') → "Guest k3x9q2-1". */
+export function unique(prefix = DATA_PREFIX): string {
   uniqueCounter += 1;
   return `${prefix} ${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}-${uniqueCounter}`;
 }
-/** unique() without spaces, for e-mails, user names and slugs: uniqueId('qa') → "qa-k3x9q2-1". Keep prefixes short where the AUT limits length. */
-export const uniqueId = (prefix = 'qa'): string => unique(prefix).replace(/\s+/g, '-');
+/** unique() without spaces, for e-mails, user names and slugs: uniqueId() → "hldout-k3x9q2-1". Keep prefixes short where the AUT limits length. */
+export const uniqueId = (prefix = DATA_PREFIX): string => unique(prefix).replace(/\s+/g, '-');
 
 // ---- data seeding -------------------------------------------------------------------------------
 
@@ -375,7 +378,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
     const ledger: SeedRecord[] = [];
     const cleanups: { rec: SeedRecord; run: () => Promise<unknown> }[] = [];
     let accountsTaken = 0; // existing accounts handed out in this test
-    const tag = `hx${Date.now().toString(36).slice(-5)}${testInfo.workerIndex}${testInfo.repeatEachIndex}`;
+    const tag = `${DATA_PREFIX}${Date.now().toString(36).slice(-5)}${testInfo.workerIndex}${testInfo.repeatEachIndex}`;
     /** Run a precondition in the [seed] phase with ledger + BLOCKED semantics. */
     const pre = async <T,>(rec: SeedRecord, run: () => Promise<T>): Promise<T> => {
       ledger.push(rec);
@@ -433,7 +436,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         const r = accountRecipe();
         const vars: Record<string, unknown> = { uid: uniqueId('').replace(/^-/, '') };
         const send = async (c: RecipeCall, token?: string) => {
-          // A placeholder without a value would be sent literally (e.g. an e-mail "qa-${uid}@…"): never send that.
+          // A placeholder without a value would be sent literally (e.g. an e-mail "hldout-${uid}@…"): never send that.
           const unfilled = JSON.stringify([fillRecipe(c.path, { ...vars, token }), c.body !== undefined ? fillRecipe(c.body, { ...vars, token }) : null, c.form ? fillRecipe(c.form, { ...vars, token }) : null]).match(/\$\{[^}]+\}/)?.[0];
           if (unfilled) throw new Error(`${c.method} ${c.path}: ${unfilled} has no value here, so the request was not sent`);
           return api.call(c.method, String(fillRecipe(c.path, { ...vars, token })), {
@@ -512,7 +515,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         return seedApi.create(label, async () => {
           if (!r?.create && !r?.signUp) throw new Error(NO_RECIPE);
           vars.password = String(resolveEnv(r.password ?? ''));
-          vars.username = options.username ?? String(fillRecipe(r.username ?? 'qa-${uid}', vars));
+          vars.username = options.username ?? String(fillRecipe(r.username ?? `${DATA_PREFIX}-\${uid}`, vars));
           await before();
           if (!r.create) {
             // Only the sign-up page makes accounts: fill it in a browser of its own, then sign in over the API / look up the id.

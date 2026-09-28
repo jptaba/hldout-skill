@@ -396,8 +396,8 @@ describe('accounts recipe from an api-probe chain', () => {
   it('maps the saved id/token steps, the DELETE, the ${uid} user name, the password and the UI sign-in steps', async () => {
     const { recipeFromChain } = await import('../scripts/lib/accounts');
     const chain = { steps: [
-      { method: 'POST', path: 'Account/v1/User', json: { userName: 'qa-${uid}', password: '${env:APP_PW}' }, save: { id: 'userID' } },
-      { method: 'POST', path: 'Account/v1/GenerateToken', json: { userName: 'qa-${uid}', password: '${env:APP_PW}' }, save: { token: 'token' } },
+      { method: 'POST', path: 'Account/v1/User', json: { userName: 'hldout-${uid}', password: '${env:APP_PW}' }, save: { id: 'userID' } },
+      { method: 'POST', path: 'Account/v1/GenerateToken', json: { userName: 'hldout-${uid}', password: '${env:APP_PW}' }, save: { token: 'token' } },
       { method: 'DELETE', path: 'Account/v1/User/${id}', headers: { Authorization: 'Bearer ${token}' } },
     ] };
     const signIn = { path: '/login', done: 'url:/profile', steps: [
@@ -407,7 +407,7 @@ describe('accounts recipe from an api-probe chain', () => {
       { do: 'wait', target: "getByText('Books')" },
     ] };
     assert.deepEqual(recipeFromChain(chain as never, signIn), {
-      password: '${env:APP_PW}', username: 'qa-${uid}',
+      password: '${env:APP_PW}', username: 'hldout-${uid}',
       create: { method: 'POST', path: '/Account/v1/User', body: { userName: '${username}', password: '${password}' }, id: 'userID' },
       token: { method: 'POST', path: '/Account/v1/GenerateToken', body: { userName: '${username}', password: '${password}' }, token: 'token' },
       authHeader: 'Authorization: Bearer ${token}',

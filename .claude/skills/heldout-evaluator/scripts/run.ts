@@ -17,7 +17,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, assertIssueKey, autEnv, createsAccounts, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
+import { NON_EVAL_RUN, assertIssueKey, autEnv, createsAccounts, dataPrefix, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
 import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
 import { scrubDir, secretValuesFor } from './lib/redact';
 import { failedTests } from './lib/triage-model';
@@ -195,7 +195,7 @@ main(async () => {
     console.log(`  👤 existing accounts: taken ${acc.used} time(s)${reset}`);
     for (const x of acc.notReset) console.log(`     ${x}`);
   }
-  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: the application offers no delete, or HELDOUT_KEEP_DATA)` : ''}, ${leftovers.length} left behind`);
+  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: the application offers no delete, or HELDOUT_KEEP_DATA; their names start with "${dataPrefix(cfg.aut)}")` : ''}, ${leftovers.length} left behind`);
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
     for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);

@@ -135,7 +135,7 @@ interface UiPage { addLocatorHandler(l: UiLocator, h: (l: UiLocator) => Promise<
  * Check the recipe live. Existing accounts: each signs in over the API (nothing is created or deleted). Created
  * accounts: create → token → delete; when the application offers no delete, nothing is created unless `createUndeletable`.
  */
-export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; profile?: string; ui?: { baseURL: string; blockHosts?: string[]; testIdAttribute?: string; overlays?: string[] } } = {}): Promise<RecipeStep[]> {
+export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; profile?: string; dataPrefix?: string; ui?: { baseURL: string; blockHosts?: string[]; testIdAttribute?: string; overlays?: string[] } } = {}): Promise<RecipeStep[]> {
   const out: RecipeStep[] = [];
   const send = async (c: RecipeCall, vars: Record<string, unknown>, token?: string) => {
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -146,7 +146,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
       const line = String(fill(r.authHeader ?? 'Authorization: Bearer ${token}', { token }));
       headers[line.slice(0, line.indexOf(':')).trim()] = line.slice(line.indexOf(':') + 1).trim();
     }
-    // A placeholder without a value would be sent literally (e.g. an e-mail "qa-${uid}@…"): never send that.
+    // A placeholder without a value would be sent literally (e.g. an e-mail "hldout-${uid}@…"): never send that.
     const unfilled = `${fill(c.path, { ...vars, token })} ${body ?? ''}`.match(/\$\{[^}]+\}/)?.[0];
     if (unfilled) throw new Error(`${c.method} ${c.path}: ${unfilled} has no value here, so the request was not sent`);
     const res = await fetch(resolveUrl(apiBaseURL, String(fill(c.path, { ...vars, token }))), { method: c.method, headers, body, signal: AbortSignal.timeout(30_000) });
@@ -206,7 +206,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     return out;
   }
   const vars: Record<string, unknown> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 4)}`, password: String(fill(r.password ?? '', {})) };
-  vars.username = String(fill(r.username ?? 'qa-${uid}', vars));
+  vars.username = String(fill(r.username ?? `${opts.dataPrefix ?? 'hldout'}-\${uid}`, vars));
   if (!(await runBefore(vars))) return out;
   let fromCreate: unknown;
   if (r.create) {
@@ -215,7 +215,9 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     // An application whose password rules reject the test password says so: the fix is a new generated one.
     const passwordEnv = /\$\{env:(\w+)\}/.exec(r.password ?? '')?.[1];
     const policy = !created.ok && /passw/i.test(created.text) && passwordEnv ? ` — if the application's password rules reject ${passwordEnv}: npm run heldout -- secret ${passwordEnv} --generate --force (upper and lower case, digits and one of ! @ *)` : '';
-    out.push({ step: how, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 160)}${policy}` });
+    // …and one whose rules reject the generated name: another prefix (or the recipe's username template).
+    const naming = !created.ok && !policy && /user ?name|e-?mail|login|name/i.test(created.text) ? ` — if the application's rules reject the name ${String(vars.username)}: npm run heldout -- init${opts.profile ? ` --profile ${opts.profile}` : ''} --data-prefix <letters>, or set the recipe's "username" template` : '';
+    out.push({ step: how, ok: created.ok && id !== undefined, detail: created.ok ? (id === undefined ? `${created.status}, but no "${r.create.id}" in the response` : `${created.status}, ${r.create.id} found`) : `${created.status} ${created.text.replace(/\s+/g, ' ').slice(0, 160)}${policy}${naming}` });
     if (!created.ok || id === undefined) return out;
     vars.id = String(id);
     fromCreate = r.create.token ? dig(created.json, r.create.token) : undefined;
@@ -244,7 +246,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   if (r.delete) {
     const d = await send(r.delete, vars, token);
     const refused = d.status === 401 || d.status === 403;
-    out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.replace(/\s+/g, ' ').slice(0, 120)} — the check account ${vars.username} was left behind${refused ? `. The application does not let tests delete accounts: heldout accounts --aut ${opts.profile ?? '<profile>'} --no-delete keeps them (named qa-…) instead` : ''}`}` });
+    out.push({ step: `delete ${r.delete.method} ${r.delete.path}`, ok: d.ok, detail: `${d.status}${d.ok ? '' : ` ${d.text.replace(/\s+/g, ' ').slice(0, 120)} — the check account ${vars.username} was left behind${refused ? `. The application does not let tests delete accounts: heldout accounts --aut ${opts.profile ?? '<profile>'} --no-delete keeps them (named ${String(r.username ?? `${opts.dataPrefix ?? 'hldout'}-…`).replace('${uid}', '…')}, so they can be found) instead` : ''}`}` });
   } else out.push({ step: 'delete', ok: true, detail: `none in the recipe: the check account ${vars.username} stays in the application` });
   return out;
 }

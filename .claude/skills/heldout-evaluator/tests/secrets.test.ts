@@ -3,7 +3,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import { expandSecrets, kv2Path, loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../scripts/lib/secrets';
-import { validateConfig } from '../scripts/lib/config';
+import { dataPrefix, validateConfig } from '../scripts/lib/config';
 import { recipeFromChain, signInFromSteps } from '../scripts/lib/accounts';
 
 /** A fake Vault: KV v2 at secret/qa/app, KV v1 at kv1/legacy, a forbidden path, and AppRole login. */
@@ -79,6 +79,16 @@ describe('existing accounts in the config', () => {
   });
 });
 
+describe('the data prefix of the names tests make', () => {
+  it('is "hldout" unless the profile sets another, and must suit names (a letter first, at most 16 characters)', () => {
+    assert.equal(dataPrefix({}), 'hldout');
+    assert.equal(dataPrefix({ dataPrefix: 'qa' }), 'qa');
+    const cfg = (dataPrefix: string) => ({ defaultAut: 'app', auts: { app: { name: 'App', baseURL: 'https://app.test', dataPrefix } }, jira: { mode: 'mock', mockRoot: 'mock-jira' }, evaluationsDir: 'evaluations', run: {} });
+    assert.deepEqual(validateConfig(cfg('team.qa')), []);
+    assert.match(validateConfig(cfg('1st prefix')).join(' '), /dataPrefix must start with a letter/);
+  });
+});
+
 describe('an api-probe chain that signs in as an existing account', () => {
   it('takes a step saving "id" after the sign-in as the account-id lookup', () => {
     const r = recipeFromChain({ steps: [
@@ -131,13 +141,13 @@ describe('an application whose accounts can be created but not deleted', () => {
 describe('a sign-up that answers with a token', () => {
   it('is the create step (not a sign-in), and its token is used; the login step refreshes it', () => {
     const r = recipeFromChain({ steps: [
-      { method: 'POST', path: 'users', json: { firstName: 'QA', email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { id: 'user._id', token: 'token' } },
-      { method: 'POST', path: 'users/login', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { token: 'token' } },
+      { method: 'POST', path: 'users', json: { firstName: 'QA', email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { id: 'user._id', token: 'token' } },
+      { method: 'POST', path: 'users/login', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { token: 'token' } },
       { method: 'DELETE', path: 'users/me', headers: { Authorization: 'Bearer ${token}' } },
     ] } as never);
     assert.equal(r.existing, undefined);
     assert.deepEqual(r.create, { method: 'POST', path: '/users', body: { firstName: 'QA', email: '${username}', password: '${password}' }, id: 'user._id', token: 'token' });
-    assert.equal(r.username, 'qa-${uid}@example.com');
+    assert.equal(r.username, 'hldout-${uid}@example.com');
     assert.deepEqual(r.token, { method: 'POST', path: '/users/login', body: { email: '${username}', password: '${password}' }, token: 'token' });
     assert.deepEqual(r.delete, { method: 'DELETE', path: '/users/me' });
   });
@@ -146,8 +156,8 @@ describe('a sign-up that answers with a token', () => {
 describe('the account delete in a chain', () => {
   it('is the DELETE on the account (its id or /me), not one that removes other test data', () => {
     const r = recipeFromChain({ steps: [
-      { method: 'POST', path: 'users/register', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { id: 'id' } },
-      { method: 'POST', path: 'users/login', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { token: 'access_token' } },
+      { method: 'POST', path: 'users/register', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { id: 'id' } },
+      { method: 'POST', path: 'users/login', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { token: 'access_token' } },
       { method: 'DELETE', path: 'favorites/${fid}', headers: { Authorization: 'Bearer ${token}' } },
       { method: 'DELETE', path: 'users/${id}', headers: { Authorization: 'Bearer ${token}' } },
     ] } as never);
@@ -158,8 +168,8 @@ describe('the account delete in a chain', () => {
 describe('a sign-up that needs a value from an earlier call', () => {
   const chain = { steps: [
     { method: 'GET', path: 'api/SecurityQuestions', save: { qid: 'data.0.id', unused: 'data.1.id' } },
-    { method: 'POST', path: 'api/Users', json: { email: 'qa-${uid}@example.com', password: '${env:PW}', securityQuestion: { id: '${qid}' } }, save: { id: 'data.id' } },
-    { method: 'POST', path: 'rest/user/login', json: { email: 'qa-${uid}@example.com', password: '${env:PW}' }, save: { token: 'authentication.token' } },
+    { method: 'POST', path: 'api/Users', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}', securityQuestion: { id: '${qid}' } }, save: { id: 'data.id' } },
+    { method: 'POST', path: 'rest/user/login', json: { email: 'hldout-${uid}@example.com', password: '${env:PW}' }, save: { token: 'authentication.token' } },
   ] };
   it('keeps that call as a "before" step, saving only what the account calls use', () => {
     const r = recipeFromChain(chain as never);

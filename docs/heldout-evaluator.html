@@ -588,7 +588,7 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
         <path class="edge" d="M600 192 L530 246"/><text class="t-s t-b" x="548" y="222" text-anchor="middle">yes</text>
         <path class="edge" d="M720 192 L800 246"/><text class="t-s t-b" x="782" y="222" text-anchor="middle">no</text>
         <rect class="box blue" x="380" y="250" width="270" height="104" rx="12"/><text class="t-b" x="515" y="276" text-anchor="middle">Created per test, deleted after</text><text class="t-s" x="515" y="296" text-anchor="middle">create → sign in → … → delete</text><text class="t-s" x="515" y="314" text-anchor="middle">e.g. Contact List App</text><text class="t-m" x="515" y="338" text-anchor="middle">accounts --from-chain</text>
-        <rect class="box amber" x="670" y="250" width="270" height="104" rx="12"/><text class="t-b" x="805" y="276" text-anchor="middle">Created per test, kept</text><text class="t-s" x="805" y="296" text-anchor="middle">named qa-… so they can be found</text><text class="t-s" x="805" y="314" text-anchor="middle">e.g. Toolshop</text><text class="t-m" x="805" y="338" text-anchor="middle">accounts --no-delete</text>
+        <rect class="box amber" x="670" y="250" width="270" height="104" rx="12"/><text class="t-b" x="805" y="276" text-anchor="middle">Created per test, kept</text><text class="t-s" x="805" y="296" text-anchor="middle">named hldout-… so they can be found</text><text class="t-s" x="805" y="314" text-anchor="middle">e.g. Toolshop</text><text class="t-m" x="805" y="338" text-anchor="middle">accounts --no-delete</text>
         <text class="t-s" x="160" y="290" text-anchor="middle">All three give tests the same call:</text>
         <text class="t-m" x="160" y="312" text-anchor="middle">const me = await seed.account();</text>
         <text class="t-m" x="160" y="332" text-anchor="middle">await signIn(page, me);</text>
@@ -601,7 +601,7 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
   <p>This is the real recipe the CL-3 evaluation saved for the Contact List App. The password is a reference to <code>.env</code>, never a value, because this file is committed.</p>
   <div class="code"><div class="hd">heldout.config.json → auts.contact-list.accounts</div><pre data-lang="json">{
   "password": "${env:CL_USER_PASSWORD}",
-  "username": "qa-${uid}@example.com",
+  "username": "hldout-${uid}@example.com",
   "create": { "method": "POST", "path": "/users",
               "body": { "firstName": "QA", "lastName": "Heldout", "email": "${username}", "password": "${password}" },
               "id": "user._id", "token": "token" },

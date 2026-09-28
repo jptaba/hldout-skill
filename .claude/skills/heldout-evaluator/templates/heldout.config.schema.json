@@ -57,6 +57,11 @@
             "minimum": 0,
             "description": "Minimum gap between test starts in ms, across workers and worker restarts: for hosts that ban bursts of traffic (e.g. 12000)"
           },
+          "dataPrefix": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,15}$",
+            "description": "Prefix of every name the tests make on this AUT (users, records, seed tags). Default \"hldout\"; another one where the application's rules need it"
+          },
           "accounts": {
             "type": "object",
             "description": "How tests get accounts on this AUT, written once and used by seed.account() and signIn() in every story: accounts the tests create (\"create\", plus \"delete\" when the application allows it), or accounts that already exist (\"existing\", shared out among parallel workers, never deleted). Secrets are \"${env:NAME}\" (.env or the environment) or \"${vault:path#field}\" (HashiCorp Vault), never literal. Other strings may use ${username}, ${password}, ${id}, ${token}, ${uid}. `heldout accounts` writes it; `heldout doctor` checks it live.",
@@ -68,7 +73,7 @@
               },
               "username": {
                 "type": "string",
-                "description": "User-name template; ${uid} is unique per account. Default \"qa-${uid}\""
+                "description": "User-name template; ${uid} is unique per account. Default \"<dataPrefix>-${uid}\""
               },
               "create": {
                 "type": "object",

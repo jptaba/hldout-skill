@@ -99,12 +99,16 @@ main(async () => {
     if (!['fetch', 'xhr'].includes(req.resourceType())) return;
     const u = new URL(res.url());
     if (!sites.has(siteOf(u.hostname))) return;
+    // A CDN's own beacons and challenges, and the app's static files (translations, config) are not its API.
+    if (/^\/cdn-cgi\//.test(u.pathname) || /\/(assets|static|i18n|locales?)\//i.test(u.pathname) || /\.(js|css|map|svg|png|jpe?g|gif|webp|woff2?|ttf)$/i.test(u.pathname)) return;
     calls.push((async () => {
       const isJson = /json/i.test(res.headers()['content-type'] ?? '');
       const json: unknown = isJson ? await res.json().catch(() => undefined) : undefined;
       // A browser drops an answer's body once the page navigates away (a sign-in that redirects): api-probe reads it.
       const shape = json !== undefined ? `\`${JSON.stringify(shapeOf(json)).replace(/\|/g, '\\|').slice(0, 300)}\`` : isJson ? '(JSON not kept: the page moved on; read it with heldout api-probe)' : '-';
-      return `| ${req.method()} | \`${u.pathname}${u.search ? '?…' : ''}\` | ${res.status()} | ${shape} |`;
+      // The host too when the call goes to another one than the page's (an API on its own host).
+      const host = u.host === new URL(cfg.aut.baseURL).host ? '' : u.host;
+      return `| ${req.method()} | \`${host}${u.pathname}${u.search ? '?…' : ''}\` | ${res.status()} | ${shape} |`;
     })());
   });
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.

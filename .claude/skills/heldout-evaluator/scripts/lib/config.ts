@@ -25,6 +25,9 @@ export interface AutProfile {
   maxWorkers?: number;
   /** Minimum gap between test starts (ms), across workers: for hosts that ban bursts of traffic. */
   minTestIntervalMs?: number;
+  /** Prefix of every name the tests make on this AUT (users, records, seed tags), so its test data is easy to find and
+   *  sweep. Default "hldout"; set another one where the application's rules need it (letters only, a length limit). */
+  dataPrefix?: string;
   /** How to make a test account on this AUT (mechanics, found while hardening the first story): seed.account() and signIn(). */
   accounts?: AccountRecipe;
   notes?: string;
@@ -43,7 +46,7 @@ export interface ExistingAccount { username: string; password: string; id?: stri
 export interface AccountRecipe {
   /** Password for the accounts the tests create, normally "${env:NAME}" (a strong value, so artifacts can be scrubbed). */
   password?: string;
-  /** User-name template for created accounts; ${uid} is unique per account. Default "qa-${uid}". */
+  /** User-name template for created accounts; ${uid} is unique per account. Default "<dataPrefix>-${uid}". */
   username?: string;
   /** Calls made first, each time an account is made or signed in (a CSRF token, a valid security-question id…): `save`
    *  maps a name to the dotted path of a value in the answer, usable as ${name} in the calls below. */
@@ -210,6 +213,7 @@ export function validateConfig(raw: unknown): string[] {
         });
       }
     }
+    if (prof.dataPrefix !== undefined && !(typeof prof.dataPrefix === 'string' && /^[A-Za-z][A-Za-z0-9._-]{0,15}$/.test(prof.dataPrefix))) out.push(`auts.${id}.dataPrefix must start with a letter and use at most 16 letters, digits, dots, dashes or underscores`);
     if (prof.minTestIntervalMs !== undefined && !(Number.isInteger(prof.minTestIntervalMs) && (prof.minTestIntervalMs as number) >= 0)) out.push(`auts.${id}.minTestIntervalMs must be a whole number of milliseconds`);
     if (prof.maxWorkers !== undefined && !(Number.isInteger(prof.maxWorkers) && (prof.maxWorkers as number) >= 1)) out.push(`auts.${id}.maxWorkers must be a whole number ≥ 1`);
     if (prof.healthcheck !== undefined && (!Array.isArray(prof.healthcheck) || prof.healthcheck.some((h) => typeof h !== 'string'))) out.push(`auts.${id}.healthcheck must be a list of paths, e.g. ["/", "api:/health"]`);
@@ -239,6 +243,9 @@ export function readEvaluationMeta(cfg: Pick<HeldoutConfig, 'evaluationsDir'>, k
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as EvaluationMeta) : { key };
 }
 
+/** Prefix of the names tests make on an AUT (users, records, seed tags). */
+export const dataPrefix = (aut: Pick<AutProfile, 'dataPrefix'>): string => aut.dataPrefix ?? 'hldout';
+
 /** Environment passed to Playwright so config + fixtures target the resolved profile. */
 export function autEnv(cfg: HeldoutConfig): Record<string, string> {
   return {
@@ -249,6 +256,7 @@ export function autEnv(cfg: HeldoutConfig): Record<string, string> {
     AUT_BLOCK_HOSTS: (cfg.aut.blockHosts ?? []).join(','),
     AUT_OVERLAYS: JSON.stringify(cfg.aut.overlays ?? []),
     AUT_MIN_TEST_INTERVAL_MS: String(cfg.aut.minTestIntervalMs ?? 0),
+    AUT_DATA_PREFIX: dataPrefix(cfg.aut),
     ...(cfg.aut.accounts ? { AUT_ACCOUNTS: JSON.stringify(cfg.aut.accounts) } : {}),
   };
 }

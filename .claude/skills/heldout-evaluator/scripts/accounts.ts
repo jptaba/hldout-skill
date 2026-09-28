@@ -18,7 +18,7 @@
  * Accounts that only the application's sign-up page can make (no API for it): the form, found with heldout inspect, and
  * how to read the new account's id:
  *   heldout accounts --aut <profile> --sign-up-json '<inspect steps>' --sign-up-path register.htm --sign-up-done "<locator>"
- *       --password-env APP_USER_PASSWORD [--username 'qa-${uid}'] [--lookup "GET services/login/${username}/${password}" --lookup-id id]
+ *       --password-env APP_USER_PASSWORD [--username 'hldout-${uid}'] [--lookup "GET services/login/${username}/${password}" --lookup-id id]
  *   In the steps, ${var:…} is the new user name and ${env:…} / ${vault:…} the password.
  *
  *   heldout accounts --aut <profile> --no-delete      the application doesn't let tests delete accounts: keep them (tagged)
@@ -29,7 +29,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, createsAccounts, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './lib/config';
+import { ROOT, createsAccounts, dataPrefix, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './lib/config';
 import { checkAccountRecipe, recipeFromChain, signInFromSteps } from './lib/accounts';
 import { loadVaultSecrets } from './lib/secrets';
 
@@ -92,7 +92,7 @@ main(async () => {
     const signUp = signInFromSteps({ path: unmangleMsysPath(flagStr(flags, 'sign-up-path')!), steps: signUpSteps, done: flagStr(flags, 'sign-up-done') });
     const { create: _api, existing: _existing, ...rest } = cfg.aut.accounts ?? {};
     void _api; void _existing;
-    save({ ...rest, password, username: flagStr(flags, 'username') ?? rest.username ?? 'qa-${uid}', signUp });
+    save({ ...rest, password, username: flagStr(flags, 'username') ?? rest.username ?? `${dataPrefix(cfg.aut)}-\${uid}`, signUp });
     console.log(`✔ auts.${cfg.autId}.accounts: tests make their accounts on the sign-up page ${signUp.path} (${signUp.steps.length} step(s))${cfg.aut.accounts?.delete ? '' : ', and keep them (no delete)'}`);
     changed = true;
   }
@@ -130,7 +130,7 @@ main(async () => {
     if (!createsAccounts(cfg.aut.accounts)) throw new Error('--no-delete applies to accounts the tests create');
     const { delete: removed, ...rest } = cfg.aut.accounts!;
     save(rest);
-    console.log(`✔ accounts the tests create are kept (no delete${removed ? `; removed ${removed.method} ${removed.path}` : ''}): they are named ${rest.username ?? 'qa-${uid}'} so they can be found later`);
+    console.log(`✔ accounts the tests create are kept (no delete${removed ? `; removed ${removed.method} ${removed.path}` : ''}): they are named ${rest.username ?? `${dataPrefix(cfg.aut)}-\${uid}`} so they can be found later`);
     changed = true;
   }
 
@@ -156,7 +156,7 @@ main(async () => {
   if (unset.length) console.log(`  ✖ not set yet: ${unset.join(', ')} — add ${unset.map((n) => `${n}=…`).join(' ')} to .env (git-ignored), or set them in the environment (CI variables)`);
   if (problems.length || unset.length) { process.exitCode = 1; return; }
   const onlyAdded = added && !flags.check && [chainFile, signInSteps, signUpSteps, lookup, resetCall, perTest, flags['no-delete']].every((x) => !x);
-  const steps = await checkAccountRecipe(onlyAdded ? { ...recipe, existing: [added!] } : recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), profile: cfg.autId, ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute, overlays: cfg.aut.overlays } });
+  const steps = await checkAccountRecipe(onlyAdded ? { ...recipe, existing: [added!] } : recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), profile: cfg.autId, dataPrefix: dataPrefix(cfg.aut), ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute, overlays: cfg.aut.overlays } });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
   const pool = createsAccounts(recipe) ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));

@@ -34,7 +34,7 @@ test.describe('<KEY> <summary>', () => {
   // API scenario
   test('SCN-005: <title>', { tag: ['@AC-5', '@type:functional', '@layer:api', '@P1'] }, async ({ api, journey }) => {
     let res!: Awaited<ReturnType<Api['post']>>;
-    await journey.step('When I POST a valid order', async () => { res = await api.post(EP.orders, { data: { item: unique('QA') } }); });
+    await journey.step('When I POST a valid order', async () => { res = await api.post(EP.orders, { data: { item: unique() } }); });
     await journey.step('Then the response status is 201', async () => {
       expect(res.status, '[REQ AC-5] create → 201').toBe(REQ.STATUS.CREATED);
     });
@@ -55,8 +55,8 @@ test.describe('<KEY> <summary>', () => {
 | `journey.step(gherkinLine, fn)` | One Gherkin line = one step. Captures an ARIA snapshot on failure (and after every step with `--capture`) |
 | `api.get/post/put/patch/delete(path, { data, headers, params, cookies })` | HTTP client on the profile's `apiBaseURL`. Returns `{ status, body, text, headers, durationMs }`. Every exchange is attached, redacted, as triage and verdict evidence (replayable as curl). A string `data` is sent raw (e.g. malformed JSON) |
 | `data` | `test-data.json`, with `${env:NAME}` resolved |
-| `unique(prefix)` | Collision-free values for shared AUTs (`"QA k3x9q2-1"`, with a space) |
-| `uniqueId(prefix)` | The same without spaces, for e-mails, user names and slugs (`` `${uniqueId('qa')}@example.com` ``) |
+| `unique(prefix?)` | Collision-free values for shared AUTs, starting with the profile's data prefix (`"hldout k3x9q2-1"`, with a space); `unique('Guest')` for a name of your own |
+| `uniqueId(prefix?)` | The same without spaces, for e-mails, user names and slugs (`` `${uniqueId()}@example.com` `` → `hldout-k3x9q2-1@example.com`) |
 | `expectResponse(res, { status, body? }, '[REQ AC-n] <call>')` | A requirement check of an API answer: status, and the exact body when given (soft). Frozen by integrity like any `[REQ]` assertion. Use it rather than a local helper, whose built messages integrity can't see |
 | `checkShape(value, schema, label)` | Contract check returning readable violations: `expect(checkShape(body, ROOM), '[REQ AC-11] schema').toEqual([])` |
 

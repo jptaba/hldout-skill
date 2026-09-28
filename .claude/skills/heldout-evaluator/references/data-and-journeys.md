@@ -79,7 +79,7 @@ application. Pick the way that fits the application and your permissions:
 | The application… | Accounts | Set up |
 | --- | --- | --- |
 | lets tests create and delete users | created per test, deleted afterwards | saved while hardening the first story: `heldout accounts --key KEY --from-chain <probe chain>` |
-| lets tests create users, but not delete them | created per test, kept (tagged `qa-…` by name) | the same, from a chain without a DELETE step |
+| lets tests create users, but not delete them | created per test, kept (tagged `hldout-…` by name) | the same, from a chain without a DELETE step |
 | makes users only on its sign-up page (no API for it) | created per test in a browser of their own, kept | `heldout accounts --sign-up-json … --sign-up-path … --lookup …` (below) |
 | can't create users, or you may not | **existing** accounts someone already made | `heldout accounts --add-existing …`, once per account |
 
@@ -257,5 +257,7 @@ when a spec has data preconditions but never uses `seed` (`no-seeding`).
 3. **Write the accounts recipe** (§4a) for each application as soon as a story needs users.
 4. **Keep data builders per entity**, derived from the requirement's schema (valid by default,
    overridable per test), as in `validBooking()` / `validEnquiry()`.
-5. **Sweep leftovers by tag** after interrupted runs. The `hx…` seed tag and the `QA …` names make
-   this safe.
+5. **Sweep leftovers by prefix** after interrupted runs. Every name the tests make starts with the profile's data
+   prefix: users `hldout-…`, records `hldout …`, seed tags `hldout…`. That makes this safe. The prefix is `hldout`
+   unless the application's rules need another one (letters only, a length limit): set it once per application with
+   `npm run heldout -- init --profile <id> --data-prefix <prefix>` (`auts.<id>.dataPrefix`).
