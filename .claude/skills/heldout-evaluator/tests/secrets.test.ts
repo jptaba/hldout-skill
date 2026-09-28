@@ -101,3 +101,13 @@ describe('an api-probe chain that signs in as an existing account', () => {
     });
   });
 });
+
+describe('an application whose accounts can be created but not deleted', () => {
+  it('is not sent a check account by doctor unless asked (it would stay behind)', async () => {
+    const { checkAccountRecipe } = await import('../scripts/lib/accounts');
+    const steps = await checkAccountRecipe({ password: '${env:X}', create: { method: 'POST', path: '/users', id: 'id' } }, 'http://127.0.0.1:9');
+    assert.equal(steps.length, 1);
+    assert.equal(steps[0].ok, true);
+    assert.match(steps[0].detail, /not run: the application offers no delete/);
+  });
+});

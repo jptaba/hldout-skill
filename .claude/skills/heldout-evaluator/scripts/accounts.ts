@@ -95,7 +95,7 @@ main(async () => {
   const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create) });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
-  const pool = recipe.create ? undefined : recipe.existing?.length;
-  console.log(`✔ accounts ready${pool ? ` (${pool} existing; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account();${recipe.signIn ? ' await signIn(page, me);' : ''}`);
+  const pool = recipe.create ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));
+  console.log(`✔ accounts ready${pool ? ` (${recipe.existing?.length} existing${(recipe.perTest ?? 1) > 1 ? `, ${recipe.perTest} per test` : ''}; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account();${recipe.signIn ? ' await signIn(page, me);' : ''}`);
   if (!recipe.token && !recipe.signIn) console.log(`  next: save how to sign in — the api-probe chain of the sign-in call (heldout accounts --from-chain …), and/or the UI steps (--sign-in-json …)`);
 });

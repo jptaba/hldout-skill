@@ -113,6 +113,7 @@ hiccup was fixed in the skill before the next round.
 | 3 | AE-1 (Automation Exercise) | second application, ad-heavy, PO comment, `@needs-clarification` | ✅ PASS WITH WARNINGS (as the key) | 8 |
 | 4 | DQ-3 (DemoQA) | the FAIL path: defects, audited amendments, grouped confirmation | ✅ FAIL, 2/2 defects (as the key) | 2 bugs, 2 wording |
 | 5 | AE-3 (Automation Exercise) | an image mock-up transcribed into the contract, review → fix → re-review | ✅ 14/14 (PASS WITH WARNINGS: invalid-e-mail question) | 1 hint |
+| 6 | DQ-2 (DemoQA) | **existing accounts**: 2 with passwords in `.env`, 2 entirely in a real HashiCorp Vault (KV v2); `vault login` token, `VAULT_TOKEN` and AppRole | ✅ 21/21, no password in any artifact | 4 (all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -126,6 +127,13 @@ hiccup was fixed in the skill before the next round.
   signing in through the UI. It's written once, from the API probe already made while hardening
   (`heldout accounts --from-chain`), and checked live by `doctor`. After that, `seed.account()` and `signIn()` work in
   every story on that app. `heldout secret NAME --generate` writes a strong test password to `.env` without showing it.
+- **Test accounts from wherever they already live.** When the app can't (or you may not) create users, existing
+  accounts are added once with `heldout accounts --add-existing`. User names can be literal or come from `.env` or Vault.
+  Passwords come from `.env`, CI variables or Vault (`${vault:path#field}`), and a literal password is refused.
+  Accounts are shared out among parallel workers and never deleted, and runs cap the workers to fit (`--per-test`).
+  Vault is reached with the `vault login` token, `VAULT_TOKEN` or AppRole, read once per run, and never written to disk.
+  `heldout secret NAME --ask` takes a password at a hidden prompt. Apps that let tests create users but not delete
+  them are supported too, and `doctor` never leaves a check account behind on them.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports
