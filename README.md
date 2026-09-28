@@ -13,7 +13,7 @@ Jira story + attachments + comments
   → verdict.md (traceability, reproduction steps, evidence) → Jira comment + attachment → you decide
 ```
 
-**Architecture and field guide:** [docs/architecture.html](docs/architecture.html) explains every capability with diagrams, plain-English
+**The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains every capability with diagrams, plain-English
 summaries, replays of real terminal sessions and recordings of the tests driving a real app. Git hosts show HTML as source,
 so open it from a clone (or a Pages site) in a browser.
 

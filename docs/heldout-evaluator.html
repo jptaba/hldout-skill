@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Held-out Evaluator Architecture</title>
+<title>Held-out Evaluator</title>
 <meta name="description" content="How the held-out evaluator works: onboarding, test users, secrets, the requirement contract, tests, integrity, hardening, seeding, runs, triage, verdicts and CI.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -356,7 +356,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 <!-- ============ HERO ============ -->
 <div class="hero">
   <svg class="spark spin" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#D97757" stroke-width="7.5" stroke-linecap="round"><path d="M60 50H92M58.7 55L79.4 67M55 58.7L71 86.4M50 60V84M45 58.7L29 86.4M41.3 55L20.6 67M40 50H8M41.3 45L20.6 33M45 41.3L29 13.6M50 40V16M55 41.3L71 13.6M58.7 45L79.4 33"/></g></svg>
-  <div class="kicker">Architecture and field guide</div>
+  <div class="kicker">The complete guide</div>
   <h1>The <em>held-out</em> evaluator</h1>
   <p class="lede">A Claude Code skill that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
   <div class="rail" aria-label="Pipeline">
@@ -1063,7 +1063,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
 </section>
 
 <footer>
-  Held-out Evaluator · a Claude Code skill · Architecture and field guide.<br>
+  Held-out Evaluator · a Claude Code skill · the complete guide.<br>
   GIF versions of the replays for READMEs and slides: <a href="media/onboarding.gif">onboarding.gif</a> · <a href="media/sample-run.gif">sample-run.gif</a>.<br>
   Recordings and excerpts are real outputs from the evaluator's own test rounds on public demo applications: Practice Software Testing (Toolshop), the Contact List App and DemoQA.
 </footer>
