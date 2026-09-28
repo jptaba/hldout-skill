@@ -183,6 +183,12 @@ describe('review hash covers reviewed content only', () => {
     c.acceptanceCriteria[0].outcomes.push('extra outcome');
     assert.notEqual(contractHash(c), h);
   });
+  it('the auth a stated endpoint requires is reviewed content: changing it needs a new review', () => {
+    const c = contract(fixture());
+    const h = contractHash(c);
+    c.endpoints[0].auth = c.endpoints[0].auth === 'required' ? 'none' : 'required';
+    assert.notEqual(contractHash(c), h);
+  });
 });
 
 describe('mechanics stay out of the review', () => {

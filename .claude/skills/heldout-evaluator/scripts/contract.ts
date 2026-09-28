@@ -140,11 +140,11 @@ main(async () => {
   }
   if (questions.length) {
     console.log(`\nQuestions for the user (${questions.length}) — the main agent asks the user (AskUserQuestion in Claude Code, in the chat elsewhere; a builder subagent leaves them open); unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
-    for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);
+    for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ') || 'no criterion'}`);
   }
   if (discover.length) {
     console.log(`\nTo discover from the application during hardening (${discover.length}) — record each as discovered-in-aut with evidence:`);
-    for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ') || 'no criterion yet'}`);
+    for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ') || 'no criterion'}`);
   }
   if (!review && !findings.some((f) => f.level === 'error')) console.log(`\nNext: independent review — heldout-contract-reviewer subagent (instructions: heldout contract ${key} --review-prompt)`);
   writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));

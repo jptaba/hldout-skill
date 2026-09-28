@@ -248,7 +248,8 @@ export const requirementEndpoints = (c: RequirementContract) => (c.endpoints ?? 
 
 /**
  * Hash of the contract's REVIEWED content — WHAT the story requires: criteria (with their oracle gaps), rules,
- * error model, oracle gaps, the endpoints the requirement states, and the coverage ledger. A review applies to
+ * error model, oracle gaps, the endpoints the requirement states (with the auth and success it states for them), the
+ * stated auth scheme, and the coverage ledger. A review applies to
  * exactly this. Mechanics — HOW to exercise the app: mechanics gaps and their discoveries, endpoints they found,
  * which endpoints an AC calls, entry points, request fields, test data — are completed during hardening without a
  * re-review. Re-labelling an oracle gap as mechanics changes the hash.
@@ -259,7 +260,8 @@ export const reviewedContent = (c: RequirementContract) => {
     acceptanceCriteria: (c.acceptanceCriteria ?? []).map((a) => ({ id: a.id, text: a.text, quote: a.quote, source: a.source, layer: a.layer, outcomes: a.outcomes, gaps: (a.gaps ?? []).filter((g) => oracle.has(g)) })),
     rules: c.rules ?? [], errorModel: c.errorModel ?? [],
     gaps: (c.gaps ?? []).filter((g) => g.kind === 'oracle').map((g) => ({ id: g.id, element: g.element, kind: g.kind, required: g.required, affects: g.affects, resolution: g.resolution, value: g.value ?? null })),
-    endpoints: requirementEndpoints(c).map((e) => ({ method: e.method, path: e.path, source: e.source })),
+    endpoints: requirementEndpoints(c).map((e) => ({ method: e.method, path: e.path, source: e.source, auth: e.auth ?? null, success: e.success ?? null })),
+    auth: c.auth ? { mechanism: c.auth.mechanism, source: c.auth.source } : null,
     coverage: c.coverage,
   };
 };
