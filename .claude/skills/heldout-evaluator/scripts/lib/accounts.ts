@@ -81,12 +81,13 @@ export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; do
 export interface RecipeStep { step: string; ok: boolean; detail: string }
 
 /** Run the recipe's UI sign-in in a headless browser as the given account; the error message, or undefined when it worked. */
-async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, string | undefined>, blockHosts: string[] = []): Promise<string | undefined> {
+async function uiSignIn(r: AccountRecipe, baseURL: string, vars: Record<string, string | undefined>, blockHosts: string[] = [], testIdAttribute = 'data-testid'): Promise<string | undefined> {
   const signIn = r.signIn!;
   let chromium: { launch(o: object): Promise<{ newContext(): Promise<UiContext>; close(): Promise<void> }> };
   try {
     const pw = await import(pathToFileURL(createRequire(path.join(ROOT, 'package.json')).resolve('@playwright/test')).href);
     chromium = pw.chromium ?? pw.default?.chromium;
+    (pw.selectors ?? pw.default?.selectors).setTestIdAttribute(testIdAttribute); // getByTestId as the tests resolve it
   } catch { return 'Playwright is not installed here (npm run heldout -- init --install)'; }
   const browser = await chromium.launch({ headless: true });
   try {
@@ -116,7 +117,7 @@ interface UiPage { goto(url: string, o: object): Promise<unknown>; waitForURL(ma
  * Check the recipe live. Existing accounts: each signs in over the API (nothing is created or deleted). Created
  * accounts: create → token → delete; when the application offers no delete, nothing is created unless `createUndeletable`.
  */
-export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; ui?: { baseURL: string; blockHosts?: string[] } } = {}): Promise<RecipeStep[]> {
+export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, opts: { createUndeletable?: boolean; ui?: { baseURL: string; blockHosts?: string[]; testIdAttribute?: string } } = {}): Promise<RecipeStep[]> {
   const out: RecipeStep[] = [];
   const send = async (c: RecipeCall, vars: Record<string, string | undefined>, token?: string) => {
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -161,7 +162,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
     // The UI sign-in, once, as the first account.
     const first = r.existing?.[0];
     if (opts.ui && r.signIn && first && out.every((x) => x.ok)) {
-      const failed = await uiSignIn(r, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts);
+      const failed = await uiSignIn(r, opts.ui.baseURL, { username: String(fill(first.username, {})), password: String(fill(first.password, {})) }, opts.ui.blockHosts, opts.ui.testIdAttribute);
       out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as ${first.username}` });
     }
     return out;
@@ -183,7 +184,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
   const signedIn = r.token ? await signInOverApi(vars, `${r.token.method} ${r.token.path}`) : undefined;
   let token = signedIn ?? (typeof fromCreate === 'string' ? fromCreate : undefined);
   if (opts.ui && r.signIn) {
-    const failed = await uiSignIn(r, opts.ui.baseURL, vars, opts.ui.blockHosts);
+    const failed = await uiSignIn(r, opts.ui.baseURL, vars, opts.ui.blockHosts, opts.ui.testIdAttribute);
     out.push({ step: `UI sign-in at ${r.signIn.path}`, ok: !failed, detail: failed ?? `signed in as the check account` });
     // Many applications revoke earlier tokens at a UI sign-in: take a fresh one for the delete.
     if (r.token) token = (await signInOverApi(vars, 'again after the UI sign-in')) ?? token;

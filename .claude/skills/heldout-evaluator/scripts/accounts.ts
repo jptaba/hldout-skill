@@ -110,7 +110,7 @@ main(async () => {
   const unset = [...new Set([...JSON.stringify(recipe).matchAll(/\$\{env:(\w+)\}/g)].map((m) => m[1]))].filter((n) => process.env[n] === undefined);
   if (unset.length) console.log(`  ✖ not set yet: ${unset.join(', ')} — add ${unset.map((n) => `${n}=…`).join(' ')} to .env (git-ignored), or set them in the environment (CI variables)`);
   if (problems.length || unset.length) { process.exitCode = 1; return; }
-  const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts } });
+  const steps = await checkAccountRecipe(recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute } });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
   const pool = recipe.create ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));

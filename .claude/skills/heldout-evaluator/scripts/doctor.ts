@@ -185,7 +185,7 @@ main(async () => {
       const p = cfg.auts[id];
       if (!p?.accounts || envNamesIn(p.accounts).some((n) => !process.env[n])) continue;
       try {
-        const steps = await checkAccountRecipe(p.accounts, p.apiBaseURL ?? p.baseURL, { ui: { baseURL: p.baseURL, blockHosts: p.blockHosts } });
+        const steps = await checkAccountRecipe(p.accounts, p.apiBaseURL ?? p.baseURL, { ui: { baseURL: p.baseURL, blockHosts: p.blockHosts, testIdAttribute: p.testIdAttribute } });
         const bad = steps.find((x) => !x.ok);
         if (bad) check('fail', `AUT ${id}`, `accounts recipe: ${bad.step} → ${bad.detail}`, `fix auts.${id}.accounts in heldout.config.json (try the calls with heldout api-probe --chain)`);
         else if (!p.accounts.create) check('ok', `AUT ${id}`, `${p.accounts.existing?.length ?? 0} existing test account(s) sign in${p.accounts.lookup ? ' and resolve their ids' : ''} (runs use at most ${Math.max(1, Math.floor((p.accounts.existing?.length ?? 0) / Math.max(1, p.accounts.perTest ?? 1)))} parallel workers)`);
