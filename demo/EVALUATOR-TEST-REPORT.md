@@ -101,7 +101,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder eighteen times, on six applications. Each
+After the blind round, the whole journey was repeated from an empty folder nineteen times, on six applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -122,7 +122,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 12 | AE-1 (Automation Exercise, from the published repository) | an ad script mistaken for the API; a product page as the base URL; a PO comment replacing an AC; an open question tested literally | ✅ PASS WITH WARNINGS, 13/14 (as the key: the open question) | 3 (all fixed) |
 | 13 | DQ-3 (DemoQA, from the published repository) | the FAIL path: a redirect without Location, a misspelled message; a PO path correction; new tabs and page-issued requests | ✅ FAIL, 2/2 defects (as the key) | 3 (all fixed) |
 | 14 | AE-3 (Automation Exercise, from the published repository) | an image mock-up transcribed and reviewed; native confirm dialogs; three non-required open questions; two audited amendments | ✅ PASS, 15/15 (as the key) | 4 (all fixed) |
-| 15 | DQ-2 (DemoQA, from the published repository) | **existing accounts only** (user creation forbidden by the story): 2 with passwords in `.env`, 2 entirely in a real HashiCorp Vault; the user's id found in the login page's own API call; a reset that empties each shared account before and after every test; a skill update mid-round | ✅ PASS, 21/21 (as the key), no password in any artifact | 12 (all fixed) |
+| 15 | DQ-2 (DemoQA, from the published repository) | **existing accounts only** (user creation forbidden by the story): 2 with passwords in `.env`, 2 entirely in a real HashiCorp Vault; the user's id found in the login page's own API call; a reset that empties each shared account before and after every test; a skill update mid-round; then the whole story again from a fresh onboarding | ✅ PASS, 21/21 (as the key), no password in any artifact; again from a fresh onboarding (15b): PASS 21/21, the tests and runs needed no fix | 12 + 5 wording (all fixed) |
 | 16 | CL-3 (Contact List, from the published repository), then twice more from a fresh onboarding | tests create and delete their own users; a UI sign-in saved and checked live; a native confirm on a page that loads its record after opening; two review → fix → re-review loops | ✅ PASS, 20/20 (as the key), in all three runs; the third needed no fix to the tests or the run | 22 over the three runs (10, 6, 6; all fixed) |
 
 **What changed for the people using it:**
@@ -195,6 +195,11 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   no longer says "reviewed" before the review, and the reviewer's instructions tell an accepted review from its
   findings. The test guide says to wait for a page's record, not only its address (a flaky "the confirm never
   appeared" on the first run).
+- **Confirmation runs.** After a round's fixes, the same story is run again from a fresh onboarding with the pushed
+  skill. Round 15b (DQ-2, existing accounts in `.env` and Vault) and round 16c (CL-3) ran clean: no fix to the tests or
+  to a run. What they still found was wording, fixed: `init` names the app root without an example path that may be the
+  page given, `doctor` and `--add-existing` say what is known before a sign-in is saved, and the reference says what a
+  "(public)" tag, an envelope-plus-table error body and an existing user's id mean for the contract.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports

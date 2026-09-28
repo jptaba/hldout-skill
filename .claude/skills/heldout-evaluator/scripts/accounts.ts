@@ -112,7 +112,7 @@ main(async () => {
     if (!m) throw new Error('--reset "METHOD path", the call that restores an existing account (with its token), e.g. --reset "DELETE /BookStore/v1/Books?UserId=${id}"');
     if (!cfg.aut.accounts?.existing?.length) throw new Error('--reset applies to existing accounts (add them first with --add-existing)');
     save({ ...cfg.aut.accounts, reset: { method: m[1].toUpperCase(), path: `/${unmangleMsysPath(m[2]).replace(/^\/+/, '')}` } });
-    console.log(`✔ existing accounts are reset with ${m[1].toUpperCase()} ${m[2]} when a test takes one and again after it (not run by this check: it changes the accounts' data)`);
+    console.log(`✔ existing accounts are reset with ${m[1].toUpperCase()} ${m[2]} when a test takes one and again after it`);
     changed = true;
   }
 

@@ -109,7 +109,7 @@ async function discover(configFile: string, id: string, flags: Flags, renameGene
     const page = new URL(profile.baseURL).pathname;
     if (profile.apiBaseURL === profile.baseURL && !flagStr(flags, 'api-base-url')) profile.apiBaseURL = root;
     profile.baseURL = root;
-    say('✔', `base URL: ${root} (the app's root; ${page} is one of its pages, so paths such as /login resolve from the root. An app under a folder: give the folder with a trailing slash)`);
+    say('✔', `base URL: ${root} (the root of the app ${page} belongs to; the tests' paths resolve from it. An app under a folder: give the folder with a trailing slash)`);
   }
   // The page that was given is the one its owner cares about: discovery visits it too (its ads, its test ids).
   const d = await discoverApp(profile.baseURL, given !== profile.baseURL ? [given] : []);

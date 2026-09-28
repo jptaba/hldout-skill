@@ -181,7 +181,7 @@ export async function checkAccountRecipe(r: AccountRecipe, apiBaseURL: string, o
       const vars = { username: String(fill(a.username, {})), password: String(fill(a.password, {})), id: a.id ? String(fill(a.id, {})) : undefined };
       const unresolved = [a.username, a.password].filter((v) => /\$\{(env|vault):/.test(String(fill(v, {}))));
       if (unresolved.length) { out.push({ step: `account ${a.username}`, ok: false, detail: `not set: ${unresolved.join(', ')}` }); continue; }
-      if (!r.token) { out.push({ step: `account ${a.username}`, ok: true, detail: 'credentials set; the UI sign-in is checked by the first test that signs in' }); continue; }
+      if (!r.token) { out.push({ step: `account ${a.username}`, ok: true, detail: r.signIn ? 'credentials set; the UI sign-in is checked by the first test that signs in' : 'credentials set; they are checked once a way to sign in is saved' }); continue; }
       if (!(await runBefore(vars))) return out;
       const token = await signInOverApi(vars, a.username);
       if (token && !vars.id && r.lookup) {
