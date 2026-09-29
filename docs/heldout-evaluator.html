@@ -77,13 +77,13 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0; }
 @media (max-width: 520px) { .topbar { padding: 10px 14px; gap: 10px; } .iconbtn .lbltxt, #themeLbl { display: none; } .iconbtn { padding: 7px 9px; } .brand { font-size: .98rem; } }
 
 /* ---------- layout ---------- */
-.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; gap: 40px; padding: 0 24px; }
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px; padding: 0 32px 0 24px; }
 nav.toc { position: sticky; top: 70px; align-self: start; max-height: calc(100vh - 90px); overflow: auto; padding: 26px 0 40px; font-size: .9rem; }
 nav.toc .grp { font: 600 .72rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 18px 0 6px 12px; }
 nav.toc a { display: block; padding: 5px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
 nav.toc a:hover { color: var(--text); background: var(--surface-2); }
 nav.toc a.active { color: var(--acc-strong); border-left-color: var(--acc); background: var(--acc-soft); font-weight: 500; }
-main { min-width: 0; max-width: 900px; padding-bottom: 80px; }
+main { min-width: 0; padding-bottom: 80px; }
 section { padding: 40px 0 8px; }
 .kicker { font: 600 .78rem var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--acc-strong); margin-bottom: .5rem; display: flex; align-items: center; gap: 8px; }
 .kicker::before { content: ""; width: 18px; height: 2px; background: var(--acc); border-radius: 2px; }
