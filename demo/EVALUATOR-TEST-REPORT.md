@@ -105,7 +105,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder twenty-three times, on six applications. Each
+After the blind round, the whole journey was repeated from an empty folder twenty-four times, on six applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -130,6 +130,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 16 | CL-3 (Contact List, from the published repository), then twice more from a fresh onboarding | tests create and delete their own users; a UI sign-in saved and checked live; a native confirm on a page that loads its record after opening; two review → fix → re-review loops | ✅ PASS, 20/20 (as the key), in all three runs; the third needed no fix to the tests or the run | 22 over the three runs (10, 6, 6; all fixed) |
 | 17 | TOOL-4 (Toolshop, from the published repository), then again from a fresh onboarding | ACs in a custom field and a PO comment that changes a status; API on its own host; users the app won't let tests delete, now named `hldout-…`; a DELETE in the probe chain answered 403 | ✅ PASS, 11/11 (as the key), in both runs; the second needed no fix to the tests or the run | 16 over the two runs (10, 6; all fixed) |
 | 18 | JS-2 (OWASP Juice Shop in Docker, from the published repository), then again from a fresh onboarding | the FAIL path; a localhost app with a hash-route address; overlays found by `init`; a security question fetched before sign-up; a deliberately short password as the evidence | ✅ FAIL, 2/2 defects (as the key), in both runs; the second needed no fix to the tests or the run | 13 over the two runs (10, 3; all fixed) |
+| 19 | PB-4 (ParaBank, shared demo) | a page address as the base URL; users made on the sign-up page; a Cloudflare rate limit; the demo's data access mode changed by someone else; an unobservable "shall" (NFR) | ⏸ INCONCLUSIVE: 4 failures confirmed as the environment (key: PASS WITH WARNINGS on a healthy demo); re-run pending | 7 (all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -231,6 +232,16 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   the project, not by the machine's folders. `heldout status` judges a verdict stale by the run it judged, not by file
   times (after a clone every committed verdict looked stale). The tests' fixtures take secret redaction and the page
   helpers (locator expressions, overlays) from the installed skill instead of keeping copies that drifted apart.
+- **Round 19 (PB-4 on ParaBank) met a shared demo someone had reconfigured.** The first run was rate-limited by
+  Cloudflare ("Error 1015"), which reached the tests only as timeouts; `heldout run` now also reads the failed tests'
+  page snapshots and prints the pacing command, and triage's advice names that command. Paced, four criteria still
+  failed the same way: a payment made on the Bill Pay page said "Bill Payment Complete" but was never recorded, while
+  the same payment through the REST service was. The demo's admin page showed why: its data access mode had been set
+  to SOAP (the default is JDBC). Triage suggested APPLICATION_DEFECT; the evaluator confirmed ENVIRONMENT_ISSUE with
+  the admin page as evidence, and the verdict is INCONCLUSIVE, now saying that the environment caused it and to run
+  again once it is fixed. The triage guide says to check a shared sandbox's own settings before confirming a defect,
+  and never to change them. The contract check now grounds endpoint paths under a base the story states as a bare
+  path (`/parabank/services/bank`, relative to the API origin), and reads ids such as AC-6 in an outcome as references.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports

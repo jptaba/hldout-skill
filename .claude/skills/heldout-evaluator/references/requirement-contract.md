@@ -229,6 +229,11 @@ coverage: `L12` → `G1`, `L17` → `AC-3`, `L28` → `G1`. A `source` field hol
 L19 isn't testable as written. Cover it as `non-functional`, and if it matters, record an **oracle gap**
 ("what response time is acceptable?"). Never invent "under 2 seconds".
 
+A requirement that is precise but that nothing the tests can reach shows ("the payment reaches the payee by the next
+business day", with no payee side to look at) is a `nonFunctional` item (`NFR-1`), not a gap: it has an expected
+value, only no way to observe it. The scenarios name it with `@NFR-1` where they can, and the verdict lists it as not
+verified (PASS WITH WARNINGS), which is what the owner needs to hear.
+
 ### 6. Mock-up image
 
 `attachments/signup.png` → `transcripts/signup.png.md`:

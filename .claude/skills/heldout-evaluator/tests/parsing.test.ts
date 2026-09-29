@@ -109,6 +109,12 @@ describe('decideVerdict', () => {
   it('a stated requirement nobody verified is a warning, not a pass', () => { const v = decideVerdict({ ...base, unverifiedRequirements: 1 }); assert.equal(v.verdict, 'PASS_WITH_WARNINGS'); assert.match(v.reason, /1 stated requirement\(s\) not verified/); });
   it('confirmed defects → FAIL', () => assert.equal(decideVerdict({ ...base, confirmedAppDefects: [{ refs: ['AC-1'] }], failures: 1 }).verdict, 'FAIL'));
   it('unexplained failures → INCONCLUSIVE', () => assert.equal(decideVerdict({ ...base, failures: 1 }).verdict, 'INCONCLUSIVE'));
+  it('failures the evaluator traced to the environment say so, and never become defects', () => {
+    const all = decideVerdict({ ...base, failures: 4, environmentFailures: 4 });
+    assert.equal(all.verdict, 'INCONCLUSIVE');
+    assert.match(all.reason, /4 failure\(s\) caused by the test environment.*Fix the environment and run again/);
+    assert.match(decideVerdict({ ...base, failures: 3, environmentFailures: 1 }).reason, /1 caused by the test environment; the others unconfirmed/);
+  });
   it('warnings → PASS_WITH_WARNINGS', () => assert.equal(decideVerdict({ ...base, openQuestions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
   it('a failure resting only on an assumption → PASS_WITH_WARNINGS, not FAIL', () => assert.equal(decideVerdict({ ...base, contradictedAssumptions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
   it('clean → PASS', () => assert.equal(decideVerdict(base).verdict, 'PASS'));

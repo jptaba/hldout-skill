@@ -106,7 +106,7 @@ main(async () => {
     writeFile(file, `${JSON.stringify(c, null, 2)}\n`);
     console.log(`✔ ${g.id} → ${g.resolution}: ${value}${gapFlag === 'answer' ? '\n  The oracle changed: have the heldout-contract-reviewer subagent review the contract again.' : ''}\n`);
   }
-  const findings = checkContract(c, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL) });
+  const findings = checkContract(c, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL });
   if (flags['review-prompt']) {
     // A review certifies a finished contract: an empty or ungrounded one goes back to the builder first.
     const blocking = findings.filter((f) => f.level === 'error');

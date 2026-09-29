@@ -157,15 +157,21 @@ export interface LiteralViolation { where: string; literal: string; kind: 'statu
  * requirement / config / user / an explicit assumption. A literal found only in a gap "discovered in the AUT" is
  * the oracle being read off the application → reported as fromAutOnly.
  */
-export function inventedLiterals(c: RequirementContract, reqDir: string): LiteralViolation[] {
+export function inventedLiterals(c: RequirementContract, reqDir: string, opts: { apiBaseURL?: string } = {}): LiteralViolation[] {
   const sourceText = norm(textSources(reqDir).map((f) => fs.readFileSync(path.join(reqDir, f), 'utf8')).join('\n'));
   const sourceNumbers = numbersIn(sourceText);
   const sourceSteps = decimalSteps(sourceText);
   const answered = (c.gaps ?? []).filter((g) => ['found-in-requirement', 'found-in-config', 'provided-by-user', 'assumed'].includes(g.resolution)).map((g) => norm(`${g.value ?? ''} ${g.evidence ?? ''}`)).join('\n');
   const fromAut = (c.gaps ?? []).filter((g) => g.resolution === 'discovered-in-aut').map((g) => norm(`${g.value ?? ''}`)).join('\n');
   const answeredNumbers = numbersIn(answered);
-  // A spec that states a base URL (https://host/api) and paths relative to it grounds the composed path (/api/x).
-  const bases = [...new Set([...sourceText.matchAll(/https?:\/\/[^\s/"'`)<>]+(\/[a-z0-9_\-./]*[a-z0-9_\-])/g)].map((m) => m[1].replace(/\/+$/, '')))];
+  // A spec that states a base (https://host/api, or the bare path "the REST service under /api") and paths relative to
+  // it grounds the composed path (/api/x). A base under the API origin's own path (base /parabank/services/bank, API
+  // https://host/parabank/) grounds the path relative to that origin too (/services/bank/x).
+  const urlBases = [...sourceText.matchAll(/https?:\/\/[^\s/"'`)<>]+(\/[a-z0-9_\-./]*[a-z0-9_\-])/g)].map((m) => m[1]);
+  const pathBases = [...sourceText.matchAll(/(?<![\w/:.])(\/[a-z0-9_\-]+(?:\/[a-z0-9_\-]+)+)(?![\w/{])/g)].map((m) => m[1]);
+  const apiPath = opts.apiBaseURL ? new URL(opts.apiBaseURL).pathname.replace(/\/+$/, '') : '';
+  const bases = [...new Set([...urlBases, ...pathBases].map((b) => b.replace(/\/+$/, ''))
+    .flatMap((b) => (apiPath && b.startsWith(`${apiPath}/`) ? [b, b.slice(apiPath.length)] : [b])))];
   const params = (s: string) => s.replace(/\{[^}]+\}|<[^>]+>|:[a-z_]+/g, '{}');
   const paramSources = params(sourceText);
   // A declared template (/contacts/{id}) filled with a value the sources give ("a malformed id, for example abc").
@@ -192,6 +198,8 @@ export function inventedLiterals(c: RequirementContract, reqDir: string): Litera
       if (!grounded) out.push({ where, literal: p, kind: 'path', fromAutOnly: fromAut.includes(p) });
       rest = rest.replace(p, ' ');
     }
+    // Ids of the contract's own items ("as AC-6 states", G2, NFR-1, SCN-003) are references, not expected values.
+    rest = rest.replace(/\b(?:AC|R|E|G|NFR|SCN)-?\d+(?:\.\d+)?\b/gi, ' ');
     // Status codes (after →, "status", "responds", "returns", "HTTP"…) must match exactly; other numbers may sit one
     // step outside a stated boundary (1–99 grounds 0 and 100).
     const statuses = new Set([...rest.matchAll(/(?:→|->|\bstatus(?: code)?|\brespon(?:ds?|se)(?: with)?|\breturns?|\bcode|\bhttp|\banswer(?:s|ed)?(?: with)?)\s*(\d{3})\b/g)].map((m) => Number(m[1])));
@@ -220,8 +228,8 @@ export function inventedLiterals(c: RequirementContract, reqDir: string): Litera
   return out;
 }
 
-export function checkLiterals(c: RequirementContract, reqDir: string): ContractFinding[] {
-  return inventedLiterals(c, reqDir).map((v) => v.fromAutOnly
+export function checkLiterals(c: RequirementContract, reqDir: string, opts: { apiBaseURL?: string } = {}): ContractFinding[] {
+  return inventedLiterals(c, reqDir, opts).map((v) => v.fromAutOnly
     ? { level: 'error' as const, code: 'oracle-literal-from-aut', message: `${v.where}: ${v.literal} appears only in what was discovered from the AUT — expected behaviour can't come from the application under test` }
     : { level: 'error' as const, code: 'invented-literal', message: `${v.where}: ${v.kind} ${v.literal} does not appear in the story, its attachments/transcripts or any answered gap — quote the source, or record a gap (ask / assume) for it` });
 }

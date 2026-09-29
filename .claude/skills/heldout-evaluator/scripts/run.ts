@@ -206,8 +206,14 @@ main(async () => {
     if (leftovers.some((l) => !/HTTP 40[13]/.test(l))) console.log('    other errors: replay the cleanup call with heldout api-probe to see what the application answers');
   }
   // A host that rate-limited this run will do it again: say how to pace the tests, with the command that does it.
+  // The signs: a 429 in the health checks or the output, or a rate-limit page in a failed test's page snapshot (a WAF
+  // such as Cloudflare "Error 1015 · You are being rate limited" answers the browser; the test then only times out).
+  const RATE_LIMITED = /\b429\b|rate[ -]?limit|too many requests|error 1015/i;
+  const snapshots = fs.existsSync(path.join(runDir, 'artifacts')) ? fs.readdirSync(path.join(runDir, 'artifacts'), { recursive: true, encoding: 'utf8' })
+    .filter((f) => f.endsWith('error-context.md')).map((f) => fs.readFileSync(path.join(runDir, 'artifacts', f), 'utf8')) : [];
   const throttled = [...(Array.isArray(health) ? health : []), ...postHealth].some((h) => h.status === 429)
-    || /\b429\b|rate limit/i.test(fs.existsSync(path.join(runDir, 'console.log')) ? fs.readFileSync(path.join(runDir, 'console.log'), 'utf8') : '');
+    || RATE_LIMITED.test(fs.existsSync(path.join(runDir, 'console.log')) ? fs.readFileSync(path.join(runDir, 'console.log'), 'utf8') : '')
+    || snapshots.some((s) => RATE_LIMITED.test(s));
   if (throttled && !(cfg.aut.maxWorkers === 1 && cfg.aut.minTestIntervalMs)) {
     console.log(`\n⚠ ${cfg.aut.name} rate-limited this run (HTTP 429). Pace the tests on this host, then run again:`);
     console.log(`  npm run heldout -- init --profile ${cfg.autId} --max-workers 1 --min-test-interval-ms 10000`);

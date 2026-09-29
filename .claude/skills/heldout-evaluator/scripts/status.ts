@@ -18,7 +18,10 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const specs = fs.existsSync(p.tests) ? fs.readdirSync(p.tests, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.spec.ts')) : [];
   const src = specs.map((f) => fs.readFileSync(path.join(p.tests, f), 'utf8')).join('\n');
   const contract = readContract(p.base);
-  const contractErrors = contract && fs.existsSync(p.requirement) ? [...checkContract(contract, p.requirement), ...checkReview(contract, readReview(p.base), { requireReview: true })].filter((f) => f.level === 'error').length : 0;
+  // The story's own AUT profile (its API origin grounds the paths its sources state under it).
+  const autId = fs.existsSync(path.join(p.base, 'evaluation.json')) ? readJson<{ aut?: string }>(path.join(p.base, 'evaluation.json')).aut : undefined;
+  const profile = (autId && cfg.auts[autId]) || cfg.aut;
+  const contractErrors = contract && fs.existsSync(p.requirement) ? [...checkContract(contract, p.requirement, { apiBaseURL: profile.apiBaseURL ?? profile.baseURL }), ...checkReview(contract, readReview(p.base), { requireReview: true })].filter((f) => f.level === 'error').length : 0;
   const runs = listRuns(p.runs);
   const evalRuns = runs.filter((r) => !NON_EVAL_RUN.test(r));
   const lastEval = evalRuns.at(-1);

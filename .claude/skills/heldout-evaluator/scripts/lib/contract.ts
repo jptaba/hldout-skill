@@ -177,6 +177,8 @@ const LADDER_RUNG: Record<LadderStep, number> = { story: 0, attachments: 0, aut:
 export interface CheckOptions {
   /** The AUT profile has an API origin (required when any AC is api/e2e). */
   hasApiBase?: boolean;
+  /** The AUT profile's API origin: a base path the sources state under it grounds the paths relative to it. */
+  apiBaseURL?: string;
 }
 
 /** Field types the checks rely on; a wrong type is reported as a finding instead of crashing a check. */
@@ -317,7 +319,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   }
 
   // Evidence: nothing omitted (coverage ledger), nothing invented (literal grounding).
-  out.push(...checkCoverage(c, reqDir), ...checkLiterals(c, reqDir));
+  out.push(...checkCoverage(c, reqDir), ...checkLiterals(c, reqDir, { apiBaseURL: opts.apiBaseURL }));
   return out;
 }
 

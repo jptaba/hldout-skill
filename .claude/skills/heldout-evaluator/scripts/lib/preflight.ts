@@ -62,7 +62,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   if (!contract) err('no-contract', 'No requirement-contract.json — phase 1b comes first: heldout contract KEY --pack, then the extractor and reviewer subagents');
   else {
     // By preflight time the user has been asked; open gaps must be surfaced in the feature instead.
-    for (const x of checkContract(contract, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL) })) {
+    for (const x of checkContract(contract, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL })) {
       // An assumed oracle value that the feature already surfaces as "# ASSUMPTION: G<n>" needs no further warning.
       const gap = x.code === 'oracle-assumed' ? x.message.match(/^(G\d+):/)?.[1] : undefined;
       if (gap && f.assumptions.some((a) => a.startsWith(gap))) continue;

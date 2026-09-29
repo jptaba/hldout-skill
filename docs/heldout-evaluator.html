@@ -372,8 +372,8 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>6 apps</b><span>onboarded end to end in 18 rounds, with no app-specific code</span></div>
-    <div class="stat"><b>154</b><span>self-tests guarding the skill's own logic</span></div>
+    <div class="stat"><b>6 apps</b><span>onboarded end to end in 19 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>158</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
 
@@ -1037,6 +1037,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
       <tr><td>16</td><td>CL-3 · Contact List</td><td>run three times from a fresh onboarding to confirm each fix; a review loophole closed</td><td><span class="badge b-pass">PASS</span> 20/20 ×3, as the key</td></tr>
       <tr><td>17</td><td>TOOL-4 · Toolshop</td><td>ACs in a custom field, a PO comment changing a status; test data named <code>hldout-…</code>; confirmed from a fresh onboarding</td><td><span class="badge b-pass">PASS</span> 11/11 ×2, as the key</td></tr>
       <tr><td>18</td><td>JS-2 · Juice Shop (Docker)</td><td>the FAIL path; overlays found by <code>init</code>; a too-short password kept readable in the reproduction; confirmed from a fresh onboarding</td><td><span class="badge b-fail">FAIL</span> 2/2 defects ×2, as the key</td></tr>
+      <tr><td>19</td><td>PB-4 · ParaBank (shared demo)</td><td>a rate limit, then the demo's settings changed by someone else: web payments not recorded; traced to the demo's admin page, not reported as defects</td><td><span class="badge b-inc">INCONCLUSIVE</span> environment; re-run pending</td></tr>
     </tbody>
   </table></div>
   <p class="small">The full report, with every defect the rounds found in the skill and how it was fixed, is in <a href="../demo/EVALUATOR-TEST-REPORT.md">demo/EVALUATOR-TEST-REPORT.md</a>.</p>

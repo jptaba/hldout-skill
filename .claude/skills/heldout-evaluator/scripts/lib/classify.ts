@@ -146,7 +146,7 @@ export function classify(e: ParsedError, ctx: ClassifyContext = {}): AutoClassif
   const waf = /performing security verification|checking your browser|just a moment\.\.\.|attention required|error 1015|you are being rate limited|too many requests|verify you are human|request unsuccessful\. incapsula|access denied.{0,40}reference #/i;
   if (waf.test(snapshot) || waf.test(m) || ctx.api?.response?.status === 429) {
     return { category: 'ENVIRONMENT_ISSUE', confidence: 'high', signals: ['A bot-protection or rate-limit page answered instead of the application (WAF interstitial / HTTP 429).'],
-      next: 'Wait for the limit to lift and re-run with fewer workers (--workers 1) and without --repeat-each; set the profile\'s "workers" if the host is always protected.' };
+      next: 'Wait for the limit to lift, pace the tests on this host once (npm run heldout -- init --profile <id> --max-workers 1 --min-test-interval-ms 10000), then run again.' };
   }
   if (/\b(TypeError|ReferenceError|SyntaxError)\b|is not a function|Cannot read propert|is not defined/.test(m) && !/page\.evaluate/.test(m)) {
     return { category: 'SCRIPT_DEFECT', confidence: 'high', signals: ['JavaScript error raised by the test code itself.'], next: 'Fix the test code; re-run.' };

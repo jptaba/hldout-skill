@@ -121,7 +121,8 @@ main(() => {
   const { verdict, reason } = decideVerdict({
     integrity: integrity.status,
     confirmedAppDefects: [...groups.values()].filter((g) => g.some((e) => e.final)).map((g) => ({ refs: [...new Set(g.flatMap((e) => e.requirementRefs))] })),
-    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length, unverifiedRequirements: unverifiedNfrs.length,
+    failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length,
+    environmentFailures: failures.filter((e) => e.final?.category === 'ENVIRONMENT_ISSUE').length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length, unverifiedRequirements: unverifiedNfrs.length,
   });
 
   const acText = (id: string) => feature.acs.find((a) => a.id === id)?.text ?? '';

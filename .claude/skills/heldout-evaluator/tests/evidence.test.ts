@@ -134,6 +134,21 @@ describe('literal grounding', () => {
     c.endpoints.push({ method: 'POST', path: '/api/v2/orders', source: 'story.md#L10' }, { method: 'GET', path: '/api/v2/refunds', source: 'story.md#L10' });
     assert.deepEqual(inventedLiterals(c, dir).map((x) => x.literal), ['/api/v2/refunds']);
   });
+  it('grounds a path under a base stated as a bare path, also relative to an API origin that holds part of it', () => {
+    const dir = fixture();
+    fs.appendFileSync(path.join(dir, 'story.md'), '\nPartner apps use the REST service under `/shop/services/bank`: `POST /billpay`, `GET /accounts/{accountId}`.\n');
+    const c = contract(dir);
+    c.endpoints.push({ method: 'POST', path: '/services/bank/billpay', source: 'story.md#L10' }, { method: 'GET', path: '/services/bank/accounts/{accountId}', source: 'story.md#L10' },
+      { method: 'GET', path: '/services/bank/loans', source: 'story.md#L10' });
+    assert.deepEqual(inventedLiterals(c, dir, { apiBaseURL: 'https://bank.example.com/shop/' }).map((x) => x.literal), ['/services/bank/loans']);
+    assert.deepEqual(inventedLiterals(c, dir).map((x) => x.literal), ['/services/bank/billpay', '/services/bank/accounts/{accountid}', '/services/bank/loans']);
+  });
+  it('reads the ids of the contract\'s own items as references, not numbers ("as AC-6 states")', () => {
+    const dir = fixture();
+    const c = contract(dir);
+    c.acceptanceCriteria[0].outcomes.push('the same row as AC-6 states, see G2 and NFR-1');
+    assert.deepEqual(inventedLiterals(c, dir), []);
+  });
   it('flags expected values that exist only in what was discovered from the app', () => {
     const dir = fixture();
     const c = contract(dir);

@@ -11,7 +11,7 @@ npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisio
 | --- | --- | --- |
 | `APPLICATION_DEFECT` | The AUT does not do what the requirement says (reproduced live) | FAIL (reviewer confirms) |
 | `SCRIPT_DEFECT` | The test is wrong about *mechanics*: locator, wait, endpoint path, auth plumbing, payload shape, JS error, over-strict assertion implementation | repair + re-run |
-| `ENVIRONMENT_ISSUE` | AUT down, network/DNS, browser launch, gateway 502–504 | re-run; INCONCLUSIVE if it persists |
+| `ENVIRONMENT_ISSUE` | AUT down, network/DNS, browser launch, gateway 502–504, a rate limit, a shared sandbox whose settings someone changed | re-run; INCONCLUSIVE if it persists |
 | `FLAKY` | Failed, then passed on retry, or failed only some of `--repeat-each` repeats | PASS_WITH_WARNINGS |
 | `BLOCKED` | A `[SEED]` precondition could not be established, so the scenario was not evaluated | INCONCLUSIVE until the seed works |
 | `NEEDS_INVESTIGATION` | Evidence insufficient | INCONCLUSIVE until resolved |
@@ -39,6 +39,14 @@ Evidence comes from the failure-time ARIA snapshot, the `[REQ …]` assertion me
 | Text assertion on an element with **empty** text | NEEDS_INVESTIGATION (probably the wrong element) |
 | Regex expectation matches once `\b`/anchors are relaxed | SCRIPT_DEFECT (over-strict implementation → amend) |
 | `[REQ]` failed on a located element / declared endpoint with a different value | APPLICATION_DEFECT (high) |
+
+**A shared public sandbox is not only the application.** Anyone can change its settings: ParaBank's admin page switches
+its data access mode, and in one mode web payments answer "Bill Payment Complete" but are never recorded. Before
+confirming an `APPLICATION_DEFECT` on a shared demo, and above all when several criteria fail the same way while the
+same operation works through another path (the REST call records the payment, the page doesn't), look at the
+application's own admin, settings or health page for a non-default setting (`heldout inspect --url admin.htm`). If
+that explains it, confirm `ENVIRONMENT_ISSUE` with that page as evidence: the verdict is INCONCLUSIVE and says the
+environment caused it. Never change a shared sandbox's settings yourself; that is the owner's call.
 
 **Scenarios tagged `@assumes:G<n>`** (the expected value is an assumption, not the requirement): triage them like any other
 scenario. If the application really behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it

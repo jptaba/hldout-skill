@@ -5,6 +5,8 @@ export interface VerdictInputs {
   integrity: 'PRESERVED' | 'AMENDED' | 'VIOLATED' | 'NO_DRAFT';
   confirmedAppDefects: { refs: string[] }[];
   failures: number;
+  /** Of those, failures the evaluator confirmed as caused by the test environment (a rate limit, a misconfigured sandbox). */
+  environmentFailures?: number;
   /** Scenarios that did not run (test.skip / fixme). A PASS requires every scenario to have run. */
   skipped?: number;
   flaky: number;
@@ -26,7 +28,9 @@ export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: str
     return { verdict: 'FAIL', reason: `${i.confirmedAppDefects.length} application defect(s) reproduced by the evaluator: the AUT does not satisfy ${refs.join(', ')}. Awaiting reviewer confirmation.` };
   }
   if (i.failures) {
-    return { verdict: 'INCONCLUSIVE', reason: `${i.failures} failure(s) not attributable to the application yet (unconfirmed, script, environment or needs investigation).` };
+    const env = i.environmentFailures ?? 0;
+    if (env === i.failures) return { verdict: 'INCONCLUSIVE', reason: `${env} failure(s) caused by the test environment, as the evaluator confirmed, not by the application: the criteria they test could not be judged. Fix the environment and run again.` };
+    return { verdict: 'INCONCLUSIVE', reason: `${i.failures} failure(s) not attributable to the application yet (${env ? `${env} caused by the test environment; the others ` : ''}unconfirmed, script or needs investigation).` };
   }
   if (i.skipped) {
     return { verdict: 'INCONCLUSIVE', reason: `${i.skipped} scenario(s) did not run (skipped), so the requirement is not fully evaluated.` };
