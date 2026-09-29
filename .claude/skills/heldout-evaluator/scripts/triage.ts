@@ -20,7 +20,7 @@ import { ROOT, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, p
 import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, type AutoClassification, type Category, type ParsedError } from './lib/classify';
 import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readFeature } from './lib/gherkin';
 import { readContract, requestContracts } from './lib/contract';
-import { correlateAuthPrecondition, correlateDegradedEnvironment, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './lib/triage-model';
+import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './lib/triage-model';
 
 export type { TriageEntry, TriageReport };
 
@@ -62,11 +62,13 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
       const scenario = spec.title.match(SCENARIO_ID_RE)?.[1] ?? spec.title;
       const tags = (spec.tags ?? []).map((x) => (x.startsWith('@') ? x : `@${x}`));
       const scn = feature.scenarios.find((s) => s.id === baseScenarioId(scenario));
-      const status = t.status === 'expected' ? 'passed' : t.status === 'unexpected' ? 'failed' : t.status;
+      const testType = normaliseTestType(tags.find((x) => x.startsWith('@type:'))?.slice(6)) ?? scn?.testType;
+      const race = isRace(t.status, testType, (failedAttempt?.errors?.length ? failedAttempt.errors : [failedAttempt?.error ?? {}]).map((x) => x.message ?? ''));
+      const status = t.status === 'expected' ? 'passed' : t.status === 'unexpected' || race ? 'failed' : t.status;
       const entry: TriageEntry = {
         scenario, title: spec.title, file: spec.file, status,
         tags, requirementRefs: [...new Set([...tags.filter((x) => /^@AC-\d+$/.test(x)).map((x) => x.slice(1)), ...(scn?.acs ?? [])])],
-        testType: normaliseTestType(tags.find((x) => x.startsWith('@type:'))?.slice(6)) ?? scn?.testType,
+        testType,
         layer: tags.find((x) => x.startsWith('@layer:'))?.slice(7) ?? scn?.layer,
         evidence: { attempts: t.results.length },
         otherFailures: [],
@@ -122,6 +124,7 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
         if (entry.auto.category === 'APPLICATION_DEFECT' && (scn?.needsClarification || scn?.assumes.length)) {
           entry.auto.signals.push(`${scn.id} rests on an unsettled reading (${scn.assumes.length ? `assumed ${scn.assumes.join(', ')}` : '@needs-clarification: the literal reading of an open question'}). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect.`);
         }
+        if (race) entry.auto.signals.unshift(`Concurrency: the invariant broke on attempt ${t.results.indexOf(failedAttempt) + 1} of ${t.results.length} and held on a retry. Intermittent is how a race shows; reproduce the burst live before confirming.`);
         for (const o of entry.otherFailures) {
           entry.auto.signals.push(`Also failed: ${o.headline}${o.expected !== undefined ? ` — expected ${o.expected}, received ${o.received}` : ''}`);
         }

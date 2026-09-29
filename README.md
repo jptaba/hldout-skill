@@ -2,8 +2,7 @@
 
 # Held-out Evaluator — an AI agent skill
 
-Works in any agent app that loads skills: Claude Code, GitHub Copilot, and others. The examples say "Opus" for the AI
-model doing the work.
+Works in GitHub Copilot (VS Code agent mode). The examples say "Opus" for the AI model doing the work.
 
 A project skill ([.claude/skills/heldout-evaluator](.claude/skills/heldout-evaluator/SKILL.md)) that
 evaluates a Jira story against any web application or API using **held-out** Playwright tests,
@@ -19,12 +18,12 @@ Jira story + attachments + comments
 ```
 
 **The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains every capability with diagrams, plain-English
-summaries, replays of real terminal sessions and recordings of the tests driving a real app. Git hosts show HTML as source,
+summaries, terminal replays and recordings of the tests driving a real app. Git hosts show HTML as source,
 so open it from a clone (or a Pages site) in a browser.
 
 ## Adopt it in another project (about 1 minute)
 
-Get the skill once, from wherever your team keeps it (GitLab, GitHub, a file share). Then run its `init` from the
+Get the skill once, from its GitLab repository. Then run its `init` from the
 root of the project that will hold the evaluations:
 
 ```bash
@@ -33,7 +32,7 @@ git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluato
 npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install
 ```
 
-![A real onboarding: sparse clone, init --install and doctor on Practice Software Testing](docs/media/onboarding.gif)
+![An onboarding: sparse clone, init --install and doctor on Practice Software Testing](docs/media/onboarding.gif)
 
 The same lines work in bash, zsh and PowerShell. The sparse clone fetches only the skill (about 2 MB, a few seconds),
 not the demo evaluations stored beside it. `init` copies the skill into `.claude/skills/heldout-evaluator/`
@@ -44,37 +43,34 @@ and scaffolds the project. Then it visits your app once and fills in the profile
 - the API host, when the web app calls an API on another host;
 - `blockHosts`, the ad and analytics networks the page loads.
 
-Add `--api-base-url` if the API lives elsewhere, and `--ci` for a regression pipeline (GitLab CI, or GitHub Actions
-when the remote is GitHub). Then:
+Add `--api-base-url` if the API lives elsewhere, and `--ci gitlab` for a GitLab CI regression pipeline. Then:
 
 1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
    secrets (including any secret value that has slipped into a file git would commit) and the accounts recipe. Every
    problem comes with the command that fixes it.
-2. Restart your agent app (Claude Code, GitHub Copilot…) once, so the Playwright MCP server and the two subagents load.
-3. Ask Opus: **"Run a held-out evaluation of ABC-123"**. No Jira yet? Run `npm run heldout -- new ABC-1 --from story.md` first.
+2. Reload VS Code once, so GitHub Copilot loads the Playwright MCP server and the two subagents.
+3. Ask GitHub Copilot (agent mode): **"Run a held-out evaluation of ABC-123"**.
 
 **Update:** `git -C "$HOME/heldout-skill" pull`, then run the same `init` line again. It replaces the project's copy of
 the skill. It also refreshes `playwright.config.ts`, `heldout-support/fixtures.ts` and the subagents, unless you changed
 them, and it never touches your config, `.env` or evaluations. `doctor` shows which version is installed.
 
-Or just ask Opus to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
+Or just ask GitHub Copilot to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
 then runs the steps above.
 
-## Claude Code or GitHub Copilot
+## Using it in GitHub Copilot
 
-The examples in this README name Claude Code, but nothing depends on it. `init` sets up files that both apps read as
-they are:
+`init` sets up files that GitHub Copilot in VS Code reads as they are:
 
-| What | File | Claude Code | GitHub Copilot (VS Code agent mode) |
-| --- | --- | --- | --- |
-| The skill | `.claude/skills/heldout-evaluator/SKILL.md` | ✔ | ✔ (also reads `.github/skills/`) |
-| The two subagents (contract extractor, reviewer) | `.claude/agents/*.md` | ✔ | ✔ (Claude-format agents in `.claude/agents/`) |
-| Playwright MCP server (browser tier 2) | `.mcp.json` | ✔ | ✔ (portable `mcpServers` format) |
-| The `heldout` command line | `npm run heldout -- …` | ✔ | ✔ (plain Node, any terminal) |
+| What | File | GitHub Copilot (VS Code agent mode) |
+| --- | --- | --- |
+| The skill | `.claude/skills/heldout-evaluator/SKILL.md` | ✔ agent skill (also reads `.github/skills/`) |
+| The two subagents (contract extractor, reviewer) | `.claude/agents/*.md` | ✔ custom agents |
+| Playwright MCP server (browser tier 2) | `.mcp.json` | ✔ (portable `mcpServers` format) |
+| The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) |
 
-In Copilot, pick **Claude Opus** in the model picker and use agent mode. Two differences: the agent asks you its
-questions in the chat (Claude Code shows a question dialog), and a run prints its short digest when told to: the agent
-passes `--quiet` to `heldout run`, or set `HELDOUT_QUIET=1`. Claude Code does this on its own.
+In Copilot, pick **Claude Opus** in the model picker and use agent mode. The agent asks you its questions in the chat,
+and passes `--quiet` to `heldout run` for the short digest (or set `HELDOUT_QUIET=1`).
 
 ## Point it at your application and Jira
 
@@ -84,10 +80,10 @@ passes `--quiet` to `heldout run`, or set `HELDOUT_QUIET=1`. Claude Code does th
 | Test accounts, written once per app and used by `seed.account()` / `signIn()` in every story: existing accounts (passwords in `.env`, CI variables or HashiCorp Vault), or accounts the tests create over the API or on the app's sign-up page (deleted afterwards when the app allows it) | `npm run heldout -- accounts --add-existing …` · `auts.<id>.accounts` — [data-and-journeys.md §4a](.claude/skills/heldout-evaluator/references/data-and-journeys.md) |
 | Secrets | `.env` (git-ignored), real environment variables (CI; they win over `.env`), or Vault: `${env:NAME}` / `${vault:path#field}` wherever a secret is referenced; `VAULT_ADDR` + `vault login` (or `VAULT_TOKEN`, AppRole) |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (writes `evaluations/KEY/evaluation.json`) |
-| Jira | `JIRA_MODE=mock` (file-based, [mock-jira/](mock-jira/)) or `cloud` + `JIRA_BASE_URL/JIRA_EMAIL/JIRA_API_TOKEN`; `doctor --jira` finds your acceptance-criteria custom field |
+| Jira | `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN` in `.env`; `doctor --jira` finds your acceptance-criteria custom field |
 | Browser tier 2 (Playwright MCP) | [.mcp.json](.mcp.json) |
 | Subagents (contract extractor, independent reviewer) | [.claude/agents/](.claude/agents/) |
-| CI regression run | `heldout init --ci` → a GitLab CI job (`.gitlab/heldout.gitlab-ci.yml`, included from `.gitlab-ci.yml`) or, for a GitHub remote, `.github/workflows/heldout.yml`; `--ci gitlab\|github` chooses |
+| CI regression run | `heldout init --ci gitlab` → a GitLab CI job (`.gitlab/heldout.gitlab-ci.yml`, included from `.gitlab-ci.yml`) |
 
 ## Commands
 
@@ -98,13 +94,12 @@ Everything goes through one entry point: `npm run heldout -- <command>`. `npm ru
 | `init`, `add-aut`, `doctor`, `status [KEY]` | set up (and update the skill), check the setup, see where each story is and the next step |
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
 | `accounts --add-existing …` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault) or created by the tests; checked live |
-| `new KEY --from story.md [--attach f] [--ac-from f] [--comment-from f]` | write a story into the mock Jira |
 | `fetch KEY [--aut id]` | story, attachments and comments; binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | feature header and test stubs generated from the contract |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
 | `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts |
-| `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira Cloud) · TypeScript |
+| `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira) · TypeScript |
 
 ## Requirement contract: any story format, evidence not recall
 
@@ -121,6 +116,28 @@ Missing elements become gaps, resolved in this order: the requirement, then the 
 to exercise it), then config, then **you**. **What** is correct is never read off the application.
 See [requirement-contract.md](.claude/skills/heldout-evaluator/references/requirement-contract.md).
 
+## Test types
+
+Every scenario has exactly one test type, a criterion can have any number of scenarios of any type, and every
+acceptance criterion is covered with the types its wording calls for. A type the story doesn't state or clearly imply becomes a question, not a guessed test. The verdict shows coverage
+and defects per type.
+
+| Type | What it proves |
+| --- | --- |
+| `functional` | the happy path does what the criterion says |
+| `negative` | invalid input and refusals are handled, and nothing is stored |
+| `boundary` | values on and just outside each stated limit |
+| `security` | authentication, authorisation, one user's data hidden from another |
+| `idempotency` | the same request sent again leaves the same result (retries, repeated submits) |
+| `concurrency` | simultaneous requests on shared state keep the stated rule (last item in stock, double booking) |
+| `audit` | who did what and when is recorded where the app shows it (history page, activity endpoint) |
+| `composition` | several steps or criteria chained into one flow, each step feeding the next (create → edit → delete) |
+| `integration` | the UI and the API agree |
+| `contract` | API shape, fields and status codes |
+| `accessibility` | accessible names, labels, keyboard use, WCAG criteria |
+
+Rules for each type: [scenario-format.md](.claude/skills/heldout-evaluator/references/scenario-format.md).
+
 ## Data seeding, API pre-steps and entry points
 
 Tests create (and clean up) their own data through the AUT's API, run auth, lookup and readiness pre-steps
@@ -130,13 +147,13 @@ never as the requirement failing. Strategy:
 
 ## Demos and evaluator testing
 
-![A real run of a story's held-out suite, then its verdict and the publish to the mock Jira](docs/media/sample-run.gif)
+![A run of a story's held-out suite, then its verdict and the publish to Jira](docs/media/sample-run.gif)
 
 **Sample evaluations, made with the current skill.** Each was run end to end from a fresh onboarding, twice, and matches
 the answer key written for it before evaluation. Every one is complete: the story and its evidence pack, the requirement
 contract and its independent review, the scenarios, the frozen draft and the hardened tests, the hardening log, the
 runs (results, screenshots, API exchanges and live confirmations; the HTML reports and traces stay local), the triage
-and the verdict, and what was published to the mock Jira.
+and the verdict, and the comment and attachment published to Jira.
 
 | Story | AUT | What it shows | Verdict |
 | --- | --- | --- | --- |
@@ -145,13 +162,12 @@ and the verdict, and what was published to the mock Jira.
 | [TOOL-4](evaluations/TOOL-4/verdict.md) | Practice Software Testing (Toolshop) | criteria in a Jira custom field, a PO comment that changes a status, an API on its own host, users the app won't let tests delete | ✅ PASS |
 | [CL-4](evaluations/CL-4/verdict.md) | Contact List | the FAIL path on security criteria written as Gherkin: tokens, sign-out, two users, and a PATCH that hands a contact to another user | ❌ FAIL (1) |
 | [JS-2](evaluations/JS-2/verdict.md) | OWASP Juice Shop (local Docker) | the FAIL path: a too-short password accepted and another customer's basket readable, each reproduced live | ❌ FAIL (2) |
+| [JS-3](evaluations/JS-3/verdict.md) | OWASP Juice Shop (throw-away container) | every test type in one story (16 scenarios, several per type): anonymous reviews, editing someone else's review, a forged author and simultaneous likes all counted | ❌ FAIL (4) |
 
 The DQ-2 sample uses a variant of the story in which user creation is switched off (its `requirement/story.md`); the
 accounts it used no longer exist, so re-running it needs accounts of your own (`heldout accounts --add-existing`).
-Simulated Jira results are in `mock-jira/issues/<KEY>/ISSUE_VIEW.md`, and the REST calls a real Jira would have
-received are in [mock-jira/outbox/](mock-jira/outbox/).
 
-**Stories to try.** [demo/stories/](demo/stories/) holds 22 stories on six public applications (Automation Exercise,
+**Stories to try.** [demo/stories/](demo/stories/) holds 23 stories on six public applications (Automation Exercise,
 Contact List, DemoQA, OWASP Juice Shop, ParaBank, Toolshop), each with a machine-readable answer key written before any
 evaluation ([demo/answer-keys/](demo/answer-keys/)). `npx tsx demo/score.ts` scores the evaluations in `evaluations/`
 against them → [demo/SCORECARD.md](demo/SCORECARD.md). How the skill was tested, round by round, and every defect

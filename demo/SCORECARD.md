@@ -1,6 +1,6 @@
 # Held-out evaluator — scorecard
 
-Generated 2026-09-29T11:17:47.929Z by `demo/score.ts` from `demo/answer-keys/*.json` (written before each evaluation).
+Generated 2026-09-29T12:46:53.158Z by `demo/score.ts` from `demo/answer-keys/*.json` (written before each evaluation).
 
 | Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Seeded script defects caught | Auto-triage vs confirmed decision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -16,6 +16,7 @@ Generated 2026-09-29T11:17:47.929Z by `demo/score.ts` from `demo/answer-keys/*.j
 | DQ-3 | demoqa | FAIL | _not evaluated_ | | | | |
 | JS-1 | juice-shop | FAIL | _not evaluated_ | | | | |
 | JS-2 | juice-shop | FAIL | ✅ FAIL | 2/2 (100%) | 0 | 0/0 | 4/4 (100%) · abstained 0 · wrong 0 |
+| JS-3 | juice-shop | FAIL | ✅ FAIL | 4/4 (100%) | 0 | 0/0 | 4/4 (100%) · abstained 0 · wrong 0 |
 | PB-1 | parabank | FAIL | _not evaluated_ | | | | |
 | PB-2 | parabank | FAIL | _not evaluated_ | | | | |
 | PB-3 | parabank | FAIL | _not evaluated_ | | | | |
@@ -26,9 +27,9 @@ Generated 2026-09-29T11:17:47.929Z by `demo/score.ts` from `demo/answer-keys/*.j
 | TOOL-4 | toolshop | PASS | ✅ PASS | 0/0 (n/a) | 0 | 0/0 | 0/0 (n/a) · abstained 0 · wrong 0 |
 | TOOLB-1 | toolshop-rc | FAIL | _not evaluated_ | | | | |
 | TOOLB-2 | toolshop-rc | FAIL | _not evaluated_ | | | | |
-| **Total** | | | 5/5 verdicts | 3/3 (100%) | 0 | 0/0 | 5/5 (100%) · wrong 0 |
+| **Total** | | | 6/6 verdicts | 7/7 (100%) | 0 | 0/0 | 9/9 (100%) · wrong 0 |
 
-Precision: 100% (3 of 3 confirmed findings are real).
+Precision: 100% (7 of 7 confirmed findings are real).
 
 ## CL-3 (contact-list)
 
@@ -85,6 +86,28 @@ False positives: none ✅
 | SCN-008 | `02-eval` | APPLICATION_DEFECT | APPLICATION_DEFECT | ✅ |
 
 Traps in this AUT: _AC-1/AC-2/AC-4 are all MET and must not be false-flagged. Registration success is HTTP 201 (not 200); duplicate e-mail is HTTP 400 with body {"message":"Validation error","errors":[{"field":"email","message":"email must be unique"}]}._; _The registration body must nest the security question as securityQuestion:{id:<n>} and include securityAnswer; ids come from GET /api/SecurityQuestions (1..N). Sending a bare id or omitting the object shape can cause spurious failures unrelated to the ACs._; _AC-5 add-to-basket returns HTTP 200 (NOT 201) with {status:success,data:{...}}; the story does not specify a status for AC-5, so do not fail it on the 200-vs-201 point. The end-to-end check is that /#/basket lists the product+quantity after UI login._; _UI login state is set via the login FORM, not by injecting the token into localStorage (the SPA shows the basket as 'anonymous' if the token is only planted in storage without a real login). Register via API or UI, then log in through /#/login before asserting on /#/basket._; _Welcome banner and cookie dialog overlay /#/login and /#/basket on first load; dismiss them before UI interaction._; _AC-6 wording says the cross-account read must be 'refused' without naming a status code (a deliberate small gap). The deviation is unambiguous regardless: returning HTTP 200 WITH the other customer's basket contents violates the criterion. An evaluator may note the missing expected-status as an open question but should still judge AC-6 as not met._; _bid values and user ids shift on data reset; tests must create their own two customers and use the bid returned by their own logins rather than hard-coded ids._
+
+## JS-3 (juice-shop)
+
+Verdict: expected **FAIL**, got **FAIL** ✅ · tests 14/18 passed
+
+| Expected defect | Criteria | Origin | Matched finding |
+| --- | --- | --- | --- |
+| D1 AC-4 requires writing a review to need a signed-in customer. PUT /rest/products/{id}/reviews without any Authorization header answers HTTP 201 {"status":"success"} and the review is stored and listed by GET with whatever author the request gave. (Liking and editing without a token are correctly refused with 401.) | AC-4 | genuine | ✅ APP-2: Anyone can write a review without signing in |
+| D2 AC-5 requires that only its author can edit a review. PATCH /rest/products/reviews with customer B's token and customer A's review id answers HTTP 200 with modified 1 and the message is replaced. | AC-5 | genuine | ✅ APP-1: Any signed-in customer can edit another customer's review |
+| D3 AC-6 requires a review's author to come from the session. A signed-in customer's PUT with author 'someone@example.com' is stored with author 'someone@example.com', not the customer's e-mail. The likedBy half of AC-6 is met: a like adds the liker's e-mail and likesCount equals likedBy's length. | AC-6 | genuine | ✅ APP-3: A review's author is taken from the request, not the session |
+| D4 AC-8 requires exactly one of several simultaneous likes by the same customer to count. Three simultaneous POST /rest/products/reviews by one customer all answer 200; likesCount becomes 3 and likedBy holds the customer's e-mail three times. (Sequential second likes are refused correctly: AC-7 is met.) | AC-8 | genuine | ✅ APP-4: Simultaneous likes by one customer are all counted |
+
+False positives: none ✅
+
+| Test | Run | Auto triage | Confirmed | |
+| --- | --- | --- | --- | --- |
+| SCN-004.1 | `02-eval` | APPLICATION_DEFECT | APPLICATION_DEFECT | ✅ |
+| SCN-005 | `02-eval` | APPLICATION_DEFECT | APPLICATION_DEFECT | ✅ |
+| SCN-006 | `02-eval` | APPLICATION_DEFECT | APPLICATION_DEFECT | ✅ |
+| SCN-009 | `02-eval` | APPLICATION_DEFECT | APPLICATION_DEFECT | ✅ |
+
+Traps in this AUT: _AC-7 (a second like, sent after the first) is MET: 403 {"error":"Not allowed"} and the counts stay. Only the simultaneous case (AC-8) fails; do not merge the two._; _AC-6 has two halves. The likedBy half is MET (sequential likes); the author half fails (D3). The evaluator should keep them in separate scenarios so the met half still counts._; _The race needs genuinely simultaneous requests (Promise.all). Likes sent one after another never show it._; _Newly written reviews return product as a string ("1") while the shop's own reviews return a number (1). The contract deliberately gives product no type, so this is not a contract defect (AC-3 is MET)._; _Reviews also carry a 'liked' field not in the contract; the contract says other fields may be present (AC-3 MET)._; _The review form (field and Submit) is shown only to a signed-in customer; the Submit button is hidden for visitors. The Reviews list is inside a 'Reviews (N)' expansion panel that must be opened._; _The field's maxlength is 160: typing or filling 161 characters leaves 160 and the counter shows 160/160 (AC-10 MET in the UI). The API itself accepts longer messages, but AC-10 is a UI criterion; an evaluator may add an OBSERVATION but must not report it as an AC-10 defect._; _The accessible description of the field is 'Max. 160 characters 0/160' (aria-describedby on two hints); AC-11 asks that it includes the hint (MET). The field's name is 'Text field to review a product' and the button's name is 'Send the review' (its visible text is 'Submit')._; _The welcome banner and cookie message overlay the shop on first load (the profile's overlays)._; _Customers cannot be deleted and reviews have no delete endpoint: created data is kept, which the story allows (throw-away environment)._; _The UI sends author from the signed-in customer itself, so AC-1 is MET; the forged author (D3) only shows through the API._
 
 ## TOOL-4 (toolshop)
 

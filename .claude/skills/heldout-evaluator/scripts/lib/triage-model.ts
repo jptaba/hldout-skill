@@ -99,8 +99,17 @@ export function correlateAuthPrecondition(entries: TriageEntry[]): string | unde
 }
 
 /**
+ * A race shows only sometimes: a concurrency test whose requirement check ([REQ …]) failed on one attempt and passed on
+ * a retry broke its invariant, so it counts as failed, not flaky.
+ */
+export function isRace(pwStatus: string, testType: string | undefined, failedMessages: string[]): boolean {
+  return pwStatus === 'flaky' && testType === 'concurrency' && failedMessages.some((m) => /\[REQ /.test(m));
+}
+
+/**
  * --repeat-each produces one entry per repeat. Merge them into one entry per test id:
- *   all passed → passed · all failed → failed (first failure's evidence) · mixed → FLAKY ("failed k of n").
+ *   all passed → passed · all failed → failed (first failure's evidence) · mixed → FLAKY ("failed k of n"),
+ *   except a concurrency test whose requirement check failed in some repeat: failed (a race shows only sometimes).
  */
 export function mergeRepeats(entries: TriageEntry[]): TriageEntry[] {
   const groups = new Map<string, TriageEntry[]>();
@@ -117,6 +126,11 @@ export function mergeRepeats(entries: TriageEntry[]): TriageEntry[] {
       merged.auto = { category: 'ENVIRONMENT_ISSUE', confidence: 'medium',
         signals: [`Failed ${failedEs.length} of ${g.length} repeats, every time with a network/availability error — the environment, not the test or the app.`, ...causes],
         next: 'Re-run at lower load (fewer workers/repeats) or when the AUT is healthy.' };
+    } else if (failedEs.length < g.length && base.testType === 'concurrency' && failedEs.some((e) => e.error?.reqTag)) {
+      // A race shows only sometimes: one repeat that broke the requirement's invariant is the finding, not noise.
+      const race = failedEs.find((e) => e.error?.reqTag)!;
+      Object.assign(merged, { ...race, evidence: { ...race.evidence, repeats: merged.evidence.repeats }, status: 'failed' });
+      merged.auto = { ...race.auto!, signals: [`Concurrency: the invariant broke in ${failedEs.length} of ${g.length} repeats. Intermittent is how a race shows; reproduce the burst live before confirming.`, ...(race.auto?.signals ?? [])] };
     } else if (failedEs.length < g.length) {
       merged.status = 'flaky';
       merged.auto = { category: 'FLAKY', confidence: 'medium',

@@ -1,0 +1,200 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "A signed-in customer can write a review from the product details dialog: after typing a message in the review field and pressing Submit, the review appears in the dialog's Reviews list with that message and the customer's e-mail as its author.",
+      "outcomes": [
+        "after typing a message and pressing Submit, the review appears in the dialog's Reviews list",
+        "the listed review shows that message",
+        "the listed review shows the signed-in customer's e-mail as its author"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Writing a review through the API (PUT /rest/products/{id}/reviews with the customer's token) answers HTTP 201 with {\"status\":\"success\"}. The review is then listed by GET /rest/products/{id}/reviews with the submitted message, the customer's e-mail as author, likesCount 0 and an empty likedBy.",
+      "outcomes": [
+        "PUT with the customer's token → HTTP 201",
+        "body {\"status\":\"success\"}",
+        "GET lists the review with the submitted message",
+        "its author is the customer's e-mail",
+        "its likesCount is 0",
+        "its likedBy is empty"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "GET /rest/products/{id}/reviews answers HTTP 200 with the envelope and review fields described in api-contract.md, with the stated types.",
+      "outcomes": [
+        "HTTP 200",
+        "envelope {\"status\": \"success\", \"data\": [ <review>, ... ]}: status is \"success\" and data is an array of reviews (attachments/api-contract.md#L22)",
+        "each review has `_id` as a string (attachments/api-contract.md#L10)",
+        "each review has `message` as a string (attachments/api-contract.md#L11)",
+        "each review has `author` as a string (attachments/api-contract.md#L12)",
+        "each review has a `product` field, type not stated (attachments/api-contract.md#L13)",
+        "each review has `likesCount` as a number (attachments/api-contract.md#L14)",
+        "each review has `likedBy` as an array of strings (attachments/api-contract.md#L15)",
+        "other fields may be present and are not judged (R4)"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Writing, liking and editing reviews require a signed-in customer: PUT /rest/products/{id}/reviews, POST /rest/products/reviews and PATCH /rest/products/reviews without a token are refused with HTTP 401, and nothing is stored or changed.",
+      "outcomes": [
+        "PUT /rest/products/{id}/reviews without a token → HTTP 401",
+        "no review with that message is stored (not listed by GET)",
+        "POST /rest/products/reviews (like) without a token → HTTP 401",
+        "the liked review's likesCount and likedBy are unchanged",
+        "PATCH /rest/products/reviews without a token → HTTP 401",
+        "the review's message is unchanged"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "Only its author can edit a review: a PATCH /rest/products/reviews by another signed-in customer is refused with HTTP 403, and the review's message stays unchanged.",
+      "outcomes": [
+        "PATCH by another signed-in customer → HTTP 403",
+        "the review's message stays unchanged"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "Reviews and likes record who made them, from the session and not from the request: a review's author is the e-mail of the signed-in customer who wrote it, even when the request names someone else, and each like adds the liking customer's e-mail to the review's likedBy. likesCount always equals the number of entries in likedBy.",
+      "outcomes": [
+        "a review written with a request whose author names another e-mail has the signed-in writer's e-mail as author",
+        "each like adds the liking customer's e-mail to the review's likedBy",
+        "likesCount always equals the number of entries in likedBy"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "A customer can like a review only once: a second like by the same customer is refused with HTTP 403 and {\"error\":\"Not allowed\"}, and likesCount and likedBy stay as they were after the first like.",
+      "outcomes": [
+        "second like by the same customer → HTTP 403",
+        "body {\"error\":\"Not allowed\"}",
+        "likesCount stays as it was after the first like",
+        "likedBy stays as it was after the first like"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "The like-once rule also holds when requests arrive at the same time: when one customer sends several likes for the same review simultaneously, exactly one is counted — likesCount rises by 1 and the customer's e-mail appears once in likedBy.",
+      "outcomes": [
+        "several simultaneous likes by one customer for the same review: exactly one is counted",
+        "likesCount rises by 1",
+        "the customer's e-mail appears once in likedBy"
+      ]
+    },
+    {
+      "id": "AC-9",
+      "text": "Invalid requests are refused: a like for a review id that does not exist answers HTTP 404 with {\"error\":\"Not found\"}, and in the dialog the Submit button stays disabled while the review field is empty.",
+      "outcomes": [
+        "like for a review id that does not exist → HTTP 404",
+        "body {\"error\":\"Not found\"}",
+        "in the dialog, the Submit button stays disabled while the review field is empty"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "text": "A review message is at most 160 characters: the review field accepts 160 characters and a review of exactly 160 characters can be submitted; a 161st character is not accepted, and the field's counter shows 160/160.",
+      "outcomes": [
+        "the review field accepts 160 characters",
+        "a review of exactly 160 characters can be submitted",
+        "a 161st character is not accepted (the field still holds 160 characters)",
+        "the field's counter shows `160/160`"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "text": "The review form is accessible: the review field has an accessible name, and its accessible description includes the hint \"Max. 160 characters\"; the Submit button has an accessible name.",
+      "outcomes": [
+        "the review field has an accessible name (non-empty)",
+        "the review field's accessible description includes the hint \"Max. 160 characters\"",
+        "the Submit button has an accessible name (non-empty)"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "text": "A review keeps its history through its lifecycle: a review written by customer A, liked by customer B and then edited by A shows A's edited message, still names A as its author, and keeps B's like (likesCount 1, likedBy containing B's e-mail).",
+      "outcomes": [
+        "after A writes, B likes and A edits, the review shows A's edited message",
+        "the review still names A's e-mail as its author",
+        "likesCount 1",
+        "likedBy contains B's e-mail"
+      ]
+    },
+    {
+      "id": "AC-13",
+      "text": "What the API stores is what the shop shows: a review written through the API appears in the dialog's Reviews list with its author and message, and after one like through the API the review shows 1 as its like count in the dialog.",
+      "outcomes": [
+        "a review written through the API appears in the dialog's Reviews list",
+        "it shows the author (the writer's e-mail) and the message",
+        "after one like through the API, the review shows 1 as its like count in the dialog"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "Reviews are public, but writing, liking and editing are for signed-in customers only."
+    },
+    {
+      "id": "R2",
+      "text": "Every review and like must record truthfully who made it (marketing shows \"most liked\" reviews and moderation relies on the author field)."
+    },
+    {
+      "id": "R3",
+      "text": "Use the product \"Apple Juice (1000ml)\" (product id 1) for every review."
+    },
+    {
+      "id": "R4",
+      "text": "Review object: `_id` string, `message` string, `author` string (e-mail of the writer), `product` (type —: the product's id), `likesCount` number, `likedBy` array of strings (e-mails of the likers). Other fields may be present and are not part of this contract."
+    },
+    {
+      "id": "R5",
+      "text": "A review message is at most 160 characters."
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "PUT /rest/products/{id}/reviews, POST /rest/products/reviews or PATCH /rest/products/reviews without a token; nothing is stored or changed",
+      "status": 401,
+      "body": null
+    },
+    {
+      "id": "E2",
+      "case": "PATCH /rest/products/reviews by a signed-in customer who is not the review's author; the message stays unchanged",
+      "status": 403,
+      "body": null
+    },
+    {
+      "id": "E3",
+      "case": "second like of the same review by the same customer",
+      "status": 403,
+      "body": "{\"error\": \"Not allowed\"}"
+    },
+    {
+      "id": "E4",
+      "case": "like for a review id that does not exist",
+      "status": 404,
+      "body": "{\"error\": \"Not found\"}"
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G4",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G5",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G6",
+      "resolution": "open",
+      "value": null
+    }
+  ]
+}

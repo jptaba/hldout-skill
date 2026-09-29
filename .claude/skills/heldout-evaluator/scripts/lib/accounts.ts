@@ -94,7 +94,18 @@ export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; do
   const isUsername = (ref: string, target = '') => existing.some((a) => a.username === ref)
     || (!existing.some((a) => a.password === ref) && !/pass/i.test(target) && /user|e-?mail|login|name/i.test(target));
   const toUi = (v = '', target = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, (ref) => (isUsername(ref, target) ? '${username}' : '${password}'));
-  return { path: signIn.path, done: signIn.done, steps: signIn.steps.filter((s) => s.do === 'fill' || s.do === 'click').map((s) => (s.do === 'fill' ? { fill: s.target!, value: toUi(s.value, s.target) } : { click: s.target! })) };
+  // Inspect steps ({"do": "fill", "target": …}) or steps already in the recipe's own shape ({"fill": …} / {"click": …}).
+  type UiStep = { fill?: string; click?: string; value?: string };
+  const steps = signIn.steps.flatMap((s): UiStep[] => {
+    const r = s as InspectStep & { fill?: string; click?: string };
+    if (r.do === 'fill' && r.target) return [{ fill: r.target, value: toUi(r.value, r.target) }];
+    if (r.do === 'click' && r.target) return [{ click: r.target }];
+    if (typeof r.fill === 'string') return [{ fill: r.fill, value: toUi(r.value, r.fill) }];
+    if (typeof r.click === 'string') return [{ click: r.click }];
+    return [];
+  });
+  if (!steps.length) throw new Error(`the sign-in steps have no fill or click step: give them as inspect steps ([{"do":"fill","target":"getByLabel('Email')","value":"\${username}"}, {"do":"click","target":"…"}]) or as {"fill": …, "value": …} / {"click": …}`);
+  return { path: signIn.path, done: signIn.done, steps };
 }
 
 

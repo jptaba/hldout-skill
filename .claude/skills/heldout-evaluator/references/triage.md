@@ -25,6 +25,7 @@ Evidence comes from the failure-time ARIA snapshot, the `[REQ …]` assertion me
 | --- | --- |
 | `[SEED]` in the failure (seed.create threw) | BLOCKED |
 | Failed then passed on retry / failed only some repeats | FLAKY (ENVIRONMENT if every failed repeat was a network error) |
+| A `concurrency` test whose `[REQ]` check failed on a retried attempt or in some repeats | counted as **failed** (a race shows only sometimes), classified from the failing attempt; reproduce the burst live before confirming (an `api-probe --chain` step with `"parallel": 3` sends the call three times at once) |
 | AUT degraded around the run (pre/post healthcheck slow or failing) and ≥ 2 tests timed out | ENVIRONMENT_ISSUE (run-level correlation) |
 | `net::ERR_…`, ECONNREFUSED, browser launch | ENVIRONMENT_ISSUE |
 | JS error in test code / strict-mode violation | SCRIPT_DEFECT |

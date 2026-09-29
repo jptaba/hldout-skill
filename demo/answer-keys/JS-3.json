@@ -1,0 +1,70 @@
+{
+  "key": "JS-3",
+  "aut": "juice-shop",
+  "writtenAt": "2026-09-29 (before evaluation)",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    {
+      "id": "D1",
+      "criteria": ["AC-4"],
+      "origin": "genuine",
+      "keywords": ["anonymous", "without a token", "PUT", "201", "review stored", "401 expected"],
+      "description": "AC-4 requires writing a review to need a signed-in customer. PUT /rest/products/{id}/reviews without any Authorization header answers HTTP 201 {\"status\":\"success\"} and the review is stored and listed by GET with whatever author the request gave. (Liking and editing without a token are correctly refused with 401.)",
+      "evidence": "PUT /rest/products/1/reviews with no Authorization header, body {message:'hldout probe anon', author:'anon@example.com'} -> 201; GET /rest/products/1/reviews lists it with author 'anon@example.com'. POST and PATCH /rest/products/reviews without a token -> 401."
+    },
+    {
+      "id": "D2",
+      "criteria": ["AC-5"],
+      "origin": "genuine",
+      "keywords": ["edit", "another customer", "PATCH", "200", "403 expected", "ownership", "message changed"],
+      "description": "AC-5 requires that only its author can edit a review. PATCH /rest/products/reviews with customer B's token and customer A's review id answers HTTP 200 with modified 1 and the message is replaced.",
+      "evidence": "A wrote a review; PATCH /rest/products/reviews {id:<A's review>, message:'hldout edited by b'} with B's Bearer token -> 200 {modified:1, updated:[{message:'hldout edited by b', author:<A>}]}."
+    },
+    {
+      "id": "D3",
+      "criteria": ["AC-6"],
+      "origin": "genuine",
+      "keywords": ["author", "forged", "request names someone else", "not from the session", "audit"],
+      "description": "AC-6 requires a review's author to come from the session. A signed-in customer's PUT with author 'someone@example.com' is stored with author 'someone@example.com', not the customer's e-mail. The likedBy half of AC-6 is met: a like adds the liker's e-mail and likesCount equals likedBy's length.",
+      "evidence": "PUT /rest/products/1/reviews with A's token, body {message:'hldout probe forged', author:'someone@example.com'} -> 201; GET lists the review with author 'someone@example.com'."
+    },
+    {
+      "id": "D4",
+      "criteria": ["AC-8"],
+      "origin": "genuine",
+      "keywords": ["simultaneous", "race", "likes counted more than once", "likesCount 3", "duplicate likedBy", "concurrency"],
+      "description": "AC-8 requires exactly one of several simultaneous likes by the same customer to count. Three simultaneous POST /rest/products/reviews by one customer all answer 200; likesCount becomes 3 and likedBy holds the customer's e-mail three times. (Sequential second likes are refused correctly: AC-7 is met.)",
+      "evidence": "Promise.all of three POST /rest/products/reviews {id} with A's token on B's fresh review -> [200,200,200]; GET shows likesCount 3, likedBy [A, A, A]. Reproduced on every attempt in a fresh container."
+    }
+  ],
+  "seededScriptDefects": [],
+  "traps": [
+    "AC-7 (a second like, sent after the first) is MET: 403 {\"error\":\"Not allowed\"} and the counts stay. Only the simultaneous case (AC-8) fails; do not merge the two.",
+    "AC-6 has two halves. The likedBy half is MET (sequential likes); the author half fails (D3). The evaluator should keep them in separate scenarios so the met half still counts.",
+    "The race needs genuinely simultaneous requests (Promise.all). Likes sent one after another never show it.",
+    "Newly written reviews return product as a string (\"1\") while the shop's own reviews return a number (1). The contract deliberately gives product no type, so this is not a contract defect (AC-3 is MET).",
+    "Reviews also carry a 'liked' field not in the contract; the contract says other fields may be present (AC-3 MET).",
+    "The review form (field and Submit) is shown only to a signed-in customer; the Submit button is hidden for visitors. The Reviews list is inside a 'Reviews (N)' expansion panel that must be opened.",
+    "The field's maxlength is 160: typing or filling 161 characters leaves 160 and the counter shows 160/160 (AC-10 MET in the UI). The API itself accepts longer messages, but AC-10 is a UI criterion; an evaluator may add an OBSERVATION but must not report it as an AC-10 defect.",
+    "The accessible description of the field is 'Max. 160 characters 0/160' (aria-describedby on two hints); AC-11 asks that it includes the hint (MET). The field's name is 'Text field to review a product' and the button's name is 'Send the review' (its visible text is 'Submit').",
+    "The welcome banner and cookie message overlay the shop on first load (the profile's overlays).",
+    "Customers cannot be deleted and reviews have no delete endpoint: created data is kept, which the story allows (throw-away environment).",
+    "The UI sends author from the signed-in customer itself, so AC-1 is MET; the forged author (D3) only shows through the API."
+  ],
+  "expectations": [
+    "AC-1 MET: signed in through the UI, a message typed in the dialog and Submit -> the review appears in the Reviews list with the message and the customer's e-mail.",
+    "AC-2 MET: PUT with token -> 201 {status:success}; GET lists it with message, author = the customer's e-mail, likesCount 0, likedBy [].",
+    "AC-3 MET: GET -> 200 {status:'success', data:[...]}, each review with _id string, message string, author string, likesCount number, likedBy array of strings.",
+    "AC-4 NOT MET (D1): anonymous PUT -> 201 and stored; anonymous POST like and PATCH -> 401.",
+    "AC-5 NOT MET (D2): another customer's PATCH -> 200, message replaced.",
+    "AC-6 NOT MET (D3): forged author stored as sent; likedBy/likesCount part met.",
+    "AC-7 MET: second sequential like -> 403 {error:'Not allowed'}, likesCount 1, likedBy [liker].",
+    "AC-8 NOT MET (D4): simultaneous likes by one customer all counted.",
+    "AC-9 MET: like for unknown id -> 404 {error:'Not found'}; Submit disabled while the field is empty.",
+    "AC-10 MET: 160 characters accepted and submitted; the 161st not accepted; counter 160/160.",
+    "AC-11 MET: field name 'Text field to review a product', description includes 'Max. 160 characters'; Submit named 'Send the review'.",
+    "AC-12 MET: A writes, B likes, A edits -> edited message, author A, likesCount 1, likedBy [B].",
+    "AC-13 MET: API-written review listed in the dialog with author and message; after one API like its count shows 1.",
+    "Overall FAIL: four genuine defects (security x2, audit, concurrency)."
+  ]
+}

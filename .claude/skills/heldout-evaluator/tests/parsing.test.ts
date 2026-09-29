@@ -61,6 +61,10 @@ describe('helpers', () => {
   it('baseScenarioId / normaliseTestType', () => {
     assert.equal(baseScenarioId('SCN-006.12'), 'SCN-006');
     assert.equal(normaliseTestType('a11y'), 'accessibility');
+    assert.equal(normaliseTestType('Concurrency'), 'concurrency');
+    assert.equal(normaliseTestType('race'), 'concurrency');
+    assert.equal(normaliseTestType('audit-trail'), 'audit');
+    assert.equal(normaliseTestType('workflow'), 'composition');
     assert.equal(normaliseTestType('nonsense'), undefined);
   });
   it('matchEndpoint handles path templates', () => {
@@ -184,6 +188,23 @@ describe('mergeRepeats (--repeat-each)', async () => {
     const [m] = mergeRepeats([entry('failed', 'ENVIRONMENT_ISSUE'), entry('failed', 'SCRIPT_DEFECT')]);
     assert.equal(m.status, 'failed');
     assert.ok(m.auto?.signals.some((s) => /2 different causes/.test(s)));
+  });
+  it('a concurrency test whose [REQ] check failed in one repeat is failed, not flaky', () => {
+    const race = { ...entry('failed', 'APPLICATION_DEFECT'), testType: 'concurrency', error: { headline: '[REQ AC-5] likesCount stays 1', reqTag: 'AC-5', message: '' } };
+    const [m] = mergeRepeats([{ ...entry('passed'), testType: 'concurrency' }, race, { ...entry('passed'), testType: 'concurrency' }]);
+    assert.equal(m.status, 'failed');
+    assert.equal(m.auto?.category, 'APPLICATION_DEFECT');
+    assert.ok(m.auto?.signals[0].startsWith('Concurrency: the invariant broke in 1 of 3 repeats'));
+    // Another type, or a failure that is not a requirement check, stays flaky.
+    assert.equal(mergeRepeats([entry('passed'), { ...race, testType: 'functional' }])[0].status, 'flaky');
+    assert.equal(mergeRepeats([{ ...entry('passed'), testType: 'concurrency' }, { ...entry('failed', 'SCRIPT_DEFECT'), testType: 'concurrency' }])[0].status, 'flaky');
+  });
+  it('isRace: a retried concurrency test counts as failed only for a [REQ] failure', async () => {
+    const { isRace } = await import('../scripts/lib/triage-model');
+    assert.equal(isRace('flaky', 'concurrency', ['Error: [REQ AC-5] exactly one like is counted']), true);
+    assert.equal(isRace('flaky', 'concurrency', ['Timeout 5000ms exceeded.']), false);
+    assert.equal(isRace('flaky', 'idempotency', ['Error: [REQ AC-4] …']), false);
+    assert.equal(isRace('unexpected', 'concurrency', ['Error: [REQ AC-5] …']), false);
   });
 });
 

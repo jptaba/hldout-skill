@@ -6,7 +6,7 @@
  *   heldout api-probe [--key KEY] --chain chain.json [--out repro.md]   multi-call sequence, chain.json =
  *       { "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "token": "data.token" },
  *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt"],
- *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true } ] }
+ *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true, "parallel"?: 3 } ] }
  *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (redacted in the report)
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
@@ -57,7 +57,9 @@ function redactBody(body: string, contentType = ''): unknown {
   try { return redact(JSON.parse(body)); } catch { return body; }
 }
 
-const dig = (obj: unknown, dotted: string) => dotted.split('.').reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), obj);
+// "data.-1" is the last element of an array (a record just added to a list).
+const dig = (obj: unknown, dotted: string) => dotted.split('.').reduce<unknown>((o, k) => (Array.isArray(o) && /^-\d+$/.test(k) ? o[o.length + Number(k)]
+  : o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), obj);
 
 /**
  * --chain chain.json: a reproducible multi-call sequence (pre-steps + the call under test), e.g. for live
@@ -66,13 +68,15 @@ const dig = (obj: unknown, dotted: string) => dotted.split('.').reduce<unknown>(
  * pre-steps (listed, but not the evidence). "expect" (status or list) marks each step ✔/✖; "expectBody"
  * ({ "dotted.path": value }) does the same for body fields — for APIs that answer HTTP 200 and put the outcome
  * in the body (e.g. { "responseCode": 400 }).
- *   { "vars": {...}, "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "var": "dotted.path" }, "expect"?: 201, "setup"?: true, "show"?: ["total", "data.length", "token|jwt", "header:content-type"] } ] }   (a 3xx always shows its Location)
+ *   { "vars": {...}, "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "var": "dotted.path" }, "expect"?: 201, "setup"?: true, "show"?: ["total", "data.length", "token|jwt", "header:content-type"] } ] }   (a 3xx always shows its Location; "data.-1" is an array's last element)
  * "field|jwt" / "field|base64" decodes a field before showing it (secret-named keys stay redacted).
  * "notContains": [{ "field": "token", "decode"?: "jwt", "value": "${env:PASSWORD}" }] checks a value does NOT appear
  * in a field (a leak check) without ever printing the value; a hit marks the step ✖.
+ * "parallel": N sends the step N times at the same moment (reproducing a concurrency finding); every status is listed,
+ * "expect" must hold for each, and "save" / "show" read the first answer.
  */
 interface NotContains { field: string; decode?: 'jwt' | 'base64'; value: string }
-interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; raw?: string; save?: Record<string, string>; expect?: number | number[]; expectBody?: Record<string, unknown>; setup?: boolean; show?: string[]; notContains?: NotContains[] }
+interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; raw?: string; save?: Record<string, string>; expect?: number | number[]; expectBody?: Record<string, unknown>; setup?: boolean; show?: string[]; notContains?: NotContains[]; parallel?: number }
 
 const b64 = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
 const parsed = (s: string): unknown => { try { return JSON.parse(s); } catch { return s; } };
@@ -111,7 +115,10 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
       lines.push(`${i + 1}. **${s.name ?? `step ${i + 1}`}** — \`${method} ${s.path}\` → not sent: ${unfilled.map((n) => `\${${n}}`).join(', ')} has no value (the step that saves it failed or didn't run)`, '');
       continue;
     }
-    const r = await send(url, method, headers, body);
+    // "parallel": N sends the same call N times at once (a concurrency finding); save and show read the first answer.
+    const copies = Math.max(1, Math.floor(s.parallel ?? 1));
+    const all = await Promise.all(Array.from({ length: copies }, () => send(url, method, headers, body)));
+    const r = all[0];
     for (const [name, dotted] of Object.entries(s.save ?? {})) {
       const v = dig(r.json, dotted);
       if (v === undefined) continue;
@@ -130,14 +137,14 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
       .map(([f, want]) => `\`${f}\` ✖ expected ${JSON.stringify(redact(deep(want)))}, got ${JSON.stringify(redact(dig(r.json, f)))}`);
     if (s.expectBody && !bodyMisses.length) checks.push(`body ${Object.keys(s.expectBody).map((f) => `\`${f}\``).join(', ')} as expected ✔`);
     checks.push(...bodyMisses);
-    const ok = (!exp || exp.includes(r.status)) && !checks.some((l) => l.includes('✖'));
+    const ok = (!exp || all.every((x) => exp.includes(x.status))) && !checks.some((l) => l.includes('✖'));
     if (!ok) failed++;
     let shownBody = body ?? '';
     // The step's own literal values stay readable (a deliberately short test password is the point of the call).
     const literals = literalsOf(s.json ?? s.form);
     try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body)), { keep: literals }) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''), { keep: literals })); } catch { /* raw */ }
     const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : r.text;
-    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''} → **${r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
+    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''}${copies > 1 ? ` ×${copies} at once` : ''} → **${copies > 1 ? all.map((x) => x.status).join(', ') : r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.
     // A redirect is its Location header: always show it (or its absence). "header:<name>" in show reads any header.
     if (r.status >= 300 && r.status < 400) lines.push(`   \`Location\` = \`${r.headers.location ?? '(none)'}\``);

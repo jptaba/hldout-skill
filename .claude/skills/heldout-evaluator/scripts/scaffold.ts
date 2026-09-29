@@ -69,7 +69,7 @@ main(() => {
       lines.push(
         `  # from ${ac.source}`,
         // The test type is a judgement about the scenario you write (a refusal is negative, a limit is boundary…): no default.
-        `  # TODO(scenario) add @type:<${TEST_TYPES.join('|')}>; split the AC into one scenario per type`,
+        `  # TODO(scenario) add @type:<${TEST_TYPES.join('|')}>; split the AC into as many scenarios as it needs (any number per type)`,
         `  @SCN-${String(i + 1).padStart(3, '0')} @${ac.id} @priority:P1 @layer:${ac.layer}${open ? ' @needs-clarification' : ''}`,
         `  Scenario: ${shortTitle(ac)}`,
         `    Given TODO(scenario) ${ac.layer === 'api' ? 'the preconditions (seeded via the API)' : `I am on ${ac.entryPoint ?? 'the page where the journey starts'}`}`,
@@ -78,7 +78,7 @@ main(() => {
         '',
       );
     });
-    lines.push('  # Add scenarios per test type: negative, boundary, security, idempotency… (one @type each; see references/scenario-format.md)', '');
+    lines.push('  # Add scenarios per test type: negative, boundary, security, idempotency, concurrency, audit, composition… (one @type each; see references/scenario-format.md)', '');
     writeFile(p.scenarios, lines.join('\n'));
     console.log(`✔ created ${rel(p.scenarios)} — ${c.acceptanceCriteria.length} scenario stub(s); write the Given/When lines and add scenarios per test type`);
   }

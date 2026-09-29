@@ -126,6 +126,11 @@ describe('a UI sign-in inspected as an account whose user name is in Vault too',
   it('and by the field it fills when no account names them', () => {
     assert.deepEqual(values(signInFromSteps({ path: '/login', steps })), ['${username}', '${password}', undefined]);
   });
+  it('takes steps in the recipe\'s own shape too, and refuses steps it cannot read', () => {
+    const own = [{ fill: "getByLabel('Email')", value: '${username}' }, { fill: "getByLabel('Password')", value: '${password}' }, { click: "getByRole('button', { name: 'Login' })" }];
+    assert.deepEqual(signInFromSteps({ path: '/login', steps: own as never }).steps, own);
+    assert.throws(() => signInFromSteps({ path: '/login', steps: [{ type: 'fill', selector: '#email' }] as never }), /no fill or click step/);
+  });
 });
 
 describe('an application whose accounts can be created but not deleted', () => {

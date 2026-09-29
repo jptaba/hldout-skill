@@ -105,6 +105,32 @@ test.describe('<KEY> <summary>', () => {
   first, and its buttons and fields work only once the record is there. Before acting, wait for a value the page loads
   (`await expect(page.locator('#lastName'), 'the contact is shown (precondition)').toHaveText(c.lastName)`), not only
   for the URL. Otherwise a click can do nothing, now and then: a flaky "the dialog never appeared".
+- **Concurrency** (`@type:concurrency`, API): fire the competing calls together and check the invariant after each
+  round. Keep the burst small and repeat it; the first round that breaks the rule fails the test:
+
+  ```ts
+  for (let round = 1; round <= 3; round++) {
+    const target = await seed.create('a fresh review', () => createReview(api, author));
+    const answers = await Promise.all([1, 2, 3].map(() => api.post(EP.like, { headers: liker.headers, data: { id: target.id } })));
+    const after = await api.get(EP.reviews(target.product));
+    expect.soft(answers.map((a) => a.status).filter((s) => s < 300).length, `[REQ AC-5] round ${round}: exactly one like is accepted`).toBe(1);
+    expect(likesOf(after.body, target.id), `[REQ AC-5] round ${round}: GET /reviews counts one like`).toBe(1);
+  }
+  ```
+
+  Never assert which request won or in what order they finished. A retry that passes after a failed round does not
+  clear it: triage counts a concurrency test whose `[REQ]` check failed on any attempt as failed. To reproduce it live,
+  give the `api-probe --chain` step `"parallel": 3`: it sends the call three times at once and lists every status.
+- **Audit** (`@type:audit`): read the record back from where the application shows it (a history page, an activity
+  endpoint) and check the fields the requirement lists: who (the signed-in account, not a value the request supplied),
+  what, and when when stated. To prove "who" comes from the session, send a different value in the request if the
+  API accepts one.
+- **Composition** (`@type:composition`): one test that chains the steps, passing each step's output (an id, a token) to
+  the next, one `journey.step` per Gherkin line. Tag every AC it chains. Assert the hand-offs (the record created is
+  the one edited, then the one deleted); the single-AC scenarios keep their detailed checks.
+- **A length limit in a form field:** enter the over-long text with `fill`, which the field's `maxlength` applies to
+  like typing. Typing key by key (`pressSequentially`) into a field that is still re-rendering can drop characters and
+  fail for the wrong reason.
 - **"Not shown" is `toBeHidden()`, not `toHaveCount(0)`.** Pages often keep a message in the markup, hidden until it is
   needed (a success banner, an error box): `toHaveCount(0)` then fails although nothing is shown. `heldout inspect`'s
   probe table says whether an element is visible.

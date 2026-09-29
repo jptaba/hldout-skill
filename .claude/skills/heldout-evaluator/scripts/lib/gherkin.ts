@@ -11,9 +11,9 @@
 import fs from 'node:fs';
 
 /** Test-type taxonomy — every scenario declares exactly one @type:<t> (aliases are normalised). */
-export const TEST_TYPES = ['functional', 'negative', 'boundary', 'security', 'idempotency', 'performance', 'accessibility', 'integration', 'contract', 'usability', 'compatibility', 'resilience'] as const;
+export const TEST_TYPES = ['functional', 'negative', 'boundary', 'security', 'idempotency', 'concurrency', 'audit', 'composition', 'integration', 'contract', 'accessibility'] as const;
 export type TestType = typeof TEST_TYPES[number];
-const TYPE_ALIASES: Record<string, TestType> = { positive: 'functional', happy: 'functional', a11y: 'accessibility', e2e: 'integration', 'cross-layer': 'integration', schema: 'contract', perf: 'performance', validation: 'negative', auth: 'security' };
+const TYPE_ALIASES: Record<string, TestType> = { positive: 'functional', happy: 'functional', a11y: 'accessibility', e2e: 'integration', 'cross-layer': 'integration', schema: 'contract', validation: 'negative', auth: 'security', race: 'concurrency', parallel: 'concurrency', 'audit-trail': 'audit', history: 'audit', workflow: 'composition', chain: 'composition' };
 export function normaliseTestType(raw?: string): TestType | undefined {
   if (!raw) return undefined;
   const t = raw.toLowerCase();

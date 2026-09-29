@@ -1,0 +1,8 @@
+[
+  { "do": "fill", "target": "getByRole('textbox', { name: 'Text field for the login email', exact: true })", "value": "${var:user}" },
+  { "do": "fill", "target": "getByRole('textbox', { name: 'Text field for the login password', exact: true })", "value": "${env:JS_USER_PASSWORD}" },
+  { "do": "click", "target": "getByRole('button', { name: 'Login', exact: true })" },
+  { "do": "wait", "target": "url:/search" },
+  { "do": "click", "target": "getByText('Apple Juice (1000ml)').first()" },
+  { "do": "wait", "target": "getByRole('dialog')" }
+]

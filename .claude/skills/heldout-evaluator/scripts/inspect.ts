@@ -96,6 +96,8 @@ main(async () => {
     if (!sites.has(siteOf(u.hostname))) return;
     // A CDN's own beacons and challenges, and the app's static files (translations, config) are not its API.
     if (/^\/cdn-cgi\//.test(u.pathname) || /\/(assets|static|i18n|locales?)\//i.test(u.pathname) || /\.(js|css|map|svg|png|jpe?g|gif|webp|woff2?|ttf)$/i.test(u.pathname)) return;
+    // A realtime transport's long-polling (Socket.IO, SockJS) is not a call the page makes for its data.
+    if (/^\/(socket\.io|sockjs)(\/|$)/i.test(u.pathname)) return;
     calls.push((async () => {
       const isJson = /json/i.test(res.headers()['content-type'] ?? '');
       const json: unknown = isJson ? await res.json().catch(() => undefined) : undefined;
@@ -130,7 +132,10 @@ main(async () => {
       `- testIdAttribute: \`${testIdAttr}\``, '');
     if (steps.length) out.push('## Setup steps', '', '| # | action | target | result |', '| --- | --- | --- | --- |', ...stepLog, '');
     if (dialogs.seen.length) out.push('## Browser dialogs', '', ...dialogs.seen.map((x) => `- ${x}`), '');
-    const made = await Promise.all(calls);
+    // The same call answered the same way several times (a config the page reloads) is one row: "×N".
+    const counts = new Map<string, number>();
+    for (const row of await Promise.all(calls)) counts.set(row, (counts.get(row) ?? 0) + 1);
+    const made = [...counts].map(([row, n]) => (n > 1 ? row.replace(/^\| (\S+) \|/, `| $1 ×${n} |`) : row));
     if (made.length) out.push('## API calls the page made (answers as types only)', '', '| method | path | status | answer shape |', '| --- | --- | --- | --- |', ...made, '');
 
     if (!flags['no-snapshot']) {
