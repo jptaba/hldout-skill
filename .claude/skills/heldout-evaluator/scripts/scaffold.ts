@@ -31,7 +31,10 @@ function endpointHelper(e: ContractEndpoint): { name: string; params: string[]; 
 
 const shortTitle = (ac: ContractAC) => {
   const t = ac.text.replace(/`/g, '').replace(/\s+/g, ' ').trim();
-  return t.length > 90 ? `${t.slice(0, 87).replace(/\s+\S*$/, '')}…` : t;
+  // A criterion written as a Gherkin scenario: its title (up to the first step), without the keyword.
+  const scenario = t.match(/^Scenario(?: Outline)?:\s*(.+?)(?:[.:]?\s+(?:Given|When|Then)\b|\.\s|$)/);
+  const title = scenario ? scenario[1].trim() : t;
+  return title.length > 90 ? `${title.slice(0, 87).replace(/\s+\S*$/, '')}…` : title;
 };
 
 main(() => {

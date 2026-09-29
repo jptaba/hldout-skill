@@ -186,9 +186,11 @@ export function inventedLiterals(c: RequirementContract, reqDir: string, opts: {
   const check = (where: string, text: string | undefined, opts: { mechanics?: boolean } = {}) => {
     if (!text) return;
     let rest = norm(text);
-    for (const m of [...rest.matchAll(/"([^"]{2,})"/g)]) { // quoted messages
+    // Quoted messages. Every pair of quotes is one quotation, a one-letter one ("A") included, so the closing quote of a
+    // short name never opens a false one; a quotation shorter than two characters is a name, not a message.
+    for (const m of [...rest.matchAll(/"([^"]*)"/g)]) {
       const lit = m[1].trim();
-      if (!sourceText.includes(lit) && !answered.includes(lit)) out.push({ where, literal: `"${lit}"`, kind: 'text', fromAutOnly: fromAut.includes(lit) });
+      if (lit.length >= 2 && !sourceText.includes(lit) && !answered.includes(lit)) out.push({ where, literal: `"${lit}"`, kind: 'text', fromAutOnly: fromAut.includes(lit) });
       rest = rest.replace(m[0], ' ');
     }
     for (const m of [...rest.matchAll(/(?<![\w/])(\/[a-z0-9_\-.{}:<>/]*[a-z0-9_}>])/g)]) { // paths

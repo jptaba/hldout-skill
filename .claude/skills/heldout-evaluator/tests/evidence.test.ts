@@ -149,6 +149,12 @@ describe('literal grounding', () => {
     c.acceptanceCriteria[0].outcomes.push('the same row as AC-6 states, see G2 and NFR-1');
     assert.deepEqual(inventedLiterals(c, dir), []);
   });
+  it('reads one-letter quoted names ("A", "B") as names, never pairing their quotes into a false message', () => {
+    const dir = fixture();
+    const c = contract(dir);
+    c.acceptanceCriteria[0].outcomes.push('user "B" cannot read a contact of user "A"', 'user "A" gets "No such order"');
+    assert.deepEqual(inventedLiterals(c, dir).map((x) => x.literal), ['"no such order"']);
+  });
   it('flags expected values that exist only in what was discovered from the app', () => {
     const dir = fixture();
     const c = contract(dir);
