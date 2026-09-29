@@ -1,6 +1,6 @@
 # Held-out evaluator — scorecard
 
-Generated 2026-09-28T23:29:27.048Z by `demo/score.ts` from `demo/answer-keys/*.json` (written before each evaluation).
+Generated 2026-09-29T11:17:47.929Z by `demo/score.ts` from `demo/answer-keys/*.json` (written before each evaluation).
 
 | Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Seeded script defects caught | Auto-triage vs confirmed decision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -10,7 +10,7 @@ Generated 2026-09-28T23:29:27.048Z by `demo/score.ts` from `demo/answer-keys/*.j
 | CL-1 | contact-list | FAIL | _not evaluated_ | | | | |
 | CL-2 | contact-list | FAIL | _not evaluated_ | | | | |
 | CL-3 | contact-list | PASS | ✅ PASS | 0/0 (n/a) | 0 | 0/0 | 0/0 (n/a) · abstained 0 · wrong 0 |
-| CL-4 | contact-list | FAIL | _not evaluated_ | | | | |
+| CL-4 | contact-list | FAIL | ✅ FAIL | 1/1 (100%) | 0 | 0/0 | 1/1 (100%) · abstained 0 · wrong 0 |
 | DQ-1 | demoqa | FAIL | _not evaluated_ | | | | |
 | DQ-2 | demoqa | PASS | ✅ PASS | 0/0 (n/a) | 0 | 0/0 | 0/0 (n/a) · abstained 0 · wrong 0 |
 | DQ-3 | demoqa | FAIL | _not evaluated_ | | | | |
@@ -26,9 +26,9 @@ Generated 2026-09-28T23:29:27.048Z by `demo/score.ts` from `demo/answer-keys/*.j
 | TOOL-4 | toolshop | PASS | ✅ PASS | 0/0 (n/a) | 0 | 0/0 | 0/0 (n/a) · abstained 0 · wrong 0 |
 | TOOLB-1 | toolshop-rc | FAIL | _not evaluated_ | | | | |
 | TOOLB-2 | toolshop-rc | FAIL | _not evaluated_ | | | | |
-| **Total** | | | 4/4 verdicts | 2/2 (100%) | 0 | 0/0 | 4/4 (100%) · wrong 0 |
+| **Total** | | | 5/5 verdicts | 3/3 (100%) | 0 | 0/0 | 5/5 (100%) · wrong 0 |
 
-Precision: 100% (2 of 2 confirmed findings are real).
+Precision: 100% (3 of 3 confirmed findings are real).
 
 ## CL-3 (contact-list)
 
@@ -39,6 +39,22 @@ _No defects expected._
 False positives: none ✅
 
 Traps in this AUT: _The Edit Contact form is pre-filled asynchronously (GET /contacts/{id} after page load). A script that fills a field before the pre-fill arrives gets its value overwritten; wait until e.g. #lastName has a non-empty value. A resulting 'edit not saved' failure is a script defect._; _The details/edit pages take the contact id from localStorage ('id'), set when a row on the Contact List is clicked; navigating straight to /contactDetails or /editContact without clicking a row shows nothing. Script defect, not an app defect._; _Delete uses a native confirm() dialog with text 'Are you sure you want to delete this contact?'; Playwright auto-dismisses dialogs unless a handler is registered, so an unhandled dialog looks like 'delete does nothing' (that is actually the correct cancel behaviour)._; _DELETE returns 200 with a plain-text body 'Contact deleted' (not JSON); 404 responses have an empty body; 'Invalid Contact ID' is plain text. Calling response.json() on these throws - script defect._; _PUT responses list omitted optional fields as null; PATCH responses may omit fields that are null. Both are allowed by the contract ('absent or null')._; _Validation error messages differ in prefix: PUT -> 'Validation failed: ...', PATCH/POST -> 'Contact validation failed: ...'; the UI edit form shows 'Validation failed: email: Email is invalid'. The story only asks for 'Email is invalid' to be contained._; _Emptying a field in the UI edit form works because the UI omits empty fields from its PUT body and PUT clears omitted fields -> phone becomes null (met)._; _Out of scope for this story (belongs to CL-2/CL-4 and must not be reported here): the AUT accepts birthdate '1985/07/14' and lets PATCH change 'owner'. The CL-3 story and contract state neither rule, so an evaluator that reports them against CL-3 is going beyond the requirement; at most an observation._; _No data-testid attributes; ids: #edit-contact, #delete, #return, #submit, #cancel, #error, field ids as on Add Contact; details values are spans with the field ids._
+
+## CL-4 (contact-list)
+
+Verdict: expected **FAIL**, got **FAIL** ✅ · tests 16/17 passed
+
+| Expected defect | Criteria | Origin | Matched finding |
+| --- | --- | --- | --- |
+| D1 AC-7 requires that the owner of an existing contact cannot be changed. PATCH /contacts/{id} with {"owner": "<B's _id>"} by user A answers 200 with owner = B's _id; afterwards A gets 404 for the contact and B's GET /contacts (and GET /contacts/{id}) returns it. A user can push a contact into another user's list (mass assignment of 'owner'). PUT ignores 'owner' correctly and POST ignores it too. | AC-7 | genuine | ✅ APP-1: PATCH moves a contact to another user (the owner can be changed) |
+
+False positives: none ✅
+
+| Test | Run | Auto triage | Confirmed | |
+| --- | --- | --- | --- | --- |
+| SCN-007.2 | `02-eval` | APPLICATION_DEFECT | APPLICATION_DEFECT | ✅ |
+
+Traps in this AUT: _POST /users/logout invalidates ALL tokens of that user, not only the one sent (verified with two separate logins). After the AC-3 scenario, user A must sign in again before other scenarios; tests that reuse A's old token elsewhere get 401 - script/ordering defect, not an app defect. The story does not specify per-session logout, so this is not a deviation._; _Two logins within the same second return the identical token (the JWT only carries _id and iat), so 'two sessions' need at least a second between logins._; _The AUT also accepts the raw token without the 'Bearer ' prefix; the story does not forbid that, so it is not a deviation._; _AC-7 has two examples: the PUT row PASSES (owner ignored, 200 with owner A); only the PATCH row fails. AC-6 (POST with owner) PASSES._; _For AC-7, B's _id comes from the sign-up response (user._id) or GET /users/me._; _Cross-user access answers 404 with an empty body (not 403) - that is what AC-4/AC-5 require (met)._; _401 bodies are exactly {"error":"Please authenticate."} for missing, made-up, altered (signature-swapped) and logged-out tokens, on every contacts endpoint including POST and malformed ids (auth is checked first)._; _UI (AC-8): the list is fetched with the token from the 'token' cookie; B sees only 'Bella Bee'. No data-testid attributes; rows are tr.contactTableBodyRow._; _Background: after the D1 reproduction 'Secret Sam' belongs to B; a test suite that runs AC-7 before AC-4/AC-5 on the same contact gets confusing results - use a fresh contact per scenario._
 
 ## DQ-2 (demoqa)
 

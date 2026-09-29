@@ -105,7 +105,7 @@ About 60 smaller items were also fixed from the evaluators' friction reports. Th
 
 ## 5. Onboarding, end to end, until smooth
 
-After the blind round, the whole journey was repeated from an empty folder twenty-four times, on six applications. Each
+After the blind round, the whole journey was repeated from an empty folder twenty-six times, on six applications. Each
 round installed the skill the way a team would, from a git repository with no GitHub-specific steps. It then went
 through `init`, `doctor`, the story, contract, review, scenarios, tests, freeze, hardening, the run, triage, the
 verdict and publishing. Every hiccup was fixed in the skill before the next round.
@@ -131,6 +131,7 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
 | 17 | TOOL-4 (Toolshop, from the published repository), then again from a fresh onboarding | ACs in a custom field and a PO comment that changes a status; API on its own host; users the app won't let tests delete, now named `hldout-…`; a DELETE in the probe chain answered 403 | ✅ PASS, 11/11 (as the key), in both runs; the second needed no fix to the tests or the run | 16 over the two runs (10, 6; all fixed) |
 | 18 | JS-2 (OWASP Juice Shop in Docker, from the published repository), then again from a fresh onboarding | the FAIL path; a localhost app with a hash-route address; overlays found by `init`; a security question fetched before sign-up; a deliberately short password as the evidence | ✅ FAIL, 2/2 defects (as the key), in both runs; the second needed no fix to the tests or the run | 13 over the two runs (10, 3; all fixed) |
 | 19 | PB-4 (ParaBank, shared demo) | a page address as the base URL; users made on the sign-up page; a Cloudflare rate limit; the demo's data access mode changed by someone else; an unobservable "shall" (NFR) | ⏸ INCONCLUSIVE: 4 failures confirmed as the environment (key: PASS WITH WARNINGS on a healthy demo); re-run pending | 7 (all fixed) |
+| 20 | CL-4 (Contact List, a story not used before), then again from a fresh onboarding | security criteria written as Gherkin with users "A" and "B"; sign-out ending every session; a PATCH that hands a contact to another user | ✅ FAIL, 1/1 defect (as the key), in both runs; the second needed no fix to the tests or the run | 8 over the two runs (4, 4; all fixed) |
 
 **What changed for the people using it:**
 - **Install and update from any git host.** A sparse clone fetches only the skill (about 2 MB, a few seconds). `init`
@@ -226,8 +227,8 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   `--carry-from auto` when an earlier run confirmed the same failures. The contract reference now says where sign-up
   and sign-in belong when they are what an AC is about, that "rejected", "refused" or "fails" is judged as written
   with a non-required gap for the exact status, and that a source limiting what is tested rules out derived boundaries.
-- **Cleanup after round 18.** The repository keeps only what a new team needs: the skill, four complete sample
-  evaluations made with the current skill (DQ-2, CL-3, TOOL-4, JS-2), the stories and answer keys to try, and this
+- **Cleanup after round 18.** The repository keeps only what a new team needs: the skill, complete sample
+  evaluations made with the current skill (DQ-2, CL-3, TOOL-4, JS-2; CL-4 since round 20), the stories and answer keys to try, and this
   report; the earlier evaluations are under the tag `blind-round-evaluations`. Run artifacts now name files relative to
   the project, not by the machine's folders. `heldout status` judges a verdict stale by the run it judged, not by file
   times (after a clone every committed verdict looked stale). The tests' fixtures take secret redaction and the page
@@ -242,6 +243,15 @@ verdict and publishing. Every hiccup was fixed in the skill before the next roun
   again once it is fixed. The triage guide says to check a shared sandbox's own settings before confirming a defect,
   and never to change them. The contract check now grounds endpoint paths under a base the story states as a bare
   path (`/parabank/services/bank`, relative to the API origin), and reads ids such as AC-6 in an outcome as references.
+  PB-4 is left for when the demo is back on its default mode (the owner's decision).
+- **Round 20 (CL-4, twice; a story new to the rounds) found the mass-assignment defect.** Criteria written as Gherkin
+  scenarios with users "A" and "B": the literal check read the closing quote of `"A"` as the start of a quotation and
+  raised 22 false errors; every pair of quotes is now one quotation, and a one-letter one is a name. Scaffolded test
+  titles for such criteria drop the "Scenario:" keyword and the steps. `triage --set` straight after a run builds the
+  automatic triage first instead of failing on a missing file. The reference settles what builders asked: the request
+  fields of stated sign-up and sign-in calls are not a gap, a Gherkin Background is data for the scenarios that use it,
+  a described placeholder (`{id of Secret Sam}`) is a parameter, and an alternative answer ("400, or 200 with the owner
+  unchanged") is spelled out in the error case. CL-4 is now a sample evaluation.
 - **Every step says what comes next.** This includes `new` → `fetch`, a missing secret, transcribing a mock-up with its
   exact file name, and questions for the owner.
 - **Less to write by hand.** `scaffold` pre-fills the requirement review and the hardening log, and imports

@@ -1,0 +1,11 @@
+{ "steps": [
+  { "name": "sign up user A", "method": "POST", "path": "users", "json": { "firstName": "Hldout", "lastName": "A", "email": "hldout-${uid}-a@example.com", "password": "${env:CL_USER_PASSWORD}" }, "save": { "tokenA": "token", "idA": "user._id" }, "expect": 201, "setup": true },
+  { "name": "sign up user B", "method": "POST", "path": "users", "json": { "firstName": "Hldout", "lastName": "B", "email": "hldout-${uid}-b@example.com", "password": "${env:CL_USER_PASSWORD}" }, "save": { "tokenB": "token", "idB": "user._id" }, "expect": 201, "setup": true },
+  { "name": "A adds Secret Sam", "method": "POST", "path": "contacts", "headers": { "Authorization": "Bearer ${tokenA}" }, "json": { "firstName": "Secret", "lastName": "Sam" }, "save": { "cid": "_id" }, "expect": 201, "setup": true },
+  { "name": "A sets the owner to B with PATCH", "method": "PATCH", "path": "contacts/${cid}", "headers": { "Authorization": "Bearer ${tokenA}" }, "json": { "owner": "${idB}" }, "show": ["owner"] },
+  { "name": "A reads Secret Sam", "method": "GET", "path": "contacts/${cid}", "headers": { "Authorization": "Bearer ${tokenA}" } },
+  { "name": "B's list", "method": "GET", "path": "contacts", "headers": { "Authorization": "Bearer ${tokenB}" }, "show": ["length", "0.firstName", "0.lastName", "0.owner"] },
+  { "name": "cleanup: B deletes the contact", "method": "DELETE", "path": "contacts/${cid}", "headers": { "Authorization": "Bearer ${tokenB}" }, "setup": true },
+  { "name": "cleanup: delete user A", "method": "DELETE", "path": "users/me", "headers": { "Authorization": "Bearer ${tokenA}" }, "setup": true },
+  { "name": "cleanup: delete user B", "method": "DELETE", "path": "users/me", "headers": { "Authorization": "Bearer ${tokenB}" }, "setup": true }
+] }

@@ -95,7 +95,7 @@
       "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
       "accounts": {
         "password": "${env:CL_USER_PASSWORD}",
-        "username": "qa-${uid}@example.com",
+        "username": "hldout-${uid}@example.com",
         "create": {
           "method": "POST",
           "path": "/users",

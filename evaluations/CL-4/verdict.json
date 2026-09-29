@@ -1,0 +1,456 @@
+{
+  "key": "CL-4",
+  "verdict": "FAIL",
+  "reason": "1 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-7. Awaiting reviewer confirmation.",
+  "finalRun": "02-eval",
+  "generatedAt": "2026-09-29T11:17:14.616Z",
+  "autId": "thinking-tester-contact-list",
+  "aut": {
+    "name": "Contact List App",
+    "baseURL": "https://thinking-tester-contact-list.herokuapp.com/",
+    "apiBaseURL": "https://thinking-tester-contact-list.herokuapp.com/",
+    "testIdAttribute": "data-testid",
+    "healthcheck": [
+      "/"
+    ],
+    "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+    "accounts": {
+      "password": "${env:CL_USER_PASSWORD}",
+      "username": "hldout-${uid}@example.com",
+      "create": {
+        "method": "POST",
+        "path": "/users",
+        "body": {
+          "firstName": "QA",
+          "lastName": "Heldout",
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "id": "user._id",
+        "token": "token"
+      },
+      "token": {
+        "method": "POST",
+        "path": "/users/login",
+        "body": {
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "token": "token"
+      },
+      "authHeader": "Authorization: Bearer ${token}",
+      "delete": {
+        "method": "DELETE",
+        "path": "/users/me"
+      },
+      "signIn": {
+        "path": "/",
+        "done": "url:/contactList",
+        "steps": [
+          {
+            "fill": "getByRole('textbox', { name: 'Email', exact: true })",
+            "value": "${username}"
+          },
+          {
+            "fill": "getByRole('textbox', { name: 'Password', exact: true })",
+            "value": "${password}"
+          },
+          {
+            "click": "getByRole('button', { name: 'Submit', exact: true })"
+          }
+        ]
+      }
+    }
+  },
+  "summary": {
+    "total": 17,
+    "passed": 16,
+    "failed": 1,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "PATCH moves a contact to another user (the owner can be changed)",
+      "testType": "security",
+      "source": "story.md AC-7",
+      "confirmed": true,
+      "severity": null,
+      "criteria": [
+        "AC-7"
+      ],
+      "tests": [
+        "SCN-007.2"
+      ],
+      "expected": "/^(rejected with 400|answered 200 with owner still A)$/",
+      "actual": "\"answered 200 with owner set to user B\"",
+      "rationale": "AC-7: setting owner to user B's _id must be rejected with 400 or leave owner A. Live: user A's PATCH /contacts/{id} {owner: B's _id} answers 200 with owner = B; A then gets 404 for the contact and it is in B's list. The PUT example keeps owner A (passes).",
+      "liveCheck": "runs/02-eval/confirm/owner-change.md",
+      "steps": [
+        "Given user \"A\" has a contact \"Secret Sam\" and user \"B\" has signed up",
+        "When user \"A\" calls <method> /contacts/{id of Secret Sam} with a body that sets \"owner\" to the _id of user \"B\" (<body>)",
+        "Then the request is either rejected with 400 or answered 200 with \"owner\" still the _id of user \"A\"",
+        "And GET /contacts/{id of Secret Sam} for user \"A\" still answers 200",
+        "And GET /contacts for user \"B\" does not contain \"Secret Sam\""
+      ],
+      "api": {
+        "request": {
+          "method": "PATCH",
+          "url": "https://thinking-tester-contact-list.herokuapp.com/contacts/6abb9e1a2f701c0015676bd2",
+          "headers": {
+            "Accept": "application/json",
+            "Authorization": "***redacted***",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "owner": "6abb9e1a2f701c0015676bd0"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 68,
+          "headers": {
+            "content-length": "115",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Tue, 29 Sep 2026 11:16:42 GMT",
+            "etag": "W/\"73-VY4ez9T93iB30GLSTHpoe/Lom+k\"",
+            "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+            "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=DYXkT1zdbnoCw%2FqRXwsxJ0UdobRAbbuFF8Q%2Bf5ifOw0%3D\\u0026sid=af571f24-03ee-46d1-9f90-ab9030c2c74c\\u0026ts=1790680602\"}],\"max_age\":3600}",
+            "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=DYXkT1zdbnoCw%2FqRXwsxJ0UdobRAbbuFF8Q%2Bf5ifOw0%3D&sid=af571f24-03ee-46d1-9f90-ab9030c2c74c&ts=1790680602\"",
+            "server": "Heroku",
+            "via": "1.1 heroku-router",
+            "x-powered-by": "Express"
+          },
+          "body": {
+            "_id": "6abb9e1a2f701c0015676bd2",
+            "firstName": "Secret",
+            "lastName": "Sam",
+            "owner": "6abb9e1a2f701c0015676bd0",
+            "__v": 0
+          }
+        }
+      },
+      "screenshot": "evaluations/CL-4/runs/02-eval/artifacts/CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "PATCH",
+            "url": "https://thinking-tester-contact-list.herokuapp.com/contacts/6abb9e1a2f701c0015676bd2",
+            "headers": {
+              "Accept": "application/json",
+              "Authorization": "***redacted***",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "owner": "6abb9e1a2f701c0015676bd0"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 68,
+            "headers": {
+              "content-length": "115",
+              "content-type": "application/json; charset=utf-8",
+              "date": "Tue, 29 Sep 2026 11:16:42 GMT",
+              "etag": "W/\"73-VY4ez9T93iB30GLSTHpoe/Lom+k\"",
+              "nel": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}",
+              "report-to": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=DYXkT1zdbnoCw%2FqRXwsxJ0UdobRAbbuFF8Q%2Bf5ifOw0%3D\\u0026sid=af571f24-03ee-46d1-9f90-ab9030c2c74c\\u0026ts=1790680602\"}],\"max_age\":3600}",
+              "reporting-endpoints": "heroku-nel=\"https://nel.heroku.com/reports?s=DYXkT1zdbnoCw%2FqRXwsxJ0UdobRAbbuFF8Q%2Bf5ifOw0%3D&sid=af571f24-03ee-46d1-9f90-ab9030c2c74c&ts=1790680602\"",
+              "server": "Heroku",
+              "via": "1.1 heroku-router",
+              "x-powered-by": "Express"
+            },
+            "body": {
+              "_id": "6abb9e1a2f701c0015676bd2",
+              "firstName": "Secret",
+              "lastName": "Sam",
+              "owner": "6abb9e1a2f701c0015676bd0",
+              "__v": 0
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run CL-4 --label repro --grep \"SCN-007\\.2:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "security",
+      "scenarios": 8,
+      "tests": 17,
+      "passed": 16,
+      "failed": 1,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "Scenario Outline: Contacts endpoints require a session token. When a client calls <method> <path> without an Authorization header, then the response status is 401, the response body is {\"error\": \"Please authenticate.\"} and no contact is created, changed or deleted. Examples: GET /contacts, POST /contacts, GET, PUT, PATCH and DELETE /contacts/{id of Secret Sam}.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "Contacts endpoints require a session token (<method> <path>)",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-1"
+          ],
+          "passed": 6,
+          "total": 6,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-001.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-001.3",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-001.4",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-001.5",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-001.6",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "Scenario: A token that was not issued by the application is refused. When a client calls GET /contacts with \"Authorization: Bearer\" followed by a made-up or altered token, then the response status is 401 and the response body is {\"error\": \"Please authenticate.\"}",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "A token that was not issued by the application is refused (<token>)",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-2"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "Scenario: Signing out ends the session. Given user \"A\" holds a token that returns A's contacts on GET /contacts, when user \"A\" calls POST /users/logout with that token, then the response status is 200, GET /contacts with the same token answers 401 and GET /users/me with the same token answers 401.",
+      "scenarios": [
+        {
+          "id": "SCN-003",
+          "title": "Signing out ends the session",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-3"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "Scenario: A user cannot read another user's contact. When user \"B\" calls GET /contacts/{id of Secret Sam}, then the response status is 404 and GET /contacts for user \"B\" does not contain \"Secret Sam\".",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "A user cannot read another user's contact",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-4"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "Scenario Outline: A user cannot change or delete another user's contact. When user \"B\" calls <method> /contacts/{id of Secret Sam} with a valid body, then the response status is 404 and GET /contacts/{id of Secret Sam} for user \"A\" still returns \"Secret Sam\" unchanged. Examples: PUT, PATCH, DELETE.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "A user cannot change or delete another user's contact (<method>)",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-5"
+          ],
+          "passed": 3,
+          "total": 3,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.2",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-005.3",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "Scenario: A new contact always belongs to its creator. When user \"A\" calls POST /contacts with a valid body that also contains \"owner\" set to the _id of user \"B\", then the response status is 201, the new contact's \"owner\" is the _id of user \"A\", and the new contact is listed for user \"A\" and not for user \"B\".",
+      "scenarios": [
+        {
+          "id": "SCN-006",
+          "title": "A new contact always belongs to its creator",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-6"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "Scenario Outline: The owner of an existing contact cannot be changed. When user \"A\" calls <method> /contacts/{id of Secret Sam} with a body that sets \"owner\" to the _id of user \"B\", then the request is either rejected with 400 or answered 200 with \"owner\" still the _id of user \"A\", GET /contacts/{id of Secret Sam} for user \"A\" still answers 200, and GET /contacts for user \"B\" does not contain \"Secret Sam\". Examples: PUT with first name, last name and owner; PATCH with owner only.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "The owner of an existing contact cannot be changed (<method>)",
+          "type": "security",
+          "layer": "api",
+          "sources": [
+            "story.md AC-7"
+          ],
+          "passed": 1,
+          "total": 2,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-007.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-007.2",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "Scenario: The contact list page only shows the signed-in user's contacts. Given user \"B\" has a contact \"Bella Bee\", when user \"B\" signs in on the login page, then the Contact List page shows \"Bella Bee\" and does not show \"Secret Sam\".",
+      "scenarios": [
+        {
+          "id": "SCN-008",
+          "title": "The contact list page only shows the signed-in user's contacts",
+          "type": "security",
+          "layer": "ui",
+          "sources": [
+            "story.md AC-8"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [],
+  "observations": [],
+  "verdictFile": "evaluations/CL-4/verdict.md"
+}

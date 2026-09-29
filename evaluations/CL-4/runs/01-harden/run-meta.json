@@ -1,0 +1,58 @@
+{
+  "key": "CL-4",
+  "run": "01-harden",
+  "label": "harden",
+  "startedAt": "2026-09-29T11:16:01.062Z",
+  "finishedAt": "2026-09-29T11:16:16.588Z",
+  "autId": "thinking-tester-contact-list",
+  "aut": {
+    "name": "Contact List App",
+    "baseURL": "https://thinking-tester-contact-list.herokuapp.com/",
+    "apiBaseURL": "https://thinking-tester-contact-list.herokuapp.com/"
+  },
+  "command": "npx playwright test evaluations/CL-4/tests/ --workers 4 --repeat-each 2",
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://thinking-tester-contact-list.herokuapp.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 329,
+        "samples": [
+          329,
+          182,
+          55
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://thinking-tester-contact-list.herokuapp.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 106,
+        "samples": [
+          85,
+          106,
+          92
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "skill": "c5a0c097eb7f4f99",
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-09-29T11:16:01.627Z",
+    "duration": 14419.898,
+    "expected": 32,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,123 @@
+<testsuites id="" name="" tests="17" failures="1" skipped="0" errors="0" time="7.5655600000000005">
+<testsuite name="CL-4\tests\cl-4.spec.ts" timestamp="2026-09-29T11:16:35.964Z" hostname="chromium" tests="17" failures="1" skipped="0" time="19.453" errors="0">
+<testcase name="CL-4 Account security for contacts › SCN-001.1: Contacts endpoints require a session token (GET /contacts)" classname="CL-4\tests\cl-4.spec.ts" time="1.345">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-001.2: Contacts endpoints require a session token (POST /contacts)" classname="CL-4\tests\cl-4.spec.ts" time="1.296">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-001.3: Contacts endpoints require a session token (GET /contacts/{id of Secret Sam})" classname="CL-4\tests\cl-4.spec.ts" time="1.308">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-001.4: Contacts endpoints require a session token (PUT /contacts/{id of Secret Sam})" classname="CL-4\tests\cl-4.spec.ts" time="1.266">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-001.5: Contacts endpoints require a session token (PATCH /contacts/{id of Secret Sam})" classname="CL-4\tests\cl-4.spec.ts" time="0.876">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-001.6: Contacts endpoints require a session token (DELETE /contacts/{id of Secret Sam})" classname="CL-4\tests\cl-4.spec.ts" time="0.866">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-002.1: A token that was not issued by the application is refused (a made-up token)" classname="CL-4\tests\cl-4.spec.ts" time="0.659">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-002.2: A token that was not issued by the application is refused (user A&apos;s token with its signature altered)" classname="CL-4\tests\cl-4.spec.ts" time="0.588">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-003: Signing out ends the session" classname="CL-4\tests\cl-4.spec.ts" time="1.008">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-004: A user cannot read another user&apos;s contact" classname="CL-4\tests\cl-4.spec.ts" time="1.012">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-005.1: A user cannot change or delete another user&apos;s contact (PUT)" classname="CL-4\tests\cl-4.spec.ts" time="1.007">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-005.2: A user cannot change or delete another user&apos;s contact (PATCH)" classname="CL-4\tests\cl-4.spec.ts" time="0.999">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-005.3: A user cannot change or delete another user&apos;s contact (DELETE)" classname="CL-4\tests\cl-4.spec.ts" time="1.064">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-006: A new contact always belongs to its creator" classname="CL-4\tests\cl-4.spec.ts" time="1.023">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-007.1: The owner of an existing contact cannot be changed (PUT)" classname="CL-4\tests\cl-4.spec.ts" time="1.133">
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-007.2: The owner of an existing contact cannot be changed (PATCH)" classname="CL-4\tests\cl-4.spec.ts" time="2.117">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] PATCH /contacts/{id} setting owner to user B is rejected with 400 or keeps owner A" type="expect.toMatch">
+<![CDATA[  [chromium] › CL-4\tests\cl-4.spec.ts:178:9 › CL-4 Account security for contacts › SCN-007.2: The owner of an existing contact cannot be changed (PATCH) @AC-7 @type:security @layer:api @P1 › Then the request is either rejected with 400 or answered 200 with "owner" still the _id of user "A" 
+
+    Error: [REQ AC-7] PATCH /contacts/{id} setting owner to user B is rejected with 400 or keeps owner A
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /^(rejected with 400|answered 200 with owner still A)$/
+    Received string:  "answered 200 with owner set to user B"
+
+      188 |       await journey.step('Then the request is either rejected with 400 or answered 200 with "owner" still the _id of user "A"', async () => {
+      189 |         const outcome = res.status === REQ.STATUS.BAD_REQUEST ? 'rejected with 400' : res.status === REQ.STATUS.OK && res.body?.owner === a.id ? 'answered 200 with owner still A' : `answered ${res.status} with owner ${res.body?.owner === b.id ? 'set to user B' : String(res.body?.owner)}`;
+    > 190 |         expect(outcome, `[REQ AC-7] ${row.method} /contacts/{id} setting owner to user B is rejected with 400 or keeps owner A`).toMatch(/^(rejected with 400|answered 200 with owner still A)$/);
+          |                                                                                                                                  ^
+      191 |       });
+      192 |       await journey.step('And GET /contacts/{id of Secret Sam} for user "A" still answers 200', async () => {
+      193 |         expectResponse(await stored(api, a, c._id), { status: REQ.STATUS.OK }, '[REQ AC-7] GET /contacts/{id} for user A still answers 200');
+        at body (./evaluations\CL-4\tests\cl-4.spec.ts:190:130)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\CL-4\tests\cl-4.spec.ts:188:7
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] PATCH /contacts/{id} setting owner to user B is rejected with 400 or keeps owner A
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /^(rejected with 400|answered 200 with owner still A)$/
+    Received string:  "answered 200 with owner set to user B"
+
+      188 |       await journey.step('Then the request is either rejected with 400 or answered 200 with "owner" still the _id of user "A"', async () => {
+      189 |         const outcome = res.status === REQ.STATUS.BAD_REQUEST ? 'rejected with 400' : res.status === REQ.STATUS.OK && res.body?.owner === a.id ? 'answered 200 with owner still A' : `answered ${res.status} with owner ${res.body?.owner === b.id ? 'set to user B' : String(res.body?.owner)}`;
+    > 190 |         expect(outcome, `[REQ AC-7] ${row.method} /contacts/{id} setting owner to user B is rejected with 400 or keeps owner A`).toMatch(/^(rejected with 400|answered 200 with owner still A)$/);
+          |                                                                                                                                  ^
+      191 |       });
+      192 |       await journey.step('And GET /contacts/{id of Secret Sam} for user "A" still answers 200', async () => {
+      193 |         expectResponse(await stored(api, a, c._id), { status: REQ.STATUS.OK }, '[REQ AC-7] GET /contacts/{id} for user A still answers 200');
+        at body (./evaluations\CL-4\tests\cl-4.spec.ts:190:130)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\CL-4\tests\cl-4.spec.ts:188:7
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace CL-4\runs\02-eval\artifacts\CL-4-tests-cl-4-CL-4-Accou-41bda-ct-cannot-be-changed-PATCH--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="CL-4 Account security for contacts › SCN-008: The contact list page only shows the signed-in user&apos;s contacts" classname="CL-4\tests\cl-4.spec.ts" time="1.886">
+</testcase>
+</testsuite>
+</testsuites>

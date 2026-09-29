@@ -199,6 +199,11 @@ main(() => {
 
   const setId = flagStr(flags, 'set');
   if (setId) {
+    // Confirming straight after a run: build the automatic triage first, as `heldout triage KEY` would.
+    if (!fs.existsSync(triageJson)) {
+      const auto = buildReport(key, runName, path.join(runDir, 'results.json'), p.scenarios, new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
+      writeFile(triageJson, `${JSON.stringify(auto, null, 2)}\n`);
+    }
     const report = readJson<TriageReport>(triageJson);
     // One decision per root cause: "SCN-007.1,SCN-007.2", or an outline's base id "SCN-007" for all its failing rows.
     const entries = setId.split(',').map((x) => x.trim()).flatMap((id) => {
