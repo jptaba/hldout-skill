@@ -366,7 +366,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Held-out Evaluator"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg>
   <div class="kicker">The complete guide</div>
   <h1>The <em>held-out</em> evaluator</h1>
-  <p class="lede">An AI agent skill for GitHub Copilot that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
+  <p class="lede">An AI agent skill for GitHub Copilot or Claude Code that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
   <div class="rail" aria-label="Pipeline">
     <span class="chip">Fetch</span><i class="arr">›</i><span class="chip">Contract</span><i class="arr">›</i><span class="chip">Scenarios</span><i class="arr">›</i><span class="chip">Draft tests</span><i class="arr">›</i><span class="chip">Freeze</span><i class="arr">›</i><span class="chip">Harden</span><i class="arr">›</i><span class="chip">Run</span><i class="arr">›</i><span class="chip">Triage</span><i class="arr">›</i><span class="chip">Verdict</span><i class="arr">›</i><span class="chip">Publish</span>
   </div>
@@ -396,7 +396,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="tech">
     <div class="lbl">Who does what</div>
     <ul class="clean">
-      <li><b>You</b> ask Opus, in GitHub Copilot's agent mode: <i>"Run a held-out evaluation of ABC-123."</i> You answer questions only you can answer, such as what a vague criterion means.</li>
+      <li><b>You</b> ask Opus, in GitHub Copilot's agent mode or in Claude Code: <i>"Run a held-out evaluation of ABC-123."</i> You answer questions only you can answer, such as what a vague criterion means.</li>
       <li><b>Opus</b> follows the skill: it reads the story, writes scenarios and tests, hardens them against the app, triages failures and writes the verdict.</li>
       <li><b>Two subagents</b> build and independently review the requirement contract, each in a fresh context. They can run on a different model from the main session: the extractor uses the same model (Opus), the reviewer uses Sonnet, so the review is independent in model as well as context. Each agent file's <code>model:</code> line sets this.</li>
       <li><b>The <code>heldout</code> command line</b> does everything mechanical: fetching, checking, freezing, running, rendering and publishing. It is deterministic TypeScript, so the same inputs give the same checks.</li>
@@ -408,12 +408,12 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 <section id="system" class="reveal">
   <div class="kicker">Architecture</div>
   <h2>The system at a glance</h2>
-  <p class="lede">Everything runs inside your project and a GitHub Copilot agent session. The application is only ever touched from the outside, the way a user or an API client would.</p>
+  <p class="lede">Everything runs inside your project and a GitHub Copilot or Claude Code agent session. The application is only ever touched from the outside, the way a user or an API client would.</p>
   <figure>
     <div class="fig">
       <svg class="dia" viewBox="0 0 960 470" role="img" aria-label="System context: Jira, secrets and CI around an AI agent session that drives Playwright against the application, never reading its source code, and writes evidence into the project">
         <rect class="frame" x="360" y="16" width="280" height="318" rx="18"/>
-        <text class="t-h" x="500" y="44" text-anchor="middle">GitHub Copilot agent (Opus)</text>
+        <text class="t-h" x="500" y="44" text-anchor="middle">Copilot or Claude Code (Opus)</text>
         <rect class="box acc" x="378" y="60" width="244" height="58" rx="10"/><text class="t-b" x="500" y="84" text-anchor="middle">heldout-evaluator skill</text><text class="t-s" x="500" y="103" text-anchor="middle">SKILL.md · references · guardrails</text>
         <rect class="box violet" x="378" y="126" width="244" height="58" rx="10"/><text class="t-b" x="500" y="150" text-anchor="middle">Two subagents</text><text class="t-s" x="500" y="169" text-anchor="middle">extractor (Opus) · reviewer (Sonnet)</text>
         <rect class="box" x="378" y="192" width="244" height="58" rx="10"/><text class="t-b" x="500" y="216" text-anchor="middle">heldout command line</text><text class="t-s" x="500" y="235" text-anchor="middle">20 TypeScript commands</text>
@@ -475,18 +475,18 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluator
 npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install</pre></div>
 
-  <h3>Using it in GitHub Copilot</h3>
-  <p><code>init</code> sets up files that GitHub Copilot in VS Code reads as they are:</p>
+  <h3>Using it in GitHub Copilot or Claude Code</h3>
+  <p><code>init</code> sets up files that GitHub Copilot in VS Code and Claude Code read as they are:</p>
   <div class="tbl"><table>
-    <thead><tr><th>What</th><th>File</th><th>GitHub Copilot</th></tr></thead>
+    <thead><tr><th>What</th><th>File</th><th>GitHub Copilot</th><th>Claude Code</th></tr></thead>
     <tbody>
-      <tr><td>The skill</td><td><code>.claude/skills/heldout-evaluator/</code></td><td>✔ agent skill (also reads <code>.github/skills/</code>)</td></tr>
-      <tr><td>The two subagents</td><td><code>.claude/agents/*.md</code></td><td>✔ custom agents (the <code>model:</code> line picks each one's model)</td></tr>
-      <tr><td>Playwright MCP server</td><td><code>.mcp.json</code></td><td>✔ portable format</td></tr>
-      <tr><td>The <code>heldout</code> command line</td><td><code>npm run heldout -- …</code></td><td>✔ plain Node</td></tr>
+      <tr><td>The skill</td><td><code>.claude/skills/heldout-evaluator/</code></td><td>✔ agent skill (also reads <code>.github/skills/</code>)</td><td>✔ skill</td></tr>
+      <tr><td>The two subagents</td><td><code>.claude/agents/*.md</code></td><td>✔ custom agents (the <code>model:</code> line picks each one's model)</td><td>✔ subagents</td></tr>
+      <tr><td>Playwright MCP server</td><td><code>.mcp.json</code></td><td>✔ portable format</td><td>✔ project MCP server</td></tr>
+      <tr><td>The <code>heldout</code> command line</td><td><code>npm run heldout -- …</code></td><td>✔ plain Node</td><td>✔ plain Node</td></tr>
     </tbody>
   </table></div>
-  <p class="small">In Copilot, choose Claude Opus in the model picker and use agent mode. Opus asks its questions in the chat, and passes <code>--quiet</code> to <code>heldout run</code> for the short digest (or set <code>HELDOUT_QUIET=1</code>).</p>
+  <p class="small">In Copilot, choose Claude Opus in the model picker and use agent mode; in Claude Code, choose Opus with <code>/model</code>. Opus asks its questions in the chat, and passes <code>--quiet</code> to <code>heldout run</code> for the short digest (or set <code>HELDOUT_QUIET=1</code>).</p>
 
   <h3>Watch it: an onboarding</h3>
   <p>This is a replay of those commands in the VS Code terminal on Practice Software Testing (Toolshop), a public demo shop, followed by <code>doctor</code>. Notice what <code>init</code> worked out by itself: the app's name, its test-id attribute, and that its API lives on a different host.</p>
