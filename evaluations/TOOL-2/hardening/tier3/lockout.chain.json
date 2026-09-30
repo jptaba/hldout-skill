@@ -1,0 +1,16 @@
+{
+  "steps": [
+    { "name": "register a fresh customer", "method": "POST", "path": "users/register", "setup": true,
+      "json": { "first_name": "Hldout", "last_name": "Lock", "email": "hldout-lock-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" },
+      "expect": 201 },
+    { "name": "attempt 1, wrong password", "method": "POST", "path": "users/login", "json": { "email": "hldout-lock-${uid}@example.com", "password": "Wr0ng!pass-1" }, "expect": 401 },
+    { "name": "attempt 2, wrong password", "method": "POST", "path": "users/login", "json": { "email": "hldout-lock-${uid}@example.com", "password": "Wr0ng!pass-2" }, "expect": 401 },
+    { "name": "attempt 3, wrong password", "method": "POST", "path": "users/login", "json": { "email": "hldout-lock-${uid}@example.com", "password": "Wr0ng!pass-3" }, "expect": 401 },
+    { "name": "attempt 4, wrong password", "method": "POST", "path": "users/login", "json": { "email": "hldout-lock-${uid}@example.com", "password": "Wr0ng!pass-4" }, "expect": 401 },
+    { "name": "attempt 5, wrong password", "method": "POST", "path": "users/login", "json": { "email": "hldout-lock-${uid}@example.com", "password": "Wr0ng!pass-5" }, "expect": 401 },
+    { "name": "attempt 6, correct password", "method": "POST", "path": "users/login", "json": { "email": "hldout-lock-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" }, "expect": 423 },
+    { "name": "control: another fresh customer, first wrong attempt (is the lock per account?)", "method": "POST", "path": "users/register", "setup": true,
+      "json": { "first_name": "Hldout", "last_name": "Ctrl", "email": "hldout-ctrl-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" }, "expect": 201 },
+    { "name": "control: attempt 1, wrong password", "method": "POST", "path": "users/login", "json": { "email": "hldout-ctrl-${uid}@example.com", "password": "Wr0ng!pass-1" }, "expect": 401 }
+  ]
+}

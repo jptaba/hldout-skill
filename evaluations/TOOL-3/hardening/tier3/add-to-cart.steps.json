@@ -1,0 +1,7 @@
+[
+  { "do": "goto", "url": "product/01M3QJXQFBJC3M2NF6FXJT54CK" },
+  { "do": "wait", "target": "getByRole('heading', { name: 'Combination Pliers', level: 1 })" },
+  { "do": "fill", "target": "getByRole('spinbutton', { name: 'Quantity' })", "value": "3" },
+  { "do": "click", "target": "getByRole('button', { name: 'Add to cart' })" },
+  { "do": "wait", "target": "getByText('Product added to shopping cart.')" }
+]

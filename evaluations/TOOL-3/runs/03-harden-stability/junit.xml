@@ -1,0 +1,233 @@
+<testsuites id="" name="" tests="14" failures="2" skipped="0" errors="0" time="104.009308">
+<testsuite name="TOOL-3\tests\tool-3.spec.ts" timestamp="2026-09-29T23:00:01.345Z" hostname="chromium" tests="7" failures="2" skipped="0" time="53.755" errors="0">
+<testcase name="TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added" classname="TOOL-3\tests\tool-3.spec.ts" time="6.261">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] POST /carts/{id} again increases the quantity by the amount added" type="expect.toEqual">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:151:7 › TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added @AC-2 @type:functional @layer:api @P1 
+
+    Error: [REQ AC-2] POST /carts/{id} again increases the quantity by the amount added
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 6
+    + Received  + 1
+
+    - Array [
+    -   Object {
+    -     "productId": "01M3QJXQJ7Q49G49WH7K81VZ07",
+    -     "quantity": 5,
+    -   },
+    - ]
+    + Array []
+
+      160 |     await journey.step('Then the cart lists the product once, with quantity 5', async () => {
+      161 |       const r = await readCart(api, id);
+    > 162 |       expect(linesOf(r.body), '[REQ AC-2] POST /carts/{id} again increases the quantity by the amount added').toEqual([{ productId: product.id, quantity: REQ.ADD_TOTAL }]);
+          |                                                                                                               ^
+      163 |     });
+      164 |   });
+      165 | 
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:162:111
+        at ./heldout-support\fixtures.ts:574:28
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:160:5
+
+    attachment #6: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [SEED] guest cart with 2× Pliers: precondition could not be established — create cart (seed)
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 300
+    Received:   500
+
+       at ..\heldout-support\fixtures.ts:364
+
+      362 |       } catch (err) {
+      363 |         rec.error = (err as Error).message.split('\n')[0];
+    > 364 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      365 |       }
+      366 |     };
+      367 |     const seedApi: Seed = {
+        at pre (./heldout-support\fixtures.ts:364:15)
+        at Object.create (./heldout-support\fixtures.ts:371:25)
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:155:12
+        at ./heldout-support\fixtures.ts:574:28
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:153:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-8ccb9-uantity-by-the-amount-added-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0)" classname="TOOL-3\tests\tool-3.spec.ts" time="10.28">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[SEED] guest cart with 1× Pliers: precondition could not be established — add Pliers (seed)" type="expect.toBeLessThan">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:167:9 › TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0) @AC-3 @type:boundary @layer:api @P1 
+
+    Error: [SEED] guest cart with 1× Pliers: precondition could not be established — add Pliers (seed)
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 300
+    Received:   422
+
+       at ..\heldout-support\fixtures.ts:364
+
+      362 |       } catch (err) {
+      363 |         rec.error = (err as Error).message.split('\n')[0];
+    > 364 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      365 |       }
+      366 |     };
+      367 |     const seedApi: Seed = {
+        at pre (./heldout-support\fixtures.ts:364:15)
+        at Object.create (./heldout-support\fixtures.ts:371:25)
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:171:14
+        at ./heldout-support\fixtures.ts:574:28
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:169:7
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [SEED] guest cart with 1× Claw Hammer with Shock Reduction Grip: precondition could not be established — add Claw Hammer with Shock Reduction Grip (seed)
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 300
+    Received:   422
+
+       at ..\heldout-support\fixtures.ts:364
+
+      362 |       } catch (err) {
+      363 |         rec.error = (err as Error).message.split('\n')[0];
+    > 364 |         throw new Error(`[SEED] ${rec.label}: precondition could not be established — ${(err as Error).message}`);
+          |               ^
+      365 |       }
+      366 |     };
+      367 |     const seedApi: Seed = {
+        at pre (./heldout-support\fixtures.ts:364:15)
+        at Object.create (./heldout-support\fixtures.ts:371:25)
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:171:14
+        at ./heldout-support\fixtures.ts:574:28
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:169:7
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\03-harden-stability\artifacts\TOOL-3-tests-tool-3-TOOL-3-bbdb3-rt-is-unchanged-quantity-0--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100)" classname="TOOL-3\tests\tool-3.spec.ts" time="11.173">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-fa606--is-unchanged-quantity-100--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-fa606--is-unchanged-quantity-100--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-fa606--is-unchanged-quantity-100--chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation" classname="TOOL-3\tests\tool-3.spec.ts" time="7.278">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page" classname="TOOL-3\tests\tool-3.spec.ts" time="7.357">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total" classname="TOOL-3\tests\tool-3.spec.ts" time="5.052">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals" classname="TOOL-3\tests\tool-3.spec.ts" time="6.354">
+</testcase>
+</testsuite>
+<testsuite name="TOOL-3\tests\tool-3.spec.ts" timestamp="2026-09-29T23:00:01.345Z" hostname="chromium" tests="7" failures="0" skipped="0" time="40.912" errors="0">
+<testcase name="TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added" classname="TOOL-3\tests\tool-3.spec.ts" time="3.791">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.305">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.889">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation" classname="TOOL-3\tests\tool-3.spec.ts" time="7.567">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page" classname="TOOL-3\tests\tool-3.spec.ts" time="5.582">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total" classname="TOOL-3\tests\tool-3.spec.ts" time="7.1">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals" classname="TOOL-3\tests\tool-3.spec.ts" time="5.678">
+</testcase>
+</testsuite>
+</testsuites>

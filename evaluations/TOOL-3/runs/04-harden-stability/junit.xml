@@ -1,0 +1,34 @@
+<testsuites id="" name="" tests="14" failures="0" skipped="0" errors="0" time="85.085038">
+<testsuite name="TOOL-3\tests\tool-3.spec.ts" timestamp="2026-09-29T23:01:54.179Z" hostname="chromium" tests="7" failures="0" skipped="0" time="40.636" errors="0">
+<testcase name="TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added" classname="TOOL-3\tests\tool-3.spec.ts" time="3.325">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.633">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.956">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation" classname="TOOL-3\tests\tool-3.spec.ts" time="7.342">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page" classname="TOOL-3\tests\tool-3.spec.ts" time="6.253">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total" classname="TOOL-3\tests\tool-3.spec.ts" time="5.904">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals" classname="TOOL-3\tests\tool-3.spec.ts" time="6.223">
+</testcase>
+</testsuite>
+<testsuite name="TOOL-3\tests\tool-3.spec.ts" timestamp="2026-09-29T23:01:54.179Z" hostname="chromium" tests="7" failures="0" skipped="0" time="40.618" errors="0">
+<testcase name="TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added" classname="TOOL-3\tests\tool-3.spec.ts" time="3.526">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.387">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100)" classname="TOOL-3\tests\tool-3.spec.ts" time="6.358">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation" classname="TOOL-3\tests\tool-3.spec.ts" time="7.362">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page" classname="TOOL-3\tests\tool-3.spec.ts" time="5.595">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total" classname="TOOL-3\tests\tool-3.spec.ts" time="6.399">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals" classname="TOOL-3\tests\tool-3.spec.ts" time="5.991">
+</testcase>
+</testsuite>
+</testsuites>

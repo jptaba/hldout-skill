@@ -1,0 +1,76 @@
+{
+  "$schema": ".claude/skills/heldout-evaluator/templates/heldout.config.schema.json",
+  "defaultAut": "practicesoftwaretesting",
+  "auts": {
+    "practicesoftwaretesting": {
+      "name": "Practice Software Testing",
+      "baseURL": "https://practicesoftwaretesting.com/",
+      "apiBaseURL": "https://api.practicesoftwaretesting.com/",
+      "testIdAttribute": "data-test",
+      "healthcheck": [
+        "/"
+      ],
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+      "accounts": {
+        "password": "${env:APP_USER_PASSWORD}",
+        "username": "hldout-${uid}@example.com",
+        "create": {
+          "method": "POST",
+          "path": "/users/register",
+          "body": {
+            "first_name": "Hldout",
+            "last_name": "Tester",
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "id": "id"
+        },
+        "token": {
+          "method": "POST",
+          "path": "/users/login",
+          "body": {
+            "email": "${username}",
+            "password": "${password}"
+          },
+          "token": "access_token"
+        },
+        "authHeader": "Authorization: Bearer ${token}",
+        "signIn": {
+          "path": "auth/login",
+          "done": "url:/account",
+          "steps": [
+            {
+              "fill": "getByTestId('email')",
+              "value": "${username}"
+            },
+            {
+              "fill": "getByTestId('password')",
+              "value": "${password}"
+            },
+            {
+              "click": "getByTestId('login-submit')"
+            }
+          ]
+        }
+      },
+      "maxWorkers": 1,
+      "minTestIntervalMs": 6000
+    }
+  },
+  "jira": {
+    "mode": "mock",
+    "mockRoot": "mock-jira",
+    "baseUrl": "https://your-domain.atlassian.net",
+    "acceptanceCriteriaField": "",
+    "verdictLabelPrefix": "heldout-"
+  },
+  "evaluationsDir": "evaluations",
+  "run": {
+    "retries": 1,
+    "workers": 4,
+    "headless": true,
+    "actionTimeoutMs": 10000,
+    "expectTimeoutMs": 5000,
+    "testTimeoutMs": 60000
+  }
+}

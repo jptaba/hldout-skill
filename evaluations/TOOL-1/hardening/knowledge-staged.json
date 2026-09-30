@@ -1,0 +1,288 @@
+{
+  "facts": [
+    {
+      "key": "page:/",
+      "kind": "page",
+      "value": {
+        "route": "/",
+        "name": "Catalogue (start page)",
+        "ready": "getByTestId('product-name').first()",
+        "reach": "base URL"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:13.395Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-001",
+        "SCN-004",
+        "SCN-006",
+        "SCN-008",
+        "SCN-010",
+        "SCN-013"
+      ]
+    },
+    {
+      "key": "locator:/ search-box",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "search box",
+        "locator": "getByTestId('search-query')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:22.292Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-001",
+        "SCN-004",
+        "SCN-013"
+      ]
+    },
+    {
+      "key": "locator:/ search-button",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "search button",
+        "locator": "getByTestId('search-submit')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:23.079Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-001",
+        "SCN-004",
+        "SCN-013"
+      ]
+    },
+    {
+      "key": "locator:/ search-caption",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "search caption",
+        "locator": "getByTestId('search-caption')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:23.865Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-001"
+      ]
+    },
+    {
+      "key": "locator:/ product-card-name",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "product card name",
+        "locator": "getByTestId('product-name')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:24.637Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-001",
+        "SCN-008",
+        "SCN-010",
+        "SCN-013"
+      ]
+    },
+    {
+      "key": "locator:/ product-card-price",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "product card price",
+        "locator": "getByTestId('product-price')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:25.401Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-006"
+      ]
+    },
+    {
+      "key": "locator:/ sort-select",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "sort select",
+        "locator": "getByTestId('sort')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:26.181Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-006"
+      ]
+    },
+    {
+      "key": "locator:/ category-filter-checkbox-by-category-name",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "category filter checkbox (by category name)",
+        "locator": "getByRole('checkbox', { name: '<category>', exact: true })"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:26.943Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-008"
+      ]
+    },
+    {
+      "key": "locator:/ no-results-box",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "no-results box",
+        "locator": "getByTestId('no-results')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:27.732Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-004"
+      ]
+    },
+    {
+      "key": "locator:/ pagination-page-n-button",
+      "kind": "locator",
+      "value": {
+        "route": "/",
+        "element": "pagination page n button",
+        "locator": "getByRole('button', { name: 'Page-2', exact: true })"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:28.526Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-010"
+      ]
+    },
+    {
+      "key": "api:GET /products",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products",
+        "envelope": "data",
+        "requestFields": [
+          "page",
+          "sort",
+          "by_category"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:38.300Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-007",
+        "SCN-008",
+        "SCN-009",
+        "SCN-011"
+      ]
+    },
+    {
+      "key": "api:GET /products/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/search",
+        "envelope": "data",
+        "requestFields": [
+          "q",
+          "page"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:39.085Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-002",
+        "SCN-003",
+        "SCN-005",
+        "SCN-011",
+        "SCN-012",
+        "SCN-013"
+      ]
+    },
+    {
+      "key": "api:GET /categories/tree",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/tree"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:39.859Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-009"
+      ]
+    },
+    {
+      "key": "note:product-item-shape",
+      "kind": "note",
+      "value": {
+        "topic": "product item shape",
+        "text": "GET /products and /products/search items: id, name, price (number), category {id,name,slug}, brand {id,name}; paged envelope current_page/data/from/last_page/per_page/to/total (fields at the end of the body: api-probe needs --body-limit to see them)"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:40.631Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-002",
+        "SCN-007",
+        "SCN-009"
+      ]
+    },
+    {
+      "key": "note:category-tree-shape",
+      "kind": "note",
+      "value": {
+        "topic": "category tree shape",
+        "text": "GET /categories/tree: array of top categories {id,name,slug,parent_id,sub_categories[]}; leaf categories such as the tools' types sit in sub_categories"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:41.402Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-009"
+      ]
+    },
+    {
+      "key": "note:web-shop-list-calls",
+      "kind": "note",
+      "value": {
+        "topic": "web shop list calls",
+        "text": "The web shop reads its product lists with HTTP method QUERY on /products and /products/search (not GET); wait for that response after search/sort/filter before reading the cards"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:02:42.184Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-001",
+        "SCN-006",
+        "SCN-008"
+      ]
+    },
+    {
+      "key": "note:ids-change-on-reseed",
+      "kind": "note",
+      "value": {
+        "topic": "ids change on reseed",
+        "text": "The shared demo regenerates its data now and then: category and product ids (ULIDs) change, and a call made during the reseed can fail once. Read ids at run time (e.g. from GET /categories/tree), never hard-code them"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:05:00.551Z",
+      "by": "TOOL-1",
+      "for": [
+        "SCN-009"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,355 @@
+{
+  "facts": [
+    {
+      "key": "api:POST /carts",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/carts"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:05.466Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-001"
+      ]
+    },
+    {
+      "key": "api:POST /carts/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/carts/{id}",
+        "requestFields": [
+          "product_id",
+          "quantity"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:06.272Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-002"
+      ]
+    },
+    {
+      "key": "api:DELETE /carts/{}/product/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/carts/{cartId}/product/{productId}"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:07.052Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-009"
+      ]
+    },
+    {
+      "key": "api:GET /carts/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/carts/{cartId}"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:07.869Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-001"
+      ]
+    },
+    {
+      "key": "api:DELETE /carts/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/carts/{cartId}"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:08.638Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-010"
+      ]
+    },
+    {
+      "key": "api:GET /products",
+      "kind": "endpoint",
+      "value": {
+        "envelope": "data",
+        "method": "GET",
+        "path": "/products",
+        "requestFields": [
+          "page",
+          "sort",
+          "by_category"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:09.394Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-002"
+      ]
+    },
+    {
+      "key": "note:product-item-shape",
+      "kind": "note",
+      "value": {
+        "text": "GET /products and /products/search items: id, name, price (number), category {id,name,slug}, brand {id,name}; paged envelope current_page/data/from/last_page/per_page/to/total (fields at the end of the body: api-probe needs --body-limit to see them)",
+        "topic": "product item shape"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:10.168Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-002"
+      ]
+    },
+    {
+      "key": "note:ids-change-on-reseed",
+      "kind": "note",
+      "value": {
+        "text": "The shared demo regenerates its data now and then: category and product ids (ULIDs) change, and a call made during the reseed can fail once. Read ids at run time (e.g. from GET /categories/tree), never hard-code them",
+        "topic": "ids change on reseed"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:10.953Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-002"
+      ]
+    },
+    {
+      "key": "locator:/product/{id} quantity-field",
+      "kind": "locator",
+      "value": {
+        "route": "/product/{id}",
+        "element": "Quantity field",
+        "locator": "getByRole('spinbutton', { name: 'Quantity', exact: true })"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:34.070Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "locator:/product/{id} add-to-cart-button",
+      "kind": "locator",
+      "value": {
+        "route": "/product/{id}",
+        "element": "Add to cart button",
+        "locator": "getByTestId('add-to-cart')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:34.838Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "locator:/product/{id} cart-icon-in-the-navigation-shows-the-count",
+      "kind": "locator",
+      "value": {
+        "route": "/product/{id}",
+        "element": "Cart icon in the navigation (shows the count)",
+        "locator": "getByTestId('nav-cart')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:35.617Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-006"
+      ]
+    },
+    {
+      "key": "page:/checkout",
+      "kind": "page",
+      "value": {
+        "route": "/checkout",
+        "name": "Checkout step 1 (Cart)",
+        "ready": "getByTestId('product-title')",
+        "reach": "the guest cart in sessionStorage.cart_id"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:36.373Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "locator:/checkout cart-row-of-a-product",
+      "kind": "locator",
+      "value": {
+        "route": "/checkout",
+        "element": "Cart row of a product",
+        "locator": "getByRole('row').filter({ has: page.getByTestId('product-title').getByText('<name>', { exact: true }) })"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:37.131Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "locator:/checkout row-quantity-unit-price-line-total",
+      "kind": "locator",
+      "value": {
+        "route": "/checkout",
+        "element": "Row quantity / unit price / line total",
+        "locator": "getByTestId('product-quantity') (input) / getByTestId('product-price') / getByTestId('line-price')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:37.888Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "locator:/checkout cart-total",
+      "kind": "locator",
+      "value": {
+        "route": "/checkout",
+        "element": "Cart total",
+        "locator": "getByTestId('cart-total')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:38.642Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "seed:cart",
+      "kind": "seed",
+      "value": {
+        "entity": "cart",
+        "create": "POST /carts",
+        "id": "id",
+        "fields": [
+          "product_id",
+          "quantity"
+        ],
+        "cleanup": "DELETE /carts/{id}"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:39.393Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-001"
+      ]
+    },
+    {
+      "key": "note:cart-answer-shape",
+      "kind": "note",
+      "value": {
+        "topic": "cart answer shape",
+        "text": "GET /carts/{id} answers { id, additional_discount_percentage, lat, lng, cart_items: [{ id, quantity, product_id, product { … } }] }; cart ids are lowercase ULIDs, product ids uppercase"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:40.948Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-001"
+      ]
+    },
+    {
+      "key": "note:cart-validation-error-shape",
+      "kind": "note",
+      "value": {
+        "topic": "cart validation error shape",
+        "text": "POST /carts/{id} validation answers nest the field lists under errors (errors.quantity is a string[]) with a top-level message string; unlike POST /users/register, whose field lists are at the top level"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:41.695Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-004"
+      ]
+    },
+    {
+      "key": "page:/product/{id}",
+      "kind": "page",
+      "value": {
+        "route": "/product/{id}",
+        "name": "Product page",
+        "ready": "getByRole('heading', { level: 1, name: '<product name>', exact: true })",
+        "reach": "product/<product id>, the id from GET /products"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:50.102Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "note:guest-cart-in-the-browser",
+      "kind": "note",
+      "value": {
+        "topic": "guest cart in the browser",
+        "text": "The web shop keeps the guest cart id in sessionStorage 'cart_id' (and the icon count in 'cart_quantity'); set cart_id to a cart made with POST /carts, then open /checkout to show it. The first add from a product page makes the cart itself."
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:55:50.894Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "locator:/checkout row-quantity-input-inside-the-cart-row",
+      "kind": "locator",
+      "value": {
+        "route": "/checkout",
+        "element": "Row quantity (input, inside the cart row)",
+        "locator": "getByTestId('product-quantity')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T23:07:53.780Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "locator:/checkout row-unit-price-inside-the-cart-row",
+      "kind": "locator",
+      "value": {
+        "route": "/checkout",
+        "element": "Row unit price (inside the cart row)",
+        "locator": "getByTestId('product-price')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T23:07:54.544Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    },
+    {
+      "key": "locator:/checkout row-line-total-inside-the-cart-row",
+      "kind": "locator",
+      "value": {
+        "route": "/checkout",
+        "element": "Row line total (inside the cart row)",
+        "locator": "getByTestId('line-price')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T23:07:55.320Z",
+      "by": "TOOL-3",
+      "for": [
+        "SCN-007"
+      ]
+    }
+  ]
+}

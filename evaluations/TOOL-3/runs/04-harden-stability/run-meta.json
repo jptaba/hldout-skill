@@ -1,0 +1,58 @@
+{
+  "key": "TOOL-3",
+  "run": "04-harden-stability",
+  "label": "harden-stability",
+  "startedAt": "2026-09-29T23:01:53.640Z",
+  "finishedAt": "2026-09-29T23:03:19.943Z",
+  "autId": "practicesoftwaretesting",
+  "aut": {
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
+    "apiBaseURL": "https://api.practicesoftwaretesting.com/"
+  },
+  "command": "npx playwright test evaluations/TOOL-3/tests/ --grep SCN-00[3-8] --workers 1 --repeat-each 2",
+  "grep": "SCN-00[3-8]",
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://practicesoftwaretesting.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 502,
+        "samples": [
+          502,
+          419,
+          153
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://practicesoftwaretesting.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 312,
+        "samples": [
+          190,
+          312,
+          154
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "skill": "46b5e41c35f5d756",
+  "exitCode": 0,
+  "stats": {
+    "startTime": "2026-09-29T23:01:54.117Z",
+    "duration": 85085.038,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

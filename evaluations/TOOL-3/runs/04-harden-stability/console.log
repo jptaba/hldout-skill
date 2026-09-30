@@ -1,0 +1,19 @@
+
+Running 14 tests using 1 worker
+
+  ok  1 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:151:7 › TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added @AC-2 @type:functional @layer:api @P1 (3.3s)
+  ok  2 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:167:9 › TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0) @AC-3 @type:boundary @layer:api @P1 (5.6s)
+  ok  3 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:167:9 › TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100) @AC-3 @type:boundary @layer:api @P1 (6.0s)
+  ok  4 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:208:7 › TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation @AC-4 @type:functional @layer:ui @P1 (7.3s)
+  ok  5 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:217:7 › TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page @AC-4 @type:functional @layer:ui @P2 (6.3s)
+  ok  6 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:238:7 › TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total @AC-5 @type:functional @layer:ui @P1 (5.9s)
+  ok  7 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:268:7 › TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals @AC-5 @type:functional @layer:ui @P2 (6.2s)
+  ok  8 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:151:7 › TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added @AC-2 @type:functional @layer:api @P1 (3.5s)
+  ok  9 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:167:9 › TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0) @AC-3 @type:boundary @layer:api @P1 (5.4s)
+  ok 10 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:167:9 › TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100) @AC-3 @type:boundary @layer:api @P1 (6.4s)
+  ok 11 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:208:7 › TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation @AC-4 @type:functional @layer:ui @P1 (7.4s)
+  ok 12 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:217:7 › TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page @AC-4 @type:functional @layer:ui @P2 (5.6s)
+  ok 13 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:238:7 › TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total @AC-5 @type:functional @layer:ui @P1 (6.4s)
+  ok 14 [chromium] › evaluations\TOOL-3\tests\tool-3.spec.ts:268:7 › TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals @AC-5 @type:functional @layer:ui @P2 (6.0s)
+
+  14 passed (1.4m)

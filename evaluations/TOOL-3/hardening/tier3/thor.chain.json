@@ -1,0 +1,11 @@
+{
+  "steps": [
+    { "name": "search Thor Hammer", "method": "GET", "path": "products/search?q=Thor%20Hammer", "save": { "tid": "data.0.id" }, "show": ["data.0.id", "data.0.name", "data.0.in_stock", "data.0.is_rental"] },
+    { "name": "create cart", "method": "POST", "path": "carts", "save": { "cid": "id" } },
+    { "name": "add Thor Hammer x2", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${tid}", "quantity": 2 } },
+    { "name": "add Thor Hammer x1", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${tid}", "quantity": 1 } },
+    { "name": "add Thor Hammer x1 again", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${tid}", "quantity": 1 } },
+    { "name": "read cart", "method": "GET", "path": "carts/${cid}" },
+    { "name": "delete cart", "method": "DELETE", "path": "carts/${cid}", "expect": 204 }
+  ]
+}

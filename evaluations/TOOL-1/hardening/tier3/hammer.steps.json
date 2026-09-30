@@ -1,0 +1,4 @@
+[
+  { "do": "wait", "target": "getByTestId('product-name').first()" },
+  { "do": "check", "target": "getByRole('checkbox', { name: 'Hammer', exact: true })" }
+]

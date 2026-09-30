@@ -1,0 +1,50 @@
+# Evidence pack — TOOL-3
+
+Cite sources as `<file>#L<n>` or `<file>#L<n>-L<m>`. Every line marked ● must be accounted for in the contract's `coverage` ledger
+(captured as a criterion / rule / endpoint / error / auth / test data / context, or dismissed as not a requirement, with a reason).
+This pack is the whole requirement: the story, its acceptance-criteria field, comments and text attachments (`requirement/raw-issue.json` is the tracker's raw answer they came from; nothing to read there).
+
+**Project configuration** (heldout.config.json: not requirement, nothing to cite or cover; a gap it answers is `found-in-config`):
+
+- AUT profile `practicesoftwaretesting` "Practice Software Testing": web https://practicesoftwaretesting.com/, API https://api.practicesoftwaretesting.com/
+
+
+## story.md
+
+```text
+  L1   | ---
+  L2   | key: TOOL-3
+  L3   | summary: "Shopping cart for guests"
+  L4   | type: Story
+  L5   | status: Ready for QA
+  L6   | priority: High
+  L7   | labels: []
+  L8   | source: mock-jira
+  L9   | url: https://your-domain.atlassian.net/browse/TOOL-3
+  L10  | fetchedAt: 2026-09-29T22:40:44.474Z
+  L11  | ---
+  L12  | 
+  L13  | # TOOL-3: Shopping cart for guests
+  L14  | 
+  L15  | ## Description
+  L16  | 
+● L17  | Guests (not signed in) can collect products in a cart before checkout. The web shop keeps the cart across page views; the cart API is also used by the mobile app.
+  L18  | 
+  L19  | | ID | Criterion | Layer |
+  L20  | | --- | --- | --- |
+● L21  | | AC-1 | `POST /carts` creates an empty cart and responds 201 with its `id`. | API |
+● L22  | | AC-2 | `POST /carts/{id}` with `product_id` and a `quantity` from 1 to 99 adds the product (200); adding a product already in the cart increases its quantity by the amount added. | API |
+● L23  | | AC-3 | A quantity outside 1–99 is rejected with 422 and an error for the `quantity` field; the cart is unchanged. | API |
+● L24  | | AC-4 | On a product page, choosing a quantity and pressing "Add to cart" shows "Product added to shopping cart." and the cart icon in the navigation shows the total number of items. | UI |
+● L25  | | AC-5 | The cart page (checkout step 1) lists each product with its quantity, unit price and line total (price × quantity), and the cart total. | UI |
+● L26  | | AC-6 | `DELETE /carts/{id}/product/{productId}` removes the product (204); the cart no longer lists it. | API |
+● L27  | | AC-7 | Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204. | API |
+● L28  | | AC-8 | Any request for a cart that does not exist responds 404 with the message "Cart not found". | API |
+  L29  | 
+● L30  | **Test data:** any product that is in stock; carts are anonymous, so tests create and delete their own.
+  L31  | 
+  L32  | ## Attachments
+  L33  | 
+  L34  | _None_
+  L35  | 
+```

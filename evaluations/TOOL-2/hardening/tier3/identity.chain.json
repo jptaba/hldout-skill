@@ -1,0 +1,15 @@
+{
+  "steps": [
+    { "name": "register a new customer", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" },
+      "save": { "id": "id" }, "expect": [200, 201] },
+    { "name": "sign in", "method": "POST", "path": "users/login",
+      "json": { "email": "hldout-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" },
+      "save": { "token": "access_token" } },
+    { "name": "who am I", "method": "GET", "path": "users/me", "headers": { "Authorization": "Bearer ${token}" } },
+    { "name": "sign out", "method": "GET", "path": "users/logout", "headers": { "Authorization": "Bearer ${token}" } },
+    { "name": "who am I after sign-out", "method": "GET", "path": "users/me", "headers": { "Authorization": "Bearer ${token}" } },
+    { "name": "weak password (where are the password errors?)", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}-weak@example.com", "password": "abc" } }
+  ]
+}

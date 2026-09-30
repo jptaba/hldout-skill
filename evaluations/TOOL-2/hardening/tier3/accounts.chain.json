@@ -1,0 +1,11 @@
+{
+  "steps": [
+    { "name": "create a test customer", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" },
+      "save": { "id": "id" }, "expect": 201 },
+    { "name": "sign the customer in", "method": "POST", "path": "users/login",
+      "json": { "email": "hldout-${uid}@example.com", "password": "${env:APP_USER_PASSWORD}" },
+      "save": { "token": "access_token" }, "expect": 200 },
+    { "name": "can the customer delete itself?", "method": "DELETE", "path": "users/${id}", "headers": { "Authorization": "Bearer ${token}" } }
+  ]
+}

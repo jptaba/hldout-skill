@@ -1,0 +1,6 @@
+[
+  { "do": "wait", "target": "getByRole('heading', { name: 'Login' })" },
+  { "do": "fill", "target": "getByTestId('email')", "value": "${var:email}" },
+  { "do": "fill", "target": "getByTestId('password')", "value": "${env:APP_USER_PASSWORD}" },
+  { "do": "click", "target": "getByTestId('login-submit')" }
+]

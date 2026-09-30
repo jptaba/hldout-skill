@@ -1,0 +1,117 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "Registration creates the customer without echoing the password: given a new customer with a unique e-mail address, when their details are posted to POST /users/register, then the API responds 201 with the customer's details and an id, and the response does not contain the password",
+      "outcomes": [
+        "POST /users/register with a new customer's details and a unique e-mail address → 201",
+        "the response contains the customer's details and an id",
+        "the response does not contain the password"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "A registered e-mail address cannot register twice: given a customer already registered with an e-mail address, when the same e-mail address is registered again, then the API responds 409 with the message \"A customer with this email address already exists.\"",
+      "outcomes": [
+        "registering an already registered e-mail address again → 409",
+        "message \"A customer with this email address already exists.\""
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "Weak passwords are rejected with every broken rule listed: given a new customer whose password is \"abc\", when they register, then the API responds 422 and the password errors state all four rules: at least 8 characters, upper and lower case letters, a symbol, a number",
+      "outcomes": [
+        "registering a new customer with password \"abc\" → 422",
+        "the password errors state the rule: at least 8 characters",
+        "the password errors state the rule: upper and lower case letters",
+        "the password errors state the rule: a symbol",
+        "the password errors state the rule: a number"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Signing in on the web shop: given a registered customer on the web shop's sign-in page, when they sign in with their e-mail address and password, then they land on the \"My account\" page, and the navigation shows their first and last name",
+      "outcomes": [
+        "after signing in with the customer's e-mail address and password, they land on the \"My account\" page",
+        "the navigation shows the customer's first and last name"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "A wrong password is refused: given a registered customer, when they sign in with a wrong password, then POST /users/login responds 401, and the web shop shows \"Invalid email or password\"",
+      "outcomes": [
+        "signing in with a wrong password: POST /users/login responds 401",
+        "the web shop shows \"Invalid email or password\""
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "The account locks after five failed attempts: given a registered customer, when five sign-in attempts with a wrong password are made, then attempts one to five respond 401, and the sixth attempt, even with the correct password, responds 423 with a message that the account is locked",
+      "outcomes": [
+        "sign-in attempts one to five with a wrong password each respond 401",
+        "the sixth attempt with the correct password responds 423",
+        "the 423 answer carries a message saying the account is locked"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "Signing out invalidates the token: given a signed-in customer with an access token, when they sign out with GET /users/logout, then GET /users/me with the same token responds 401",
+      "outcomes": [
+        "after GET /users/logout, GET /users/me with the same access token responds 401"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "A password must satisfy four rules: at least 8 characters, upper and lower case letters, a symbol, a number; a registration that breaks them is answered 422 with every broken rule listed"
+    },
+    {
+      "id": "R2",
+      "text": "After five failed sign-in attempts with a wrong password the account locks: the sixth attempt, even with the correct password, responds 423 with a message that the account is locked"
+    },
+    {
+      "id": "R3",
+      "text": "Signing out with GET /users/logout invalidates the access token: GET /users/me with the same token responds 401"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "registering an e-mail address that is already registered",
+      "status": 409,
+      "body": "A customer with this email address already exists."
+    },
+    {
+      "id": "E2",
+      "case": "registering with a weak password (\"abc\"): the password errors state all four rules",
+      "status": 422,
+      "body": null
+    },
+    {
+      "id": "E3",
+      "case": "signing in with a wrong password (POST /users/login); the web shop shows the message",
+      "status": 401,
+      "body": "Invalid email or password"
+    },
+    {
+      "id": "E4",
+      "case": "sign-in attempt after five failed attempts, even with the correct password: a message that the account is locked",
+      "status": 423,
+      "body": null
+    },
+    {
+      "id": "E5",
+      "case": "GET /users/me with an access token that was signed out with GET /users/logout",
+      "status": 401,
+      "body": null
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G4",
+      "resolution": "open",
+      "value": null
+    }
+  ]
+}

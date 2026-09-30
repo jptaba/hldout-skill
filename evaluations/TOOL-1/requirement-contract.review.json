@@ -1,0 +1,26 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-29T21:53:25.000Z",
+  "contractHash": "2cce505fd65c9995",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "evidence-pack.md#L24", "note": "Quote, layer (ui, web-shop only wording) and both outcomes (matching-name filter, caption) match the source exactly; no condition added or dropped." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "evidence-pack.md#L25", "note": "Quote matches; layer api is correct (API-only wording); outcomes (200, name-contains, case-insensitive example) all trace to the same line." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "evidence-pack.md#L26", "note": "Quote matches; layer e2e correct (web shop message + API status/body in one sentence); all four outcomes (message, 200, empty data, total 0) are stated at L26." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "evidence-pack.md#L27", "note": "Quote matches; layer e2e correct (web shop action + API call in one sentence); both outcomes trace to L27." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "evidence-pack.md#L28", "note": "Quote matches; layer e2e correct; both outcomes (web shop filter, API by_category) trace to L28." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "evidence-pack.md#L29", "note": "Quote matches; layer e2e correct (\"on the web shop and in the API\"); outcomes (paginated 12/page, per_page 12) trace to L29." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "evidence-pack.md#L30", "note": "Quote matches; layer api correct (only the API/mobile-app is named, no web-shop wording); outcome \"a search with no term returns all products\" matches, and the missing status / interpretation of \"no term\" is correctly left as gap G4 rather than invented." },
+    { "ref": "R1", "verdict": "supported", "evidence": "evidence-pack.md#L18", "note": "\"The web shop and the public catalogue API ... must behave the same way\" is stated verbatim in substance (drops \"our\" before \"mobile app\", immaterial)." },
+    { "ref": "R2", "verdict": "supported", "evidence": "evidence-pack.md#L20", "note": "\"Both return { current_page, data: [products], per_page, total, last_page }\" matches L20 exactly." },
+    { "ref": "R3", "verdict": "supported", "evidence": "evidence-pack.md#L34", "note": "\"Category ids come from GET /categories/tree.\" matches L34 verbatim." },
+    { "ref": "G4", "verdict": "supported", "evidence": "evidence-pack.md#L30", "note": "L30 states only \"An empty search (no term) returns all products\": no status, no definition of \"no term\", no reference count is given, matching the three sub-questions the gap records as missing; correctly labelled oracle (what, not how) and left open since no user was available." },
+    { "ref": "GET /products", "verdict": "supported", "evidence": "evidence-pack.md#L20", "note": "\"GET /products\" appears at L20." },
+    { "ref": "GET /products/search", "verdict": "supported", "evidence": "evidence-pack.md#L20", "note": "\"GET /products/search?q=<term>\" appears at L20 (and is exercised again at L25, L29, L30)." },
+    { "ref": "GET /categories/tree", "verdict": "supported", "evidence": "evidence-pack.md#L34", "note": "\"GET /categories/tree\" appears at L34." }
+  ],
+  "missed": [],
+  "observations": [
+    { "field": "endpoints[].auth", "note": "GET /products and GET /products/search are both tagged \"auth\": \"none\". No line gives them an explicit \"(public)\" tag or an auth statement; the only support is L18 calling the API generally \"the public catalogue API\", which describes the API's consumer (the mobile app) rather than stating it needs no authentication. The reference material explicitly warns against defaulting to \"none\" without a stated tag. Not blocking since endpoint auth fields are outside this review's checklist, but worth the builder double-checking against L18/L20." }
+  ],
+  "summary": "All 14 checked refs (AC-1..AC-7, R1-R3, G4, and the three endpoint refs) are accurately quoted, correctly laid out (layer, outcomes, endpoint/rule text) and traceable to their cited lines; every ● line in the pack is captured in coverage with nothing missed. One non-blocking observation: the \"none\" auth tag on the two product endpoints rests on a loose reading of \"public catalogue API\" rather than an explicit auth statement or tag."
+}

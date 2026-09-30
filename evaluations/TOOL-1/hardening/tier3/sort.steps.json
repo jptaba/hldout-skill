@@ -1,0 +1,4 @@
+[
+  { "do": "wait", "target": "getByTestId('product-name').first()" },
+  { "do": "select", "target": "getByTestId('sort')", "value": "Price (Low - High)" }
+]

@@ -1,0 +1,1341 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "by": "doctor",
+  "at": "2026-09-29T21:47:21.786Z",
+  "facts": [
+    {
+      "key": "page:/",
+      "kind": "page",
+      "value": {
+        "route": "/",
+        "name": "start page"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /"
+    },
+    {
+      "key": "page:/category/hand-tools",
+      "kind": "page",
+      "value": {
+        "route": "/category/hand-tools",
+        "name": "Hand Tools",
+        "ready": "getByRole('heading', { name: 'Category: Hand Tools' })"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /category/hand-tools"
+    },
+    {
+      "key": "page:/category/power-tools",
+      "kind": "page",
+      "value": {
+        "route": "/category/power-tools",
+        "name": "Power Tools",
+        "ready": "getByRole('heading', { name: 'Category: Power Tools' })"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /category/power-tools"
+    },
+    {
+      "key": "page:/category/other",
+      "kind": "page",
+      "value": {
+        "route": "/category/other",
+        "name": "Other",
+        "ready": "getByRole('heading', { name: 'Category: Other' })"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /category/other"
+    },
+    {
+      "key": "page:/category/special-tools",
+      "kind": "page",
+      "value": {
+        "route": "/category/special-tools",
+        "name": "Special Tools",
+        "ready": "getByRole('heading', { name: 'Category: Special Tools' })"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /category/special-tools"
+    },
+    {
+      "key": "page:/rentals",
+      "kind": "page",
+      "value": {
+        "route": "/rentals",
+        "name": "Rentals",
+        "ready": "getByRole('heading', { name: 'Rentals' })"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /rentals"
+    },
+    {
+      "key": "page:/contact",
+      "kind": "page",
+      "value": {
+        "route": "/contact",
+        "name": "Contact",
+        "ready": "getByRole('heading', { name: 'Contact' })"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /contact"
+    },
+    {
+      "key": "page:/auth/login",
+      "kind": "page",
+      "value": {
+        "route": "/auth/login",
+        "name": "Sign in",
+        "ready": "getByRole('heading', { name: 'Login' })",
+        "purpose": "sign-in"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /auth/login"
+    },
+    {
+      "key": "api:GET /product-specs/names",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/product-specs/names"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /categories/tree",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/tree"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users/me",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/me",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /brands",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/brands"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:QUERY /products",
+      "kind": "endpoint",
+      "value": {
+        "method": "QUERY",
+        "path": "/products"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages"
+    },
+    {
+      "key": "api:QUERY /categories/tree",
+      "kind": "endpoint",
+      "value": {
+        "method": "QUERY",
+        "path": "/categories/tree"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages"
+    },
+    {
+      "key": "app:api-docs",
+      "kind": "app",
+      "value": {
+        "apiDocs": "https://api.practicesoftwaretesting.com/docs?api-docs.json"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: published API document"
+    },
+    {
+      "key": "api:POST /brands",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/brands",
+        "requestFields": [
+          "name",
+          "slug"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /brands/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/brands/{brandId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /brands/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/brands/{brandId}",
+        "requestFields": [
+          "name",
+          "slug"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /brands/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/brands/{brandId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PATCH /brands/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PATCH",
+        "path": "/brands/{brandId}",
+        "requestFields": [
+          "name",
+          "slug"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /brands/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/brands/search"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /carts",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/carts"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /carts/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/carts/{id}",
+        "requestFields": [
+          "product_id",
+          "quantity"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /carts/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/carts/{cartId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /carts/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/carts/{cartId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /carts/{}/product/quantity",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/carts/{cartId}/product/quantity",
+        "requestFields": [
+          "product_id",
+          "quantity"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /carts/{}/product/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/carts/{cartId}/product/{productId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /categories",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /categories",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/categories",
+        "requestFields": [
+          "name",
+          "slug",
+          "parent_id"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /categories/tree/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/tree/{categoryId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /categories/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/search"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /categories/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/categories/{categoryId}",
+        "requestFields": [
+          "name",
+          "slug",
+          "parent_id"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /categories/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/categories/{categoryId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PATCH /categories/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PATCH",
+        "path": "/categories/{categoryId}",
+        "requestFields": [
+          "name",
+          "slug",
+          "parent_id"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /messages",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/messages",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /messages",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/messages",
+        "requestFields": [
+          "name",
+          "email",
+          "subject",
+          "message"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /messages/{}/attach-file",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/messages/{messageId}/attach-file",
+        "requestFields": [
+          "file"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /messages/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/messages/{messageId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /messages/{}/reply",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/messages/{messageId}/reply",
+        "requestFields": [
+          "name",
+          "email",
+          "subject",
+          "message"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /messages/{}/status",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/messages/{messageId}/status",
+        "requestFields": [
+          "status"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /favorites",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/favorites",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /favorites",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/favorites",
+        "requestFields": [
+          "product_id"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /favorites/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/favorites/{favoriteId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /favorites/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/favorites/{favoriteId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /images",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/images"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /invoices",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/invoices",
+        "requestFields": [
+          "billing_street",
+          "billing_city",
+          "billing_state",
+          "billing_country",
+          "billing_postal_code",
+          "payment_method",
+          "cart_id",
+          "payment_details"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /invoices/guest",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/invoices/guest"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices/{invoiceId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /invoices/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/invoices/{invoiceId}",
+        "requestFields": [
+          "billing_street",
+          "billing_city",
+          "billing_state",
+          "billing_country",
+          "billing_postal_code",
+          "payment_method",
+          "cart_id",
+          "payment_details"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PATCH /invoices/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PATCH",
+        "path": "/invoices/{invoiceId}",
+        "requestFields": [
+          "billing_street",
+          "billing_city",
+          "billing_state",
+          "billing_country",
+          "billing_postal_code",
+          "payment_method",
+          "cart_id",
+          "payment_details"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices/{}/download-pdf",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices/{invoice_number}/download-pdf",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices/{}/download-pdf-status",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices/{invoice_number}/download-pdf-status",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /invoices/{}/status",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/invoices/{invoiceId}/status",
+        "requestFields": [
+          "status",
+          "status_message"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices/search",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /payment/check",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/payment/check",
+        "requestFields": [
+          "payment_method",
+          "payment_details"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /postcode-lookup",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/postcode-lookup"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /products",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/products",
+        "requestFields": [
+          "name",
+          "description",
+          "price",
+          "category_id",
+          "brand_id",
+          "product_image_id",
+          "is_location_offer",
+          "is_rental",
+          "co2_rating"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/{productId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /products/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/products/{productId}",
+        "requestFields": [
+          "name",
+          "description",
+          "price",
+          "category_id",
+          "brand_id",
+          "product_image_id",
+          "is_location_offer",
+          "is_rental",
+          "co2_rating"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /products/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/products/{productId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PATCH /products/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PATCH",
+        "path": "/products/{productId}",
+        "requestFields": [
+          "name",
+          "description",
+          "price",
+          "category_id",
+          "brand_id",
+          "product_image_id",
+          "is_location_offer",
+          "is_rental",
+          "co2_rating"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/{}/related",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/{productId}/related"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/search"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/{}/specs",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/{productId}/specs"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /products/{}/specs",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/products/{productId}/specs",
+        "requestFields": [
+          "spec_name",
+          "spec_value",
+          "spec_unit"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/{}/specs/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/{productId}/specs/{specId}"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /products/{}/specs/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/products/{productId}/specs/{specId}",
+        "requestFields": [
+          "spec_name",
+          "spec_value",
+          "spec_unit"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /products/{}/specs/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/products/{productId}/specs/{specId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/total-sales-per-country",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/total-sales-per-country",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/top10-purchased-products",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/top10-purchased-products",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/top10-best-selling-categories",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/top10-best-selling-categories",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/total-sales-of-years",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/total-sales-of-years",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/average-sales-per-month",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/average-sales-per-month",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/average-sales-per-week",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/average-sales-per-week",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/customers-by-country",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/customers-by-country",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /sales-stream",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/sales-stream"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /totp/setup",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/totp/setup",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /totp/verify",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/totp/verify",
+        "requestFields": [
+          "access_token",
+          "totp"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /users/register",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/register",
+        "requestFields": [
+          "first_name",
+          "last_name",
+          "address",
+          "phone",
+          "dob",
+          "password",
+          "email"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /users/login",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/login",
+        "requestFields": [
+          "email",
+          "password"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /users/forgot-password",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/forgot-password",
+        "requestFields": [
+          "email"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /users/change-password",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/change-password",
+        "requestFields": [
+          "current_password",
+          "new_password",
+          "new_password_confirmation"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users/logout",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/logout",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users/refresh",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/refresh",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/{userId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PUT /users/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PUT",
+        "path": "/users/{userId}",
+        "requestFields": [
+          "first_name",
+          "last_name",
+          "address",
+          "phone",
+          "dob",
+          "password",
+          "email"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:DELETE /users/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "DELETE",
+        "path": "/users/{userId}",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:PATCH /users/{}",
+      "kind": "endpoint",
+      "value": {
+        "method": "PATCH",
+        "path": "/users/{userId}",
+        "requestFields": [
+          "first_name",
+          "last_name",
+          "address",
+          "phone",
+          "dob",
+          "password",
+          "email"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/search",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T21:46:45.273Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "by": "doctor",
+  "at": "2026-09-29T22:40:32.827Z",
+  "facts": [
+    {
+      "key": "api:GET /users/me",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/me",
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:40:01.492Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /categories/tree",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/tree",
+        "query": [
+          "by_category_slug"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:40:01.492Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products",
+        "query": [
+          "by_brand",
+          "by_category",
+          "is_rental",
+          "between",
+          "sort",
+          "page"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:40:01.492Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/search",
+        "query": [
+          "q",
+          "page"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:40:01.492Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:POST /users/register",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/register",
+        "requestFields": [
+          "first_name",
+          "last_name",
+          "address",
+          "phone",
+          "dob",
+          "password",
+          "email"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:40:01.492Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    }
+  ]
+}

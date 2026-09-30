@@ -1,0 +1,20 @@
+{
+  "steps": [
+    { "name": "catalogue", "method": "GET", "path": "products", "save": { "p1": "data.0.id", "p2": "data.1.id" }, "show": ["data.0.id", "data.0.in_stock", "data.1.id", "data.1.in_stock"] },
+    { "name": "create cart", "method": "POST", "path": "carts", "save": { "cid": "id" } },
+    { "name": "read new cart", "method": "GET", "path": "carts/${cid}" },
+    { "name": "add p1 x2", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${p1}", "quantity": 2 } },
+    { "name": "add p1 x3 again", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${p1}", "quantity": 3 } },
+    { "name": "read cart", "method": "GET", "path": "carts/${cid}" },
+    { "name": "add p2 qty 0", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${p2}", "quantity": 0 } },
+    { "name": "add p2 qty 100", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${p2}", "quantity": 100 } },
+    { "name": "read cart after rejects", "method": "GET", "path": "carts/${cid}" },
+    { "name": "remove p1", "method": "DELETE", "path": "carts/${cid}/product/${p1}" },
+    { "name": "read cart after remove", "method": "GET", "path": "carts/${cid}" },
+    { "name": "delete cart", "method": "DELETE", "path": "carts/${cid}" },
+    { "name": "delete cart again", "method": "DELETE", "path": "carts/${cid}" },
+    { "name": "read deleted cart", "method": "GET", "path": "carts/${cid}" },
+    { "name": "add to deleted cart", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${p1}", "quantity": 1 } },
+    { "name": "remove from deleted cart", "method": "DELETE", "path": "carts/${cid}/product/${p1}" }
+  ]
+}

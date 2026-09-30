@@ -1,0 +1,220 @@
+# url: https://practicesoftwaretesting.com/
+# step: FAILED Then page 1 shows 12 products
+- text: View the
+- link "Documentation":
+  - /url: https://testsmith-io.github.io/practice-software-testing/#/
+- text: for this application. Practice Black Box Testing & Bug Hunting
+- button "Testing Guide"
+- button "🐛 Bug Hunting"
+- navigation:
+  - link "Practice Software Testing - Toolshop":
+    - /url: /
+    - img
+  - menubar "Main menu":
+    - menuitem "Home":
+      - link "Home":
+        - /url: /
+    - menuitem "Categories":
+      - button "Categories"
+    - menuitem "Contact":
+      - link "Contact":
+        - /url: /contact
+    - menuitem "Sign in":
+      - link "Sign in":
+        - /url: /auth/login
+  - button "Select language": EN
+- paragraph:
+  - img "Banner"
+- separator
+- heading "Sort" [level=4]
+- separator
+- combobox "sort":
+  - option [selected]
+  - option "Name (A - Z)"
+  - option "Name (Z - A)"
+  - option "Price (High - Low)"
+  - option "Price (Low - High)"
+  - option "CO₂ Rating (A - E)"
+  - option "CO₂ Rating (E - A)"
+- heading "Price Range" [level=4]
+- separator
+- slider "ngx-slider"
+- slider "ngx-slider-max"
+- text: 0 200 1 100
+- heading "Search" [level=4]
+- separator
+- text: Search
+- textbox "Search"
+- button "X"
+- button "Search"
+- heading "Filters" [level=4]
+- separator
+- heading "By category:" [level=4]
+- group "Categories":
+  - text: Categories
+  - checkbox "Hand Tools"
+  - text: Hand Tools
+  - list:
+    - group "Categories":
+      - text: Categories
+      - checkbox "Hammer"
+      - text: Hammer
+      - checkbox "Hand Saw"
+      - text: Hand Saw
+      - checkbox "Wrench"
+      - text: Wrench
+      - checkbox "Screwdriver"
+      - text: Screwdriver
+      - checkbox "Pliers"
+      - text: Pliers
+      - checkbox "Chisels"
+      - text: Chisels
+      - checkbox "Measures"
+      - text: Measures
+  - checkbox "Power Tools"
+  - text: Power Tools
+  - list:
+    - group "Categories":
+      - text: Categories
+      - checkbox "Grinder"
+      - text: Grinder
+      - checkbox "Sander"
+      - text: Sander
+      - checkbox "Saw"
+      - text: Saw
+      - checkbox "Drill"
+      - text: Drill
+  - checkbox "Other"
+  - text: Other
+  - list:
+    - group "Categories":
+      - text: Categories
+      - checkbox "Tool Belts"
+      - text: Tool Belts
+      - checkbox "Storage Solutions"
+      - text: Storage Solutions
+      - checkbox "Workbench"
+      - text: Workbench
+      - checkbox "Safety Gear"
+      - text: Safety Gear
+      - checkbox "Fasteners"
+      - text: Fasteners
+- heading "By brand:" [level=4]
+- group "Brands":
+  - text: Brands
+  - checkbox "ForgeFlex Tools"
+  - text: ForgeFlex Tools
+  - checkbox "MightyCraft Hardware"
+  - text: MightyCraft Hardware
+  - checkbox "6093759406012449editado"
+  - text: 6093759406012449editado
+  - checkbox "3953685293243535editado"
+  - text: 3953685293243535editado
+  - checkbox "2678819973110232editado"
+  - text: 2678819973110232editado
+  - checkbox "2906795977913862editado"
+  - text: 2906795977913862editado
+  - checkbox "2297250671477049editado"
+  - text: 2297250671477049editado
+  - checkbox "4883203313273666editado"
+  - text: 4883203313273666editado
+  - checkbox "1241328064332006editado"
+  - text: 1241328064332006editado
+  - checkbox "77229009903058editado"
+  - text: 77229009903058editado
+- heading "Sustainability:" [level=4]
+- group "Eco-Friendly Products":
+  - text: Eco-Friendly Products
+  - checkbox "Show only eco-friendly products"
+  - text: Show only eco-friendly products
+- 'link "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15"':
+  - /url: /product/01M3QJXQFBJC3M2NF6FXJT54CK
+  - img "Combination Pliers"
+  - button "Compare"
+  - heading "Combination Pliers" [level=5]
+  - text: "CO₂: A B C D E $14.15"
+- 'link "Pliers Compare Pliers CO₂: A B C D E $12.01"':
+  - /url: /product/01M3QJXQFN6VFQVMSDHQEBX7M7
+  - img "Pliers"
+  - button "Compare"
+  - heading "Pliers" [level=5]
+  - text: "CO₂: A B C D E $12.01"
+- 'link "Bolt Cutters Compare Bolt Cutters CO₂: A B C D E $48.41"':
+  - /url: /product/01M3QJXQFXW5SQWGSHZWD66MDG
+  - img "Bolt Cutters"
+  - button "Compare"
+  - heading "Bolt Cutters" [level=5]
+  - text: "CO₂: A B C D E $48.41"
+- 'link "Long Nose Pliers Compare Long Nose Pliers CO₂: A B C D E Out of stock $14.24"':
+  - /url: /product/01M3QJXQH97T1FGVF7GR6TGSMN
+  - img "Long Nose Pliers"
+  - button "Compare"
+  - heading "Long Nose Pliers" [level=5]
+  - text: "CO₂: A B C D E Out of stock $14.24"
+- 'link "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17"':
+  - /url: /product/01M3QJXQHVBA2Z8E0YKDME4C94
+  - img "Slip Joint Pliers"
+  - button "Compare"
+  - heading "Slip Joint Pliers" [level=5]
+  - text: "CO₂: A B C D E $9.17"
+- 'link "Claw Hammer with Shock Reduction Grip Compare Claw Hammer with Shock Reduction Grip CO₂: A B C D E $13.41"':
+  - /url: /product/01M3QJXQHY99WEBGDFT29MVA4B
+  - img "Claw Hammer with Shock Reduction Grip"
+  - button "Compare"
+  - heading "Claw Hammer with Shock Reduction Grip" [level=5]
+  - text: "CO₂: A B C D E $13.41"
+- 'link "Hammer Compare Hammer CO₂: A B C D E $12.58"':
+  - /url: /product/01M3QJXQJ7Q49G49WH7K81VZ07
+  - img "Hammer"
+  - button "Compare"
+  - heading "Hammer" [level=5]
+  - text: "CO₂: A B C D E $12.58"
+- 'link "Claw Hammer Compare Claw Hammer CO₂: A B C D E $11.48"':
+  - /url: /product/01M3QJXQJCHH8D6SM3988HTD1Z
+  - img "Claw Hammer"
+  - button "Compare"
+  - heading "Claw Hammer" [level=5]
+  - text: "CO₂: A B C D E $11.48"
+- 'link "Thor Hammer Compare Thor Hammer CO₂: A B C D E $11.14"':
+  - /url: /product/01M3QJXQJHDB71SAG06CVTHSEY
+  - img "Thor Hammer"
+  - button "Compare"
+  - heading "Thor Hammer" [level=5]
+  - text: "CO₂: A B C D E $11.14"
+- navigation:
+  - list:
+    - listitem:
+      - button "Previous"
+    - listitem:
+      - button "Page-1": "1"
+    - listitem:
+      - button "Page-2": "2"
+    - listitem:
+      - button "Page-3": "3"
+    - listitem:
+      - button "Page-4": "4"
+    - listitem:
+      - button "Page-5": "5"
+    - listitem:
+      - button "Next"
+- contentinfo:
+  - text: Learn & Explore
+  - link "Learn Test Automation Hands-on courses for Playwright, Robot Framework, APIs and more":
+    - /url: https://onlinecourses.testsmith.io
+  - link "API Spector Open-source API testing, mocking and contract testing":
+    - /url: https://api-spector.dev
+  - link "GitHub Source code, issues and contributions":
+    - /url: https://github.com/testsmith-io/practice-software-testing
+  - text: This is a DEMO application, used for software testing training purpose. |
+  - link "Privacy Policy":
+    - /url: /privacy
+  - text: "| Banner photo by"
+  - link "Barn Images":
+    - /url: https://unsplash.com/@barnimages
+  - text: "on"
+  - link "Unsplash":
+    - /url: https://unsplash.com/photos/t5YUoHW6zRo
+  - text: . v2.5 | Built 2026-09-29 | Angular 20.0.5
+- button "Open chat":
+  - img
+- button "Show live shop activity"

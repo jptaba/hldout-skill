@@ -1,0 +1,413 @@
+
+Running 14 tests using 4 workers
+
+  ok  3 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:100:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-002: The search API returns only products whose name contains the term @AC-2 @type:functional @layer:api @P1 (1.4s)
+  ok  4 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:113:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-003: The search API ignores letter case @AC-2 @type:functional @layer:api @P1 (1.4s)
+  ok  5 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:143:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-005: The search API answers a search without matches with an empty list @AC-3 @type:negative @layer:api @P1 (908ms)
+  ok  2 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:86:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-001: A shopper searches the web shop for "pliers" and sees only matching products with the caption @AC-1 @type:functional @layer:ui @P1 (2.7s)
+  ok  1 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:130:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-004: A web shop search without matches says there are no products @AC-3 @type:negative @layer:ui @P1 (3.2s)
+  ok  9 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:213:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-009: GET /products?by_category=<id of Hammer> returns only hammers @AC-5 @type:functional @layer:api @P1 (2.5s)
+  ok  7 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:173:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-007: GET /products?sort=price,asc returns products in ascending price order @AC-4 @type:functional @layer:api @P1 (5.2s)
+  ok  6 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:157:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-006: Sorting the web shop by "Price (Low - High)" lists products by ascending price @AC-4 @type:functional @layer:ui @P1 (8.0s)
+  x  11 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:247:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The catalogue API pages its answers with 12 products per page @AC-6 @type:contract @layer:api @P2 (1.8s)
+  x  12 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.1: An empty search returns all products (q omitted) @AC-7 @type:functional @layer:api @P2 @needs-clarification (1.8s)
+  x  13 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:247:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The catalogue API pages its answers with 12 products per page @AC-6 @type:contract @layer:api @P2 (retry #1) (1.3s)
+  x  14 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.1: An empty search returns all products (q omitted) @AC-7 @type:functional @layer:api @P2 @needs-clarification (retry #1) (1.8s)
+  ok  8 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:190:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-008: Filtering the web shop by the category "Hammer" shows only hammers @AC-5 @type:functional @layer:ui @P1 (11.9s)
+  x  15 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.2: An empty search returns all products (q empty ("")) @AC-7 @type:functional @layer:api @P2 @needs-clarification (1.4s)
+  x  10 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:233:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-010: The web shop shows 12 products per page @AC-6 @type:functional @layer:ui @P2 (9.8s)
+  x  17 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.2: An empty search returns all products (q empty ("")) @AC-7 @type:functional @layer:api @P2 @needs-clarification (retry #1) (4.1s)
+  ok 16 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:290:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-013: The web shop and the search API find the same products @AC-1 @AC-2 @type:integration @layer:e2e @P2 (6.4s)
+  x  18 [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:233:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-010: The web shop shows 12 products per page @AC-6 @type:functional @layer:ui @P2 (retry #1) (9.8s)
+
+
+  1) [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:233:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-010: The web shop shows 12 products per page @AC-6 @type:functional @layer:ui @P2 › Then page 1 shows 12 products 
+
+    Error: [REQ AC-6] web shop page 1 shows 12 products
+
+    expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('product-name')
+    Expected: 12
+    Received: 9
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-6] web shop page 1 shows 12 products getByTestId('product-name') with timeout 5000ms
+      - waiting for getByTestId('product-name')
+        14 × locator resolved to 9 elements
+           - unexpected value "9"
+
+
+      235 |     await journey.step('Then page 1 shows 12 products', async () => {
+      236 |       await expect(productNames(page).first(), 'precondition: products are shown').toBeVisible();
+    > 237 |       await expect(productNames(page), '[REQ AC-6] web shop page 1 shows 12 products').toHaveCount(REQ.PER_PAGE);
+          |                                                                                        ^
+      238 |     });
+      239 |     await journey.step('And a further page of results can be opened', async () => {
+      240 |       const firstNames = await productNames(page).allInnerTexts();
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:237:88
+        at ./heldout-support\fixtures.ts:574:28
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:235:5
+
+    attachment #1: aria-snapshot 02-failed-then-page-1-shows-12-products (text/yaml) ───────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then page 1 shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - bu...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] web shop page 1 shows 12 products
+
+    expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('product-name')
+    Expected: 12
+    Received: 9
+    Timeout:  5000ms
+
+    Call log:
+      - [REQ AC-6] web shop page 1 shows 12 products getByTestId('product-name') with timeout 5000ms
+      - waiting for getByTestId('product-name')
+        14 × locator resolved to 9 elements
+           - unexpected value "9"
+
+
+      235 |     await journey.step('Then page 1 shows 12 products', async () => {
+      236 |       await expect(productNames(page).first(), 'precondition: products are shown').toBeVisible();
+    > 237 |       await expect(productNames(page), '[REQ AC-6] web shop page 1 shows 12 products').toHaveCount(REQ.PER_PAGE);
+          |                                                                                        ^
+      238 |     });
+      239 |     await journey.step('And a further page of results can be opened', async () => {
+      240 |       const firstNames = await productNames(page).allInnerTexts();
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:237:88
+        at ./heldout-support\fixtures.ts:574:28
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:235:5
+
+    attachment #1: aria-snapshot 02-failed-then-page-1-shows-12-products (text/yaml) ───────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then page 1 shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - bu...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-5a4d7--shows-12-products-per-page-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:247:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The catalogue API pages its answers with 12 products per page @AC-6 @type:contract @layer:api @P2 
+
+    Error: [REQ AC-6] GET /products per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      258 |     });
+      259 |     await journey.step('And each answer has per_page 12', async () => {
+    > 260 |       expect.soft(Number(list.body?.per_page), '[REQ AC-6] GET /products per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      261 |       expect.soft(Number(found.body?.per_page), '[REQ AC-6] GET /products/search per_page 12').toBe(REQ.PER_PAGE);
+      262 |     });
+      263 |     await journey.step('And GET /products page 1 holds 12 products', async () => {
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:260:88)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:259:5
+
+    Error: [REQ AC-6] GET /products/search per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      259 |     await journey.step('And each answer has per_page 12', async () => {
+      260 |       expect.soft(Number(list.body?.per_page), '[REQ AC-6] GET /products per_page 12').toBe(REQ.PER_PAGE);
+    > 261 |       expect.soft(Number(found.body?.per_page), '[REQ AC-6] GET /products/search per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                                ^
+      262 |     });
+      263 |     await journey.step('And GET /products page 1 holds 12 products', async () => {
+      264 |       expect(Number(list.body?.total), 'precondition: the catalogue has more than 12 products').toBeGreaterThan(REQ.PER_PAGE);
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:261:96)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:259:5
+
+    Error: [REQ AC-6] GET /products page 1 holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      263 |     await journey.step('And GET /products page 1 holds 12 products', async () => {
+      264 |       expect(Number(list.body?.total), 'precondition: the catalogue has more than 12 products').toBeGreaterThan(REQ.PER_PAGE);
+    > 265 |       expect(list.body?.data?.length, '[REQ AC-6] GET /products page 1 holds 12 products').toBe(REQ.PER_PAGE);
+          |                                                                                            ^
+      266 |     });
+      267 |   });
+      268 |
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:265:92)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:263:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      258 |     });
+      259 |     await journey.step('And each answer has per_page 12', async () => {
+    > 260 |       expect.soft(Number(list.body?.per_page), '[REQ AC-6] GET /products per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      261 |       expect.soft(Number(found.body?.per_page), '[REQ AC-6] GET /products/search per_page 12').toBe(REQ.PER_PAGE);
+      262 |     });
+      263 |     await journey.step('And GET /products page 1 holds 12 products', async () => {
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:260:88)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:259:5
+
+    Error: [REQ AC-6] GET /products/search per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      259 |     await journey.step('And each answer has per_page 12', async () => {
+      260 |       expect.soft(Number(list.body?.per_page), '[REQ AC-6] GET /products per_page 12').toBe(REQ.PER_PAGE);
+    > 261 |       expect.soft(Number(found.body?.per_page), '[REQ AC-6] GET /products/search per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                                ^
+      262 |     });
+      263 |     await journey.step('And GET /products page 1 holds 12 products', async () => {
+      264 |       expect(Number(list.body?.total), 'precondition: the catalogue has more than 12 products').toBeGreaterThan(REQ.PER_PAGE);
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:261:96)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:259:5
+
+    Error: [REQ AC-6] GET /products page 1 holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      263 |     await journey.step('And GET /products page 1 holds 12 products', async () => {
+      264 |       expect(Number(list.body?.total), 'precondition: the catalogue has more than 12 products').toBeGreaterThan(REQ.PER_PAGE);
+    > 265 |       expect(list.body?.data?.length, '[REQ AC-6] GET /products page 1 holds 12 products').toBe(REQ.PER_PAGE);
+          |                                                                                            ^
+      266 |     });
+      267 |   });
+      268 |
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:265:92)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:263:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-7d804-s-with-12-products-per-page-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.1: An empty search returns all products (q omitted) @AC-7 @type:functional @layer:api @P2 @needs-clarification › Then its total equals the total of the unfiltered GET /products 
+
+    Error: [REQ AC-7] GET /products/search (q omitted) returns all products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      283 |       await journey.step(`When I call GET /products/search with ${row.label}`, async () => { res = await api.get<Paged>(EP.productsSearch, { params: row.params }); });
+      284 |       await journey.step('Then its total equals the total of the unfiltered GET /products', async () => {
+    > 285 |         expect(Number((res.body as Partial<Paged> | undefined)?.total), `[REQ AC-7] GET /products/search (${row.label}) returns all products`).toBe(allTotal);
+          |                                                                                                                                                ^
+      286 |       });
+      287 |     });
+      288 |   });
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:285:144)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:284:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] GET /products/search (q omitted) returns all products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      283 |       await journey.step(`When I call GET /products/search with ${row.label}`, async () => { res = await api.get<Paged>(EP.productsSearch, { params: row.params }); });
+      284 |       await journey.step('Then its total equals the total of the unfiltered GET /products', async () => {
+    > 285 |         expect(Number((res.body as Partial<Paged> | undefined)?.total), `[REQ AC-7] GET /products/search (${row.label}) returns all products`).toBe(allTotal);
+          |                                                                                                                                                ^
+      286 |       });
+      287 |     });
+      288 |   });
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:285:144)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:284:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-34229-rns-all-products-q-omitted--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.2: An empty search returns all products (q empty ("")) @AC-7 @type:functional @layer:api @P2 @needs-clarification › Then its total equals the total of the unfiltered GET /products 
+
+    Error: [REQ AC-7] GET /products/search (q empty ("")) returns all products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      283 |       await journey.step(`When I call GET /products/search with ${row.label}`, async () => { res = await api.get<Paged>(EP.productsSearch, { params: row.params }); });
+      284 |       await journey.step('Then its total equals the total of the unfiltered GET /products', async () => {
+    > 285 |         expect(Number((res.body as Partial<Paged> | undefined)?.total), `[REQ AC-7] GET /products/search (${row.label}) returns all products`).toBe(allTotal);
+          |                                                                                                                                                ^
+      286 |       });
+      287 |     });
+      288 |   });
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:285:144)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:284:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] GET /products/search (q empty ("")) returns all products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      283 |       await journey.step(`When I call GET /products/search with ${row.label}`, async () => { res = await api.get<Paged>(EP.productsSearch, { params: row.params }); });
+      284 |       await journey.step('Then its total equals the total of the unfiltered GET /products', async () => {
+    > 285 |         expect(Number((res.body as Partial<Paged> | undefined)?.total), `[REQ AC-7] GET /products/search (${row.label}) returns all products`).toBe(allTotal);
+          |                                                                                                                                                ^
+      286 |       });
+      287 |     });
+      288 |   });
+        at body (./evaluations\TOOL-1\tests\tool-1.spec.ts:285:144)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-1\tests\tool-1.spec.ts:284:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-1\runs\02-eval\artifacts\TOOL-1-tests-tool-1-TOOL-1-c3dbe-turns-all-products-q-empty--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:233:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-010: The web shop shows 12 products per page @AC-6 @type:functional @layer:ui @P2 
+    [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:247:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The catalogue API pages its answers with 12 products per page @AC-6 @type:contract @layer:api @P2 
+    [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.1: An empty search returns all products (q omitted) @AC-7 @type:functional @layer:api @P2 @needs-clarification 
+    [chromium] › evaluations\TOOL-1\tests\tool-1.spec.ts:274:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-012.2: An empty search returns all products (q empty ("")) @AC-7 @type:functional @layer:api @P2 @needs-clarification 
+  10 passed (28.2s)

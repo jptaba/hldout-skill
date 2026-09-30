@@ -1,0 +1,7 @@
+{
+  "customer": {
+    "firstName": "Hldout",
+    "lastName": "Tester",
+    "password": "${env:APP_USER_PASSWORD}"
+  }
+}

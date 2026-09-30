@@ -1,0 +1,11 @@
+{
+  "steps": [
+    { "name": "an in-stock product", "method": "GET", "path": "products", "save": { "pid": "data.2.id" }, "show": ["data.2.id", "data.2.in_stock"] },
+    { "name": "create cart", "method": "POST", "path": "carts", "save": { "cid": "id" }, "expect": 201, "setup": true },
+    { "name": "delete cart (AC-7)", "method": "DELETE", "path": "carts/${cid}", "expect": 204 },
+    { "name": "delete the already-deleted cart (AC-7: 204 / AC-8: 404 Cart not found)", "method": "DELETE", "path": "carts/${cid}", "expect": 204 },
+    { "name": "add a product to the missing cart (AC-8)", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${pid}", "quantity": 1 }, "expect": 404, "expectBody": { "message": "Cart not found" } },
+    { "name": "remove a product from the missing cart (AC-8)", "method": "DELETE", "path": "carts/${cid}/product/${pid}", "expect": 404, "expectBody": { "message": "Cart not found" } },
+    { "name": "read the missing cart (AC-8)", "method": "GET", "path": "carts/${cid}", "expect": 404, "expectBody": { "message": "Cart not found" } }
+  ]
+}

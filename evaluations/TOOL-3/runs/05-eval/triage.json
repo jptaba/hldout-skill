@@ -1,0 +1,1638 @@
+{
+  "key": "TOOL-3",
+  "run": "05-eval",
+  "generatedAt": "2026-09-29T23:07:24.637Z",
+  "summary": {
+    "total": 18,
+    "passed": 14,
+    "failed": 4,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: A guest creates an empty cart",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002.1",
+      "title": "SCN-002.1: Adding a product with a quantity on the limits of 1–99 (quantity 1)",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002.2",
+      "title": "SCN-002.2: Adding a product with a quantity on the limits of 1–99 (quantity 99)",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: Adding a product already in the cart increases its quantity by the amount added",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0)",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100)",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:boundary",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Adding a product from its product page shows the confirmation",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: The cart icon shows the total number of items after adding from the product page",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: The cart page lists each product with quantity, unit price and line total",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: The cart total equals the sum of the line totals",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:ui",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Removing a product from the cart",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: Deleting a cart",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011",
+      "title": "SCN-011: Deleting a cart that was already deleted",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-7",
+        "@type:idempotency",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "idempotency",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1/trace.zip",
+        "errorContext": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutabrlw10",
+          "records": [
+            {
+              "label": "a cart id that does not exist (create a cart, then delete it)",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": "01m3qpnj5d5dzw1mk8khd1r8d1"
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qpnj5d5dzw1mk8khd1r8d1",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 404,
+              "durationMs": 509,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:05:49 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "message": "Cart doesnt exists"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "DELETE",
+            "url": "https://api.practicesoftwaretesting.com/carts/01m3qpnj5d5dzw1mk8khd1r8d1",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 509,
+            "headers": {
+              "date": "Tue, 29 Sep 2026 23:05:49 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "no-cache, private",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "transfer-encoding": "chunked",
+              "content-type": "application/json"
+            },
+            "body": {
+              "message": "Cart doesnt exists"
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/carts",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 576,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:05:47 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "id": "01m3qpnj5d5dzw1mk8khd1r8d1"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qpnj5d5dzw1mk8khd1r8d1",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 204,
+              "durationMs": 574,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:05:48 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close"
+              },
+              "body": ""
+            }
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-7] DELETE /carts/{id} of an already-deleted cart responds 204 → 204",
+        "reqTag": "AC-7",
+        "matcher": "toBe",
+        "expected": "204",
+        "received": "404",
+        "message": "Error: [REQ AC-7] DELETE /carts/{id} of an already-deleted cart responds 204 → 204\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 204\nReceived: 404\n\n   at ..\\heldout-support\\fixtures.ts:282\n\n  280 |  */\n  281 | export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {\n> 282 |   expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);\n      |                                                              ^\n  283 |   if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);\n  284 | }\n  285 |\n    at expectResponse (./heldout-support\\fixtures.ts:282:62)\n    at body (./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:319:21)\n    at ./heldout-support\\fixtures.ts:574:34\n    at ./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:318:5"
+      },
+      "failingStep": "Then the response status is 204",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: DELETE /carts/01m3qpnj5d5dzw1mk8khd1r8d1 → 404",
+          "Requirement assertion [REQ AC-7] failed.",
+          "Expected: 204",
+          "Received: 404",
+          "SCN-011 rests on an unsettled reading (@needs-clarification: the literal reading of an open question). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect."
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Deleting an already-deleted cart answers 404, not 204 (AC-7 idempotency)",
+        "rationale": "Cart created, DELETE /carts/{id} → 204, the same DELETE again → 404 {\"message\":\"Cart doesnt exists\"}. AC-7 says 204. The scenario is @needs-clarification (G8: AC-8 says any request for a missing cart is 404 'Cart not found'), so this is a reading the application contradicts, for the owner.",
+        "evidence": "Replayed live 2026-09-29 (tier 3, api-probe chain): runs/05-eval/confirm/missing-cart.md; same answers in hardening/api-cart-chain.md and runs 01/02 step 4",
+        "confirmedAt": "2026-09-29T23:07:21.597Z"
+      }
+    },
+    {
+      "scenario": "SCN-012.1",
+      "title": "SCN-012.1: A request for a cart that does not exist is answered 404 \"Cart not found\" (add the product (POST /carts/{id}))",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012.2",
+      "title": "SCN-012.2: A request for a cart that does not exist is answered 404 \"Cart not found\" (remove the product (DELETE /carts/{id}/product/{productId}))",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutac5i030",
+          "records": [
+            {
+              "label": "a cart id that does not exist (create a cart, then delete it)",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": "01m3qpp3pkhnhqgg6kj605ery5"
+            },
+            {
+              "label": "find 1 in-stock product(s) (GET /products)",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                {
+                  "id": "01M3QPBHTFMBJC30PJAKM8MHVZ",
+                  "name": "Combination Pliers",
+                  "price": 14.15
+                }
+              ]
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qpp3pkhnhqgg6kj605ery5/product/01M3QPBHTFMBJC30PJAKM8MHVZ",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 404,
+              "durationMs": 461,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:07 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "message": "Cart doesnt exists"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "DELETE",
+            "url": "https://api.practicesoftwaretesting.com/carts/01m3qpp3pkhnhqgg6kj605ery5/product/01M3QPBHTFMBJC30PJAKM8MHVZ",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 461,
+            "headers": {
+              "date": "Tue, 29 Sep 2026 23:06:07 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "no-cache, private",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "transfer-encoding": "chunked",
+              "content-type": "application/json"
+            },
+            "body": {
+              "message": "Cart doesnt exists"
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/carts",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 495,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:05 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "id": "01m3qpp3pkhnhqgg6kj605ery5"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qpp3pkhnhqgg6kj605ery5",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 204,
+              "durationMs": 473,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:06 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close"
+              },
+              "body": ""
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://api.practicesoftwaretesting.com/products",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 483,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:06 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "max-age=120, public",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "etag": "\"0cf4e0583276a46577f7106a6f477446-gzip\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "gzip",
+                "content-length": "4276",
+                "content-type": "application/json"
+              },
+              "body": {
+                "current_page": 1,
+                "data": [
+                  {
+                    "id": "01M3QPBHTFMBJC30PJAKM8MHVZ",
+                    "name": "Combination Pliers",
+                    "description": "Versatile combination pliers designed for gripping, bending, and cutting wire with ease. Featuring chrome vanadium steel construction with induction-hardened cutting edges, these pliers deliver excellent grip and leverage for a wide range of tasks. The precision-machined jaws combine flat gripping surfaces with a pipe-grip section and integrated wire cutter for true multi-purpose functionality. Ergonomic bi-component handles reduce hand fatigue during extended use and provide a secure hold even with oily or gloved hands. The joint is precisely fitted to eliminate play and ensure smooth operation over thousands of cycles. Ideal for electricians, mechanics, and DIY enthusiasts tackling everyday projects around the workshop or job site.",
+                    "price": 14.15,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VQ",
+                      "by_name": "Helinton Fantin",
+                      "by_url": "https://unsplash.com/@fantin",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/W8BNwvOvW4M",
+                      "file_name": "pliers01.avif",
+                      "title": "Combination pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTHBZPZ53RSQBPHXSJ6",
+                    "name": "Pliers",
+                    "description": "Reliable general-purpose pliers crafted from drop-forged carbon steel for long-lasting durability in demanding working conditions. The serrated jaws provide a firm grip on a variety of materials including wire, nails, small fasteners, and irregularly shaped objects. Comfortable rubber-coated handles absorb vibration and reduce hand fatigue during extended use, while the non-slip surface ensures confident handling. The precision pivot joint maintains alignment under load, delivering smooth, controlled jaw action with every squeeze. Heat-treated steel construction resists wear and deformation even under heavy use. A must-have foundational tool for any workshop, equally suited for professional tradespeople and home repair projects.",
+                    "price": 12.01,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VR",
+                      "by_name": "Everyday basics",
+                      "by_url": "https://unsplash.com/@zanardi",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/I8eTuMmxIfo",
+                      "file_name": "pliers02.avif",
+                      "title": "Pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTKDG7D80X3V0C9FTNH",
+                    "name": "Bolt Cutters",
+                    "description": "Heavy-duty bolt cutters engineered to slice through hardened bolts, chains, padlocks, and wire fencing with minimal effort. The compound leverage mechanism multiplies your cutting force by a factor of 30, enabling clean cuts through materials up to 10mm in diameter. Hardened alloy steel blades are precisely ground and heat-treated to maintain a sharp edge through years of repeated use on tough materials. Ergonomic rubber grips and the generous 750mm handle length provide excellent control, leverage, and reach during overhead or awkward-angle cuts. An adjustable blade tension screw lets you fine-tune the jaw alignment for optimal cutting performance. Built for demolition crews, locksmiths, fencing contractors, and maintenance professionals who need reliable cutting power day after day.",
+                    "price": 48.41,
+                    "is_location_offer": true,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VS",
+                      "by_name": "Michael Dziedzic",
+                      "by_url": "https://unsplash.com/@lazycreekimages",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/pM9pkc9J918",
+                      "file_name": "pliers03.avif",
+                      "title": "Bolt cutters"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTN1A0WKBJW2A5196RJ",
+                    "name": "Long Nose Pliers",
+                    "description": "Precision long nose pliers with narrow tapered jaws designed for reaching into tight, confined spaces and bending fine wire with accuracy. Made from chrome vanadium steel with induction-hardened cutting edges that cleanly sever copper, brass, and steel wire without crushing or fraying. The slim jaw profile tapers to a fine point, making these pliers indispensable for electrical terminal work, jewelry making, and intricate mechanical repairs. Bi-component comfort grips minimize hand strain during detailed tasks requiring a steady hand and controlled pressure. The leaf-spring joint returns the handles to the open position automatically, speeding up repetitive tasks. A must-have precision tool trusted by electricians, electronics technicians, and hobbyists worldwide.",
+                    "price": 14.24,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": false,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VT",
+                      "by_name": "Brett Jordan",
+                      "by_url": "https://unsplash.com/@brett_jordan",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/GamuDTVm02g",
+                      "file_name": "pliers04.avif",
+                      "title": "Long nose pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTPKX7C1EYS2YZDDD5Z",
+                    "name": "Slip Joint Pliers",
+                    "description": "Adjustable slip joint pliers that feature a two-position pivot mechanism for switching between regular and wide jaw openings to accommodate different fastener sizes. The PVC-coated handles offer a comfortable, non-slip grip while the precisely machined jaws securely grasp round, flat, and hexagonal objects without slipping. Constructed from durable drop-forged carbon steel that has been heat-treated to withstand heavy daily use in professional environments. The curved jaw section grips pipes and cylindrical objects, while the flat front surface handles nuts, bolts, and sheet materials. A wire cutter integrated near the pivot handles light cutting tasks without reaching for a separate tool. Perfect for plumbing, automotive, HVAC, and general maintenance work where a single versatile gripping tool saves time.",
+                    "price": 9.17,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VV",
+                      "by_name": "Yasin Hasan",
+                      "by_url": "https://unsplash.com/@yasin",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/dwlxTSpfKXg",
+                      "file_name": "pliers05.avif",
+                      "title": "Slip joint pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTREFVHHGCGZS322SKV",
+                    "name": "Claw Hammer with Shock Reduction Grip",
+                    "description": "Ergonomic claw hammer featuring an advanced shock reduction grip system that absorbs up to 70% of impact vibrations, protecting your wrist, elbow, and shoulder during prolonged nailing sessions. The 450g carbon steel head is precision-balanced and heat-treated for maximum hardness, ensuring accurate nail driving with minimal effort on every swing. The curved claw design effortlessly removes nails without damaging surrounding wood surfaces, making it equally useful for construction and renovation work. A fiberglass-reinforced handle combines lightweight strength with exceptional durability that far outlasts traditional wooden handles. The overmolded soft-grip zone conforms to your hand shape for a custom-feeling, fatigue-free hold throughout long working days. Recommended for professional framing, carpentry, and renovation projects where operator comfort matters as much as striking performance.",
+                    "price": 13.41,
+                    "is_location_offer": true,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VW",
+                      "by_name": "iMattSmart",
+                      "by_url": "https://unsplash.com/@imattsmart",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/jaLaLQdkBOE",
+                      "file_name": "hammer01.avif",
+                      "title": "Claw Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTSPP8WDFXEKGWJMRHB",
+                    "name": "Hammer",
+                    "description": "A dependable standard claw hammer suitable for driving and removing nails in everyday construction, carpentry, and home improvement projects. The 350g carbon steel head is drop-forged and heat-treated for maximum hardness, then fitted to a traditional wooden handle that provides natural shock absorption with each strike. Well-balanced weight distribution between the head and handle ensures accurate strikes with minimal wrist effort, reducing fatigue during repetitive nailing tasks. The polished face resists rust and provides a smooth surface that drives nails cleanly without leaving marks on finish materials. A gently curved claw provides reliable nail extraction leverage without excessive force. This versatile hammer belongs in every toolbox, from professional carpentry workshops to home garages and apartment maintenance kits.",
+                    "price": 12.58,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VX",
+                      "by_name": "Jozsef Hocza",
+                      "by_url": "https://unsplash.com/@hocza",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/D3nouOYbALc",
+                      "file_name": "hammer02.avif",
+                      "title": "Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTVV17TDVF6SN7EQFJG",
+                    "name": "Claw Hammer",
+                    "description": "Traditional claw hammer with a polished carbon steel head engineered for driving and removing nails with precision and confidence. The rubber-wrapped handle provides a secure, comfortable grip even in wet, dusty, or cold conditions where bare metal or wood handles would slip. At 500g, it offers the ideal balance between striking power and maneuverability for general carpentry, framing, and construction tasks. The curved claw design allows for smooth nail extraction without gouging or marring wood surfaces, protecting your finished work. The head-to-handle connection uses an epoxy-bonded wedge system that prevents loosening over time. A reliable, no-nonsense tool that professional carpenters and weekend builders alike reach for every day.",
+                    "price": 11.48,
+                    "is_location_offer": true,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VY",
+                      "by_name": "Andrew George",
+                      "by_url": "https://unsplash.com/@andrewjoegeorge",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/YU2mCvXR0wA",
+                      "file_name": "hammer03.avif",
+                      "title": "Claw Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTWHBQ77KQ919B1WV94",
+                    "name": "Thor Hammer",
+                    "description": "The legendary Thor Hammer combines premium craftsmanship with raw striking power in a tool that is truly built to last generations. Forged from Uru metal with a hand-wrapped leather grip, this extraordinary 5kg masterpiece delivers unmatched impact force for the most demanding demolition, forging, and heavy construction tasks. The perfectly balanced oversized head ensures every swing transfers maximum energy to the target, while the enlarged striking face covers more surface area than any conventional hammer. Despite its impressive mass, the ergonomic handle design and precise weight distribution allow for surprisingly controlled, accurate swings. This is not merely a tool but a statement piece for those who accept nothing less than the absolute best in their workshop. Comes with a lifetime warranty because true legends never fade. Please note: only one Thor Hammer is permitted per customer.",
+                    "price": 11.14,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VZ",
+                      "by_name": "ANIRUDH",
+                      "by_url": "https://unsplash.com/@lanirudhreddy",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/3esjG-nlgyk",
+                      "file_name": "hammer04.avif",
+                      "title": "Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  }
+                ],
+                "from": 1,
+                "last_page": 6,
+                "per_page": 9,
+                "to": 9,
+                "total": 50
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-8] remove the product (DELETE /carts/{id}/product/{productId}) of a missing cart says \"Cart not found\"",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "\"Cart not found\"",
+        "received": "\"Cart doesnt exists\"",
+        "message": "Error: [REQ AC-8] remove the product (DELETE /carts/{id}/product/{productId}) of a missing cart says \"Cart not found\"\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"Cart not found\"\nReceived: \"Cart doesnt exists\"\n\n  337 |       });\n  338 |       await journey.step('And the message is \"Cart not found\"', async () => {\n> 339 |         expect(messageOf(res.body), `[REQ AC-8] ${row.request} of a missing cart says \"Cart not found\"`).toBe(REQ.CART_NOT_FOUND);\n      |                                                                                                          ^\n  340 |       });\n  341 |     });\n  342 |   });\n    at body (./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:339:106)\n    at ./heldout-support\\fixtures.ts:574:34\n    at ./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:338:7"
+      },
+      "failingStep": "And the message is \"Cart not found\"",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: DELETE /carts/01m3qpp3pkhnhqgg6kj605ery5/product/01M3QPBHTFMBJC30PJAKM8MHVZ → 404",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: \"Cart not found\"",
+          "Received: \"Cart doesnt exists\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Requests for a missing cart answer 404 with other messages than \"Cart not found\"",
+        "rationale": "DELETE /carts/{id}/product/{productId} on a deleted cart → 404 as required, but the message is 'Cart doesnt exists', not 'Cart not found' (AC-8).",
+        "evidence": "Replayed live 2026-09-29 (tier 3, api-probe chain): runs/05-eval/confirm/missing-cart.md; same answers in hardening/api-cart-chain.md and runs 01/02 step 6",
+        "confirmedAt": "2026-09-29T23:07:22.350Z"
+      }
+    },
+    {
+      "scenario": "SCN-012.3",
+      "title": "SCN-012.3: A request for a cart that does not exist is answered 404 \"Cart not found\" (read the cart)",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutacers50",
+          "records": [
+            {
+              "label": "a cart id that does not exist (create a cart, then delete it)",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": "01m3qppfe1mvkm5mt22ec92y6a"
+            },
+            {
+              "label": "find 1 in-stock product(s) (GET /products)",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": [
+                {
+                  "id": "01M3QPBHTSPP8WDFXEKGWJMRHB",
+                  "name": "Hammer",
+                  "price": 12.58
+                }
+              ]
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qppfe1mvkm5mt22ec92y6a",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 404,
+              "durationMs": 497,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:19 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "message": "Requested item not found"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "GET",
+            "url": "https://api.practicesoftwaretesting.com/carts/01m3qppfe1mvkm5mt22ec92y6a",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 497,
+            "headers": {
+              "date": "Tue, 29 Sep 2026 23:06:19 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "no-cache, private",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "transfer-encoding": "chunked",
+              "content-type": "application/json"
+            },
+            "body": {
+              "message": "Requested item not found"
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/carts",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 488,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:17 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "id": "01m3qppfe1mvkm5mt22ec92y6a"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qppfe1mvkm5mt22ec92y6a",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 204,
+              "durationMs": 485,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:18 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close"
+              },
+              "body": ""
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://api.practicesoftwaretesting.com/products",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 200,
+              "durationMs": 475,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:18 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "max-age=120, public",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "etag": "\"0cf4e0583276a46577f7106a6f477446-gzip\"",
+                "vary": "Accept-Encoding",
+                "content-encoding": "gzip",
+                "content-length": "4276",
+                "content-type": "application/json"
+              },
+              "body": {
+                "current_page": 1,
+                "data": [
+                  {
+                    "id": "01M3QPBHTFMBJC30PJAKM8MHVZ",
+                    "name": "Combination Pliers",
+                    "description": "Versatile combination pliers designed for gripping, bending, and cutting wire with ease. Featuring chrome vanadium steel construction with induction-hardened cutting edges, these pliers deliver excellent grip and leverage for a wide range of tasks. The precision-machined jaws combine flat gripping surfaces with a pipe-grip section and integrated wire cutter for true multi-purpose functionality. Ergonomic bi-component handles reduce hand fatigue during extended use and provide a secure hold even with oily or gloved hands. The joint is precisely fitted to eliminate play and ensure smooth operation over thousands of cycles. Ideal for electricians, mechanics, and DIY enthusiasts tackling everyday projects around the workshop or job site.",
+                    "price": 14.15,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VQ",
+                      "by_name": "Helinton Fantin",
+                      "by_url": "https://unsplash.com/@fantin",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/W8BNwvOvW4M",
+                      "file_name": "pliers01.avif",
+                      "title": "Combination pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTHBZPZ53RSQBPHXSJ6",
+                    "name": "Pliers",
+                    "description": "Reliable general-purpose pliers crafted from drop-forged carbon steel for long-lasting durability in demanding working conditions. The serrated jaws provide a firm grip on a variety of materials including wire, nails, small fasteners, and irregularly shaped objects. Comfortable rubber-coated handles absorb vibration and reduce hand fatigue during extended use, while the non-slip surface ensures confident handling. The precision pivot joint maintains alignment under load, delivering smooth, controlled jaw action with every squeeze. Heat-treated steel construction resists wear and deformation even under heavy use. A must-have foundational tool for any workshop, equally suited for professional tradespeople and home repair projects.",
+                    "price": 12.01,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VR",
+                      "by_name": "Everyday basics",
+                      "by_url": "https://unsplash.com/@zanardi",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/I8eTuMmxIfo",
+                      "file_name": "pliers02.avif",
+                      "title": "Pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTKDG7D80X3V0C9FTNH",
+                    "name": "Bolt Cutters",
+                    "description": "Heavy-duty bolt cutters engineered to slice through hardened bolts, chains, padlocks, and wire fencing with minimal effort. The compound leverage mechanism multiplies your cutting force by a factor of 30, enabling clean cuts through materials up to 10mm in diameter. Hardened alloy steel blades are precisely ground and heat-treated to maintain a sharp edge through years of repeated use on tough materials. Ergonomic rubber grips and the generous 750mm handle length provide excellent control, leverage, and reach during overhead or awkward-angle cuts. An adjustable blade tension screw lets you fine-tune the jaw alignment for optimal cutting performance. Built for demolition crews, locksmiths, fencing contractors, and maintenance professionals who need reliable cutting power day after day.",
+                    "price": 48.41,
+                    "is_location_offer": true,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VS",
+                      "by_name": "Michael Dziedzic",
+                      "by_url": "https://unsplash.com/@lazycreekimages",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/pM9pkc9J918",
+                      "file_name": "pliers03.avif",
+                      "title": "Bolt cutters"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTN1A0WKBJW2A5196RJ",
+                    "name": "Long Nose Pliers",
+                    "description": "Precision long nose pliers with narrow tapered jaws designed for reaching into tight, confined spaces and bending fine wire with accuracy. Made from chrome vanadium steel with induction-hardened cutting edges that cleanly sever copper, brass, and steel wire without crushing or fraying. The slim jaw profile tapers to a fine point, making these pliers indispensable for electrical terminal work, jewelry making, and intricate mechanical repairs. Bi-component comfort grips minimize hand strain during detailed tasks requiring a steady hand and controlled pressure. The leaf-spring joint returns the handles to the open position automatically, speeding up repetitive tasks. A must-have precision tool trusted by electricians, electronics technicians, and hobbyists worldwide.",
+                    "price": 14.24,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": false,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VT",
+                      "by_name": "Brett Jordan",
+                      "by_url": "https://unsplash.com/@brett_jordan",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/GamuDTVm02g",
+                      "file_name": "pliers04.avif",
+                      "title": "Long nose pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTPKX7C1EYS2YZDDD5Z",
+                    "name": "Slip Joint Pliers",
+                    "description": "Adjustable slip joint pliers that feature a two-position pivot mechanism for switching between regular and wide jaw openings to accommodate different fastener sizes. The PVC-coated handles offer a comfortable, non-slip grip while the precisely machined jaws securely grasp round, flat, and hexagonal objects without slipping. Constructed from durable drop-forged carbon steel that has been heat-treated to withstand heavy daily use in professional environments. The curved jaw section grips pipes and cylindrical objects, while the flat front surface handles nuts, bolts, and sheet materials. A wire cutter integrated near the pivot handles light cutting tasks without reaching for a separate tool. Perfect for plumbing, automotive, HVAC, and general maintenance work where a single versatile gripping tool saves time.",
+                    "price": 9.17,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VV",
+                      "by_name": "Yasin Hasan",
+                      "by_url": "https://unsplash.com/@yasin",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/dwlxTSpfKXg",
+                      "file_name": "pliers05.avif",
+                      "title": "Slip joint pliers"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8R",
+                      "name": "Pliers",
+                      "slug": "pliers"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTREFVHHGCGZS322SKV",
+                    "name": "Claw Hammer with Shock Reduction Grip",
+                    "description": "Ergonomic claw hammer featuring an advanced shock reduction grip system that absorbs up to 70% of impact vibrations, protecting your wrist, elbow, and shoulder during prolonged nailing sessions. The 450g carbon steel head is precision-balanced and heat-treated for maximum hardness, ensuring accurate nail driving with minimal effort on every swing. The curved claw design effortlessly removes nails without damaging surrounding wood surfaces, making it equally useful for construction and renovation work. A fiberglass-reinforced handle combines lightweight strength with exceptional durability that far outlasts traditional wooden handles. The overmolded soft-grip zone conforms to your hand shape for a custom-feeling, fatigue-free hold throughout long working days. Recommended for professional framing, carpentry, and renovation projects where operator comfort matters as much as striking performance.",
+                    "price": 13.41,
+                    "is_location_offer": true,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VW",
+                      "by_name": "iMattSmart",
+                      "by_url": "https://unsplash.com/@imattsmart",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/jaLaLQdkBOE",
+                      "file_name": "hammer01.avif",
+                      "title": "Claw Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTSPP8WDFXEKGWJMRHB",
+                    "name": "Hammer",
+                    "description": "A dependable standard claw hammer suitable for driving and removing nails in everyday construction, carpentry, and home improvement projects. The 350g carbon steel head is drop-forged and heat-treated for maximum hardness, then fitted to a traditional wooden handle that provides natural shock absorption with each strike. Well-balanced weight distribution between the head and handle ensures accurate strikes with minimal wrist effort, reducing fatigue during repetitive nailing tasks. The polished face resists rust and provides a smooth surface that drives nails cleanly without leaving marks on finish materials. A gently curved claw provides reliable nail extraction leverage without excessive force. This versatile hammer belongs in every toolbox, from professional carpentry workshops to home garages and apartment maintenance kits.",
+                    "price": 12.58,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VX",
+                      "by_name": "Jozsef Hocza",
+                      "by_url": "https://unsplash.com/@hocza",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/D3nouOYbALc",
+                      "file_name": "hammer02.avif",
+                      "title": "Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTVV17TDVF6SN7EQFJG",
+                    "name": "Claw Hammer",
+                    "description": "Traditional claw hammer with a polished carbon steel head engineered for driving and removing nails with precision and confidence. The rubber-wrapped handle provides a secure, comfortable grip even in wet, dusty, or cold conditions where bare metal or wood handles would slip. At 500g, it offers the ideal balance between striking power and maneuverability for general carpentry, framing, and construction tasks. The curved claw design allows for smooth nail extraction without gouging or marring wood surfaces, protecting your finished work. The head-to-handle connection uses an epoxy-bonded wedge system that prevents loosening over time. A reliable, no-nonsense tool that professional carpenters and weekend builders alike reach for every day.",
+                    "price": 11.48,
+                    "is_location_offer": true,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VY",
+                      "by_name": "Andrew George",
+                      "by_url": "https://unsplash.com/@andrewjoegeorge",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/YU2mCvXR0wA",
+                      "file_name": "hammer03.avif",
+                      "title": "Claw Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPY",
+                      "name": "MightyCraft Hardware"
+                    }
+                  },
+                  {
+                    "id": "01M3QPBHTWHBQ77KQ919B1WV94",
+                    "name": "Thor Hammer",
+                    "description": "The legendary Thor Hammer combines premium craftsmanship with raw striking power in a tool that is truly built to last generations. Forged from Uru metal with a hand-wrapped leather grip, this extraordinary 5kg masterpiece delivers unmatched impact force for the most demanding demolition, forging, and heavy construction tasks. The perfectly balanced oversized head ensures every swing transfers maximum energy to the target, while the enlarged striking face covers more surface area than any conventional hammer. Despite its impressive mass, the ergonomic handle design and precise weight distribution allow for surprisingly controlled, accurate swings. This is not merely a tool but a statement piece for those who accept nothing less than the absolute best in their workshop. Comes with a lifetime warranty because true legends never fade. Please note: only one Thor Hammer is permitted per customer.",
+                    "price": 11.14,
+                    "is_location_offer": false,
+                    "is_rental": false,
+                    "co2_rating": "D",
+                    "in_stock": true,
+                    "is_eco_friendly": false,
+                    "product_image": {
+                      "id": "01M3QPBHSY02SGE8C3EJXRD5VZ",
+                      "by_name": "ANIRUDH",
+                      "by_url": "https://unsplash.com/@lanirudhreddy",
+                      "source_name": "Unsplash",
+                      "source_url": "https://unsplash.com/photos/3esjG-nlgyk",
+                      "file_name": "hammer04.avif",
+                      "title": "Hammer"
+                    },
+                    "category": {
+                      "id": "01M3QPBHSMX7X200BQ0F8XYC8M",
+                      "name": "Hammer",
+                      "slug": "hammer"
+                    },
+                    "brand": {
+                      "id": "01M3QPBHFRABX1J9KH9WE48CPX",
+                      "name": "ForgeFlex Tools"
+                    }
+                  }
+                ],
+                "from": 1,
+                "last_page": 6,
+                "per_page": 9,
+                "to": 9,
+                "total": 50
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-8] read the cart of a missing cart says \"Cart not found\"",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "\"Cart not found\"",
+        "received": "\"Requested item not found\"",
+        "message": "Error: [REQ AC-8] read the cart of a missing cart says \"Cart not found\"\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"Cart not found\"\nReceived: \"Requested item not found\"\n\n  337 |       });\n  338 |       await journey.step('And the message is \"Cart not found\"', async () => {\n> 339 |         expect(messageOf(res.body), `[REQ AC-8] ${row.request} of a missing cart says \"Cart not found\"`).toBe(REQ.CART_NOT_FOUND);\n      |                                                                                                          ^\n  340 |       });\n  341 |     });\n  342 |   });\n    at body (./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:339:106)\n    at ./heldout-support\\fixtures.ts:574:34\n    at ./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:338:7"
+      },
+      "failingStep": "And the message is \"Cart not found\"",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: GET /carts/01m3qppfe1mvkm5mt22ec92y6a → 404",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: \"Cart not found\"",
+          "Received: \"Requested item not found\""
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Requests for a missing cart answer 404 with other messages than \"Cart not found\"",
+        "rationale": "GET /carts/{id} on a deleted cart → 404 as required, but the message is 'Requested item not found', not 'Cart not found' (AC-8).",
+        "evidence": "Replayed live 2026-09-29 (tier 3, api-probe chain): runs/05-eval/confirm/missing-cart.md; same answers in hardening/api-cart-chain.md and runs 01/02 step 7",
+        "confirmedAt": "2026-09-29T23:07:23.115Z"
+      }
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: Deleting a cart that does not exist is answered 404 \"Cart not found\"",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-8",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-8"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 2,
+        "screenshot": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1/test-failed-1.png",
+        "trace": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1/trace.zip",
+        "errorContext": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1/error-context.md",
+        "seed": {
+          "tag": "hldoutaco1k70",
+          "records": [
+            {
+              "label": "a cart id that does not exist (create a cart, then delete it)",
+              "kind": "pre-step",
+              "cleanup": "none",
+              "created": "01m3qppv5kb6mc5cfgs8ptgs4c"
+            }
+          ]
+        },
+        "apiCalls": 1,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qppv5kb6mc5cfgs8ptgs4c",
+              "headers": {
+                "Accept": "application/json"
+              }
+            },
+            "response": {
+              "status": 404,
+              "durationMs": 468,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:30 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "message": "Cart doesnt exists"
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 0,
+        "api": {
+          "request": {
+            "method": "DELETE",
+            "url": "https://api.practicesoftwaretesting.com/carts/01m3qppv5kb6mc5cfgs8ptgs4c",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 468,
+            "headers": {
+              "date": "Tue, 29 Sep 2026 23:06:30 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "no-cache, private",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "transfer-encoding": "chunked",
+              "content-type": "application/json"
+            },
+            "body": {
+              "message": "Cart doesnt exists"
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/carts",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 493,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:29 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "id": "01m3qppv5kb6mc5cfgs8ptgs4c"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "DELETE",
+              "url": "https://api.practicesoftwaretesting.com/carts/01m3qppv5kb6mc5cfgs8ptgs4c",
+              "headers": {
+                "Accept": "application/json",
+                "Cache-Control": "no-cache"
+              }
+            },
+            "response": {
+              "status": 204,
+              "durationMs": 474,
+              "headers": {
+                "date": "Tue, 29 Sep 2026 23:06:30 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close"
+              },
+              "body": ""
+            }
+          }
+        ]
+      },
+      "otherFailures": [],
+      "error": {
+        "headline": "[REQ AC-8] DELETE /carts/{id} of a missing cart says \"Cart not found\"",
+        "reqTag": "AC-8",
+        "matcher": "toBe",
+        "expected": "\"Cart not found\"",
+        "received": "\"Cart doesnt exists\"",
+        "message": "Error: [REQ AC-8] DELETE /carts/{id} of a missing cart says \"Cart not found\"\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"Cart not found\"\nReceived: \"Cart doesnt exists\"\n\n  350 |     });\n  351 |     await journey.step('And the message is \"Cart not found\"', async () => {\n> 352 |       expect(messageOf(res.body), '[REQ AC-8] DELETE /carts/{id} of a missing cart says \"Cart not found\"').toBe(REQ.CART_NOT_FOUND);\n      |                                                                                                            ^\n  353 |     });\n  354 |   });\n  355 |\n    at body (./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:352:108)\n    at ./heldout-support\\fixtures.ts:574:34\n    at ./evaluations\\TOOL-3\\tests\\tool-3.spec.ts:351:5"
+      },
+      "failingStep": "And the message is \"Cart not found\"",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: DELETE /carts/01m3qppv5kb6mc5cfgs8ptgs4c → 404",
+          "Requirement assertion [REQ AC-8] failed.",
+          "Expected: \"Cart not found\"",
+          "Received: \"Cart doesnt exists\"",
+          "SCN-013 rests on an unsettled reading (@needs-clarification: the literal reading of an open question). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect."
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Minor",
+        "title": "Requests for a missing cart answer 404 with other messages than \"Cart not found\"",
+        "rationale": "DELETE /carts/{id} on a deleted cart → 404, message 'Cart doesnt exists', not 'Cart not found'. The scenario is @needs-clarification (G8 conflicts with AC-7's 204): whichever reading the owner picks, the message does not match AC-8.",
+        "evidence": "Replayed live 2026-09-29 (tier 3, api-probe chain): runs/05-eval/confirm/missing-cart.md; same answers in hardening/api-cart-chain.md and runs 01/02 step 4",
+        "confirmedAt": "2026-09-29T23:07:23.865Z"
+      }
+    },
+    {
+      "scenario": "SCN-014",
+      "title": "SCN-014: A guest cart from creation to deletion",
+      "file": "TOOL-3/tests/tool-3.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@AC-2",
+        "@AC-6",
+        "@AC-7",
+        "@type:composition",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1",
+        "AC-2",
+        "AC-6",
+        "AC-7"
+      ],
+      "testType": "composition",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

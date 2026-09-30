@@ -1,0 +1,32 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-29T22:46:41Z",
+  "contractHash": "b5fb5cdb09d9a358",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L21", "note": "Quote, text and layer (api) match the table row exactly; outcomes (201, id in the response, cart empty) all restate the quote's own words." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L22", "note": "Quote/text/layer match. Boundary outcomes (1 and 99) are the stated range's own endpoints, not derived beyond it. The parenthetical '(one line for the product)' isn't a separate literal in the quote, but it restates nothing beyond 'increases its quantity' (a single existing line's quantity field going up), so it adds no new testable condition." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L23", "note": "Quote/text/layer match. Outcomes for quantity 0 and 100 are exactly one step outside the stated 1-99 range, which the grounding rule allows; 'cart unchanged' is the quote's own second condition." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L24", "note": "Quote/text/layer (ui) match the table's UI label; both outcomes (confirmation message, cart icon count) are the quote's literals verbatim." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L25", "note": "Quote/text/layer (ui) match. All four outcomes (quantity, unit price, line total = price x quantity, cart total shown) restate the quote; correctly stops at 'the cart total is shown' rather than asserting what it must equal (left as gap G10)." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L26", "note": "Quote/text/layer match; both outcomes (204, product no longer listed) are the quote's own two conditions." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "story.md#L27", "note": "Quote/text/layer match; both outcomes (delete -> 204, delete again -> 204) restate the quote. The unresolved tension with AC-8's general 404 rule is correctly left to gap G8 rather than silently resolved." },
+    { "ref": "AC-8", "verdict": "supported", "evidence": "story.md#L28", "note": "Quote/text/layer match; the four outcomes (add/remove/read/delete against a missing cart) instantiate 'any request' using exactly the request types the pack's own criteria and gaps name (read via G1, delete via G2)." },
+    { "ref": "R1", "verdict": "supported", "evidence": "story.md#L22-L23", "note": "Combines AC-2's '1 to 99' and AC-3's 'outside 1-99 is rejected' into one rule statement without changing either value." },
+    { "ref": "R2", "verdict": "supported", "evidence": "story.md#L17", "note": "Verbatim sentence from L17." },
+    { "ref": "R3", "verdict": "supported", "evidence": "story.md#L17, story.md#L30", "note": "Combines 'guests (not signed in) can collect products in a cart' (L17) with 'carts are anonymous' (L30) without altering either." },
+    { "ref": "E1", "verdict": "supported", "evidence": "story.md#L23", "note": "422 and 'an error for the quantity field' match the quote; case note ('cart unchanged') is the quote's second condition." },
+    { "ref": "E2", "verdict": "supported", "evidence": "story.md#L28", "note": "404 and message 'Cart not found' match the quote verbatim; correctly cross-references G8 for the already-deleted-cart conflict instead of silently picking a side." },
+    { "ref": "G8", "verdict": "supported", "evidence": "story.md#L27, story.md#L28", "note": "Correctly identifies the unresolved conflict between AC-7's idempotent 204 and AC-8's general 404-for-missing-cart rule; neither source explicitly supersedes the other, so leaving it 'open' (oracle) rather than assuming a value is the right call." },
+    { "ref": "G9", "verdict": "supported", "evidence": "story.md#L24", "note": "'The total number of items' is genuinely undefined (sum of quantities vs. distinct products); correctly marked oracle, not required." },
+    { "ref": "G10", "verdict": "supported", "evidence": "story.md#L25", "note": "L25 defines the line total but never says what the cart total must equal; correctly left as an open oracle gap rather than assuming 'sum of line totals'." },
+    { "ref": "G11", "verdict": "supported", "evidence": "story.md#L22-L23", "note": "The story never addresses whether the 1-99 limit binds the amount added or the resulting total once a line already has quantity; correctly flagged as oracle, not required, since it doesn't block basic testing of AC-2/AC-3." },
+    { "ref": "POST /carts", "verdict": "supported", "evidence": "story.md#L21", "note": "Method and path appear verbatim at L21." },
+    { "ref": "POST /carts/{id}", "verdict": "supported", "evidence": "story.md#L22", "note": "Method and path appear verbatim at L22." },
+    { "ref": "DELETE /carts/{id}/product/{productId}", "verdict": "supported", "evidence": "story.md#L26", "note": "Method and path appear verbatim at L26." }
+  ],
+  "missed": [],
+  "observations": [
+    { "field": "endpoints[].auth", "note": "POST /carts, POST /carts/{id} and DELETE /carts/{id}/product/{productId} are all marked \"auth\": \"none\", citing 'carts are anonymous' (story.md#L30). L30 says carts aren't tied to a signed-in account, but the pack never states that these calls need no authentication header/token at all; the reference guide says unstated protection should be left unset rather than asserted as \"none\". This is a defensible reading, not a fabricated one, so it isn't a misread — flagging only as a boundary call for the builder to double check." }
+  ],
+  "summary": "All 20 checked refs are grounded in story.md with matching values; quotes are verbatim, boundaries stay within one step of the stated 1-99 range, and both genuine source conflicts (AC-7 vs AC-8 on a re-deleted cart) and undefined values (cart-icon count, cart total formula, the 1-99 limit vs. an existing line's running total) are correctly left as open oracle gaps instead of being silently resolved or assumed. No requirement-bearing line is uncaptured. One non-blocking observation about the endpoints' inferred auth:none."
+}

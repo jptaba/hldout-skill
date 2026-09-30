@@ -1,0 +1,211 @@
+
+Running 10 tests using 2 workers
+
+  ok  2 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:104:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-002: The registration answer does not contain the password @AC-1 @type:security @layer:api @P1 (1.3s)
+  ok  1 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:84:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-001: A new customer registers and gets their details and an id back @AC-1 @type:functional @layer:api @P1 (1.3s)
+  ok  4 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:135:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-004: A weak password lists every broken password rule @AC-3 @type:negative @layer:api @P1 (935ms)
+  ok  3 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:119:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-003: Registering an already registered e-mail address again is refused @AC-2 @type:negative @layer:api @P1 (1.6s)
+  ok  6 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:167:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-006: Signing in on the web shop with a wrong password is refused @AC-5 @type:negative @layer:e2e @P1 (3.9s)
+  ok  5 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:154:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-005: A registered customer signs in on the web shop @AC-4 @type:functional @layer:ui @P1 (5.3s)
+  x   7 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:185:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-007: Five wrong passwords lock the account, even against the correct password @AC-6 @type:security @layer:api @P1 (4.1s)
+  x   8 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:205:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-008: Four wrong passwords do not lock the account @AC-6 @type:boundary @layer:api @P2 (3.5s)
+  x  10 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:205:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-008: Four wrong passwords do not lock the account @AC-6 @type:boundary @layer:api @P2 (retry #1) (3.6s)
+  x   9 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:185:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-007: Five wrong passwords lock the account, even against the correct password @AC-6 @type:security @layer:api @P1 (retry #1) (4.0s)
+  ok 11 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:219:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-009: A token no longer works after signing out @AC-7 @type:security @layer:api @P1 (3.0s)
+  ok 12 [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:241:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-010: A customer registers, signs in, sees their own account, signs out and loses access @AC-1 @AC-7 @type:composition @layer:api @P2 (3.0s)
+
+
+  1) [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:185:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-007: Five wrong passwords lock the account, even against the correct password @AC-6 @type:security @layer:api @P1 › Then attempts one to five respond 401 
+
+    Error: [REQ AC-6] POST /users/login attempts one to five with a wrong password respond 401
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Array [
+        401,
+        401,
+        401,
+    -   401,
+    -   401,
+    +   423,
+    +   423,
+      ]
+
+      192 |     });
+      193 |     await journey.step('Then attempts one to five respond 401', async () => {
+    > 194 |       expect.soft(statuses, '[REQ AC-6] POST /users/login attempts one to five with a wrong password respond 401').toEqual(Array(REQ.AC6_FAILED_ATTEMPTS).fill(REQ.STATUS.S401));
+          |                                                                                                                    ^
+      195 |     });
+      196 |     await journey.step('And the sixth attempt, with the correct password, responds 423', async () => {
+      197 |       sixth = await login(api, c.email, c.password);
+        at body (./evaluations\TOOL-2\tests\tool-2.spec.ts:194:116)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-2\tests\tool-2.spec.ts:193:5
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] POST /users/login attempts one to five with a wrong password respond 401
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Array [
+        401,
+        401,
+        401,
+    -   401,
+    -   401,
+    +   423,
+    +   423,
+      ]
+
+      192 |     });
+      193 |     await journey.step('Then attempts one to five respond 401', async () => {
+    > 194 |       expect.soft(statuses, '[REQ AC-6] POST /users/login attempts one to five with a wrong password respond 401').toEqual(Array(REQ.AC6_FAILED_ATTEMPTS).fill(REQ.STATUS.S401));
+          |                                                                                                                    ^
+      195 |     });
+      196 |     await journey.step('And the sixth attempt, with the correct password, responds 423', async () => {
+      197 |       sixth = await login(api, c.email, c.password);
+        at body (./evaluations\TOOL-2\tests\tool-2.spec.ts:194:116)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-2\tests\tool-2.spec.ts:193:5
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium-retry1\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-d97ae-gainst-the-correct-password-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:205:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-008: Four wrong passwords do not lock the account @AC-6 @type:boundary @layer:api @P2 › Then the fifth attempt is not refused as locked and returns an access token 
+
+    Error: [REQ AC-6] POST /users/login after four failures is not refused as locked
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not 423
+
+      212 |     await journey.step('And a fifth attempt is made with the correct password', async () => { fifth = await login(api, c.email, c.password); });
+      213 |     await journey.step('Then the fifth attempt is not refused as locked and returns an access token', async () => {
+    > 214 |       expect.soft(fifth.status, '[REQ AC-6] POST /users/login after four failures is not refused as locked').not.toBe(REQ.STATUS.S423);
+          |                                                                                                                  ^
+      215 |       expect(typeof fifth.body?.access_token, '[REQ AC-6] POST /users/login after four failures returns an access_token').toBe('string');
+      216 |     });
+      217 |   });
+        at body (./evaluations\TOOL-2\tests\tool-2.spec.ts:214:114)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-2\tests\tool-2.spec.ts:213:5
+
+    Error: [REQ AC-6] POST /users/login after four failures returns an access_token
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "string"
+    Received: "undefined"
+
+      213 |     await journey.step('Then the fifth attempt is not refused as locked and returns an access token', async () => {
+      214 |       expect.soft(fifth.status, '[REQ AC-6] POST /users/login after four failures is not refused as locked').not.toBe(REQ.STATUS.S423);
+    > 215 |       expect(typeof fifth.body?.access_token, '[REQ AC-6] POST /users/login after four failures returns an access_token').toBe('string');
+          |                                                                                                                           ^
+      216 |     });
+      217 |   });
+      218 |
+        at body (./evaluations\TOOL-2\tests\tool-2.spec.ts:215:123)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-2\tests\tool-2.spec.ts:213:5
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium\error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] POST /users/login after four failures is not refused as locked
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not 423
+
+      212 |     await journey.step('And a fifth attempt is made with the correct password', async () => { fifth = await login(api, c.email, c.password); });
+      213 |     await journey.step('Then the fifth attempt is not refused as locked and returns an access token', async () => {
+    > 214 |       expect.soft(fifth.status, '[REQ AC-6] POST /users/login after four failures is not refused as locked').not.toBe(REQ.STATUS.S423);
+          |                                                                                                                  ^
+      215 |       expect(typeof fifth.body?.access_token, '[REQ AC-6] POST /users/login after four failures returns an access_token').toBe('string');
+      216 |     });
+      217 |   });
+        at body (./evaluations\TOOL-2\tests\tool-2.spec.ts:214:114)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-2\tests\tool-2.spec.ts:213:5
+
+    Error: [REQ AC-6] POST /users/login after four failures returns an access_token
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "string"
+    Received: "undefined"
+
+      213 |     await journey.step('Then the fifth attempt is not refused as locked and returns an access token', async () => {
+      214 |       expect.soft(fifth.status, '[REQ AC-6] POST /users/login after four failures is not refused as locked').not.toBe(REQ.STATUS.S423);
+    > 215 |       expect(typeof fifth.body?.access_token, '[REQ AC-6] POST /users/login after four failures returns an access_token').toBe('string');
+          |                                                                                                                           ^
+      216 |     });
+      217 |   });
+      218 |
+        at body (./evaluations\TOOL-2\tests\tool-2.spec.ts:215:123)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-2\tests\tool-2.spec.ts:213:5
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium-retry1\error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace evaluations\TOOL-2\runs\01-harden\artifacts\TOOL-2-tests-tool-2-TOOL-2-47386-rds-do-not-lock-the-account-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:185:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-007: Five wrong passwords lock the account, even against the correct password @AC-6 @type:security @layer:api @P1 
+    [chromium] › evaluations\TOOL-2\tests\tool-2.spec.ts:205:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-008: Four wrong passwords do not lock the account @AC-6 @type:boundary @layer:api @P2 
+  8 passed (22.0s)

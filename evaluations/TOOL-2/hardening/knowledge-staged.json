@@ -1,0 +1,180 @@
+{
+  "facts": [
+    {
+      "key": "page:/account",
+      "kind": "page",
+      "value": {
+        "route": "/account",
+        "name": "My account",
+        "ready": "getByRole('heading', { name: 'My account' })",
+        "reach": "sign in on /auth/login",
+        "signedIn": true
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:50.320Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "locator:/auth/login e-mail-field",
+      "kind": "locator",
+      "value": {
+        "route": "/auth/login",
+        "element": "e-mail field",
+        "locator": "getByTestId('email')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:51.103Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "locator:/auth/login password-field",
+      "kind": "locator",
+      "value": {
+        "route": "/auth/login",
+        "element": "password field",
+        "locator": "getByTestId('password')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:51.894Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "locator:/auth/login login-button",
+      "kind": "locator",
+      "value": {
+        "route": "/auth/login",
+        "element": "Login button",
+        "locator": "getByTestId('login-submit')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:52.687Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "locator:/account navigation-shows-the-signed-in-customer-s-name",
+      "kind": "locator",
+      "value": {
+        "route": "/account",
+        "element": "navigation (shows the signed-in customer's name)",
+        "locator": "getByRole('navigation')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:53.466Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-005"
+      ]
+    },
+    {
+      "key": "api:POST /users/register",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/register",
+        "requestFields": [
+          "first_name",
+          "last_name",
+          "email",
+          "password"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:54.251Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-001"
+      ]
+    },
+    {
+      "key": "api:GET /users/me",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/me",
+        "auth": "required",
+        "authHeader": "Authorization: Bearer <access_token>"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:55.073Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-010"
+      ]
+    },
+    {
+      "key": "seed:customer",
+      "kind": "seed",
+      "value": {
+        "entity": "customer",
+        "create": "POST /users/register",
+        "id": "id",
+        "fields": [
+          "first_name",
+          "last_name",
+          "email",
+          "password"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:55.860Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-003"
+      ]
+    },
+    {
+      "key": "note:validation-error-shape",
+      "kind": "note",
+      "value": {
+        "topic": "validation error shape",
+        "text": "POST /users/register validation answers carry one list of message strings per field, at the top level (e.g. body.password is a string[])"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:56.639Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-004"
+      ]
+    },
+    {
+      "key": "note:test-customers-are-kept",
+      "kind": "note",
+      "value": {
+        "topic": "test customers are kept",
+        "text": "A customer's own token cannot delete the customer (DELETE /users/{id}); test customers stay, tagged hldout-…@example.com. The accounts recipe creates one per test (no delete)"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:57.439Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-009"
+      ]
+    },
+    {
+      "key": "note:failed-sign-ins-accumulate-per-account",
+      "kind": "note",
+      "value": {
+        "topic": "failed sign-ins accumulate per account",
+        "text": "Failed sign-in attempts count per account, not per client: every scenario that makes failed sign-ins needs a customer of its own"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:28:58.236Z",
+      "by": "TOOL-2",
+      "for": [
+        "SCN-007"
+      ]
+    }
+  ]
+}

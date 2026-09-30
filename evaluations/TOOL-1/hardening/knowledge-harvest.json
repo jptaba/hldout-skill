@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-29T22:07:41.875Z",
+  "verdictAt": "2026-09-29T22:07:12.865Z",
+  "file": "aut-knowledge/practicesoftwaretesting/facts/20260929T220741Z-tool-1-6bda5e.json",
+  "proven": 19,
+  "stale": 0,
+  "dropped": [
+    {
+      "key": "locator:/ pagination-page-n-button",
+      "why": "none of SCN-010 passed in 02-eval"
+    }
+  ]
+}

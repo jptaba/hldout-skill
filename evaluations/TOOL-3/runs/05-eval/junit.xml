@@ -1,0 +1,386 @@
+<testsuites id="" name="" tests="18" failures="4" skipped="0" errors="0" time="131.296711">
+<testsuite name="TOOL-3\tests\tool-3.spec.ts" timestamp="2026-09-29T23:04:28.728Z" hostname="chromium" tests="18" failures="4" skipped="0" time="120.011" errors="0">
+<testcase name="TOOL-3 Shopping cart for guests › SCN-001: A guest creates an empty cart" classname="TOOL-3\tests\tool-3.spec.ts" time="1.509">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-002.1: Adding a product with a quantity on the limits of 1–99 (quantity 1)" classname="TOOL-3\tests\tool-3.spec.ts" time="6.957">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-002.2: Adding a product with a quantity on the limits of 1–99 (quantity 99)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.952">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-003: Adding a product already in the cart increases its quantity by the amount added" classname="TOOL-3\tests\tool-3.spec.ts" time="6.778">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.1: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 0)" classname="TOOL-3\tests\tool-3.spec.ts" time="5.676">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-004.2: A quantity just outside 1–99 is rejected and the cart is unchanged (quantity 100)" classname="TOOL-3\tests\tool-3.spec.ts" time="6.025">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-005: Adding a product from its product page shows the confirmation" classname="TOOL-3\tests\tool-3.spec.ts" time="6.656">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-006: The cart icon shows the total number of items after adding from the product page" classname="TOOL-3\tests\tool-3.spec.ts" time="6.551">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-007: The cart page lists each product with quantity, unit price and line total" classname="TOOL-3\tests\tool-3.spec.ts" time="7.373">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-008: The cart total equals the sum of the line totals" classname="TOOL-3\tests\tool-3.spec.ts" time="5.122">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-009: Removing a product from the cart" classname="TOOL-3\tests\tool-3.spec.ts" time="4.904">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-010: Deleting a cart" classname="TOOL-3\tests\tool-3.spec.ts" time="3.956">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-011: Deleting a cart that was already deleted" classname="TOOL-3\tests\tool-3.spec.ts" time="10.513">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] DELETE /carts/{id} of an already-deleted cart responds 204 → 204" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:314:7 › TOOL-3 Shopping cart for guests › SCN-011: Deleting a cart that was already deleted @AC-7 @type:idempotency @layer:api @P1 › Then the response status is 204 
+
+    Error: [REQ AC-7] DELETE /carts/{id} of an already-deleted cart responds 204 → 204
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 204
+    Received: 404
+
+       at ..\heldout-support\fixtures.ts:282
+
+      280 |  */
+      281 | export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {
+    > 282 |   expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);
+          |                                                              ^
+      283 |   if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);
+      284 | }
+      285 |
+        at expectResponse (./heldout-support\fixtures.ts:282:62)
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:319:21)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:318:5
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] DELETE /carts/{id} of an already-deleted cart responds 204 → 204
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 204
+    Received: 404
+
+       at ..\heldout-support\fixtures.ts:282
+
+      280 |  */
+      281 | export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {
+    > 282 |   expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);
+          |                                                              ^
+      283 |   if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);
+      284 | }
+      285 |
+        at expectResponse (./heldout-support\fixtures.ts:282:62)
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:319:21)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:318:5
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-62fdf-rt-that-was-already-deleted-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-012.1: A request for a cart that does not exist is answered 404 &quot;Cart not found&quot; (add the product (POST /carts/{id}))" classname="TOOL-3\tests\tool-3.spec.ts" time="5.241">
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-012.2: A request for a cart that does not exist is answered 404 &quot;Cart not found&quot; (remove the product (DELETE /carts/{id}/product/{productId}))" classname="TOOL-3\tests\tool-3.spec.ts" time="10.251">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] remove the product (DELETE /carts/{id}/product/{productId}) of a missing cart says &quot;Cart not found&quot;" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:330:9 › TOOL-3 Shopping cart for guests › SCN-012.2: A request for a cart that does not exist is answered 404 "Cart not found" (remove the product (DELETE /carts/{id}/product/{productId})) @AC-8 @type:negative @layer:api @P1 › And the message is "Cart not found" 
+
+    Error: [REQ AC-8] remove the product (DELETE /carts/{id}/product/{productId}) of a missing cart says "Cart not found"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Cart doesnt exists"
+
+      337 |       });
+      338 |       await journey.step('And the message is "Cart not found"', async () => {
+    > 339 |         expect(messageOf(res.body), `[REQ AC-8] ${row.request} of a missing cart says "Cart not found"`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                                                          ^
+      340 |       });
+      341 |     });
+      342 |   });
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:339:106)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:338:7
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-8] remove the product (DELETE /carts/{id}/product/{productId}) of a missing cart says "Cart not found"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Cart doesnt exists"
+
+      337 |       });
+      338 |       await journey.step('And the message is "Cart not found"', async () => {
+    > 339 |         expect(messageOf(res.body), `[REQ AC-8] ${row.request} of a missing cart says "Cart not found"`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                                                          ^
+      340 |       });
+      341 |     });
+      342 |   });
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:339:106)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:338:7
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-012.3: A request for a cart that does not exist is answered 404 &quot;Cart not found&quot; (read the cart)" classname="TOOL-3\tests\tool-3.spec.ts" time="9.873">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] read the cart of a missing cart says &quot;Cart not found&quot;" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:330:9 › TOOL-3 Shopping cart for guests › SCN-012.3: A request for a cart that does not exist is answered 404 "Cart not found" (read the cart) @AC-8 @type:negative @layer:api @P1 › And the message is "Cart not found" 
+
+    Error: [REQ AC-8] read the cart of a missing cart says "Cart not found"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Requested item not found"
+
+      337 |       });
+      338 |       await journey.step('And the message is "Cart not found"', async () => {
+    > 339 |         expect(messageOf(res.body), `[REQ AC-8] ${row.request} of a missing cart says "Cart not found"`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                                                          ^
+      340 |       });
+      341 |     });
+      342 |   });
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:339:106)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:338:7
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-8] read the cart of a missing cart says "Cart not found"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Requested item not found"
+
+      337 |       });
+      338 |       await journey.step('And the message is "Cart not found"', async () => {
+    > 339 |         expect(messageOf(res.body), `[REQ AC-8] ${row.request} of a missing cart says "Cart not found"`).toBe(REQ.CART_NOT_FOUND);
+          |                                                                                                          ^
+      340 |       });
+      341 |     });
+      342 |   });
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:339:106)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:338:7
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-e19fd-rt-not-found-read-the-cart--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-013: Deleting a cart that does not exist is answered 404 &quot;Cart not found&quot;" classname="TOOL-3\tests\tool-3.spec.ts" time="9.344">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-8] DELETE /carts/{id} of a missing cart says &quot;Cart not found&quot;" type="expect.toBe">
+<![CDATA[  [chromium] › TOOL-3\tests\tool-3.spec.ts:344:7 › TOOL-3 Shopping cart for guests › SCN-013: Deleting a cart that does not exist is answered 404 "Cart not found" @AC-8 @type:negative @layer:api @P2 › And the message is "Cart not found" 
+
+    Error: [REQ AC-8] DELETE /carts/{id} of a missing cart says "Cart not found"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Cart doesnt exists"
+
+      350 |     });
+      351 |     await journey.step('And the message is "Cart not found"', async () => {
+    > 352 |       expect(messageOf(res.body), '[REQ AC-8] DELETE /carts/{id} of a missing cart says "Cart not found"').toBe(REQ.CART_NOT_FOUND);
+          |                                                                                                            ^
+      353 |     });
+      354 |   });
+      355 |
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:352:108)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:351:5
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-8] DELETE /carts/{id} of a missing cart says "Cart not found"
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cart not found"
+    Received: "Cart doesnt exists"
+
+      350 |     });
+      351 |     await journey.step('And the message is "Cart not found"', async () => {
+    > 352 |       expect(messageOf(res.body), '[REQ AC-8] DELETE /carts/{id} of a missing cart says "Cart not found"').toBe(REQ.CART_NOT_FOUND);
+          |                                                                                                            ^
+      353 |     });
+      354 |   });
+      355 |
+        at body (./evaluations\TOOL-3\tests\tool-3.spec.ts:352:108)
+        at ./heldout-support\fixtures.ts:574:34
+        at ./evaluations\TOOL-3\tests\tool-3.spec.ts:351:5
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace TOOL-3\runs\05-eval\artifacts\TOOL-3-tests-tool-3-TOOL-3-7ae1b-nswered-404-Cart-not-found--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-3 Shopping cart for guests › SCN-014: A guest cart from creation to deletion" classname="TOOL-3\tests\tool-3.spec.ts" time="7.33">
+</testcase>
+</testsuite>
+</testsuites>

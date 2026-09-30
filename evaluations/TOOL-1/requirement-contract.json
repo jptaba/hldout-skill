@@ -1,0 +1,351 @@
+{
+  "key": "TOOL-1",
+  "title": "Catalogue search, sorting and category filter",
+  "revision": {
+    "story": "09ccd68a13ea1a89",
+    "attachments": {}
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "description, catalogue API, acceptance criteria 1-7, notes"
+    }
+  ],
+  "actors": [
+    "shopper (web shop)",
+    "mobile app (public catalogue API)"
+  ],
+  "context": "As a shopper I want to search, sort and filter the tool catalogue so that I find the right tool quickly. The web shop and the public catalogue API (used by the mobile app) must behave the same way.",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "Searching the web shop for a term shows only products whose name contains the term, and a caption \"Searched for: <term>\".",
+      "source": "story.md#L24",
+      "text": "Searching the web shop for a term shows only products whose name contains the term, and a caption \"Searched for: <term>\".",
+      "layer": "ui",
+      "entryPoint": "web shop catalogue (route and search control: G1)",
+      "outcomes": [
+        "every product shown has a name that contains the term",
+        "caption \"Searched for: <term>\""
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "GET /products/search?q=<term> returns 200 with only products whose name contains the term, regardless of letter case (searching \"PLIERS\" finds the same products as \"pliers\").",
+      "source": "story.md#L25",
+      "text": "GET /products/search?q=<term> returns 200 with only products whose name contains the term, regardless of letter case (searching \"PLIERS\" finds the same products as \"pliers\").",
+      "layer": "api",
+      "endpoints": [
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "200",
+        "every product in data has a name that contains the term, regardless of letter case",
+        "searching \"PLIERS\" finds the same products as \"pliers\""
+      ],
+      "gaps": [
+        "G2"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "A search without matches shows \"There are no products found.\" on the web shop, and the API returns 200 with an empty data list and total 0.",
+      "source": "story.md#L26",
+      "text": "A search without matches shows \"There are no products found.\" on the web shop, and the API returns 200 with an empty data list and total 0.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue (route and search control: G1)",
+      "endpoints": [
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "web shop shows \"There are no products found.\"",
+        "API: 200",
+        "API: data is an empty list",
+        "API: total 0"
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "Choosing \"Price (Low - High)\" on the web shop lists the products by ascending price; GET /products?sort=price,asc returns the products in ascending price order.",
+      "source": "story.md#L27",
+      "text": "Choosing \"Price (Low - High)\" on the web shop lists the products by ascending price; GET /products?sort=price,asc returns the products in ascending price order.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue (route and sort control: G1)",
+      "endpoints": [
+        "GET /products"
+      ],
+      "outcomes": [
+        "web shop: after choosing \"Price (Low - High)\" the products are listed by ascending price",
+        "API: GET /products?sort=price,asc returns the products in ascending price order"
+      ],
+      "gaps": [
+        "G1",
+        "G2"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "Filtering the web shop by the category \"Hammer\" shows only hammers; GET /products?by_category=<id of Hammer> returns only products in that category.",
+      "source": "story.md#L28",
+      "text": "Filtering the web shop by the category \"Hammer\" shows only hammers; GET /products?by_category=<id of Hammer> returns only products in that category.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue (route and category filter: G1)",
+      "endpoints": [
+        "GET /categories/tree",
+        "GET /products"
+      ],
+      "outcomes": [
+        "web shop: filtering by the category \"Hammer\" shows only hammers",
+        "API: GET /products?by_category=<id of Hammer> returns only products in the category \"Hammer\""
+      ],
+      "gaps": [
+        "G1",
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "quote": "Results are paginated with 12 products per page (per_page 12) on the web shop and in the API.",
+      "source": "story.md#L29",
+      "text": "Results are paginated with 12 products per page (per_page 12) on the web shop and in the API.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue (route and pagination: G1)",
+      "endpoints": [
+        "GET /products",
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "web shop: results are paginated with 12 products per page",
+        "API: per_page 12"
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "quote": "An empty search (no term) returns all products, so the mobile app can reuse the search endpoint for its \"All tools\" screen.",
+      "source": "story.md#L30",
+      "text": "An empty search (no term) returns all products, so the mobile app can reuse the search endpoint for its \"All tools\" screen.",
+      "layer": "api",
+      "endpoints": [
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "a search with no term returns all products"
+      ],
+      "gaps": [
+        "G4"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/products",
+      "source": "story.md#L20",
+      "auth": "none",
+      "success": "{ current_page, data: [products], per_page, total, last_page }",
+      "request": "list; query parameters sort (e.g. ?sort=price,asc) and by_category (?by_category=<category id>); paginated. Public catalogue API (story.md#L18)"
+    },
+    {
+      "method": "GET",
+      "path": "/products/search",
+      "source": "story.md#L20",
+      "auth": "none",
+      "success": "200 { current_page, data: [products], per_page, total, last_page }",
+      "request": "?q=<term>. Public catalogue API (story.md#L18)"
+    },
+    {
+      "method": "GET",
+      "path": "/categories/tree",
+      "source": "story.md#L34",
+      "request": "source of category ids (e.g. the id of \"Hammer\" for by_category)"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "The web shop and the public catalogue API (used by the mobile app) must behave the same way.",
+      "source": "story.md#L18"
+    },
+    {
+      "id": "R2",
+      "text": "GET /products and GET /products/search both return { \"current_page\", \"data\": [products], \"per_page\", \"total\", \"last_page\" }.",
+      "source": "story.md#L20"
+    },
+    {
+      "id": "R3",
+      "text": "Category ids come from GET /categories/tree.",
+      "source": "story.md#L34"
+    }
+  ],
+  "errorModel": [],
+  "testData": {
+    "strategy": "not stated in the sources; the criteria only read the existing catalogue",
+    "constraints": [
+      "the catalogue already contains products, including the category \"Hammer\" (story.md#L28)",
+      "AC-2 uses the example term \"pliers\" / \"PLIERS\" (story.md#L25)"
+    ],
+    "source": "story.md#L24-L30"
+  },
+  "outOfScope": [
+    "Out of scope: product detail pages, brands filter."
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "web shop catalogue page: its route and how the search box, the search caption, the product cards (name, price), the sort control, the category filter, the no-results message and the pagination are found",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L24-L29 name the web shop and the visible texts, but no route, labels or locators"
+        },
+        {
+          "where": "config",
+          "result": "AUT profile gives only the web base URL"
+        },
+        {
+          "where": "aut",
+          "result": "The catalogue is the start page (/), ready when getByTestId('product-name') shows; search: getByTestId('search-query') + getByTestId('search-submit'); caption getByTestId('search-caption'); cards: getByTestId('product-name') / getByTestId('product-price'); sort: getByTestId('sort') (select); category filter: getByRole('checkbox', { name: 'Hammer', exact: true }); no-results box getByTestId('no-results'); pagination buttons Page-1..Page-n, pagination-next"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "The catalogue is the start page (/), ready when getByTestId('product-name') shows; search: getByTestId('search-query') + getByTestId('search-submit'); caption getByTestId('search-caption'); cards: getByTestId('product-name') / getByTestId('product-price'); sort: getByTestId('sort') (select); category filter: getByRole('checkbox', { name: 'Hammer', exact: true }); no-results box getByTestId('no-results'); pagination buttons Page-1..Page-n, pagination-next",
+      "evidence": "hardening/tier3/home.md, search.md, nomatch.md, sort.md, hammer.md"
+    },
+    {
+      "id": "G2",
+      "element": "API product fields: where a product's name, price and category are in the items of data",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-4",
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L20 gives the envelope (current_page, data, per_page, total, last_page) but not the product fields"
+        },
+        {
+          "where": "aut",
+          "result": "data[] items: id (string), name (string), price (number), category { id, name, slug }"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "data[] items: id (string), name (string), price (number), category { id, name, slug }",
+      "evidence": "hardening/api-products.md"
+    },
+    {
+      "id": "G3",
+      "element": "how the id of the category \"Hammer\" is read from the GET /categories/tree answer (structure, name and id fields)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L34 says category ids come from GET /categories/tree; the answer's shape is not given"
+        },
+        {
+          "where": "aut",
+          "result": "GET /categories/tree answers an array of { id, name, slug, parent_id, sub_categories[] }; Hammer is a sub-category of Hand Tools; walk sub_categories and read id where name == 'Hammer'"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "GET /categories/tree answers an array of { id, name, slug, parent_id, sub_categories[] }; Hammer is a sub-category of Hand Tools; walk sub_categories and read id where name == 'Hammer'",
+      "evidence": "hardening/api-categories-tree.md"
+    },
+    {
+      "id": "G4",
+      "element": "AC-7 empty search: does \"no term\" mean q omitted, q empty, or both; what status is expected (not stated); and is \"all products\" judged as total equal to the unfiltered GET /products total?",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L30 says \"An empty search (no term) returns all products\"; no status, no request form, no reference count"
+        },
+        {
+          "where": "user",
+          "result": "no human available in this run"
+        }
+      ],
+      "resolution": "open"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L18",
+      "as": "R1, context"
+    },
+    {
+      "lines": "story.md#L20",
+      "as": "endpoint, R2"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "AC-2"
+    },
+    {
+      "lines": "story.md#L26",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L27",
+      "as": "AC-4"
+    },
+    {
+      "lines": "story.md#L28",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L29",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L30",
+      "as": "AC-7, G4"
+    },
+    {
+      "lines": "story.md#L34",
+      "as": "endpoint, R3"
+    },
+    {
+      "lines": "story.md#L35",
+      "as": "out-of-scope"
+    }
+  ]
+}

@@ -1,0 +1,778 @@
+{
+  "calls": [
+    {
+      "at": "2026-09-29T21:56:53.524Z",
+      "all": false,
+      "shown": [
+        {
+          "key": "app:api-docs",
+          "status": "seen"
+        },
+        {
+          "key": "page:/auth/login",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/tree",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/search",
+          "status": "seen"
+        }
+      ]
+    },
+    {
+      "at": "2026-09-29T21:56:59.199Z",
+      "all": true,
+      "shown": [
+        {
+          "key": "app:api-docs",
+          "status": "seen"
+        },
+        {
+          "key": "page:/",
+          "status": "seen"
+        },
+        {
+          "key": "page:/auth/login",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/hand-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/other",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/power-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/special-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/contact",
+          "status": "seen"
+        },
+        {
+          "key": "page:/rentals",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /carts/{}/product/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /favorites/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/tree",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/tree/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /favorites",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /favorites/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /images",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}/download-pdf",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}/download-pdf-status",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /messages",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /messages/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /postcode-lookup",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /product-specs/names",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/related",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/specs",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/average-sales-per-month",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/average-sales-per-week",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/customers-by-country",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/top10-best-selling-categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/top10-purchased-products",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/total-sales-of-years",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/total-sales-per-country",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /sales-stream",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/logout",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/me",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/refresh",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /brands",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /favorites",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /invoices",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /invoices/guest",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages/{}/attach-file",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages/{}/reply",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /payment/check",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /products",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /products/{}/specs",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /totp/setup",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /totp/verify",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/change-password",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/forgot-password",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/login",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/register",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /carts/{}/product/quantity",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /invoices/{}/status",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /messages/{}/status",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:QUERY /categories/tree",
+          "status": "seen"
+        },
+        {
+          "key": "api:QUERY /products",
+          "status": "seen"
+        }
+      ]
+    },
+    {
+      "at": "2026-09-29T21:56:59.951Z",
+      "all": true,
+      "shown": [
+        {
+          "key": "app:api-docs",
+          "status": "seen"
+        },
+        {
+          "key": "page:/",
+          "status": "seen"
+        },
+        {
+          "key": "page:/auth/login",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/hand-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/other",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/power-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/special-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/contact",
+          "status": "seen"
+        },
+        {
+          "key": "page:/rentals",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /carts/{}/product/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /favorites/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/tree",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/tree/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /favorites",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /favorites/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /images",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}/download-pdf",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}/download-pdf-status",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /messages",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /messages/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /postcode-lookup",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /product-specs/names",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/related",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/specs",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/average-sales-per-month",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/average-sales-per-week",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/customers-by-country",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/top10-best-selling-categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/top10-purchased-products",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/total-sales-of-years",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/total-sales-per-country",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /sales-stream",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/logout",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/me",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/refresh",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /brands",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /favorites",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /invoices",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /invoices/guest",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages/{}/attach-file",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages/{}/reply",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /payment/check",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /products",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /products/{}/specs",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /totp/setup",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /totp/verify",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/change-password",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/forgot-password",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/login",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/register",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /carts/{}/product/quantity",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /invoices/{}/status",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /messages/{}/status",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:QUERY /categories/tree",
+          "status": "seen"
+        },
+        {
+          "key": "api:QUERY /products",
+          "status": "seen"
+        }
+      ]
+    }
+  ]
+}

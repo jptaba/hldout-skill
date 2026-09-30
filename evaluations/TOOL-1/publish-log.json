@@ -1,0 +1,12 @@
+[
+  {
+    "at": "2026-09-29T22:07:32.487Z",
+    "mode": "mock",
+    "verdict": "FAIL",
+    "attachment": "heldout-verdict-TOOL-1-202609292207.md",
+    "commentId": "20001",
+    "labels": [
+      "heldout-fail"
+    ]
+  }
+]

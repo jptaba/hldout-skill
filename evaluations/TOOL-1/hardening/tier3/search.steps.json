@@ -1,0 +1,6 @@
+[
+  { "do": "wait", "target": "getByTestId('product-name').first()" },
+  { "do": "fill", "target": "getByTestId('search-query')", "value": "pliers" },
+  { "do": "click", "target": "getByTestId('search-submit')" },
+  { "do": "wait", "target": "getByText('Searched for')" }
+]

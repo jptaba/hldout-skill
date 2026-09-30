@@ -1,0 +1,6 @@
+[
+  { "do": "wait", "target": "getByTestId('product-name').first()" },
+  { "do": "fill", "target": "getByTestId('search-query')", "value": "hldout-zq9x7k" },
+  { "do": "click", "target": "getByTestId('search-submit')" },
+  { "do": "wait", "target": "getByTestId('search-caption')" }
+]

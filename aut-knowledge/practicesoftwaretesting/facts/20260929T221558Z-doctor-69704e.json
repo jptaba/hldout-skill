@@ -1,0 +1,431 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "by": "doctor",
+  "at": "2026-09-29T22:15:58.184Z",
+  "facts": [
+    {
+      "key": "page:/",
+      "kind": "page",
+      "value": {
+        "name": "Catalogue (start page)",
+        "reach": "base URL",
+        "ready": "getByTestId('product-name').first()",
+        "route": "/"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: getByTestId('product-name').first() is not on /"
+    },
+    {
+      "key": "page:/",
+      "kind": "page",
+      "value": {
+        "route": "/",
+        "name": "start page"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn visited /"
+    },
+    {
+      "key": "api:GET /categories/tree",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/tree",
+        "query": [
+          "by_category_slug"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: called by the web app while loading its pages; doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /brands/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/brands/search",
+        "query": [
+          "q"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /brands/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/brands/search"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /categories/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/search",
+        "query": [
+          "q"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /categories/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/categories/search"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /messages",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/messages",
+        "query": [
+          "page"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /messages",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/messages"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /invoices",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices",
+        "query": [
+          "page"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/invoices"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /invoices/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/invoices/search",
+        "query": [
+          "q",
+          "page"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /invoices/search",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/invoices/search"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /postcode-lookup",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/postcode-lookup",
+        "query": [
+          "country",
+          "postcode",
+          "house_number"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /postcode-lookup",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/postcode-lookup"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /products",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products",
+        "query": [
+          "by_brand",
+          "by_category",
+          "is_rental",
+          "between",
+          "sort",
+          "page"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /products/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/products/search",
+        "query": [
+          "q",
+          "page"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/total-sales-of-years",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/total-sales-of-years",
+        "query": [
+          "years"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/total-sales-of-years",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/reports/total-sales-of-years"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /reports/average-sales-per-month",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/average-sales-per-month",
+        "query": [
+          "year"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/average-sales-per-month",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/reports/average-sales-per-month"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /reports/average-sales-per-week",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/reports/average-sales-per-week",
+        "query": [
+          "year"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /reports/average-sales-per-week",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/reports/average-sales-per-week"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /sales-stream",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/sales-stream",
+        "query": [
+          "limit",
+          "interval",
+          "seed"
+        ]
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /sales-stream",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/sales-stream"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /users",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users",
+        "query": [
+          "page"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/users"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    },
+    {
+      "key": "api:GET /users/search",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/search",
+        "query": [
+          "q",
+          "page"
+        ],
+        "auth": "required"
+      },
+      "status": "seen",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: https://api.practicesoftwaretesting.com/docs?api-docs.json"
+    },
+    {
+      "key": "api:GET /users/search",
+      "kind": "endpoint",
+      "value": {
+        "auth": "required",
+        "method": "GET",
+        "path": "/users/search"
+      },
+      "status": "stale",
+      "at": "2026-09-29T22:15:31.334Z",
+      "by": "doctor",
+      "evidence": "doctor --learn: superseded by what the application shows now"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-29T23:07:56.871Z",
+  "verdictAt": "2026-09-29T23:07:29.566Z",
+  "file": "aut-knowledge/practicesoftwaretesting/facts/20260929T230756Z-tool-3-5ac2df.json",
+  "proven": 22,
+  "stale": 0,
+  "dropped": [
+    {
+      "key": "locator:/checkout row-quantity-unit-price-line-total",
+      "why": "the tests do not use getByTestId('product-quantity') (input) / getByTestId('product-price') / getByTestId('line-price')"
+    }
+  ]
+}

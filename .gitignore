@@ -1,0 +1,11 @@
+
+# held-out evaluator (secrets and bulky local artifacts; verdicts and evidence summaries stay tracked)
+.env
+node_modules/
+test-results/
+playwright-report/
+evaluations/*/runs/*/html/
+evaluations/*/runs/*/artifacts/
+*.trace.zip
+.playwright-mcp/
+.claude/settings.local.json

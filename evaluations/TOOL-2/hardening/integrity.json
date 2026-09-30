@@ -1,0 +1,17 @@
+{
+  "status": "PRESERVED",
+  "checkedAt": "2026-09-29T22:31:08.702Z",
+  "files": [
+    {
+      "file": "tool-2.spec.ts",
+      "draftAssertions": 25,
+      "currentAssertions": 25
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": []
+}

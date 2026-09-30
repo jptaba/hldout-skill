@@ -1,0 +1,125 @@
+{
+  "acs": [
+    {
+      "id": "AC-1",
+      "text": "POST /carts creates an empty cart and responds 201 with its id.",
+      "outcomes": [
+        "POST /carts responds 201",
+        "the response contains the cart's id",
+        "the new cart is empty"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "POST /carts/{id} with product_id and a quantity from 1 to 99 adds the product (200); adding a product already in the cart increases its quantity by the amount added.",
+      "outcomes": [
+        "quantity 1 → 200 and the product is in the cart with that quantity",
+        "quantity 99 → 200 and the product is in the cart with that quantity",
+        "adding a product already in the cart → 200 and its quantity increases by the amount added (one line for the product)"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "A quantity outside 1–99 is rejected with 422 and an error for the quantity field; the cart is unchanged.",
+      "outcomes": [
+        "quantity 0 → 422 with an error for the quantity field",
+        "quantity 100 → 422 with an error for the quantity field",
+        "after each rejected request the cart is unchanged"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "On a product page, choosing a quantity and pressing \"Add to cart\" shows \"Product added to shopping cart.\" and the cart icon in the navigation shows the total number of items.",
+      "outcomes": [
+        "pressing \"Add to cart\" shows \"Product added to shopping cart.\"",
+        "the cart icon in the navigation shows the total number of items"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "The cart page (checkout step 1) lists each product with its quantity, unit price and line total (price × quantity), and the cart total.",
+      "outcomes": [
+        "each product in the cart is listed with its quantity",
+        "each listed product shows its unit price",
+        "each listed product shows its line total, equal to price × quantity",
+        "the cart total is shown"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "DELETE /carts/{id}/product/{productId} removes the product (204); the cart no longer lists it.",
+      "outcomes": [
+        "DELETE /carts/{id}/product/{productId} responds 204",
+        "the cart no longer lists the product"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204.",
+      "outcomes": [
+        "deleting a cart → 204",
+        "deleting the same cart again → 204"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Any request for a cart that does not exist responds 404 with the message \"Cart not found\".",
+      "outcomes": [
+        "adding a product to a cart that does not exist → 404 with the message \"Cart not found\"",
+        "removing a product from a cart that does not exist → 404 with the message \"Cart not found\"",
+        "reading a cart that does not exist → 404 with the message \"Cart not found\"",
+        "deleting a cart that does not exist → 404 with the message \"Cart not found\""
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "The quantity added to a cart must be from 1 to 99; a quantity outside 1–99 is rejected."
+    },
+    {
+      "id": "R2",
+      "text": "The web shop keeps the cart across page views."
+    },
+    {
+      "id": "R3",
+      "text": "Guests (not signed in) can collect products in a cart; carts are anonymous."
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "quantity outside 1–99 when adding a product to a cart; the cart is unchanged",
+      "status": 422,
+      "body": "an error for the `quantity` field"
+    },
+    {
+      "id": "E2",
+      "case": "any request for a cart that does not exist (see G8 for deleting an already deleted cart)",
+      "status": 404,
+      "body": "Cart not found"
+    }
+  ],
+  "oracleGaps": [
+    {
+      "id": "G8",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G9",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G10",
+      "resolution": "open",
+      "value": null
+    },
+    {
+      "id": "G11",
+      "resolution": "open",
+      "value": null
+    }
+  ]
+}

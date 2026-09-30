@@ -1,0 +1,30 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5)",
+  "reviewedAt": "2026-09-29T22:20:21Z",
+  "contractHash": "cd9f97cd16c72683",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L23-L27", "note": "Quote, text and outcomes (201, customer's details and an id, no password in response) match the scenario verbatim; layer api is correct (no UI mentioned)." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L29-L32", "note": "Quote and outcomes (409, exact message) match; layer api correct." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L34-L37", "note": "Quote matches; the four rules are split into separate outcomes in the same order and wording as the source; layer api correct." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L39-L43", "note": "Quote and outcomes (land on My account page, navigation shows first and last name) match; scenario text mentions no API call, so layer ui is correct." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L45-L49", "note": "Quote and outcomes match; scenario text explicitly combines an API status (POST /users/login 401) with a UI check (web shop shows message), so layer e2e is correct." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L51-L55", "note": "Quote and outcomes (five 401s, sixth 423 with correct password, locked message) match; layer api correct, no UI mentioned." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "story.md#L57-L60", "note": "Quote and outcome (GET /users/me with the same token returns 401 after logout) match; layer api correct." },
+    { "ref": "R1", "verdict": "supported", "evidence": "story.md#L34-L37", "note": "The four password rules and the 422 response with every broken rule listed match the source exactly." },
+    { "ref": "R2", "verdict": "supported", "evidence": "story.md#L51-L55", "note": "Five failed attempts, sixth attempt with correct password still 423 and locked message, all match the source." },
+    { "ref": "R3", "verdict": "supported", "evidence": "story.md#L57-L60", "note": "Logout invalidates the token, GET /users/me then 401, matches the source." },
+    { "ref": "E1", "verdict": "supported", "evidence": "story.md#L32", "note": "Status 409 and the exact message text match." },
+    { "ref": "E2", "verdict": "supported", "evidence": "story.md#L37", "note": "Status 422 for the weak-password case matches; no body is invented beyond what the source states (the field/key is correctly left as gap G3, not asserted here)." },
+    { "ref": "E3", "verdict": "supported", "evidence": "story.md#L48-L49", "note": "Status 401 and the exact 'Invalid email or password' message match." },
+    { "ref": "E4", "verdict": "supported", "evidence": "story.md#L55", "note": "Status 423 for the sixth attempt, even with the correct password, matches; message content is only referenced as 'a message that the account is locked' as stated in the source, not invented text." },
+    { "ref": "E5", "verdict": "supported", "evidence": "story.md#L60", "note": "Status 401 for GET /users/me with a token invalidated by logout matches." },
+    { "ref": "G4", "verdict": "supported", "evidence": "story.md#L51-L55", "note": "The source states the lock but never states its duration or an unlock procedure; the gap correctly records this as missing (oracle) and unresolved, and required:false is consistent with the fact that AC-6 itself never needs the account to unlock." },
+    { "ref": "POST /users/register", "verdict": "supported", "evidence": "story.md#L19", "note": "Method and path appear literally in the description line." },
+    { "ref": "POST /users/login", "verdict": "supported", "evidence": "story.md#L19", "note": "Method and path appear literally in the description line, along with the token response shape." },
+    { "ref": "GET /users/me", "verdict": "supported", "evidence": "story.md#L19", "note": "Method and path appear literally in the description line." },
+    { "ref": "GET /users/logout", "verdict": "supported", "evidence": "story.md#L19", "note": "Method and path appear literally in the description line." }
+  ],
+  "missed": [],
+  "observations": [],
+  "summary": "Every acceptance criterion, rule, error case, the one oracle gap (G4) and the four endpoints are grounded exactly in story.md, with correct layer assignments (ui for AC-4, e2e for AC-5 which explicitly combines an API status with a UI message, api for the rest); no marked (●) line in the evidence pack is left uncaptured, and no descriptive field states anything the source doesn't."
+}

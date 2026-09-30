@@ -1,0 +1,126 @@
+# url: https://practicesoftwaretesting.com/product/01M3QJXQJHDB71SAG06CVTHSEY
+# step: FAILED Then the cart icon in the navigation shows 3
+- text: View the
+- link "Documentation":
+  - /url: https://testsmith-io.github.io/practice-software-testing/#/
+- text: for this application. Practice Black Box Testing & Bug Hunting
+- button "Testing Guide"
+- button "🐛 Bug Hunting"
+- navigation:
+  - link "Practice Software Testing - Toolshop":
+    - /url: /
+    - img
+  - menubar "Main menu":
+    - menuitem "Home":
+      - link "Home":
+        - /url: /
+    - menuitem "Categories":
+      - button "Categories"
+    - menuitem "Contact":
+      - link "Contact":
+        - /url: /contact
+    - menuitem "Sign in":
+      - link "Sign in":
+        - /url: /auth/login
+  - button "Select language": EN
+- figure "Photo by ANIRUDH on Unsplash.":
+  - img "Thor Hammer"
+  - text: Photo by
+  - link "ANIRUDH":
+    - /url: https://unsplash.com/@lanirudhreddy
+  - text: "on"
+  - link "Unsplash":
+    - /url: https://unsplash.com/photos/3esjG-nlgyk
+  - text: .
+- heading "Thor Hammer" [level=1]
+- paragraph: Hammer ForgeFlex Tools
+- text: "$11.14 CO₂: A B C D E"
+- paragraph: "The legendary Thor Hammer combines premium craftsmanship with raw striking power in a tool that is truly built to last generations. Forged from Uru metal with a hand-wrapped leather grip, this extraordinary 5kg masterpiece delivers unmatched impact force for the most demanding demolition, forging, and heavy construction tasks. The perfectly balanced oversized head ensures every swing transfers maximum energy to the target, while the enlarged striking face covers more surface area than any conventional hammer. Despite its impressive mass, the ergonomic handle design and precise weight distribution allow for surprisingly controlled, accurate swings. This is not merely a tool but a statement piece for those who accept nothing less than the absolute best in their workshop. Comes with a lifetime warranty because true legends never fade. Please note: only one Thor Hammer is permitted per customer."
+- button "Decrease quantity"
+- text: Quantity
+- spinbutton "Quantity": "3"
+- button "Increase quantity"
+- button "Add to cart"
+- button "Add to favourites"
+- button "Compare"
+- heading "Specifications" [level=3]
+- table:
+  - rowgroup:
+    - row "Handle Material Leather Wrapped":
+      - cell "Handle Material"
+      - cell "Leather Wrapped"
+    - row "Head Weight 4500g":
+      - cell "Head Weight"
+      - cell "4500g"
+    - row "Length 450mm":
+      - cell "Length"
+      - cell "450mm"
+    - row "Material Uru Metal":
+      - cell "Material"
+      - cell "Uru Metal"
+    - row "Warranty Lifetime":
+      - cell "Warranty"
+      - cell "Lifetime"
+    - row "Weight 5000g":
+      - cell "Weight"
+      - cell "5000g"
+- separator
+- heading "Related products" [level=2]
+- link "Claw Hammer with Shock Reduction Grip Claw Hammer with Shock Reduction Grip More information":
+  - /url: /product/01M3QJXQHY99WEBGDFT29MVA4B
+  - img "Claw Hammer with Shock Reduction Grip"
+  - heading "Claw Hammer with Shock Reduction Grip" [level=5]
+  - link "More information":
+    - /url: "#"
+- link "Hammer Hammer More information":
+  - /url: /product/01M3QJXQJ7Q49G49WH7K81VZ07
+  - img "Hammer"
+  - heading "Hammer" [level=5]
+  - link "More information":
+    - /url: "#"
+- link "Sledgehammer Sledgehammer More information":
+  - /url: /product/01M3QJXQJV6ZSTKP96AKRTD7JE
+  - img "Sledgehammer"
+  - heading "Sledgehammer" [level=5]
+  - link "More information":
+    - /url: "#"
+- link "Claw Hammer with Fiberglass Handle Claw Hammer with Fiberglass Handle More information":
+  - /url: /product/01M3QJXQK0MZ2GKY37GAF96JCH
+  - img "Claw Hammer with Fiberglass Handle"
+  - heading "Claw Hammer with Fiberglass Handle" [level=5]
+  - link "More information":
+    - /url: "#"
+- link "Court Hammer Court Hammer More information":
+  - /url: /product/01M3QJXQK78A5FN2RNW3KG38BA
+  - img "Court Hammer"
+  - heading "Court Hammer" [level=5]
+  - link "More information":
+    - /url: "#"
+- link "Claw Hammer Claw Hammer More information":
+  - /url: /product/01M3QJXQJCHH8D6SM3988HTD1Z
+  - img "Claw Hammer"
+  - heading "Claw Hammer" [level=5]
+  - link "More information":
+    - /url: "#"
+- contentinfo:
+  - text: Learn & Explore
+  - link "Learn Test Automation Hands-on courses for Playwright, Robot Framework, APIs and more":
+    - /url: https://onlinecourses.testsmith.io
+  - link "API Spector Open-source API testing, mocking and contract testing":
+    - /url: https://api-spector.dev
+  - link "GitHub Source code, issues and contributions":
+    - /url: https://github.com/testsmith-io/practice-software-testing
+  - text: This is a DEMO application, used for software testing training purpose. |
+  - link "Privacy Policy":
+    - /url: /privacy
+  - text: "| Banner photo by"
+  - link "Barn Images":
+    - /url: https://unsplash.com/@barnimages
+  - text: "on"
+  - link "Unsplash":
+    - /url: https://unsplash.com/photos/t5YUoHW6zRo
+  - text: . v2.5 | Built 2026-09-29 | Angular 20.0.5
+- button "Open chat":
+  - img
+- button "Show live shop activity"
+- alert "You can only have one Thor Hammer in the cart."

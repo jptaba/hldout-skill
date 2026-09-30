@@ -1,0 +1,634 @@
+{
+  "key": "TOOL-3",
+  "verdict": "FAIL",
+  "reason": "1 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-8. Awaiting reviewer confirmation.",
+  "finalRun": "05-eval",
+  "generatedAt": "2026-09-29T23:07:29.566Z",
+  "autId": "practicesoftwaretesting",
+  "aut": {
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
+    "apiBaseURL": "https://api.practicesoftwaretesting.com/",
+    "testIdAttribute": "data-test",
+    "healthcheck": [
+      "/"
+    ],
+    "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application; bind a story with evaluations/<KEY>/evaluation.json.",
+    "accounts": {
+      "password": "${env:APP_USER_PASSWORD}",
+      "username": "hldout-${uid}@example.com",
+      "create": {
+        "method": "POST",
+        "path": "/users/register",
+        "body": {
+          "first_name": "Hldout",
+          "last_name": "Tester",
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "id": "id"
+      },
+      "token": {
+        "method": "POST",
+        "path": "/users/login",
+        "body": {
+          "email": "${username}",
+          "password": "${password}"
+        },
+        "token": "access_token"
+      },
+      "authHeader": "Authorization: Bearer ${token}",
+      "signIn": {
+        "path": "auth/login",
+        "done": "url:/account",
+        "steps": [
+          {
+            "fill": "getByTestId('email')",
+            "value": "${username}"
+          },
+          {
+            "fill": "getByTestId('password')",
+            "value": "${password}"
+          },
+          {
+            "click": "getByTestId('login-submit')"
+          }
+        ]
+      }
+    },
+    "maxWorkers": 1,
+    "minTestIntervalMs": 6000
+  },
+  "summary": {
+    "total": 18,
+    "passed": 14,
+    "failed": 4,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "PRESERVED",
+  "amendments": 0,
+  "appKnowledge": "tests written blind; consulted after the freeze: 14 entries for the story (8 proven, 6 seen, 0 stale), and the full listing once · 20 recorded for later stories",
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Requests for a missing cart answer 404 with other messages than \"Cart not found\"",
+      "testType": "negative",
+      "source": "story.md#L28",
+      "confirmed": true,
+      "severity": "Minor",
+      "criteria": [
+        "AC-8"
+      ],
+      "tests": [
+        "SCN-012.2",
+        "SCN-012.3"
+      ],
+      "expected": "\"Cart not found\"",
+      "actual": "\"Cart doesnt exists\"",
+      "rationale": "DELETE /carts/{id}/product/{productId} on a deleted cart → 404 as required, but the message is 'Cart doesnt exists', not 'Cart not found' (AC-8).",
+      "liveCheck": "Replayed live 2026-09-29 (tier 3, api-probe chain): runs/05-eval/confirm/missing-cart.md; same answers in hardening/api-cart-chain.md and runs 01/02 step 6",
+      "steps": [
+        "Given a cart id that does not exist (a cart I created and deleted)",
+        "And a product that is in stock",
+        "When I <request> for that cart",
+        "Then the response status is 404",
+        "And the message is \"Cart not found\""
+      ],
+      "api": {
+        "request": {
+          "method": "DELETE",
+          "url": "https://api.practicesoftwaretesting.com/carts/01m3qpp3pkhnhqgg6kj605ery5/product/01M3QPBHTFMBJC30PJAKM8MHVZ",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "response": {
+          "status": 404,
+          "durationMs": 461,
+          "headers": {
+            "date": "Tue, 29 Sep 2026 23:06:07 GMT",
+            "server": "Apache/2.4.52 (Ubuntu)",
+            "cache-control": "no-cache, private",
+            "access-control-allow-origin": "*",
+            "access-control-expose-headers": "Content-Disposition",
+            "upgrade": "h2",
+            "connection": "Upgrade, close",
+            "transfer-encoding": "chunked",
+            "content-type": "application/json"
+          },
+          "body": {
+            "message": "Cart doesnt exists"
+          }
+        }
+      },
+      "screenshot": "evaluations/TOOL-3/runs/05-eval/artifacts/TOOL-3-tests-tool-3-TOOL-3-30d2d-carts-id-product-productId--chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "https://api.practicesoftwaretesting.com/carts/01m3qpp3pkhnhqgg6kj605ery5/product/01M3QPBHTFMBJC30PJAKM8MHVZ",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 404,
+            "durationMs": 461,
+            "headers": {
+              "date": "Tue, 29 Sep 2026 23:06:07 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "no-cache, private",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "transfer-encoding": "chunked",
+              "content-type": "application/json"
+            },
+            "body": {
+              "message": "Cart doesnt exists"
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run TOOL-3 --label repro --grep \"SCN-012\\.2:\"",
+        "npm run heldout -- run TOOL-3 --label repro --grep \"SCN-012\\.3:\""
+      ]
+    }
+  ],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 2,
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "composition",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "functional",
+      "scenarios": 8,
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "idempotency",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "negative",
+      "scenarios": 2,
+      "tests": 4,
+      "passed": 1,
+      "failed": 3,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "POST /carts creates an empty cart and responds 201 with its id.",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "A guest creates an empty cart",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L21"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "A guest cart from creation to deletion",
+          "type": "composition",
+          "layer": "api",
+          "sources": [
+            "story.md#L21, story.md#L22, story.md#L26, story.md#L27"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "POST /carts/{id} with product_id and a quantity from 1 to 99 adds the product (200); adding a product already in the cart increases its quantity by the amount added.",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "Adding a product with a quantity on the limits of 1–99",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md#L22"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-002.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-003",
+          "title": "Adding a product already in the cart increases its quantity by the amount added",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L22"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "A guest cart from creation to deletion",
+          "type": "composition",
+          "layer": "api",
+          "sources": [
+            "story.md#L21, story.md#L22, story.md#L26, story.md#L27"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "A quantity outside 1–99 is rejected with 422 and an error for the quantity field; the cart is unchanged.",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "A quantity just outside 1–99 is rejected and the cart is unchanged",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md#L23"
+          ],
+          "passed": 2,
+          "total": 2,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-004.2",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "On a product page, choosing a quantity and pressing \"Add to cart\" shows \"Product added to shopping cart.\" and the cart icon in the navigation shows the total number of items.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "Adding a product from its product page shows the confirmation",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L24"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-006",
+          "title": "The cart icon shows the total number of items after adding from the product page",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L24"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "The cart page (checkout step 1) lists each product with its quantity, unit price and line total (price × quantity), and the cart total.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "The cart page lists each product with quantity, unit price and line total",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L25"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-008",
+          "title": "The cart total equals the sum of the line totals",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L25"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "DELETE /carts/{id}/product/{productId} removes the product (204); the cart no longer lists it.",
+      "scenarios": [
+        {
+          "id": "SCN-009",
+          "title": "Removing a product from the cart",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L26"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "A guest cart from creation to deletion",
+          "type": "composition",
+          "layer": "api",
+          "sources": [
+            "story.md#L21, story.md#L22, story.md#L26, story.md#L27"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204.",
+      "scenarios": [
+        {
+          "id": "SCN-010",
+          "title": "Deleting a cart",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L27"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-011",
+          "title": "Deleting a cart that was already deleted",
+          "type": "idempotency",
+          "layer": "api",
+          "sources": [
+            "story.md#L27"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "reading contradicted",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "failed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "A guest cart from creation to deletion",
+          "type": "composition",
+          "layer": "api",
+          "sources": [
+            "story.md#L21, story.md#L22, story.md#L26, story.md#L27"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-8",
+      "text": "Any request for a cart that does not exist responds 404 with the message \"Cart not found\".",
+      "scenarios": [
+        {
+          "id": "SCN-012",
+          "title": "A request for a cart that does not exist is answered 404 \"Cart not found\"",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L28"
+          ],
+          "passed": 1,
+          "total": 3,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-012.1",
+              "status": "passed",
+              "defect": null
+            },
+            {
+              "id": "SCN-012.2",
+              "status": "failed",
+              "defect": "APP-1"
+            },
+            {
+              "id": "SCN-012.3",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        },
+        {
+          "id": "SCN-013",
+          "title": "Deleting a cart that does not exist is answered 404 \"Cart not found\"",
+          "type": "negative",
+          "layer": "api",
+          "sources": [
+            "story.md#L28"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "reading contradicted",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-013",
+              "status": "failed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "G8 — status for deleting a cart that was already deleted: AC-7 says 204 (idempotent), AC-8 says any request for a cart that does not exist responds 404 with the message \"Cart not found\". Both literal readings are tested (SCN-011, SCN-013) and tagged @needs-clarification.",
+    "G9 — what \"the total number of items\" on the cart icon counts: the sum of the quantities, or the number of different products. SCN-006 tests the sum of the quantities (@needs-clarification).",
+    "G10 — what the cart total on the cart page must equal (the sum of the line totals, or with anything else such as shipping, tax or discounts). SCN-008 tests the sum of the line totals (@needs-clarification).",
+    "G11 — whether the 1–99 limit applies to the amount added or to the resulting quantity of a product already in the cart (adding to an existing line so the total goes past 99). Not tested."
+  ],
+  "observations": [
+    "the in-stock product \"Thor Hammer\" refuses a quantity of 2 (and a second add of 1) with 400 \"You can only have one Thor Hammer in the cart.\" (hardening/api-thor-hammer.md; also seen on its product page). AC-2 states 1–99 for adding a product and the test data line allows \"any product that is in stock\"; the story names no per-product limit. The tests use other in-stock products; the owner should say whether per-product limits are intended."
+  ],
+  "verdictFile": "evaluations/TOOL-3/verdict.md"
+}

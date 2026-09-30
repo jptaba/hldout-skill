@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "by": "TOOL-2",
+  "at": "2026-09-29T22:32:59.876Z",
+  "facts": [
+    {
+      "key": "locator:/auth/login e-mail-field",
+      "kind": "locator",
+      "value": {
+        "route": "/auth/login",
+        "element": "e-mail field",
+        "locator": "getByTestId('email')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-005 passed"
+    },
+    {
+      "key": "locator:/auth/login password-field",
+      "kind": "locator",
+      "value": {
+        "route": "/auth/login",
+        "element": "password field",
+        "locator": "getByTestId('password')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-005 passed"
+    },
+    {
+      "key": "locator:/auth/login login-button",
+      "kind": "locator",
+      "value": {
+        "route": "/auth/login",
+        "element": "Login button",
+        "locator": "getByTestId('login-submit')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-005 passed"
+    },
+    {
+      "key": "locator:/account navigation-shows-the-signed-in-customer-s-name",
+      "kind": "locator",
+      "value": {
+        "route": "/account",
+        "element": "navigation (shows the signed-in customer's name)",
+        "locator": "getByRole('navigation')"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-005 passed"
+    },
+    {
+      "key": "api:POST /users/register",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/register",
+        "requestFields": [
+          "first_name",
+          "last_name",
+          "email",
+          "password"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-001 passed"
+    },
+    {
+      "key": "api:GET /users/me",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/me",
+        "auth": "required",
+        "authHeader": "Authorization: Bearer <access_token>"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-010 passed"
+    },
+    {
+      "key": "seed:customer",
+      "kind": "seed",
+      "value": {
+        "entity": "customer",
+        "create": "POST /users/register",
+        "id": "id",
+        "fields": [
+          "first_name",
+          "last_name",
+          "email",
+          "password"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-003 passed"
+    },
+    {
+      "key": "note:validation-error-shape",
+      "kind": "note",
+      "value": {
+        "topic": "validation error shape",
+        "text": "POST /users/register validation answers carry one list of message strings per field, at the top level (e.g. body.password is a string[])"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-004 passed"
+    },
+    {
+      "key": "note:test-customers-are-kept",
+      "kind": "note",
+      "value": {
+        "topic": "test customers are kept",
+        "text": "A customer's own token cannot delete the customer (DELETE /users/{id}); test customers stay, tagged hldout-…@example.com. The accounts recipe creates one per test (no delete)"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-009 passed"
+    },
+    {
+      "key": "api:POST /users/login",
+      "kind": "endpoint",
+      "value": {
+        "method": "POST",
+        "path": "/users/login",
+        "requestFields": [
+          "email",
+          "password"
+        ]
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: AC-4, AC-5 passed"
+    },
+    {
+      "key": "api:GET /users/logout",
+      "kind": "endpoint",
+      "value": {
+        "method": "GET",
+        "path": "/users/logout",
+        "auth": "required"
+      },
+      "status": "proven",
+      "at": "2026-09-29T22:32:59.869Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: AC-7 passed"
+    }
+  ]
+}

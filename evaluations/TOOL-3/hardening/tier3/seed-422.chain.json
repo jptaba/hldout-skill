@@ -1,0 +1,10 @@
+{
+  "steps": [
+    { "name": "search Slip Joint Pliers", "method": "GET", "path": "products/search?q=Slip%20Joint%20Pliers", "save": { "pid": "data.0.id" }, "show": ["data.0.id", "data.0.in_stock"] },
+    { "name": "create cart", "method": "POST", "path": "carts", "save": { "cid": "id" } },
+    { "name": "add 1 (current id)", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "${pid}", "quantity": 1 } },
+    { "name": "add 1 with an id that no longer exists", "method": "POST", "path": "carts/${cid}", "json": { "product_id": "01M3QJXQFBJC3M2NF6FXJT5XXX", "quantity": 1 } },
+    { "name": "leftover cart from run 03 (cleanup answered 500)", "method": "DELETE", "path": "carts/01m3qpb1bfbk3nwwjb20fe3st0" },
+    { "name": "delete cart", "method": "DELETE", "path": "carts/${cid}", "expect": 204 }
+  ]
+}

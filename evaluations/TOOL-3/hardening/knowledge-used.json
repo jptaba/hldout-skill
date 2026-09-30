@@ -1,0 +1,528 @@
+{
+  "calls": [
+    {
+      "at": "2026-09-29T22:50:54.627Z",
+      "all": false,
+      "shown": [
+        {
+          "key": "app:api-docs",
+          "status": "seen"
+        },
+        {
+          "key": "page:/",
+          "status": "seen"
+        },
+        {
+          "key": "page:/auth/login",
+          "status": "seen"
+        },
+        {
+          "key": "locator:/auth/login e-mail-field",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/auth/login login-button",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/auth/login password-field",
+          "status": "proven"
+        },
+        {
+          "key": "api:DELETE /carts/{}/product/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "note:api-product-fields-where-a-product-s-name-price-and-category",
+          "status": "proven"
+        },
+        {
+          "key": "note:how-the-id-of-the-category-hammer-is-read-from-the-get-categ",
+          "status": "proven"
+        },
+        {
+          "key": "note:product-item-shape",
+          "status": "proven"
+        },
+        {
+          "key": "note:validation-error-shape",
+          "status": "proven"
+        },
+        {
+          "key": "note:web-shop-catalogue-page-its-route-and-how-the-search-box-the",
+          "status": "proven"
+        }
+      ]
+    },
+    {
+      "at": "2026-09-29T22:51:00.857Z",
+      "all": true,
+      "shown": [
+        {
+          "key": "app:api-docs",
+          "status": "seen"
+        },
+        {
+          "key": "page:/",
+          "status": "seen"
+        },
+        {
+          "key": "page:/auth/login",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/hand-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/other",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/power-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/category/special-tools",
+          "status": "seen"
+        },
+        {
+          "key": "page:/contact",
+          "status": "seen"
+        },
+        {
+          "key": "page:/rentals",
+          "status": "seen"
+        },
+        {
+          "key": "locator:/ category-filter-checkbox-by-category-name",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ no-results-box",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ product-card-name",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ product-card-price",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ search-box",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ search-button",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ search-caption",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/ sort-select",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/account navigation-shows-the-signed-in-customer-s-name",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/auth/login e-mail-field",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/auth/login login-button",
+          "status": "proven"
+        },
+        {
+          "key": "locator:/auth/login password-field",
+          "status": "proven"
+        },
+        {
+          "key": "api:DELETE /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /carts/{}/product/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /favorites/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:DELETE /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /brands/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /categories/tree",
+          "status": "proven"
+        },
+        {
+          "key": "api:GET /categories/tree/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /favorites",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /favorites/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /images",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}/download-pdf",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/{}/download-pdf-status",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /invoices/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /messages",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /messages/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /postcode-lookup",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /product-specs/names",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products",
+          "status": "proven"
+        },
+        {
+          "key": "api:GET /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/related",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/specs",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /products/search",
+          "status": "proven"
+        },
+        {
+          "key": "api:GET /reports/average-sales-per-month",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/average-sales-per-week",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/customers-by-country",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/top10-best-selling-categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/top10-purchased-products",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/total-sales-of-years",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /reports/total-sales-per-country",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /sales-stream",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/logout",
+          "status": "proven"
+        },
+        {
+          "key": "api:GET /users/me",
+          "status": "proven"
+        },
+        {
+          "key": "api:GET /users/refresh",
+          "status": "seen"
+        },
+        {
+          "key": "api:GET /users/search",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PATCH /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /brands",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /carts/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /categories",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /favorites",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /invoices",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /invoices/guest",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages/{}/attach-file",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /messages/{}/reply",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /payment/check",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /products",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /products/{}/specs",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /totp/setup",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /totp/verify",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/change-password",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/forgot-password",
+          "status": "seen"
+        },
+        {
+          "key": "api:POST /users/login",
+          "status": "proven"
+        },
+        {
+          "key": "api:POST /users/register",
+          "status": "proven"
+        },
+        {
+          "key": "api:PUT /brands/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /carts/{}/product/quantity",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /categories/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /invoices/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /invoices/{}/status",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /messages/{}/status",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /products/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /products/{}/specs/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:PUT /users/{}",
+          "status": "seen"
+        },
+        {
+          "key": "api:QUERY /categories/tree",
+          "status": "seen"
+        },
+        {
+          "key": "api:QUERY /products",
+          "status": "seen"
+        },
+        {
+          "key": "seed:customer",
+          "status": "proven"
+        },
+        {
+          "key": "note:api-product-fields-where-a-product-s-name-price-and-category",
+          "status": "proven"
+        },
+        {
+          "key": "note:category-tree-shape",
+          "status": "proven"
+        },
+        {
+          "key": "note:how-the-id-of-the-category-hammer-is-read-from-the-get-categ",
+          "status": "proven"
+        },
+        {
+          "key": "note:ids-change-on-reseed",
+          "status": "proven"
+        },
+        {
+          "key": "note:product-item-shape",
+          "status": "proven"
+        },
+        {
+          "key": "note:test-customers-are-kept",
+          "status": "proven"
+        },
+        {
+          "key": "note:validation-error-shape",
+          "status": "proven"
+        },
+        {
+          "key": "note:web-shop-catalogue-page-its-route-and-how-the-search-box-the",
+          "status": "proven"
+        },
+        {
+          "key": "note:web-shop-list-calls",
+          "status": "proven"
+        }
+      ]
+    }
+  ]
+}
