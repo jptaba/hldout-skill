@@ -7,7 +7,8 @@
  *       { "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "token": "data.token" },
  *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt"],
  *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true, "parallel"?: 3 } ] }
- *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (redacted in the report)
+ *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (redacted in the report);
+ *       "save" paths are relative to the answer's body ("id", "data.0.id", "data.token")
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
  *       [--repeat N] [--out report.md] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)
@@ -119,9 +120,12 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     const copies = Math.max(1, Math.floor(s.parallel ?? 1));
     const all = await Promise.all(Array.from({ length: copies }, () => send(url, method, headers, body)));
     const r = all[0];
+    // A save path is read from the answer's body ("id", "data.0.id", "token"); one that finds nothing is said here, where
+    // it happened, since every later step that needs the value is then not sent.
+    const missedSaves: string[] = [];
     for (const [name, dotted] of Object.entries(s.save ?? {})) {
       const v = dig(r.json, dotted);
-      if (v === undefined) continue;
+      if (v === undefined) { missedSaves.push(`${name} ← "${dotted}"`); continue; }
       vars[name] = String(v);
       if (typeof v === 'number' || typeof v === 'boolean') typed[name] = v; else delete typed[name];
     }
@@ -137,14 +141,16 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
       .map(([f, want]) => `\`${f}\` ✖ expected ${JSON.stringify(redact(deep(want)))}, got ${JSON.stringify(redact(dig(r.json, f)))}`);
     if (s.expectBody && !bodyMisses.length) checks.push(`body ${Object.keys(s.expectBody).map((f) => `\`${f}\``).join(', ')} as expected ✔`);
     checks.push(...bodyMisses);
-    const ok = (!exp || all.every((x) => exp.includes(x.status))) && !checks.some((l) => l.includes('✖'));
+    if (missedSaves.length) checks.push(`save ✖ nothing at ${missedSaves.join(', ')} in the answer's body (paths are relative to the body, e.g. "id", "data.0.id")`);
+    const statusOk = !exp || all.every((x) => exp.includes(x.status));
+    const ok = statusOk && !checks.some((l) => l.includes('✖'));
     if (!ok) failed++;
     let shownBody = body ?? '';
     // The step's own literal values stay readable (a deliberately short test password is the point of the call).
     const literals = literalsOf(s.json ?? s.form);
     try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body)), { keep: literals }) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''), { keep: literals })); } catch { /* raw */ }
     const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : r.text;
-    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''}${copies > 1 ? ` ×${copies} at once` : ''} → **${copies > 1 ? all.map((x) => x.status).join(', ') : r.status}**${exp ? (ok ? ' ✔' : ` ✖ expected ${exp.join('/')}`) : ''} (${r.ms} ms)`);
+    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''}${copies > 1 ? ` ×${copies} at once` : ''} → **${copies > 1 ? all.map((x) => x.status).join(', ') : r.status}**${exp ? (!statusOk ? ` ✖ expected ${exp.join('/')}` : ok ? ' ✔' : ' ✔ status (✖ below)') : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.
     // A redirect is its Location header: always show it (or its absence). "header:<name>" in show reads any header.
     if (r.status >= 300 && r.status < 400) lines.push(`   \`Location\` = \`${r.headers.location ?? '(none)'}\``);
@@ -223,6 +229,10 @@ main(async () => {
   let reqBody = body ?? '';
   if (body !== undefined) { const b = redactBody(body, headers['Content-Type']); reqBody = typeof b === 'string' ? b : JSON.stringify(b, null, 2); }
   const pretty = r.json !== undefined ? JSON.stringify(redact(r.json), null, 2) : r.text;
+  // A clipped body hides what often sits at its end (paging: total, per_page, last_page): its top-level values in full.
+  const redacted = r.json !== undefined ? redact(r.json) : undefined;
+  const topLevel = pretty.length > bodyLimit && redacted && typeof redacted === 'object' && !Array.isArray(redacted)
+    ? Object.entries(redacted as Record<string, unknown>).filter(([, v]) => v === null || typeof v !== 'object').map(([k, v]) => `${k}: ${JSON.stringify(v)}`) : [];
   const out = scrubEnv([
     `# API probe — ${method} ${shownUrl}`, '',
     `- AUT: ${cfg.aut.name} (profile \`${cfg.autId}\`) · captured ${new Date().toISOString()}`,
@@ -232,6 +242,7 @@ main(async () => {
     ...(body !== undefined ? ['## Request body', '', '```json', reqBody, '```', ''] : []),
     '## Response headers (redacted)', '', '```json', JSON.stringify(redactHeaders(r.headers), null, 2), '```', '',
     `## Response body (redacted${pretty.length > bodyLimit ? `, first ${bodyLimit} of ${pretty.length} chars; --body-limit N for more` : ''})`, '', '```json', pretty.slice(0, bodyLimit), '```', '',
+    ...(topLevel.length ? ['## Top-level values (the clipped body in brief)', '', ...topLevel.map((x) => `- ${x}`), ''] : []),
     ...(r.json !== undefined ? ['## Shape (types only)', '', '```json', JSON.stringify(shapeOf(r.json), null, 2), '```', ''] : []),
   ].join('\n'), input);
   const file = flagStr(flags, 'out');

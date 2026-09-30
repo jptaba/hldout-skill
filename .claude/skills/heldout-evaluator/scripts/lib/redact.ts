@@ -19,6 +19,9 @@ export interface RedactOptions {
   testValues?: boolean;
 }
 
+const TAG_KEY = crypto.randomBytes(16);
+const tagOf = (v: string) => crypto.createHmac('sha256', TAG_KEY).update(v).digest('hex').slice(0, 4);
+
 /** Redact secrets from JSON bodies before they reach a report. An object with toJSON (a seed.account() account) is
  *  recorded as that says (its id and user name only). */
 export function redact(value: unknown, opts: RedactOptions = {}, depth = 0): unknown {
@@ -29,8 +32,10 @@ export function redact(value: unknown, opts: RedactOptions = {}, depth = 0): unk
   if (typeof value === 'object') {
     const hide = (k: string, v: unknown) => SECRET_KEY.test(k) && typeof v !== 'object' && !opts.keep?.has(v)
       && !(opts.testValues && typeof v === 'string' && v.length < 8);
+    // In a test's requests, two different hidden values stay told apart (the right password and a wrong one): a tag
+    // from a keyed hash whose key lives only in this process, so it says "same" or "different" and nothing else.
     return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, hide(k, v) ? '***redacted***' : redact(v, opts, depth + 1)]));
+      .map(([k, v]) => [k, hide(k, v) ? (opts.testValues ? `***redacted:${tagOf(String(v))}***` : '***redacted***') : redact(v, opts, depth + 1)]));
   }
   return value;
 }

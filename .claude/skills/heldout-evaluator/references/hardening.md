@@ -9,6 +9,28 @@ changing what the test expects**.
 npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → draft/
 ```
 
+## 0b. Start from the app knowledge
+
+```bash
+npm run heldout -- knowledge KEY          # the entries this story needs (--all: every entry of the application)
+```
+
+Earlier stories on this application (and `doctor --learn`) left routes, readiness anchors, locators, endpoints with
+their auth and request fields, seed recipes and plumbing notes. `proven` entries were used by a passing test of an
+earlier story; `seen` ones were only observed. Try them first, and **verify each with a probe** as usual: the app may
+have changed. One that works and your tests rely on: `npm run heldout -- knowledge KEY --confirm "<key>" --for SCN-n`.
+When one fails, discover the mechanic as usual and mark the entry:
+`npm run heldout -- knowledge KEY --stale "<key>" --evidence "<probe report>"`. Record what you find for the next
+stories as you go (see [app-knowledge.md](app-knowledge.md)):
+
+```bash
+npm run heldout -- knowledge KEY --add page --route orders --name "Orders" --ready "getByRole('heading', { name: 'Your orders' })" --signed-in --for SCN-001
+npm run heldout -- knowledge KEY --add locator --route orders --element "New order button" --locator "getByRole('button', { name: 'New order' })" --for SCN-002
+npm run heldout -- knowledge KEY --add seed --entity order --create "POST /orders" --id id --cleanup "DELETE /orders/{id}" --for SCN-003
+```
+
+The knowledge never changes what a test expects: it is HOW only, and it opens after the freeze.
+
 ## 1. Choose the tier
 
 | Tier | When | UI inspection | API inspection | Verification |
@@ -92,6 +114,9 @@ MSYS rewrites `/…` arguments into Windows paths.
   from a snapshot that may not have rendered. `heldout mcp-probe` enforces this: `expectAbsent` fails unless a wait
   anchor was seen or the snapshot has substantial content. Pair every absence check with a positive control
   on the same page (e.g. the other form fields *are* exposed).
+- Native MCP writes its snapshots under the agent app's working folder (`.playwright-mcp/`). When that is not the
+  project (a session opened in another folder), use `heldout mcp-probe`: its snapshots stay in a temporary folder of
+  its own and its report goes where `--out` says.
 - Large snapshots are written to files (`[Snapshot](….yml)`). `heldout mcp-probe` reads them, keeps MCP output
   in its own temp directory and deletes it when the walk ends. When MCP runs natively, add `.playwright-mcp/` to `.gitignore`.
 

@@ -1,10 +1,12 @@
 /**
  * Setup check — is everything wired up? Each problem comes with the command that fixes it.
  *
- *   heldout doctor [--jira] [--offline] [--aut <profile>]
+ *   heldout doctor [--jira] [--offline] [--learn] [--aut <profile>]
  *
  *   --jira     also authenticate against Jira Cloud and list custom fields that may hold acceptance criteria
  *   --offline  skip network checks (AUT reachability, Jira)
+ *   --learn    record the app's pages, the API calls they make and its published API document as app knowledge
+ *              (aut-knowledge/<profile>/, read-only visits); re-checks known pages and marks broken ones stale
  *
  * Exit 1 when any check fails (warnings don't fail).
  */
@@ -18,6 +20,8 @@ import { createTracker } from './lib/jira';
 import { safeToScrub } from './lib/redact';
 import { checkAccountRecipe, envNamesIn } from './lib/accounts';
 import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './lib/secrets';
+import { entries, loadKnowledge, writeFacts } from './lib/knowledge';
+import { learnApp } from './lib/learn';
 
 type Level = 'ok' | 'warn' | 'fail';
 const results: { level: Level; area: string; msg: string; fix?: string }[] = [];
@@ -46,7 +50,8 @@ main(async () => {
   if (fs.existsSync(sourceFile)) {
     const s = JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { from: string; update: string; remote?: string; commit?: string; installedAt: string };
     const update = fs.existsSync(s.from) ? `${s.update} (from this folder)` : `clone ${s.remote ?? 'the skill repository'} (README "Adopt it") and run its init from this folder`;
-    check('ok', 'skill', `installed ${s.installedAt.slice(0, 10)} from ${s.remote ?? s.from}${s.commit ? ` @ ${s.commit}` : ''} — to update: ${update}`);
+    const origin = s.commit?.endsWith('+local changes') || !s.remote ? `the folder ${s.from}` : s.remote;
+    check('ok', 'skill', `installed ${s.installedAt.slice(0, 10)} from ${origin}${s.commit ? ` @ ${s.commit}` : ''} — to update: ${update}`);
   }
 
   // ---- runtime ------------------------------------------------------------------------------------
@@ -221,6 +226,28 @@ main(async () => {
       }
     } else {
       check('ok', 'Jira', `mock mode — stories live in ${cfg.jira.mockRoot}/ (create one: ${H} new ABC-1 --from story.md)`);
+    }
+  }
+
+  // ---- app knowledge (aut-knowledge/<profile>/) ----------------------------------------------------
+  if (cfg) {
+    const ids = typeof flags.aut === 'string' ? [flags.aut] : Object.keys(cfg.auts);
+    for (const id of ids.filter((x) => cfg!.auts[x])) {
+      let store = loadKnowledge(id);
+      if (flags.learn && !flags.offline) {
+        const r = await learnApp(cfg.auts[id], entries(store.records));
+        const file = writeFacts(id, 'doctor', r.facts);
+        if (r.error) check('warn', 'knowledge', `${id}: ${r.error}`);
+        check('ok', 'knowledge', file
+          ? `${id}: learned ${r.pages} page(s) and ${r.endpoints} endpoint(s)${r.apiDoc ? ` (API document ${r.apiDoc})` : ''}${r.replaced ? `, ${r.replaced} of them replacing what an earlier visit saw` : ''}${r.stale ? `; ${r.stale} known entr(ies) no longer match the app (stale)` : ''} → ${rel(file)}`
+          : `${id}: nothing new to learn from the pages and the API document`);
+        store = loadKnowledge(id);
+      }
+      const all = entries(store.records);
+      const n = (s: string) => all.filter((e) => e.status === s).length;
+      if (!all.length) check(flags.learn ? 'warn' : 'ok', 'knowledge', `${id}: no app knowledge yet`, flags.learn ? undefined : `${H} doctor --learn --aut ${id}   (the app's pages and endpoints, for hardening)`);
+      else check('ok', 'knowledge', `${id}: ${all.length} entr(ies) — ${n('proven')} proven by stories, ${n('seen')} seen, ${n('stale')} with no working value (stale) — in ${store.files.length} fact file(s)${store.snapshots.length ? ` and ${store.snapshots.length} snapshot(s)` : ''}`,
+        store.files.length > 200 ? `${H} knowledge --aut ${id} --compact   (from one place, e.g. a scheduled CI job)` : undefined);
     }
   }
 

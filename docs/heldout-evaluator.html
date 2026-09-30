@@ -349,6 +349,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <a href="#tests">Scenarios and tests</a>
   <a href="#integrity">Integrity freeze</a>
   <a href="#hardening">Hardening</a>
+  <a href="#knowledge">App knowledge</a>
   <a href="#seeding">Seeding and teardown</a>
   <a href="#run">Running</a>
   <a href="#triage">Triage</a>
@@ -368,13 +369,13 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <h1>The <em>held-out</em> evaluator</h1>
   <p class="lede">An AI agent skill for GitHub Copilot or Claude Code that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
   <div class="rail" aria-label="Pipeline">
-    <span class="chip">Fetch</span><i class="arr">›</i><span class="chip">Contract</span><i class="arr">›</i><span class="chip">Scenarios</span><i class="arr">›</i><span class="chip">Draft tests</span><i class="arr">›</i><span class="chip">Freeze</span><i class="arr">›</i><span class="chip">Harden</span><i class="arr">›</i><span class="chip">Run</span><i class="arr">›</i><span class="chip">Triage</span><i class="arr">›</i><span class="chip">Verdict</span><i class="arr">›</i><span class="chip">Publish</span>
+    <span class="chip">Fetch</span><i class="arr">›</i><span class="chip">Contract</span><i class="arr">›</i><span class="chip">Scenarios</span><i class="arr">›</i><span class="chip">Draft tests</span><i class="arr">›</i><span class="chip">Freeze</span><i class="arr">›</i><span class="chip">Harden</span><i class="arr">›</i><span class="chip">Run</span><i class="arr">›</i><span class="chip">Triage</span><i class="arr">›</i><span class="chip">Verdict</span><i class="arr">›</i><span class="chip">Publish</span><i class="arr">›</i><span class="chip">Learn</span>
   </div>
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>6 apps</b><span>onboarded end to end in 21 rounds, with no app-specific code</span></div>
-    <div class="stat"><b>162</b><span>self-tests guarding the skill's own logic</span></div>
+    <div class="stat"><b>6 apps</b><span>onboarded end to end in 22 rounds, with no app-specific code</span></div>
+    <div class="stat"><b>182</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
 
@@ -450,18 +451,19 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 <section id="pipeline" class="reveal">
   <div class="kicker">The flow</div>
   <h2>One story, end to end</h2>
-  <p class="lede">Ten phases, always in order. The right-hand column shows what each one produced for a real story: CL-3, "Edit and delete a contact", on the Contact List App.</p>
+  <p class="lede">Eleven phases, always in order. The right-hand column shows what each one produced for a real story: CL-3, "Edit and delete a contact", on the Contact List App.</p>
   <div class="phases">
     <div class="phase"><div class="n">1</div><div><h4>Fetch <span class="badge b-muted">script</span></h4><p>Pulls the story, attachments and comments, and binds the story to an application profile. A later fetch notices when the requirement changed.</p><span class="cmd">heldout fetch KEY</span></div><div class="ex"><b>CL-3</b>story + 1 attachment (an API contract)</div></div>
     <div class="phase"><div class="n">2</div><div><h4>Contract <span class="badge b-inc">subagents</span></h4><p>One subagent turns the story into a structured, cited requirement contract. A second one, on a different model (Sonnet), reviews it in a fresh context. Scripts check that every item is grounded.</p><span class="cmd">heldout contract KEY --pack · heldout contract KEY</span></div><div class="ex"><b>CL-3</b>11 acceptance criteria · 5 gaps · reviewed</div></div>
     <div class="phase"><div class="n">3</div><div><h4>Scenarios <span class="badge b-acc">Opus</span></h4><p>Rewrites each criterion as Gherkin scenarios, each tagged with its criteria, a test type (functional, negative, boundary, security, idempotency, concurrency…) and its source line.</p><span class="cmd">heldout scaffold KEY → scenarios.feature</span></div><div class="ex"><b>CL-3</b>14 scenarios (functional, negative, integration)</div></div>
     <div class="phase"><div class="n">4</div><div><h4>Draft tests <span class="badge b-acc">Opus</span></h4><p>Translates the scenarios one to one into Playwright TypeScript for the UI and the API. Guessed locators are marked for hardening.</p><span class="cmd">tests/*.spec.ts · heldout lint KEY</span></div><div class="ex"><b>CL-3</b>1 spec file, 20 tests</div></div>
     <div class="phase"><div class="n">5</div><div><h4>Freeze <span class="badge b-muted">script</span></h4><p>Seals every expected value before the tests meet the real application.</p><span class="cmd">heldout integrity KEY --snapshot</span></div><div class="ex"><b>CL-3</b>33 requirement assertions frozen</div></div>
-    <div class="phase"><div class="n">6</div><div><h4>Harden <span class="badge b-acc">Opus</span></h4><p>Makes locators, waits and API plumbing work against the live app, without touching what is expected.</p><span class="cmd">heldout inspect · api-probe --chain · run --label harden</span></div><div class="ex"><b>CL-3</b>tier 3 · accounts recipe saved · 0 open TODOs</div></div>
+    <div class="phase"><div class="n">6</div><div><h4>Harden <span class="badge b-acc">Opus</span></h4><p>Makes locators, waits and API plumbing work against the live app, without touching what is expected. Starts from what earlier stories learned about the app.</p><span class="cmd">heldout knowledge KEY · inspect · api-probe --chain · run --label harden</span></div><div class="ex"><b>CL-3</b>tier 3 · accounts recipe saved · 0 open TODOs</div></div>
     <div class="phase"><div class="n">7</div><div><h4>Run <span class="badge b-muted">script</span></h4><p>Preflight checks, then the full suite. Each run gets its own numbered folder that is never deleted.</p><span class="cmd">heldout run KEY --label eval</span></div><div class="ex"><b>CL-3</b>20 passed in 9.7 s · 36 records created, none left behind</div></div>
     <div class="phase"><div class="n">8</div><div><h4>Triage <span class="badge b-acc">Opus</span></h4><p>Classifies each failure as a script defect or an application defect, and reproduces every application defect live.</p><span class="cmd">heldout triage KEY [--set …]</span></div><div class="ex"><b>CL-3</b>nothing to triage</div></div>
     <div class="phase"><div class="n">9</div><div><h4>Verdict <span class="badge b-muted">script</span></h4><p>Renders the recommendation with traceability, reproduction steps and evidence.</p><span class="cmd">heldout verdict KEY → verdict.md, verdict.json</span></div><div class="ex"><b>CL-3</b><span class="badge b-pass">PASS</span> matches the answer key</div></div>
     <div class="phase"><div class="n">10</div><div><h4>Publish <span class="badge b-muted">script</span></h4><p>Attaches the verdict to the story, posts a summary comment and sets a label. Nothing else.</p><span class="cmd">heldout publish KEY</span></div><div class="ex"><b>CL-3</b>comment + attachment + label heldout-pass</div></div>
+    <div class="phase"><div class="n">11</div><div><h4>Learn <span class="badge b-muted">script</span></h4><p>Keeps what the story's passing tests proved about driving the app, for the next story on it. See <a href="#knowledge">App knowledge</a>.</p><span class="cmd">heldout knowledge KEY --harvest --apply</span></div><div class="ex"><b>TOOL-3</b>22 entries kept for the next story · 1 left out (the tests didn't use it)</div></div>
   </div>
   <p class="small">At any point, <code>npm run heldout -- status KEY</code> shows where a story is and prints the next command.</p>
 </section>
@@ -550,7 +552,7 @@ npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout
         <rect class="box" x="430" y="250" width="510" height="52" rx="10"/><text class="t-b" x="446" y="271">blockHosts</text><text class="t-m" x="580" y="271">ad and analytics networks</text><text class="t-s" x="446" y="290">blocked in every test: they inject content and cause flakiness</text>
       </svg>
     </div>
-    <figcaption>Values from the real Toolshop onboarding above. Any flag you pass, such as <code>--api-base-url</code>, wins over what discovery finds. <code>doctor</code> repeats the check later and warns if the app and the profile disagree.</figcaption>
+    <figcaption>Values from the real Toolshop onboarding above. Any flag you pass, such as <code>--api-base-url</code>, wins over what discovery finds. <code>doctor</code> repeats the check later and warns if the app and the profile disagree. <code>doctor --learn</code> also starts the <a href="#knowledge">app knowledge</a>: the app's pages, the API calls they make and its published API document.</figcaption>
   </figure>
 
   <h3>Doctor: the pre-flight check</h3>
@@ -821,6 +823,64 @@ test('SCN-001: A customer adds a product to favourites', { tag: ['@AC-1', '@type
   <p>The first story that needs users also produces the accounts recipe: the probe chain that signed up and signed in becomes <code>accounts --from-chain</code>, and the login steps from <code>inspect</code> become the UI sign-in.</p>
 </section>
 
+<!-- ============ APP KNOWLEDGE ============ -->
+<section id="knowledge" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>App knowledge</h2>
+  <p class="lede">Every story on the same application needs the same mechanics: where the sign-in page is, what shows that a page has loaded, which locator reaches a button, how to create and delete a record. The evaluator keeps what it learns per application, so hardening a later story starts from what earlier ones proved.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 330" role="img" aria-label="App knowledge: doctor --learn records what the app shows; each story reads it only after the freeze, records what it finds while hardening, and after the verdict adds what its passing tests proved as a new file">
+        <rect class="box plain" x="20" y="30" width="230" height="84" rx="12"/><text class="t-b" x="135" y="57" text-anchor="middle">Contract · scenarios</text><text class="t-b" x="135" y="77" text-anchor="middle">· draft tests</text><text class="t-s" x="135" y="99" text-anchor="middle">written blind</text>
+        <path class="edge acc" d="M250 72 H290"/><text class="t-s" x="270" y="64" text-anchor="middle">freeze</text>
+        <rect class="box blue" x="294" y="30" width="210" height="84" rx="12"/><text class="t-b" x="399" y="57" text-anchor="middle">Harden</text><text class="t-m" x="399" y="77" text-anchor="middle">knowledge KEY</text><text class="t-s" x="399" y="97" text-anchor="middle">probe each hint · --add</text>
+        <path class="edge" d="M504 72 H544"/>
+        <rect class="box plain" x="548" y="30" width="190" height="84" rx="12"/><text class="t-b" x="643" y="57" text-anchor="middle">Run · triage</text><text class="t-b" x="643" y="77" text-anchor="middle">· verdict</text><text class="t-s" x="643" y="99" text-anchor="middle">unchanged</text>
+        <path class="edge" d="M738 72 H778"/>
+        <rect class="box green" x="782" y="30" width="158" height="84" rx="12"/><text class="t-b" x="861" y="57" text-anchor="middle">Harvest</text><text class="t-s" x="861" y="77" text-anchor="middle">what passing</text><text class="t-s" x="861" y="95" text-anchor="middle">tests proved</text>
+        <rect class="box acc" x="294" y="204" width="646" height="104" rx="12"/><text class="t-b" x="617" y="232" text-anchor="middle">aut-knowledge/&lt;profile&gt;/facts/</text><text class="t-s" x="617" y="254" text-anchor="middle">one new file per write, never an edit: no merge conflicts</text><text class="t-s" x="617" y="274" text-anchor="middle">folded when read · seen → proven → stale</text><text class="t-s" x="617" y="294" text-anchor="middle">routes · anchors · locators · endpoints · seed recipes · notes</text>
+        <rect class="box plain" x="20" y="214" width="230" height="84" rx="12"/><text class="t-b" x="135" y="241" text-anchor="middle">doctor --learn</text><text class="t-s" x="135" y="261" text-anchor="middle">pages, their API calls,</text><text class="t-s" x="135" y="279" text-anchor="middle">the published API document</text>
+        <path class="edge" d="M250 256 H290"/>
+        <path class="edge" d="M861 114 V200"/><text class="t-s" x="870" y="162">new file</text>
+        <path class="edge acc" d="M399 204 V118"/><text class="t-s" x="409" y="162">hints to verify, after the freeze only</text>
+        <text class="t-b t-red" x="135" y="150" text-anchor="middle">✕ no access</text><text class="t-s" x="135" y="168" text-anchor="middle">before the freeze</text>
+      </svg>
+    </div>
+    <figcaption>The contract, scenarios and tests are written before the knowledge opens, so expected values still come from the story alone. The knowledge only speeds up the part that may change: how the tests reach the application.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <thead><tr><th>Kind</th><th>Holds</th><th>Never holds</th></tr></thead>
+    <tbody>
+      <tr><td><code>page</code></td><td>route, name, a readiness anchor, how to reach it, whether it needs a sign-in, sign-in or sign-up page</td><td rowspan="5">what the application answers: status codes, messages, limits, values. That is the oracle, and it comes from the requirement. <code>--add</code> and the harvest refuse a note that states an answer or carries a story's expected message.</td></tr>
+      <tr><td><code>locator</code></td><td>a proven locator of an element on a page</td></tr>
+      <tr><td><code>endpoint</code></td><td>method, path, auth, auth header, query parameters, envelope, request fields</td></tr>
+      <tr><td><code>seed</code></td><td>create call, where the id is, cleanup call</td></tr>
+      <tr><td><code>note</code></td><td>plumbing: pacing, a sign-in detail, a response shape, what a mechanics gap turned out to be</td></tr>
+    </tbody>
+  </table></div>
+  <h3>How it grows</h3>
+  <div class="grid three">
+    <div class="card"><h4><span class="tag">seen</span> Onboarding</h4><p><code>doctor --learn</code> visits the start page and the pages its navigation links to, without changing anything. It records each page's route, name and a heading to wait for, the API calls those pages make, and the paths, methods, request fields and auth of a published OpenAPI or Swagger document. It leaves the document's responses out.</p></div>
+    <div class="card"><h4><span class="tag">proven</span> Each story</h4><p>After the freeze, <code>knowledge KEY</code> lists the entries the story needs: its endpoints, the pages its criteria start on, their locators and seed recipes. Opus verifies each with a probe and records what it finds with <code>--add … --for SCN-n</code>. After the verdict, <code>--harvest --apply</code> keeps only what a passing test used.</p></div>
+    <div class="card"><h4><span class="tag">stale</span> Change</h4><p>An entry that no longer works is marked with <code>--stale</code>. <code>doctor --learn</code>, run again, re-checks the pages it knows and marks those that no longer load. A later story that proves a new value replaces the old one.</p></div>
+  </div>
+  <h3>Many people, no merge conflicts</h3>
+  <p>Every write is a new file: <code>facts/&lt;time&gt;-&lt;story&gt;-&lt;random&gt;.json</code>. No file is ever edited, so two people harvesting on two branches add two files and git merges them cleanly. What the knowledge says is worked out when it's read, by folding every file together. Each value keeps the latest time it was seen, proven and found stale, and the stories that proved it. So the fold gives the same answer in any order, and reading a file twice changes nothing. Two different values proven at about the same time are both shown until a later story settles which one works.</p>
+  <p>The folder stays small: each file holds what one story proved. From time to time, <code>knowledge --aut &lt;id&gt; --compact</code>, run from one place such as a scheduled CI job, folds everything into one snapshot. <code>doctor</code> suggests it past 200 files.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Round 22 on Toolshop, one fresh project</th><th>Knowledge available at the freeze</th><th>Shown for the story</th><th>Kept by the harvest</th></tr></thead>
+    <tbody>
+      <tr><td>TOOL-1 · catalogue search (after <code>doctor --learn</code>)</td><td>92 seen: 8 pages, 83 endpoints, the API document</td><td>5 · the endpoints and the API document it used</td><td>19 · locators, endpoints with their query fields, notes</td></tr>
+      <tr><td>TOOL-2 · registration and sign-in</td><td>107 · 18 proven by TOOL-1</td><td>22 · the sign-in page and the identity endpoints</td><td>11 · sign-in locators, the first seed recipe</td></tr>
+      <tr><td>TOOL-3 · guest cart</td><td>114 · 29 proven</td><td>14 · product and cart endpoints, response-shape notes</td><td>22 · product and checkout locators, a cart seed recipe</td></tr>
+    </tbody>
+  </table></div>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>The exam is still written from the syllabus alone. The notebook of directions to the exam rooms is only opened after the answers are sealed: which corridor, which door, where the light switch is. Each student adds the directions that got them there, and nobody writes the answers in it.</p>
+  </div>
+</section>
+
 <!-- ============ SEEDING ============ -->
 <section id="seeding" class="reveal">
   <div class="kicker">Evaluating a story</div>
@@ -1074,13 +1134,14 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
     <thead><tr><th>Group</th><th>Command</th><th>Purpose</th></tr></thead>
     <tbody>
       <tr><td>Setup</td><td><code>init</code> · <code>add-aut</code></td><td>install or update the skill, scaffold the project, add another application</td></tr>
-      <tr><td></td><td><code>doctor</code> · <code>status [KEY]</code></td><td>check the setup; see where each story is and what's next</td></tr>
+      <tr><td></td><td><code>doctor [--learn]</code> · <code>status [KEY]</code></td><td>check the setup (and record the app's pages and endpoints); see where each story is and what's next</td></tr>
       <tr><td></td><td><code>secret NAME --generate | --ask</code></td><td>a secret into <code>.env</code> without showing it</td></tr>
       <tr><td></td><td><code>accounts …</code></td><td>test accounts: existing, or created by the tests; checked live</td></tr>
       <tr><td>Requirement</td><td><code>fetch</code></td><td>fetch a story from Jira and bind it to an app</td></tr>
       <tr><td></td><td><code>contract</code> · <code>scaffold</code></td><td>evidence pack and contract checks; scenarios and stubs from the contract</td></tr>
       <tr><td>Tests</td><td><code>lint</code> · <code>integrity</code></td><td>traceability and type checks; freeze and verify</td></tr>
       <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3</td></tr>
+      <tr><td></td><td><code>knowledge KEY [--add … | --stale … | --harvest]</code></td><td>app knowledge: read it after the freeze, record what you find, keep what the story proved</td></tr>
       <tr><td>Run</td><td><code>run</code> · <code>triage</code></td><td>preflight and run; classify and record decisions</td></tr>
       <tr><td>Report</td><td><code>verdict</code> · <code>publish</code> · <code>scrub</code></td><td>render; post to Jira; remove secrets from old artifacts</td></tr>
     </tbody>
@@ -1094,6 +1155,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
 ├── .env                            <span class="c">secrets (git-ignored)</span>
 ├── heldout-support/fixtures.ts     <span class="c">api, journey, seed, signIn, expectResponse</span>
 ├── playwright.config.ts · .mcp.json
+├── aut-knowledge/&lt;profile&gt;/       <span class="c">app knowledge: facts/ (one new file per write) and snapshots, committed</span>
 └── evaluations/KEY/
     ├── requirement/                <span class="c">story.md, attachments/, transcripts/, CHANGES.md, history/</span>
     ├── requirement-contract.json   <span class="c">+ .review.json, bound to the contract's hash</span>
@@ -1106,6 +1168,7 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
   <ul class="clean">
     <li><b>Held-out isolation.</b> Tests come only from the story, its attachments and black-box observation.</li>
     <li><b>Hardening changes how, never what.</b> Two audited exceptions, both shown in the verdict.</li>
+    <li><b>App knowledge is how, and opens after the freeze.</b> It never holds what the application answers.</li>
     <li><b>No application defect without live reproduction.</b></li>
     <li><b>A person decides.</b> No issues are created, transitioned or assigned.</li>
     <li><b>A bounded repair loop</b> of at most three cycles.</li>

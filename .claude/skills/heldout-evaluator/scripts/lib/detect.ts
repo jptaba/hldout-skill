@@ -45,13 +45,17 @@ export function overlayButtonsIn(names: string[]): string[] {
 const countIn = (html: string) => Object.fromEntries(TEST_ID_ATTRIBUTES.map((a) => [a, (html.match(new RegExp(`\\s${a}=`, 'g')) ?? []).length]));
 const best = (counts: Record<string, number>) => Object.entries(counts).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-async function rendered(url: string, also: string[] = []): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[]; buttons: string[] } | undefined> {
-  let chromium: { launch(o: object): Promise<{ newPage(): Promise<PageLike>; close(): Promise<void> }> } | undefined;
+/** The project's Playwright Chromium, or undefined when Playwright is not installed. */
+export async function loadChromium<P = PageLike>(): Promise<{ launch(o: object): Promise<{ newPage(): Promise<P>; close(): Promise<void> }> } | undefined> {
   try {
     const req = createRequire(path.join(ROOT, 'package.json'));
     const pw = await import(pathToFileURL(req.resolve('@playwright/test')).href);
-    chromium = pw.chromium ?? pw.default?.chromium;
+    return pw.chromium ?? pw.default?.chromium;
   } catch { return undefined; }
+}
+
+async function rendered(url: string, also: string[] = []): Promise<{ counts: Record<string, number>; title: string; hosts: Set<string>; apiCalls: string[]; buttons: string[] } | undefined> {
+  const chromium = await loadChromium();
   if (!chromium) return undefined;
   const browser = await chromium.launch({ headless: true });
   try {

@@ -31,6 +31,25 @@ function frontMatter(file: string): Record<string, string> {
   return Object.fromEntries((m?.[1] ?? '').split(/\r?\n/).map((l) => l.split(/:\s(.*)/s)).filter((x) => x.length > 1).map(([k, v]) => [k.trim(), v.trim().replace(/^"(.*)"$/, '$1')]));
 }
 
+/** How app knowledge took part: what was shown after the freeze, and what the story recorded for later stories. */
+function knowledgeLine(hardeningDir: string): string {
+  const read = <T>(f: string): T | undefined => (fs.existsSync(path.join(hardeningDir, f)) ? readJson<T>(path.join(hardeningDir, f)) : undefined);
+  const used = read<{ calls: { all?: boolean; shown: { key: string; status: string }[] }[] }>('knowledge-used.json');
+  const staged = read<{ facts: { status: string }[] }>('knowledge-staged.json');
+  // The entries chosen for the story; a full listing (--all) is mentioned, not counted as consulted.
+  const shown = new Map((used?.calls ?? []).filter((c) => !c.all).flatMap((c) => c.shown).map((s) => [s.key, s.status]));
+  const listed = (used?.calls ?? []).some((c) => c.all);
+  const n = (s: string) => [...shown.values()].filter((x) => x === s).length;
+  const kept = (staged?.facts ?? []).filter((f) => f.status !== 'stale').length;
+  const stale = (staged?.facts ?? []).filter((f) => f.status === 'stale').length;
+  const parts = [
+    used ? `tests written blind; consulted after the freeze: ${shown.size} entr${shown.size === 1 ? 'y' : 'ies'} for the story (${n('proven')} proven, ${n('seen')} seen, ${n('stale')} stale)${listed ? ', and the full listing once' : ''}` : 'not consulted',
+    ...(kept ? [`${kept} recorded for later stories`] : []),
+    ...(stale ? [`${stale} found out of date`] : []),
+  ];
+  return parts.join(' · ');
+}
+
 main(() => {
   const { _, flags } = parseArgs();
   const key = assertIssueKey(_[0]);
@@ -116,7 +135,9 @@ main(() => {
     });
   };
   const blockingQuestions = feature.openQuestions.filter((q) => !informational(q) && !testedLiterally(q));
-  const infoQuestions = feature.openQuestions.filter(informational);
+  // …unless the application contradicts a reading of it: then the answer decides a criterion, and the owner is asked.
+  const contradictedBy = (q: string) => (q.match(/\bG\d+\b/g) ?? []).some((id) => contradicted.some((e) => assumesOf(e.scenario).some((a) => a.startsWith(id))));
+  const infoQuestions = feature.openQuestions.filter((q) => informational(q) && !contradictedBy(q));
   const unverifiedNfrs = (contract.nonFunctional ?? []).filter((n) => !feature.scenarios.some((s) => s.nfrs.includes(n.id)));
   const { verdict, reason } = decideVerdict({
     integrity: integrity.status,
@@ -152,7 +173,14 @@ main(() => {
       `Observed response of request ${rel + 1} (${x.scenario}):`, '', '```json', short(seq[rel].response.body, 600), '```', '',
     ];
   };
-  const stepsOf = (id: string) => [...feature.background, ...(feature.scenarios.find((s) => s.id === baseScenarioId(id))?.steps ?? [])];
+  // An outline's row (SCN-012.2) with its Examples values in place of the <placeholders>.
+  const stepsOf = (id: string) => {
+    const sc = feature.scenarios.find((s) => s.id === baseScenarioId(id));
+    const row = Number(id.match(/\.(\d+)$/)?.[1]);
+    const [head, ...rows] = sc?.examples ?? [];
+    const values = head && rows[row - 1] ? Object.fromEntries(head.map((h, i) => [h, rows[row - 1][i]])) : undefined;
+    return [...feature.background, ...(sc?.steps ?? []).map((st) => (values ? st.replace(/<([^<>]+)>/g, (m, k: string) => values[k] ?? m) : st))];
+  };
   const durationS = meta.stats ? Math.round(meta.stats.duration / 1000) : Math.round((Date.parse(meta.finishedAt) - Date.parse(meta.startedAt)) / 1000);
   const reqCount = integrity.files.reduce((n, f) => n + f.currentAssertions, 0);
   const tiersUsed = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8').match(/^\*\*Tiers? used:\*\*[ \t]*(\S.*)$/m)?.[1] : undefined; // same line only: an empty value is "not recorded"
@@ -178,6 +206,7 @@ main(() => {
     `| Held-out integrity | ${integrityCell} |`,
     ...(meta.preflight === 'skipped' ? ['| ⚠️ Preflight | **skipped** for the final run (--skip-preflight): the traceability lint and AUT healthcheck were not enforced |'] : []),
     `| Hardening | ${esc(tierLine ?? 'not recorded: the hardening log has no "Tiers used" line')} |`,
+    `| App knowledge | ${knowledgeLine(p.hardening)} |`,
     ...(missingRuns.length ? [`| ⚠️ Run history | run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} were deleted: their results are not part of this record |`] : []),
     `| Evaluator | ${esc(flagStr(flags, 'evaluator') ?? 'Opus — heldout-evaluator skill')} |`,
     `| Generated | ${new Date().toISOString()} |`, '',
@@ -205,8 +234,8 @@ main(() => {
       '| | |', '| --- | --- |',
       `| Suggested severity | ${f?.severity ?? 'TBD'} |`,
       ...[...new Set(g.flatMap((x) => x.requirementRefs))].map((ac) => `| Requirement ${ac} | ${esc(acText(ac))} |`),
-      `| Requirement source | ${esc(sourceOf(e.scenario))} |`,
-      `| Test type · layer | ${[...new Set(g.map(typeOf))].join(', ')} · ${e.layer ?? scenarioOf(e.scenario)?.layer ?? '-'} |`,
+      `| Requirement source | ${esc([...new Set(g.map((x) => sourceOf(x.scenario)))].join('; '))} |`,
+      `| Test type · layer | ${[...new Set(g.map(typeOf))].join(', ')} · ${[...new Set(g.map((x) => x.layer ?? scenarioOf(x.scenario)?.layer ?? '-'))].join(', ')} |`,
       ...g.map((x) => `| ${x.scenario}: expected (requirement) → actual (AUT) | \`${esc(x.error?.expected ?? '-')}\` → \`${esc(actualOf(x))}\` |`),
       ...g.flatMap((x) => (x.otherFailures ?? []).map((o) => `| ${x.scenario}: also failed | ${esc(o.headline)}${o.expected !== undefined ? ` — \`${esc(short(o.expected, 120))}\` → \`${esc(short(o.received, 160))}\`` : ''} |`)),
       `| Failing step | ${esc(e.failingStep ?? '-')} |`,
@@ -260,8 +289,8 @@ main(() => {
   md.push('## Requirement coverage', '', '| Criterion | Requirement | Tests | Result |', '| --- | --- | --- | --- |');
   for (const ac of feature.acs) {
     const es = tri.entries.filter((e) => e.requirementRefs.includes(ac.id));
-    const res = !es.length ? '⚠️ not covered' : es.some((e) => e.status === 'failed' && cat(e) === 'APPLICATION_DEFECT' && e.final) ? '❌ not met'
-      : es.some((e) => e.status === 'failed') ? '❔ inconclusive' : '✅ met';
+    const res = !es.length ? '⚠️ not covered' : es.some((e) => e.status === 'failed' && cat(e) === 'APPLICATION_DEFECT' && e.final && !contradicted.includes(e)) ? '❌ not met'
+      : es.some((e) => contradicted.includes(e)) ? '❔ reading contradicted (the owner decides)' : es.some((e) => e.status === 'failed') ? '❔ inconclusive' : '✅ met';
     const ids = es.map((e) => e.scenario);
     const compact = ids.length > 6 ? `${[...new Set(ids.map(baseScenarioId))].join(', ')} (${ids.length} tests)` : ids.join(', ');
     md.push(`| ${ac.id} | ${esc(ac.text)} | ${compact || '-'} | ${res} |`);
@@ -278,7 +307,7 @@ main(() => {
       const es = tri.entries.filter((e) => baseScenarioId(e.scenario) === sc.id);
       const failedEs = es.filter((e) => e.status === 'failed');
       const result = !es.length ? 'not run' : failedEs.some((e) => appIds.has(e) && e.final) ? 'fails requirement'
-        : failedEs.length ? 'inconclusive' : es.some((e) => e.status === 'flaky') ? 'flaky' : 'meets requirement';
+        : failedEs.some((e) => contradicted.includes(e)) ? 'reading contradicted' : failedEs.length ? 'inconclusive' : es.some((e) => e.status === 'flaky') ? 'flaky' : 'meets requirement';
       return {
         id: sc.id, title: sc.title, type: sc.testType ?? null, layer: sc.layer ?? null, sources: sc.sources.length ? sc.sources : ['story'],
         passed: es.filter((e) => e.status === 'passed').length, total: es.length, result,
@@ -287,7 +316,7 @@ main(() => {
       };
     }),
   }));
-  const ICON: Record<string, string> = { 'fails requirement': '❌', inconclusive: '❔', flaky: '⚠️', 'meets requirement': '✅', 'not run': '⚠️' };
+  const ICON: Record<string, string> = { 'fails requirement': '❌', 'reading contradicted': '❔', inconclusive: '❔', flaky: '⚠️', 'meets requirement': '✅', 'not run': '⚠️' };
   for (const t of traceability) {
     if (!t.scenarios.length) { md.push(`| **${t.criterion}** | - | ⚠️ no scenario | - | - | 0/0 | not covered | - |`); continue; }
     t.scenarios.forEach((sc, i) => md.push(`| ${i === 0 ? `**${t.criterion}**` : '↳'} | ${esc(sc.sources.join('; '))} | ${sc.id} ${esc(sc.title)} | ${sc.type ?? '-'} | ${sc.layer ?? '-'} | ${sc.passed}/${sc.total} | ${ICON[sc.result]} ${sc.result} | ${sc.defects.join(', ') || '-'} |`));
@@ -325,7 +354,7 @@ main(() => {
         '| Gap | Missing element | Kind | Affects | Resolution |', '| --- | --- | --- | --- | --- |',
         ...contractGaps.map((g) => `| ${g.id} | ${esc(g.element)} | ${g.kind === 'oracle' ? 'expected behaviour' : 'how to exercise'} | ${g.affects.join(', ')} | ${how[g.resolution] ?? g.resolution}${g.value ? `: ${esc(g.value)}` : ''} |`), '');
     }
-    const poQuestions = feature.openQuestions.filter((q) => !informational(q));
+    const poQuestions = feature.openQuestions.filter((q) => !infoQuestions.includes(q));
     // How each question was handled: tested under an assumption, covered by an assumption, tested literally, or not at all.
     const handled = (q: string) => {
       const ids: string[] = q.match(/\bG\d+\b/g) ?? [];
@@ -336,7 +365,9 @@ main(() => {
     };
     if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${handled(q)}`), '');
     if (infoQuestions.length) md.push('**For the owner\'s information** (questions the criteria can be judged without, as the review confirmed; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
-    if (clarifications.length) md.push('**Scenarios needing clarification** (each tests the literal reading of an open question):', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}${unsettled.includes(c) ? ' — did not pass' : ' — passed: the application meets the literal reading'}`), '');
+    if (clarifications.length) md.push('**Scenarios needing clarification** (each tests the literal reading of an open question):', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}${unsettled.includes(c) ? ' — did not pass'
+        : contradicted.some((e) => baseScenarioId(e.scenario) === c.id) ? ' — did not pass: the application contradicts the literal reading (see "Readings the application contradicts")'
+        : ' — passed: the application meets the literal reading'}`), '');
     if (feature.assumptions.length) md.push('**Assumptions the evaluation made:**', '', ...feature.assumptions.map((a) => `- ${a}`), '');
     if (contradicted.length) md.push('**Readings the application contradicts** (the requirement does not settle these: an assumed value, or the literal reading of an open question; not reported as defects, the owner decides):', '',
       '| Test | Rests on | Expected (by that reading) | Actual |', '| --- | --- | --- | --- |',
@@ -352,7 +383,7 @@ main(() => {
   md.push('## How this verdict was produced', '',
     '1. The requirement and its attachments were fetched from Jira and reviewed ([requirement-review.md](requirement-review.md) when present), then converted into Gherkin scenarios (`scenarios.feature`). Each scenario is tagged with the acceptance criteria it proves, and API endpoints are declared.',
     '2. Playwright TypeScript tests (UI and API) were written from the scenarios **only**, with no access to the AUT source or developer tests. Expected values were copied verbatim from the requirement.',
-    '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only. Expected outcomes were never aligned with AUT behaviour (integrity check above).',
+    '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only. Expected outcomes were never aligned with AUT behaviour (integrity check above). App knowledge from earlier stories (how to reach pages and call endpoints, never what the application answers) is available only after the freeze.',
     '4. Preflight gates (traceability lint and an AUT healthcheck) passed before the run. Every failure was triaged automatically, then re-investigated live before being classified as an application defect.',
     ...(repaired.length ? ['5. Script defects were repaired (mechanics only) and the full suite re-run. This verdict reflects the final run.', ''] : ['5. No script defect needed repairing after hardening. This verdict reflects the final run.', '']),
     '| Run | Passed | Failed | Flaky |', '| --- | --- | --- | --- |',
@@ -375,7 +406,7 @@ main(() => {
   writeFile(path.join(p.runs, finalRun, 'verdict.md'), out.replace(/\]\((?!https?:|#)([^)]+)\)/g, (_m, l: string) => `](${path.posix.join('../..', l)})`));
   const json = {
     key, verdict, reason, finalRun, generatedAt: new Date().toISOString(), autId: cfg.autId, aut: cfg.aut, summary: s,
-    integrity: integrity.status, amendments: integrity.amended.length,
+    integrity: integrity.status, amendments: integrity.amended.length, appKnowledge: knowledgeLine(p.hardening),
     applicationDefects: [...groups.entries()].map(([title, g]) => ({
       id: appIds.get(g[0]), title: g[0].final ? title : g[0].title, testType: typeOf(g[0]), source: sourceOf(g[0].scenario), confirmed: Boolean(g[0].final), severity: g[0].final?.severity ?? null,
       criteria: [...new Set(g.flatMap((e) => e.requirementRefs))], tests: g.map((e) => e.scenario),

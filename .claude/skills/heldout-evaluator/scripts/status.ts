@@ -30,7 +30,10 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const triage = triageFile && fs.existsSync(triageFile) ? readJson<{ entries: { status: string; final?: unknown }[] }>(triageFile) : undefined;
   const failures = meta?.stats ? meta.stats.unexpected + meta.stats.flaky : 0;
   const pending = triage ? triage.entries.filter((e) => e.status !== 'passed' && !e.final).length : failures;
-  const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string }>(p.verdictJson) : undefined;
+  const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string; generatedAt?: string }>(p.verdictJson) : undefined;
+  const verdictAt = verdict?.generatedAt;
+  const harvestFile = path.join(p.hardening, 'knowledge-harvest.json');
+  const harvested = fs.existsSync(harvestFile) ? readJson<{ verdictAt: string; proven: number }>(harvestFile) : undefined;
   // Stale when a later evaluation run exists than the one the verdict judged (by run name: file times change with a
   // clone or a copy, the recorded final run does not).
   const verdictStale = Boolean(verdict && lastEval && verdict.finalRun && verdict.finalRun < lastEval);
@@ -50,6 +53,7 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
     { name: 'triage', done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: triage ? `reproduce live, then ${H} triage ${key} --set <SCN> --category …` : `${H} triage ${key}` },
     { name: 'verdict', done: Boolean(verdict) && !verdictStale, detail: verdict ? `${verdict.verdict}${verdictStale ? ' (older than the last run)' : ''}` : 'none', next: `${H} verdict ${key}` },
     { name: 'publish', done: Boolean(published) && (!verdict || published!.verdict === verdict.verdict) && !verdictStale, detail: published ? `${published.verdict} at ${published.at.slice(0, 16)}` : 'not published', next: `${H} publish ${key}` },
+    { name: 'learn', done: Boolean(harvested) && harvested!.verdictAt === verdictAt, detail: harvested ? `${harvested.proven} entr(ies) kept for later stories${harvested.verdictAt === verdictAt ? '' : ' (from an older verdict)'}` : 'not harvested', next: `${H} knowledge ${key} --harvest --apply` },
   ];
 }
 

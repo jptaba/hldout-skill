@@ -115,7 +115,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   if (todo) (opts.allowUnhardened ? warn : err)('unhardened', `${todo} TODO(harden) marker(s) remain`);
   // Once hardened, the log says which browser/API tiers were used; the verdict quotes it.
   if (!opts.allowUnhardened && fs.existsSync(p.hardeningLog) && !/^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'))) {
-    warn('hardening-log-empty', `${rel(p.hardeningLog)} has no "Tiers used" — record the tiers you used and what hardening changed (the verdict quotes it)`);
+    err('hardening-log-empty', `${rel(p.hardeningLog)} has no "Tiers used" — record the tiers you used and what hardening changed before the evaluation run (the verdict quotes it)`);
   }
   if (/\bwaitForTimeout\(/.test(src)) warn('hard-wait', 'page.waitForTimeout() found — use web-first assertions instead');
   if (/\btest\.(only|fixme)\(|\.skip\(/.test(src)) err('focused-or-skipped', 'test.only / test.fixme / skip found — requirement scenarios must all run');

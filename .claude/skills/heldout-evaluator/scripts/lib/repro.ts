@@ -6,6 +6,9 @@ import type { ApiExchange } from './classify';
 
 const shq = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`;
 const REDACTED = '***redacted***';
+/** A hidden value in a test's request ("***redacted***", or "***redacted:ab12***": the tag tells different values apart). */
+const HIDDEN = /^\*\*\*redacted(?::([0-9a-f]{4}))?\*\*\*$/;
+const secretPlaceholder = (v: unknown) => { const tag = String(v).match(HIDDEN)?.[1]; return `<secret${tag ? ` ${tag}` : ''} from test-data.json / .env>`; };
 
 /** curl command for one logged (already redacted) exchange; redacted values become <placeholders>. */
 export function curlFor(x: ApiExchange): string {
@@ -17,11 +20,11 @@ export function curlFor(x: ApiExchange): string {
   }
   const contentType = Object.entries(x.request.headers ?? {}).find(([k]) => /^content-type$/i.test(k))?.[1] ?? '';
   if (x.request.body && typeof x.request.body === 'object' && /x-www-form-urlencoded/.test(contentType)) {
-    const fields = Object.entries(x.request.body as Record<string, unknown>).map(([k, v]) => `${encodeURIComponent(k)}=${v === REDACTED ? '<secret from test-data.json / .env>' : encodeURIComponent(String(v))}`);
+    const fields = Object.entries(x.request.body as Record<string, unknown>).map(([k, v]) => `${encodeURIComponent(k)}=${HIDDEN.test(String(v)) ? secretPlaceholder(v) : encodeURIComponent(String(v))}`);
     parts.push(`--data ${shq(fields.join('&'))}`);
   } else if (x.request.body !== undefined && x.request.body !== null) {
     const body = typeof x.request.body === 'string' ? x.request.body
-      : JSON.stringify(x.request.body).split(`"${REDACTED}"`).join('"<secret from test-data.json / .env>"');
+      : JSON.stringify(x.request.body).replace(/"(\*\*\*redacted(?::[0-9a-f]{4})?\*\*\*)"/g, (_m, v: string) => `"${secretPlaceholder(v)}"`);
     parts.push(`--data ${shq(body)}`);
   }
   return parts.join(' \\\n  ');

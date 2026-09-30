@@ -124,7 +124,11 @@ lists as not verified. A slow environment is never read as a defect: raise the c
    boundary rows assert "accepted", and only one scenario asserts the exact success status).
    Record that choice as an ASSUMPTION.
 6. **Ambiguity:** take the most literal reading and tag it `@needs-clarification` (tested), or
-   write an `# OPEN-QUESTION:` (not tested). Never ask the AUT which reading is right.
+   write an `# OPEN-QUESTION:` (not tested). Never ask the AUT which reading is right. Keep the tag on what the question
+   decides only: what holds under **every** reading (two criteria disagree on the status for a missing record, but both
+   say its message is "Not found") goes in a scenario of its own without the tag, so a failure there is a defect. When
+   the readings share nothing (one says 204, the other 404 with "Not found"), that scenario asserts the answer is one of
+   them: an answer that meets no reading (404 with another message) is a defect whatever the owner decides.
 7. **Concurrency:** API layer. Send the competing requests together (`Promise.all`), a few at a time
    (2–5; respect the profile's `maxWorkers` and `minTestIntervalMs`), and assert the invariant the
    requirement states (exactly one succeeds, the stock never goes below zero), never an order. Repeat

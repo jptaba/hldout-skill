@@ -40,7 +40,7 @@ If `heldout.config.json` is missing, set the project up before anything else:
 
 ```bash
 npx tsx <skill folder>/scripts/heldout.ts init --base-url <url> [--api-base-url <url>] [--name "<app>"] [--profile <id>] [--jira mock|cloud] [--install]
-npm run heldout -- doctor          # every problem comes with the command that fixes it
+npm run heldout -- doctor --learn  # every problem comes with the command that fixes it; --learn starts the app knowledge
 ```
 
 Run from a skill folder outside the project (a clone anywhere), `init` first copies the skill into
@@ -88,11 +88,12 @@ Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptanc
 | 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 4) or *oracle* (WHAT: found in the requirement, or a question for the user); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean. **Ask the user** the oracle questions it lists (`AskUserQuestion`, interactive sessions); record answers as `provided-by-user` and re-review | `requirement-contract.json`, `requirement-contract.review.json` — [requirement-contract](references/requirement-contract.md) |
 | 2 | **Review + scenarios** | `$H scaffold KEY` writes the feature header (ACs verbatim, endpoints, assumptions, open questions) and test stubs from the contract. Write the testability review and the scenarios: one `@type`, the `@AC-n` tags and a `# from` source per scenario | `requirement-review.md`, `scenarios.feature`, `test-data.json` — [scenario-format](references/scenario-format.md) |
 | 3 | **Draft tests** | Translate the scenarios 1:1 into Playwright TS (UI via `page`, API via `api`). **Seed every data precondition** with `seed.*` (API first, with cleanup); test users with `seed.account()` / `signIn()` when the profile has an accounts recipe (save it while hardening the first story that needs users: `$H accounts --key KEY --from-chain <probe chain>`). API answers are checked with `expectResponse(res, { status, body }, '[REQ AC-n] …')`. Deep-link to the page the AC names (`gotoPage`). Guessed locators get `// TODO(harden)` | `tests/*.spec.ts`, then `$H lint KEY --fix-tags --allow-unhardened` — [test-authoring](references/test-authoring.md), [data-and-journeys](references/data-and-journeys.md) |
-| 4 | **Freeze + harden** | Freeze the draft together with the contract's oracle, then make the mechanics work against the live AUT. Record each open mechanics gap once found: `$H contract KEY --resolve G<n> --value … --evidence …` (`discovered-in-aut`), plus what it unlocks (endpoints, `requestFields`, `envelope`, entry points). This changes no reviewed content. Prove stability with `$H run KEY --label harden --repeat-each 3 --workers 2` (on a profile with `maxWorkers`, the workers are capped; for a rate-limited host use `--repeat-each 2` on the failing and timing-sensitive scenarios only) | `$H integrity KEY --snapshot` → harden → `$H integrity KEY` — [hardening](references/hardening.md) |
+| 4 | **Freeze + harden** | Freeze the draft together with the contract's oracle, then make the mechanics work against the live AUT. Start from the **app knowledge** earlier stories left (`$H knowledge KEY`: routes, readiness anchors, locators, endpoints, seed recipes; it opens only after the freeze) and verify each entry with a probe before relying on it (`--confirm <key> --for SCN-n` when your tests rely on it). Record what you find for later stories with `$H knowledge KEY --add page\|locator\|endpoint\|seed\|note … --for SCN-n`, and an entry that no longer works with `--stale <key> --evidence …`. Record each open mechanics gap once found: `$H contract KEY --resolve G<n> --value … --evidence …` (`discovered-in-aut`), plus what it unlocks (endpoints, `requestFields`, `envelope`, entry points). This changes no reviewed content. Prove stability with `$H run KEY --label harden --repeat-each 3 --workers 2` (on a profile with `maxWorkers`, the workers are capped; for a rate-limited host use `--repeat-each 2` on the failing and timing-sensitive scenarios only) | `$H integrity KEY --snapshot` → harden → `$H integrity KEY` — [hardening](references/hardening.md) |
 | 5 | **Run** | Full suite. Preflight (lint, contract and review, 3-sample healthcheck) runs automatically; a down or **degraded** AUT aborts the run (`--allow-degraded` overrides) | `$H run KEY --label eval` → `runs/NN-eval/` |
 | 6 | **Triage** | Auto-classify, then **reproduce each failure live** (`$H api-probe --chain`, `$H inspect`) and record the decision. Repair script defects (HOW only) and re-run everything | `$H triage KEY` · `--set …` · `--carry-from auto` — [triage](references/triage.md) |
 | 7 | **Verdict** | Render the recommendation with traceability, reproduction and evidence | `$H verdict KEY` → `verdict.md`, `verdict.json` — [verdict-and-publish](references/verdict-and-publish.md) |
 | 8 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else | `$H publish KEY` |
+| 9 | **Learn** | Keep what this story proved for later stories on the same application: entries recorded with `--add` whose scenarios passed (locators the final tests use), the endpoints of passing criteria, stale marks. Anything only failing scenarios used, and anything that states what the application answers, is left out. Preview, then apply; the result is a new file (never an edit), committed with the evaluation | `$H knowledge KEY --harvest` → `--harvest --apply` → `aut-knowledge/<profile>/facts/…json` — [app-knowledge](references/app-knowledge.md) |
 
 Work through the phases in order and do not skip the freeze. Track them with a todo list.
 Self-tests for the skill's own logic: `npm run test:skill`.
@@ -137,6 +138,10 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
 - **Observations outside the criteria** (something the story's goal implies but no AC states) go in the feature as
   `# OBSERVATION: …`. The verdict lists them for the owner, and they don't change it.
 - **Evidence, not recall.** The requirement contract is built by a model but must be proven. Each criterion is quoted from cited lines; every source line is accounted for; every expected literal (status, number, message, path) exists in the sources or in an answered gap. An independent reviewer subagent confirms each item, and its review is bound to the contract hash. The builder never writes its own review.
+- **App knowledge is HOW, and opens after the freeze.** `heldout knowledge` refuses to show or record anything before
+  `integrity --snapshot`, so scenarios, tests and expected values are always written from the requirement alone. Its
+  entries hold routes, anchors, locators, endpoints, seed recipes and plumbing notes, never a status, message, limit or
+  value the application answers (`--add` and the harvest refuse those). An entry is a hint to verify, not evidence.
 - **Gaps: find, then ask; never read the oracle off the AUT.** A missing element about HOW to exercise the AUT is discovered from it during hardening, with evidence. A missing element about WHAT is correct (status, message, limit) comes from the requirement or the user, or stays an explicit assumption or open question. Ask the user with `AskUserQuestion` when a session is interactive.
 - **Surface ambiguity; don't resolve it silently.** Use `# ASSUMPTION:`, `# OPEN-QUESTION:` and
   `@needs-clarification`. All three appear in the verdict.
@@ -161,6 +166,7 @@ evaluations/KEY/
   requirement-review.md scenarios.feature test-data.json                 ← phase 2
   tests/*.spec.ts   draft/*.spec.ts (frozen)                             ← phases 3–4
   hardening/hardening-log.md integrity.json amendments.json refreeze-log.json draft-history/ inspect-*.md api-*.md
+            knowledge-used.json knowledge-staged.json knowledge-harvest.json   ← app knowledge shown / recorded / kept
   runs/NN-label/ results.json junit.xml html/ artifacts/ snapshots/ confirm/ triage.json triage.md run-meta.json
   verdict.md verdict.json                                                ← phase 7
 ```
@@ -172,7 +178,7 @@ Tell the user:
 - each finding: AC, test type, expected vs actual, how to reproduce
 - script defects that were repaired
 - the integrity status, including any amendments or re-freezes
-- the tiers actually used
+- the tiers actually used, and the app knowledge used and kept (entries shown after the freeze, recorded, harvested, stale)
 - requirement gaps and how each was filled (found, discovered, answered by the user, assumed or open)
 - open questions
 - where `verdict.md` and the Jira comment/attachment ended up

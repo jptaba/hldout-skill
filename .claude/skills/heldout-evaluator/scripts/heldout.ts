@@ -15,7 +15,7 @@ interface Command { script: string; args: string; about: string; group: string }
 const COMMANDS: Record<string, Command> = {
   init: { script: 'init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install]', about: 'scaffold config, npm script, .gitignore, .env (never overwrites)' },
   'add-aut': { script: 'init.ts', group: 'Setup', args: '<id> --base-url <url> [--api-base-url <url>]', about: 'add another application profile' },
-  doctor: { script: 'doctor.ts', group: 'Setup', args: '[--jira] [--offline]', about: 'check that everything is wired up, with a fix for each problem' },
+  doctor: { script: 'doctor.ts', group: 'Setup', args: '[--jira] [--offline] [--learn]', about: 'check that everything is wired up, with a fix for each problem; --learn records the app\'s pages and endpoints' },
   secret: { script: 'secret.ts', group: 'Setup', args: 'NAME --generate | --ask  [--force]', about: 'a secret into .env without showing it: generated, or typed at a hidden prompt' },
   accounts: { script: 'accounts.ts', group: 'Setup', args: '--add-existing --username … --password-env NAME|--password-vault path#field  | --key KEY --from-chain chain.json  | --check', about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live' },
   status: { script: 'status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
@@ -28,6 +28,7 @@ const COMMANDS: Record<string, Command> = {
   inspect: { script: 'inspect.ts', group: 'Hardening', args: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]', about: 'tier-3 UI inspector: ARIA snapshot + ranked locators' },
   'api-probe': { script: 'api-probe.ts', group: 'Hardening', args: '--key KEY <METHOD> <path> | --chain chain.json', about: 'call the API (or a chain of calls) with redacted output' },
   'mcp-probe': { script: 'mcp-probe.ts', group: 'Hardening', args: '--key KEY --steps steps.json [--var name=value]… [--out report.md]', about: 'tier 2: drive the Playwright MCP server over stdio' },
+  knowledge: { script: 'knowledge.ts', group: 'Hardening', args: 'KEY [--all | --add <kind> … --for SCN | --stale <key> | --harvest [--apply]]  |  --aut id [--log | --compact]', about: 'app knowledge: how to drive the app, reused by later stories (opens after the freeze)' },
   run: { script: 'run.ts', group: 'Run', args: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]', about: 'preflight + run the held-out suite' },
   triage: { script: 'triage.ts', group: 'Run', args: 'KEY [--set SCN --category … --rationale …] [--carry-from auto]', about: 'classify failures; record confirmed decisions' },
   verdict: { script: 'verdict.ts', group: 'Report', args: 'KEY', about: 'render verdict.md / verdict.json' },

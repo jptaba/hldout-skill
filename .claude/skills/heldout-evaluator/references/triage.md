@@ -49,9 +49,10 @@ application's own admin, settings or health page for a non-default setting (`hel
 that explains it, confirm `ENVIRONMENT_ISSUE` with that page as evidence: the verdict is INCONCLUSIVE and says the
 environment caused it. Never change a shared sandbox's settings yourself; that is the owner's call.
 
-**Scenarios tagged `@assumes:G<n>`** (the expected value is an assumption, not the requirement): triage them like any other
-scenario. If the application really behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it
-under "assumptions the application contradicts" (a question for the owner), not as a defect.
+**Scenarios tagged `@assumes:G<n>` or `@needs-clarification`** (the expected value is an assumption, or the literal
+reading of an open question, not a settled requirement): triage them like any other scenario. If the application really
+behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it under "Readings the application
+contradicts" (a question for the owner), not as a defect, and asks the owner the question.
 
 ## Confirming each failure (mandatory)
 

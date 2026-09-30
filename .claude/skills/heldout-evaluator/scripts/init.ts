@@ -74,7 +74,7 @@ function installSkillFrom(source: string): void {
     remote: git(source, 'remote', 'get-url', 'origin'), commit, installedAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PROJECT_SKILL, 'SOURCE.json'), `${JSON.stringify(info, null, 2)}\n`);
   const was = before ? (JSON.parse(before) as { commit?: string }).commit : undefined;
-  say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} (from ${info.remote ?? source})`);
+  say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} (from ${commit?.endsWith('+local changes') || !info.remote ? `the folder ${info.from}${commit ? ` @ ${commit}` : ''}` : `${info.remote}${commit ? ` @ ${commit}` : ''}`})`);
   for (const [tpl, target] of refresh) {
     if (read(path.join(ROOT, target)) === read(path.join(PROJECT_SKILL, 'templates', tpl))) continue; // unchanged in this version
     fs.copyFileSync(path.join(PROJECT_SKILL, 'templates', tpl), path.join(ROOT, target));
@@ -317,7 +317,7 @@ main(async () => {
   }
   console.log('\nNext:');
   if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');
-  console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor          checks config, AUT reachability, Jira, browser`);
+  console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor --learn  checks config, AUT reachability, Jira, browser; records the app's pages and endpoints (app knowledge)`);
   console.log(`  ${needInstall && !flags.install ? '3' : '2'}. Ask Opus: "Run a held-out evaluation of ABC-123"   (no Jira? npm run heldout -- new ABC-1 --from story.md)`);
   console.log('  Test users, when stories need them (Opus asks when it gets there):');
   console.log('     accounts that already exist  npm run heldout -- accounts --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1');

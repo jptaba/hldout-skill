@@ -106,6 +106,7 @@ main(() => {
   }
   if (!fs.existsSync(p.hardeningLog)) {
     writeFile(p.hardeningLog, [`# Hardening log — ${key}`, '', '**Tiers used:** ', '', '| Change | Why | Evidence |', '| --- | --- | --- |', ''].join('\n'));
+    console.log(`✔ created ${rel(p.hardeningLog)} — a template: fill it in while hardening (the verdict quotes its "Tiers used" line)`);
   }
 
   const discover = toDiscover(c);

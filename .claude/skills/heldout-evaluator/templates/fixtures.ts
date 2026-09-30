@@ -279,8 +279,8 @@ export type ShapeRule ='string' | 'number' | 'integer' | 'boolean' | 'array' | '
  * — the integrity freeze then holds the expected status and body like any other [REQ] assertion.
  */
 export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {
-  expect.soft(res.status, `${message} → ${expected.status}`).toBe(expected.status);
-  if ('body' in expected) expect.soft(res.body, `${message} → body`).toEqual(expected.body);
+  expect.soft(res.status, `${message} (expects status ${expected.status})`).toBe(expected.status);
+  if ('body' in expected) expect.soft(res.body, `${message} (expects the body)`).toEqual(expected.body);
 }
 
 export function checkShape(value: unknown, schema: Record<string, ShapeRule>, label = 'value'): string[] {

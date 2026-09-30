@@ -15,6 +15,7 @@ Jira story + attachments + comments
   → Gherkin scenarios + Playwright UI/API tests (scaffolded from the contract) → freeze → harden vs the live AUT
   → run → triage (script defect vs application defect, reproduced live) → repair & re-run
   → verdict.md (traceability, reproduction steps, evidence) → Jira comment + attachment → you decide
+  → app knowledge: what the passing tests proved about driving the app, for the next story (never what it answers)
 ```
 
 **The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains every capability with diagrams, plain-English
@@ -45,9 +46,9 @@ and scaffolds the project. Then it visits your app once and fills in the profile
 
 Add `--api-base-url` if the API lives elsewhere, and `--ci gitlab` for a GitLab CI regression pipeline. Then:
 
-1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
+1. `npm run heldout -- doctor --learn`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
    secrets (including any secret value that has slipped into a file git would commit) and the accounts recipe. Every
-   problem comes with the command that fixes it.
+   problem comes with the command that fixes it. `--learn` also starts the app knowledge (below).
 2. Reload VS Code once (or start a new Claude Code session), so the agent loads the Playwright MCP server and the two
    subagents.
 3. Ask GitHub Copilot (agent mode) or Claude Code: **"Run a held-out evaluation of ABC-123"**.
@@ -103,6 +104,7 @@ Everything goes through one entry point: `npm run heldout -- <command>`. `npm ru
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | feature header and test stubs generated from the contract |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
+| `knowledge KEY` · `knowledge KEY --add …` · `knowledge KEY --harvest --apply` | app knowledge: read after the freeze, record while hardening, keep what passing tests proved |
 | `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira) · TypeScript |
 
@@ -149,6 +151,15 @@ Tests create (and clean up) their own data through the AUT's API, run auth, look
 as validated preconditions, and start where the AC starts. A failed precondition is reported as BLOCKED,
 never as the requirement failing. Strategy:
 [data-and-journeys.md](.claude/skills/heldout-evaluator/references/data-and-journeys.md).
+
+## App knowledge: each story makes the next one faster
+
+The evaluator keeps what it learns about driving each application in `aut-knowledge/<profile>/`: routes and
+readiness anchors, proven locators, endpoints with their auth and request fields, seed recipes. `doctor --learn` starts
+it; every story adds what its passing tests proved. It opens only after the freeze and never holds what the application
+answers, so tests stay held out. Every write is a new file, so teams share it through git without merge conflicts.
+See [app-knowledge.md](.claude/skills/heldout-evaluator/references/app-knowledge.md) and the
+[guide](docs/heldout-evaluator.html#knowledge).
 
 ## Demos and evaluator testing
 

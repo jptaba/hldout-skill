@@ -117,6 +117,11 @@ describe('relevantExchange', () => {
   it('falls back to the last exchange for non-status assertions', () => {
     assert.equal(relevantExchange(seq, parseError(pw(['Error: [REQ AC-6] not stored', 'Expected: []', 'Received: [1]']))), 1);
   });
+  it('for repeated calls, picks the first call whose status differs from the expected list', () => {
+    const logins = [exchange('POST', 'https://x.test/users/register', 201), ...[401, 401, 401, 423, 423].map((s) => exchange('POST', 'https://x.test/users/login', s))];
+    const e = parseError(pw(['Error: [REQ AC-6] attempts respond 401', 'Expected: [401, 401, 401, 401, 401]', 'Received: [401, 401, 401, 423, 423]']));
+    assert.equal(relevantExchange(logins, e), 4);
+  });
 });
 
 describe('looseRegexMatch', () => {

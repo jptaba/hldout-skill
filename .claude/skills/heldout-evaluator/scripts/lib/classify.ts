@@ -90,7 +90,18 @@ export function looseRegexMatch(expected = '', received = ''): string | undefine
 export function relevantExchange(sequence: ApiExchange[], e?: ParsedError): number {
   // A status ("500") or a list of statuses from repeated calls ("[403, 403]") → use the first one.
   const received = (e?.received ?? '').replace(/"/g, '').trim();
-  const status = /^\[?\s*\d{3}(\s*,\s*\d{3})*\s*\]?$/.test(received) ? Number(received.match(/\d{3}/)![0]) : NaN;
+  const statusList = (s: string) => (/^\[?\s*\d{3}(\s*,\s*\d{3})*\s*\]?$/.test(s) ? (s.match(/\d{3}/g) ?? []).map(Number) : []);
+  const got = statusList(received);
+  const want = statusList((e?.expected ?? '').replace(/"/g, '').trim());
+  // Repeated calls ([401, 401, 401, 423…] where [401 ×5, 423] was expected): the first call that differs, found as the
+  // same occurrence of its status in the sequence.
+  const k = got.length > 1 && want.length === got.length ? got.findIndex((s, i) => s !== want[i]) : -1;
+  if (k >= 0) {
+    const nth = got.slice(0, k + 1).filter((s) => s === got[k]).length;
+    const hits = sequence.map((x, i) => (x.response.status === got[k] ? i : -1)).filter((i) => i >= 0);
+    if (hits.length >= nth) return hits[nth - 1];
+  }
+  const status = got.length ? got[0] : NaN;
   if (Number.isInteger(status) && status >= 100 && status <= 599) {
     for (let i = sequence.length - 1; i >= 0; i--) if (sequence[i].response.status === status) return i;
   }

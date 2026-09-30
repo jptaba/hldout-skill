@@ -157,7 +157,12 @@ describe('redaction', () => {
     const { redact, literalsOf } = await import('../scripts/lib/redact');
     const step = { email: 'hldout-1@example.com', password: 'abcd', token: '${env:API_TOKEN}' };
     assert.deepEqual(redact({ ...step, token: 'eyJ.real.token' }, { keep: literalsOf(step) }), { email: 'hldout-1@example.com', password: 'abcd', token: '***redacted***' });
-    assert.deepEqual(redact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!' }, { testValues: true }), { password: 'abc', passwordRepeat: '***redacted***' });
+    const shown = redact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!', again: { password: 'Str0ng-Generated-Pw!' }, wrong: { password: 'Wr0ng-Password-99' } }, { testValues: true }) as Record<string, Record<string, string> | string>;
+    assert.equal(shown.password, 'abc');
+    assert.match(String(shown.passwordRepeat), /^\*\*\*redacted:[0-9a-f]{4}\*\*\*$/);
+    // The same hidden value keeps its tag; a different one gets another (right vs wrong password in a reproduction).
+    assert.equal((shown.again as Record<string, string>).password, shown.passwordRepeat);
+    assert.notEqual((shown.wrong as Record<string, string>).password, shown.passwordRepeat);
     assert.deepEqual(redact({ password: 'abc' }), { password: '***redacted***' });
     // An account is recorded as its toJSON says: id and user name, never its password or token.
     const account = { id: '7', username: 'hldout-x', password: 'Str0ng-Generated-Pw!' };
