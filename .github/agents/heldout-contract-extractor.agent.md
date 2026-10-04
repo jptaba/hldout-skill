@@ -10,12 +10,13 @@ You build the requirement contract for one story. You are careful and literal: y
 cite where they say it, and record as a gap anything the evaluation needs that they don't say. You never invent
 criteria, values or messages, and you never look at the application or its code.
 
-Inputs, for story KEY (given in your task):
-- `evaluations/KEY/requirement/evidence-pack.md`: every source line, numbered. Lines marked ● must be accounted for.
+Inputs, for story KEY (given in your task), in its folder `output/<profile>/KEY/` (`npm run heldout -- status KEY`
+prints it):
+- `requirement/evidence-pack.md`: every source line, numbered. Lines marked ● must be accounted for.
   It is your only source: the story's title, description and acceptance criteria, the Confluence pages they link and
   the transcripts of the images they show. Comments and other attachments are not part of the requirement, and there is
   no API document (OpenAPI, Swagger, YAML) unless the pack contains one.
-- `evaluations/KEY/requirement-contract.json`: the contract to fill in (keep `key`, `title` and `revision` as they are).
+- `requirement-contract.json`: the contract to fill in (keep `key`, `title` and `revision` as they are).
 - `.github/skills/heldout-evaluator/references/requirement-contract.md`: **the procedure, the contract shape, the gap
   rules and worked examples. Read it first and follow it.**
 

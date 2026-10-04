@@ -1,4 +1,4 @@
-# Triage: script defect or application defect? (phase 6)
+# Triage: script defect or application defect? (phase 5)
 
 ```bash
 npm run heldout -- triage KEY                     # auto-classify the latest run → runs/NN/triage.json + triage.md
@@ -13,7 +13,7 @@ npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisio
 | `SCRIPT_DEFECT` | The test is wrong about *mechanics*: locator, wait, endpoint path, auth plumbing, payload shape, JS error, over-strict assertion implementation | repair + re-run |
 | `ENVIRONMENT_ISSUE` | AUT down, network/DNS, browser launch, gateway 502–504, a rate limit, a shared sandbox whose settings someone changed | re-run; INCONCLUSIVE if it persists |
 | `FLAKY` | Failed, then passed on retry, or failed only some of `--repeat-each` repeats | PASS_WITH_WARNINGS |
-| `BLOCKED` | A `[SEED]` precondition could not be established, so the scenario was not evaluated | INCONCLUSIVE until the seed works |
+| `BLOCKED` | A `[SEED]` precondition could not be established, so the test was not evaluated | INCONCLUSIVE until the seed works |
 | `NEEDS_INVESTIGATION` | Evidence insufficient | INCONCLUSIVE until resolved |
 
 ## What the automatic pass looks at
@@ -49,8 +49,8 @@ application's own admin, settings or health page for a non-default setting (`hel
 that explains it, confirm `ENVIRONMENT_ISSUE` with that page as evidence: the verdict is INCONCLUSIVE and says the
 environment caused it. Never change a shared sandbox's settings yourself; that is the owner's call.
 
-**Scenarios tagged `@assumes:G<n>` or `@needs-clarification`** (the expected value is an assumption, or the literal
-reading of an open question, not a settled requirement): triage them like any other scenario. If the application really
+**Tests tagged `@assumes:G<n>` or `@needs-clarification`** (the expected value is an assumption, or the literal
+reading of an open question, not a settled requirement): triage them like any other test. If the application really
 behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it under "Readings the application
 contradicts" (a question for the owner), not as a defect, and asks the owner the question.
 

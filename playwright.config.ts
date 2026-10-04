@@ -20,7 +20,8 @@ process.env.AUT_BASE_URL ??= profile.baseURL;
 process.env.AUT_API_BASE_URL ??= profile.apiBaseURL ?? profile.baseURL;
 
 export default defineConfig({
-  testDir: cfg.evaluationsDir ?? 'evaluations',
+  // Each story's tests: output/<profile>/<KEY>/tests/ (the journey fixtures they import are not tests).
+  testDir: cfg.outputDir ?? 'output',
   testMatch: '**/tests/**/*.spec.ts',
   outputDir: path.join(runDir, 'artifacts'),
   fullyParallel: true,

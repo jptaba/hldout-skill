@@ -6,7 +6,7 @@
  *
  *   heldout fetch <KEY> [--aut <profile>]
  *
- * Output (evaluations/<KEY>/requirement/):
+ * Output (output/<profile>/<KEY>/requirement/):
  *   story.md                      title + description + AC field (as Jira holds them: wiki markup on Data Center),
  *                                 then an index of the linked pages and the screenshots
  *   raw-issue.json                untouched API payload
@@ -17,7 +17,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, timestamp, writeFile } from './config';
+import { assertIssueKey, boundProfile, evalPaths, flagStr, loadConfig, main, parseArgs, rel, timestamp, writeFile } from './config';
 import { confluenceLinks, createTracker, createWiki, embeddedAttachments, type JiraAttachmentMeta } from './jira';
 
 const hashDir = (dir: string): Map<string, string> => new Map(fs.existsSync(dir)
@@ -32,15 +32,13 @@ main(async () => {
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const p = evalPaths(cfg, key);
   const tracker = createTracker(cfg);
-  // Bind the story to an AUT profile on first fetch (--aut, else the default) so every later command targets it.
+  // The story's folder is under its AUT profile (--aut, else the default): every later command finds it there.
   const bindingNote = (() => {
-    if (fs.existsSync(p.evaluationMeta)) {
-      const bound = (JSON.parse(fs.readFileSync(p.evaluationMeta, 'utf8')) as { aut?: string }).aut;
-      if (flagStr(flags, 'aut') && bound !== flagStr(flags, 'aut')) throw new Error(`${key} is bound to AUT "${bound}" (evaluation.json); edit that file to re-bind it`);
-      return `bound to AUT "${bound ?? cfg.autId}"`;
-    }
+    const existing = boundProfile(cfg, key);
+    if (existing && existing !== cfg.autId) throw new Error(`${key} is already in ${cfg.outputDir}/${existing}/${key}; it is evaluated against "${existing}". Move that folder to evaluate it against "${cfg.autId}" instead.`);
+    if (fs.existsSync(p.evaluationMeta)) return `AUT "${cfg.autId}" (${rel(p.base)})`;
     writeFile(p.evaluationMeta, `${JSON.stringify({ key, aut: cfg.autId, createdAt: new Date().toISOString().slice(0, 10) }, null, 2)}\n`);
-    return `bound to AUT "${cfg.autId}" (${cfg.aut.name}) → ${rel(p.evaluationMeta)}${Object.keys(cfg.auts).length > 1 && !flagStr(flags, 'aut') ? ' — the default profile; pass --aut <id> to pick another' : ''}`;
+    return `AUT "${cfg.autId}" (${cfg.aut.name}) → ${rel(p.base)}/${Object.keys(cfg.auts).length > 1 && !flagStr(flags, 'aut') ? ' — the default profile; pass --aut <id> to pick another' : ''}`;
   })();
 
   const previousStory = fs.existsSync(p.storyMd) ? fs.readFileSync(p.storyMd, 'utf8') : undefined;
@@ -164,7 +162,7 @@ main(async () => {
     ...(attChanges.length ? ['**Screenshots and linked pages:** ' + attChanges.join(', '), ''] : []),
     ...(added.length ? ['**Added lines:**', '', ...added.map((l) => `+ ${l}`), ''] : []),
     ...(removed.length ? ['**Removed lines:**', '', ...removed.map((l) => `- ${l}`), ''] : []),
-    '**Action:** rebuild requirement-contract.json (it is now stale), then update requirement-review.md and scenarios.feature. New/changed tests need a re-freeze (`integrity.ts KEY --snapshot --reason …`) before hardening.', '',
+    '**Action:** rebuild requirement-contract.json (it is now stale) and have it reviewed again, then update the tests. New/changed tests need a re-freeze (`heldout integrity KEY --snapshot --reason …`) before hardening.', '',
   ].join('\n');
   const changesFile = path.join(p.requirement, 'CHANGES.md');
   writeFile(changesFile, `${fs.existsSync(changesFile) ? fs.readFileSync(changesFile, 'utf8') + '\n' : '# Requirement changes\n\n'}${entry}`);
@@ -172,5 +170,5 @@ main(async () => {
   for (const l of added.slice(0, 8)) console.log(`    + ${l.slice(0, 140)}`);
   for (const l of removed.slice(0, 8)) console.log(`    - ${l.slice(0, 140)}`);
   console.log(`  → ${rel(changesFile)} (previous revision in requirement/history/${stamp}/)`);
-  if (fs.existsSync(p.scenarios)) console.log('  Scenarios/tests were written against the previous revision — re-review them before the next run.');
+  if (fs.existsSync(p.tests)) console.log('  The tests were written against the previous revision — re-review them before the next run.');
 });

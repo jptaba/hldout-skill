@@ -14,7 +14,7 @@ exists, and never go looking for one on the application. The sources come in any
 - a linked page with the rules, or with an API definition in a code block
 
 **The model reads them; no parser does.** Everything after intake works from one shape,
-`evaluations/<KEY>/requirement-contract.json`. Scripts only check, mechanically, that what the model wrote is
+`output/<profile>/<KEY>/requirement-contract.json`. Scripts only check, mechanically, that what the model wrote is
 grounded in the sources:
 
 | Guard | Catches | How (no language understanding needed) |
@@ -72,7 +72,7 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | · `id` | The story's own numbering if it has one (AC-3 stays AC-3; "NFR-1 (AC-15)" is AC-15). Otherwise AC-1… in source order. One criterion per requirement statement; a sentence with two conditions stays one AC with two outcomes |
 | · `quote` | **Verbatim** from the source. The normaliser ignores case, markdown emphasis, quote styles, dashes and whitespace, nothing else. For a Gherkin scenario, quote the whole block |
 | · `source` | `story.md#L23` (first line of the quote), `linked/confluence-880001-cart-api.md#L4` or `transcripts/mockup.png.md#L3` |
-| · `text` | The statement used in `scenarios.feature`. Normally the quote itself, cleaned of markdown |
+| · `text` | The criterion the tests tagged `@AC-n` prove, as the verdict quotes it. Normally the quote itself, cleaned of markdown |
 | · `outcomes` | Observable pass/fail facts, **worded with the source's literals** (the status, the message in quotes, the number). No outcome the source doesn't state; a derived boundary only one step outside a stated range, and none where a source limits what is tested ("nothing to test beyond a too-short password being refused"). "Without a valid token" covers both a missing and an invalid token: an outcome for each. An outcome the source states as a meaning, not as text ("a validation error saying the e-mail must be unique"), is written as that meaning and judged as written (the message says the e-mail must be unique); no gap |
 | · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API; a story's "UI + API" is `e2e`, not a misread). An AC with no stated layer takes the one its wording names: an API call → `api`, a page → `ui`, both → `e2e`; naming neither, the layer of the expected value that settles it (a status code from a clarification → `api`) |
 | · `endpoints` | `"METHOD /path"` keys of every endpoint the AC's journey calls, including pre-steps (creating the record it acts on); each must be in `endpoints[]`. Signing up and signing in are not listed on an AC, unless they are what the AC is about (registration, login, a login that must fail): the profile's accounts recipe makes those calls for every test (they are in `endpoints[]` when a source states them). `seed.account()` gives each test a user with its API token and id, created or taken from the existing accounts, and the sign-in answer's other values (a basket id) in `signInBody`, so an AC doesn't list the login for them; how the recipe gets them is completed during hardening, so what no source or config says yet (e.g. where an existing user's id comes from) is a mechanics gap. A profile without an accounts recipe is not a gap when the sources state how to register and sign in, and neither is the detail of those calls the sources leave out (their request fields, where the token and id are in the answer): the accounts recipe records it while hardening. Needed for api/e2e ACs, unless a mechanics gap in `gaps` stands for the missing one |
@@ -100,8 +100,8 @@ Walk the ladder in order and log each step in `tried[]`:
 4. **The user, for oracle gaps**: one `AskUserQuestion` call with at most 4 questions, required first.
    → `provided-by-user`, value plus who and when: `heldout contract KEY --answer G<n> --value "…" --by "<who>"`,
    then a fresh review (the oracle changed). If you can't ask, use `assumed` (it must appear as
-   `# ASSUMPTION: G<n> …`) or leave it `open` (`@needs-clarification` on the affected scenarios, or
-   `# OPEN-QUESTION: G<n> …` when the criterion can still be tested without the answer).
+   `// ASSUMPTION: G<n> …` in the spec) or leave it `open` (`@needs-clarification` on the affected tests, or
+   `// OPEN-QUESTION: G<n> …` when the criterion can still be tested without the answer).
 
 | Kind | Examples | May come from the app? |
 | --- | --- | --- |
@@ -118,7 +118,7 @@ says what it must do): don't write an AC for it. Record a non-required oracle ga
 filtering by tag; is it in scope, and what must it return?") with `affects: []`, and cover the lines with that gap.
 
 **Loose wording for a status** ("response code 400" when the API may put a code in the body and answer HTTP 200): an oracle
-gap. Name both readings; if you assume one, the scenarios that rest on it carry `@assumes:G<n>`.
+gap. Name both readings; if you assume one, the tests that rest on it carry `@assumes:G<n>`.
 
 **A source that adds to a criterion** (the linked API page gives the status an AC left out, a screenshot shows the
 message): the value is `found-in-requirement`; add it to the outcomes of every AC it names or clearly covers, and cite it.
@@ -246,7 +246,7 @@ L19 isn't testable as written. Cover it as `non-functional`, and if it matters, 
 
 A requirement that is precise but that nothing the tests can reach shows ("the payment reaches the payee by the next
 business day", with no payee side to look at) is a `nonFunctional` item (`NFR-1`), not a gap: it has an expected
-value, only no way to observe it. The scenarios name it with `@NFR-1` where they can, and the verdict lists it as not
+value, only no way to observe it. The tests name it with `@NFR-1` where they can, and the verdict lists it as not
 verified (PASS WITH WARNINGS), which is what the owner needs to hear.
 
 ### 6. A screenshot in the description

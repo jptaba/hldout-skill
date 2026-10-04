@@ -1,20 +1,17 @@
 /**
  * Preflight on demand: traceability lint + AUT healthcheck for one story.
  *
- *   heldout lint <KEY> [--allow-unhardened] [--no-health] [--fix-tags]
- *
- *   --fix-tags  rewrite each test's tag array from its scenario (@AC-n, @type:<t>, @layer:<l>)
+ *   heldout lint <KEY> [--allow-unhardened] [--no-health]
  *
  * Exit 1 on any lint error or failed healthcheck. run.ts runs the same gates automatically.
  */
 import { assertIssueKey, loadConfig, main, parseArgs } from './config';
-import { healthcheck, lintEvaluation, printFindings, syncTestTags } from './preflight';
+import { healthcheck, lintEvaluation, printFindings } from './preflight';
 
 main(async () => {
   const { _, flags } = parseArgs();
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
-  if (flags['fix-tags']) console.log(`✔ synced tags on ${syncTestTags(cfg, key)} test(s) from scenarios.feature`);
   console.log(`Preflight ${key} → AUT profile "${cfg.autId}" (${cfg.aut.name})`);
   const findings = lintEvaluation(cfg, key, { allowUnhardened: Boolean(flags['allow-unhardened']) });
   printFindings(findings);

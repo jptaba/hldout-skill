@@ -1,5 +1,5 @@
 /**
- * Phase 6 — Triage failures: SCRIPT defect vs APPLICATION defect (vs environment / flaky / unknown).
+ * Phase 5 — Triage failures: SCRIPT defect vs APPLICATION defect (vs environment / flaky / unknown).
  *
  *   heldout triage <KEY> [--run 02-eval]
  *        → writes runs/<run>/triage.json + triage.md with an evidence-based *automatic* classification.
@@ -16,9 +16,10 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import { ROOT, assertIssueKey, evalPaths, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, type AutoClassification, type Category, type ParsedError } from './classify';
-import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readFeature } from './gherkin';
+import { journeysUsedBy, profileFixtures } from './journeys-store';
+import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles, type Endpoint } from './spec-model';
 import { readContract, requestContracts } from './contract-model';
 import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
 
@@ -50,10 +51,23 @@ function deepestFailingStep(steps: PwStep[] = []): string | undefined {
 const attachmentText = (a?: PwAttachment) => (!a ? '' : a.body ? Buffer.from(a.body, 'base64').toString('utf8')
   : a.path && fs.existsSync(a.path) ? fs.readFileSync(a.path, 'utf8') : '');
 
-function buildReport(key: string, runName: string, resultsFile: string, scenarioFile: string, apiBasePath: string): TriageReport {
+/** The calls the story's journey fixtures make: plumbing, like the spec's SEED-ENDPOINT lines. */
+function journeyEndpoints(cfg: HeldoutConfig, specs: string[]): Endpoint[] {
+  const used = journeysUsedBy(cfg, specs);
+  const base = journeyPaths(cfg, cfg.autId).base;
+  return profileFixtures(cfg, cfg.autId).filter((f) => used.includes(path.join(base, f.file))).flatMap((f) => (f.endpoints ?? []).map((e) => {
+    const [method, p] = e.split(' ');
+    return { method, path: p, note: `journey fixture ${f.kind}/${f.domain}.${f.fixture}` };
+  }));
+}
+
+function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFile: string, apiBasePath: string): TriageReport {
+  const p = evalPaths(cfg, key);
   const results = readJson<{ suites: PwSuite[] }>(resultsFile);
-  const feature = readFeature(scenarioFile);
-  const requests = requestContracts(readContract(path.dirname(scenarioFile)));
+  const contract = readContract(p.base);
+  const feature = readSuite(p.tests, contract);
+  const plumbing = [...feature.seedEndpoints, ...journeyEndpoints(cfg, specFiles(p.tests))];
+  const requests = requestContracts(contract);
   const entries: TriageEntry[] = [];
   for (const spec of specsOf(results.suites)) {
     for (const t of spec.tests) {
@@ -120,7 +134,7 @@ function buildReport(key: string, runName: string, resultsFile: string, scenario
           entry.evidence.api = preSeq.at(-1);
           entry.evidence.apiRelevantIndex = preSeq.length - 1;
         }
-        entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...feature.seedEndpoints], requestContracts: requests, apiBasePath });
+        entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...plumbing], requestContracts: requests, apiBasePath });
         if (entry.auto.category === 'APPLICATION_DEFECT' && (scn?.needsClarification || scn?.assumes.length)) {
           entry.auto.signals.push(`${scn.id} rests on an unsettled reading (${scn.assumes.length ? `assumed ${scn.assumes.join(', ')}` : '@needs-clarification: the literal reading of an open question'}). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect.`);
         }
@@ -204,7 +218,7 @@ main(() => {
   if (setId) {
     // Confirming straight after a run: build the automatic triage first, as `heldout triage KEY` would.
     if (!fs.existsSync(triageJson)) {
-      const auto = buildReport(key, runName, path.join(runDir, 'results.json'), p.scenarios, new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
+      const auto = buildReport(cfg, key, runName, path.join(runDir, 'results.json'), new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
       writeFile(triageJson, `${JSON.stringify(auto, null, 2)}\n`);
     }
     const report = readJson<TriageReport>(triageJson);
@@ -227,7 +241,7 @@ main(() => {
     return;
   }
 
-  const report = buildReport(key, runName, path.join(runDir, 'results.json'), p.scenarios, new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
+  const report = buildReport(cfg, key, runName, path.join(runDir, 'results.json'), new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
   if (fs.existsSync(triageJson)) { // keep previously confirmed decisions for unchanged failures
     const prev = readJson<TriageReport>(triageJson);
     for (const e of report.entries) {

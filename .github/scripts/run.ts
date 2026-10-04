@@ -1,5 +1,5 @@
 /**
- * Phase 5 — Execute the held-out suite for one story against its AUT profile.
+ * Phase 4 — Execute the held-out suite for one story against its AUT profile.
  *
  *   heldout run <KEY> [--label eval] [--grep SCN-003] [--capture]
  *       [--retries N] [--workers N] [--repeat-each N] [--headed] [--aut <profile>] [--skip-preflight] [--allow-degraded] [--wait-healthy <seconds>] [--quiet | --verbose]
@@ -8,7 +8,7 @@
  * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden*)
  * and an AUT healthcheck (3 samples per URL) — an unreachable or degraded (slow) AUT aborts before any test runs.
  *
- * Each invocation gets its own folder: evaluations/<KEY>/runs/<NN>-<label>/
+ * Each invocation gets its own folder: output/<profile>/<KEY>/runs/<NN>-<label>/
  *   results.json (Playwright JSON), junit.xml, html/, artifacts/ (screenshots, traces, error-context),
  *   snapshots/ (ARIA snapshots per step when --capture), run-meta.json
  * Exit code is 0 whenever a results.json was produced — failing tests are data for triage, not a crash.

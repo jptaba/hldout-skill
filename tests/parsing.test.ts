@@ -7,56 +7,68 @@ import { adfToWiki, doc, h, link, p, table, txt, ul } from '../.github/scripts/j
 import { confluenceBase, confluenceLinks, pageIdOf, storageToMarkdown } from '../.github/scripts/confluence';
 import { embeddedFiles } from '../.github/scripts/jira';
 import { markdownToStorage } from '../.github/scripts/mock/storage-format';
-import { baseScenarioId, matchEndpoint, normaliseTestType, readFeature } from '../.github/scripts/gherkin';
-import { testIdsIn, testTagsIn } from '../.github/scripts/preflight';
+import { baseScenarioId, matchEndpoint, normaliseTestType, readSuite } from '../.github/scripts/spec-model';
 import { curlFor, rerunCommand } from '../.github/scripts/repro';
 import { decideVerdict } from '../.github/scripts/verdict-rules';
+import type { RequirementContract } from '../.github/scripts/contract-model';
 
-const FEATURE = `# AC-1: First criterion
-# AC-2: Second criterion
-# ENDPOINT: GET /api/room/{id} — room detail
-# ASSUMPTION: something assumed
-# OPEN-QUESTION: something open
-# OBSERVATION: the form sends no request
-@story:ABC-1
-Feature: Demo
-  # from story AC-1, rules.csv
-  @SCN-001 @AC-1 @type:positive @layer:ui
-  Scenario: One
-    Given x
-    Then y
+const SPEC = `import { test } from '../../../../heldout-support/fixtures';
+// ASSUMPTION: G2 something assumed
+// OPEN-QUESTION: G3 something open
+// OBSERVATION: the form sends no request
+// SEED-ENDPOINT: POST /api/bookings — creates the booking the test reads
 
-  @SCN-002 @AC-2 @type:boundary @assumes:G2
-  Scenario Outline: Two
-    When <v>
-    Then z
-    Examples:
-      | v |
-      | 1 |
-      | 2 |
+test.describe('ABC-1 Demo', () => {
+  // from story AC-1, rules.csv
+  test('SCN-001: One', { tag: ['@AC-1', '@type:positive', '@layer:ui'] }, async ({ journey }) => {
+    await journey.step('Given x', async () => {});
+    await journey.step("Then it's y", async () => {});
+  });
+
+  [1, 2].forEach((v, i) => {
+    test(\`SCN-002.\${i + 1}: Two (\${v})\`, { tag: ['@AC-2', '@type:boundary', '@assumes:G2'] }, async ({ journey }) => {
+      await journey.step(\`When \${v}\`, async () => {});
+      await journey.step('Then z', async () => {});
+    });
+  });
+
+  test('SCN-003: Three', { tag: ['@AC-2', '@type:negative'] }, async () => {});
+  test('SCN-003: Three again', { tag: ['@AC-2', '@type:negative'] }, async () => {});
+});
 `;
 
-describe('readFeature', () => {
-  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-f-')), 's.feature');
-  fs.writeFileSync(file, FEATURE);
-  const f = readFeature(file);
-  it('reads ACs, endpoints, assumptions and open questions', () => {
+describe('readSuite', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-s-'));
+  fs.writeFileSync(path.join(dir, 'abc-1.spec.ts'), SPEC);
+  const contract = {
+    title: 'Demo',
+    acceptanceCriteria: [{ id: 'AC-1', text: 'First criterion' }, { id: 'AC-2', text: 'Second criterion' }],
+    endpoints: [{ method: 'GET', path: '/api/room/{id}', source: 'story.md#L3' }],
+  } as unknown as RequirementContract;
+  const f = readSuite(dir, contract);
+  it('takes the criteria and endpoints from the contract, and the comment lines from the spec', () => {
     assert.deepEqual(f.acs.map((a) => a.id), ['AC-1', 'AC-2']);
-    assert.deepEqual(f.endpoints, [{ method: 'GET', path: '/api/room/{id}', note: 'room detail' }]);
-    assert.equal(f.assumptions.length, 1);
-    assert.equal(f.openQuestions.length, 1);
-    assert.deepEqual(f.observations, ["the form sends no request"]);
+    assert.deepEqual(f.endpoints.map((e) => `${e.method} ${e.path}`), ['GET /api/room/{id}']);
+    assert.deepEqual(f.assumptions, ['G2 something assumed']);
+    assert.deepEqual(f.openQuestions, ['G3 something open']);
+    assert.deepEqual(f.observations, ['the form sends no request']);
+    assert.deepEqual(f.seedEndpoints, [{ method: 'POST', path: '/api/bookings', note: 'creates the booking the test reads' }]);
   });
-  it('reads scenario tags, normalised type, layer, sources and outline examples', () => {
-    const [a, b] = f.scenarios;
+  it('reads each test: tags, normalised type, layer, sources, steps and tables of cases', () => {
+    const [a, b, c] = f.scenarios;
+    assert.equal(a.id, 'SCN-001');
     assert.equal(a.testType, 'functional'); // alias of positive
     assert.equal(a.layer, 'ui');
     assert.deepEqual(a.sources, ['story AC-1, rules.csv']);
+    assert.deepEqual(a.steps, ['Given x', "Then it's y"]);
     assert.equal(b.outline, true);
+    assert.equal(b.title, 'Two');
     assert.deepEqual(a.assumes, []);
     assert.deepEqual(b.assumes, ['G2']);
-    assert.equal(b.examples.length, 3);
+    assert.deepEqual(b.steps, ['When ${v}', 'Then z']);
     assert.deepEqual(b.sources, []);
+    assert.equal(b.declarations, 1);
+    assert.equal(c.declarations, 2, 'the same id on two tests is a duplicate');
   });
 });
 
@@ -80,11 +92,6 @@ describe('helpers', () => {
     const eps = [{ method: 'GET', path: '/accounts/{accountId}' }];
     assert.ok(matchEndpoint(eps, 'GET', '/bank/services/accounts/20004', '/bank/services/'));
     assert.equal(matchEndpoint(eps, 'GET', '/other/accounts/20004', '/bank/services/'), undefined);
-  });
-  it('testIdsIn / testTagsIn read static and template-literal tests', () => {
-    const src = "test('SCN-001: a', { tag: ['@AC-1', '@type:functional'] }, async () => {});\n  test(`SCN-004.${i + 1}: b`, { tag: ['@AC-4'] }, async () => {});";
-    assert.deepEqual([...testIdsIn(src)], ['SCN-001', 'SCN-004']);
-    assert.deepEqual(testTagsIn(src).get('SCN-001'), ['@AC-1', '@type:functional']);
   });
 });
 
@@ -173,18 +180,18 @@ describe('run artifacts name no local folders', () => {
   it('rewrites the project path, natively, with forward slashes and JSON-escaped, to a relative one', async () => {
     const { relativizePaths } = await import('../.github/scripts/redact');
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-rel-'));
-    const run = path.join(root, 'evaluations', 'X-1', 'runs', '01-eval');
+    const run = path.join(root, 'output', 'app', 'X-1', 'runs', '01-eval');
     fs.mkdirSync(run, { recursive: true });
-    const spec = path.join(root, 'evaluations', 'X-1', 'tests', 'x.spec.ts');
+    const spec = path.join(root, 'output', 'app', 'X-1', 'tests', 'x.spec.ts');
     fs.writeFileSync(path.join(run, 'console.log'), `at ${spec}:12:3\nat ${spec.split(path.sep).join('/')}:4:1\n`);
     fs.writeFileSync(path.join(run, 'results.json'), JSON.stringify({ file: spec, rootDir: root }));
     assert.equal(relativizePaths(run, root).files, 2);
     const log = fs.readFileSync(path.join(run, 'console.log'), 'utf8');
     assert.doesNotMatch(log, /heldout-rel-/);
-    assert.match(log, /at \.[\\/]evaluations[\\/]X-1[\\/]tests[\\/]x\.spec\.ts:12:3/);
+    assert.match(log, /at \.[\\/]output[\\/]app[\\/]X-1[\\/]tests[\\/]x\.spec\.ts:12:3/);
     const json = JSON.parse(fs.readFileSync(path.join(run, 'results.json'), 'utf8')) as { file: string; rootDir: string };
     assert.equal(json.rootDir, '.');
-    assert.match(json.file, /^\.[\\/]evaluations/);
+    assert.match(json.file, /^\.[\\/]output/);
   });
 });
 

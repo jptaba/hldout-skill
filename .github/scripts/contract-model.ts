@@ -5,7 +5,7 @@
  * Given/When/Then, numbered lists, tables, screenshots embedded in the description or the criteria, a linked
  * Confluence page with the rules or an API definition…).
  * A MODEL reads them (the heldout-contract-extractor subagent) and writes ONE shape,
- * `evaluations/<KEY>/requirement-contract.json`; an independent reviewer subagent checks it. This module only
+ * `output/<profile>/<KEY>/requirement-contract.json`; an independent reviewer subagent checks it. This module only
  * validates, mechanically:
  *
  *  - Every AC is **quoted verbatim** from a cited source file, and the quote is verified, so an acceptance
@@ -32,7 +32,7 @@ export type LadderStep = 'story' | 'linked' | 'aut' | 'config' | 'user';
 
 export interface ContractAC {
   id: string;
-  /** Normalised statement used in scenarios.feature (`# AC-n: <text>`). */
+  /** Normalised statement: the criterion the tests tagged @AC-n prove, and the verdict quotes. */
   text: string;
   /** Verbatim excerpt from the source that states this criterion (verified against the file). */
   quote: string;
@@ -215,7 +215,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
 
   // Revision: the contract must describe the requirement as fetched now.
   const now = requirementRevision(reqDir);
-  if (c.revision?.story !== now.story) err('contract-stale', 'story.md changed since the contract was built (re-fetch / revision) — rebuild the contract, then re-review scenarios');
+  if (c.revision?.story !== now.story) err('contract-stale', 'story.md changed since the contract was built (re-fetch / revision) — rebuild the contract, then re-review it and the tests');
   const was = c.revision?.linked ?? {};
   const diff = [...new Set([...Object.keys(was), ...Object.keys(now.linked)])].filter((f) => was[f] !== now.linked[f]);
   if (diff.length) err('contract-stale', `screenshots or linked pages changed since the contract was built: ${diff.join(', ')}`);
@@ -315,8 +315,8 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
     if (g.resolution === 'provided-by-user' && !tried.includes('user')) err('gap-ladder', `${g.id}: resolved by the user but "user" is not in tried[]`);
     if (g.resolution === 'found-in-requirement' && !g.evidence) warn('gap-evidence', `${g.id}: cite where in the requirement it was found (evidence)`);
     if (g.resolution === 'open' && g.kind === 'mechanics') warn('mechanics-to-discover', `${g.id} (${g.element}) — discover it from the application during hardening (heldout inspect and the API calls its pages make, heldout api-probe) and record discovered-in-aut with evidence`);
-    if (g.resolution === 'open' && g.kind === 'oracle' && g.required) warn('oracle-gap-open', `${g.id} (${g.element}) is unresolved — ask the user; unanswered, ${g.affects.join(', ') || 'the affected criteria'} must be @needs-clarification or carry # OPEN-QUESTION: ${g.id}`);
-    if (g.resolution === 'assumed' && g.kind === 'oracle') warn('oracle-assumed', `${g.id}: expected behaviour is assumed (${g.value ?? '?'}) — it must appear as # ASSUMPTION in the feature and in the verdict`);
+    if (g.resolution === 'open' && g.kind === 'oracle' && g.required) warn('oracle-gap-open', `${g.id} (${g.element}) is unresolved — ask the user; unanswered, ${g.affects.join(', ') || 'the affected criteria'} must be tagged @needs-clarification or the spec must carry // OPEN-QUESTION: ${g.id}`);
+    if (g.resolution === 'assumed' && g.kind === 'oracle') warn('oracle-assumed', `${g.id}: expected behaviour is assumed (${g.value ?? '?'}) — it must appear as // ASSUMPTION: in the spec and in the verdict`);
     for (const a of g.affects ?? []) if (!ids.has(a) && a !== '*') err('gap-affects', `${g.id} affects ${a}, which is not an AC in the contract`);
   }
 
@@ -361,31 +361,21 @@ export function readContract(evalDir: string): RequirementContract | undefined {
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as RequirementContract) : undefined;
 }
 
-/** Cross-check scenarios.feature against the contract (called by the traceability lint). */
-export function checkFeatureAgainstContract(c: RequirementContract, feature: {
-  acs: { id: string; text: string }[]; endpoints: { method: string; path: string }[];
+/** Cross-check the specs' scenarios against the contract's gaps (called by the traceability lint). */
+export function checkSuiteAgainstContract(c: RequirementContract, suite: {
   openQuestions: string[]; assumptions: string[]; scenarios: { id: string; acs: string[]; needsClarification: boolean; assumes?: string[] }[];
 }): ContractFinding[] {
   const out: ContractFinding[] = [];
-  const cAcs = new Map((c.acceptanceCriteria ?? []).map((a) => [a.id, a]));
-  for (const a of feature.acs) {
-    const ca = cAcs.get(a.id);
-    if (!ca) out.push({ level: 'error', code: 'ac-not-in-contract', message: `${a.id} is in scenarios.feature but not in the requirement contract` });
-    else if (normaliseText(ca.text) !== normaliseText(a.text)) out.push({ level: 'error', code: 'ac-text-drift', message: `${a.id} text differs from the contract — copy it verbatim ("${ca.text.slice(0, 80)}…")` });
-  }
-  for (const id of cAcs.keys()) if (!feature.acs.some((a) => a.id === id)) out.push({ level: 'error', code: 'contract-ac-missing', message: `${id} is in the contract but has no "# ${id}:" line in scenarios.feature` });
-  const keys = new Set((c.endpoints ?? []).map(epKey));
-  for (const e of feature.endpoints) if (!keys.has(epKey(e))) out.push({ level: 'error', code: 'endpoint-not-in-contract', message: `# ENDPOINT: ${epKey(e)} is not in the contract (add it with its source or a discovery gap)` });
   for (const g of openQuestions(c)) {
-    const tagged = g.affects.some((ac) => feature.scenarios.some((s) => s.acs.includes(ac) && s.needsClarification));
-    const asked = feature.openQuestions.some((q) => q.includes(g.id));
-    if (!tagged && !asked) out.push({ level: 'error', code: 'open-gap-not-surfaced', message: `${g.id} (${g.element}) is open but no scenario of ${g.affects.join(', ')} is @needs-clarification and no # OPEN-QUESTION mentions ${g.id}` });
+    const tagged = g.affects.some((ac) => suite.scenarios.some((s) => s.acs.includes(ac) && s.needsClarification));
+    const asked = suite.openQuestions.some((q) => q.includes(g.id));
+    if (!tagged && !asked) out.push({ level: 'error', code: 'open-gap-not-surfaced', message: `${g.id} (${g.element}) is open but no test of ${g.affects.join(', ')} is tagged @needs-clarification and no // OPEN-QUESTION: mentions ${g.id}` });
   }
   for (const g of (c.gaps ?? []).filter((x) => x.resolution === 'assumed' && x.kind === 'oracle')) {
-    if (!feature.assumptions.some((a) => a.includes(g.id))) out.push({ level: 'error', code: 'assumption-not-surfaced', message: `${g.id} is an assumed oracle value but no # ASSUMPTION mentions ${g.id}` });
+    if (!suite.assumptions.some((a) => a.includes(g.id))) out.push({ level: 'error', code: 'assumption-not-surfaced', message: `${g.id} is an assumed oracle value but no // ASSUMPTION: in the spec mentions ${g.id}` });
     // An assumption that only drops an assertion ("no status asserted") has no expectation to tag: "(not asserted)".
-    const notAsserted = feature.assumptions.some((a) => a.includes(g.id) && /\(not asserted\)/i.test(a));
-    if (g.affects.length && !notAsserted && !feature.scenarios.some((s) => s.assumes?.includes(g.id))) out.push({ level: 'warn', code: 'assumption-not-tagged', message: `tag the scenarios whose expectation rests on ${g.id} with @assumes:${g.id}, so a failure there reads as a question for the owner, not a defect` });
+    const notAsserted = suite.assumptions.some((a) => a.includes(g.id) && /\(not asserted\)/i.test(a));
+    if (g.affects.length && !notAsserted && !suite.scenarios.some((s) => s.assumes?.includes(g.id))) out.push({ level: 'warn', code: 'assumption-not-tagged', message: `tag the tests whose expectation rests on ${g.id} with @assumes:${g.id}, so a failure there reads as a question for the owner, not a defect` });
   }
   return out;
 }

@@ -1,3 +1,0 @@
-[{"do":"fill","target":"getByTestId('email')","value":"${var:user}"},
- {"do":"fill","target":"getByTestId('password')","value":"${env:TS_USER_PASSWORD}"},
- {"do":"click","target":"getByTestId('login-submit')"}]

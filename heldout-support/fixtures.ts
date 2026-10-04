@@ -1,8 +1,8 @@
 /**
  * Held-out test fixtures (scaffolded by the heldout-evaluator skill — AUT-agnostic).
  *
- *  - `data`    : evaluations/<KEY>/test-data.json, with ${env:NAME} placeholders resolved (keep secrets in .env).
- *  - `journey` : wraps each Gherkin line in a test.step(). Captures an ARIA snapshot of the page
+ *  - `data`    : output/<profile>/<KEY>/test-data.json, with ${env:NAME} placeholders resolved (keep secrets in .env).
+ *  - `journey` : wraps each Given / When / Then step in a test.step(). Captures an ARIA snapshot of the page
  *                after every step when HELDOUT_CAPTURE=1 (hardening tier 3) and always on step failure
  *                (triage evidence). Snapshots land in <run dir>/snapshots/<SCN-ID>/.
  *  - `api`     : HTTP client bound to the AUT's API origin (AUT_API_BASE_URL). Every exchange is
@@ -13,7 +13,9 @@
  *                deleted if the app allows it, or one of the existing accounts) and the UI sign-in for it.
  *
  * Assertion convention: every assertion that encodes a requirement carries a message tagged
- * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics.
+ * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics. Those assertions live
+ * in the story's spec only; the shared journey fixtures (journeys/<profile>/) import from here and assert nothing a
+ * story expects.
  *
  * Secret redaction and the page helpers come from the skill installed in this project, so the tests and the skill's
  * own tools (inspect, the accounts check) redact and locate the same way.
@@ -536,7 +538,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   },
 
   data: async ({}, use, testInfo) => {
-    // spec lives in evaluations/<KEY>/tests/**  →  evaluations/<KEY>/test-data.json
+    // spec lives in output/<profile>/<KEY>/tests/**  →  output/<profile>/<KEY>/test-data.json
     let dir = path.dirname(testInfo.file);
     while (path.basename(dir) !== 'tests' && path.dirname(dir) !== dir) dir = path.dirname(dir);
     const file = path.join(path.dirname(dir), 'test-data.json');

@@ -10,6 +10,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { journeyHashes } from './journeys-store';
+import { specFiles } from './spec-model';
 
 export interface IntegrityResult {
   status: 'PRESERVED' | 'AMENDED' | 'VIOLATED' | 'NO_DRAFT';
@@ -22,6 +24,10 @@ export interface IntegrityResult {
   constantsChanged: string[];
   /** The requirement contract's oracle part (ACs, outcomes, rules, error model) changed since the freeze. */
   contractChanged?: boolean;
+  /** Journey fixture files the tests use that changed (or are new) since the freeze: HOW, so not a violation; listed. */
+  journeysChanged?: string[];
+  /** [REQ …] assertions inside journey fixtures: they would escape the freeze, so they are a violation. */
+  journeyAssertions?: string[];
   unhardenedMarkers: { file: string; line: number; text: string }[];
 }
 
@@ -74,18 +80,17 @@ export function reqConstants(source: string): string {
   return squash(source.match(/@req-constants-start([\s\S]*?)@req-constants-end/)?.[1] ?? '');
 }
 
-const specFiles = (dir: string): string[] => (fs.existsSync(dir)
-  ? fs.readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.spec.ts')).map((f) => path.join(dir, f))
-  : []);
-
-/** Frozen alongside the draft specs when a requirement contract exists (see lib/contract.ts oracleDigest). */
+/** Frozen alongside the draft specs (see contract-model.ts oracleDigest). */
 export const CONTRACT_ORACLE_FILE = 'contract-oracle.json';
+/** The hashes of the journey fixture files the draft used, at the freeze. */
+export const JOURNEYS_FILE = 'journeys.json';
 
-/** Freeze the draft specs together with the requirement contract's oracle (lib/contract.ts oracleDigest). */
-export function snapshotDraft(testsDir: string, draftDir: string, contractOracle: string): string[] {
+/** Freeze the draft specs together with the requirement contract's oracle and the hashes of the journey files they use. */
+export function snapshotDraft(testsDir: string, draftDir: string, contractOracle: string, journeys: string[] = []): string[] {
   const copied: string[] = [];
   fs.mkdirSync(draftDir, { recursive: true });
   fs.writeFileSync(path.join(draftDir, CONTRACT_ORACLE_FILE), contractOracle);
+  fs.writeFileSync(path.join(draftDir, JOURNEYS_FILE), `${JSON.stringify(journeyHashes(journeys), null, 2)}\n`);
   for (const file of specFiles(testsDir)) {
     const dest = path.join(draftDir, path.relative(testsDir, file));
     fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -95,7 +100,7 @@ export function snapshotDraft(testsDir: string, draftDir: string, contractOracle
   return copied;
 }
 
-export function checkIntegrity(testsDir: string, draftDir: string, amendmentsFile: string | undefined, contractOracle: string): IntegrityResult {
+export function checkIntegrity(testsDir: string, draftDir: string, amendmentsFile: string | undefined, contractOracle: string, journeys: string[] = []): IntegrityResult {
   const result: IntegrityResult = { status: 'PRESERVED', checkedAt: new Date().toISOString(), files: [], removed: [], changed: [], amended: [], added: [], constantsChanged: [], unhardenedMarkers: [] };
   const amendments = amendmentsFile ? readAmendments(amendmentsFile) : [];
   const current = specFiles(testsDir);
@@ -130,7 +135,13 @@ export function checkIntegrity(testsDir: string, draftDir: string, amendmentsFil
   const frozenOracle = path.join(draftDir, CONTRACT_ORACLE_FILE);
   // A draft frozen without the contract oracle, or with a different one, no longer proves what was expected.
   if (!fs.existsSync(frozenOracle) || fs.readFileSync(frozenOracle, 'utf8') !== contractOracle) result.contractChanged = true;
-  if (result.removed.length || result.changed.length || result.constantsChanged.length || result.contractChanged) result.status = 'VIOLATED';
+  // Journey fixtures are HOW and may change after the freeze (listed); an expectation hidden in one escapes the freeze.
+  const frozenJourneys = path.join(draftDir, JOURNEYS_FILE);
+  const before: Record<string, string> = fs.existsSync(frozenJourneys) ? JSON.parse(fs.readFileSync(frozenJourneys, 'utf8')) : {};
+  const now = journeyHashes(journeys);
+  result.journeysChanged = Object.keys(now).filter((f) => before[f] !== now[f]);
+  result.journeyAssertions = journeys.flatMap((f) => [...reqAssertions(fs.readFileSync(f, 'utf8')).keys()].map((k) => `${Object.keys(journeyHashes([f]))[0]}: ${k}`));
+  if (result.removed.length || result.changed.length || result.constantsChanged.length || result.contractChanged || result.journeyAssertions.length) result.status = 'VIOLATED';
   else if (result.amended.length || amendments.length) {
     // Amendments stay visible even after a re-freeze absorbed them into the draft.
     for (const a of amendments) if (!result.amended.some((x) => x.assertion === a.assertion)) result.amended.push(a);

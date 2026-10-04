@@ -1,9 +1,9 @@
 /**
  * Evidence-based automatic failure classification (pure functions — unit tested in tests/).
  * UI signals: failure-time ARIA snapshot. API signals: last api-exchange attachment + the
- * endpoints the requirement declares (# ENDPOINT: lines in scenarios.feature).
+ * endpoints the requirement contract declares, plus the plumbing the specs and their journey fixtures call.
  */
-import { matchEndpoint, type Endpoint } from './gherkin';
+import { matchEndpoint, type Endpoint } from './spec-model';
 
 export type Category = 'APPLICATION_DEFECT' | 'SCRIPT_DEFECT' | 'ENVIRONMENT_ISSUE' | 'FLAKY' | 'BLOCKED' | 'NEEDS_INVESTIGATION';
 export const CATEGORIES: Category[] = ['APPLICATION_DEFECT', 'SCRIPT_DEFECT', 'ENVIRONMENT_ISSUE', 'FLAKY', 'BLOCKED', 'NEEDS_INVESTIGATION'];

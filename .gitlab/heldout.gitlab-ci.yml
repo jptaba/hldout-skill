@@ -32,8 +32,8 @@ heldout:
     when: always
     expire_in: 30 days
     paths:
-      - evaluations/$HELDOUT_KEY/verdict.md
-      - evaluations/$HELDOUT_KEY/verdict.json
-      - evaluations/$HELDOUT_KEY/runs/
+      - output/*/$HELDOUT_KEY/verdict.md
+      - output/*/$HELDOUT_KEY/verdict.json
+      - output/*/$HELDOUT_KEY/runs/
     reports:
-      junit: evaluations/$HELDOUT_KEY/runs/*/junit.xml
+      junit: output/*/$HELDOUT_KEY/runs/*/junit.xml

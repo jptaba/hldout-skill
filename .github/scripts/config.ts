@@ -82,7 +82,7 @@ export interface UiForm { path: string; steps: { fill?: string; click?: string; 
 export const createsAccounts = (r?: AccountRecipe) => Boolean(r?.create || r?.signUp);
 
 export interface HeldoutConfig {
-  /** Named AUT profiles. A story is bound to one via evaluations/<KEY>/evaluation.json. */
+  /** Named AUT profiles. A story is bound to one by its folder, output/<profile>/<KEY>/. */
   auts: Record<string, AutProfile>;
   defaultAut: string;
   /** The profile resolved for the current command (see loadConfig). */
@@ -100,7 +100,10 @@ export interface HeldoutConfig {
     /** Labels written on publish: <prefix>pass | <prefix>fail | ... */
     verdictLabelPrefix?: string;
   };
-  evaluationsDir: string;
+  /** Everything of a story, per AUT profile: <outputDir>/<profile>/<KEY>/. */
+  outputDir: string;
+  /** Reusable journey fixtures and their UI / API maps, per AUT profile: <journeysDir>/<profile>/. */
+  journeysDir: string;
   run: {
     retries: number;
     workers?: number;
@@ -128,11 +131,25 @@ export const CONFIG_SCHEMA = path.join(SCRIPTS_DIR, 'heldout.config.schema.json'
  * only .claude/). The main agent runs the scripts between them. Paths are the same in the skill repository and in a
  * project.
  */
-const SUBAGENTS = ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-scenario-writer', 'heldout-test-author', 'heldout-hardener', 'heldout-triager'];
+const SUBAGENTS = ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-test-author', 'heldout-hardener', 'heldout-triager'];
 export const AGENT_FILES: string[] = [
   ...SUBAGENTS.flatMap((a) => [`.github/agents/${a}.agent.md`, `.claude/agents/${a}.md`]),
   '.claude/skills/heldout-evaluator/SKILL.md',
 ];
+
+/** What a project keeps out of git: secrets and bulky local run artifacts (verdicts and evidence summaries stay tracked). */
+export const GITIGNORE = ['.env', 'node_modules/', 'test-results/', 'playwright-report/', 'output/*/*/runs/*/html/', 'output/*/*/runs/*/artifacts/', '*.trace.zip', '.playwright-mcp/', '.claude/settings.local.json'];
+
+/** Add the GITIGNORE entries the project's .gitignore doesn't have yet (init, and update when a version adds one). */
+export function ensureGitignore(say: (mark: string, msg: string) => void): void {
+  const file = path.join(ROOT, '.gitignore');
+  const have = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  const lines = new Set(have.split(/\r?\n/).map((l) => l.trim()));
+  const add = GITIGNORE.filter((l) => !lines.has(l) && !lines.has(l.replace(/\/$/, '')));
+  if (!add.length) { say('•', 'keep    .gitignore'); return; }
+  fs.writeFileSync(file, `${have}${have && !have.endsWith('\n') ? '\n' : ''}\n# held-out evaluator (secrets and bulky local artifacts; verdicts and evidence summaries stay tracked)\n${add.join('\n')}\n`);
+  say('✔', `${have ? 'updated' : 'created'} .gitignore (+ ${add.length} entries)`);
+}
 
 /** Content hash of a text file, line endings ignored (git on Windows checks out CRLF; editors may normalise either way). */
 export function fileHash(file: string): string {
@@ -153,7 +170,8 @@ export function loadEnv(file = path.join(ROOT, '.env')): void {
 
 /**
  * Load heldout.config.json and resolve the AUT profile for this command.
- * Profile precedence: opts.aut (--aut) > HELDOUT_AUT env > evaluations/<key>/evaluation.json > defaultAut.
+ * Profile precedence: opts.aut (--aut) > HELDOUT_AUT env > the profile folder the story is in (output/<profile>/<key>/)
+ * > defaultAut.
  * AUT_BASE_URL / AUT_API_BASE_URL env vars override the resolved profile's URLs (e.g. CI → staging).
  */
 export function loadConfig(opts: { key?: string; aut?: string } = {}): HeldoutConfig {
@@ -170,9 +188,10 @@ export function loadConfig(opts: { key?: string; aut?: string } = {}): HeldoutCo
   cfg.jira ??= { mode: 'mock', mockRoot: 'mock-jira' };
   cfg.run ??= { retries: 1 };
   cfg.defaultAut ??= Object.keys(cfg.auts)[0];
-  cfg.evaluationsDir ??= 'evaluations';
+  cfg.outputDir ??= 'output';
+  cfg.journeysDir ??= 'journeys';
 
-  const bound = opts.key ? readEvaluationMeta(cfg, opts.key).aut : undefined;
+  const bound = opts.key && !opts.aut && !process.env.HELDOUT_AUT ? boundProfile(cfg, opts.key) : undefined;
   const autId = opts.aut ?? process.env.HELDOUT_AUT ?? bound ?? cfg.defaultAut;
   const profile = cfg.auts[autId];
   if (!profile) throw new Error(`AUT profile "${autId}" not found in heldout.config.json (have: ${Object.keys(cfg.auts).join(', ')})`);
@@ -264,10 +283,40 @@ export function validateConfig(raw: unknown): string[] {
 
 export interface EvaluationMeta { key: string; aut?: string; createdAt?: string; notes?: string }
 
-/** evaluations/<KEY>/evaluation.json — binds a story to an AUT profile. */
-export function readEvaluationMeta(cfg: Pick<HeldoutConfig, 'evaluationsDir'>, key: string): EvaluationMeta {
-  const file = path.join(ROOT, cfg.evaluationsDir ?? 'evaluations', key, 'evaluation.json');
+/**
+ * The profile whose output folder already holds the story (output/<profile>/<KEY>/), so later commands need no --aut.
+ * A story fetched for two applications needs --aut to say which one.
+ */
+export function boundProfile(cfg: Pick<HeldoutConfig, 'outputDir' | 'auts'>, key: string): string | undefined {
+  const out = path.resolve(ROOT, cfg.outputDir);
+  if (!fs.existsSync(out)) return undefined;
+  const found = fs.readdirSync(out, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(out, d.name, key)))
+    .map((d) => d.name);
+  if (found.length > 1) throw new Error(`${key} is in more than one profile folder (${found.map((p) => `${cfg.outputDir}/${p}/${key}`).join(', ')}) — say which with --aut <profile>`);
+  return found[0];
+}
+
+/** output/<profile>/<KEY>/evaluation.json — when and for which profile the story was fetched. */
+export function readEvaluationMeta(cfg: HeldoutConfig, key: string): EvaluationMeta {
+  const file = evalPaths(cfg, key).evaluationMeta;
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as EvaluationMeta) : { key };
+}
+
+/** Every story folder: output/<profile>/<KEY>/. */
+export function listStories(cfg: Pick<HeldoutConfig, 'outputDir'>): { profile: string; key: string; dir: string }[] {
+  const out = path.resolve(ROOT, cfg.outputDir);
+  if (!fs.existsSync(out)) return [];
+  return fs.readdirSync(out, { withFileTypes: true }).filter((d) => d.isDirectory()).flatMap((p) =>
+    fs.readdirSync(path.join(out, p.name), { withFileTypes: true })
+      .filter((d) => d.isDirectory() && /^[A-Z][A-Z0-9_]+-\d+$/.test(d.name))
+      .map((d) => ({ profile: p.name, key: d.name, dir: path.join(out, p.name, d.name) })));
+}
+
+/** The reusable journey fixtures of a profile: ui/<domain>.ts, api/<domain>.ts and the map fragments under map/. */
+export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir'>, profile: string) {
+  const base = path.resolve(ROOT, cfg.journeysDir, profile);
+  return { base, ui: path.join(base, 'ui'), api: path.join(base, 'api'), map: path.join(base, 'map') };
 }
 
 /** Prefix of the names tests make on an AUT (users, records, seed tags). */
@@ -319,7 +368,7 @@ export function assertIssueKey(key: string | undefined): string {
 }
 
 export function evalPaths(cfg: HeldoutConfig, key: string) {
-  const base = path.join(ROOT, cfg.evaluationsDir, key);
+  const base = path.resolve(ROOT, cfg.outputDir, cfg.autId, key);
   return {
     base,
     requirement: path.join(base, 'requirement'),
@@ -328,8 +377,6 @@ export function evalPaths(cfg: HeldoutConfig, key: string) {
     /** What the description and acceptance criteria embed (screenshots) and link (Confluence pages, with their images). */
     linked: path.join(base, 'requirement', 'linked'),
     evaluationMeta: path.join(base, 'evaluation.json'),
-    requirementReview: path.join(base, 'requirement-review.md'),
-    scenarios: path.join(base, 'scenarios.feature'),
     testData: path.join(base, 'test-data.json'),
     tests: path.join(base, 'tests'),
     draft: path.join(base, 'draft'),

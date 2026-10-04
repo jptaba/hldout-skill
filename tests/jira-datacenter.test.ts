@@ -121,7 +121,7 @@ describe('JiraDataCenterClient against a fake Jira Data Center', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dc-proj-'));
     fs.writeFileSync(path.join(dir, 'heldout.config.json'), JSON.stringify({
       defaultAut: 'app', auts: { app: { name: 'App', baseURL: 'http://localhost:1' } },
-      jira: { mode: 'datacenter', mockRoot: 'mock-jira', baseUrl: base, acceptanceCriteriaField: 'customfield_10035' }, evaluationsDir: 'evaluations', run: { retries: 0 },
+      jira: { mode: 'datacenter', mockRoot: 'mock-jira', baseUrl: base, acceptanceCriteriaField: 'customfield_10035' }, outputDir: 'output', run: { retries: 0 },
     }));
     const script = path.resolve(import.meta.dirname, '..', '.github', 'scripts', 'jira-fetch.ts');
     const tsxLoader = pathToFileURL(createRequire(import.meta.url).resolve('tsx/esm')).href; // resolve from the project, not the temp cwd
@@ -134,7 +134,7 @@ describe('JiraDataCenterClient against a fake Jira Data Center', () => {
       child.on('close', (status) => resolve({ status, stderr }));
     });
     assert.equal(r.status, 0, r.stderr);
-    const req = path.join(dir, 'evaluations', 'DC-7', 'requirement');
+    const req = path.join(dir, 'output', 'app', 'DC-7', 'requirement');
     const story = fs.readFileSync(path.join(req, 'story.md'), 'utf8');
     assert.match(story, /source: jira-datacenter/);
     assert.match(story, /!cart\.png\|thumbnail!/);

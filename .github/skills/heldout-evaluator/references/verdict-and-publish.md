@@ -1,4 +1,4 @@
-# Verdict and publishing (phases 7–8)
+# Verdict and publishing (phases 6–7)
 
 ## Render
 
@@ -29,7 +29,7 @@ where everything passed needs no triage by hand; the verdict triages it itself.
    - test type and layer
    - expected → actual per failing test
    - **how to reproduce**:
-     - manual Gherkin steps
+     - the test's Given / When / Then steps
      - a **curl sequence** of the exact API requests (secrets as placeholders)
      - the single-test re-run command
    - **evidence**: inline screenshot for UI, failure context, trace, the evaluator's live re-check
@@ -38,9 +38,9 @@ where everything passed needs no triage by hand; the verdict triages it itself.
 4. Script defects found and repaired, audited assertion amendments, audited draft re-freezes.
 5. **Test results** (test, criteria, type, result, classification).
 6. **Requirement coverage** (AC → tests → met / not met).
-7. **Traceability matrix**: AC → source → scenario → type → layer → tests passed → result → finding.
+7. **Traceability matrix**: AC → source → test (SCN id) → type → layer → tests passed → result → finding.
 8. **Coverage by test type**.
-9. Requirement gaps: open questions, clarifications, assumptions, link to the review.
+9. Requirement gaps: open questions, clarifications, assumptions, link to the requirement contract.
 10. Method, run history, and artifact links.
 
 `verdict.json` has the same content in machine-readable form, including `traceability[]`,

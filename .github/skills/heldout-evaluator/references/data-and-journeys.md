@@ -1,19 +1,22 @@
 # Test data seeding and journey entry points
 
 Held-out tests must be **independent, repeatable and correctly attributed**. Two decisions matter
-most: where each scenario's data comes from, and where each journey starts.
+most: where each test's data comes from, and where each journey starts. How to seed a kind of record, and how to reach
+a page, is the same for every story on an application: write it once as a journey fixture
+([journeys.md](journeys.md)) and call it from every test that needs it.
 
 ## 1. Data seeding — principles
 
 1. **Every test owns its data.** Never depend on records that happen to exist in the environment
-   (for example "the first message in the list"). Create what the scenario needs, uniquely named.
+   (for example "the first message in the list"). Create what the test needs, uniquely named.
 2. **Preconditions are `Given`s, and `Given`s are seeded.** "Given a booking exists" / "Given I am
    signed in" is set up by `seed.create(…)`, not by assuming state, and not by clicking through the
    UI when an API exists.
 3. **Seed through the black box.** Use the AUT's own interfaces (API first). Seeding is *mechanics*
-   (HOW), so it may use endpoints the requirement doesn't cover, declared as `# SEED-ENDPOINT:`.
+   (HOW), so it may use endpoints the requirement doesn't cover: in a journey fixture, or in the spec declared as
+   `// SEED-ENDPOINT:`.
 4. **Seed failures are not requirement failures.** `seed.create` re-throws as `[SEED] …`, and triage
-   classifies it **BLOCKED** (scenario not evaluated), never APPLICATION_DEFECT for the AC under test.
+   classifies it **BLOCKED** (test not evaluated), never APPLICATION_DEFECT for the AC under test.
 5. **Clean up what you create** (reverse order, even when the test failed). Cleanup never fails a
    test; the outcome is recorded in the seed ledger, and `heldout run` lists every failed cleanup so the data
    can be removed. `HELDOUT_KEEP_DATA=1` keeps data for debugging. Many applications revoke earlier tokens when
@@ -49,24 +52,34 @@ most: where each scenario's data comes from, and where each journey starts.
 
 ## 4. How it looks in a spec
 
-```ts
-import { test, expect, gotoPage, type Seed } from '../../../heldout-support/fixtures';
+The seeding recipe is a journey fixture, shared by every story that needs a booking:
 
-async function createBooking(seed: Seed, api: Api, data: TestData, b: Booking) {
+```ts
+// journeys/<profile>/api/bookings.ts
+import { expect, type Api, type Seed } from '../../../heldout-support/fixtures';
+
+/** Create a booking through the API; deleted after the test. */
+export async function createBooking(api: Api, seed: Seed, headers: Record<string, string>, b: Booking) {
   return seed.create('booking', async () => {
     const r = await api.post<{ bookingid: number }>('/booking', { data: b });
-    expect(r.status, 'create booking (seed)').toBe(200);          // plain precondition, not [REQ]
+    expect(r.ok, 'create booking (precondition)').toBe(true);        // plain precondition, never [REQ]
     return r.body.bookingid;
-  }, (id) => api.delete(`/booking/${id}`, { headers: auth(data) })); // cleanup after the test
+  }, (id) => api.delete(`/booking/${id}`, { headers }));              // cleanup after the test
 }
+```
+
+```ts
+// output/<profile>/<KEY>/tests/<key>.spec.ts
+import { test, expect } from '../../../../heldout-support/fixtures';
+import { createBooking } from '../../../../journeys/<profile>/api/bookings';
 
 test('SCN-004: …', { tag: ['@AC-4', '@type:functional', '@layer:api'] }, async ({ api, journey, data, seed }) => {
   let id = 0;
-  await journey.step('Given I created a valid booking', async () => { id = await createBooking(seed, api, data, validBooking(data)); });
-  await journey.step('When I GET /booking/{id}', async () => { /* the action under test */ });
+  await journey.step('Given I created a valid booking', async () => { id = await createBooking(api, seed, auth(data), validBooking(data)); });
+  await journey.step('When I GET /booking/{id}', async () => { /* the action under test, and its [REQ] checks */ });
 });
 
-// Data created by the scenario itself (the POST under test) is tracked for cleanup:
+// Data created by the test itself (the POST under test) is tracked for cleanup:
 seed.track('booking', res.body.bookingid, (id) => api.delete(`/booking/${id}`, { headers: auth(data) }));
 ```
 
@@ -184,7 +197,7 @@ account itself is the subject of the story (registration, sign-in rules), call t
 
 ## 5b. API pre-steps (calls needed before the API under test)
 
-API scenarios often need a chain of calls before the request under test. Each kind has one helper,
+API tests often need a chain of calls before the request under test. Each kind has one helper,
 and **all of them** run in the `[seed]` phase. That means a ledger entry, BLOCKED on failure, the calls
 kept out of requirement evidence, and the calls shown in the verdict as *API pre-steps* (P1, P2, …) for
 the reviewer to run first.
@@ -231,22 +244,23 @@ Triage support:
 - The relevant exchange for a status assertion is chosen by the failing status (including lists such
   as `[403, 403]` from repeated calls), not by position.
 
-## 5. Journey entry points (where a scenario starts)
+## 5. Journey entry points (where a test starts)
 
 | Rule | Why |
 | --- | --- |
 | **Start where the AC starts.** If the AC says "On the Checkboxes page…", the Given deep-links there: `await gotoPage(page, '/checkboxes')` | Attribution: a broken menu must not fail the checkbox AC. Also speed and stability |
 | **Start from the base URL only when navigation is part of the requirement** ("from the home page a guest can reach…") or the journey truly begins there | Otherwise navigation steps add unrelated failure points |
-| **Seed state instead of walking to it.** Signed in, items in cart, an existing record: seed via the API (or UI setup in `seed.create`) | Keeps each scenario about its own AC |
-| **When deep links are impossible** (SPA state, POST-only flows), take the shortest stable path and keep it in Given/setup steps | Failures there read as setup, not as the AC |
-| **Test navigation once, explicitly**, if the requirement mentions it (menu items, links) as its own scenario | One clear signal instead of noise in every scenario |
-| **Be explicit about negative preconditions** ("Given I am not signed in") rather than implying them | Readers and lint can see the state the scenario relies on |
+| **Seed state instead of walking to it.** Signed in, items in cart, an existing record: seed via the API (or UI setup in `seed.create`), through a journey fixture | Keeps each test about its own AC |
+| **When deep links are impossible** (SPA state, POST-only flows), take the shortest stable path and keep it in Given/setup steps (a UI journey fixture) | Failures there read as setup, not as the AC |
+| **Test navigation once, explicitly**, if the requirement mentions it (menu items, links) as its own test | One clear signal instead of noise in every test |
+| **Be explicit about negative preconditions** ("Given I am not signed in") rather than implying them | Readers and lint can see the state the test relies on |
 
 `gotoPage(page, path)` waits for DOMContentLoaded, then gives `load` a bounded settle time. Some
-AUTs never fire `load` (slow third-party assets), and page scripts may bind their handlers late.
+AUTs never fire `load` (slow third-party assets), and page scripts may bind their handlers late. A UI journey
+fixture that opens a page also waits for its readiness anchor (a heading or field that is there only once it loaded).
 
-The preflight lint warns when a UI/e2e scenario doesn't start with a Given (`no-entry-point`), and
-when a spec has data preconditions but never uses `seed` (`no-seeding`).
+The preflight lint warns when a UI/e2e test doesn't start with a `Given` step (`no-entry-point`), and
+when tests have data preconditions but neither the spec nor its journey fixtures use `seed` (`no-seeding`).
 
 ## 6. Recommended next steps for teams adopting this
 
@@ -256,8 +270,9 @@ when a spec has data preconditions but never uses `seed` (`no-seeding`).
    shared ones, keep `workers` low. This evaluation measured shared sandboxes dropping connections
    under 8 repeats × 4 workers.
 3. **Write the accounts recipe** (§4a) for each application as soon as a story needs users.
-4. **Keep data builders per entity**, derived from the requirement's schema (valid by default,
-   overridable per test), as in `validBooking()` / `validEnquiry()`.
+4. **Keep seeding recipes per entity as journey fixtures** (`journeys/<profile>/api/<domain>.ts`), so every story
+   on the application reuses them. Data builders that encode what a story requires (`validBooking()` built from the
+   requirement's schema) stay in that story's spec.
 5. **Sweep leftovers by prefix** after interrupted runs. Every name the tests make starts with the profile's data
    prefix: users `hldout-…`, records `hldout …`, seed tags `hldout…`. That makes this safe. The prefix is `hldout`
    unless the application's rules need another one (letters only, a length limit): set it once per application with

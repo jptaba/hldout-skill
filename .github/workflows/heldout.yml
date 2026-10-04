@@ -24,7 +24,7 @@ jobs:
       KEY: ${{ inputs.issue_key }}
       AUT_BASE_URL: ${{ inputs.aut_base_url }}
       JIRA_MODE: mock
-      # Secrets referenced from evaluations/<KEY>/test-data.json as ${env:NAME}:
+      # Secrets referenced from output/<profile>/<KEY>/test-data.json as ${env:NAME}:
       # AUT_USER_PASSWORD: ${{ secrets.AUT_USER_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
@@ -43,13 +43,13 @@ jobs:
         run: npm run heldout -- verdict "$KEY" --exit-code
       - name: Job summary
         if: always()
-        run: cat "evaluations/$KEY/verdict.md" >> "$GITHUB_STEP_SUMMARY" || true
+        run: cat output/*/"$KEY"/verdict.md >> "$GITHUB_STEP_SUMMARY" || true
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: heldout-${{ inputs.issue_key }}
           path: |
-            evaluations/${{ inputs.issue_key }}/verdict.md
-            evaluations/${{ inputs.issue_key }}/verdict.json
-            evaluations/${{ inputs.issue_key }}/runs/
+            output/*/${{ inputs.issue_key }}/verdict.md
+            output/*/${{ inputs.issue_key }}/verdict.json
+            output/*/${{ inputs.issue_key }}/runs/

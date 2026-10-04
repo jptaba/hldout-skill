@@ -22,7 +22,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { AGENT_FILES, ROOT, SCRIPTS_DIR, SKILL_DIR, fileHash, flagStr, main, parseArgs, rel, type Flags } from './config';
+import { AGENT_FILES, ROOT, SCRIPTS_DIR, SKILL_DIR, ensureGitignore, fileHash, flagStr, main, parseArgs, rel, type Flags } from './config';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
 /** Files a project gets from the skill repository, at the same path. */
@@ -95,6 +95,15 @@ function installSkill(): SourceInfo {
 
 /** Create a missing workspace file, refresh one the project hasn't changed since it was copied, keep the rest. */
 function syncWorkspaceFiles(info: SourceInfo): void {
+  // A file an earlier version installed and this one no longer ships (a retired subagent): removed when unchanged.
+  for (const [file, hash] of Object.entries(info.files)) {
+    if (WORKSPACE_FILES.includes(file)) continue;
+    const dest = path.join(ROOT, file);
+    if (fs.existsSync(dest) && fileHash(dest) !== hash) { say('⚠', `kept ${file} (no longer part of the skill, but changed in this project) — delete it if you don't need it`); continue; }
+    fs.rmSync(dest, { force: true });
+    delete info.files[file];
+    say('✔', `removed ${file} (no longer part of the skill)`);
+  }
   for (const file of WORKSPACE_FILES) {
     const dest = path.join(ROOT, file);
     if (!fs.existsSync(path.join(SOURCE_ROOT, file))) { say('⚠', notInSource(file)); continue; }
@@ -185,10 +194,12 @@ main(() => {
   writeClaudeCodeMcp(ROOT, servers, say);
   writeSource({ ...info, mcpServers: Object.keys(servers) });
   if (flags.ci) ensureCi(flags);
+  // A set-up project gains the .gitignore entries a newer version needs (init adds them for a new one).
+  if (fs.existsSync(path.join(ROOT, 'heldout.config.json'))) ensureGitignore(say);
   // init runs update first and prints its own next steps.
   if (!process.env.HELDOUT_INIT) {
     console.log(fs.existsSync(path.join(ROOT, 'heldout.config.json'))
-      ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; evaluations carry on as before)'
+      ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; stories and journey fixtures carry on as before)'
       : `\nNext: set the project up — npx -y tsx "${path.join(SCRIPTS_DIR, 'heldout.ts').split(path.sep).join('/')}" init --base-url https://your-app --install`);
   }
 });

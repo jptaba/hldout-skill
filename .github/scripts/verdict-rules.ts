@@ -33,11 +33,11 @@ export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: str
     return { verdict: 'INCONCLUSIVE', reason: `${i.failures} failure(s) not attributable to the application yet (${env ? `${env} caused by the test environment; the others ` : ''}unconfirmed, script or needs investigation).` };
   }
   if (i.skipped) {
-    return { verdict: 'INCONCLUSIVE', reason: `${i.skipped} scenario(s) did not run (skipped), so the requirement is not fully evaluated.` };
+    return { verdict: 'INCONCLUSIVE', reason: `${i.skipped} test(s) did not run (skipped), so the requirement is not fully evaluated.` };
   }
   if (i.flaky || i.uncoveredAcs || i.clarifications || i.openQuestions || i.contradictedAssumptions || i.unverifiedRequirements) {
-    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} reading(s) the application contradicts (an assumed value or an open question: ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} scenario(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`, i.unverifiedRequirements && `${i.unverifiedRequirements} stated requirement(s) not verified`].filter(Boolean).join(', ');
-    return { verdict: 'PASS_WITH_WARNINGS', reason: `${i.contradictedAssumptions ? 'Every requirement-backed scenario passed' : 'All scenarios passed'}, with warnings: ${why}.` };
+    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} reading(s) the application contradicts (an assumed value or an open question: ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} test(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`, i.unverifiedRequirements && `${i.unverifiedRequirements} stated requirement(s) not verified`].filter(Boolean).join(', ');
+    return { verdict: 'PASS_WITH_WARNINGS', reason: `${i.contradictedAssumptions ? 'Every requirement-backed test passed' : 'All tests passed'}, with warnings: ${why}.` };
   }
-  return { verdict: 'PASS', reason: 'Every scenario passed and every acceptance criterion is covered.' };
+  return { verdict: 'PASS', reason: 'Every test passed and every acceptance criterion is covered.' };
 }

@@ -132,7 +132,7 @@ main(async () => {
 
         const tool = s.tool!;
         const callArgs: Record<string, unknown> = {};
-        if (s.url !== undefined) callArgs.url = resolveUrl(cfg.aut.baseURL, s.url);
+        if (s.url !== undefined) callArgs.url = resolveUrl(cfg.aut.baseURL, env(s.url));
         if (s.find) {
           // A nameless control (icon button) is found by role + nth, or by the ref shown in a snapshot step.
           const ref = s.find.ref ?? (s.find.role ? refFor(await refresh(), s.find.role, s.find.name, s.find.exact, s.find.nth ?? 1) : undefined);

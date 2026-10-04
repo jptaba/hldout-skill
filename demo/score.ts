@@ -33,12 +33,18 @@ const keysDir = path.join(REPO, 'demo', 'answer-keys');
 const args = process.argv.slice(2);
 const fromAt = args.indexOf('--from');
 const from = fromAt >= 0 ? path.resolve(args[fromAt + 1] ?? '') : undefined;
-if (from && !fs.existsSync(path.join(from, 'evaluations'))) throw new Error(`--from ${from}: no evaluations/ folder there`);
+if (from && !fs.existsSync(path.join(from, 'output'))) throw new Error(`--from ${from}: no output/ folder there`);
 const ROOT = from ?? REPO;
+/** A story's folder: output/<profile>/<KEY>/, whichever profile it was evaluated under. */
+const storyDir = (key: string): string | undefined => {
+  const out = path.join(ROOT, 'output');
+  if (!fs.existsSync(out)) return undefined;
+  return fs.readdirSync(out).map((p) => path.join(out, p, key)).find((d) => fs.existsSync(d));
+};
 const wanted = args.filter((_, i) => fromAt < 0 || (i !== fromAt && i !== fromAt + 1));
 const keys: Key[] = fs.readdirSync(keysDir).filter((f) => f.endsWith('.json'))
   .map((f) => JSON.parse(fs.readFileSync(path.join(keysDir, f), 'utf8')) as Key)
-  .filter((k) => (wanted.length ? wanted.includes(k.key) : !from || fs.existsSync(path.join(ROOT, 'evaluations', k.key))));
+  .filter((k) => (wanted.length ? wanted.includes(k.key) : !from || Boolean(storyDir(k.key))));
 
 const text = (...parts: (string | null | undefined)[]) => parts.filter(Boolean).join(' ').toLowerCase();
 const hit = (hay: string, keywords: string[]) => keywords.some((k) => hay.includes(k.toLowerCase()));
@@ -49,7 +55,7 @@ const details: string[] = [];
 let totals = { expected: 0, tp: 0, fp: 0, seeded: 0, seededHit: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
 
 for (const k of keys) {
-  const base = path.join(ROOT, 'evaluations', k.key);
+  const base = storyDir(k.key) ?? path.join(ROOT, 'output', k.aut, k.key);
   const vFile = path.join(base, 'verdict.json');
   if (!fs.existsSync(vFile)) { rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | _not evaluated_ | | | | |`); continue; }
   const v = JSON.parse(fs.readFileSync(vFile, 'utf8')) as Verdict;

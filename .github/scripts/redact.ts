@@ -106,7 +106,7 @@ const scrubText = (s: string, secrets: string[]) => redactSnapshot(secrets.reduc
 /** Scrub secret values from every text artifact under `dir` (incl. base64 attachment bodies in results.json). */
 /**
  * Run artifacts (stack traces, junit, results) name files by their absolute path, which carries the machine's user
- * and folder names into committed evidence: make them relative to the project ("./evaluations/…").
+ * and folder names into committed evidence: make them relative to the project ("./output/…").
  */
 export function relativizePaths(dir: string, root: string): { files: number } {
   let files = 0;

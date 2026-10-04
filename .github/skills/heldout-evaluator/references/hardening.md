@@ -1,35 +1,33 @@
-# Hardening the draft against the live AUT (phase 4)
+# Hardening the draft against the live AUT (phase 3)
 
-Goal: every locator, wait, navigation step and API mechanic works against the real AUT, **without
-changing what the test expects**.
+Goal: every locator, wait, navigation step and API mechanic works against the real AUT, in the tests and in the
+journey fixtures they call, **without changing what the test expects**.
 
 ## 0. Freeze
 
 ```bash
-npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → draft/
+npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → draft/, records the journey files they use
 ```
 
-## 0b. Start from the app knowledge
+## 0b. The journey fixtures the tests call
 
 ```bash
-npm run heldout -- knowledge KEY          # the entries this story needs (--all: every entry of the application)
+npm run heldout -- journeys KEY          # the fixtures this story concerns, with their map status (--all: every one)
 ```
 
-Earlier stories on this application (and `doctor --learn`) left routes, readiness anchors, locators, endpoints with
-their auth and request fields, seed recipes and plumbing notes. `proven` entries were used by a passing test of an
-earlier story; `seen` ones were only observed. Try them first, and **verify each with a probe** as usual: the app may
-have changed. One that works and your tests rely on: `npm run heldout -- knowledge KEY --confirm "<key>" --for SCN-n`.
-When one fails, discover the mechanic as usual and mark the entry:
-`npm run heldout -- knowledge KEY --stale "<key>" --evidence "<probe report>"`. Record what you find for the next
-stories as you go (see [app-knowledge.md](app-knowledge.md)):
+The tests call shared fixtures in `journeys/<profile>/ui|api/<domain>.ts` ([journeys.md](journeys.md)). Harden them
+like the tests: a `proven` fixture worked for a passing test of an earlier story, *changed since proven* or
+*not proven yet* ones haven't been shown to work in their current form, a `STALE` one stopped working. **Verify each
+with a probe** as usual: the app may have changed. Replace the `// TODO(harden)` marks the test author left in
+fixtures as in the tests.
 
-```bash
-npm run heldout -- knowledge KEY --add page --route orders --name "Orders" --ready "getByRole('heading', { name: 'Your orders' })" --signed-in --for SCN-001
-npm run heldout -- knowledge KEY --add locator --route orders --element "New order button" --locator "getByRole('button', { name: 'New order' })" --for SCN-002
-npm run heldout -- knowledge KEY --add seed --entity order --create "POST /orders" --id id --cleanup "DELETE /orders/{id}" --for SCN-003
-```
-
-The knowledge never changes what a test expects: it is HOW only, and it opens after the freeze.
+A fixture is shared by every story that calls it. Fix HOW it works when the application changed (a new locator, a new
+field) so every caller gets the fix; never bend it to one story's need (add a fixture, or keep that step in the
+test). Never move an expectation into a fixture: no `[REQ …]`, no `expectResponse`, no expected message. A fixture you
+replace with another: `npm run heldout -- journeys KEY --stale "<key>" --evidence "<probe report>"`. What you discover
+that later stories will need (opening a page and waiting for it, creating and deleting a record) becomes a fixture in
+the right domain file, called from the test, with a `/** doc comment */`. The harvest after the verdict records in the
+UI and API maps what the passing tests proved.
 
 ## 1. Choose the tier
 
@@ -100,7 +98,7 @@ MSYS rewrites `/…` arguments into Windows paths.
   Same tools, same snapshots, recorded as evidence:
 
   ```bash
-  npm run heldout -- mcp-probe --key KEY --steps evaluations/KEY/hardening/tier2/<walk>.steps.json --out evaluations/KEY/hardening/tier2/<walk>.md
+  npm run heldout -- mcp-probe --key KEY --steps output/<profile>/KEY/hardening/tier2/<walk>.steps.json --out output/<profile>/KEY/hardening/tier2/<walk>.md
   ```
 
   Steps resolve elements by **role + accessible name** from the live MCP snapshot (`{"find": {"role": "button", "name": "Login"}}`),
@@ -121,10 +119,11 @@ MSYS rewrites `/…` arguments into Windows paths.
 - Large snapshots are written to files (`[Snapshot](….yml)`). `heldout mcp-probe` reads them, keeps MCP output
   in its own temp directory and deletes it when the walk ends. When MCP runs natively, add `.playwright-mcp/` to `.gitignore`.
 
-## 2. Walk each scenario
+## 2. Walk each test
 
-UI: perform the Gherkin steps live, in order. At each step, snapshot the page, pick the most
-resilient **unique** locator, probe it, replace the draft locator and remove `// TODO(harden)`.
+UI: perform the test's journey steps live, in order. At each step, snapshot the page, pick the most
+resilient **unique** locator, probe it, replace the draft locator (in the test or the fixture it calls) and remove
+`// TODO(harden)`.
 Fix mechanics the draft couldn't know: menus that must be opened first, asynchronous UI, iframes,
 dialogs, empty live regions that shadow `role=alert`, and so on.
 
@@ -139,7 +138,7 @@ far apart), and pace your probes.
 
 ```bash
 # steps in a file (write it with your file tool: shell quoting mangles locators and regexes)
-npm run heldout -- inspect --key KEY --steps evaluations/KEY/hardening/tier3/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })" --out evaluations/KEY/hardening/tier3/login.md
+npm run heldout -- inspect --key KEY --steps output/<profile>/KEY/hardening/tier3/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })" --out output/<profile>/KEY/hardening/tier3/login.md
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 
@@ -182,7 +181,7 @@ application answers differently is never one. Say in `--reason` if you noticed i
 
 ### Requirement revision → audited re-freeze
 
-When `jira-fetch` reports a revision, update the review and scenarios, draft the new tests
+When `jira-fetch` reports a revision, rebuild and re-review the contract, draft the new tests
 (before touching the AUT), then:
 
 ```bash
@@ -200,10 +199,12 @@ The old draft is archived under `hardening/draft-history/`, and the absorbed cha
 **AUT profile:** <id> — <urls> · **Date:** <iso> · **Draft frozen:** draft/<file>
 
 ## UI locators
-| Scenario(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |
+| Test(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |
 ## API mechanics
 | Item | Verified | Evidence |
+## Journey fixtures (reused, fixed, added)
+| Fixture | Change | Why | Evidence |
 ## Mechanics changed (non-locator)
 ## Observed deviations (assertions intentionally left unchanged)
-| Scenario | Requirement says | AUT shows | Evidence |
+| Test | Requirement says | AUT shows | Evidence |
 ```

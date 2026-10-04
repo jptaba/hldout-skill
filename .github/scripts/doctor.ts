@@ -1,12 +1,10 @@
 /**
  * Setup check — is everything wired up? Each problem comes with the command that fixes it.
  *
- *   heldout doctor [--jira] [--offline] [--learn] [--aut <profile>]
+ *   heldout doctor [--jira] [--offline] [--aut <profile>]
  *
  *   --jira     also authenticate against Jira Data Center and list custom fields that may hold acceptance criteria
  *   --offline  skip network checks (AUT reachability, Jira)
- *   --learn    record the app's pages and the API calls they make as app knowledge
- *              (aut-knowledge/<profile>/, read-only visits); re-checks known pages and marks broken ones stale
  *
  * Exit 1 when any check fails (warnings don't fail).
  */
@@ -14,14 +12,13 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { AGENT_FILES, ROOT, SKILL_DIR, createsAccounts, fileHash, dataPrefix, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
+import { AGENT_FILES, ROOT, SKILL_DIR, createsAccounts, fileHash, dataPrefix, journeyPaths, listStories, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
 import { appRootOf, describeCounts, discoverApp } from './detect';
 import { createTracker } from './jira';
 import { safeToScrub } from './redact';
 import { checkAccountRecipe, envNamesIn } from './accounts-recipe';
 import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './secrets';
-import { entries, loadKnowledge, writeFacts } from './knowledge-store';
-import { learnApp } from './learn';
+import { entries, journeyFiles, lintJourneys, loadMap, profileFixtures } from './journeys-store';
 import { CLAUDE_MCP_FILE, MCP_FILE } from './mcp-config';
 
 type Level = 'ok' | 'warn' | 'fail';
@@ -115,15 +112,15 @@ main(async () => {
 
   /**
    * Secret values from .env that appear in files git would commit (tracked, or untracked and not ignored). Values a
-   * story itself publishes (a sandbox's documented demo password, found under evaluations/<KEY>/requirement/) are not
-   * secrets and are skipped, as are weak values (plain words) that can't be told apart from ordinary text.
+   * story itself publishes (a sandbox's documented demo password, found under output/<profile>/<KEY>/requirement/) are
+   * not secrets and are skipped, as are weak values (plain words) that can't be told apart from ordinary text.
    */
-  function committableLeaks(evalDir: string): Map<string, string[]> {
+  function committableLeaks(outDir: string): Map<string, string[]> {
     const git = spawnSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     if (git.status !== 0) return new Map();
     const files = git.stdout.split('\0').filter(Boolean);
     const read = (f: string) => { try { return fs.statSync(path.join(ROOT, f)).size < 5_000_000 ? fs.readFileSync(path.join(ROOT, f), 'utf8') : ''; } catch { return ''; } };
-    const published = files.filter((f) => f.startsWith(`${rel(evalDir)}/`) && f.split('/')[2] === 'requirement').map(read).join('\n');
+    const published = files.filter((f) => f.startsWith(`${rel(outDir)}/`) && f.split('/')[3] === 'requirement').map(read).join('\n');
     const secrets = [...Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safeToScrub(v) && !published.includes(v)) as [string, string][],
       ...Object.entries(loadedVaultSecrets()).filter(([, v]) => safeToScrub(v) && !published.includes(v)).map(([ref, v]) => [`${'$'}{vault:${ref}}`, v] as [string, string])];
     const leaks = new Map<string, string[]>();
@@ -135,14 +132,13 @@ main(async () => {
     return leaks;
   }
 
-  // ---- secrets referenced by evaluations ----------------------------------------------------------
+  // ---- secrets referenced by the stories ----------------------------------------------------------
   if (cfg) {
-    const evalDir = path.join(ROOT, cfg.evaluationsDir);
+    const outDir = path.resolve(ROOT, cfg.outputDir);
+    const testDataFiles = listStories(cfg).map((s) => ({ key: s.key, file: path.join(s.dir, 'test-data.json') })).filter((s) => fs.existsSync(s.file));
     const missing = new Map<string, string[]>();
-    if (fs.existsSync(evalDir)) for (const key of fs.readdirSync(evalDir)) {
-      const td = path.join(evalDir, key, 'test-data.json');
-      if (!fs.existsSync(td)) continue;
-      for (const m of fs.readFileSync(td, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)) if (!process.env[m[1]]) missing.set(m[1], [...(missing.get(m[1]) ?? []), key]);
+    for (const { key, file } of testDataFiles) {
+      for (const m of fs.readFileSync(file, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)) if (!process.env[m[1]]) missing.set(m[1], [...(missing.get(m[1]) ?? []), key]);
     }
     // The accounts recipes' secrets too (seed.account() reads them in every test that makes an account).
     for (const [id, prof] of Object.entries(cfg.auts)) for (const n of envNamesIn(prof.accounts)) if (!process.env[n]) missing.set(n, [...(missing.get(n) ?? []), `auts.${id}.accounts`]);
@@ -153,7 +149,7 @@ main(async () => {
     if (!missing.size) check('ok', 'secrets', 'every ${env:…} referenced by test data and accounts is set');
 
     // HashiCorp Vault: every ${vault:…} reference in test data and accounts recipes resolves.
-    const testData = fs.existsSync(evalDir) ? fs.readdirSync(evalDir).map((k) => path.join(evalDir, k, 'test-data.json')).filter((f) => fs.existsSync(f)).map((f) => fs.readFileSync(f, 'utf8')) : [];
+    const testData = testDataFiles.map((s) => fs.readFileSync(s.file, 'utf8'));
     const vaultUsers = [...testData, ...Object.values(cfg.auts).map((prof) => prof.accounts)];
     const refs = vaultUsers.flatMap(vaultRefsIn);
     if (refs.length && flags.offline) check('warn', 'vault', `${refs.length} ${'$'}{vault:…} reference(s) not checked (--offline)`);
@@ -163,7 +159,7 @@ main(async () => {
       if (problems.length) for (const pr of problems) check('fail', 'vault', pr, !vs.addr ? 'add VAULT_ADDR=https://… to .env' : !vs.tokenSource ? 'run `vault login` once (the token is picked up), or set VAULT_TOKEN, or VAULT_ROLE_ID + VAULT_SECRET_ID for AppRole' : 'check the path and field with: vault kv get <path>');
       else check('ok', 'vault', `${refs.length} reference(s) read from ${vs.addr}${vs.namespace ? ` (namespace ${vs.namespace})` : ''} with the token from ${vs.tokenSource}`);
     }
-    const leaks = committableLeaks(evalDir);
+    const leaks = committableLeaks(outDir);
     for (const [name, files] of leaks) check('fail', 'secrets', `the value of ${name} is in ${files.length} file(s) git would commit: ${files.slice(0, 4).join(', ')}${files.length > 4 ? ', …' : ''}`, `replace it with \${env:${name}} or a made-up value; if it was already pushed, change the secret`);
     if (!leaks.size) check('ok', 'secrets', 'no .env secret value in files git would commit');
   }
@@ -237,25 +233,20 @@ main(async () => {
     }
   }
 
-  // ---- app knowledge (aut-knowledge/<profile>/) ----------------------------------------------------
+  // ---- journey fixtures (journeys/<profile>/) -----------------------------------------------------
   if (cfg) {
     const ids = typeof flags.aut === 'string' ? [flags.aut] : Object.keys(cfg.auts);
     for (const id of ids.filter((x) => cfg!.auts[x])) {
-      let store = loadKnowledge(id);
-      if (flags.learn && !flags.offline) {
-        const r = await learnApp(cfg.auts[id], entries(store.records));
-        const file = writeFacts(id, 'doctor', r.facts);
-        if (r.error) check('warn', 'knowledge', `${id}: ${r.error}`);
-        check('ok', 'knowledge', file
-          ? `${id}: learned ${r.pages} page(s) and ${r.endpoints} endpoint(s)${r.replaced ? `, ${r.replaced} of them replacing what an earlier visit saw` : ''}${r.stale ? `; ${r.stale} known entr(ies) no longer match the app (stale)` : ''} → ${rel(file)}`
-          : `${id}: nothing new to learn from the pages`);
-        store = loadKnowledge(id);
-      }
-      const all = entries(store.records);
-      const n = (s: string) => all.filter((e) => e.status === s).length;
-      if (!all.length) check(flags.learn ? 'warn' : 'ok', 'knowledge', `${id}: no app knowledge yet`, flags.learn ? undefined : `${H} doctor --learn --aut ${id}   (the app's pages and endpoints, for hardening)`);
-      else check('ok', 'knowledge', `${id}: ${all.length} entr(ies) — ${n('proven')} proven by stories, ${n('seen')} seen, ${n('stale')} with no working value (stale) — in ${store.files.length} fact file(s)${store.snapshots.length ? ` and ${store.snapshots.length} snapshot(s)` : ''}`,
-        store.files.length > 200 ? `${H} knowledge --aut ${id} --compact   (from one place, e.g. a scheduled CI job)` : undefined);
+      const files = journeyFiles(cfg, id);
+      const where = rel(journeyPaths(cfg, id).base);
+      if (!files.length) { check('ok', 'journeys', `${id}: no journey fixtures yet — the first story's tests start them in ${where}/ui|api/<domain>.ts`); continue; }
+      const map = loadMap(cfg, id);
+      const all = entries(map.records);
+      const fixtures = profileFixtures(cfg, id);
+      const errors = lintJourneys(files).filter((f) => f.level === 'error');
+      for (const e of errors) check('fail', 'journeys', e.message, 'move what a story expects into its test; fixtures hold HOW only');
+      check('ok', 'journeys', `${id}: ${fixtures.length} fixture(s) in ${files.length} domain file(s); the UI / API maps hold ${all.filter((e) => e.status === 'proven').length} proven, ${all.filter((e) => e.status === 'stale').length} stale, in ${map.files.length} fragment(s)${map.snapshots.length ? ` and ${map.snapshots.length} snapshot(s)` : ''}`,
+        map.files.length > 200 ? `${H} journeys --aut ${id} --compact   (from one place, e.g. a scheduled CI job)` : undefined);
     }
   }
 

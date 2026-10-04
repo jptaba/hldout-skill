@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { classify, looseRegexMatch, parseError, relevantExchange, type ApiExchange } from '../.github/scripts/classify';
-import type { Endpoint } from '../.github/scripts/gherkin';
+import type { Endpoint } from '../.github/scripts/spec-model';
 
 const pw = (lines: string[]) => lines.join('\n');
 const endpoints: Endpoint[] = [{ method: 'GET', path: '/api/message' }, { method: 'GET', path: '/api/room/{id}' }, { method: 'POST', path: '/api/message' }];

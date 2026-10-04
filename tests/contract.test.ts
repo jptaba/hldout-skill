@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
-  checkContract, checkFeatureAgainstContract, locateQuote, normaliseText, openQuestions, oracleDigest,
+  checkContract, checkSuiteAgainstContract, locateQuote, normaliseText, openQuestions, oracleDigest,
   requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
 } from '../.github/scripts/contract-model';
 import { checkIntegrity, snapshotDraft } from '../.github/scripts/integrity-check';
@@ -99,17 +99,16 @@ describe('requirement contract', () => {
     assert.ok(f.includes('gap-ladder'));
   });
 
-  it('open oracle gaps are questions for the user and must be surfaced in the feature', () => {
+  it('open oracle gaps are questions for the user and must be surfaced in the specs', () => {
     const dir = fixture();
     const c = goodContract(dir);
     c.gaps.push({ id: 'G3', element: 'maximum widgets per user', kind: 'oracle', required: true, affects: ['AC-1'], tried: [{ where: 'story', result: 'silent' }, { where: 'linked', result: 'silent' }], resolution: 'open' });
     assert.equal(checkContract(c, dir).find((x) => x.code === 'oracle-gap-open')?.level, 'warn');
     assert.deepEqual(openQuestions(c).map((g) => g.id), ['G3']);
-    const feature = { acs: c.acceptanceCriteria.map((a) => ({ id: a.id, text: a.text })), endpoints: [{ method: 'POST', path: '/api/widgets' }], openQuestions: [] as string[], assumptions: [],
-      scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
-    assert.ok(codes(checkFeatureAgainstContract(c, feature)).includes('open-gap-not-surfaced'));
-    feature.openQuestions = ['G3: how many widgets may a user own?'];
-    assert.deepEqual(checkFeatureAgainstContract(c, feature), []);
+    const suite = { openQuestions: [] as string[], assumptions: [], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
+    assert.ok(codes(checkSuiteAgainstContract(c, suite)).includes('open-gap-not-surfaced'));
+    suite.openQuestions = ['G3: how many widgets may a user own?'];
+    assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
   });
 
   it('an assumption that asserts nothing needs no @assumes tag when marked "(not asserted)"', () => {
@@ -117,11 +116,10 @@ describe('requirement contract', () => {
     const c = goodContract(dir);
     c.gaps.push({ id: 'G3', element: 'status of a rejected widget', kind: 'oracle', required: false, affects: ['AC-1'], tried: [{ where: 'linked', result: 'silent' }, { where: 'story', result: 'silent' }], resolution: 'assumed', value: 'no status asserted' });
     assert.ok(!codes(checkContract(c, dir)).includes('gap-ladder-order')); // the story and what it links are one rung
-    const feature = { acs: c.acceptanceCriteria.map((a) => ({ id: a.id, text: a.text })), endpoints: [{ method: 'POST', path: '/api/widgets' }], openQuestions: [] as string[],
-      assumptions: ['G3: no status is asserted'], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
-    assert.ok(codes(checkFeatureAgainstContract(c, feature)).includes('assumption-not-tagged'));
-    feature.assumptions = ['G3: no status is asserted (not asserted)'];
-    assert.deepEqual(checkFeatureAgainstContract(c, feature), []);
+    const suite = { openQuestions: [] as string[], assumptions: ['G3: no status is asserted'], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
+    assert.ok(codes(checkSuiteAgainstContract(c, suite)).includes('assumption-not-tagged'));
+    suite.assumptions = ['G3: no status is asserted (not asserted)'];
+    assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
   });
 
   it('open mechanics gaps are discovered from the application, never asked of the user', () => {
@@ -131,9 +129,8 @@ describe('requirement contract', () => {
     assert.equal(checkContract(c, dir).find((x) => x.code === 'mechanics-to-discover')?.level, 'warn');
     assert.deepEqual(openQuestions(c), []);
     assert.deepEqual(toDiscover(c).map((g) => g.id), ['G4']);
-    const feature = { acs: c.acceptanceCriteria.map((a) => ({ id: a.id, text: a.text })), endpoints: [{ method: 'POST', path: '/api/widgets' }], openQuestions: [] as string[], assumptions: [],
-      scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
-    assert.deepEqual(checkFeatureAgainstContract(c, feature), []);
+    const suite = { openQuestions: [] as string[], assumptions: [], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
+    assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
   });
 
   it('requires R<n> and E<n> ids on rules and error cases', () => {
@@ -143,13 +140,6 @@ describe('requirement contract', () => {
     c.errorModel = [{ id: '', case: 'duplicate', status: 409, source: 'story.md#L10' }];
     const f = codes(checkContract(c, dir));
     assert.ok(f.includes('rule-id') && f.includes('error-id'));
-  });
-
-  it('flags feature drift from the contract (AC text, missing AC, invented endpoint)', () => {
-    const dir = fixture();
-    const c = goodContract(dir);
-    const f = codes(checkFeatureAgainstContract(c, { acs: [{ id: 'AC-1', text: 'POST creates a widget' }], endpoints: [{ method: 'DELETE', path: '/api/widgets/{id}' }], openQuestions: [], assumptions: [], scenarios: [] }));
-    assert.deepEqual(f.sort(), ['ac-text-drift', 'contract-ac-missing', 'contract-ac-missing', 'endpoint-not-in-contract']);
   });
 
   it('goes stale when the story or an attachment changes', () => {
