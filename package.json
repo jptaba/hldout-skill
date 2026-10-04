@@ -5,9 +5,9 @@
   "description": "Held-out evaluator agent skill: Jira story -> scenarios -> hardened Playwright UI/API tests -> run -> triage -> verdict -> Jira",
   "type": "module",
   "scripts": {
-    "test:skill": "node --import tsx --test .claude/skills/heldout-evaluator/tests/*.test.ts",
-    "typecheck": "tsc --noEmit -p .",
-    "heldout": "tsx .claude/skills/heldout-evaluator/scripts/heldout.ts"
+    "test:skill": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p tests",
+    "heldout": "tsx .github/scripts/heldout.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

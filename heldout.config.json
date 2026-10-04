@@ -1,5 +1,5 @@
 {
-  "$schema": ".claude/skills/heldout-evaluator/templates/heldout.config.schema.json",
+  "$schema": ".github/scripts/heldout.config.schema.json",
   "defaultAut": "demoqa",
   "auts": {
     "demoqa": {

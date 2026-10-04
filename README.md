@@ -4,7 +4,7 @@
 
 Works in GitHub Copilot (VS Code agent mode) or Claude Code. The examples say "Opus" for the AI model doing the work.
 
-A project skill ([.claude/skills/heldout-evaluator](.claude/skills/heldout-evaluator/SKILL.md)) that
+A project skill ([.github/skills/heldout-evaluator](.github/skills/heldout-evaluator/SKILL.md)) that
 evaluates a Jira story against any web application or API using **held-out** Playwright tests,
 written from the requirement alone:
 
@@ -29,15 +29,18 @@ root of the project that will hold the evaluations:
 
 ```bash
 git clone --depth 1 --filter=blob:none --sparse <skill-repository-url> "$HOME/heldout-skill"
-git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluator
-npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install
+git -C "$HOME/heldout-skill" sparse-checkout set .github .claude .vscode .gitlab heldout-support
+npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url https://your-app --install
 ```
 
 ![An onboarding: sparse clone, init --install and doctor on Practice Software Testing](docs/media/onboarding.gif)
 
-The same lines work in bash, zsh and PowerShell. The sparse clone fetches only the skill (about 2 MB, a few seconds),
-not the demo evaluations stored beside it. `init` copies the skill into `.claude/skills/heldout-evaluator/`
-and scaffolds the project. Then it visits your app once and fills in the profile:
+The same lines work in bash, zsh and PowerShell. The sparse clone fetches only the skill and the files a project
+needs (about 2 MB, a few seconds), not the demo evaluations stored beside it. There are no templates: `init` copies the
+files as they are in the skill repository, to the same paths. That is the skill into `.github/skills/heldout-evaluator/`,
+its scripts into `.github/scripts/` (next to any scripts of your own there, never over one), the subagents into
+`.github/agents/` (with bridges in `.claude/` for Claude Code), and `playwright.config.ts`, `tsconfig.json`, `.mcp.json`,
+`.env.example` and `heldout-support/fixtures.ts`. A file your project already has is kept. Then it visits your app once and fills in the profile:
 - the profile id, from the host name (from the page title for localhost or an IP address);
 - the app's name, from its page title (shown in verdicts);
 - the test-id attribute the app renders;
@@ -49,30 +52,48 @@ Add `--api-base-url` if the API lives elsewhere, and `--ci gitlab` for a GitLab 
 1. `npm run heldout -- doctor --learn`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
    secrets (including any secret value that has slipped into a file git would commit) and the accounts recipe. Every
    problem comes with the command that fixes it. `--learn` also starts the app knowledge (below).
-2. Reload VS Code once (or start a new Claude Code session), so the agent loads the Playwright MCP server and the two
+2. Reload VS Code once (or start a new Claude Code session), so the agent loads the Playwright MCP server and the
    subagents.
 3. Ask GitHub Copilot (agent mode) or Claude Code: **"Run a held-out evaluation of ABC-123"**.
 
 **Update:** `git -C "$HOME/heldout-skill" pull`, then run the same `init` line again. It replaces the project's copy of
-the skill. It also refreshes `playwright.config.ts`, `heldout-support/fixtures.ts` and the subagents, unless you changed
-them, and it never touches your config, `.env` or evaluations. `doctor` shows which version is installed.
+the skill. It also refreshes every file it copied (configs, fixtures, subagents and bridges) unless you changed it since,
+and it never touches your config, `.env` or evaluations. `doctor` shows which version is installed and lists the copied
+files you changed, which updates leave as they are.
 
 Or just ask GitHub Copilot or Claude Code to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
 then runs the steps above.
 
 ## Using it in GitHub Copilot or Claude Code
 
-`init` sets up files that GitHub Copilot in VS Code and Claude Code read as they are:
+The skill and its subagents live in `.github/`, where GitHub Copilot reads them. Claude Code reads only `.claude/`,
+so `init` adds short bridges there that point at `.github/`. Nothing is kept in two places.
 
 | What | File | GitHub Copilot (VS Code agent mode) | Claude Code |
 | --- | --- | --- | --- |
-| The skill | `.claude/skills/heldout-evaluator/SKILL.md` | ✔ agent skill (also reads `.github/skills/`) | ✔ skill |
-| The two subagents (contract extractor, reviewer) | `.claude/agents/*.md` | ✔ custom agents | ✔ subagents |
+| The skill | `.github/skills/heldout-evaluator/SKILL.md` | ✔ agent skill | via the bridge `.claude/skills/heldout-evaluator/SKILL.md` |
+| The phase subagents | `.github/agents/*.agent.md` | ✔ custom agents | via the bridges `.claude/agents/*.md` |
+| Model fallbacks | `model:` in each `.agent.md` · `.claude/settings.json` | ✔ the `model:` list, tried in order | ✔ `fallbackModel` (also used by subagents) |
+| Copilot reads `.github/` only, not the bridges | `.vscode/settings.json` | ✔ | — |
 | Playwright MCP server (browser tier 2) | `.mcp.json` | ✔ (portable `mcpServers` format) | ✔ project MCP server |
 | The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) | ✔ (plain Node) |
 
-Each subagent's `model:` line picks its model: the extractor inherits the session's model (Opus), the reviewer runs on
-Sonnet, so the review is independent in model as well as context.
+The main agent orchestrates: it runs the `heldout` commands between phases and hands each phase that needs a model to
+its own subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
+builder's reasoning, the test author has no browser and never sees the application, and the triager didn't write the
+tests it judges.
+
+| Subagent | Phase | Browser | GitHub Copilot (first available) | Claude Code |
+| --- | --- | --- | --- | --- |
+| `heldout-contract-extractor` | 1b build the requirement contract | — | Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol | `opus`, falling back to `sonnet` |
+| `heldout-contract-reviewer` | 1b review it independently | — | Claude Sonnet 5.5 → Claude Sonnet 5 → Claude Opus 5.5 → GPT-6.1 Sol | `sonnet`, falling back to `opus` |
+| `heldout-scenario-writer` | 2 review + scenarios | — | as the extractor | `opus`, falling back to `sonnet` |
+| `heldout-test-author` | 3 draft the tests | — | as the extractor | `opus`, falling back to `sonnet` |
+| `heldout-hardener` | 4 harden; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
+| `heldout-triager` | 6 triage, reproduce live | ✔ | as the extractor | `opus`, falling back to `sonnet` |
+
+To change a model, edit the `model:` list in `.github/agents/*.agent.md` (Copilot) and the `model:` line in
+`.claude/agents/*.md` (Claude Code).
 
 In Copilot, pick **Claude Opus** in the model picker and use agent mode; in Claude Code, pick Opus with `/model`. The
 agent asks you its questions in the chat, and passes `--quiet` to `heldout run` for the short digest (or set
@@ -83,12 +104,12 @@ agent asks you its questions in the chat, and passes `--quiet` to `heldout run` 
 | What | Where |
 | --- | --- |
 | Applications (UI URL, API URL, test-id attribute (detected by `init`), healthcheck, `blockHosts` for ads/analytics, `overlays` for cookie and welcome dialogs, `maxWorkers` and `minTestIntervalMs` for rate-limited hosts) | [heldout.config.json](heldout.config.json) → `auts` (schema-validated) · `npm run heldout -- add-aut <id> --base-url …` |
-| Test accounts, written once per app and used by `seed.account()` / `signIn()` in every story: existing accounts (passwords in `.env`, CI variables or HashiCorp Vault), or accounts the tests create over the API or on the app's sign-up page (deleted afterwards when the app allows it) | `npm run heldout -- accounts --add-existing …` · `auts.<id>.accounts` — [data-and-journeys.md §4a](.claude/skills/heldout-evaluator/references/data-and-journeys.md) |
+| Test accounts, written once per app and used by `seed.account()` / `signIn()` in every story: existing accounts (passwords in `.env`, CI variables or HashiCorp Vault), or accounts the tests create over the API or on the app's sign-up page (deleted afterwards when the app allows it) | `npm run heldout -- accounts --add-existing …` · `auts.<id>.accounts` — [data-and-journeys.md §4a](.github/skills/heldout-evaluator/references/data-and-journeys.md) |
 | Secrets | `.env` (git-ignored), real environment variables (CI; they win over `.env`), or Vault: `${env:NAME}` / `${vault:path#field}` wherever a secret is referenced; `VAULT_ADDR` + `vault login` (or `VAULT_TOKEN`, AppRole) |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (writes `evaluations/KEY/evaluation.json`) |
 | Jira | `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN` in `.env`; `doctor --jira` finds your acceptance-criteria custom field |
 | Browser tier 2 (Playwright MCP) | [.mcp.json](.mcp.json) |
-| Subagents (contract extractor, independent reviewer) | [.claude/agents/](.claude/agents/) |
+| Subagents (contract, scenarios, tests, hardening, triage) | [.github/agents/](.github/agents/) |
 | CI regression run | `heldout init --ci gitlab` → a GitLab CI job (`.gitlab/heldout.gitlab-ci.yml`, included from `.gitlab-ci.yml`) |
 
 ## Commands
@@ -121,7 +142,7 @@ an API spec in an attachment, a mock-up image, clarifications in comments. It wr
 
 Missing elements become gaps, resolved in this order: the requirement, then the application (only for **how**
 to exercise it), then config, then **you**. **What** is correct is never read off the application.
-See [requirement-contract.md](.claude/skills/heldout-evaluator/references/requirement-contract.md).
+See [requirement-contract.md](.github/skills/heldout-evaluator/references/requirement-contract.md).
 
 ## Test types
 
@@ -143,14 +164,14 @@ and defects per type.
 | `contract` | API shape, fields and status codes |
 | `accessibility` | accessible names, labels, keyboard use, WCAG criteria |
 
-Rules for each type: [scenario-format.md](.claude/skills/heldout-evaluator/references/scenario-format.md).
+Rules for each type: [scenario-format.md](.github/skills/heldout-evaluator/references/scenario-format.md).
 
 ## Data seeding, API pre-steps and entry points
 
 Tests create (and clean up) their own data through the AUT's API, run auth, lookup and readiness pre-steps
 as validated preconditions, and start where the AC starts. A failed precondition is reported as BLOCKED,
 never as the requirement failing. Strategy:
-[data-and-journeys.md](.claude/skills/heldout-evaluator/references/data-and-journeys.md).
+[data-and-journeys.md](.github/skills/heldout-evaluator/references/data-and-journeys.md).
 
 ## App knowledge: each story makes the next one faster
 
@@ -158,7 +179,7 @@ The evaluator keeps what it learns about driving each application in `aut-knowle
 readiness anchors, proven locators, endpoints with their auth and request fields, seed recipes. `doctor --learn` starts
 it; every story adds what its passing tests proved. It opens only after the freeze and never holds what the application
 answers, so tests stay held out. Every write is a new file, so teams share it through git without merge conflicts.
-See [app-knowledge.md](.claude/skills/heldout-evaluator/references/app-knowledge.md) and the
+See [app-knowledge.md](.github/skills/heldout-evaluator/references/app-knowledge.md) and the
 [guide](docs/heldout-evaluator.html#knowledge).
 
 ## Demos and evaluator testing
@@ -182,6 +203,9 @@ and the verdict, and the comment and attachment published to Jira.
 
 The DQ-2 sample uses a variant of the story in which user creation is switched off (its `requirement/story.md`); the
 accounts it used no longer exist, so re-running it needs accounts of your own (`heldout accounts --add-existing`).
+Re-running the samples in this repository needs these in `.env`: `APP_PASSWORD_1`, `APP_PASSWORD_2` and `VAULT_ADDR`
+(DQ-2), and the password of the accounts the tests create, `CL_USER_PASSWORD` (CL-3, CL-4), `TS_USER_PASSWORD` (TOOL-4)
+and `JS_USER_PASSWORD` (JS-2). `heldout doctor` lists any that are missing.
 
 **Stories to try.** [demo/stories/](demo/stories/) holds 23 stories on six public applications (Automation Exercise,
 Contact List, DemoQA, OWASP Juice Shop, ParaBank, Toolshop), each with a machine-readable answer key written before any

@@ -399,7 +399,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
     <ul class="clean">
       <li><b>You</b> ask Opus, in GitHub Copilot's agent mode or in Claude Code: <i>"Run a held-out evaluation of ABC-123."</i> You answer questions only you can answer, such as what a vague criterion means.</li>
       <li><b>Opus</b> follows the skill: it reads the story, writes scenarios and tests, hardens them against the app, triages failures and writes the verdict.</li>
-      <li><b>Two subagents</b> build and independently review the requirement contract, each in a fresh context. They can run on a different model from the main session: the extractor uses the same model (Opus), the reviewer uses Sonnet, so the review is independent in model as well as context. Each agent file's <code>model:</code> line sets this.</li>
+      <li><b>Six subagents</b> do the phases that need a model, each in a fresh context: the contract extractor and its independent reviewer, the scenario writer, the test author (no browser, never sees the application), the hardener and the triager. The reviewer runs on Sonnet and the others on Opus, so the review is independent in model as well as context. Each agent file's <code>model:</code> line sets this, with fallbacks.</li>
       <li><b>The <code>heldout</code> command line</b> does everything mechanical: fetching, checking, freezing, running, rendering and publishing. It is deterministic TypeScript, so the same inputs give the same checks.</li>
     </ul>
   </div>
@@ -416,7 +416,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <rect class="frame" x="360" y="16" width="280" height="318" rx="18"/>
         <text class="t-h" x="500" y="44" text-anchor="middle">Copilot or Claude Code (Opus)</text>
         <rect class="box acc" x="378" y="60" width="244" height="58" rx="10"/><text class="t-b" x="500" y="84" text-anchor="middle">heldout-evaluator skill</text><text class="t-s" x="500" y="103" text-anchor="middle">SKILL.md · references · guardrails</text>
-        <rect class="box violet" x="378" y="126" width="244" height="58" rx="10"/><text class="t-b" x="500" y="150" text-anchor="middle">Two subagents</text><text class="t-s" x="500" y="169" text-anchor="middle">extractor (Opus) · reviewer (Sonnet)</text>
+        <rect class="box violet" x="378" y="126" width="244" height="58" rx="10"/><text class="t-b" x="500" y="150" text-anchor="middle">Six phase subagents</text><text class="t-s" x="500" y="169" text-anchor="middle">contract · scenarios · tests · harden · triage</text>
         <rect class="box" x="378" y="192" width="244" height="58" rx="10"/><text class="t-b" x="500" y="216" text-anchor="middle">heldout command line</text><text class="t-s" x="500" y="235" text-anchor="middle">20 TypeScript commands</text>
         <rect class="box blue" x="378" y="258" width="244" height="58" rx="10"/><text class="t-b" x="500" y="282" text-anchor="middle">Playwright</text><text class="t-s" x="500" y="301" text-anchor="middle">browser · API client · MCP server</text>
 
@@ -474,20 +474,23 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <h2>Onboarding</h2>
   <p class="lede">Three commands take an empty folder to a project that is ready to evaluate stories. They work in bash, zsh and PowerShell, from the skill's GitLab repository.</p>
   <div class="code"><div class="hd">terminal<span class="spacer"></span><button class="copy" data-copy="onb">Copy</button></div><pre id="onb" data-lang="sh">git clone --depth 1 --filter=blob:none --sparse &lt;skill-repository-url&gt; "$HOME/heldout-skill"
-git -C "$HOME/heldout-skill" sparse-checkout set .claude/skills/heldout-evaluator
-npx -y tsx "$HOME/heldout-skill/.claude/skills/heldout-evaluator/scripts/heldout.ts" init --base-url https://your-app --install</pre></div>
+git -C "$HOME/heldout-skill" sparse-checkout set .github .claude .vscode .gitlab heldout-support
+npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url https://your-app --install</pre></div>
 
   <h3>Using it in GitHub Copilot or Claude Code</h3>
-  <p><code>init</code> sets up files that GitHub Copilot in VS Code and Claude Code read as they are:</p>
+  <p>The skill and its subagents live in <code>.github/</code>, where GitHub Copilot reads them. Claude Code reads only <code>.claude/</code>, so <code>init</code> adds short bridges there that point at <code>.github/</code>. Nothing is kept in two places.</p>
   <div class="tbl"><table>
     <thead><tr><th>What</th><th>File</th><th>GitHub Copilot</th><th>Claude Code</th></tr></thead>
     <tbody>
-      <tr><td>The skill</td><td><code>.claude/skills/heldout-evaluator/</code></td><td>✔ agent skill (also reads <code>.github/skills/</code>)</td><td>✔ skill</td></tr>
-      <tr><td>The two subagents</td><td><code>.claude/agents/*.md</code></td><td>✔ custom agents (the <code>model:</code> line picks each one's model)</td><td>✔ subagents</td></tr>
+      <tr><td>The skill</td><td><code>.github/skills/heldout-evaluator/</code></td><td>✔ agent skill</td><td>via the bridge <code>.claude/skills/heldout-evaluator/SKILL.md</code></td></tr>
+      <tr><td>The phase subagents</td><td><code>.github/agents/*.agent.md</code></td><td>✔ custom agents</td><td>via the bridges <code>.claude/agents/*.md</code></td></tr>
+      <tr><td>Model fallbacks</td><td><code>model:</code> in each <code>.agent.md</code> · <code>.claude/settings.json</code></td><td>✔ the <code>model:</code> list, tried in order</td><td>✔ <code>fallbackModel</code>, also used by subagents</td></tr>
+      <tr><td>Copilot reads <code>.github/</code> only</td><td><code>.vscode/settings.json</code></td><td>✔</td><td>—</td></tr>
       <tr><td>Playwright MCP server</td><td><code>.mcp.json</code></td><td>✔ portable format</td><td>✔ project MCP server</td></tr>
       <tr><td>The <code>heldout</code> command line</td><td><code>npm run heldout -- …</code></td><td>✔ plain Node</td><td>✔ plain Node</td></tr>
     </tbody>
   </table></div>
+  <p class="small">The main agent runs the <code>heldout</code> commands between phases and hands each phase that needs a model to its own subagent: contract extractor, contract reviewer, scenario writer, test author, hardener and triager. Only the hardener and the triager get browser tools. The reviewer runs on a different model from the builder, so the review is independent in model as well as context: Claude Sonnet 5.5 → Claude Sonnet 5 → Claude Opus 5.5 → GPT-6.1 Sol in Copilot (the first one available), <code>sonnet</code> falling back to <code>opus</code> in Claude Code. The others: Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol, or <code>opus</code> falling back to <code>sonnet</code>.</p>
   <p class="small">In Copilot, choose Claude Opus in the model picker and use agent mode; in Claude Code, choose Opus with <code>/model</code>. Opus asks its questions in the chat, and passes <code>--quiet</code> to <code>heldout run</code> for the short digest (or set <code>HELDOUT_QUIET=1</code>).</p>
 
   <h3>Watch it: an onboarding</h3>
@@ -1148,9 +1151,12 @@ npm run heldout -- run DQ-3 --label repro --grep "SCN-006:"</pre></div>
   </table></div>
   <h3>Where things live</h3>
 <div class="tree">your-project/
-├── .claude/
-│   ├── skills/heldout-evaluator/   <span class="c">the skill: SKILL.md, references/, scripts/, templates/, tests/</span>
-│   └── agents/                     <span class="c">contract extractor and contract reviewer subagents</span>
+├── .github/
+│   ├── skills/heldout-evaluator/   <span class="c">the skill: SKILL.md, references/</span>
+│   ├── scripts/                    <span class="c">the heldout command (npm run heldout) and its library</span>
+│   └── agents/*.agent.md           <span class="c">the phase subagents: contract, scenarios, tests, hardening, triage</span>
+├── .claude/                        <span class="c">Claude Code bridges to .github/, settings.json (fallback models)</span>
+├── .vscode/settings.json           <span class="c">Copilot reads the skill and subagents from .github/ only</span>
 ├── heldout.config.json             <span class="c">application profiles, accounts recipes (committed, no secrets)</span>
 ├── .env                            <span class="c">secrets (git-ignored)</span>
 ├── heldout-support/fixtures.ts     <span class="c">api, journey, seed, signIn, expectResponse</span>

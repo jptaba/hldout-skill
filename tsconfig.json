@@ -10,6 +10,6 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["playwright.config.ts", "heldout-support/**/*.ts", "evaluations/**/*.ts", ".claude/skills/**/*.ts"],
-  "exclude": ["node_modules", ".claude/skills/**/templates/**", "evaluations/**/hardening/draft-history/**", "evaluations/**/runs/**", "evaluations/**/draft/**"]
+  "include": ["playwright.config.ts", "heldout-support/**/*.ts", "evaluations/**/*.ts", ".github/scripts/**/*.ts"],
+  "exclude": ["node_modules","evaluations/**/hardening/draft-history/**", "evaluations/**/runs/**", "evaluations/**/draft/**"]
 }

@@ -2,6 +2,9 @@
  * Evaluator scorecard — tests the held-out evaluator itself against machine-readable answer keys.
  *
  *   npx tsx demo/score.ts [KEY ...]        (default: every demo/answer-keys/*.json)
+ *   npx tsx demo/score.ts [KEY ...] --from <project>
+ *        score the evaluations of another project (a round's fresh onboarding) and print the full scorecard
+ *        instead of writing demo/SCORECARD.md (default: the stories evaluated there)
  *
  * Per story it measures:
  *   - verdict match (expected vs rendered)
@@ -25,12 +28,17 @@ interface Finding { id: string; title: string; confirmed: boolean; criteria: str
 interface Verdict { verdict: string; applicationDefects: Finding[]; summary: { total: number; passed: number; failed: number } }
 interface Entry { scenario: string; status: string; error?: { headline: string }; auto?: { category: string }; final?: { category: string; rationale: string; action?: string; title?: string } }
 
-const ROOT = process.cwd();
-const keysDir = path.join(ROOT, 'demo', 'answer-keys');
-const wanted = process.argv.slice(2);
+const REPO = path.resolve(import.meta.dirname, '..');
+const keysDir = path.join(REPO, 'demo', 'answer-keys');
+const args = process.argv.slice(2);
+const fromAt = args.indexOf('--from');
+const from = fromAt >= 0 ? path.resolve(args[fromAt + 1] ?? '') : undefined;
+if (from && !fs.existsSync(path.join(from, 'evaluations'))) throw new Error(`--from ${from}: no evaluations/ folder there`);
+const ROOT = from ?? REPO;
+const wanted = args.filter((_, i) => fromAt < 0 || (i !== fromAt && i !== fromAt + 1));
 const keys: Key[] = fs.readdirSync(keysDir).filter((f) => f.endsWith('.json'))
   .map((f) => JSON.parse(fs.readFileSync(path.join(keysDir, f), 'utf8')) as Key)
-  .filter((k) => !wanted.length || wanted.includes(k.key));
+  .filter((k) => (wanted.length ? wanted.includes(k.key) : !from || fs.existsSync(path.join(ROOT, 'evaluations', k.key))));
 
 const text = (...parts: (string | null | undefined)[]) => parts.filter(Boolean).join(' ').toLowerCase();
 const hit = (hay: string, keywords: string[]) => keywords.some((k) => hay.includes(k.toLowerCase()));
@@ -89,12 +97,15 @@ for (const k of keys) {
 
 const md = [
   '# Held-out evaluator — scorecard', '',
-  `Generated ${new Date().toISOString()} by \`demo/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation).`, '',
+  `Generated ${new Date().toISOString()} by \`demo/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation)${from ? `, for the evaluations in ${from}` : ''}.`, '',
   '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Seeded script defects caught | Auto-triage vs confirmed decision |',
   '| --- | --- | --- | --- | --- | --- | --- | --- |', ...rows,
   `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)}) | ${totals.fp} | ${totals.seededHit}/${totals.seeded} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',
   `Precision: ${pct(totals.tp, totals.tp + totals.fp)} (${totals.tp} of ${totals.tp + totals.fp} confirmed findings are real).`, '',
   ...details,
 ].join('\n');
-fs.writeFileSync(path.join(ROOT, 'demo', 'SCORECARD.md'), md);
-console.log(md.split('\n').slice(0, 7 + rows.length + 3).join('\n'));
+if (from) console.log(md);
+else {
+  fs.writeFileSync(path.join(REPO, 'demo', 'SCORECARD.md'), md);
+  console.log(md.split('\n').slice(0, 7 + rows.length + 3).join('\n'));
+}
