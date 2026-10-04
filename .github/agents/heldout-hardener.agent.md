@@ -20,9 +20,12 @@ Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` print
 
 Do this:
 1. `npm run heldout -- journeys KEY`: the fixtures this story concerns, with their map status (proven by earlier
-   stories, changed since, not proven yet, stale). Verify each fixture the tests call with a probe before relying on it.
+   stories, changed since, not proven yet, stale). Probe the ones not proven in their current form; a proven fixture
+   is checked by your first harden run, and probed only if that run fails in it.
 2. `npm run heldout -- contract KEY` lists the open mechanics gaps. Discover each from the application and record it
-   with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …`. Never resolve an oracle gap.
+   with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …`. A gap a proven fixture already answers
+   (how to find a product, the route of a page) needs no new probe: cite the fixture and the story that proved it, and
+   your harden run. Never resolve an oracle gap.
 3. Replace every `// TODO(harden)`, in the spec and in the fixtures it calls, with a mechanic you verified: each final
    locator matches exactly one element in the right state, each API mechanic answers through `heldout api-probe`. Use
    the first browser tier available to you (your IDE browser tools, then Playwright MCP, then `heldout inspect` /

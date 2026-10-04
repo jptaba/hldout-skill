@@ -17,8 +17,11 @@ npm run heldout -- journeys KEY          # the fixtures this story concerns, wit
 
 The tests call shared fixtures in `journeys/<profile>/ui|api/<domain>.ts` ([journeys.md](journeys.md)). Harden them
 like the tests: a `proven` fixture worked for a passing test of an earlier story, *changed since proven* or
-*not proven yet* ones haven't been shown to work in their current form, a `STALE` one stopped working. **Verify each
-with a probe** as usual: the app may have changed. Replace the `// TODO(harden)` marks the test author left in
+*not proven yet* ones haven't been shown to work in their current form, a `STALE` one stopped working. Spend the
+probes where they are needed: a `proven` fixture is checked by the first harden run (`--label harden`), and probed only
+if that run fails in it; *changed since proven*, *not proven yet* and `STALE` ones are probed like any mechanic you
+found yourself. That is where the journeys save work: the more of a story's steps earlier stories proved, the less
+there is to discover. Replace the `// TODO(harden)` marks the test author left in
 fixtures as in the tests.
 
 A fixture is shared by every story that calls it. Fix HOW it works when the application changed (a new locator, a new

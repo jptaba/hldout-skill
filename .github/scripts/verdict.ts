@@ -125,9 +125,11 @@ main(() => {
   // An open question about a non-required oracle gap is for the owner's information: "not required" means the criteria
   // it touches can be evaluated without the answer (the reviewer confirmed that), so acceptance doesn't wait on it.
   // An open question about a required gap is a warning.
+  // A question that names no gap of the contract is one the test author raised beyond the reviewed requirement (a type
+  // the criteria don't state): for the owner's information too. Only the contract decides what acceptance waits on.
   const informational = (q: string) => {
-    const ids = q.match(/\bG\d+\b/g) ?? [];
-    return ids.length > 0 && ids.every((id) => contract.gaps.some((g) => g.id === id && g.kind === 'oracle' && !g.required));
+    const ids = (q.match(/\bG\d+\b/g) ?? []).filter((id) => contract.gaps.some((g) => g.id === id));
+    return !ids.length || ids.every((id) => contract.gaps.some((g) => g.id === id && g.kind === 'oracle' && !g.required));
   };
   // A question a @needs-clarification scenario tests (its literal reading) is not "untested".
   const testedLiterally = (q: string) => {
@@ -363,7 +365,7 @@ main(() => {
       return testedLiterally(q) ? ' _(its literal reading is tested: see the scenarios needing clarification)_' : ' _(not tested)_';
     };
     if (poQuestions.length) md.push('**Open questions for the PO:**', '', ...poQuestions.map((q) => `- ❓ ${q}${handled(q)}`), '');
-    if (infoQuestions.length) md.push('**For the owner\'s information** (questions the criteria can be judged without, as the review confirmed; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
+    if (infoQuestions.length) md.push('**For the owner\'s information** (questions the criteria can be judged without: gaps the review marked not required, and what the tests found the criteria leave unsaid; they don\'t affect the verdict):', '', ...infoQuestions.map((q) => `- ℹ️ ${q}`), '');
     if (clarifications.length) md.push('**Scenarios needing clarification** (each tests the literal reading of an open question):', '', ...clarifications.map((c) => `- ${c.id}: ${c.title}${unsettled.includes(c) ? ' — did not pass'
         : contradicted.some((e) => baseScenarioId(e.scenario) === c.id) ? ' — did not pass: the application contradicts the literal reading (see "Readings the application contradicts")'
         : ' — passed: the application meets the literal reading'}`), '');

@@ -21,9 +21,11 @@ pass below. `heldout journeys KEY` lists the fixtures you can call.
    may do it (`security`), what happens when it is sent again (`idempotency`) or at the same moment (`concurrency`), its
    hand-offs to other ACs (`composition`), UI and API agreeing (`integration`), the answer's shape (`contract`), labels
    and keyboard (`accessibility`). One more test per round; the next AC; repeat until a full round adds nothing.
-3. **Stop at the requirement.** A type the AC doesn't state or clearly imply is not a test but a gap: leave it out (or
-   an `// OPEN-QUESTION:` when it matters). The second pass adds depth to what the story asks for, never new
-   expectations.
+3. **Stop at the requirement.** A type the AC doesn't state or clearly imply is not a test: leave it out. When it
+   matters (no criterion says what deleting another customer's record must answer), name it in your reply as a
+   question for the owner; it may go in the spec as an `// OPEN-QUESTION:` without a gap id, and the verdict lists it
+   for the owner's information. Only the contract's own gaps (`G<n>`), which the reviewer checked, can hold up
+   acceptance. The second pass adds depth to what the story asks for, never new expectations.
 
 ## Choosing the type: what the test truly proves
 
