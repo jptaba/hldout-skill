@@ -8,6 +8,7 @@ import { confluenceBase, confluenceLinks, pageIdOf, storageToMarkdown } from '..
 import { embeddedFiles } from '../.github/scripts/jira';
 import { markdownToStorage } from '../.github/scripts/mock/storage-format';
 import { baseScenarioId, matchEndpoint, normaliseTestType, readSuite } from '../.github/scripts/spec-model';
+import { typeMismatch } from '../.github/scripts/preflight';
 import { curlFor, rerunCommand } from '../.github/scripts/repro';
 import { decideVerdict } from '../.github/scripts/verdict-rules';
 import type { RequirementContract } from '../.github/scripts/contract-model';
@@ -26,7 +27,7 @@ test.describe('ABC-1 Demo', () => {
   });
 
   [1, 2].forEach((v, i) => {
-    test(\`SCN-002.\${i + 1}: Two (\${v})\`, { tag: ['@AC-2', '@type:boundary', '@also:validation', '@also:nonsense', '@assumes:G2'] }, async ({ journey }) => {
+    test(\`SCN-002.\${i + 1}: Two (\${v})\`, { tag: ['@AC-2', '@type:boundary', '@assumes:G2'] }, async ({ journey }) => {
       await journey.step(\`When \${v}\`, async () => {});
       await journey.step('Then z', async () => {});
     });
@@ -66,9 +67,10 @@ describe('readSuite', () => {
     assert.deepEqual(a.assumes, []);
     assert.deepEqual(b.assumes, ['G2']);
     assert.equal(b.testType, 'boundary');
-    assert.deepEqual(b.also, ['negative'], '@also: types are normalised like @type: (validation → negative)');
-    assert.deepEqual(b.rawAlsoUnknown, ['nonsense']);
-    assert.deepEqual(a.also, []);
+    assert.equal(typeMismatch('boundary', b), undefined, 'a table of cases is a boundary test');
+    assert.match(typeMismatch('composition', b) ?? '', /chains no other criterion/);
+    assert.match(typeMismatch('concurrency', a) ?? '', /no requests together/);
+    assert.match(typeMismatch('integration', a) ?? '', /page and read the API/);
     assert.deepEqual(b.steps, ['When ${v}', 'Then z']);
     assert.deepEqual(b.sources, []);
     assert.equal(b.declarations, 1);

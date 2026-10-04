@@ -169,9 +169,11 @@ See [requirement-contract.md](.github/skills/heldout-evaluator/references/requir
 
 ## Test types
 
-Every test has one main test type (`@type:`), the most specific one it fits, and may name other types it also covers
-(`@also:`): a limit whose outside value is refused is `@type:boundary @also:negative`. The verdict counts each test once,
-under its main type, and lists the others beside it.
+Every test has exactly one test type (`@type:`): what its assertions truly prove, read off what the application has got
+wrong when the test fails, not off the steps it takes on the way. A test that seems to fit two types takes the more
+specific one (higher in the table: a refused value just outside a limit is `boundary`); a test that truly proves two
+things is split into two tests. The lint warns when a test's code doesn't match its type (a `concurrency` test that
+sends nothing at the same time, a `composition` that chains no other criterion).
 
 The tests are written in two passes: first one test per acceptance criterion, as it is stated; then round the criteria
 again, through the types below, adding a test for each type the criterion's wording states or clearly implies and no

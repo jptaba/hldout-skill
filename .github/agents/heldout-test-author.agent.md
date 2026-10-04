@@ -26,8 +26,9 @@ Do this:
 2. Decide the tests in two passes (reference: "Two passes"): first one test per criterion, the criterion as stated;
    then go round the criteria again, through the test types in the taxonomy's order, adding a test for each type the
    AC's wording states or clearly implies and no test covers yet, until a round adds nothing. Each test is one journey:
-   `test('SCN-nnn: …', { tag: ['@AC-n', '@type:<main>', '@also:<other>', '@layer:<l>', '@P1'] }, …)` (one main type,
-   the more specific one; `@also:` for each other type it covers) with a `// from <source>` line above it and one
+   `test('SCN-nnn: …', { tag: ['@AC-n', '@type:<t>', '@layer:<l>', '@P1'] }, …)` (one type: what its `[REQ]`
+   assertions truly prove; the more specific one if it seems to fit two; two tests if it proves two things; see
+   "Choosing the type") with a `// from <source>` line above it and one
    `journey.step('Given …' / 'When …' / 'Then …')` per step. Surface
    gaps as the contract resolved them: `// ASSUMPTION: G<n> …` with `@assumes:G<n>`, `// OPEN-QUESTION: G<n> …` or
    `@needs-clarification`.

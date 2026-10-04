@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import type { Category } from './classify';
-import { TEST_TYPES, baseScenarioId, readSuite, specFiles, type TestType } from './spec-model';
+import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from './spec-model';
 import { oracleDigest, readContract } from './contract-model';
 import { checkIntegrity, type IntegrityResult } from './integrity-check';
 import { entries, fixtureUse, journeysUsedBy, loadMap, profileFixtures } from './journeys-store';
@@ -306,7 +306,7 @@ main(() => {
       const result = !es.length ? 'not run' : failedEs.some((e) => appIds.has(e) && e.final) ? 'fails requirement'
         : failedEs.some((e) => contradicted.includes(e)) ? 'reading contradicted' : failedEs.length ? 'inconclusive' : es.some((e) => e.status === 'flaky') ? 'flaky' : 'meets requirement';
       return {
-        id: sc.id, title: sc.title, type: sc.testType ?? null, also: sc.also, layer: sc.layer ?? null, sources: sc.sources.length ? sc.sources : ['story'],
+        id: sc.id, title: sc.title, type: sc.testType ?? null, layer: sc.layer ?? null, sources: sc.sources.length ? sc.sources : ['story'],
         passed: es.filter((e) => e.status === 'passed').length, total: es.length, result,
         defects: [...new Set(failedEs.map((e) => appIds.get(e)).filter((x): x is string => Boolean(x)))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })),
         tests: es.map((e) => ({ id: e.scenario, status: e.status, defect: appIds.get(e) ?? null })),
@@ -316,29 +316,24 @@ main(() => {
   const ICON: Record<string, string> = { 'fails requirement': '❌', 'reading contradicted': '❔', inconclusive: '❔', flaky: '⚠️', 'meets requirement': '✅', 'not run': '⚠️' };
   for (const t of traceability) {
     if (!t.scenarios.length) { md.push(`| **${t.criterion}** | - | ⚠️ no scenario | - | - | 0/0 | not covered | - |`); continue; }
-    t.scenarios.forEach((sc, i) => md.push(`| ${i === 0 ? `**${t.criterion}**` : '↳'} | ${esc(sc.sources.join('; '))} | ${sc.id} ${esc(sc.title)} | ${sc.type ?? '-'}${sc.also.length ? ` (also ${sc.also.join(', ')})` : ''} | ${sc.layer ?? '-'} | ${sc.passed}/${sc.total} | ${ICON[sc.result]} ${sc.result} | ${sc.defects.join(', ') || '-'} |`));
+    t.scenarios.forEach((sc, i) => md.push(`| ${i === 0 ? `**${t.criterion}**` : '↳'} | ${esc(sc.sources.join('; '))} | ${sc.id} ${esc(sc.title)} | ${sc.type ?? '-'} | ${sc.layer ?? '-'} | ${sc.passed}/${sc.total} | ${ICON[sc.result]} ${sc.result} | ${sc.defects.join(', ') || '-'} |`));
   }
   md.push('');
 
-  // Each test counts once, under its main type; the types it also gives evidence for (@also:) are listed beside, never
-  // counted again, so the rows add up to the tests that ran.
-  const alsoOf = (e: TriageEntry) => scenarioOf(e.scenario)?.also ?? [];
-  const types = [...new Set([...tri.entries.map(typeOf), ...tri.entries.flatMap(alsoOf)])]
+  // In the taxonomy's order, most specific first.
+  const types = [...new Set(tri.entries.map(typeOf))]
     .sort((a, b) => (TEST_TYPES as readonly string[]).indexOf(a) - (TEST_TYPES as readonly string[]).indexOf(b));
   const coverageByType = types.map((t) => {
     const es = tri.entries.filter((e) => typeOf(e) === t);
-    const also = tri.entries.filter((e) => alsoOf(e).includes(t as TestType));
     return {
       type: t, scenarios: new Set(es.map((e) => baseScenarioId(e.scenario))).size, tests: es.length,
       passed: es.filter((e) => e.status === 'passed').length, failed: es.filter((e) => e.status === 'failed').length,
       flaky: es.filter((e) => e.status === 'flaky').length,
       defects: [...new Set(es.map((e) => appIds.get(e)).filter((x): x is string => Boolean(x)))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })),
-      alsoCoveredBy: [...new Set(also.map((e) => baseScenarioId(e.scenario)))],
     };
   });
-  md.push('## Coverage by test type', '', 'Each test counts once, under its main type. "Also covered by" lists the tests that give evidence for the type as well (`@also:`), without counting them again.', '',
-    '| Test type | Scenarios | Tests | Passed | Failed | Flaky | Defects | Also covered by |', '| --- | --- | --- | --- | --- | --- | --- | --- |',
-    ...coverageByType.map((c) => `| ${c.type} | ${c.scenarios} | ${c.tests} | ${c.passed} | ${c.failed} | ${c.flaky} | ${c.defects.join(', ') || '-'} | ${c.alsoCoveredBy.join(', ') || '-'} |`), '');
+  md.push('## Coverage by test type', '', '| Test type | Scenarios | Tests | Passed | Failed | Flaky | Defects |', '| --- | --- | --- | --- | --- | --- | --- |',
+    ...coverageByType.map((c) => `| ${c.type} | ${c.scenarios} | ${c.tests} | ${c.passed} | ${c.failed} | ${c.flaky} | ${c.defects.join(', ') || '-'} |`), '');
 
   const nfrs = contract.nonFunctional ?? [];
   if (nfrs.length) {

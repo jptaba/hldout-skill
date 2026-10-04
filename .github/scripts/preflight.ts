@@ -10,9 +10,26 @@ import { ROOT, evalPaths, rel, resolveUrl, type HeldoutConfig } from './config';
 import { checkContract, checkSuiteAgainstContract, readContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
 import { journeysUsedBy, lintJourneys } from './journeys-store';
-import { TEST_TYPES, readSuite, specFiles } from './spec-model';
+import { TEST_TYPES, readSuite, specFiles, type Scenario, type TestType } from './spec-model';
 
 export interface Finding { level: 'error' | 'warn'; code: string; message: string }
+
+/**
+ * What a test of a type has to do, checked on its own code (helpers it calls may do more, so this only warns):
+ * concurrency sends requests together, idempotency sends the same request again, composition chains criteria,
+ * integration drives the page and reads the API, boundary is a table of cases or names its limit value.
+ */
+export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 'outline' | 'title' | 'steps'>): string | undefined {
+  const code = s.code;
+  switch (type) {
+    case 'concurrency': return /Promise\.(all|allSettled)\(|parallel/.test(code) ? undefined : 'its code sends no requests together (Promise.all)';
+    case 'idempotency': return /again|twice|repeat|second|retr(y|ies)|\bfor\s*\(|\.map\(/i.test(`${code}\n${s.steps.join('\n')}`) ? undefined : 'nothing in it sends the same request again';
+    case 'composition': return s.acs.length >= 2 ? undefined : 'it chains no other criterion (a composition carries the @AC-n of every step it chains)';
+    case 'integration': return /\bpage\b/.test(code) && /\bapi\b/.test(code) ? undefined : 'it does not drive the page and read the API both';
+    case 'boundary': return s.outline || /\d/.test(s.title) ? undefined : 'it is neither a table of cases nor names the limit value it tries';
+    default: return undefined;
+  }
+}
 
 export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnhardened?: boolean } = {}): Finding[] {
   const p = evalPaths(cfg, key);
@@ -37,13 +54,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     if (!s.sources.length) warn('no-source', `${s.id} has no "// from <story section / linked page>" line above its test — the verdict cannot trace it to a requirement source`);
     if (!s.rawType) err('test-without-type', `${s.id} has no @type:<t> tag (one of ${TEST_TYPES.join(', ')})`);
     else if (!s.testType) err('unknown-type', `${s.id} has @type:${s.rawType}, not in the taxonomy (${TEST_TYPES.join(', ')})`);
-    if (new Set(s.rawTypes).size > 1) err('several-main-types', `${s.id} has ${s.rawTypes.map((t) => `@type:${t}`).join(' and ')} — one main type (the more specific: ${TEST_TYPES.join(' › ')}), the others as @also:<t>`);
-    for (const t of s.rawAlsoUnknown) err('unknown-also-type', `${s.id} has @also:${t}, not in the taxonomy (${TEST_TYPES.join(', ')})`);
-    if (s.testType && s.also.includes(s.testType)) warn('also-repeats-type', `${s.id} has @also:${s.testType}, its main type already`);
-    // The main type is the most specific one the test fits: a later type in the order as main, with an earlier one as
-    // @also, is the wrong way round.
-    const better = s.testType ? s.also.find((t) => TEST_TYPES.indexOf(t) < TEST_TYPES.indexOf(s.testType!)) : undefined;
-    if (better) warn('main-type-order', `${s.id} is @type:${s.testType} @also:${better} — the more specific type is the main one: @type:${better} @also:${s.testType}`);
+    if (new Set(s.rawTypes).size > 1) err('several-types', `${s.id} has ${s.rawTypes.map((t) => `@type:${t}`).join(' and ')} — one type: what the test truly proves. If it fits two, take the more specific (${TEST_TYPES.join(' › ')}); if it proves two things, make it two tests`);
+    // Is the type what the test truly is? Cheap signs from the test's own code; a warning to re-check, not a verdict.
+    const mismatch = s.testType && typeMismatch(s.testType, s);
+    if (mismatch) warn('type-mismatch', `${s.id} is @type:${s.testType}, but ${mismatch} — re-check its type (references/test-authoring.md "Choosing the type")`);
   }
 
   // By preflight time the user has been asked; open gaps must be surfaced in the specs instead.

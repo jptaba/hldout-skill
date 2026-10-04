@@ -14,10 +14,9 @@ import path from 'node:path';
 import type { RequirementContract } from './contract-model';
 
 /**
- * Test-type taxonomy. Every test declares exactly one main type, @type:<t> (it drives triage and the verdict's counts),
- * and any number of @also:<t>, other types it also gives evidence for (shown, never counted twice). Aliases are
- * normalised. Ordered from the most specific to the most general: when a test fits two types, the earlier one is its
- * main type.
+ * Test-type taxonomy. Every test declares exactly one type, @type:<t>: what it truly proves (it drives triage and the
+ * verdict's counts). Aliases are normalised. Ordered from the most specific to the most general: a test that seems to
+ * fit two types takes the earlier one, and one that really proves two things is two tests.
  */
 export const TEST_TYPES = ['concurrency', 'idempotency', 'security', 'boundary', 'contract', 'composition', 'integration', 'accessibility', 'negative', 'functional'] as const;
 export type TestType = typeof TEST_TYPES[number];
@@ -36,15 +35,11 @@ export interface Scenario {
   tags: string[];
   acs: string[];
   priority?: string;
-  /** Normalised @type:<t>, the main type; undefined when missing/unknown (lint error). */
+  /** Normalised @type:<t>; undefined when missing/unknown (lint error). */
   testType?: TestType;
   rawType?: string;
-  /** Every @type: tag as written (more than one is a lint error: the others go in @also:). */
+  /** Every @type: tag as written (more than one is a lint error). */
   rawTypes: string[];
-  /** @also:<t>, normalised: other types the test also gives evidence for. */
-  also: TestType[];
-  /** @also:<t> values that are not in the taxonomy (lint error). */
-  rawAlsoUnknown: string[];
   /** @layer:ui|api|e2e */
   layer?: string;
   /** @depends:SCN-x — scenarios whose success this one's preconditions rely on. */
@@ -139,8 +134,6 @@ function readSpec(file: string, into: Suite): void {
       tags,
       acs: [],
       rawTypes: [],
-      also: [],
-      rawAlsoUnknown: [],
       depends: [],
       sources,
       steps,
@@ -164,9 +157,6 @@ function fromTags(s: Scenario): void {
   s.rawType = type;
   s.testType = normaliseTestType(type);
   s.rawTypes = tags.filter((t) => t.startsWith('@type:')).map((t) => t.slice(6));
-  const also = tags.filter((t) => t.startsWith('@also:')).map((t) => t.slice(6));
-  s.also = [...new Set(also.map(normaliseTestType).filter((t): t is TestType => Boolean(t)))];
-  s.rawAlsoUnknown = also.filter((t) => !normaliseTestType(t));
   s.layer = tags.find((t) => t.startsWith('@layer:'))?.slice(7);
   s.depends = tags.filter((t) => t.startsWith('@depends:')).map((t) => t.slice(9));
   s.needsClarification = tags.includes('@needs-clarification');

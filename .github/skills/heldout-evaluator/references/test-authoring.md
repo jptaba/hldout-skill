@@ -2,9 +2,9 @@
 
 Write `output/<profile>/<KEY>/tests/<key-lowercase>.spec.ts` straight from the reviewed requirement contract
 (`requirement-contract.json`), **before** anyone looks at the AUT. The draft encodes the oracle; hardening (phase 3)
-only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, its main test type (and the
-other types it also covers) and the requirement source it comes from. Its steps call the application's shared
-**journey fixtures** ([journeys.md](journeys.md)); every expectation stays in the test.
+only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, its test type (one: what it
+truly proves) and the requirement source it comes from. Its steps call the application's shared **journey fixtures**
+([journeys.md](journeys.md)); every expectation stays in the test.
 
 `heldout scaffold KEY` writes a head start: the imports, the `ASSUMPTION` / `OPEN-QUESTION` lines of the contract's
 gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`): the first
@@ -13,17 +13,37 @@ pass below. `heldout journeys KEY` lists the fixtures you can call.
 ## Two passes: every criterion first, then round the test types
 
 1. **First pass: one test per criterion.** Write, for each AC in the contract's order, the test of the criterion as it
-   is stated: its own journey and outcomes. Its main type is what the AC is about (a refusal is `negative`, a limit is
+   is stated: its own journey and outcomes. Its type is what the AC is about (a refusal is `negative`, a limit is
    `boundary`, an ordinary outcome `functional`). When this pass is done, every AC is covered once.
 2. **Second pass: round robin over the types.** Go round the criteria again, and for each one go through the taxonomy
-   below in its order and ask: *does this AC's wording state or clearly imply this type, and is it not covered yet* (as a
-   main type or an `@also:`)? Add a test for each yes: the limits it names (`boundary`), its refusals (`negative`), who
+   below in its order and ask: *does this AC's wording state or clearly imply this type, and has no test of this AC that
+   type yet*? Add a test for each yes: the limits it names (`boundary`), its refusals (`negative`), who
    may do it (`security`), what happens when it is sent again (`idempotency`) or at the same moment (`concurrency`), its
    hand-offs to other ACs (`composition`), UI and API agreeing (`integration`), the answer's shape (`contract`), labels
    and keyboard (`accessibility`). One more test per round; the next AC; repeat until a full round adds nothing.
 3. **Stop at the requirement.** A type the AC doesn't state or clearly imply is not a test but a gap: leave it out (or
    an `// OPEN-QUESTION:` when it matters). The second pass adds depth to what the story asks for, never new
    expectations.
+
+## Choosing the type: what the test truly proves
+
+Every test has exactly one `@type:`. It drives triage (a `concurrency` test that failed once is a race, not a flaky
+test) and the verdict's coverage by type, so it must say what the test really is, not what it touches on the way.
+
+- **Read the type off the `[REQ …]` assertions, not the steps.** Ask: *if this test fails, what has the application
+  got wrong?* Its limit (`boundary`), its refusal (`negative`), who may do it (`security`), a repeated request
+  (`idempotency`), simultaneous requests (`concurrency`), the answer's shape (`contract`), a hand-off between criteria
+  (`composition`), UI and API disagreeing (`integration`), labels or keyboard (`accessibility`), or the outcome itself
+  (`functional`). Signing in first, creating data first or calling the API to check a UI result are steps, not the type.
+- **It seems to fit two?** Take the more specific, the one higher in the taxonomy table: a value just outside a limit
+  that is refused is `boundary` (the refusal is part of what a boundary is), a request without a token that is refused
+  is `security`.
+- **It truly proves two things?** Then it is two tests, one per type, each with its own assertions (rule 4: one root
+  cause, one failure). Don't merge a `boundary` table and a `contract` check of the error body into one test.
+- **Check before handing over.** The lint warns when a test's code doesn't match its type (`type-mismatch`): a
+  `concurrency` test that sends nothing together, an `idempotency` test that never repeats its request, a
+  `composition` that chains no other criterion, an `integration` test that doesn't use both the page and the API, a
+  `boundary` test that is neither a table of cases nor names its value. Fix the type, or the test.
 
 ## Template
 
@@ -71,7 +91,7 @@ test.describe('<KEY> <summary>', () => {
   // A table of cases: one test per row (SCN-006.1 … .n)
   // from linked/field-rules.csv
   REQ.BOUNDARIES.forEach((row, i) => {
-    test(`SCN-006.${i + 1}: Name length limits (${row.field} ${row.value})`, { tag: ['@AC-4', '@type:boundary', '@also:negative', '@layer:api'] }, async ({ api, journey }) => { /* … */ });
+    test(`SCN-006.${i + 1}: Name length limits (${row.field} ${row.value})`, { tag: ['@AC-4', '@type:boundary', '@layer:api'] }, async ({ api, journey }) => { /* … */ });
   });
 });
 ```
@@ -82,8 +102,7 @@ test.describe('<KEY> <summary>', () => {
 | --- | --- | --- |
 | `test('SCN-nnn: <who does what, and the outcome>', …)` | yes | Unique test id. A table of cases is `` `SCN-nnn.${i + 1}: …` `` in a loop |
 | `@AC-n` | yes (≥1) | The criteria the test proves (the contract's ids). An AC without a test downgrades the verdict |
-| `@type:<t>` | yes (exactly 1) | The main test type, from the taxonomy below: what the test is for. It drives triage and the verdict's counts |
-| `@also:<t>` | when the test gives evidence for other types too | Each other type it covers (`@type:boundary @also:negative` for a limit whose outside value is refused). Shown in the verdict ("also covered by") and counted by the second pass, never counted twice |
+| `@type:<t>` | yes (exactly 1) | The test type, from the taxonomy below: what the test truly proves ("Choosing the type"). It drives triage and the verdict's counts |
 | `// from …` right above the test | strongly recommended (lint warns) | The story section, linked page or image transcript it comes from, shown in the traceability matrix |
 | `@layer:ui\|api\|e2e` | recommended | Which layer the test drives |
 | `@P1`..`@P3` | recommended | P1: core journey / money / security; P3: cosmetic |
@@ -95,10 +114,9 @@ test.describe('<KEY> <summary>', () => {
 | `@irreversible` | on a test whose action changes the application for good (locks an account, sends a real e-mail or payment, uses up a one-time code) | It runs once per run: never retried, never repeated by `--repeat-each`, so every run does exactly the damage it must. Give it data of its own (a fresh account) |
 | `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the journey fixtures make count as plumbing too |
 
-### Test-type taxonomy (`@type:` and `@also:`)
+### Test-type taxonomy (`@type:`)
 
-From the most specific to the most general. When a test fits two types, the one higher in the table is its main type
-(`@type:`) and the other an `@also:` (the lint warns when it is the other way round).
+From the most specific to the most general. A test that seems to fit two types takes the one higher in the table.
 
 | Type | Use for | Aliases |
 | --- | --- | --- |
@@ -128,8 +146,7 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
 1. **Cover every AC**, first once each, then with the types the requirement implies (the two passes above): limits need
    `boundary`; "requires a token" needs `security`; "retries are safe" needs `idempotency`; "only one", a stock, a
    balance or a unique name under simultaneous use needs `concurrency`; ACs that hand data to each other need one
-   `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. A type an existing test
-   already covers as an `@also:` needs no test of its own. Add a type only when the requirement states or clearly
+   `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. Add a type only when the requirement states or clearly
    implies it: an unstated expectation is a gap.
 2. **Quote the requirement.** Expected texts, numbers, formulas and codes are copied verbatim from the contract (its
    quotes, outcomes, error model and answered gaps). Never "improve" them: a mismatch is what the evaluation finds.
