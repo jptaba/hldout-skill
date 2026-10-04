@@ -305,7 +305,7 @@ export function oracleLiterals(c?: RequirementContract): string[] {
   const message = (s: string) => s.split(/\s+/).length >= 3 || /[.!?]$/.test(s);
   // A quoted control ("Add to cart" button, the "Sort" menu) is where to click, not what the application answers.
   const control = /^\s*(button|link|icon|tab|field|menu|page|heading|column|checkbox|option|label|dropdown|select)\b/i;
-  const controlBefore = /\b(button|link|icon|tab|field|menu|page|heading|column|checkbox|option|label|dropdown|select|press(es)?|click(s|ed)?|choos(e|es|ing)|select(s|ed)?)\s*$/i;
+  const controlBefore = /\b(button|link|icon|tab|field|menu|page|heading|column|checkbox|option|label|dropdown|select|press(es|ed|ing)?|click(s|ed|ing)?|tap(s|ped|ping)?|hit(s|ting)?|choos(e|es|ing)|select(s|ed|ing)?)\s*$/i;
   const quoted = texts.flatMap((t) => [...t.matchAll(/["“]([^"”]{4,})["”]/g)]
     .filter((m) => !control.test(t.slice(m.index! + m[0].length)) && !controlBefore.test(t.slice(0, m.index)))
     .map((m) => m[1].trim())).filter(message);

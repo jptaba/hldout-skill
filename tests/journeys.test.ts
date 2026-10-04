@@ -100,6 +100,8 @@ describe('journey fixtures: what the code says', () => {
     fs.writeFileSync(bad, "/** x */\nexport async function f(page) { await expect(page.getByText('Product added to your favorites list.'), '[REQ AC-5] shown').toBeVisible(); }\n");
     const contract = { acceptanceCriteria: [{ id: 'AC-5', outcomes: ['the message "Product added to your favorites list." is shown'] }], errorModel: [] } as unknown as RequirementContract;
     assert.deepEqual(oracleLiterals(contract), ['Product added to your favorites list.']);
+    const pressing = { acceptanceCriteria: [{ id: 'AC-4', outcomes: ['after pressing "Add to cart" the message "Product added to shopping cart." appears', 'clicking "Proceed to checkout" opens the cart'] }], errorModel: [] } as unknown as RequirementContract;
+    assert.deepEqual(oracleLiterals(pressing), ['Product added to shopping cart.'], 'a control named after pressing/clicking is where to click, not an answer');
     assert.deepEqual(lintJourneys([bad], contract).map((f) => f.code).sort(), ['oracle-literal', 'req-assertion']);
     fs.rmSync(bad);
   });

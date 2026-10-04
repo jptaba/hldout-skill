@@ -115,7 +115,8 @@ main(async () => {
 
   const args = ['playwright', 'test', rel(p.tests) + '/'];
   const grep = flagStr(flags, 'grep');
-  if (grep) args.push('--grep', grep);
+  // Playwright greps the title and the tags: "SCN-001" would also pick every test tagged @depends:SCN-001.
+  if (grep) args.push('--grep', /SCN-/.test(grep) ? `(?<!@depends:)(?:${grep})` : grep);
   // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
   // Existing accounts are shared out among workers, so there are never more workers than accounts.
   const pool = cfg.aut.accounts && !createsAccounts(cfg.aut.accounts) && cfg.aut.accounts.existing?.length
@@ -125,8 +126,10 @@ main(async () => {
   const workers = cap ? Math.min(asked ?? cap, cap) : asked;
   if (workers) args.push('--workers', String(workers));
   if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap}: ${cap === pool ? `${cfg.aut.accounts?.existing?.length} existing test account(s)${(cfg.aut.accounts?.perTest ?? 1) > 1 ? `, ${cfg.aut.accounts?.perTest} per test,` : ''} in the "${cfg.autId}" profile` : `the "${cfg.autId}" profile's maxWorkers`})`);
-  // Stability check during hardening: run each test N times to expose races that one green run hides.
-  if (flagStr(flags, 'repeat-each')) args.push('--repeat-each', flagStr(flags, 'repeat-each')!);
+  // Stability check during hardening: run each test N times to expose races that one green run hides. Passed to the
+  // config, not the CLI: a test tagged @irreversible (it locks an account, sends a real e-mail…) still runs once, and is
+  // never retried (playwright.config.ts).
+  const repeatEach = flagStr(flags, 'repeat-each');
 
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -137,10 +140,11 @@ main(async () => {
     ...(flags.capture ? { HELDOUT_CAPTURE: '1' } : {}),
     ...(flags.headed ? { HELDOUT_HEADED: '1' } : {}),
     ...(flagStr(flags, 'retries') !== undefined ? { HELDOUT_RETRIES: flagStr(flags, 'retries') } : {}),
+    ...(repeatEach ? { HELDOUT_REPEAT_EACH: repeatEach } : {}),
   };
 
   const startedAt = new Date().toISOString();
-  console.log(`▶ ${key} run ${runName} against ${cfg.aut.name} (UI ${cfg.aut.baseURL}${cfg.aut.apiBaseURL !== cfg.aut.baseURL ? `, API ${cfg.aut.apiBaseURL}` : ''})\n  npx ${args.join(' ')}\n`);
+  console.log(`▶ ${key} run ${runName} against ${cfg.aut.name} (UI ${cfg.aut.baseURL}${cfg.aut.apiBaseURL !== cfg.aut.baseURL ? `, API ${cfg.aut.apiBaseURL}` : ''})\n  npx ${args.join(' ')}${repeatEach ? `   (each test ${repeatEach} times; @irreversible ones once)` : ''}\n`);
   // Playwright's CLI straight through node, no shell: arguments such as --grep "SCN-01|SCN-00[89]" reach it intact.
   const cli = path.resolve('node_modules', '@playwright', 'test', 'cli.js');
   if (!fs.existsSync(cli)) throw new Error('@playwright/test is not installed in this project — run: npm run heldout -- init --install (or npm i -D @playwright/test)');
@@ -166,7 +170,7 @@ main(async () => {
   const meta = {
     key, run: runName, label, startedAt, finishedAt: new Date().toISOString(),
     autId: cfg.autId, aut: { name: cfg.aut.name, baseURL: cfg.aut.baseURL, apiBaseURL: cfg.aut.apiBaseURL },
-    command: `npx ${args.join(' ')}`, grep: grep ?? null, capture: Boolean(flags.capture),
+    command: `npx ${args.join(' ')}`, repeatEach: repeatEach ? Number(repeatEach) : null, grep: grep ?? null, capture: Boolean(flags.capture),
     preflight: flags['skip-preflight'] ? 'skipped' : { health },
     postflight: { health: postHealth },
     skill: skillFingerprint(),
@@ -208,11 +212,15 @@ main(async () => {
   // A host that rate-limited this run will do it again: say how to pace the tests, with the command that does it.
   // The signs: a 429 in the health checks or the output, or a rate-limit page in a failed test's page snapshot (a WAF
   // such as Cloudflare "Error 1015 · You are being rate limited" answers the browser; the test then only times out).
-  const RATE_LIMITED = /\b429\b|rate[ -]?limit|too many requests|error 1015/i;
+  // A 429 counts only as a status ("HTTP 429", "status 429", "429 Too Many Requests"), never a bare number: code frames
+  // in the output and in error-context.md show source line numbers ("429 |   let res…"), which are left out too.
+  const RATE_LIMITED = /\b(?:HTTP|status(?:Code)?|code|received|answer(?:ed|s)?)\W{0,3}429\b|\b429\s+too many|rate[ -]?limit(?:ed|ing)?\b|too many requests|error 1015/i;
+  const withoutCodeFrames = (s: string) => s.split(/\r?\n/).filter((l) => !/^\s*>?\s*\d+\s*\|/.test(l)).join('\n');
+  // Only the page snapshot of an error context is the application's answer; the rest is the test's own source.
   const snapshots = fs.existsSync(path.join(runDir, 'artifacts')) ? fs.readdirSync(path.join(runDir, 'artifacts'), { recursive: true, encoding: 'utf8' })
-    .filter((f) => f.endsWith('error-context.md')).map((f) => fs.readFileSync(path.join(runDir, 'artifacts', f), 'utf8')) : [];
+    .filter((f) => f.endsWith('error-context.md')).map((f) => fs.readFileSync(path.join(runDir, 'artifacts', f), 'utf8').match(/# Page snapshot\s*```(?:yaml)?\r?\n([\s\S]*?)```/)?.[1] ?? '') : [];
   const throttled = [...(Array.isArray(health) ? health : []), ...postHealth].some((h) => h.status === 429)
-    || RATE_LIMITED.test(fs.existsSync(path.join(runDir, 'console.log')) ? fs.readFileSync(path.join(runDir, 'console.log'), 'utf8') : '')
+    || RATE_LIMITED.test(withoutCodeFrames(fs.existsSync(path.join(runDir, 'console.log')) ? fs.readFileSync(path.join(runDir, 'console.log'), 'utf8') : ''))
     || snapshots.some((s) => RATE_LIMITED.test(s));
   if (throttled && !(cfg.aut.maxWorkers === 1 && cfg.aut.minTestIntervalMs)) {
     console.log(`\n⚠ ${cfg.aut.name} rate-limited this run (HTTP 429). Pace the tests on this host, then run again:`);

@@ -470,8 +470,9 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 <section id="onboarding" class="reveal">
   <div class="kicker">Setting up</div>
   <h2>Onboarding</h2>
-  <p class="lede">Three commands take an empty folder to a project that is ready to evaluate stories. They work in bash, zsh and PowerShell, from the skill's GitLab repository.</p>
+  <p class="lede">Four commands take an empty folder to a project that is ready to evaluate stories. They work in bash, zsh and PowerShell, from the skill's GitLab repository, with any git version (<code>init --cone</code> keeps the top-level files on older ones).</p>
   <div class="code"><div class="hd">terminal<span class="spacer"></span><button class="copy" data-copy="onb">Copy</button></div><pre id="onb" data-lang="sh">git clone --depth 1 --filter=blob:none --sparse &lt;skill-repository-url&gt; "$HOME/heldout-skill"
+git -C "$HOME/heldout-skill" sparse-checkout init --cone
 git -C "$HOME/heldout-skill" sparse-checkout set .github .claude .vscode .gitlab heldout-support
 npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url https://your-app --install</pre></div>
 

@@ -10,7 +10,7 @@
  *   - verdict match (expected vs rendered)
  *   - application-defect recall (expected defects matched by a confirmed finding) and precision
  *     (confirmed findings that match an expected defect; the rest are false positives)
- *   - seeded script defects detected (confirmed SCRIPT_DEFECT in an evaluation run)
+ *   - expected defects the evaluator surfaced as readings the application contradicts (owner questions, not defects)
  *   - automatic-triage agreement: auto category vs confirmed category, over every failure the
  *     evaluator confirmed in non-harden runs (how often the heuristics were right before a human/AI look)
  * Writes demo/SCORECARD.md. The answer keys live outside the skill; the evaluator never reads them.
@@ -25,7 +25,8 @@ interface Key {
   traps?: string[]; expectations?: string[];
 }
 interface Finding { id: string; title: string; confirmed: boolean; criteria: string[]; expected: string | null; actual: string | null; rationale?: string | null }
-interface Verdict { verdict: string; applicationDefects: Finding[]; summary: { total: number; passed: number; failed: number } }
+interface Reading { test: string; title: string; criteria: string[]; restsOn: string[]; expected: string | null; actual: string | null; rationale?: string | null }
+interface Verdict { verdict: string; applicationDefects: Finding[]; contradictedReadings?: Reading[]; summary: { total: number; passed: number; failed: number } }
 interface Entry { scenario: string; status: string; error?: { headline: string }; auto?: { category: string }; final?: { category: string; rationale: string; action?: string; title?: string } }
 
 const REPO = path.resolve(import.meta.dirname, '..');
@@ -52,30 +53,34 @@ const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : 'n/
 
 const rows: string[] = [];
 const details: string[] = [];
-let totals = { expected: 0, tp: 0, fp: 0, seeded: 0, seededHit: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
+let totals = { expected: 0, tp: 0, asked: 0, fp: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
 
 for (const k of keys) {
   const base = storyDir(k.key) ?? path.join(ROOT, 'output', k.aut, k.key);
   const vFile = path.join(base, 'verdict.json');
-  if (!fs.existsSync(vFile)) { rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | _not evaluated_ | | | | |`); continue; }
+  if (!fs.existsSync(vFile)) { rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | _not evaluated_ | | | |`); continue; }
   const v = JSON.parse(fs.readFileSync(vFile, 'utf8')) as Verdict;
   const confirmed = v.applicationDefects.filter((f) => f.confirmed);
 
-  // defects: match each expected defect to a confirmed finding (criteria overlap + keyword)
+  // defects: match each expected defect to a confirmed finding (criteria overlap + keyword), else to a reading the
+  // application contradicts (the evaluator surfaced it, as a question for the owner, because the requirement was
+  // judged not to settle it: found, but not counted as a defect).
   const matchedFindings = new Set<string>();
   const defectResults = k.defects.map((d) => {
     const f = confirmed.find((x) => x.criteria.some((c) => d.criteria.includes(c)) && hit(text(x.title, x.expected, x.actual, x.rationale), d.keywords));
     if (f) matchedFindings.add(f.id);
-    return { d, f };
+    const q = f ? undefined : (v.contradictedReadings ?? []).find((x) => x.criteria.some((c) => d.criteria.includes(c)) && hit(text(x.title, x.expected, x.actual, x.rationale), d.keywords));
+    return { d, f, q };
   });
   const tp = defectResults.filter((r) => r.f).length;
+  const asked = defectResults.filter((r) => r.q).length;
   const fps = confirmed.filter((f) => !matchedFindings.has(f.id));
 
-  // runs: seeded script defects + auto-triage agreement
+  // runs: auto-triage agreement. (An answer key's seededScriptDefects belong to drafts planted by hand; the test author
+  // writes its own draft, so there is nothing seeded to detect.)
   const runsDir = path.join(base, 'runs');
   const runs = fs.existsSync(runsDir) ? fs.readdirSync(runsDir).filter((r) => fs.existsSync(path.join(runsDir, r, 'triage.json')) && !/^\d+-(harden|repro|probe|robustness)/.test(r)).sort() : [];
   const entries: (Entry & { run: string })[] = runs.flatMap((r) => (JSON.parse(fs.readFileSync(path.join(runsDir, r, 'triage.json'), 'utf8')).entries as Entry[]).map((e) => ({ ...e, run: r })));
-  const seeded = k.seededScriptDefects.map((s) => ({ s, e: entries.find((e) => e.final?.category === 'SCRIPT_DEFECT' && hit(text(e.error?.headline, e.final.rationale, e.final.action), s.keywords)) }));
   // agreement: first occurrence of each (scenario, final) pair, so carried-over repeats don't inflate the score
   const seen = new Set<string>();
   const judged = entries.filter((e) => e.final && e.auto && e.status !== 'passed').filter((e) => { const id = `${e.scenario}|${e.final!.category}|${e.error?.headline}`; if (seen.has(id)) return false; seen.add(id); return true; });
@@ -85,17 +90,16 @@ for (const k of keys) {
   const wrong = judged.filter((e) => e.auto!.category !== e.final!.category && !abstained.includes(e));
 
   const verdictOk = v.verdict === k.expectedVerdict;
-  totals = { expected: totals.expected + k.defects.length, tp: totals.tp + tp, fp: totals.fp + fps.length, seeded: totals.seeded + seeded.length,
-    seededHit: totals.seededHit + seeded.filter((x) => x.e).length, autoN: totals.autoN + judged.length, autoAgree: totals.autoAgree + agree.length, autoWrong: totals.autoWrong + wrong.length,
+  totals = { expected: totals.expected + k.defects.length, tp: totals.tp + tp, asked: totals.asked + asked, fp: totals.fp + fps.length,
+    autoN: totals.autoN + judged.length, autoAgree: totals.autoAgree + agree.length, autoWrong: totals.autoWrong + wrong.length,
     verdictOk: totals.verdictOk + (verdictOk ? 1 : 0), stories: totals.stories + 1 };
 
-  rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | ${verdictOk ? '✅' : '❌'} ${v.verdict} | ${tp}/${k.defects.length} (${pct(tp, k.defects.length)}) | ${fps.length} | ${seeded.filter((x) => x.e).length}/${seeded.length} | ${agree.length}/${judged.length} (${pct(agree.length, judged.length)}) · abstained ${abstained.length} · wrong ${wrong.length} |`);
+  rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | ${verdictOk ? '✅' : '❌'} ${v.verdict} | ${tp}/${k.defects.length} (${pct(tp, k.defects.length)})${asked ? ` + ${asked} as owner question` : ''} | ${fps.length} | ${agree.length}/${judged.length} (${pct(agree.length, judged.length)}) · abstained ${abstained.length} · wrong ${wrong.length} |`);
   details.push(`## ${k.key} (${k.aut})`, '',
     `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed`, '',
     ...(k.defects.length ? ['| Expected defect | Criteria | Origin | Matched finding |', '| --- | --- | --- | --- |',
-      ...defectResults.map(({ d, f }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
+      ...defectResults.map(({ d, f, q }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : q ? `❔ surfaced as a reading the app contradicts (${q.test}, rests on ${q.restsOn.join(', ')}): a question for the owner, not a defect` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
     ...(fps.length ? ['**False positives (confirmed findings not in the answer key):**', '', ...fps.map((f) => `- ❌ ${f.id}: ${f.title} (${f.criteria.join(', ')})`), ''] : ['False positives: none ✅', '']),
-    ...(seeded.length ? ['| Seeded script defect | Detected |', '| --- | --- |', ...seeded.map(({ s, e }) => `| ${s.id} ${s.description} | ${e ? `✅ ${e.scenario} in \`${e.run}\`` : '❌ not detected'} |`), ''] : []),
     ...(judged.length ? ['| Test | Run | Auto triage | Confirmed | |', '| --- | --- | --- | --- | --- |',
       ...judged.map((e) => `| ${e.scenario} | \`${e.run}\` | ${e.auto!.category} | ${e.final!.category} | ${e.auto!.category === e.final!.category ? '✅' : abstained.includes(e) ? "➖ abstained (needed investigation)" : "❌ wrong"} |`), ''] : []),
     ...(k.traps?.length ? ['Traps in this AUT: ' + k.traps.map((t) => `_${t}_`).join('; '), ''] : []));
@@ -104,9 +108,9 @@ for (const k of keys) {
 const md = [
   '# Held-out evaluator — scorecard', '',
   `Generated ${new Date().toISOString()} by \`demo/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation)${from ? `, for the evaluations in ${from}` : ''}.`, '',
-  '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Seeded script defects caught | Auto-triage vs confirmed decision |',
-  '| --- | --- | --- | --- | --- | --- | --- | --- |', ...rows,
-  `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)}) | ${totals.fp} | ${totals.seededHit}/${totals.seeded} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',
+  '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |',
+  '| --- | --- | --- | --- | --- | --- | --- |', ...rows,
+  `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',
   `Precision: ${pct(totals.tp, totals.tp + totals.fp)} (${totals.tp} of ${totals.tp + totals.fp} confirmed findings are real).`, '',
   ...details,
 ].join('\n');

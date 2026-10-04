@@ -50,7 +50,7 @@ const readSource = (): SourceInfo | undefined => (fs.existsSync(SOURCE_FILE) ? J
 const writeSource = (info: SourceInfo) => fs.writeFileSync(SOURCE_FILE, `${JSON.stringify(info, null, 2)}\n`);
 // Line endings don't count as a change (git on Windows checks out CRLF; editors may normalise either way).
 const normalised = (s: string) => s.replace(/\r\n/g, '\n');
-const notInSource = (file: string) => `${file} is not in ${SOURCE_ROOT} — a sparse clone needs: git sparse-checkout set ${SPARSE}`;
+const notInSource = (file: string) => `${file} is not in ${SOURCE_ROOT} — a sparse clone needs cone mode (older git leaves the top-level files out without it): git -C "${SOURCE_ROOT}" sparse-checkout init --cone, then git -C "${SOURCE_ROOT}" sparse-checkout set ${SPARSE}`;
 const git = (dir: string, ...args: string[]) => {
   const r = spawnSync('git', ['-C', dir, ...args], { encoding: 'utf8' });
   return r.status === 0 ? r.stdout.trim() : undefined;

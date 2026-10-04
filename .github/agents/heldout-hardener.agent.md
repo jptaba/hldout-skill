@@ -31,8 +31,8 @@ Do this:
    for a different need add a fixture. What you discover that later stories will need (opening a page and waiting for
    it, creating and deleting a record) becomes a fixture in the right domain file, with a `/** doc comment */`. Never
    put an expectation in a fixture. A fixture you replace: `npm run heldout -- journeys KEY --stale "<key>" --evidence …`.
-5. Prove stability: `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (fewer repeats on a
-   rate-limited host, as the reference says). Then `npm run heldout -- integrity KEY` must say PRESERVED.
+5. Prove stability: `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
+   `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once). Then `npm run heldout -- integrity KEY` must say PRESERVED.
 6. Write `hardening/hardening-log.md`: what you changed and why (journey fixtures in their own table), observed
    deviations, and `**Tiers used:** …`.
 7. Reply with a summary: gaps resolved, fixtures reused, fixed and added, observed deviations, the stability result and

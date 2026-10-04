@@ -411,6 +411,11 @@ main(() => {
       screenshot: g[0].evidence.screenshot ?? null, apiSequence: g[0].evidence.apiSequence ?? null,
       reproduce: g.map((x) => rerunCommand(key, x.scenario)),
     })),
+    // Confirmed failures whose expectation rests on an unsettled reading: questions for the owner, not defects.
+    contradictedReadings: contradicted.map((e) => ({
+      test: e.scenario, title: e.final?.title ?? e.title, criteria: e.requirementRefs, restsOn: assumesOf(e.scenario),
+      expected: e.error?.expected ?? null, actual: actualOf(e), rationale: e.final?.rationale ?? null,
+    })),
     scriptDefectsRepaired: repaired.map(({ run, e }) => ({ run, scenario: e.scenario, action: e.final?.action ?? null })),
     uncoveredCriteria: uncovered.map((a) => a.id),
     coverageByType,

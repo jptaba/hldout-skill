@@ -14,7 +14,8 @@
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address.
- *   The report lists the API calls the page made (fetch/XHR on the app's site: method, path, status, answer shape).
+ *   The report lists the API calls the page made (fetch/XHR on the app's site: method, path, status, answer shape)
+ *   and what the page keeps in localStorage / sessionStorage (long values and tokens by length only).
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
@@ -137,6 +138,14 @@ main(async () => {
     for (const row of await Promise.all(calls)) counts.set(row, (counts.get(row) ?? 0) + 1);
     const made = [...counts].map(([row, n]) => (n > 1 ? row.replace(/^\| (\S+) \|/, `| $1 ×${n} |`) : row));
     if (made.length) out.push('## API calls the page made (answers as types only)', '', '| method | path | status | answer shape |', '| --- | --- | --- | --- |', ...made, '');
+    // Where the page keeps its state (a guest cart id, a session flag): how a test can find or set it. Long values and
+    // tokens are shown by length only.
+    const stored = await page.evaluate(() => (['localStorage', 'sessionStorage'] as const).flatMap((area) => {
+      const s = window[area];
+      return Array.from({ length: s.length }, (_, i) => { const k = s.key(i) ?? ''; return { area, key: k, value: s.getItem(k) ?? '' }; });
+    })).catch(() => [] as { area: string; key: string; value: string }[]);
+    const shown = (v: string) => (v.length > 60 || /^eyJ|token|bearer/i.test(v) ? `(${v.length} characters)` : `\`${v.replace(/\|/g, '\\|')}\``);
+    if (stored.length) out.push('## Browser storage', '', '| storage | key | value |', '| --- | --- | --- |', ...stored.map((x) => `| ${x.area} | \`${x.key}\` | ${shown(x.value)} |`), '');
 
     if (!flags['no-snapshot']) {
       // Snapshots echo field values: redact whatever is typed into password inputs.

@@ -73,7 +73,9 @@ whenever it appears (Playwright's `addLocatorHandler`), so no step has to dismis
 attribute. An id that looks generated (a UUID, a long number) changes on every page load: it is offered last, flagged. Read-only
 text with a stable id (a detail page's fields, a total, a message) is listed in a table of its own. The report also lists
 the API calls the page made on the app's site (method, path, status and the answer's shape, types only): how the UI
-does what it does, e.g. which call returns the signed-in user's id when the documented sign-in call doesn't.
+does what it does, e.g. which call returns the signed-in user's id when the documented sign-in call doesn't. And it
+lists what the page keeps in `localStorage` and `sessionStorage` (a guest's cart id, a flag): where a UI fixture finds
+or sets the page's state, without a script of your own.
 
 A shared sandbox that answers 429 (rate limited) is the environment, not the application: triage says so, and `heldout run`
 prints the command that paces the tests on that host, e.g.
@@ -156,6 +158,10 @@ npm run heldout -- run KEY --label harden --capture   # TODO(harden) allowed for
 npm run heldout -- triage KEY                          # separates mechanics from deviations
 npm run heldout -- integrity KEY                       # PRESERVED (or AMENDED) and no TODO(harden)
 ```
+
+For the stability proof (`--repeat-each 3 --workers 2`), use `--repeat-each 2` and one worker on a host that
+rate-limits, and keep every test that changes the application for good tagged `@irreversible`: it runs once, never
+retried or repeated. Narrow a dry run with `--grep "SCN-00[1-4]"` (a test tagged `@depends:` on them is not picked).
 
 Fix only failures that triage calls SCRIPT_DEFECT (after checking). `[REQ]` failures matching an
 observed deviation are expected; leave them for the official run.

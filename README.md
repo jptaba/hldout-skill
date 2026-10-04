@@ -38,6 +38,7 @@ root of the project that will hold the tests:
 
 ```bash
 git clone --depth 1 --filter=blob:none --sparse <skill-repository-url> "$HOME/heldout-skill"
+git -C "$HOME/heldout-skill" sparse-checkout init --cone
 git -C "$HOME/heldout-skill" sparse-checkout set .github .claude .vscode .gitlab heldout-support
 npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url https://your-app --install
 ```

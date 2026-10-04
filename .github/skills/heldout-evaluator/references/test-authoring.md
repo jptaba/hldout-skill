@@ -76,6 +76,7 @@ test.describe('<KEY> <summary>', () => {
 | `@NFR-<n>` | on a test that verifies one of the contract's non-functional requirements | One no test verifies is listed as not verified: at most PASS_WITH_WARNINGS |
 | `@assumes:G<n>` | on every test whose expected value comes from an assumed oracle gap | A confirmed failure there is "an assumption the application contradicts" (a question for the owner), never a defect. Keep requirement-backed checks in other tests so they still count. An assumption that only leaves something unasserted: write `// ASSUMPTION: G<n> … (not asserted)` and tag nothing |
 | `@depends:SCN-x` | when the test's pre-steps rely on another test's endpoint | A BLOCKED dependant names its cause |
+| `@irreversible` | on a test whose action changes the application for good (locks an account, sends a real e-mail or payment, uses up a one-time code) | It runs once per run: never retried, never repeated by `--repeat-each`, so every run does exactly the damage it must. Give it data of its own (a fresh account) |
 | `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the journey fixtures make count as plumbing too |
 
 ### Test-type taxonomy (`@type:`)
@@ -170,6 +171,7 @@ the story concerns first, with what each calls and which stories proved it.
 | Money and other decimals compared as the requirement writes them (`toBeCloseTo(100, 2)`) | The verdict shows `100 → 0`, readable to the owner |
 | `[REQ AC-n strict]` when the locator itself is the requirement (accessible name, role, alt text) | Integrity freezes subject + matcher, and triage treats "not found" as an application candidate |
 | Expected values in `@req-constants` or literal in `[REQ]` matchers | Frozen by the integrity check |
+| Inputs (a search term, a product to add, a quantity under test) outside `@req-constants`: in `test-data.json` or a plain `const` | Only what is *expected* is frozen; an input the hardener may have to swap (a term the app ignores, a product out of stock) must stay swappable. A limit the requirement states (99) is expected and frozen; the value the test sends at it is an input |
 | Endpoints exactly as the contract declares them (one `EP` map) | Triage flags calls to undeclared endpoints as script defects |
 | Guessed locators, routes and fields end with `// TODO(harden)` (in the spec and in fixtures) | Lint and integrity block the official run until they are hardened |
 | Preconditions use plain `expect(…, 'precondition …')` (no `[REQ]`) | A broken precondition is not reported as a requirement failure |

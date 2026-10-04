@@ -28,7 +28,8 @@ import { readSuite, specFiles } from './spec-model';
 
 const H = 'npm run heldout --';
 interface Staged { stale: { key: string; evidence: string; at: string }[] }
-export interface HarvestLog { at: string; verdictAt: string; files: string[]; proven: number; stale: number; dropped: { key: string; why: string }[] }
+/** `finalRun`: the run the harvest kept what passed in (a re-rendered verdict of the same run needs no new harvest). */
+export interface HarvestLog { at: string; finalRun: string; files: string[]; proven: number; stale: number; dropped: { key: string; why: string }[] }
 
 main(() => {
   const { _, flags } = parseArgs();
@@ -143,7 +144,7 @@ function harvest(cfg: HeldoutConfig, key: string, profile: string, p: ReturnType
   for (const t of verdict.traceability ?? []) for (const s of t.scenarios) if (s.tests.some((x) => x.status === 'passed')) passed.add(s.id);
   const logFile = path.join(p.hardening, 'journeys-harvest.json');
   const last = fs.existsSync(logFile) ? readJson<HarvestLog>(logFile) : undefined;
-  if (last?.verdictAt === verdict.generatedAt && apply) throw new Error(`Already harvested for this verdict → ${last.files.join(', ') || 'nothing to keep'}`);
+  if (last?.finalRun === verdict.finalRun && apply) throw new Error(`Already harvested for ${verdict.finalRun} → ${last.files.join(', ') || 'nothing to keep'}`);
 
   const specs = specFiles(p.tests);
   const used = journeysUsedBy(cfg, specs);
@@ -178,7 +179,7 @@ function harvest(cfg: HeldoutConfig, key: string, profile: string, p: ReturnType
   for (const d of dropped) console.log(`  left out ${d.key} — ${d.why}`);
   if (!apply) { console.log(`\nPreview only. Write it: ${H} journeys ${key} --harvest --apply`); return; }
   const files = writeMap(cfg, profile, key, out);
-  const log: HarvestLog = { at, verdictAt: verdict.generatedAt, files: files.map(rel), proven: out.filter((o) => o.status === 'proven').length, stale: out.filter((o) => o.status === 'stale').length, dropped };
+  const log: HarvestLog = { at, finalRun: verdict.finalRun, files: files.map(rel), proven: out.filter((o) => o.status === 'proven').length, stale: out.filter((o) => o.status === 'stale').length, dropped };
   writeFile(logFile, `${JSON.stringify(log, null, 2)}\n`);
   console.log(files.length ? `\n✔ ${files.map(rel).join(', ')} — new file(s): commit them with the journey fixtures and the story's output (they never conflict with anyone else's)` : '\nNothing to keep.');
 }

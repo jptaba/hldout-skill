@@ -45,5 +45,10 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'off',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // A test tagged @irreversible changes the application for good (locks an account, sends a real e-mail): it runs once
+  // per run, never retried and never repeated, so a run does exactly the damage it has to.
+  projects: [
+    { name: 'chromium', grepInvert: /@irreversible\b/, repeatEach: num(process.env.HELDOUT_REPEAT_EACH, 1), use: { ...devices['Desktop Chrome'] } },
+    { name: 'chromium-once', grep: /@irreversible\b/, retries: 0, repeatEach: 1, use: { ...devices['Desktop Chrome'] } },
+  ],
 });
