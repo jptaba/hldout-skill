@@ -18,11 +18,11 @@
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
-import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './lib/config';
-import { generatedId, siteOf } from './lib/detect';
-import { closeOverlays, locateOn } from './lib/page';
-import { redactSnapshot, shapeOf } from './lib/redact';
-import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
+import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './config';
+import { generatedId, siteOf } from './detect';
+import { closeOverlays, locateOn } from './page';
+import { redactSnapshot, shapeOf } from './redact';
+import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {

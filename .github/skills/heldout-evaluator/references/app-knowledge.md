@@ -9,7 +9,6 @@ proved instead of discovering it again.
 
 | Kind | Key | Holds |
 | --- | --- | --- |
-| `app` | `app:api-docs` | where the application publishes its API document |
 | `page` | `page:/route` | route, name, readiness anchor, how to reach it, whether it needs a sign-in, sign-in / sign-up purpose |
 | `locator` | `locator:/route element` | a proven locator of an element on that page |
 | `endpoint` | `api:METHOD /path` | method, path, auth, auth header, query parameters, envelope, request fields and the required ones (`--add` keeps what was known of the endpoint and adds yours on top) |
@@ -33,13 +32,12 @@ element by its role, test id or position instead).
 
 1. **Onboarding:** `heldout doctor --learn` visits the start page and the pages its navigation links to (read-only), and
    records each page's route, name, a heading that is on it once (readiness anchor) and whether it is a sign-in or
-   sign-up page; the API calls those pages make; and the paths, methods, request fields and auth of a published OpenAPI or
-   Swagger document (its responses are left out). Status: `seen`.
+   sign-up page; and the API calls those pages make (method and path). It looks for no API document. Status: `seen`.
 2. **Hardening a story:** `heldout knowledge KEY` lists the entries the story needs: the endpoints its contract names or
    its gaps and criteria mention, the read and delete calls of the records it works on, a list call of what its test
    data needs; the pages its criteria start on and their locators; seed recipes for what it talks about; notes about
    those endpoints and pages (or recorded `--app-wide`: pacing, data that regenerates); and the start, sign-in and
-   sign-up pages and the API document. `--all` lists everything. An entry you verified
+   sign-up pages. `--all` lists everything. An entry you verified
    and your tests rely on: `--confirm <key> --for SCN-n` (it becomes `proven`; this also clears a stale mark that turned
    out wrong). What you found: `--add … --for SCN-n`. What no longer works: `--stale <key> --evidence …`. All three are
    staged with the story in `hardening/knowledge-staged.json`.

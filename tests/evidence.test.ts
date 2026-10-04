@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { requirementRevision, type RequirementContract } from '../.github/scripts/lib/contract';
-import { checkCoverage, checkLiterals, checkReview, contractHash, evidencePack, inventedLiterals, reviewRefs, sourceLines, type ContractReview } from '../.github/scripts/lib/evidence';
+import { requirementRevision, type RequirementContract } from '../.github/scripts/contract-model';
+import { checkCoverage, checkLiterals, checkReview, contractHash, evidencePack, inventedLiterals, reviewRefs, sourceLines, type ContractReview } from '../.github/scripts/evidence';
 
 const STORY = `---
 key: ABC-1
@@ -22,11 +22,11 @@ Shoppers place orders through POST /orders.
 - AC-1: Orders above 50 items are rejected with 422 and the message "Too many items".
 - AC-2: The sixth failed payment locks the order.
 
-**Priya (Product Owner)** — 2026-09-26:
+### Technical notes
 
 Duplicate orders are a conflict (409) answered with \`{ "error": "Duplicate order" }\`.
 
-## Attachments
+## Screenshots
 
 | File | MIME |
 | --- | --- |
@@ -34,26 +34,26 @@ Duplicate orders are a conflict (409) answered with \`{ "error": "Duplicate orde
 
 function fixture(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'evidence-'));
-  fs.mkdirSync(path.join(dir, 'attachments'));
+  fs.mkdirSync(path.join(dir, 'linked'));
   fs.writeFileSync(path.join(dir, 'story.md'), STORY);
-  fs.writeFileSync(path.join(dir, 'attachments', 'limits.csv'), 'rule,limit\nmax items,50\n');
+  fs.writeFileSync(path.join(dir, 'linked', 'limits.csv'), 'rule,limit\nmax items,50\n');
   return dir;
 }
 function contract(dir: string): RequirementContract {
   return {
     key: 'ABC-1', title: 'Orders', revision: requirementRevision(dir),
-    sourcesRead: [{ file: 'story.md', read: true }, { file: 'attachments/limits.csv', read: true }],
+    sourcesRead: [{ file: 'story.md', read: true }, { file: 'linked/limits.csv', read: true }],
     acceptanceCriteria: [
       { id: 'AC-1', text: 'Orders above 50 items are rejected with 422 and the message "Too many items".', quote: 'Orders above 50 items are rejected with 422 and the message "Too many items".', source: 'story.md#L14', layer: 'api', endpoints: ['POST /orders'], outcomes: ['51 items → 422', 'message "Too many items"', '50 items accepted'] },
       { id: 'AC-2', text: 'The sixth failed payment locks the order.', quote: 'The sixth failed payment locks the order.', source: 'story.md#L15', layer: 'api', endpoints: ['POST /orders'], outcomes: ['6th failed payment → order locked'] },
     ],
     endpoints: [{ method: 'POST', path: '/orders', source: 'story.md#L10' }],
-    rules: [{ id: 'R1', text: 'max 50 items', source: 'attachments/limits.csv#L2' }],
+    rules: [{ id: 'R1', text: 'max 50 items', source: 'linked/limits.csv#L2' }],
     errorModel: [{ id: 'E1', case: 'duplicate order', status: 409, source: 'story.md#L19' }],
     gaps: [],
     coverage: [
       { lines: 'story.md#L10', as: 'context' }, { lines: 'story.md#L14', as: 'AC-1' }, { lines: 'story.md#L15', as: 'AC-2' },
-      { lines: 'story.md#L19', as: 'error-model' }, { lines: 'attachments/limits.csv#L1-L2', as: 'R1' },
+      { lines: 'story.md#L19', as: 'error-model' }, { lines: 'linked/limits.csv#L1-L2', as: 'R1' },
     ],
   };
 }
@@ -63,7 +63,7 @@ describe('evidence pack and accountable lines', () => {
   it('numbers every line and marks only content lines as accountable', () => {
     const dir = fixture();
     const acc = sourceLines(dir).filter((l) => l.accountable).map((l) => `${l.file}#${l.line}`);
-    assert.deepEqual(acc, ['story.md#10', 'story.md#14', 'story.md#15', 'story.md#19', 'attachments/limits.csv#1', 'attachments/limits.csv#2']);
+    assert.deepEqual(acc, ['story.md#10', 'story.md#14', 'story.md#15', 'story.md#19', 'linked/limits.csv#1', 'linked/limits.csv#2']);
     const pack = evidencePack('ABC-1', dir, []);
     assert.match(pack, /● L14 {2}\| - AC-1: Orders above 50 items/);
     assert.match(pack, / {2}L1 {3}\| ---/);
@@ -97,7 +97,7 @@ describe('literal grounding', () => {
   });
   it('grounds a declared path filled with a value the sources give, and nothing else', () => {
     const dir = fixture();
-    fs.writeFileSync(path.join(dir, 'attachments', 'api.md'), 'GET /orders/{id} returns the order. A malformed id (for example abc) is refused.\n');
+    fs.writeFileSync(path.join(dir, 'linked', 'api.md'), 'GET /orders/{id} returns the order. A malformed id (for example abc) is refused.\n');
     const c = contract(dir);
     c.acceptanceCriteria[0].outcomes.push('GET /orders/abc → 400');
     assert.deepEqual(inventedLiterals(c, dir).filter((x) => x.kind === 'path'), []);

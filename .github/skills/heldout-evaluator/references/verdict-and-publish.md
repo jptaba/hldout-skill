@@ -52,20 +52,20 @@ Read the rendered file before publishing. If a rationale is thin or a title uncl
 ## Publish
 
 ```bash
-npm run heldout -- publish KEY --dry-run   # preview the ADF comment
+npm run heldout -- publish KEY --dry-run   # preview the comment
 npm run heldout -- publish KEY
 ```
 
 1. Attaches `verdict.md` as `heldout-verdict-KEY-<yyyymmddhhmm>.md`.
-2. Posts an ADF summary comment: verdict (recommendation), counts, integrity, coverage by test type,
+2. Posts a summary comment (wiki markup): verdict (recommendation), counts, integrity, coverage by test type,
    findings table, and open questions.
 3. Sets the label `heldout-<verdict>` (previous `heldout-*` labels are removed).
 
 That is all it does. It creates no issues and changes no status or assignee: the reviewer reads
-the evidence and decides. `jira-fetch` ignores the evaluator's own `heldout-verdict-*` attachments
-on later fetches.
+the evidence and decides. Later fetches read neither the comment nor the attachment: comments and
+attachments are never requirement input.
 
 In mock mode the result is in `mock-jira/issues/KEY/ISSUE_VIEW.md` (rendered like the issue page),
-`issue.json`, and `mock-jira/outbox/*.http` (the exact REST requests Jira Cloud would have
+`issue.json`, and `mock-jira/outbox/*.http` (the exact REST requests Jira Data Center would have
 received). Publishing to a real Jira is outward-facing: confirm with the user before running it in
-cloud mode.
+datacenter mode.

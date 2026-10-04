@@ -19,9 +19,9 @@
  * requirement + shape, never by copying AUT values into expectations).
  */
 import fs from 'node:fs';
-import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './lib/config';
-import { literalsOf, redact, redactHeaders, shapeOf } from './lib/redact';
-import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
+import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './config';
+import { literalsOf, redact, redactHeaders, shapeOf } from './redact';
+import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
 const env = (s: string) => {

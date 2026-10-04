@@ -41,11 +41,11 @@ Evidence comes from the failure-time ARIA snapshot, the `[REQ …]` assertion me
 | Regex expectation matches once `\b`/anchors are relaxed | SCRIPT_DEFECT (over-strict implementation → amend) |
 | `[REQ]` failed on a located element / declared endpoint with a different value | APPLICATION_DEFECT (high) |
 
-**A shared public sandbox is not only the application.** Anyone can change its settings: ParaBank's admin page switches
-its data access mode, and in one mode web payments answer "Bill Payment Complete" but are never recorded. Before
+**A shared public sandbox is not only the application.** Anyone can change its settings: a demo's admin page may switch
+how it stores data, and in one mode an operation answers with its success message but is never recorded. Before
 confirming an `APPLICATION_DEFECT` on a shared demo, and above all when several criteria fail the same way while the
-same operation works through another path (the REST call records the payment, the page doesn't), look at the
-application's own admin, settings or health page for a non-default setting (`heldout inspect --url admin.htm`). If
+same operation works through another path (the API call records it, the page doesn't), look at the
+application's own admin, settings or health page for a non-default setting (`heldout inspect --url <that page>`). If
 that explains it, confirm `ENVIRONMENT_ISSUE` with that page as evidence: the verdict is INCONCLUSIVE and says the
 environment caused it. Never change a shared sandbox's settings yourself; that is the owner's call.
 

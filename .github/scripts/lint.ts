@@ -7,8 +7,8 @@
  *
  * Exit 1 on any lint error or failed healthcheck. run.ts runs the same gates automatically.
  */
-import { assertIssueKey, loadConfig, main, parseArgs } from './lib/config';
-import { healthcheck, lintEvaluation, printFindings, syncTestTags } from './lib/preflight';
+import { assertIssueKey, loadConfig, main, parseArgs } from './config';
+import { healthcheck, lintEvaluation, printFindings, syncTestTags } from './preflight';
 
 main(async () => {
   const { _, flags } = parseArgs();

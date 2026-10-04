@@ -42,8 +42,9 @@ The knowledge never changes what a test expects: it is HOW only, and it opens af
 ## 1a. Complete the contract's mechanics
 
 `heldout contract KEY` lists the open **mechanics** gaps ("to discover from the application"): a route, a label, an
-endpoint or request field the story doesn't name. Discover each one with the tiers below or the published API docs,
-then record it:
+endpoint or request field the story doesn't name. Discover each one with the tiers below (the page, and the API calls
+it makes), then record it. Don't go looking for an API document on the application: the only API definition the
+evaluation knows is one the requirement contains (e.g. an excerpt on a linked Confluence page).
 
 ```bash
 npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence hardening/api-user.md
@@ -129,8 +130,7 @@ dialogs, empty live regions that shadow `role=alert`, and so on.
 
 API: probe each declared endpoint with `heldout api-probe`. Verify the path, the auth mechanism (cookie
 vs header, token field), content type, and the body *shape* (`## Shape`). Fix plumbing only. Status
-codes and values come from the requirement, never from the probe. When the application publishes an OpenAPI or
-Swagger document, read it for request mechanics (parameter names, encodings) with
+codes and values come from the requirement, never from the probe. For a large answer, use
 `api-probe … --body-limit 200000 --out …`: the report clips bodies at 4000 characters by default. A shared host
 that answers 429 is rate-limiting you: the `api` fixture waits and retries (twice, as `Retry-After` says) and
 the preflight refuses to run while it happens. Page loads answered with 429 are retried the same way. For a host that

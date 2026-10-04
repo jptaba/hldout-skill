@@ -14,9 +14,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { SKILL_DIR, assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
-import { CONTRACT_FILE, checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './lib/contract';
-import { REVIEW_FILE, checkReview, contractHash, evidencePack, readReview, reviewRefs, type ContractReview } from './lib/evidence';
+import { SKILL_DIR, assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './config';
+import { CONTRACT_FILE, checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
+import { REVIEW_FILE, checkReview, contractHash, evidencePack, readReview, reviewRefs, type ContractReview } from './evidence';
 
 const BINARY = /\.(png|jpe?g|gif|webp|bmp|pdf|docx?|xlsx?|pptx?)$/i;
 
@@ -26,7 +26,7 @@ function render(c: RequirementContract, review: ContractReview | undefined, revi
   const esc = (s: string) => s.replace(/\|/g, '\\|');
   return [
     `# Requirement contract — ${c.key}: ${c.title}`, '',
-    `_Built by the evaluator from the story and its attachments. Every criterion is quoted from a cited line, every source line is accounted for, and every expected value is grounded in the sources${reviewOk ? '; an independent reviewer checked it' : ''}._`, '',
+    `_Built by the evaluator from the story (title, description, acceptance criteria), the images they show and the pages they link. Every criterion is quoted from a cited line, every source line is accounted for, and every expected value is grounded in the sources${reviewOk ? '; an independent reviewer checked it' : ''}._`, '',
     `**Independent review:** ${review ? `${reviewOk ? '✅ all items supported' : '❌ open findings'} — ${review.reviewer}, ${review.reviewedAt.slice(0, 16)}` : '⚠️ not reviewed'}`, '',
     '## Sources read', '', '| Source | Contributes |', '| --- | --- |',
     ...c.sourcesRead.map((s) => `| ${s.file} | ${s.contributes ?? ''} |`), '',
@@ -63,11 +63,11 @@ main(async () => {
     const untranscribed = binaries.filter((b) => !fs.existsSync(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`)));
     if (fs.existsSync(file)) console.log(`= ${rel(file)} kept (your work so far; only the evidence pack is rebuilt)`);
     else { writeFile(file, `${JSON.stringify(contract, null, 2)}\n`); console.log(`✔ empty contract bound to this requirement revision → ${rel(file)}`); }
-    console.log(`✔ evidence pack → ${rel(packFile)} (${contract.sourcesRead.length} source(s)${untranscribed.length ? `; ${untranscribed.length} non-text attachment(s) to transcribe first` : binaries.length ? `; ${binaries.length} transcript(s)` : ''})`);
+    console.log(`✔ evidence pack → ${rel(packFile)} (${contract.sourcesRead.length} source(s)${untranscribed.length ? `; ${untranscribed.length} image(s) to transcribe first` : binaries.length ? `; ${binaries.length} transcript(s)` : ''})`);
     console.log('\nNext:');
     if (untranscribed.length) {
-      console.log('  0. Transcribe each non-text attachment (open it with the Read tool; write everything it states, no interpretation):');
-      for (const b of untranscribed) console.log(`     ${rel(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`))}   first line: transcribedFrom: attachments/${path.basename(b)}`);
+      console.log('  0. Transcribe each image (open it; write all the text it shows and what it shows without words, no interpretation):');
+      for (const b of untranscribed) console.log(`     ${rel(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`))}   first line: transcribedFrom: linked/${path.basename(b)}`);
       console.log(`     then run heldout contract ${key} --pack again so its lines are numbered (the extractor subagent can do this as its first step)`);
     }
     console.log(`  1. Build the contract from the evidence pack — delegate to the heldout-contract-extractor subagent, or follow ${rel(path.join(SKILL_DIR, 'references', 'requirement-contract.md'))}`);

@@ -25,14 +25,14 @@
  * browser_wait_for anchor, or once the snapshot has substantial content) — otherwise it FAILS rather than
  * vacuously passing on an unrendered page.
  */
-import { envNamesIn } from './lib/accounts';
+import { envNamesIn } from './accounts-recipe';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { evalPaths, flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './lib/config';
-import { McpStdioClient, nodeFor, refFor } from './lib/mcp-client';
-import { redactSnapshot, secretValuesFor } from './lib/redact';
-import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
+import { evalPaths, flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './config';
+import { McpStdioClient, nodeFor, refFor } from './mcp-client';
+import { redactSnapshot, secretValuesFor } from './redact';
+import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 interface Match { role: string; name?: string; exact?: boolean }
 interface Find { role?: string; name?: string; exact?: boolean; nth?: number; ref?: string }

@@ -13,9 +13,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, assertIssueKey, createsAccounts, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
-import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint, type RequirementContract } from './lib/contract';
-import { TEST_TYPES } from './lib/gherkin';
+import { ROOT, assertIssueKey, createsAccounts, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './config';
+import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint, type RequirementContract } from './contract-model';
+import { TEST_TYPES } from './gherkin';
 
 
 /** "/api/articles/{slug}/comments/{id}" → { name: "articleComment", params: ["slug", "id"] } */
@@ -141,7 +141,7 @@ main(() => {
   const spec = [
     '/**',
     ` * Held-out acceptance tests for ${key} — "${c.title}".`,
-    ` * Written from evaluations/${key}/scenarios.feature (requirement + attachments only; never from the AUT's code).`,
+    ` * Written from evaluations/${key}/scenarios.feature (the requirement only; never from the AUT's code).`,
     ' */',
     `import { test, expect${c.endpoints.length ? ', expectResponse' : ''}${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
     ...(accounts ? [

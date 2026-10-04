@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
-import { expandSecrets, kv2Path, loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../.github/scripts/lib/secrets';
-import { dataPrefix, validateConfig } from '../.github/scripts/lib/config';
-import { recipeFromChain, signInFromSteps } from '../.github/scripts/lib/accounts';
+import { expandSecrets, kv2Path, loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../.github/scripts/secrets';
+import { dataPrefix, validateConfig } from '../.github/scripts/config';
+import { recipeFromChain, signInFromSteps } from '../.github/scripts/accounts-recipe';
 
 /** A fake Vault: KV v2 at secret/qa/app, KV v1 at kv1/legacy, a forbidden path, and AppRole login. */
 let server: http.Server;
@@ -135,7 +135,7 @@ describe('a UI sign-in inspected as an account whose user name is in Vault too',
 
 describe('an application whose accounts can be created but not deleted', () => {
   it('is not sent a check account by doctor unless asked (it would stay behind)', async () => {
-    const { checkAccountRecipe } = await import('../.github/scripts/lib/accounts');
+    const { checkAccountRecipe } = await import('../.github/scripts/accounts-recipe');
     const steps = await checkAccountRecipe({ password: '${env:X}', create: { method: 'POST', path: '/users', id: 'id' } }, 'http://127.0.0.1:9');
     assert.equal(steps.length, 1);
     assert.equal(steps[0].ok, true);
@@ -193,7 +193,7 @@ describe('a sign-up that needs a value from an earlier call', () => {
     assert.throws(() => recipeFromChain({ steps: chain.steps.slice(1) } as never), /use \$\{qid\}, which no earlier step of the chain saves/);
   });
   it('runs it live and sends the saved number as a number', async () => {
-    const { checkAccountRecipe } = await import('../.github/scripts/lib/accounts');
+    const { checkAccountRecipe } = await import('../.github/scripts/accounts-recipe');
     let sent: unknown;
     const app = http.createServer((req, res) => {
       let b = ''; req.on('data', (c) => { b += c; }); req.on('end', () => {

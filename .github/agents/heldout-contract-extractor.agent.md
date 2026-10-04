@@ -12,15 +12,17 @@ criteria, values or messages, and you never look at the application or its code.
 
 Inputs, for story KEY (given in your task):
 - `evaluations/KEY/requirement/evidence-pack.md`: every source line, numbered. Lines marked ● must be accounted for.
-  It is your only source.
+  It is your only source: the story's title, description and acceptance criteria, the Confluence pages they link and
+  the transcripts of the images they show. Comments and other attachments are not part of the requirement, and there is
+  no API document (OpenAPI, Swagger, YAML) unless the pack contains one.
 - `evaluations/KEY/requirement-contract.json`: the contract to fill in (keep `key`, `title` and `revision` as they are).
 - `.github/skills/heldout-evaluator/references/requirement-contract.md`: **the procedure, the contract shape, the gap
   rules and worked examples. Read it first and follow it.**
 
 Do this:
-1. If the pack lists non-text attachments that aren't transcribed yet, open each image and write
-   `requirement/transcripts/<file>.md`. The first line is `transcribedFrom: attachments/<file>`, followed by a faithful
-   transcription with no interpretation. Then run `npm run heldout -- contract KEY --pack` again. A transcript that
+1. If the pack lists screenshots that aren't transcribed yet, open each image (`requirement/linked/<file>`) and write
+   `requirement/transcripts/<file>.md`. The first line is `transcribedFrom: linked/<file>`, followed by a faithful
+   transcription of all the text it shows and what it shows without words, with no interpretation. Then run `npm run heldout -- contract KEY --pack` again. A transcript that
    already exists is evidence like any other: open the image and check it line by line; correct it only where it
    differs from the image.
 2. Fill in the contract as the reference describes. `quote` is verbatim. `source` / `lines` cite line numbers from the

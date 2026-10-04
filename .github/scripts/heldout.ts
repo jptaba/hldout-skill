@@ -9,18 +9,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { knownFlags } from './lib/config';
+import { knownFlags } from './config';
 
 interface Command { script: string; args: string; about: string; group: string }
 const COMMANDS: Record<string, Command> = {
-  init: { script: 'init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install]', about: 'scaffold config, npm script, .gitignore, .env (never overwrites)' },
+  init: { script: 'init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci]', about: 'set a project up: update, then config, npm script, .gitignore, .env (never overwrites)' },
+  update: { script: 'update.ts', group: 'Setup', args: '[--ci [gitlab|github]]   (run from the skill repository, in the project folder)', about: 'install or update the skill, its scripts, the subagents and the workspace files' },
   'add-aut': { script: 'init.ts', group: 'Setup', args: '<id> --base-url <url> [--api-base-url <url>]', about: 'add another application profile' },
   doctor: { script: 'doctor.ts', group: 'Setup', args: '[--jira] [--offline] [--learn]', about: 'check that everything is wired up, with a fix for each problem; --learn records the app\'s pages and endpoints' },
   secret: { script: 'secret.ts', group: 'Setup', args: 'NAME --generate | --ask  [--force]', about: 'a secret into .env without showing it: generated, or typed at a hidden prompt' },
   accounts: { script: 'accounts.ts', group: 'Setup', args: '--add-existing --username … --password-env NAME|--password-vault path#field  | --key KEY --from-chain chain.json  | --check', about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live' },
   status: { script: 'status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
-  new: { script: 'mock-jira-create.ts', group: 'Requirement', args: 'KEY --from story.md [--attach file]…', about: 'create a story in the mock Jira (no Jira needed)' },
-  fetch: { script: 'jira-fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch story + attachments; binds the story to an AUT profile' },
+  new: { script: 'mock/jira-create.ts', group: 'Requirement', args: 'KEY --from story.md [--ac-from ac.md] [--page <id>=page.md]…', about: 'create a story (and the Confluence pages it links) in the mock Jira (no Jira needed)' },
+  fetch: { script: 'jira-fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch the story (title, description, acceptance criteria, the images they show, linked Confluence pages); binds it to an AUT profile' },
   contract: { script: 'contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --answer G2 --value … --by … | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
   scaffold: { script: 'scaffold.ts', group: 'Requirement', args: 'KEY', about: 'generate scenarios.feature + spec skeletons from the contract' },
   lint: { script: 'lint.ts', group: 'Tests', args: 'KEY [--fix-tags] [--allow-unhardened] [--no-health]', about: 'traceability lint + AUT healthcheck' },
@@ -44,6 +45,7 @@ function help(): void {
     console.log(`  ${name.padEnd(10)} ${c.about}\n  ${' '.repeat(10)} ${c.args}`);
   }
   console.log('\nFirst time here?  heldout init --base-url https://your-app --install   then   heldout doctor');
+  console.log('A newer skill?    git pull the skill repository, then run its heldout update in this folder');
   console.log('Then ask Opus:     "Run a held-out evaluation of ABC-123"');
 }
 

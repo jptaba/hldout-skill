@@ -1,3 +1,0 @@
-[{"do":"fill","target":"locator('#email')","value":"${var:user}"},
- {"do":"fill","target":"locator('#password')","value":"${env:JS_USER_PASSWORD}"},
- {"do":"click","target":"locator('#loginButton')"}]

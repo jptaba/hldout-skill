@@ -1,4 +1,4 @@
-{ "key": "TOOL-4", "aut": "toolshop", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "PASS",
+{ "key": "TOOL-4", "aut": "toolshop", "writtenAt": "2026-09-26 (before evaluation); sources reworked 2026-10-04 (the API definition moved from a PO comment to a linked Confluence page)", "expectedVerdict": "PASS",
   "defects": [],
   "seededScriptDefects": [],
-  "traps": ["ACs live in a Jira custom field, not the description", "the description says duplicates → 422; a later PO comment clarifies 409 — the contract must record the comment as the source and the conflict as a resolved gap", "false-positive resistance: the app meets every AC"] }
+  "traps": ["ACs live in a Jira custom field, not the description", "the endpoints, auth and the duplicate status (409) are only on the linked Confluence page, as an OpenAPI excerpt in a YAML code block — the contract must cite that page (linked/confluence-880001-…md) and must not assume any other API document", "false-positive resistance: the app meets every AC"] }

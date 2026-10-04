@@ -1,15 +1,16 @@
 ---
 name: heldout-evaluator
-description: Held-out acceptance evaluation of a Jira story against any web application or API (AUT-agnostic). Fetches the story and its attachments from Jira (or the file-based mock Jira), reviews the requirement, rewrites it as traceable Gherkin scenarios (each tied to its acceptance criteria and a test type: functional, negative, boundary, security, idempotency, concurrency, audit, composition, integration, contract or accessibility), writes independent Playwright TypeScript UI and API tests from the requirement only, hardens them against the live AUT (tier 1 IDE browser tool, tier 2 Playwright MCP, tier 3 bundled inspector/API probe), runs them, triages every failure as a script defect or an application defect, and writes a verdict markdown with a full traceability matrix, reproduction steps and evidence that is published back to the Jira story for a human to review. Use when the user asks to evaluate, verify or accept a Jira story/ticket, to create held-out or independent acceptance tests, or for a test verdict on a story.
+description: Held-out acceptance evaluation of a Jira story against any web application or API (AUT-agnostic). Fetches the story's title, description and acceptance criteria from Jira Data Center (or the file-based mock), with the screenshots they show and the Confluence pages they link, reviews the requirement, rewrites it as traceable Gherkin scenarios (each tied to its acceptance criteria and a test type: functional, negative, boundary, security, idempotency, concurrency, audit, composition, integration, contract or accessibility), writes independent Playwright TypeScript UI and API tests from the requirement only, hardens them against the live AUT (tier 1 IDE browser tool, tier 2 Playwright MCP, tier 3 bundled inspector/API probe), runs them, triages every failure as a script defect or an application defect, and writes a verdict markdown with a full traceability matrix, reproduction steps and evidence that is published back to the Jira story for a human to review. Use when the user asks to evaluate, verify or accept a Jira story/ticket, to create held-out or independent acceptance tests, or for a test verdict on a story.
 ---
 
 # Held-out Evaluator
 
 Works in any agent app that loads skills. The skill lives in `.github/skills/heldout-evaluator/`, its scripts (the
 `heldout` command, `npm run heldout`) in `.github/scripts/`, the phase subagents in
-`.github/agents/*.agent.md` and the Playwright MCP server in `.mcp.json`; GitHub Copilot reads them there. Claude Code
+`.github/agents/*.agent.md` and the Playwright MCP server in `.vscode/mcp.json`; GitHub Copilot reads them there. Claude Code
 reads only `.claude/`, so `.claude/skills/heldout-evaluator/SKILL.md` and `.claude/agents/*.md` are short bridges that
-point here. Tool names below such as `AskUserQuestion` and the Agent tool are Claude Code's examples. In GitHub Copilot,
+point here, and it reads MCP servers only from the root `.mcp.json`, which `init` and `update` write from
+`.vscode/mcp.json`. Tool names below such as `AskUserQuestion` and the Agent tool are Claude Code's examples. In GitHub Copilot,
 ask the user in the chat, run each subagent with Copilot's `agent` tool (or as a fresh chat with the agent's
 instructions), and pass `--quiet` to `heldout run` so it prints a digest.
 
@@ -18,7 +19,7 @@ application's code or its developers' tests, so it catches an implementation tha
 the story asked for. This skill runs the whole loop for one Jira story:
 
 ```
-Jira story + attachments ─► requirement contract (gaps → ask) ─► review ─► scenarios.feature (AC + test type + source per scenario)
+Jira story (title, description, AC) + its screenshots + linked Confluence pages ─► requirement contract (gaps → ask) ─► review ─► scenarios.feature (AC + test type + source per scenario)
   ─► draft Playwright UI/API spec ─► freeze ─► harden vs live AUT ─► preflight ─► run
   ─► triage (script vs application, confirmed live) ─► repair script defects & re-run
   ─► verdict.md (traceability, reproduction, evidence) ─► Jira comment + attachment ─► human decides
@@ -36,32 +37,39 @@ If `heldout.config.json` is missing, set the project up before anything else:
 1. Ask the user, in one `AskUserQuestion` call, for anything you can't infer:
    - the web app URL
    - the API URL (if different)
-   - Jira: mock (no subscription) or cloud (site URL)
+   - Jira: mock (nothing to connect to) or your Jira Data Center (its URL; the user puts a personal access token in
+     `.env` with `npm run heldout -- secret JIRA_PAT --ask`)
    - test accounts: the tests create their own / existing accounts with passwords in `.env` or CI variables /
      existing accounts in HashiCorp Vault / none needed
 2. Run:
 
 ```bash
-npx tsx <skill repository>/.github/scripts/heldout.ts init --base-url <url> [--api-base-url <url>] [--name "<app>"] [--profile <id>] [--jira mock|cloud] [--install]
+npx tsx <skill repository>/.github/scripts/heldout.ts init --base-url <url> [--api-base-url <url>] [--name "<app>"] [--profile <id>] [--jira mock|datacenter] [--jira-url <url>] [--install]
 npm run heldout -- doctor --learn  # every problem comes with the command that fixes it; --learn starts the app knowledge
 ```
 
-Run from a skill repository outside the project (a clone anywhere), `init` first copies the skill into
-`.github/skills/heldout-evaluator/` and its scripts into `.github/scripts/`, or updates an older copy. It then scaffolds, and never overwrites, the following:
+Run from a skill repository outside the project (a clone anywhere), `init` first runs that repository's `update`. It
+copies, as they are in the skill repository (refreshed on later updates unless the project changed them):
 
-- `heldout.config.json` (with a JSON schema for editor help)
-- `playwright.config.ts`
-- `heldout-support/fixtures.ts`
-- `tsconfig.json`
-- `.mcp.json` (Playwright MCP, tier 2)
-- `.env` and `.env.example`
-- the `heldout` npm script and dev dependencies
-- `.gitignore` entries
+- the skill into `.github/skills/heldout-evaluator/` and its scripts into `.github/scripts/`
+- `playwright.config.ts`, `heldout-support/fixtures.ts`, `tsconfig.json` and `.env.example`
+- the Playwright MCP server (tier 2) into `.vscode/mcp.json` and the root `.mcp.json`, added to any servers the project
+  already has
 - the subagents in `.github/agents/` (contract extractor and reviewer, scenario writer, test author, hardener and
   triager, each with its model and fallbacks)
 - the Claude Code bridges in `.claude/` and its fallback models (`.claude/settings.json`)
 - `.vscode/settings.json`, so Copilot loads the skill and subagents from `.github/` only
+
+Then, from the project's own copy of the scripts, `init` scaffolds, and never overwrites:
+
+- `heldout.config.json` (with a JSON schema for editor help)
+- `.env`
+- the `heldout` npm script and dev dependencies
+- `.gitignore` entries
 - `mock-jira/` and `evaluations/`
+
+A later skill version: pull the skill repository, then run `npx tsx <skill repository>/.github/scripts/heldout.ts update`
+in the project (`$H doctor` prints the exact command).
 
 `--install` also installs the dependencies and Chromium. `--ci [gitlab|github]` adds a regression pipeline (GitLab CI unless the remote is GitHub). Unless flags give
 them, one visit of the start page fills in the profile: its id (from the host, or the title for localhost), name (page
@@ -81,7 +89,8 @@ Repeat `--add-existing` for more accounts: each parallel worker needs its own, a
 there are accounts. `$H accounts --check` (and `doctor`) signs each one in. Existing accounts are shared with later runs:
 when tests change them, save the call that restores one while hardening (`$H accounts --reset "METHOD path"`).
 
-Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptance-criteria custom field. See
+Jira: `JIRA_MODE=mock` (default) or `datacenter` (Jira and Confluence Data Center, `JIRA_PAT`); `doctor --jira` finds
+the acceptance-criteria custom field. See
 [references/jira.md](references/jira.md). Tell the user to restart their agent app (Claude Code, GitHub Copilot…) once so the Playwright MCP server and the subagents load.
 
 ## Pipeline
@@ -90,7 +99,7 @@ Jira: `JIRA_MODE=mock` (default) or `cloud`; `doctor --jira` finds the acceptanc
 
 | # | Phase | You do | Command / output |
 | --- | --- | --- | --- |
-| 1 | **Fetch** | Pull the story, attachments and comments, and bind it to an AUT profile. A re-fetch detects requirement revisions | `$H fetch KEY [--aut <profile>]` → `requirement/`, `evaluation.json` (+ `CHANGES.md`, `history/`) |
+| 1 | **Fetch** | Pull the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (comments and other attachments are not requirement), and bind it to an AUT profile. A re-fetch detects requirement revisions | `$H fetch KEY [--aut <profile>]` → `requirement/`, `evaluation.json` (+ `CHANGES.md`, `history/`) |
 | 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 4) or *oracle* (WHAT: found in the requirement, or a question for the user); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean. **Ask the user** the oracle questions it lists (`AskUserQuestion`, interactive sessions); record answers as `provided-by-user` and re-review | `requirement-contract.json`, `requirement-contract.review.json` — [requirement-contract](references/requirement-contract.md) |
 | 2 | **Review + scenarios** | **Delegate** to the `heldout-scenario-writer` subagent ("Write the scenarios for KEY"). From the reviewed contract alone it runs `$H scaffold KEY` and writes the testability review, the scenarios (one `@type`, the `@AC-n` tags and a `# from` source each) and the test data. **Ask the user** the questions it returns | `requirement-review.md`, `scenarios.feature`, `test-data.json` — [scenario-format](references/scenario-format.md) |
 | 3 | **Draft tests** | **Delegate** to the `heldout-test-author` subagent ("Draft the tests for KEY"). With no browser and from the scenarios alone, it translates each scenario 1:1 into Playwright TS: every data precondition seeded with `seed.*`, API answers checked with `expectResponse(…, '[REQ AC-n] …')`, guessed locators marked `// TODO(harden)`, lint clean (`--allow-unhardened`) | `tests/*.spec.ts` — [test-authoring](references/test-authoring.md), [data-and-journeys](references/data-and-journeys.md) |
@@ -115,7 +124,7 @@ Pick the first tier whose tools are actually available in this session (check yo
 
 1. **Tier 1 — IDE browser tool**: the browser-control tools the host IDE exposes (an integrated
    browser, or a browser extension the agent drives, such as `mcp__claude-in-chrome__*`).
-2. **Tier 2 — Playwright MCP** (`mcp__playwright__browser_*`), configured by `.mcp.json`. If the tools are not loaded natively (pending approval, CI), drive the same server with `heldout mcp-probe` (bundled stdio client). Always wait for a readiness anchor on SPAs, and never conclude absence from an unrendered snapshot.
+2. **Tier 2 — Playwright MCP** (`mcp__playwright__browser_*`), configured by `.vscode/mcp.json` (Copilot) and the root `.mcp.json` (Claude Code). If the tools are not loaded natively (pending approval, CI), drive the same server with `heldout mcp-probe` (bundled stdio client). Always wait for a readiness anchor on SPAs, and never conclude absence from an unrendered snapshot.
 3. **Tier 3 — bundled tools** (always available): `heldout inspect` (ARIA snapshot, ranked unique
    locators, `--probe`, `--steps-json`, `--wait-for`), `heldout run KEY --label harden --capture`
    (snapshot after every step), and `heldout api-probe` for APIs (single calls or `--chain` sequences; status, timing, redacted body, type
@@ -127,7 +136,8 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
 
 ## Non-negotiable guardrails
 
-- **Held-out isolation.** Derive tests only from the story, its attachments and black-box
+- **Held-out isolation.** Derive tests only from the story (title, description, acceptance criteria, the screenshots
+  they show, the Confluence pages they link) and black-box
   observation of the AUT. Never read the AUT's source, its tests or its fixtures.
 - **Hardening changes HOW, never WHAT.** Locators, waits, navigation and API plumbing may change.
   Expected values, `[REQ …]` assertions and the `@req-constants` block may not. `[REQ AC-n strict]`
@@ -172,7 +182,7 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
 ```
 evaluations/KEY/
   evaluation.json                                   ← phase 0 (AUT binding)
-  requirement/story.md raw-issue.json attachments/ CHANGES.md history/   ← phase 1
+  requirement/story.md raw-issue.json linked/ transcripts/ CHANGES.md history/   ← phase 1
   requirement-contract.json requirement-contract.md                      ← phase 1b
   requirement-review.md scenarios.feature test-data.json                 ← phase 2
   tests/*.spec.ts   draft/*.spec.ts (frozen)                             ← phases 3–4

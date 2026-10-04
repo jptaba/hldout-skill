@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { AGENT_FILES, SKILL_DIR } from '../.github/scripts/lib/config';
+import { AGENT_FILES, SKILL_DIR } from '../.github/scripts/config';
 
 const REPO = path.resolve(import.meta.dirname, '..');
 const COPILOT = AGENT_FILES.filter((f) => f.startsWith('.github/agents/'));

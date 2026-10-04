@@ -2,8 +2,8 @@
 
 ## 1. Requirement review — `evaluations/<KEY>/requirement-review.md`
 
-Write this before any scenario, from `requirement/story.md` and **every** attachment (images and
-PDFs via the Read tool), with no AUT access. It should contain:
+Write this before any scenario, from `requirement/story.md`, **every** page it links (`requirement/linked/*.md`) and the
+transcript of every image it shows, with no AUT access. It should contain:
 
 - **Sources used**: a table of each source and what it contributes (ACs, rules, contract, copy, test data).
 - **Testability decisions**: how each hard-to-test clause will be verified, for example "nothing is
@@ -21,7 +21,7 @@ exactly.
 
 ```gherkin
 # Source: <KEY> — <story summary>
-# Attachments used: <file> (what it contributed), …
+# Linked pages and images used: <file> (what it contributed), …
 #
 # Acceptance criteria (each AC's `text` from the contract, one line each; this list drives coverage and traceability):
 # AC-1: <criterion text exactly as written>
@@ -68,7 +68,7 @@ Feature: <story summary>
 | `@SCN-nnn` | yes | Unique scenario id. Outline rows become tests `SCN-nnn.1 … .n` |
 | `@AC-n` | yes (≥1) | Which criteria the scenario proves |
 | `@type:<t>` | yes (exactly 1) | Test type, from the taxonomy below. One per scenario; any number of scenarios may share a type |
-| `# from …` | strongly recommended (lint warns) | Story section / attachment the scenario comes from, shown in the traceability matrix |
+| `# from …` | strongly recommended (lint warns) | Story section, linked page or image transcript the scenario comes from, shown in the traceability matrix |
 | `@layer:ui\|api\|e2e` | recommended | Which layer the test drives |
 | `@priority:P1..P3` | recommended | P1: core journey / money / security; P3: cosmetic |
 | `# ENDPOINT: METHOD /path/{param}` | for API stories | The declared contract. Triage flags calls to undeclared endpoints as script defects |
@@ -116,7 +116,7 @@ lists as not verified. A slow environment is never read as a defect: raise the c
    labels or WCAG need `accessibility`; a schema needs `contract`. Add a type only when the
    requirement states or clearly implies it: an unstated expectation is a gap, not a scenario.
 2. **Quote the requirement.** Expected texts, numbers, formulas and codes are copied verbatim from
-   the story or attachment. Never "improve" them: a mismatch is what the evaluation exists to find.
+   the story, a linked page or an image transcript. Never "improve" them: a mismatch is what the evaluation exists to find.
 3. **Concrete data.** Put reusable or secret values in `test-data.json`. Use unique values
    (`unique()` in tests) on shared environments.
 4. **Black-box language.** Describe what a user or client sees and does. Locators are decided later.

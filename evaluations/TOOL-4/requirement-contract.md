@@ -1,6 +1,6 @@
 # Requirement contract — TOOL-4: Favourites for signed-in customers
 
-_Built by the evaluator from the story and its attachments. Every criterion is quoted from a cited line, every source line is accounted for, and every expected value is grounded in the sources; an independent reviewer checked it._
+_Built by the evaluator from the story (title, description, acceptance criteria), the images they show and the pages they link. Every criterion is quoted from a cited line, every source line is accounted for, and every expected value is grounded in the sources; an independent reviewer checked it._
 
 **Independent review:** ✅ all items supported — heldout-contract-reviewer (Sonnet 5), 2026-09-28T20:26
 

@@ -1,23 +1,24 @@
 /**
- * Phase 1 — Fetch a story + its attachments from Jira (mock or cloud) and normalise it.
+ * Phase 1 — Fetch a story from Jira Data Center (or the mock) and normalise it. The requirement is the story's
+ * title, its description and its acceptance criteria, plus what those two fields hold: the screenshots they embed
+ * (Jira wiki markup !shot.png!, or an inline image) and the Confluence pages they link, with the images those pages
+ * show. Comments and the issue's other attachments are not requirement input.
  *
- *   heldout fetch <KEY>
+ *   heldout fetch <KEY> [--aut <profile>]
  *
  * Output (evaluations/<KEY>/requirement/):
- *   story.md          normalised requirement (front-matter + description + AC field + attachment index)
- *   raw-issue.json    untouched API payload
- *   attachments/*     downloaded attachment files (the evaluator's own published verdicts are skipped)
- *   CHANGES.md        appended when a re-fetch finds the requirement changed (previous revision → history/)
+ *   story.md                      title + description + AC field (as Jira holds them: wiki markup on Data Center),
+ *                                 then an index of the linked pages and the screenshots
+ *   raw-issue.json                untouched API payload
+ *   linked/<file>                 each screenshot the description or AC embed
+ *   linked/confluence-<id>-*.md   each Confluence page they link, as Markdown; its images beside it
+ *   CHANGES.md                    appended when a re-fetch finds the requirement changed (previous revision → history/)
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, timestamp, writeFile } from './lib/config';
-import { adfToMarkdown, createTracker } from './lib/jira';
-
-const TEXT_EXT = new Set(['.md', '.txt', '.csv', '.json', '.feature', '.yml', '.yaml', '.xml', '.html']);
-/** Files this skill itself uploads to the story — never treat them as requirement input. */
-const OWN_OUTPUT = /^heldout-(verdict|evidence)-/;
+import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, timestamp, writeFile } from './config';
+import { confluenceLinks, createTracker, createWiki, embeddedAttachments, type JiraAttachmentMeta } from './jira';
 
 const hashDir = (dir: string): Map<string, string> => new Map(fs.existsSync(dir)
   ? fs.readdirSync(dir).filter((f) => fs.statSync(path.join(dir, f)).isFile())
@@ -43,37 +44,60 @@ main(async () => {
   })();
 
   const previousStory = fs.existsSync(p.storyMd) ? fs.readFileSync(p.storyMd, 'utf8') : undefined;
-  const previousAttachments = hashDir(p.attachments);
+  const previousLinked = hashDir(p.linked);
   const stamp = timestamp();
   if (previousStory) { // keep the old revision until we know whether it changed
     const hist = path.join(p.requirement, 'history', stamp);
-    fs.mkdirSync(path.join(hist, 'attachments'), { recursive: true });
+    fs.mkdirSync(path.join(hist, 'linked'), { recursive: true });
     fs.writeFileSync(path.join(hist, 'story.md'), previousStory);
-    for (const f of previousAttachments.keys()) fs.copyFileSync(path.join(p.attachments, f), path.join(hist, 'attachments', f));
+    for (const f of previousLinked.keys()) fs.copyFileSync(path.join(p.linked, f), path.join(hist, 'linked', f));
   }
 
   const issue = await tracker.getIssue(key);
   writeFile(p.rawIssue, `${JSON.stringify(issue, null, 2)}\n`);
 
   const f = issue.fields;
-  const attachments = (f.attachment ?? []).filter((a) => !OWN_OUTPUT.test(a.filename));
-  const skipped = (f.attachment ?? []).length - attachments.length;
-  fs.mkdirSync(p.attachments, { recursive: true });
-  const index: string[] = [];
-  for (const att of attachments) {
-    const dest = path.join(p.attachments, att.filename);
-    await tracker.downloadAttachment(key, att, dest);
-    const kind = TEXT_EXT.has(path.extname(att.filename).toLowerCase()) ? 'text — read directly'
-      : att.mimeType.startsWith('image/') ? 'image — open with the Read tool (vision)'
-      : att.mimeType === 'application/pdf' ? 'PDF — open with the Read tool'
-      : 'binary — inspect manually';
-    index.push(`| ${att.filename} | ${att.mimeType} | ${att.size} | ${kind} | attachments/${att.filename} |`);
-  }
-
-  const OWN_COMMENT = /Posted automatically by the heldout-evaluator|Held-out evaluation: /;
-  const humanComments = (f.comment?.comments ?? []).filter((c) => !OWN_COMMENT.test(typeof c.body === 'string' ? c.body : JSON.stringify(c.body)));
   const acField = cfg.jira.acceptanceCriteriaField;
   const acRaw = acField ? f[acField] : undefined;
+  const description = (f.description ?? '').trim();
+  const criteria = typeof acRaw === 'string' ? acRaw.trim() : '';
+
+  // Fresh each fetch: a file the story stops embedding or linking is no longer requirement (history/ keeps the old revision).
+  fs.rmSync(p.linked, { recursive: true, force: true });
+  fs.mkdirSync(p.linked, { recursive: true });
+  const shots: string[] = [];
+  const save = async (att: JiraAttachmentMeta, name: string, download: (dest: string) => Promise<void>) => {
+    await download(path.join(p.linked, name));
+    shots.push(`| ${name} | ${att.mimeType} | ${att.size} | linked/${name} |`);
+  };
+
+  // Screenshots the description or the acceptance criteria show.
+  const fields = `${description}\n${criteria}`;
+  const embedded = embeddedAttachments(f.attachment ?? [], fields);
+  for (const att of embedded) await save(att, att.filename, (dest) => tracker.downloadAttachment(key, att, dest));
+
+  // Linked Confluence pages: each one as Markdown, with the images its body shows.
+  const wiki = createWiki(cfg);
+  const pages: string[] = [];
+  for (const url of confluenceLinks(fields)) {
+    try {
+      const page = await wiki.getPage(url);
+      let body = page.body;
+      const files = embeddedAttachments(page.attachments, body);
+      for (const att of files) {
+        // Saved beside the story's own screenshots, under a name that says which page shows it.
+        const name = `confluence-${page.id}-${att.filename}`;
+        await save(att, name, (dest) => wiki.downloadAttachment(page, att, dest));
+        body = body.split(`[attachment: ${att.filename}]`).join(`[attachment: ${name}]`).split(`!${att.filename}!`).join(`[attachment: ${name}]`);
+      }
+      const name = `confluence-${page.id}-${page.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50)}.md`;
+      writeFile(path.join(p.linked, name), `confluencePage: ${url}\n\n# ${page.title}\n\n${body}\n`);
+      pages.push(`| ${page.title} | ${url} | read | linked/${name}${files.length ? ` (+ ${files.length} image(s))` : ''} |`);
+    } catch (e) {
+      pages.push(`| — | ${url} | **not read**: ${(e as Error).message.split('\n')[0].slice(0, 160)} | — |`);
+    }
+  }
+
   const md = [
     '---',
     `key: ${issue.key}`,
@@ -82,7 +106,7 @@ main(async () => {
     `status: ${f.status?.name ?? 'unknown'}`,
     `priority: ${f.priority?.name ?? 'unknown'}`,
     `labels: [${(f.labels ?? []).join(', ')}]`,
-    `source: ${tracker.mode === 'mock' ? 'mock-jira' : 'jira-cloud'}`,
+    `source: ${tracker.mode === 'mock' ? 'mock-jira' : `jira-${tracker.mode}`}`,
     `url: ${tracker.browseUrl(key)}`,
     `fetchedAt: ${new Date().toISOString()}`,
     '---',
@@ -91,35 +115,37 @@ main(async () => {
     '',
     '## Description',
     '',
-    adfToMarkdown(f.description) || '_(empty)_',
+    description || '_(empty)_',
     '',
-    ...(acRaw ? ['## Acceptance criteria (custom field)', '', adfToMarkdown(acRaw as never), ''] : []),
-    // Clarifications often live in comments. The evaluator's own published comments are not requirement input.
-    ...(humanComments.length ? ['## Comments (clarifications from the issue)', '',
-      ...humanComments.flatMap((c) => [`**${c.author.displayName}** — ${c.created.slice(0, 10)}:`, '', typeof c.body === 'string' ? c.body : adfToMarkdown(c.body), '']), ''] : []),
-    '## Attachments',
+    ...(criteria ? ['## Acceptance criteria (custom field)', '', criteria, ''] : []),
+    '## Linked pages',
     '',
-    ...(index.length
-      ? ['| File | MIME | Bytes | How to read | Local path |', '| --- | --- | --- | --- | --- |', ...index]
-      : ['_None_']),
+    ...(pages.length ? ['| Page | Link | Status | Local path |', '| --- | --- | --- | --- |', ...pages] : ['_None_']),
+    '',
+    '## Screenshots',
+    '',
+    ...(shots.length ? ['| File | MIME | Bytes | Local path (transcribe what it shows) |', '| --- | --- | --- | --- |', ...shots] : ['_None_']),
     '',
   ].join('\n');
   writeFile(p.storyMd, md);
 
-  console.log(`✔ Fetched ${key} from ${tracker.mode} Jira: "${f.summary}"`);
+  const unread = pages.filter((r) => r.includes('**not read**')).length;
+  console.log(`✔ Fetched ${key} from ${tracker.mode} Jira: "${f.summary}" (title, description, acceptance criteria; comments and attachments are not read)`);
   console.log(`  AUT:         ${bindingNote}`);
   console.log(`  story:       ${rel(p.storyMd)}`);
-  console.log(`  attachments: ${attachments.length} → ${rel(p.attachments)}/${skipped ? ` (skipped ${skipped} of the evaluator's own uploads)` : ''}`);
-  for (const a of attachments) console.log(`    - ${a.filename} (${a.mimeType})`);
+  console.log(`  pages:       ${pages.length} linked Confluence page(s)${unread ? `, ${unread} not read — see story.md "Linked pages"` : ''}`);
+  console.log(`  screenshots: ${shots.length} → ${rel(p.linked)}/`);
+  for (const row of shots) console.log(`    - ${row.split('|')[1].trim()}`);
+  if (unread) console.log(`  ⚠ a linked page could not be read: the contract records it as an open question (or fix access and fetch again)`);
 
   // ---- revision detection ----
   const hist = path.join(p.requirement, 'history', stamp);
   if (!previousStory) { console.log(`\nNext (phase 1b): heldout contract ${key} --pack, then the heldout-contract-extractor and heldout-contract-reviewer subagents.`); return; }
-  const now = hashDir(p.attachments);
+  const now = hashDir(p.linked);
   const attChanges = [
-    ...[...now.keys()].filter((k) => !previousAttachments.has(k)).map((k) => `added ${k}`),
-    ...[...previousAttachments.keys()].filter((k) => !now.has(k)).map((k) => `removed ${k}`),
-    ...[...now.keys()].filter((k) => previousAttachments.has(k) && previousAttachments.get(k) !== now.get(k)).map((k) => `changed ${k}`),
+    ...[...now.keys()].filter((k) => !previousLinked.has(k)).map((k) => `added ${k}`),
+    ...[...previousLinked.keys()].filter((k) => !now.has(k)).map((k) => `removed ${k}`),
+    ...[...now.keys()].filter((k) => previousLinked.has(k) && previousLinked.get(k) !== now.get(k)).map((k) => `changed ${k}`),
   ];
   if (body(previousStory) === body(md) && !attChanges.length) {
     fs.rmSync(hist, { recursive: true, force: true });
@@ -135,14 +161,14 @@ main(async () => {
   const entry = [
     `## Revision detected ${new Date().toISOString()}`, '',
     `Previous revision archived at \`requirement/history/${stamp}/\`.`, '',
-    ...(attChanges.length ? ['**Attachments:** ' + attChanges.join(', '), ''] : []),
+    ...(attChanges.length ? ['**Screenshots and linked pages:** ' + attChanges.join(', '), ''] : []),
     ...(added.length ? ['**Added lines:**', '', ...added.map((l) => `+ ${l}`), ''] : []),
     ...(removed.length ? ['**Removed lines:**', '', ...removed.map((l) => `- ${l}`), ''] : []),
     '**Action:** rebuild requirement-contract.json (it is now stale), then update requirement-review.md and scenarios.feature. New/changed tests need a re-freeze (`integrity.ts KEY --snapshot --reason …`) before hardening.', '',
   ].join('\n');
   const changesFile = path.join(p.requirement, 'CHANGES.md');
   writeFile(changesFile, `${fs.existsSync(changesFile) ? fs.readFileSync(changesFile, 'utf8') + '\n' : '# Requirement changes\n\n'}${entry}`);
-  console.log(`\n⚠ REQUIREMENT CHANGED since the last fetch: +${added.length}/-${removed.length} lines${attChanges.length ? `; attachments: ${attChanges.join(', ')}` : ''}`);
+  console.log(`\n⚠ REQUIREMENT CHANGED since the last fetch: +${added.length}/-${removed.length} lines${attChanges.length ? `; screenshots and linked pages: ${attChanges.join(', ')}` : ''}`);
   for (const l of added.slice(0, 8)) console.log(`    + ${l.slice(0, 140)}`);
   for (const l of removed.slice(0, 8)) console.log(`    - ${l.slice(0, 140)}`);
   console.log(`  → ${rel(changesFile)} (previous revision in requirement/history/${stamp}/)`);

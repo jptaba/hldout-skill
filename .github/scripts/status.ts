@@ -6,9 +6,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, evalPaths, listRuns, loadConfig, main, parseArgs, readEvaluationMeta, readJson, type HeldoutConfig } from './lib/config';
-import { checkContract, readContract } from './lib/contract';
-import { checkReview, readReview } from './lib/evidence';
+import { NON_EVAL_RUN, ROOT, evalPaths, listRuns, loadConfig, main, parseArgs, readEvaluationMeta, readJson, type HeldoutConfig } from './config';
+import { checkContract, readContract } from './contract-model';
+import { checkReview, readReview } from './evidence';
 
 interface Phase { name: string; done: boolean; detail: string; next?: string }
 const H = 'npm run heldout --';
@@ -43,7 +43,7 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const bound = readEvaluationMeta(cfg, key).aut;
 
   return [
-    { name: 'fetch', done: fs.existsSync(p.storyMd), detail: fs.existsSync(p.storyMd) ? `story + ${fs.existsSync(p.attachments) ? fs.readdirSync(p.attachments).length : 0} attachment(s)${bound ? ` · AUT ${bound}` : ''}` : 'not fetched', next: `${H} fetch ${key}` },
+    { name: 'fetch', done: fs.existsSync(p.storyMd), detail: fs.existsSync(p.storyMd) ? `story + ${fs.existsSync(p.linked) ? fs.readdirSync(p.linked).length : 0} linked file(s)${bound ? ` · AUT ${bound}` : ''}` : 'not fetched', next: `${H} fetch ${key}` },
     { name: 'contract', done: Boolean(contract) && contractErrors === 0, detail: !contract ? 'missing' : contractErrors ? `${contractErrors} error(s) (incl. review)` : `${contract.acceptanceCriteria.length} AC · ${contract.gaps.length} gap(s) · reviewed`, next: contract ? `${H} contract ${key}   (extractor / reviewer subagents until clean)` : `${H} contract ${key} --pack` },
     { name: 'scenarios', done: fs.existsSync(p.scenarios), detail: fs.existsSync(p.scenarios) ? `${(fs.readFileSync(p.scenarios, 'utf8').match(/^\s*Scenario/gm) ?? []).length} scenario(s)` : 'missing', next: `heldout-scenario-writer subagent (runs ${H} scaffold ${key}, then completes scenarios.feature)` },
     { name: 'tests', done: specs.length > 0, detail: specs.length ? `${specs.length} spec file(s)` : 'missing', next: `heldout-test-author subagent (writes tests/*.spec.ts, lint clean with --allow-unhardened)` },

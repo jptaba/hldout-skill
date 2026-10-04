@@ -29,9 +29,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, createsAccounts, dataPrefix, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './lib/config';
-import { checkAccountRecipe, recipeFromChain, signInFromSteps } from './lib/accounts';
-import { loadVaultSecrets } from './lib/secrets';
+import { ROOT, createsAccounts, dataPrefix, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './config';
+import { checkAccountRecipe, recipeFromChain, signInFromSteps } from './accounts-recipe';
+import { loadVaultSecrets } from './secrets';
 
 /** A value given as literal, as an environment variable name, or as a Vault path#field. */
 function reference(name: string, literal: string | undefined, envName: string | undefined, vault: string | undefined, allowLiteral: boolean): string | undefined {

@@ -2,4 +2,4 @@
 
 Signed-in customers can keep a personal list of favourite products, from the product page (web shop) and through the API (mobile app).
 
-**Technical notes:** endpoints `POST /favorites` (body `{"product_id"}`), `GET /favorites`, `DELETE /favorites/{favoriteId}`; all require `Authorization: Bearer <token>` from `POST /users/login`. Duplicate favourites are rejected with 422.
+*Technical notes:* the favourites API is defined on the [Favourites API|https://confluence.example.com/pages/viewpage.action?pageId=880001] page.

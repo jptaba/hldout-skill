@@ -1,3 +1,0 @@
-{
-  "password": "${env:JS_USER_PASSWORD}"
-}

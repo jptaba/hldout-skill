@@ -4,20 +4,20 @@
  *   heldout verdict <KEY> [--run 03-eval] [--evaluator "name"] [--exit-code]
  *     --exit-code: exit 0 PASS / PASS_WITH_WARNINGS, 1 FAIL, 2 INCONCLUSIVE (CI gate)
  *
- * Verdict rules: see lib/verdict-rules.ts (INCONCLUSIVE on integrity violation → FAIL on confirmed
+ * Verdict rules: see verdict-rules.ts (INCONCLUSIVE on integrity violation → FAIL on confirmed
  * application defects → INCONCLUSIVE on unexplained failures → PASS_WITH_WARNINGS → PASS).
  * Application defects that share a root-cause title (the title given when confirming them in triage) are grouped.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR,assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
-import type { Category } from './lib/classify';
-import { baseScenarioId, readFeature } from './lib/gherkin';
-import { oracleDigest, readContract } from './lib/contract';
-import { checkIntegrity } from './lib/integrity';
-import { curlFor, exchangeLine, rerunCommand } from './lib/repro';
-import { decideVerdict, type Verdict } from './lib/verdict-rules';
+import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR,assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import type { Category } from './classify';
+import { baseScenarioId, readFeature } from './gherkin';
+import { oracleDigest, readContract } from './contract-model';
+import { checkIntegrity } from './integrity-check';
+import { curlFor, exchangeLine, rerunCommand } from './repro';
+import { decideVerdict, type Verdict } from './verdict-rules';
 import type { TriageEntry, TriageReport } from './triage';
 
 const BADGE: Record<Verdict, string> = { PASS: '✅ PASS', PASS_WITH_WARNINGS: '⚠️ PASS WITH WARNINGS', FAIL: '❌ FAIL', INCONCLUSIVE: '❔ INCONCLUSIVE' };
@@ -381,7 +381,7 @@ main(() => {
   }
 
   md.push('## How this verdict was produced', '',
-    '1. The requirement and its attachments were fetched from Jira and reviewed ([requirement-review.md](requirement-review.md) when present), then converted into Gherkin scenarios (`scenarios.feature`). Each scenario is tagged with the acceptance criteria it proves, and API endpoints are declared.',
+    '1. The requirement (the story\'s title, description and acceptance criteria, the images they show and the Confluence pages they link) was fetched from Jira and reviewed ([requirement-review.md](requirement-review.md) when present), then converted into Gherkin scenarios (`scenarios.feature`). Each scenario is tagged with the acceptance criteria it proves, and API endpoints are declared.',
     '2. Playwright TypeScript tests (UI and API) were written from the scenarios **only**, with no access to the AUT source or developer tests. Expected values were copied verbatim from the requirement.',
     '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only. Expected outcomes were never aligned with AUT behaviour (integrity check above). App knowledge from earlier stories (how to reach pages and call endpoints, never what the application answers) is available only after the freeze.',
     '4. Preflight gates (traceability lint and an AUT healthcheck) passed before the run. Every failure was triaged automatically, then re-investigated live before being classified as an application defect.',

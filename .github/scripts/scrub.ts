@@ -7,9 +7,9 @@
  * (e.g. a public demo password that lives in test-data.json as a literal). Password-textbox values in
  * snapshots are redacted regardless. trace.zip / html/index.html are not rewritten (local-only, git-ignored).
  */
-import { envNamesIn } from './lib/accounts';
-import { assertIssueKey, evalPaths, flagList, loadConfig, main, parseArgs, rel } from './lib/config';
-import { scrubDir, secretValuesFor } from './lib/redact';
+import { envNamesIn } from './accounts-recipe';
+import { assertIssueKey, evalPaths, flagList, loadConfig, main, parseArgs, rel } from './config';
+import { scrubDir, secretValuesFor } from './redact';
 
 main(() => {
   const { _, flags } = parseArgs();

@@ -17,12 +17,12 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, assertIssueKey, autEnv, createsAccounts, dataPrefix, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
-import { healthcheck, lintEvaluation, printFindings } from './lib/preflight';
-import { relativizePaths, scrubDir, secretValuesFor } from './lib/redact';
-import { failedTests } from './lib/triage-model';
-import { envNamesIn } from './lib/accounts';
-import { loadedVaultSecrets, requireVaultSecrets } from './lib/secrets';
+import { NON_EVAL_RUN, ROOT, assertIssueKey, autEnv, createsAccounts, dataPrefix, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import { healthcheck, lintEvaluation, printFindings } from './preflight';
+import { relativizePaths, scrubDir, secretValuesFor } from './redact';
+import { failedTests } from './triage-model';
+import { envNamesIn } from './accounts-recipe';
+import { loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 

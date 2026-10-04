@@ -10,10 +10,10 @@
  * Exit 2 if any [REQ …] assertion or the @req-constants block changed without an amendment,
  * or TODO(harden) markers remain.
  */
-import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './lib/config';
-import { oracleDigest, readContract } from './lib/contract';
-import { checkIntegrity, readAmendments, snapshotDraft } from './lib/integrity';
-import { typeErrors } from './lib/preflight';
+import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './config';
+import { oracleDigest, readContract } from './contract-model';
+import { checkIntegrity, readAmendments, snapshotDraft } from './integrity-check';
+import { typeErrors } from './preflight';
 import fs from 'node:fs';
 import path from 'node:path';
 

@@ -12,8 +12,10 @@ you must not look at it, its code, or anything outside the files below.
 - Write your review to: `{{REVIEW}}`
 - Contract hash to record: `{{HASH}}`
 
-Non-text attachments appear in the pack as transcripts (`transcripts/<file>.md`). If a transcript's original
-(`requirement/attachments/<file>`) is an image or PDF you can open, compare the transcript with it.
+The sources are the story's title, description and acceptance criteria, the Confluence pages they link
+(`linked/confluence-*.md`) and the images they show, which appear in the pack as transcripts (`transcripts/<file>.md`).
+Open each transcript's original image (`requirement/linked/<file>`) and compare the transcript with it. Comments and
+other attachments are not sources, and there is no API document unless the pack contains one.
 
 ## What to check
 
@@ -41,9 +43,13 @@ Also read every line of the evidence pack yourself, and list any requirement-bea
 (or dismisses wrongly) under `missed`. Typical misses:
 
 - a second condition hidden in the same sentence
-- a constraint in a comment or an attachment
+- a constraint on a linked page or in a screenshot
+- a status or field in an API definition the pack contains (an OpenAPI or YAML excerpt)
 - a boundary stated in a table
 - a clarification that overrides earlier text
+
+And report under `observations` any endpoint, field or status the contract takes from an API document the pack
+doesn't contain.
 
 If a descriptive field (`actors`, `context`, `auth`, `testData`, `outOfScope`) states something the sources don't
 (for example "no login needed" when the pack never says so), add it under `observations`. Observations are shown to

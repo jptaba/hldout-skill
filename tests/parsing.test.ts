@@ -3,11 +3,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { adfToMarkdown, markdownToAdf } from '../.github/scripts/lib/jira/adf';
-import { baseScenarioId, matchEndpoint, normaliseTestType, readFeature } from '../.github/scripts/lib/gherkin';
-import { testIdsIn, testTagsIn } from '../.github/scripts/lib/preflight';
-import { curlFor, rerunCommand } from '../.github/scripts/lib/repro';
-import { decideVerdict } from '../.github/scripts/lib/verdict-rules';
+import { adfToWiki, doc, h, link, p, table, txt, ul } from '../.github/scripts/jira-adf';
+import { confluenceBase, confluenceLinks, pageIdOf, storageToMarkdown } from '../.github/scripts/confluence';
+import { embeddedFiles } from '../.github/scripts/jira';
+import { markdownToStorage } from '../.github/scripts/mock/storage-format';
+import { baseScenarioId, matchEndpoint, normaliseTestType, readFeature } from '../.github/scripts/gherkin';
+import { testIdsIn, testTagsIn } from '../.github/scripts/preflight';
+import { curlFor, rerunCommand } from '../.github/scripts/repro';
+import { decideVerdict } from '../.github/scripts/verdict-rules';
 
 const FEATURE = `# AC-1: First criterion
 # AC-2: Second criterion
@@ -85,13 +88,54 @@ describe('helpers', () => {
   });
 });
 
-describe('ADF round trip', () => {
-  it('markdown → ADF → markdown keeps headings, lists, tables and marks', () => {
-    const md = '## Title\n\n- **AC-1**: do `x`\n- second\n\n| a | b |\n| --- | --- |\n| 1 | 2 |';
-    const back = adfToMarkdown(markdownToAdf(md));
-    assert.match(back, /## Title/);
-    assert.match(back, /- \*\*AC-1\*\*: do `x`/);
-    assert.match(back, /\| 1 \| 2 \|/);
+describe('Jira and Confluence Data Center', () => {
+  it('writes the verdict comment as wiki markup', () => {
+    const wiki = adfToWiki(doc(h(3, 'Held-out evaluation: FAIL'), p(txt('Verdict', 'strong'), ' see ', link('report', 'https://x.test/r')), ul([[txt('AC-1')], [txt('AC-2', 'code')]]), table(['AC', 'Result'], [['AC-1', 'passed']])));
+    assert.match(wiki, /^h3\. Held-out evaluation: FAIL/);
+    assert.match(wiki, /\*Verdict\* see \[report\|https:\/\/x\.test\/r\]/);
+    assert.match(wiki, /^\* AC-1$/m);
+    assert.match(wiki, /^\* \{\{AC-2\}\}$/m);
+    assert.match(wiki, /^\|\|\*AC\*\|\|\*Result\*\|\|$/m);
+    assert.match(wiki, /^\|AC-1\|passed\|$/m);
+  });
+  it('finds the images a description, criteria or page show — and nothing else', () => {
+    assert.deepEqual(embeddedFiles('See !login.png! and !error state.png|thumbnail!.\nGreat! Done!\n[attachment: confluence-12-flow.png]'), ['login.png', 'error state.png', 'confluence-12-flow.png']);
+    assert.deepEqual(embeddedFiles('Release notes: rules.csv is attached; ping me!'), []);
+  });
+  it('finds Confluence Data Center page links in every form', () => {
+    const text = 'API: [Cart API|https://wiki.example.com/display/SHOP/Cart+API] and https://example.com/confluence/pages/viewpage.action?pageId=123456.\n'
+      + 'Also <https://wiki.example.com/x/AbCd> and https://wiki.example.com/spaces/SHOP/pages/42/Rules; not https://jira.example.com/browse/ABC-1';
+    assert.deepEqual(confluenceLinks(text), ['https://wiki.example.com/display/SHOP/Cart+API', 'https://example.com/confluence/pages/viewpage.action?pageId=123456',
+      'https://wiki.example.com/x/AbCd', 'https://wiki.example.com/spaces/SHOP/pages/42/Rules']);
+    assert.equal(pageIdOf('https://example.com/confluence/pages/viewpage.action?pageId=123456'), '123456');
+    assert.equal(pageIdOf('https://wiki.example.com/display/SHOP/Cart+API'), undefined);
+    assert.equal(confluenceBase('https://example.com/confluence/pages/viewpage.action?pageId=1'), 'https://example.com/confluence');
+    assert.equal(confluenceBase('https://wiki.example.com/display/SHOP/Cart+API'), 'https://wiki.example.com');
+  });
+  it('turns storage format into Markdown, keeping an API definition verbatim', () => {
+    const storage = '<h2>Cart API</h2><p>Guests can add <strong>1 to 99</strong> items &amp; see <a href="https://x.test">help</a>.</p>'
+      + '<ac:structured-macro ac:name="code" ac:schema-version="1"><ac:parameter ac:name="language">yaml</ac:parameter><ac:plain-text-body><![CDATA[paths:\n  /carts/{id}:\n    post:\n      responses:\n        "422": { description: quantity out of range }]]></ac:plain-text-body></ac:structured-macro>'
+      + '<p><ac:image ac:height="250"><ri:attachment ri:filename="cart.png" /></ac:image></p>'
+      + '<table><tbody><tr><th>Field</th><th>Rule</th></tr><tr><td>quantity</td><td>1&ndash;99</td></tr></tbody></table>'
+      + '<ul><li>first<ul><li>nested</li></ul></li><li>second</li></ul>'
+      + '<ac:structured-macro ac:name="info"><ac:rich-text-body><p>Totals include VAT.</p></ac:rich-text-body></ac:structured-macro>';
+    const md = storageToMarkdown(storage);
+    assert.match(md, /^## Cart API$/m);
+    assert.match(md, /Guests can add \*\*1 to 99\*\* items & see \[help\]\(https:\/\/x\.test\)\./);
+    assert.match(md, /```yaml\npaths:\n {2}\/carts\/\{id\}:\n {4}post:\n {6}responses:\n {8}"422": \{ description: quantity out of range \}\n```/);
+    assert.match(md, /^\[attachment: cart\.png\]$/m);
+    assert.match(md, /^\| quantity \| 1–99 \|$/m);
+    assert.match(md, /^- first\n {2}- nested\n- second$/m);
+    assert.match(md, /Totals include VAT\./);
+  });
+  it('authors mock pages in storage format that read back the same way', () => {
+    const md = storageToMarkdown(markdownToStorage('## Rules\n\nA **duplicate** is rejected.\n\n!flow.png!\n\n```yaml\nstatus: 409\n```\n\n| Case | Status |\n| --- | --- |\n| duplicate | 409 |\n\n- one\n  - two'));
+    assert.match(md, /^## Rules$/m);
+    assert.match(md, /A \*\*duplicate\*\* is rejected\./);
+    assert.match(md, /^\[attachment: flow\.png\]$/m);
+    assert.match(md, /```yaml\nstatus: 409\n```/);
+    assert.match(md, /^\| duplicate \| 409 \|$/m);
+    assert.match(md, /^- one\n {2}- two$/m);
   });
 });
 
@@ -127,7 +171,7 @@ describe('decideVerdict', () => {
 
 describe('run artifacts name no local folders', () => {
   it('rewrites the project path, natively, with forward slashes and JSON-escaped, to a relative one', async () => {
-    const { relativizePaths } = await import('../.github/scripts/lib/redact');
+    const { relativizePaths } = await import('../.github/scripts/redact');
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-rel-'));
     const run = path.join(root, 'evaluations', 'X-1', 'runs', '01-eval');
     fs.mkdirSync(run, { recursive: true });
@@ -146,7 +190,7 @@ describe('run artifacts name no local folders', () => {
 
 describe('redaction', () => {
   it('redacts credential headers by name (incl. misspellings) and by value', async () => {
-    const { redactHeaders } = await import('../.github/scripts/lib/redact');
+    const { redactHeaders } = await import('../.github/scripts/redact');
     const r = redactHeaders({ Authorisation: 'Basic YWRtaW46cGFzcw==', 'X-Trace': 'Bearer abc.def', Accept: 'application/json', 'X-Session-Id': 's1' });
     assert.equal(r.Authorisation, '***redacted***');
     assert.equal(r['X-Trace'], '***redacted***');
@@ -154,7 +198,7 @@ describe('redaction', () => {
     assert.equal(r.Accept, 'application/json');
   });
   it('shows the literal values a probe or a test sends (a too-short password is the evidence), never a secret', async () => {
-    const { redact, literalsOf } = await import('../.github/scripts/lib/redact');
+    const { redact, literalsOf } = await import('../.github/scripts/redact');
     const step = { email: 'hldout-1@example.com', password: 'abcd', token: '${env:API_TOKEN}' };
     assert.deepEqual(redact({ ...step, token: 'eyJ.real.token' }, { keep: literalsOf(step) }), { email: 'hldout-1@example.com', password: 'abcd', token: '***redacted***' });
     const shown = redact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!', again: { password: 'Str0ng-Generated-Pw!' }, wrong: { password: 'Wr0ng-Password-99' } }, { testValues: true }) as Record<string, Record<string, string> | string>;
@@ -172,7 +216,7 @@ describe('redaction', () => {
 });
 
 describe('mergeRepeats (--repeat-each)', async () => {
-  const { mergeRepeats } = await import('../.github/scripts/lib/triage-model');
+  const { mergeRepeats } = await import('../.github/scripts/triage-model');
   const entry = (status: 'passed' | 'failed', cat?: string) => ({
     scenario: 'SCN-009', title: 'SCN-009: sort', file: 'a.spec.ts', status, tags: [], requirementRefs: ['AC-8'], otherFailures: [],
     evidence: { attempts: 1 },
@@ -205,7 +249,7 @@ describe('mergeRepeats (--repeat-each)', async () => {
     assert.equal(mergeRepeats([{ ...entry('passed'), testType: 'concurrency' }, { ...entry('failed', 'SCRIPT_DEFECT'), testType: 'concurrency' }])[0].status, 'flaky');
   });
   it('isRace: a retried concurrency test counts as failed only for a [REQ] failure', async () => {
-    const { isRace } = await import('../.github/scripts/lib/triage-model');
+    const { isRace } = await import('../.github/scripts/triage-model');
     assert.equal(isRace('flaky', 'concurrency', ['Error: [REQ AC-5] exactly one like is counted']), true);
     assert.equal(isRace('flaky', 'concurrency', ['Timeout 5000ms exceeded.']), false);
     assert.equal(isRace('flaky', 'idempotency', ['Error: [REQ AC-4] …']), false);
@@ -214,7 +258,7 @@ describe('mergeRepeats (--repeat-each)', async () => {
 });
 
 describe('correlateDegradedEnvironment', async () => {
-  const { correlateDegradedEnvironment } = await import('../.github/scripts/lib/triage-model');
+  const { correlateDegradedEnvironment } = await import('../.github/scripts/triage-model');
   const failed = (id: string, message: string, cat = 'NEEDS_INVESTIGATION') => ({
     scenario: id, title: id, file: 'a', status: 'failed' as const, tags: [], requirementRefs: [], otherFailures: [], evidence: { attempts: 1 },
     error: { headline: message, message }, auto: { category: cat as never, confidence: 'low' as const, signals: [], next: '' },
@@ -240,7 +284,7 @@ describe('decideVerdict — skipped scenarios', () => {
 });
 
 describe('correlateAuthPrecondition', async () => {
-  const { correlateAuthPrecondition } = await import('../.github/scripts/lib/triage-model');
+  const { correlateAuthPrecondition } = await import('../.github/scripts/triage-model');
   const ex = (method: string, url: string, status: number) => ({ request: { method, url }, response: { status } });
   it('a failed auth pre-step turns same-endpoint "app defects" into investigations', () => {
     const blocked = { scenario: 'SCN-010', title: '', file: '', status: 'failed' as const, tags: [], requirementRefs: [], otherFailures: [],
@@ -254,7 +298,7 @@ describe('correlateAuthPrecondition', async () => {
 });
 
 describe('Playwright MCP snapshot parsing', async () => {
-  const { nodeFor, refFor } = await import('../.github/scripts/lib/mcp-client');
+  const { nodeFor, refFor } = await import('../.github/scripts/mcp-client');
   const snap = [
     '- generic [active] [ref=e1]:',
     '  - textbox "Username" [ref=e16]',
@@ -277,7 +321,7 @@ describe('Playwright MCP snapshot parsing', async () => {
 
 describe('failure signatures across runs', () => {
   it('mask per-run generated values but keep statuses and AC ids', async () => {
-    const { maskVolatile } = await import('../.github/scripts/lib/triage-model');
+    const { maskVolatile } = await import('../.github/scripts/triage-model');
     assert.equal(maskVolatile('"Heldout-irl8v63eb2-74248"'), maskVolatile('"Heldout-irk2p0aa91-74230"'));
     assert.equal(maskVolatile('106886'), maskVolatile('106912'));
     assert.equal(maskVolatile('2026-09-26T19:08:35.136Z'), '<ts>');
@@ -285,12 +329,12 @@ describe('failure signatures across runs', () => {
     assert.notEqual(maskVolatile('"Your account has been locked."'), maskVolatile('"Epic sadface: Sorry"'));
   });
   it('match a "must not be X" failure whatever X is this run (a seeded id)', async () => {
-    const { signature } = await import('../.github/scripts/lib/triage-model');
+    const { signature } = await import('../.github/scripts/triage-model');
     const entry = (id: string) => ({ scenario: 'SCN-007', status: 'failed', error: { headline: "[REQ AC-6] does not return B's basket", reqTag: 'AC-6', expected: `not ${id}`, received: id, message: '' } }) as never;
     assert.equal(signature(entry('46')), signature(entry('69')));
   });
   it('depend on the failure only, not on the evidence triage picked for it', async () => {
-    const { signature } = await import('../.github/scripts/lib/triage-model');
+    const { signature } = await import('../.github/scripts/triage-model');
     const error = { headline: '[REQ AC-6] an error is shown', reqTag: 'AC-6', received: 'hidden', message: '' };
     const exchange = (method: string, status: number) => ({ request: { method, url: 'https://x.test/a' }, response: { status } });
     const a = { scenario: 'SCN-1', status: 'failed', error, evidence: { api: exchange('GET', 200) } };
@@ -303,7 +347,7 @@ describe('failure signatures across runs', () => {
 
 describe('snapshot redaction', () => {
   it('removes password values from ARIA snapshots (the scripts and the fixtures share it)', async () => {
-    const { redactSnapshot } = await import('../.github/scripts/lib/redact');
+    const { redactSnapshot } = await import('../.github/scripts/redact');
     const yaml = '- textbox "Email": qa1@example.com\n- textbox "Password" [disabled]: Fixture-00000!q\n- text: echo Fixture-00000!q';
     const out = redactSnapshot(yaml, ['Fixture-00000!q']);
     assert.ok(!out.includes('Fixture-00000!q'));
@@ -314,7 +358,7 @@ describe('snapshot redaction', () => {
 
 describe('run artifact scrubbing', () => {
   it('scrubs secrets from text artifacts and base64 attachment bodies in results.json', async () => {
-    const { scrubDir, secretValuesFor } = await import('../.github/scripts/lib/redact');
+    const { scrubDir, secretValuesFor } = await import('../.github/scripts/redact');
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scrub-'));
     fs.mkdirSync(path.join(dir, 'artifacts'));
     fs.writeFileSync(path.join(dir, 'artifacts', 'error-context.md'), '- textbox "Pwd field": hunter2-xyz\n- text: hunter2-xyz');
@@ -344,7 +388,7 @@ describe('form-encoded reproductions', () => {
 
 describe('Git Bash path rewriting', () => {
   it('undoes MSYS rewriting of "/…" arguments', async () => {
-    const { unmangleMsysPath, resolveUrl } = await import('../.github/scripts/lib/config');
+    const { unmangleMsysPath, resolveUrl } = await import('../.github/scripts/config');
     assert.equal(unmangleMsysPath('C:/Program Files/Git/'), '/');
     assert.equal(unmangleMsysPath('C:\\Program Files\\Git\\products'), '/products');
     assert.equal(unmangleMsysPath('/health'), '/health');
@@ -356,7 +400,7 @@ describe('Git Bash path rewriting', () => {
 
 describe('compact run digest', () => {
   it('lists failed and flaky tests with the first plain line of their last error', async () => {
-    const { failedTests } = await import('../.github/scripts/lib/triage-model');
+    const { failedTests } = await import('../.github/scripts/triage-model');
     const results = { suites: [{ suites: [{ specs: [
       { title: 'SCN-001: ok', tests: [{ status: 'expected', results: [{}] }] },
       { title: 'SCN-002: broken', tests: [{ status: 'unexpected', results: [{ error: { message: '\u001b[31mError: [REQ AC-2] shown\u001b[39m\n\nExpected: 1' } }] }] },
@@ -371,7 +415,7 @@ describe('compact run digest', () => {
 
 describe('app discovery', () => {
   it('finds the app root of a page someone pasted, and keeps an app mounted under a folder', async () => {
-    const { appRootOf, siteOf } = await import('../.github/scripts/lib/detect');
+    const { appRootOf, siteOf } = await import('../.github/scripts/detect');
     // The page's links decide first: a site's links share its root.
     const linked = (links: string[]) => async () => ({ title: 'Some page', links });
     assert.equal(await appRootOf('https://automationexercise.com/products', linked(['/', '/products', '/view_cart', '/login', '/contact_us'])), 'https://automationexercise.com/');
@@ -387,21 +431,21 @@ describe('app discovery', () => {
     assert.equal(await appRootOf('https://host.test/', site({})), 'https://host.test/');
   });
   it('tells generated ids (new on every page load) from stable ones', async () => {
-    const { generatedId } = await import('../.github/scripts/lib/detect');
+    const { generatedId } = await import('../.github/scripts/detect');
     assert.equal(generatedId('689bc902-233f-4fc5-add9-f49c5587a21e'), true);
     assert.equal(generatedId(':r3:'), true);
     assert.equal(generatedId('mat-input-104729'), true);
     for (const id of ['customer.firstName', 'loginButton', 'repeatedPassword', 'mat-input-3']) assert.equal(generatedId(id), false, id);
   });
   it('turns a page address copied from the browser into a base URL', async () => {
-    const { baseUrlOf } = await import('../.github/scripts/lib/detect');
+    const { baseUrlOf } = await import('../.github/scripts/detect');
     assert.equal(baseUrlOf('https://parabank.parasoft.com/parabank/index.htm'), 'https://parabank.parasoft.com/parabank/');
     assert.equal(baseUrlOf('http://localhost:3000/#/login'), 'http://localhost:3000/');
     assert.equal(baseUrlOf('https://app.test/shop?lang=en'), 'https://app.test/shop');
     assert.equal(baseUrlOf('https://api.test/v1.2'), 'https://api.test/v1.2'); // a version is not a file name
   });
   it('derives a readable profile id from the host', async () => {
-    const { profileIdFor } = await import('../.github/scripts/lib/detect');
+    const { profileIdFor } = await import('../.github/scripts/detect');
     assert.equal(profileIdFor('https://demoqa.com'), 'demoqa');
     assert.equal(profileIdFor('https://www.saucedemo.com/'), 'saucedemo');
     assert.equal(profileIdFor('https://parabank.parasoft.com/parabank'), 'parabank');
@@ -412,19 +456,19 @@ describe('app discovery', () => {
     assert.equal(profileIdFor('http://10.0.0.7:8080'), 'app');
   });
   it('names the app from the title segment that names the host', async () => {
-    const { appNameFrom } = await import('../.github/scripts/lib/detect');
+    const { appNameFrom } = await import('../.github/scripts/detect');
     assert.equal(appNameFrom('ParaBank | Welcome | Online Banking', 'parabank-parasoft'), 'ParaBank');
     assert.equal(appNameFrom('Swag Labs', 'saucedemo'), 'Swag Labs');
     assert.equal(appNameFrom('Automation Exercise - Signup / Login', 'automationexercise'), 'Automation Exercise');
     assert.equal(appNameFrom('', 'shop'), undefined);
   });
   it('recognises ad/analytics networks by domain, never the application itself', async () => {
-    const { adDomainsOf } = await import('../.github/scripts/lib/detect');
+    const { adDomainsOf } = await import('../.github/scripts/detect');
     assert.deepEqual(adDomainsOf(['demoqa.com', 'securepubads.g.doubleclick.net', 'pagead2.googlesyndication.com', 'www.googletagmanager.com', 'cdn.example.com', 'notdoubleclick.net']),
       ['doubleclick.net', 'googlesyndication.com', 'googletagmanager.com']);
   });
   it('takes as overlays only the buttons that close a banner or dialog covering the page', async () => {
-    const { overlayButtonsIn } = await import('../.github/scripts/lib/detect');
+    const { overlayButtonsIn } = await import('../.github/scripts/detect');
     assert.deepEqual(overlayButtonsIn(['Close Welcome Banner', 'dismiss cookie message', 'Add to Basket', 'Accept all cookies', 'Close', 'Login', 'Got it', 'Close account']),
       ['Close Welcome Banner', 'dismiss cookie message', 'Accept all cookies', 'Got it']);
   });
@@ -432,9 +476,12 @@ describe('app discovery', () => {
 
 describe('command flags', () => {
   it('every flag a command documents in its usage header is accepted by the dispatcher', async () => {
-    const { knownFlags } = await import('../.github/scripts/lib/config');
+    const { knownFlags } = await import('../.github/scripts/config');
     const dir = path.join(import.meta.dirname, '..', '.github', 'scripts');
-    const rejected = fs.readdirSync(dir).filter((f) => f.endsWith('.ts') && f !== 'heldout.ts').flatMap((f) => {
+    // The command scripts are the ones heldout.ts dispatches to; the rest are modules they share.
+    const commands = [...new Set([...fs.readFileSync(path.join(dir, 'heldout.ts'), 'utf8').matchAll(/script: '([\w/.-]+\.ts)'/g)].map((m) => m[1]))];
+    assert.ok(commands.length > 10, 'commands found in heldout.ts');
+    const rejected = commands.flatMap((f) => {
       const src = fs.readFileSync(path.join(dir, f), 'utf8');
       const header = src.match(/^\/\*\*([\s\S]*?)\*\//)?.[1] ?? '';
       const known = knownFlags(src);
@@ -446,7 +493,7 @@ describe('command flags', () => {
 
 describe('generated secrets', () => {
   it('are long, mixed and never plain words, so artifacts can be scrubbed of them', async () => {
-    const { safeToScrub, strongSecret } = await import('../.github/scripts/lib/redact');
+    const { safeToScrub, strongSecret } = await import('../.github/scripts/redact');
     for (let i = 0; i < 50; i++) {
       const v = strongSecret();
       assert.equal(v.length, 20);
@@ -458,7 +505,7 @@ describe('generated secrets', () => {
 
 describe('accounts recipe from an api-probe chain', () => {
   it('maps the saved id/token steps, the DELETE, the ${uid} user name, the password and the UI sign-in steps', async () => {
-    const { recipeFromChain } = await import('../.github/scripts/lib/accounts');
+    const { recipeFromChain } = await import('../.github/scripts/accounts-recipe');
     const chain = { steps: [
       { method: 'POST', path: 'Account/v1/User', json: { userName: 'hldout-${uid}', password: '${env:APP_PW}' }, save: { id: 'userID' } },
       { method: 'POST', path: 'Account/v1/GenerateToken', json: { userName: 'hldout-${uid}', password: '${env:APP_PW}' }, save: { token: 'token' } },
@@ -484,7 +531,7 @@ describe('accounts recipe from an api-probe chain', () => {
     });
   });
   it('refuses a chain that never saves the new id', async () => {
-    const { recipeFromChain } = await import('../.github/scripts/lib/accounts');
+    const { recipeFromChain } = await import('../.github/scripts/accounts-recipe');
     assert.throws(() => recipeFromChain({ steps: [{ method: 'POST', path: 'users', json: { p: '${env:X}' } }] }), /a step saving "id"/);
   });
 });

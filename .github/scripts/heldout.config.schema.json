@@ -392,9 +392,9 @@
         "mode": {
           "enum": [
             "mock",
-            "cloud"
+            "datacenter"
           ],
-          "description": "mock = file-backed Jira in ./mock-jira; cloud = Jira Cloud REST v3 (JIRA_EMAIL / JIRA_API_TOKEN in .env).",
+          "description": "mock = file-backed Jira and Confluence in ./mock-jira; datacenter = Jira and Confluence Data Center / Server, REST API (JIRA_PAT, and CONFLUENCE_PAT when Confluence needs its own, in .env).",
           "default": "mock"
         },
         "mockRoot": {
@@ -403,7 +403,7 @@
         },
         "baseUrl": {
           "type": "string",
-          "description": "https://<site>.atlassian.net"
+          "description": "Your Jira Data Center's address, e.g. https://jira.example.com"
         },
         "acceptanceCriteriaField": {
           "type": "string",

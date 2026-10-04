@@ -1,8 +1,0 @@
-{
-  "steps": [
-    { "name": "security questions (the sign-up form loads them)", "method": "GET", "path": "api/SecurityQuestions", "save": { "qid": "data.0.id" }, "expect": 200 },
-    { "name": "sign up", "method": "POST", "path": "api/Users", "json": { "email": "hldout-${uid}@example.com", "password": "${env:JS_USER_PASSWORD}", "passwordRepeat": "${env:JS_USER_PASSWORD}", "securityQuestion": { "id": "${qid}" }, "securityAnswer": "hldout" }, "save": { "id": "data.id" }, "expect": 201, "show": ["data.email"] },
-    { "name": "sign in", "method": "POST", "path": "rest/user/login", "json": { "email": "hldout-${uid}@example.com", "password": "${env:JS_USER_PASSWORD}" }, "save": { "token": "authentication.token" }, "expect": 200, "show": ["token|jwt"] },
-    { "name": "write a review (probe)", "method": "PUT", "path": "rest/products/1/reviews", "headers": { "Authorization": "Bearer ${token}" }, "json": { "message": "hldout probe ${uid}", "author": "hldout-${uid}@example.com" }, "expect": 201 }
-  ]
-}

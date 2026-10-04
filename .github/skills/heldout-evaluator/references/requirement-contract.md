@@ -1,14 +1,17 @@
 # Requirement contract (phase 1b)
 
-Stories come in any shape:
+A story's requirement is its title, its description and its acceptance criteria, plus what those hold: the images they
+show (a screenshot, a mock-up) and the Confluence pages they link (with the images those pages show). Comments and
+other attachments are not requirement. There is no API document (OpenAPI, Swagger, a YAML definition) unless one of
+these sources contains it, e.g. a linked page with the service's API definition or an excerpt of it; never assume one
+exists, and never go looking for one on the application. The sources come in any shape:
 
 - an acceptance-criteria custom field, or bullets in the description
 - Given/When/Then
 - a table
 - prose ("the system shall…")
-- rules in a CSV, an API in a spec attachment
-- a mock-up image
-- clarifications in comments
+- a screenshot of a page or a message
+- a linked page with the rules, or with an API definition in a code block
 
 **The model reads them; no parser does.** Everything after intake works from one shape,
 `evaluations/<KEY>/requirement-contract.json`. Scripts only check, mechanically, that what the model wrote is
@@ -50,11 +53,12 @@ during hardening, where the evaluator records it as `discovered-in-aut` with evi
 correct is never discovered: open **oracle** gaps are the questions for the user (`heldout contract KEY` lists both).
 The dividing line: where to find something (a response field's name, a locator, a route) is mechanics; the value it
 must have (a status, a message, a count, whether an error is an HTTP status or a code in the body) is oracle. When the
-sources themselves disagree (a comment corrects the story's path or status), that is an oracle gap resolved
-`found-in-requirement` by the later, explicit statement.
+sources themselves disagree (the description and a linked page give different statuses), that is an oracle gap: see
+"Conflicting sources" below.
 
-Non-text attachments (images, PDFs, office files): open them with the Read tool and transcribe what they say into
-`requirement/transcripts/<file>.md`. The first line is `transcribedFrom: attachments/<file>`, followed by a faithful
+Images (`requirement/linked/*.png` and the like: screenshots the story or a linked page shows): open each and transcribe
+all the text it shows (labels, messages, field names, values, table cells), and what it shows without words, into
+`requirement/transcripts/<file>.md`. The first line is `transcribedFrom: linked/<file>`, followed by a faithful
 transcription only. Re-run `--pack` and cite the transcript. The reviewer compares transcript and original.
 
 ## Contract shape
@@ -63,11 +67,11 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 
 | Field | Shape and rule |
 | --- | --- |
-| `sourcesRead[]` | `{ "file", "read": true, "contributes"? }`. Set `read: true` for each file once you have read it (images and PDFs through their transcript). List the attachment itself, not its transcript; name the transcript in `contributes` |
+| `sourcesRead[]` | `{ "file", "read": true, "contributes"? }`. Set `read: true` for each file once you have read it (images through their transcript). List the image itself, not its transcript; name the transcript in `contributes` |
 | `acceptanceCriteria[]` | `{ "id", "quote", "source", "text", "layer", "outcomes", "endpoints"?, "entryPoint"?, "needsData"?, "gaps"? }` |
 | · `id` | The story's own numbering if it has one (AC-3 stays AC-3; "NFR-1 (AC-15)" is AC-15). Otherwise AC-1… in source order. One criterion per requirement statement; a sentence with two conditions stays one AC with two outcomes |
 | · `quote` | **Verbatim** from the source. The normaliser ignores case, markdown emphasis, quote styles, dashes and whitespace, nothing else. For a Gherkin scenario, quote the whole block |
-| · `source` | `story.md#L23` (first line of the quote), `attachments/x.csv#L4` or `transcripts/mockup.png.md#L3` |
+| · `source` | `story.md#L23` (first line of the quote), `linked/confluence-880001-cart-api.md#L4` or `transcripts/mockup.png.md#L3` |
 | · `text` | The statement used in `scenarios.feature`. Normally the quote itself, cleaned of markdown |
 | · `outcomes` | Observable pass/fail facts, **worded with the source's literals** (the status, the message in quotes, the number). No outcome the source doesn't state; a derived boundary only one step outside a stated range, and none where a source limits what is tested ("nothing to test beyond a too-short password being refused"). "Without a valid token" covers both a missing and an invalid token: an outcome for each. An outcome the source states as a meaning, not as text ("a validation error saying the e-mail must be unique"), is written as that meaning and judged as written (the message says the e-mail must be unique); no gap |
 | · `layer` | `ui` (web app only), `api` (API only), `e2e` (both, or a UI action checked through the API; a story's "UI + API" is `e2e`, not a misread). An AC with no stated layer takes the one its wording names: an API call → `api`, a page → `ui`, both → `e2e`; naming neither, the layer of the expected value that settles it (a status code from a clarification → `api`) |
@@ -80,16 +84,18 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | `auth` | `{ "mechanism", "credentials"?, "source" }`. Required when an endpoint has `auth: "required"` |
 | `testData` | `{ "strategy", "constraints"? (list of strings), "cleanup"?, "source"? }`: how the evaluation gets its data ("tests register their own customer via POST /users/register", "none stated: the criteria only read the catalogue"). State only what the sources or the project say; when they say nothing about data, write "not stated in the sources" (the evaluator decides the seeding). Data the sources only imply (products to add to favourites) is not a constraint: how a test finds or makes it is a mechanics gap |
 | `actors` (list of strings), `context` (string), `nonFunctional[]` (`{ id, text, source }`), `outOfScope[]` (list of strings) | Optional; only what the sources say. A statement that some behaviour may stay as it is ("the web shop can keep its current message") sets no expected value: quote it in `outOfScope`, never read the value off the application |
-| `gaps[]` | `{ "id": "G1", "element", "kind": "mechanics" \| "oracle", "required", "affects": ["AC-2"] or ["*"], "tried": [{ "where": "story" \| "attachments" \| "aut" \| "config" \| "user", "result" }], "resolution", "value"?, "evidence"? }`. `resolution` is `found-in-requirement`, `found-in-config`, `discovered-in-aut` (mechanics only), `provided-by-user`, `assumed` or `open`. Omit `value` while open. `required` means the affected ACs can't be evaluated without it (blocking one outcome of an AC is enough); a gap that only concerns cleanup (how a test removes what it made) is not required. An AC that states the outcome itself ("returns `null`") is judged as written, even when another source is looser ("absent or null"): that difference is a question for the owner, not required. For UI mechanics, one gap per page (its route and how its elements are found) is the right size |
+| `gaps[]` | `{ "id": "G1", "element", "kind": "mechanics" \| "oracle", "required", "affects": ["AC-2"] or ["*"], "tried": [{ "where": "story" \| "linked" \| "aut" \| "config" \| "user", "result" }], "resolution", "value"?, "evidence"? }`. `resolution` is `found-in-requirement`, `found-in-config`, `discovered-in-aut` (mechanics only), `provided-by-user`, `assumed` or `open`. Omit `value` while open. `required` means the affected ACs can't be evaluated without it (blocking one outcome of an AC is enough); a gap that only concerns cleanup (how a test removes what it made) is not required. An AC that states the outcome itself ("returns `null`") is judged as written, even when another source is looser ("absent or null"): that difference is a question for the owner, not required. For UI mechanics, one gap per page (its route and how its elements are found) is the right size |
 | `coverage[]` | `{ "lines": "story.md#L20-L22", "as", "note"? }`. `as` holds one or more refs, separated by commas: item ids (`AC-1`, `R2`, `E1`, `G3`, `NFR-1`) or the kinds `endpoint`, `error-model`, `auth`, `test-data`, `context`, `out-of-scope`, `non-functional`, `example`, `duplicate`, `not-a-requirement` (needs a note saying why). Every ● line must be covered, and every AC referenced by some entry |
 
 ## Gaps: find, then ask. Never read expected behaviour off the app
 
 Walk the ladder in order and log each step in `tried[]`:
 
-1. **The requirement**: story, comments, attachments. → `found-in-requirement`, evidence = where.
-2. **The app, for mechanics only** (during hardening): paths, routes, labels, header scheme, request fields, and
-   published API docs (`/swagger.json`, `/openapi.json`, `/docs`). → `discovered-in-aut`, evidence = the probe output.
+1. **The requirement**: the story (`story`), and the images and pages it links (`linked`). → `found-in-requirement`,
+   evidence = where.
+2. **The app, for mechanics only** (during hardening): paths, routes, labels, header scheme, request fields, found by
+   probing it (`heldout inspect` and the API calls its pages make, `heldout api-probe`). → `discovered-in-aut`, evidence
+   = the probe output. Don't go looking for an API document on the app: there is none unless the requirement gives one.
 3. **Project config**, e.g. the AUT profile. → `found-in-config`.
 4. **The user, for oracle gaps**: one `AskUserQuestion` call with at most 4 questions, required first.
    → `provided-by-user`, value plus who and when: `heldout contract KEY --answer G<n> --value "…" --by "<who>"`,
@@ -102,10 +108,10 @@ Walk the ladder in order and log each step in `tried[]`:
 | `mechanics` (how) | endpoint path or method, request field names, envelope, `Token` vs `Bearer`, page route, field labels, how to create test data | ✅ with evidence |
 | `oracle` (what) | status for a wrong password, an error message, a limit, a field that must be returned, whether a retry is idempotent | ❌ never |
 
-**Conflicting sources** (a description saying 422 and a later PO comment saying 409; a general criterion "any request
+**Conflicting sources** (a description saying 422 and the linked API page saying 409; a general criterion "any request
 for a missing cart → 404" next to a specific one "deleting a deleted cart → 204"): record an oracle gap naming both.
-Resolve it as `found-in-requirement` only if one source explicitly supersedes the other (a later clarification by
-the owner, "not X as stated above"). Otherwise it's `assumed` (say which reading and why) or `open` for the user.
+Resolve it as `found-in-requirement` only if one source explicitly supersedes the other ("not X as stated above", "this
+page is the definition of record"). Otherwise it's `assumed` (say which reading and why) or `open` for the user.
 
 **A need no criterion covers** (the user story says "discover articles by tag", the API lists a `tag` parameter, but no AC
 says what it must do): don't write an AC for it. Record a non-required oracle gap ("no acceptance criterion covers
@@ -114,8 +120,13 @@ filtering by tag; is it in scope, and what must it return?") with `affects: []`,
 **Loose wording for a status** ("response code 400" when the API may put a code in the body and answer HTTP 200): an oracle
 gap. Name both readings; if you assume one, the scenarios that rest on it carry `@assumes:G<n>`.
 
-**A clarification that adds to a criterion** (a comment gives the status an AC left out): the value is
-`found-in-requirement`; add it to the outcomes of every AC the comment names or clearly covers, and cite the comment.
+**A source that adds to a criterion** (the linked API page gives the status an AC left out, a screenshot shows the
+message): the value is `found-in-requirement`; add it to the outcomes of every AC it names or clearly covers, and cite it.
+
+**An API definition in the requirement** (an OpenAPI or Swagger excerpt, a YAML block on a linked page): it is a source
+like any other. Its paths, methods, request fields and auth are stated mechanics (cite the lines); its response codes and
+bodies are expected values for the endpoints it describes. Cover its lines like any others (a long schema block can be
+one `endpoint` or `context` entry per operation). Nothing it doesn't contain may be added from elsewhere.
 
 **A header every call sends** ("clients send Accept: application/json"): mechanics the story states. Note it in each
 endpoint's `request` and cover the line as `endpoint`.
@@ -188,7 +199,8 @@ coverage: `{ "lines": "story.md#L23-L26", "as": "AC-2" }`
 ● L21 | | AC-7 | Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204. | API |
 ```
 The story names no endpoint for "deleting a cart". That is a **mechanics** gap: the builder records it open, and the
-evaluator discovers it while hardening (here from the published API docs) and completes it. No re-review is needed.
+evaluator discovers it while hardening (here from the call the web shop's cart page makes) and completes it. No
+re-review is needed.
 Built from the story:
 ```json
 { "id": "AC-7", "quote": "Deleting a cart responds 204 and is idempotent: deleting a cart that was already deleted also responds 204.",
@@ -196,26 +208,28 @@ Built from the story:
 { "id": "G2", "element": "endpoint for deleting a cart", "kind": "mechanics", "required": true, "affects": ["AC-7"],
   "tried": [{ "where": "story", "result": "L21 names no method or path" }], "resolution": "open" }
 ```
-Completed during hardening: G2 gets `{ "where": "aut", "result": "API docs: DELETE /carts/{cartId}" }` in `tried`,
-`"resolution": "discovered-in-aut"`, `"value": "DELETE /carts/{id}"`, `"evidence": "<api docs URL>"`; AC-7 gets
+Completed during hardening: G2 gets `{ "where": "aut", "result": "the cart page's Remove button calls DELETE /carts/{cartId}" }` in `tried`,
+`"resolution": "discovered-in-aut"`, `"value": "DELETE /carts/{id}"`, `"evidence": "hardening/inspect-cart.md"`; AC-7 gets
 `"endpoints": ["DELETE /carts/{id}"]`; and `endpoints[]` gets `{ "method": "DELETE", "path": "/carts/{id}", "source": "G2" }`.
 
-### 4. Custom field plus a conflicting comment
+### 4. Custom field plus an API definition on a linked page
 
 ```text
-● L12 | **Technical notes:** … Saving a search that is already saved is rejected with 422.
+## story.md
+● L12 | *Technical notes:* the saved-searches API is defined on the [Saved searches API|https://confluence.example.com/pages/viewpage.action?pageId=880001] page.
 ● L17 | - AC-3: Saving a search that is already saved is rejected and the list still contains it once.
-● L28 | Clarification from refinement: an already saved search is a conflict, so the API must answer **409 Conflict** (not 422 as in the technical notes).
+## linked/confluence-880001-saved-searches-api.md
+● L12 |     post:
+● L19 |         "409": { description: The search is already saved (a conflict) }
 ```
 ```json
 { "id": "AC-3", "quote": "Saving a search that is already saved is rejected and the list still contains it once.", "source": "story.md#L17",
-  "outcomes": ["duplicate → 409", "the list contains the search once"], "gaps": ["G1"] }
-{ "id": "G1", "element": "status for a duplicate: technical notes say 422, the PO comment says 409", "kind": "oracle", "required": true,
-  "affects": ["AC-3"], "tried": [{ "where": "story", "result": "L12: 422; L17: \"rejected\"; L28: 409, explicitly superseding L12" }],
-  "resolution": "found-in-requirement", "value": "409", "evidence": "story.md#L28 (PO comment supersedes L12)" }
+  "endpoints": ["POST /saved-searches"], "outcomes": ["duplicate → 409", "the list contains the search once"] }
 ```
-coverage: `L12` → `G1`, `L17` → `AC-3`, `L28` → `G1`. A `source` field holds citations only; a note such as
-"supersedes L12" goes in `evidence` or `tried`.
+The status comes from the linked page's API definition, so it needs no gap: the outcome cites it through the coverage
+ledger (`linked/confluence-880001-saved-searches-api.md#L19` → `AC-3`) and the endpoint's `source`. Had the description
+said "rejected with 422" as well, that would be a conflict between two sources with neither superseding the other: an
+oracle gap, `assumed` or `open`, never settled by trying the application.
 
 ### 5. Prose "shall" statements without a heading
 
@@ -235,11 +249,11 @@ business day", with no payee side to look at) is a `nonFunctional` item (`NFR-1`
 value, only no way to observe it. The scenarios name it with `@NFR-1` where they can, and the verdict lists it as not
 verified (PASS WITH WARNINGS), which is what the owner needs to hear.
 
-### 6. Mock-up image
+### 6. A screenshot in the description
 
-`attachments/signup.png` → `transcripts/signup.png.md`:
+The description shows `!signup.png!`; fetch saved it as `linked/signup.png` → `transcripts/signup.png.md`:
 ```text
-  L1 | transcribedFrom: attachments/signup.png
+  L1 | transcribedFrom: linked/signup.png
 ● L3 | Button: "Create account" (disabled, greyed) — note beside it: "enabled only when all fields are valid"
 ```
 ```json
@@ -262,5 +276,6 @@ the story as not evaluable.
   ("a message saying the e-mail must be unique") needs no gap.
 - **Writing an outcome with a different literal** (the story says "sixth attempt", you write "attempt 7").
 - **Using the application's current behaviour as the expected value.**
-- **Silently resolving a conflict** between the description, a comment and an attachment.
+- **Silently resolving a conflict** between the description, the criteria, a screenshot and a linked page.
+- **Assuming an API document** the requirement doesn't contain, or citing one found on the application.
 - **Dismissing a line as "context"** when it carries a constraint (a limit, a role, a default).

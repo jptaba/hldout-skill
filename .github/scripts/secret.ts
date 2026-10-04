@@ -11,8 +11,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { ROOT, flagStr, main, parseArgs } from './lib/config';
-import { safeToScrub, strongSecret } from './lib/redact';
+import { ROOT, flagStr, main, parseArgs } from './config';
+import { safeToScrub, strongSecret } from './redact';
 
 /** Read a line without echoing it (a TTY only). */
 function hiddenPrompt(question: string): Promise<string> {

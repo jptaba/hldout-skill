@@ -16,11 +16,11 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
-import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, type AutoClassification, type Category, type ParsedError } from './lib/classify';
-import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readFeature } from './lib/gherkin';
-import { readContract, requestContracts } from './lib/contract';
-import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './lib/triage-model';
+import { ROOT, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, type AutoClassification, type Category, type ParsedError } from './classify';
+import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readFeature } from './gherkin';
+import { readContract, requestContracts } from './contract-model';
+import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
 
 export type { TriageEntry, TriageReport };
 

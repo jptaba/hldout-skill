@@ -5,20 +5,20 @@
  *
  * 1. attaches verdict.md as  heldout-verdict-<KEY>-<timestamp>.md  (full findings: traceability,
  *    reproduction steps, curl commands, evidence, reviewer decision checkboxes)
- * 2. posts an ADF summary comment: verdict, counts, coverage by test type, findings table
+ * 2. posts a summary comment (wiki markup): verdict, counts, coverage by test type, findings table
  * 3. sets label <prefix><verdict> (removing previous <prefix>* labels)
  *
  * It deliberately raises nothing else (no Bugs, no transitions): deciding what is a defect is the
  * reviewer's call, based on the evidence in the report.
  *
  * JIRA_MODE=mock → writes into mock-jira/ (issue.json, ISSUE_VIEW.md) and logs the would-be REST calls to mock-jira/outbox/.
- * JIRA_MODE=cloud → real Jira Cloud REST v3 (outward-facing: confirm with the user first).
+ * JIRA_MODE=datacenter → your Jira Data Center, REST v2 (outward-facing: confirm with the user first).
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { assertIssueKey, evalPaths, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
-import { createTracker } from './lib/jira';
-import { doc, h, p, panel, table, txt, ul } from './lib/jira/adf';
+import { assertIssueKey, evalPaths, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import { createTracker } from './jira';
+import { doc, h, p, panel, table, txt, ul } from './jira-adf';
 
 interface VerdictJson {
   key: string; verdict: string; reason: string; finalRun: string; integrity: string; amendments?: number;
@@ -86,7 +86,7 @@ main(async () => {
   log.push({ at: new Date().toISOString(), mode: tracker.mode, verdict: v.verdict, attachment: att.filename, commentId: comment.id, labels });
   writeFile(logFile, `${JSON.stringify(log, null, 2)}\n`);
 
-  console.log(`✔ Published ${key} verdict to ${tracker.mode === 'mock' ? 'mock Jira (simulated upload)' : 'Jira Cloud'}`);
+  console.log(`✔ Published ${key} verdict to ${tracker.mode === 'mock' ? 'mock Jira (simulated upload)' : 'Jira Data Center'}`);
   console.log(`  attachment: ${att.filename} (id ${att.id}, ${att.size} B)`);
   console.log(`  comment:    id ${comment.id}`);
   console.log(`  labels:     ${labels.join(', ')}`);

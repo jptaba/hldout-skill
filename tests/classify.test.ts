@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { classify, looseRegexMatch, parseError, relevantExchange, type ApiExchange } from '../.github/scripts/lib/classify';
-import type { Endpoint } from '../.github/scripts/lib/gherkin';
+import { classify, looseRegexMatch, parseError, relevantExchange, type ApiExchange } from '../.github/scripts/classify';
+import type { Endpoint } from '../.github/scripts/gherkin';
 
 const pw = (lines: string[]) => lines.join('\n');
 const endpoints: Endpoint[] = [{ method: 'GET', path: '/api/message' }, { method: 'GET', path: '/api/room/{id}' }, { method: 'POST', path: '/api/message' }];
@@ -180,7 +180,7 @@ describe('classify — request contract conformance', () => {
     assert.equal(classify(err, { api: call({ article: { title: 't' } }, 500), requestContracts: contracts }).category, 'APPLICATION_DEFECT');
   });
   it('takes the request shape only from the structured contract fields', async () => {
-    const { requestContracts } = await import('../.github/scripts/lib/contract');
+    const { requestContracts } = await import('../.github/scripts/contract-model');
     const c = { endpoints: [
       { method: 'POST', path: '/api/articles', envelope: 'article', requestFields: ['title'], source: 'story.md#L1' },
       { method: 'GET', path: '/api/articles', request: '{"article": {…}} (prose only)', source: 'story.md#L1' },

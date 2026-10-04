@@ -3,9 +3,9 @@
  *
  *   heldout doctor [--jira] [--offline] [--learn] [--aut <profile>]
  *
- *   --jira     also authenticate against Jira Cloud and list custom fields that may hold acceptance criteria
+ *   --jira     also authenticate against Jira Data Center and list custom fields that may hold acceptance criteria
  *   --offline  skip network checks (AUT reachability, Jira)
- *   --learn    record the app's pages, the API calls they make and its published API document as app knowledge
+ *   --learn    record the app's pages and the API calls they make as app knowledge
  *              (aut-knowledge/<profile>/, read-only visits); re-checks known pages and marks broken ones stale
  *
  * Exit 1 when any check fails (warnings don't fail).
@@ -14,14 +14,15 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { AGENT_FILES, ROOT, SKILL_DIR, createsAccounts, fileHash, dataPrefix, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './lib/config';
-import { appRootOf, describeCounts, discoverApp } from './lib/detect';
-import { createTracker } from './lib/jira';
-import { safeToScrub } from './lib/redact';
-import { checkAccountRecipe, envNamesIn } from './lib/accounts';
-import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './lib/secrets';
-import { entries, loadKnowledge, writeFacts } from './lib/knowledge';
-import { learnApp } from './lib/learn';
+import { AGENT_FILES, ROOT, SKILL_DIR, createsAccounts, fileHash, dataPrefix, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
+import { appRootOf, describeCounts, discoverApp } from './detect';
+import { createTracker } from './jira';
+import { safeToScrub } from './redact';
+import { checkAccountRecipe, envNamesIn } from './accounts-recipe';
+import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './secrets';
+import { entries, loadKnowledge, writeFacts } from './knowledge-store';
+import { learnApp } from './learn';
+import { CLAUDE_MCP_FILE, MCP_FILE } from './mcp-config';
 
 type Level = 'ok' | 'warn' | 'fail';
 const results: { level: Level; area: string; msg: string; fix?: string }[] = [];
@@ -105,9 +106,12 @@ main(async () => {
     if (fs.existsSync(path.join(ROOT, target))) check('ok', 'subagents', target);
     else check('warn', 'subagents', `${target} is missing (${what})`, `${H} init   (then restart your agent app)`);
   }
-  const mcp = path.join(ROOT, '.mcp.json');
-  if (fs.existsSync(mcp) && /playwright\/mcp/.test(fs.readFileSync(mcp, 'utf8'))) check('ok', 'browser tiers', 'Playwright MCP configured (.mcp.json) — tier 2 after restarting your agent app');
-  else check('warn', 'browser tiers', 'Playwright MCP not configured — hardening falls back to the bundled inspector', `${H} init`);
+  // Playwright MCP (tier 2): .vscode/mcp.json for GitHub Copilot, the root .mcp.json for Claude Code.
+  for (const [file, app, fix] of [[MCP_FILE, 'GitHub Copilot', 'run update from the skill repository (README "Update")'], [CLAUDE_MCP_FILE, 'Claude Code', `${H} init`]] as const) {
+    const at = path.join(ROOT, file);
+    if (fs.existsSync(at) && /playwright\/mcp/.test(fs.readFileSync(at, 'utf8'))) check('ok', 'browser tiers', `Playwright MCP configured for ${app} (${file}) — tier 2 after restarting it`);
+    else check('warn', 'browser tiers', `Playwright MCP not configured for ${app} (${file}) — hardening there falls back to heldout mcp-probe and the bundled inspector`, fix);
+  }
 
   /**
    * Secret values from .env that appear in files git would commit (tracked, or untracked and not ignored). Values a
@@ -210,9 +214,10 @@ main(async () => {
         else check('ok', `AUT ${id}`, `accounts recipe works: ${steps.map((x) => x.step.split(' ')[0]).join(' → ')}`);
       } catch (e) { check('fail', `AUT ${id}`, `accounts recipe: ${(e as Error).message}`, 'check the recipe paths and the API URL'); }
     }
-    if (cfg.jira.mode === 'cloud') {
-      for (const v of ['JIRA_EMAIL', 'JIRA_API_TOKEN']) if (!process.env[v]) check('fail', 'Jira', `${v} is not set`, `add ${v}=… to .env (token: https://id.atlassian.com/manage-profile/security/api-tokens)`);
-      if (process.env.JIRA_EMAIL && process.env.JIRA_API_TOKEN) {
+    if (cfg.jira.mode === 'datacenter') {
+      if (!process.env.JIRA_PAT) check('fail', 'Jira', 'JIRA_PAT is not set', `${H} secret JIRA_PAT --ask   (a personal access token: your Jira profile → Personal Access Tokens)`);
+      if (!process.env.CONFLUENCE_PAT) check('ok', 'Jira', 'linked Confluence pages are read with JIRA_PAT (set CONFLUENCE_PAT if your Confluence needs its own token)');
+      if (process.env.JIRA_PAT) {
         try {
           const d = await createTracker(cfg).diagnose();
           check('ok', 'Jira', `authenticated to ${cfg.jira.baseUrl} as ${d.user}`);
@@ -225,7 +230,7 @@ main(async () => {
           if (cfg.jira.acceptanceCriteriaField && !d.acFieldCandidates.some((f) => f.id === cfg!.jira.acceptanceCriteriaField)) {
             check('warn', 'Jira', `jira.acceptanceCriteriaField ${cfg.jira.acceptanceCriteriaField} is not among the fields named like acceptance criteria`, 'double-check the id with: heldout doctor --jira');
           }
-        } catch (e) { check('fail', 'Jira', (e as Error).message.slice(0, 200), 'check JIRA_BASE_URL, JIRA_EMAIL and JIRA_API_TOKEN'); }
+        } catch (e) { check('fail', 'Jira', (e as Error).message.slice(0, 200), 'check JIRA_BASE_URL and JIRA_PAT'); }
       }
     } else {
       check('ok', 'Jira', `mock mode — stories live in ${cfg.jira.mockRoot}/ (create one: ${H} new ABC-1 --from story.md)`);
@@ -242,8 +247,8 @@ main(async () => {
         const file = writeFacts(id, 'doctor', r.facts);
         if (r.error) check('warn', 'knowledge', `${id}: ${r.error}`);
         check('ok', 'knowledge', file
-          ? `${id}: learned ${r.pages} page(s) and ${r.endpoints} endpoint(s)${r.apiDoc ? ` (API document ${r.apiDoc})` : ''}${r.replaced ? `, ${r.replaced} of them replacing what an earlier visit saw` : ''}${r.stale ? `; ${r.stale} known entr(ies) no longer match the app (stale)` : ''} → ${rel(file)}`
-          : `${id}: nothing new to learn from the pages and the API document`);
+          ? `${id}: learned ${r.pages} page(s) and ${r.endpoints} endpoint(s)${r.replaced ? `, ${r.replaced} of them replacing what an earlier visit saw` : ''}${r.stale ? `; ${r.stale} known entr(ies) no longer match the app (stale)` : ''} → ${rel(file)}`
+          : `${id}: nothing new to learn from the pages`);
         store = loadKnowledge(id);
       }
       const all = entries(store.records);

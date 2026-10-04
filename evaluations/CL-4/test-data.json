@@ -1,3 +1,0 @@
-{
-  "password": "${env:CL_USER_PASSWORD}"
-}

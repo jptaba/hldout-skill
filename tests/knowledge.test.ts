@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { compact, entries, fold, keys, loadKnowledge, normPath, oracleLeak, relevantTo, statusOf, usesLocator, writeFacts, type Observation } from '../.github/scripts/lib/knowledge';
-import { endpointPathOf, endpointsOfApiDoc, routeOf } from '../.github/scripts/lib/learn';
-import type { RequirementContract } from '../.github/scripts/lib/contract';
+import { compact, entries, fold, keys, loadKnowledge, normPath, oracleLeak, relevantTo, statusOf, usesLocator, writeFacts, type Observation } from '../.github/scripts/knowledge-store';
+import { endpointPathOf, routeOf } from '../.github/scripts/learn';
+import type { RequirementContract } from '../.github/scripts/contract-model';
 
 const obs = (o: Partial<Observation> & Pick<Observation, 'key' | 'value' | 'status' | 'at'>): Observation => ({ kind: 'page', by: 'doctor', ...o });
 
@@ -88,16 +88,6 @@ describe('app knowledge: keys and routes', () => {
   it('API paths are relative to the API base, record ids generalised', () => {
     assert.equal(endpointPathOf('https://api.x.test/v1/contacts/64f1a2b3c4d5e6f7a8b9c0d1', 'https://api.x.test/v1/'), '/contacts/{id}');
     assert.equal(endpointPathOf('https://api.x.test/users/42/books', 'https://api.x.test'), '/users/{id}/books');
-  });
-  it('reads request mechanics from an OpenAPI document and leaves responses out', () => {
-    const doc = {
-      openapi: '3.0.0', servers: [{ url: '/api' }], security: [{ bearer: [] }],
-      components: { schemas: { Contact: { properties: { firstName: {}, lastName: {} } } } },
-      paths: { '/contacts': { post: { requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/Contact' } } } }, responses: { 201: { description: 'Created' } } } },
-        '/health': { get: { security: [], parameters: [{ in: 'query', name: 'verbose' }], responses: { 200: {} } } } },
-    };
-    const eps = endpointsOfApiDoc(doc, 'https://x.test/api');
-    assert.deepEqual(eps, [{ method: 'POST', path: '/contacts', requestFields: ['firstName', 'lastName'], auth: 'required' }, { method: 'GET', path: '/health', query: ['verbose'], auth: 'none' }]);
   });
 });
 

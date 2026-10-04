@@ -6,8 +6,8 @@ import { describe, it } from 'node:test';
 import {
   checkContract, checkFeatureAgainstContract, locateQuote, normaliseText, openQuestions, oracleDigest,
   requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
-} from '../.github/scripts/lib/contract';
-import { checkIntegrity, snapshotDraft } from '../.github/scripts/lib/integrity';
+} from '../.github/scripts/contract-model';
+import { checkIntegrity, snapshotDraft } from '../.github/scripts/integrity-check';
 
 const STORY = `---
 key: ABC-9
@@ -25,29 +25,29 @@ const RULES = 'id,rule\nR1,name is 1-40 characters\n';
 
 function fixture(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'contract-'));
-  fs.mkdirSync(path.join(dir, 'attachments'));
+  fs.mkdirSync(path.join(dir, 'linked'));
   fs.writeFileSync(path.join(dir, 'story.md'), STORY);
-  fs.writeFileSync(path.join(dir, 'attachments', 'rules.csv'), RULES);
+  fs.writeFileSync(path.join(dir, 'linked', 'rules.csv'), RULES);
   return dir;
 }
 
 function goodContract(dir: string): RequirementContract {
   return {
     key: 'ABC-9', title: 'Widget API', revision: requirementRevision(dir),
-    sourcesRead: [{ file: 'story.md', read: true }, { file: 'attachments/rules.csv', read: true }],
+    sourcesRead: [{ file: 'story.md', read: true }, { file: 'linked/rules.csv', read: true }],
     acceptanceCriteria: [
       { id: 'AC-1', text: 'POST /api/widgets creates a widget → 201', quote: 'POST /api/widgets creates a widget and responds 201 Created', source: 'story.md#L9', layer: 'api', outcomes: ['201'], endpoints: ['POST /api/widgets'] },
       { id: 'AC-2', text: 'A widget without a name is rejected with 422', quote: 'A widget without a name is rejected with 422.', source: 'story.md#L10', layer: 'api', outcomes: ['422'], endpoints: ['POST /api/widgets'] },
       { id: 'AC-3', text: 'Given a signed-in user, when they open the Widgets page, then their widgets are listed.', quote: 'Given a signed-in user, when they open the Widgets page, then their widgets are listed.', source: 'story.md#L11', layer: 'ui', outcomes: ['their widgets are listed'], entryPoint: 'Widgets page' },
     ],
     endpoints: [{ method: 'POST', path: '/api/widgets', auth: 'required', source: 'story.md#L9' }],
-    rules: [{ id: 'R1', text: 'name is 1-40 characters', source: 'attachments/rules.csv#L2' }],
+    rules: [{ id: 'R1', text: 'name is 1-40 characters', source: 'linked/rules.csv#L2' }],
     errorModel: [], auth: { mechanism: 'Bearer token', source: 'G1' }, testData: { strategy: 'create via API' },
     gaps: [{ id: 'G1', element: 'auth header scheme', kind: 'mechanics', required: true, affects: ['AC-1'],
       tried: [{ where: 'story', result: 'not stated' }, { where: 'aut', result: 'Bearer accepted' }], resolution: 'discovered-in-aut', value: 'Authorization: Bearer', evidence: 'hardening/api-auth.md' }],
     coverage: [
       { lines: 'story.md#L8', as: 'context' }, { lines: 'story.md#L9', as: 'AC-1' }, { lines: 'story.md#L10', as: 'AC-2' },
-      { lines: 'story.md#L11', as: 'AC-3' }, { lines: 'attachments/rules.csv#L1-L2', as: 'R1' },
+      { lines: 'story.md#L11', as: 'AC-3' }, { lines: 'linked/rules.csv#L1-L2', as: 'R1' },
     ],
   };
 }
@@ -58,7 +58,7 @@ describe('requirement contract', () => {
     const dir = fixture();
     const c = skeletonContract('ABC-9', dir);
     assert.equal(c.title, 'Widget API');
-    assert.deepEqual(c.sourcesRead, [{ file: 'story.md', read: false }, { file: 'attachments/rules.csv', read: false }]);
+    assert.deepEqual(c.sourcesRead, [{ file: 'story.md', read: false }, { file: 'linked/rules.csv', read: false }]);
     assert.deepEqual([c.acceptanceCriteria, c.endpoints, c.coverage], [[], [], []]);
     assert.deepEqual(c.revision, requirementRevision(dir));
   });
@@ -102,7 +102,7 @@ describe('requirement contract', () => {
   it('open oracle gaps are questions for the user and must be surfaced in the feature', () => {
     const dir = fixture();
     const c = goodContract(dir);
-    c.gaps.push({ id: 'G3', element: 'maximum widgets per user', kind: 'oracle', required: true, affects: ['AC-1'], tried: [{ where: 'story', result: 'silent' }, { where: 'attachments', result: 'silent' }], resolution: 'open' });
+    c.gaps.push({ id: 'G3', element: 'maximum widgets per user', kind: 'oracle', required: true, affects: ['AC-1'], tried: [{ where: 'story', result: 'silent' }, { where: 'linked', result: 'silent' }], resolution: 'open' });
     assert.equal(checkContract(c, dir).find((x) => x.code === 'oracle-gap-open')?.level, 'warn');
     assert.deepEqual(openQuestions(c).map((g) => g.id), ['G3']);
     const feature = { acs: c.acceptanceCriteria.map((a) => ({ id: a.id, text: a.text })), endpoints: [{ method: 'POST', path: '/api/widgets' }], openQuestions: [] as string[], assumptions: [],
@@ -115,8 +115,8 @@ describe('requirement contract', () => {
   it('an assumption that asserts nothing needs no @assumes tag when marked "(not asserted)"', () => {
     const dir = fixture();
     const c = goodContract(dir);
-    c.gaps.push({ id: 'G3', element: 'status of a rejected widget', kind: 'oracle', required: false, affects: ['AC-1'], tried: [{ where: 'attachments', result: 'silent' }, { where: 'story', result: 'silent' }], resolution: 'assumed', value: 'no status asserted' });
-    assert.ok(!codes(checkContract(c, dir)).includes('gap-ladder-order')); // story and attachments are one rung
+    c.gaps.push({ id: 'G3', element: 'status of a rejected widget', kind: 'oracle', required: false, affects: ['AC-1'], tried: [{ where: 'linked', result: 'silent' }, { where: 'story', result: 'silent' }], resolution: 'assumed', value: 'no status asserted' });
+    assert.ok(!codes(checkContract(c, dir)).includes('gap-ladder-order')); // the story and what it links are one rung
     const feature = { acs: c.acceptanceCriteria.map((a) => ({ id: a.id, text: a.text })), endpoints: [{ method: 'POST', path: '/api/widgets' }], openQuestions: [] as string[],
       assumptions: ['G3: no status is asserted'], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
     assert.ok(codes(checkFeatureAgainstContract(c, feature)).includes('assumption-not-tagged'));
@@ -157,7 +157,7 @@ describe('requirement contract', () => {
     const c = goodContract(dir);
     fs.writeFileSync(path.join(dir, 'story.md'), STORY.replace('fetchedAt: 2026-01-01T00:00:00Z', 'fetchedAt: 2027-01-01T00:00:00Z'));
     assert.ok(!codes(checkContract(c, dir)).includes('contract-stale'), 'the fetch timestamp alone is not a revision');
-    fs.writeFileSync(path.join(dir, 'attachments', 'rules.csv'), `${RULES}R2,new rule\n`);
+    fs.writeFileSync(path.join(dir, 'linked', 'rules.csv'), `${RULES}R2,new rule\n`);
     assert.ok(codes(checkContract(c, dir)).includes('contract-stale'));
   });
 
@@ -178,18 +178,18 @@ describe('requirement contract', () => {
   });
 });
 
-describe('non-text attachments', () => {
+describe('images the story shows', () => {
   it('requires a transcript with its origin instead of quoting an image directly', () => {
     const dir = fixture();
-    fs.writeFileSync(path.join(dir, 'attachments', 'mockup.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+    fs.writeFileSync(path.join(dir, 'linked', 'mockup.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
     const c = goodContract(dir);
     c.revision = requirementRevision(dir);
-    c.sourcesRead.push({ file: 'attachments/mockup.png', read: true });
-    c.acceptanceCriteria.push({ id: 'AC-4', text: 'The Save button is disabled until the form is valid', quote: 'Save button is disabled until the form is valid', source: 'attachments/mockup.png', layer: 'ui', outcomes: ['disabled'], entryPoint: '/form' });
+    c.sourcesRead.push({ file: 'linked/mockup.png', read: true });
+    c.acceptanceCriteria.push({ id: 'AC-4', text: 'The Save button is disabled until the form is valid', quote: 'Save button is disabled until the form is valid', source: 'linked/mockup.png', layer: 'ui', outcomes: ['disabled'], entryPoint: '/form' });
     c.coverage.push({ lines: 'story.md#L9', as: 'AC-4' });
     assert.ok(codes(checkContract(c, dir)).includes('quote-from-binary'));
     fs.mkdirSync(path.join(dir, 'transcripts'));
-    fs.writeFileSync(path.join(dir, 'transcripts', 'mockup.png.md'), 'transcribedFrom: attachments/mockup.png\n\nNote on the mock-up: "Save button is disabled until the form is valid"\n');
+    fs.writeFileSync(path.join(dir, 'transcripts', 'mockup.png.md'), 'transcribedFrom: linked/mockup.png\n\nNote on the mock-up: "Save button is disabled until the form is valid"\n');
     c.acceptanceCriteria[3].source = 'transcripts/mockup.png.md#L3';
     c.coverage.push({ lines: 'transcripts/mockup.png.md#L3', as: 'AC-4' });
     const f = checkContract(c, dir);

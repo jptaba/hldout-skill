@@ -22,12 +22,12 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, readJson, rel, writeFile } from './lib/config';
-import { readContract, type RequirementContract } from './lib/contract';
+import { assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import { readContract, type RequirementContract } from './contract-model';
 import {
   compact, describeEntry, describeValue, entries, keys, knowledgeDir, loadKnowledge, oracleLeak, relevantTo, statusOf, usesLocator, valueId, writeFacts,
   type KnowledgeEntry, type KnowledgeKind, type Observation,
-} from './lib/knowledge';
+} from './knowledge-store';
 
 const H = 'npm run heldout --';
 interface Staged { facts: (Observation & { for: string[]; via?: 'add' | 'confirm' | 'stale' })[] }
@@ -124,7 +124,7 @@ main(() => {
     const scenarios = list(flagStr(flags, 'for'));
     if (!scenarios.length) throw new Error('--add needs --for SCN-001[,SCN-002]: the scenarios whose tests use it (the harvest keeps it only if one of them passes)');
     const added = observation(kind, flags);
-    // An endpoint keeps what was already known of it (the API document's full field list) under what you add.
+    // An endpoint keeps what was already known of it under what you add.
     const known = added.kind === 'endpoint' ? all.find((x) => x.key === added.key && x.status !== 'stale')?.best.value : undefined;
     const o = known ? { ...added, value: { ...known, ...added.value } } : added;
     const leak = oracleLeak(o, contract);
@@ -253,7 +253,7 @@ function harvest(key: string, profile: string, p: ReturnType<typeof evalPaths>, 
     const acs = (contract?.acceptanceCriteria ?? []).filter((a) => (a.endpoints ?? []).some((x) => keys.endpoint(x.split(/\s+/)[0] ?? '', x.split(/\s+/)[1] ?? '') === k)).map((a) => a.id);
     const proof = acs.filter((a) => passedAcs.has(a));
     if (!proof.length) continue;
-    // What the story states, on top of what was already known of the endpoint (the request fields of the API document).
+    // What the story states, on top of what was already known of the endpoint.
     const stated = Object.fromEntries(Object.entries({ auth: e.auth, envelope: e.envelope, requestFields: e.requestFields?.length ? e.requestFields : undefined }).filter(([, x]) => x !== undefined));
     const value = { method: e.method.toUpperCase(), path: e.path, ...(before.get(k)?.best.value ?? {}), ...stated };
     keep({ key: k, kind: 'endpoint', value, status: 'proven', at, by: key, evidence: `${verdict.finalRun}: ${proof.join(', ')} passed` });
