@@ -169,23 +169,29 @@ See [requirement-contract.md](.github/skills/heldout-evaluator/references/requir
 
 ## Test types
 
-Every test has exactly one test type, a criterion can have any number of tests of any type, and every
-acceptance criterion is covered with the types its wording calls for. A type the story doesn't state or clearly imply becomes a question, not a guessed test. The verdict shows coverage
-and defects per type.
+Every test has one main test type (`@type:`), the most specific one it fits, and may name other types it also covers
+(`@also:`): a limit whose outside value is refused is `@type:boundary @also:negative`. The verdict counts each test once,
+under its main type, and lists the others beside it.
+
+The tests are written in two passes: first one test per acceptance criterion, as it is stated; then round the criteria
+again, through the types below, adding a test for each type the criterion's wording states or clearly implies and no
+test covers yet. A type the story doesn't state or imply becomes a question, not a guessed test.
 
 | Type | What it proves |
 | --- | --- |
-| `functional` | the happy path does what the criterion says |
-| `negative` | invalid input and refusals are handled, and nothing is stored |
-| `boundary` | values on and just outside each stated limit |
-| `security` | authentication, authorisation, one user's data hidden from another |
-| `idempotency` | the same request sent again leaves the same result (retries, repeated submits) |
 | `concurrency` | simultaneous requests on shared state keep the stated rule (last item in stock, double booking) |
-| `audit` | who did what and when is recorded where the app shows it (history page, activity endpoint) |
+| `idempotency` | the same request sent again leaves the same result (retries, repeated submits) |
+| `security` | authentication, authorisation, one user's data hidden from another |
+| `boundary` | values on and just outside each stated limit |
+| `contract` | API shape, fields and status codes |
 | `composition` | several steps or criteria chained into one flow, each step feeding the next (create → edit → delete) |
 | `integration` | the UI and the API agree |
-| `contract` | API shape, fields and status codes |
 | `accessibility` | accessible names, labels, keyboard use, WCAG criteria |
+| `negative` | invalid input and refusals are handled, and nothing is stored |
+| `functional` | the happy path does what the criterion says (including a change the app shows on a history page) |
+
+There is no audit type: a record the application shows is checked by a `functional` test, and one kept only in a
+database or log can't be observed by a black-box test, so the verdict lists it as not verified.
 
 Rules for each type: [test-authoring.md](.github/skills/heldout-evaluator/references/test-authoring.md).
 

@@ -2,13 +2,28 @@
 
 Write `output/<profile>/<KEY>/tests/<key-lowercase>.spec.ts` straight from the reviewed requirement contract
 (`requirement-contract.json`), **before** anyone looks at the AUT. The draft encodes the oracle; hardening (phase 3)
-only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, one test type and the
-requirement source it comes from. Its steps call the application's shared **journey fixtures**
-([journeys.md](journeys.md)); every expectation stays in the test.
+only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, its main test type (and the
+other types it also covers) and the requirement source it comes from. Its steps call the application's shared
+**journey fixtures** ([journeys.md](journeys.md)); every expectation stays in the test.
 
 `heldout scaffold KEY` writes a head start: the imports, the `ASSUMPTION` / `OPEN-QUESTION` lines of the contract's
-gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`). Split a
-criterion into as many tests as it needs (one `@type` each). `heldout journeys KEY` lists the fixtures you can call.
+gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`): the first
+pass below. `heldout journeys KEY` lists the fixtures you can call.
+
+## Two passes: every criterion first, then round the test types
+
+1. **First pass: one test per criterion.** Write, for each AC in the contract's order, the test of the criterion as it
+   is stated: its own journey and outcomes. Its main type is what the AC is about (a refusal is `negative`, a limit is
+   `boundary`, an ordinary outcome `functional`). When this pass is done, every AC is covered once.
+2. **Second pass: round robin over the types.** Go round the criteria again, and for each one go through the taxonomy
+   below in its order and ask: *does this AC's wording state or clearly imply this type, and is it not covered yet* (as a
+   main type or an `@also:`)? Add a test for each yes: the limits it names (`boundary`), its refusals (`negative`), who
+   may do it (`security`), what happens when it is sent again (`idempotency`) or at the same moment (`concurrency`), its
+   hand-offs to other ACs (`composition`), UI and API agreeing (`integration`), the answer's shape (`contract`), labels
+   and keyboard (`accessibility`). One more test per round; the next AC; repeat until a full round adds nothing.
+3. **Stop at the requirement.** A type the AC doesn't state or clearly imply is not a test but a gap: leave it out (or
+   an `// OPEN-QUESTION:` when it matters). The second pass adds depth to what the story asks for, never new
+   expectations.
 
 ## Template
 
@@ -56,7 +71,7 @@ test.describe('<KEY> <summary>', () => {
   // A table of cases: one test per row (SCN-006.1 … .n)
   // from linked/field-rules.csv
   REQ.BOUNDARIES.forEach((row, i) => {
-    test(`SCN-006.${i + 1}: Name length limits (${row.field} ${row.value})`, { tag: ['@AC-4', '@type:boundary', '@layer:api'] }, async ({ api, journey }) => { /* … */ });
+    test(`SCN-006.${i + 1}: Name length limits (${row.field} ${row.value})`, { tag: ['@AC-4', '@type:boundary', '@also:negative', '@layer:api'] }, async ({ api, journey }) => { /* … */ });
   });
 });
 ```
@@ -67,7 +82,8 @@ test.describe('<KEY> <summary>', () => {
 | --- | --- | --- |
 | `test('SCN-nnn: <who does what, and the outcome>', …)` | yes | Unique test id. A table of cases is `` `SCN-nnn.${i + 1}: …` `` in a loop |
 | `@AC-n` | yes (≥1) | The criteria the test proves (the contract's ids). An AC without a test downgrades the verdict |
-| `@type:<t>` | yes (exactly 1) | Test type, from the taxonomy below |
+| `@type:<t>` | yes (exactly 1) | The main test type, from the taxonomy below: what the test is for. It drives triage and the verdict's counts |
+| `@also:<t>` | when the test gives evidence for other types too | Each other type it covers (`@type:boundary @also:negative` for a limit whose outside value is refused). Shown in the verdict ("also covered by") and counted by the second pass, never counted twice |
 | `// from …` right above the test | strongly recommended (lint warns) | The story section, linked page or image transcript it comes from, shown in the traceability matrix |
 | `@layer:ui\|api\|e2e` | recommended | Which layer the test drives |
 | `@P1`..`@P3` | recommended | P1: core journey / money / security; P3: cosmetic |
@@ -79,25 +95,28 @@ test.describe('<KEY> <summary>', () => {
 | `@irreversible` | on a test whose action changes the application for good (locks an account, sends a real e-mail or payment, uses up a one-time code) | It runs once per run: never retried, never repeated by `--repeat-each`, so every run does exactly the damage it must. Give it data of its own (a fresh account) |
 | `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the journey fixtures make count as plumbing too |
 
-### Test-type taxonomy (`@type:`)
+### Test-type taxonomy (`@type:` and `@also:`)
+
+From the most specific to the most general. When a test fits two types, the one higher in the table is its main type
+(`@type:`) and the other an `@also:` (the lint warns when it is the other way round).
 
 | Type | Use for | Aliases |
 | --- | --- | --- |
-| `functional` | the happy path does what the AC says | positive, happy |
-| `negative` | invalid input, error handling, refusals | validation |
-| `boundary` | values on and just outside limits (a table of cases) | |
-| `security` | authentication, authorisation, data exposure | auth |
-| `idempotency` | the same request sent again, one after the other: retries, repeated submits | |
 | `concurrency` | different requests at the same moment on shared state: two buyers and the last item, a double booking | race, parallel |
-| `audit` | an observable record of who did what and when: a history page, an activity endpoint | audit-trail, history |
+| `idempotency` | the same request sent again, one after the other: retries, repeated submits | |
+| `security` | authentication, authorisation, data exposure | auth |
+| `boundary` | values on and just outside limits (a table of cases) | |
+| `contract` | API schema / shape / status-code contract | schema |
 | `composition` | several steps or ACs chained into one flow, one step's output the next one's input | workflow, chain |
 | `integration` | cross-layer consistency: what the UI does is what the API returns, and back | e2e, cross-layer |
-| `contract` | API schema / shape / status-code contract | schema |
 | `accessibility` | accessible names, alt text, keyboard, WCAG criteria | a11y |
+| `negative` | invalid input, error handling, refusals | validation |
+| `functional` | the happy path does what the AC says | positive, happy |
 
 A requirement that fits none of them either has a concrete, observable outcome (then it is one of the types: a message
-shown in red is `functional`), or it is a `nonFunctional` item the verdict lists as not verified. A slow environment is
-never a defect: raise the config's `run` timeouts instead.
+shown in red is `functional`, and so is a change the application shows on a history page), or it is a `nonFunctional`
+item the verdict lists as not verified (a record kept only in a database or a log). A slow environment is never a
+defect: raise the config's `run` timeouts instead.
 
 **What a throw-away environment can't show.** A `concurrency` test that passes shows the rule holds on one instance; a
 race between replicas only shows on a multi-instance deployment (say so in an `// ASSUMPTION:` when the requirement is
@@ -106,11 +125,12 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
 
 ## Rules for what to test
 
-1. **Cover every AC**, with the types the requirement implies: limits need `boundary`; "requires a token" needs
-   `security`; "retries are safe" needs `idempotency`; "only one", a stock, a balance or a unique name under
-   simultaneous use needs `concurrency`; "every change is recorded" with a place to read it needs `audit`; ACs that hand
-   data to each other need one `composition` test; field labels or WCAG need `accessibility`; a schema needs
-   `contract`. Add a type only when the requirement states or clearly implies it: an unstated expectation is a gap.
+1. **Cover every AC**, first once each, then with the types the requirement implies (the two passes above): limits need
+   `boundary`; "requires a token" needs `security`; "retries are safe" needs `idempotency`; "only one", a stock, a
+   balance or a unique name under simultaneous use needs `concurrency`; ACs that hand data to each other need one
+   `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. A type an existing test
+   already covers as an `@also:` needs no test of its own. Add a type only when the requirement states or clearly
+   implies it: an unstated expectation is a gap.
 2. **Quote the requirement.** Expected texts, numbers, formulas and codes are copied verbatim from the contract (its
    quotes, outcomes, error model and answered gaps). Never "improve" them: a mismatch is what the evaluation finds.
 3. **Black-box journeys.** Step titles describe what a user or client sees and does (`Given …`, `When …`, `Then …`),
@@ -124,9 +144,7 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
 6. **Concurrency** (API layer): send the competing requests together (`Promise.all`), 2–5 at a time (respect the
    profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few
    rounds inside the test.
-7. **Audit:** assert the record through the UI or API that shows it. A trail kept only in server logs is a
-   `nonFunctional` item.
-8. **Composition:** tag every AC the flow chains and assert the hand-offs; single-AC tests keep their own checks.
+7. **Composition:** tag every AC the flow chains and assert the hand-offs; single-AC tests keep their own checks.
 
 ## Journey fixtures: reuse, then add
 
@@ -218,8 +236,10 @@ the story concerns first, with what each calls and which stories proved it.
 
   Never assert which request won or in what order they finished. Triage counts a concurrency test whose `[REQ]` check
   failed on any attempt as failed. To reproduce it live, give the `api-probe --chain` step `"parallel": 3`.
-- **Audit** (`@type:audit`): read the record back from where the application shows it and check the fields the
-  requirement lists: who (the signed-in account, not a value the request supplied), what, and when when stated.
+- **A record of who did what** ("every change appears in the history"): a `functional` test when the application shows
+  it (a history page, an activity endpoint): read it back and check the fields the requirement lists, who being the
+  signed-in account, not a value the request supplied. A record kept only in a database or a log is a `nonFunctional`
+  item the verdict lists as not verified.
 - **Composition** (`@type:composition`): one test that chains the steps, passing each step's output (an id, a token) to
   the next. Tag every AC it chains and assert the hand-offs.
 - **A length limit in a form field:** enter the over-long text with `fill`, which the field's `maxlength` applies to

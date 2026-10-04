@@ -37,6 +37,13 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     if (!s.sources.length) warn('no-source', `${s.id} has no "// from <story section / linked page>" line above its test — the verdict cannot trace it to a requirement source`);
     if (!s.rawType) err('test-without-type', `${s.id} has no @type:<t> tag (one of ${TEST_TYPES.join(', ')})`);
     else if (!s.testType) err('unknown-type', `${s.id} has @type:${s.rawType}, not in the taxonomy (${TEST_TYPES.join(', ')})`);
+    if (new Set(s.rawTypes).size > 1) err('several-main-types', `${s.id} has ${s.rawTypes.map((t) => `@type:${t}`).join(' and ')} — one main type (the more specific: ${TEST_TYPES.join(' › ')}), the others as @also:<t>`);
+    for (const t of s.rawAlsoUnknown) err('unknown-also-type', `${s.id} has @also:${t}, not in the taxonomy (${TEST_TYPES.join(', ')})`);
+    if (s.testType && s.also.includes(s.testType)) warn('also-repeats-type', `${s.id} has @also:${s.testType}, its main type already`);
+    // The main type is the most specific one the test fits: a later type in the order as main, with an earlier one as
+    // @also, is the wrong way round.
+    const better = s.testType ? s.also.find((t) => TEST_TYPES.indexOf(t) < TEST_TYPES.indexOf(s.testType!)) : undefined;
+    if (better) warn('main-type-order', `${s.id} is @type:${s.testType} @also:${better} — the more specific type is the main one: @type:${better} @also:${s.testType}`);
   }
 
   // By preflight time the user has been asked; open gaps must be surfaced in the specs instead.

@@ -13,10 +13,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { RequirementContract } from './contract-model';
 
-/** Test-type taxonomy — every test declares exactly one @type:<t> (aliases are normalised). */
-export const TEST_TYPES = ['functional', 'negative', 'boundary', 'security', 'idempotency', 'concurrency', 'audit', 'composition', 'integration', 'contract', 'accessibility'] as const;
+/**
+ * Test-type taxonomy. Every test declares exactly one main type, @type:<t> (it drives triage and the verdict's counts),
+ * and any number of @also:<t>, other types it also gives evidence for (shown, never counted twice). Aliases are
+ * normalised. Ordered from the most specific to the most general: when a test fits two types, the earlier one is its
+ * main type.
+ */
+export const TEST_TYPES = ['concurrency', 'idempotency', 'security', 'boundary', 'contract', 'composition', 'integration', 'accessibility', 'negative', 'functional'] as const;
 export type TestType = typeof TEST_TYPES[number];
-const TYPE_ALIASES: Record<string, TestType> = { positive: 'functional', happy: 'functional', a11y: 'accessibility', e2e: 'integration', 'cross-layer': 'integration', schema: 'contract', validation: 'negative', auth: 'security', race: 'concurrency', parallel: 'concurrency', 'audit-trail': 'audit', history: 'audit', workflow: 'composition', chain: 'composition' };
+const TYPE_ALIASES: Record<string, TestType> = { positive: 'functional', happy: 'functional', a11y: 'accessibility', e2e: 'integration', 'cross-layer': 'integration', schema: 'contract', validation: 'negative', auth: 'security', race: 'concurrency', parallel: 'concurrency', workflow: 'composition', chain: 'composition' };
 export function normaliseTestType(raw?: string): TestType | undefined {
   if (!raw) return undefined;
   const t = raw.toLowerCase();
@@ -31,9 +36,15 @@ export interface Scenario {
   tags: string[];
   acs: string[];
   priority?: string;
-  /** Normalised @type:<t>; undefined when missing/unknown (lint error). */
+  /** Normalised @type:<t>, the main type; undefined when missing/unknown (lint error). */
   testType?: TestType;
   rawType?: string;
+  /** Every @type: tag as written (more than one is a lint error: the others go in @also:). */
+  rawTypes: string[];
+  /** @also:<t>, normalised: other types the test also gives evidence for. */
+  also: TestType[];
+  /** @also:<t> values that are not in the taxonomy (lint error). */
+  rawAlsoUnknown: string[];
   /** @layer:ui|api|e2e */
   layer?: string;
   /** @depends:SCN-x — scenarios whose success this one's preconditions rely on. */
@@ -127,6 +138,9 @@ function readSpec(file: string, into: Suite): void {
       title: unescape(m[4]).replace(/\s*\(\$\{[^}]*\}[^)]*\)\s*$/, '').trim(),
       tags,
       acs: [],
+      rawTypes: [],
+      also: [],
+      rawAlsoUnknown: [],
       depends: [],
       sources,
       steps,
@@ -149,6 +163,10 @@ function fromTags(s: Scenario): void {
   s.priority = tags.find((t) => t.startsWith('@priority:'))?.slice(10) ?? tags.find((t) => /^@P[1-3]$/.test(t))?.slice(1);
   s.rawType = type;
   s.testType = normaliseTestType(type);
+  s.rawTypes = tags.filter((t) => t.startsWith('@type:')).map((t) => t.slice(6));
+  const also = tags.filter((t) => t.startsWith('@also:')).map((t) => t.slice(6));
+  s.also = [...new Set(also.map(normaliseTestType).filter((t): t is TestType => Boolean(t)))];
+  s.rawAlsoUnknown = also.filter((t) => !normaliseTestType(t));
   s.layer = tags.find((t) => t.startsWith('@layer:'))?.slice(7);
   s.depends = tags.filter((t) => t.startsWith('@depends:')).map((t) => t.slice(9));
   s.needsClarification = tags.includes('@needs-clarification');

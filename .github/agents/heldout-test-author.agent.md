@@ -23,9 +23,12 @@ Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` print
 Do this:
 1. `npm run heldout -- scaffold KEY` (a spec skeleton, the test data and the gap lines), then
    `npm run heldout -- journeys KEY` (the fixtures the story concerns).
-2. Decide the tests: cover every criterion with the test types the requirement implies (reference: "Rules for what to
-   test"). Each test is one journey: `test('SCN-nnn: …', { tag: ['@AC-n', '@type:<t>', '@layer:<l>', '@P1'] }, …)`
-   with a `// from <source>` line above it and one `journey.step('Given …' / 'When …' / 'Then …')` per step. Surface
+2. Decide the tests in two passes (reference: "Two passes"): first one test per criterion, the criterion as stated;
+   then go round the criteria again, through the test types in the taxonomy's order, adding a test for each type the
+   AC's wording states or clearly implies and no test covers yet, until a round adds nothing. Each test is one journey:
+   `test('SCN-nnn: …', { tag: ['@AC-n', '@type:<main>', '@also:<other>', '@layer:<l>', '@P1'] }, …)` (one main type,
+   the more specific one; `@also:` for each other type it covers) with a `// from <source>` line above it and one
+   `journey.step('Given …' / 'When …' / 'Then …')` per step. Surface
    gaps as the contract resolved them: `// ASSUMPTION: G<n> …` with `@assumes:G<n>`, `// OPEN-QUESTION: G<n> …` or
    `@needs-clarification`.
 3. Write the steps on the journey fixtures: call the ones that do the step; add the ones later stories will need too

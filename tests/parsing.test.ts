@@ -26,7 +26,7 @@ test.describe('ABC-1 Demo', () => {
   });
 
   [1, 2].forEach((v, i) => {
-    test(\`SCN-002.\${i + 1}: Two (\${v})\`, { tag: ['@AC-2', '@type:boundary', '@assumes:G2'] }, async ({ journey }) => {
+    test(\`SCN-002.\${i + 1}: Two (\${v})\`, { tag: ['@AC-2', '@type:boundary', '@also:validation', '@also:nonsense', '@assumes:G2'] }, async ({ journey }) => {
       await journey.step(\`When \${v}\`, async () => {});
       await journey.step('Then z', async () => {});
     });
@@ -65,6 +65,10 @@ describe('readSuite', () => {
     assert.equal(b.title, 'Two');
     assert.deepEqual(a.assumes, []);
     assert.deepEqual(b.assumes, ['G2']);
+    assert.equal(b.testType, 'boundary');
+    assert.deepEqual(b.also, ['negative'], '@also: types are normalised like @type: (validation → negative)');
+    assert.deepEqual(b.rawAlsoUnknown, ['nonsense']);
+    assert.deepEqual(a.also, []);
     assert.deepEqual(b.steps, ['When ${v}', 'Then z']);
     assert.deepEqual(b.sources, []);
     assert.equal(b.declarations, 1);
@@ -78,7 +82,7 @@ describe('helpers', () => {
     assert.equal(normaliseTestType('a11y'), 'accessibility');
     assert.equal(normaliseTestType('Concurrency'), 'concurrency');
     assert.equal(normaliseTestType('race'), 'concurrency');
-    assert.equal(normaliseTestType('audit-trail'), 'audit');
+    assert.equal(normaliseTestType('audit'), undefined, 'audit is not a test type: a record the app shows is functional, a log it keeps is not observable');
     assert.equal(normaliseTestType('workflow'), 'composition');
     assert.equal(normaliseTestType('nonsense'), undefined);
   });
