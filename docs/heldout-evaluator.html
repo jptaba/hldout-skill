@@ -350,6 +350,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <a href="#integrity">Integrity freeze</a>
   <a href="#hardening">Hardening</a>
   <a href="#actions">Actions</a>
+  <a href="#actions-life">Actions over time</a>
   <a href="#seeding">Seeding and teardown</a>
   <a href="#run">Running</a>
   <a href="#triage">Triage</a>
@@ -912,29 +913,126 @@ export async function openProduct(page: Page, id: string) {
     <div class="card"><h4><span class="tag">phase 8</span> After the verdict</h4><p><code>actions KEY --harvest</code> previews what the story proved; <code>--harvest --apply</code> writes it into the maps as new files. Kept: each action a passing test called, with what its code opens and calls now. Left out: actions only failing tests called, which may work around a defect, and files that break the rules.</p></div>
     <div class="card"><h4><span class="tag">later</span> Change</h4><p>An action whose code changed since it was proven shows as <i>changed since proven</i> until a passing story proves the new code. A change must hold for every caller (the application changed); otherwise add a new action.</p></div>
   </div>
-  <h3>Many people on the same application</h3>
-  <p>Several people, or teams, evaluate their own stories against the same application on their own branches, and each adds the actions their stories need. The folder is laid out so that their work merges without conflicts:</p>
+  <p>How actions arrive in a project and grow story after story, how a later story finds them and saves work, and why many people can add them at once without merge conflicts: <a href="#actions-life">Actions over a project's life</a>.</p>
+  <div class="plain">
+    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
+    <p>The exam is still written from the syllabus alone. What the students share is a book of directions to the exam rooms: which corridor, which door, where the light switch is. Each student may use it while writing the exam, because it holds no answers, and adds the directions that got them there. Nobody is allowed to write an answer in it.</p>
+  </div>
+</section>
+
+<!-- ============ ACTIONS OVER TIME ============ -->
+<section id="actions-life" class="reveal">
+  <div class="kicker">Evaluating a story</div>
+  <h2>Actions over a project's life</h2>
+  <p class="lede">Nobody writes actions up front, and no command generates them from the application. They arrive story by story: the test author writes the ones a story needs while drafting its tests, the hardener makes them work against the live app, and the harvest records the ones the story's passing tests proved. This section follows the <code>actions/</code> folder from <code>init</code> to the tenth story, with real output from two stories evaluated one after the other on Toolshop: TOOL-1 (catalogue search, sorting and filter), then TOOL-2 (registration, sign-in and lockout).</p>
+
+  <h3>Step by step</h3>
+  <div class="phases">
+    <div class="phase"><div class="n">1</div><div><h4>init <span class="badge b-muted">script</span></h4><p>Creates an empty <code>actions/</code> folder and sets <code>actionsDir</code> in <code>heldout.config.json</code>. It never writes an action and never overwrites the folder: a project that already has actions keeps them, and so does a second application profile added later with <code>add-aut</code> (its actions go in <code>actions/&lt;its profile&gt;/</code>).</p><span class="cmd">heldout init --base-url https://your-app</span></div><div class="ex"><b>Toolshop</b>actions/ is empty</div></div>
+    <div class="phase"><div class="n">2</div><div><h4>doctor <span class="badge b-muted">script</span></h4><p>Sees that the profile has no actions yet and says where the first ones will go. From the first story on, it lints every action file, reports possible duplicates and files off the one-action-per-file layout, counts what the maps hold, and suggests compacting them past 200 map files.</p><span class="cmd">heldout doctor</span></div><div class="ex"><b>Before TOOL-1</b>✔ no actions yet — the first story's tests start them in actions/practicesoftwaretesting/ui|api/&lt;domain&gt;/&lt;action&gt;.ts</div></div>
+    <div class="phase"><div class="n">3</div><div><h4>First story: writing the tests <span class="badge b-inc">subagent</span></h4><p><code>heldout actions TOOL-1</code> has nothing to list, so the test author writes each step the story needs as a new action: one file per action, named after it, in the folder of the area of the app it works on, with a doc comment that says what it does. It writes them from the contract alone, without a browser, and marks every guessed route, locator or field with <code>// TODO(harden)</code>. That is safe before the freeze because an action never holds an expected value.</p><span class="cmd">heldout actions TOOL-1 · heldout lint TOOL-1 --allow-unhardened</span></div><div class="ex"><b>TOOL-1</b>7 actions in 9 files: ui/catalogue/ (open, search, sort, filter, read the cards, and _shared.ts), api/products/read-whole-catalogue.ts (and _shared.ts), api/categories/find-category-id.ts</div></div>
+    <div class="phase"><div class="n">4</div><div><h4>Freeze <span class="badge b-muted">script</span></h4><p>The freeze seals the spec and the contract's oracle and records a hash of every action file the spec imports, in the story's own folder (<code>draft/actions.json</code>). Actions are not frozen: the hashes only let the verdict say which ones hardening changed.</p><span class="cmd">heldout integrity TOOL-1 --snapshot</span></div><div class="ex"><b>TOOL-1</b>✔ Draft frozen (1 spec file(s) + requirement-contract oracle + the hashes of 9 action file(s))</div></div>
+    <div class="phase"><div class="n">5</div><div><h4>Hardening <span class="badge b-inc">subagent</span></h4><p>The hardener makes each action work against the live app, as it does the tests: a verified locator, wait or field replaces each <code>TODO(harden)</code>. It fixes HOW an action works for every caller and never bends it to one story; for a different need it adds an action. What it discovers that later stories will need becomes a new action too. An action it replaces is marked stale, with evidence.</p><span class="cmd">heldout run TOOL-1 --label harden · actions TOOL-1 --stale "&lt;key&gt;" --evidence …</span></div><div class="ex"><b>TOOL-1</b>the shop fetches product lists with the HTTP method QUERY, not GET, so the shared wait now matches any method; a product's category is <code>category.id</code>, not the guessed <code>category_id</code></div></div>
+    <div class="phase"><div class="n">6</div><div><h4>Run and verdict <span class="badge b-muted">script</span></h4><p>Before every run, preflight lints the actions the tests import: an expected value or a <code>[REQ …]</code> assertion in one is an error, and a <code>TODO(harden)</code> left in one blocks the official run. The verdict then says how the actions took part.</p><span class="cmd">heldout run TOOL-1 --label eval · heldout verdict TOOL-1</span></div><div class="ex"><b>TOOL-1 verdict</b>7 action(s) from actions/practicesoftwaretesting/ (0 proven by earlier stories, 7 new to the map) · 8 action file(s) changed after the freeze</div></div>
+    <div class="phase"><div class="n">7</div><div><h4>Harvest <span class="badge b-muted">script</span></h4><p>After the verdict, <code>--harvest</code> previews and <code>--harvest --apply</code> writes, as new files, one per kind, the actions a passing test called: what each opens, calls and uses now, its doc comment and parameters, and the run and tests that proved it. Actions only failing tests called are left out, since they may work around a defect. Commit the action files, the new map files and the story's output together.</p><span class="cmd">heldout actions TOOL-1 --harvest → --harvest --apply</span></div><div class="ex"><b>TOOL-1</b>7 proven, 0 stale, 0 left out → map/ui/20261005T011211Z-tool-1-383902.json, map/api/20261005T011211Z-tool-1-70c510.json</div></div>
+    <div class="phase"><div class="n">8</div><div><h4>update <span class="badge b-muted">script</span></h4><p>Replaces the skill and its scripts, and never touches <code>actions/</code>, the maps or <code>output/</code>. A newer version may check actions more strictly, so run <code>doctor</code> afterwards: it lints every action against the new rules and tells you what to change.</p><span class="cmd">heldout update · heldout doctor</span></div><div class="ex"><b>After TOOL-1</b>✔ practicesoftwaretesting: 7 action(s) in 9 file(s); the UI / API maps hold 7 proven, 0 stale, in 2 map file(s)</div></div>
+    <div class="phase"><div class="n">9</div><div><h4>Later stories <span class="badge b-inc">subagents</span></h4><p>Each story starts from what the earlier ones proved. <code>heldout actions KEY</code> lists the actions that concern it first. The test author imports the ones that do its steps and adds only what is missing. The hardener checks the proven ones with its first run instead of probing them. When a story has users to create, the accounts recipe saved by the first such story gives every later one its users through <code>seed.account()</code>.</p><span class="cmd">heldout actions TOOL-2 · harden · run · harvest</span></div><div class="ex"><b>TOOL-2</b>0 reused, 4 added (api/users/, ui/account/): sign-up and sign-in share nothing with the catalogue. Afterwards: 11 actions in 15 files, 11 proven, 4 map files</div></div>
+    <div class="phase"><div class="n">10</div><div><h4>When the application changes <span class="badge b-muted">script</span></h4><p>An action whose code changed since a story proved it shows as <i>changed since proven</i> until a passing story proves the new code. One the hardener replaced shows as <i>stale</i> until a later story proves it again. A story that calls an action proves it once more: the map adds that story to its proofs without anyone editing the action.</p><span class="cmd">heldout actions --aut &lt;id&gt; --log · --check</span></div><div class="ex"><b>Map log</b>2026-10-05 01:12 · ui:catalogue.openCatalogue — Open the web shop's catalogue page … · opens / — proven by TOOL-1</div></div>
+  </div>
+
+  <h3>How a later story finds them</h3>
+  <p>Nothing is fetched from a server. The actions and their maps are plain files in the project's repository, so pulling the main branch brings in everyone's actions. Each command that needs them reads them on the spot: the action files for what each action does (its exported function, doc comment, parameters, the routes it opens, the endpoints it calls and the locators it uses), and every map file of a kind, folded into one view, for which stories proved it and when. <code>heldout actions KEY</code> puts that in front of the subagents as a short listing, the actions that concern the story first:</p>
+  <div class="code"><div class="hd">npm run heldout -- actions TOOL-2 (after TOOL-1 and TOOL-2 were harvested)</div><pre data-lang="sh">Actions of Practice Software Testing (practicesoftwaretesting) in actions/practicesoftwaretesting/: 4 of 11 that concern this story (--all for every one)
+
+ui/account/
+  openSignInPage(page: Page)  open-sign-in-page.ts  [proven by TOOL-2, 2026-10-05]
+      Open the web shop's sign-in page (the one "Sign in" in the navigation leads to) and wait until its form is shown. · opens /auth/login
+  submitSignInForm(page: Page, email: string, password: string)  submit-sign-in-form.ts  [proven by TOOL-2, 2026-10-05]
+      On the open sign-in page, enter an e-mail address and a password and submit the form.
+
+api/users/
+  registerCustomer(api: Api, seed: Seed, details: Partial&lt;NewCustomer&gt; = {})  register-customer.ts  [proven by TOOL-2, 2026-10-05]
+      Register a new customer through POST /users/register … · calls POST /users/register
+  signInCustomer(api: Api, seed: Seed, email: string, password: string)  sign-in-customer.ts  [proven by TOOL-2, 2026-10-05]
+      Sign a customer in over the API (POST /users/login …) and return the access token … · calls POST /users/login
+
+Other domains: ui/catalogue/, api/categories/, api/products/</pre></div>
+  <p>An action concerns a story when it calls a resource of one of the story's endpoints, opens a route one of its criteria starts on, or its domain is a word of the story. The others are named by their domain only, and <code>--all</code> lists them in full. Each action shows its status: <i>proven by</i> the stories that proved it, <i>changed since proven</i>, <i>not proven yet</i> or <i>stale</i>.</p>
+
+  <h3>Where tokens are saved</h3>
+  <p>Most of the cost of an evaluation is in the subagents reading things: the contract, the code they work on and, above all, the snapshots of live pages and the answers of API probes while hardening. Actions cut that reading down in a few ways:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Who</th><th>On an application with no actions yet</th><th>With proven actions</th></tr></thead>
+    <tbody>
+      <tr><td>Test author</td><td>Writes every step from scratch, guessing each route, locator and field and marking it <code>TODO(harden)</code></td><td>Reads one short entry per action that concerns the story (what it does, what it opens and calls, who proved it) and imports it. It never opens the code of the other domains</td></tr>
+      <tr><td>Hardener</td><td>Probes every route, locator and field with the browser and API tiers. This is the costliest part of an evaluation, since every page snapshot and probe answer is read in full</td><td>Runs the tests once: a proven action that works there needs no probe, and is probed only if that run fails in it. A gap that a proven action already answers, such as the route of a page, is resolved by citing the action and the story that proved it</td></tr>
+      <tr><td>Both</td><td>Many <code>TODO(harden)</code> marks, so several probe, fix and re-run loops</td><td>Fewer marks, so fewer loops. The status marks say exactly which actions to look at again: <i>changed since proven</i>, <i>not proven yet</i>, <i>stale</i></td></tr>
+      <tr><td>Test users</td><td>Each story would find out how to sign up and sign in again</td><td>The accounts recipe is saved once, by the first story that needs users, and <code>seed.account()</code> gives every later story its users</td></tr>
+    </tbody>
+  </table></div>
+  <p>In one measured round, TOOL-4 (favourites) reused two actions proven by earlier stories. Its test author used about 73k tokens, against 82k for the same story with no actions to reuse, and its hardener about 109k against 116k. A story that touches nothing proven saves nothing: TOOL-2, the first story about sign-up and sign-in, paid the full cost. The next story about signed-in customers starts from what TOOL-2 proved, so the saving grows as stories on the same application overlap.</p>
+
+  <h3>Merge conflicts: avoided by design</h3>
+  <p>Shared test code usually conflicts because everyone edits the same few files: a page-object class per page, an index that re-exports every helper, one registry of what exists. Here, people (or teams) evaluate their own stories against the same application on their own branches, and each adds the actions their stories need. The folder is laid out so that adding is always creating new files, never editing shared ones:</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 330" role="img" aria-label="Two branches add actions and harvest stories at the same time; each touches only new files and its own story folder, so the merge into main has nothing to resolve">
+        <path class="edge" d="M20 165 H940"/><text class="t-b" x="24" y="155">main</text>
+        <path class="edge acc" d="M110 165 C150 165, 150 70, 200 70 H640 C700 70, 700 165, 740 165"/>
+        <path class="edge acc" d="M110 165 C150 165, 150 260, 200 260 H760 C820 260, 820 165, 860 165"/>
+        <rect class="box violet" x="210" y="30" width="420" height="80" rx="12"/><text class="t-b" x="420" y="54" text-anchor="middle">Branch A · story TOOL-5 (cart)</text><text class="t-m" x="420" y="74" text-anchor="middle">+ ui/cart/add-to-cart.ts  + api/carts/create-cart.ts</text><text class="t-m" x="420" y="94" text-anchor="middle">+ map/ui/…-tool-5-3f2a1c.json  + output/…/TOOL-5/</text>
+        <rect class="box blue" x="210" y="220" width="540" height="80" rx="12"/><text class="t-b" x="480" y="244" text-anchor="middle">Branch B · story TOOL-6 (checkout) · open-catalogue.ts untouched</text><text class="t-m" x="480" y="264" text-anchor="middle">+ ui/checkout/pay-by-card.ts  + map/ui/…-tool-6-9b07e4.json</text><text class="t-m" x="480" y="284" text-anchor="middle">+ map/api/…-tool-6-51c2d8.json  + output/…/TOOL-6/</text>
+        <circle cx="740" cy="165" r="7" class="box green"/><circle cx="860" cy="165" r="7" class="box green"/>
+        <text class="t-s" x="740" y="190" text-anchor="middle">merge A</text><text class="t-s" x="860" y="145" text-anchor="middle">merge B</text>
+        <rect class="box green" x="770" y="20" width="170" height="64" rx="10"/><text class="t-b" x="855" y="46" text-anchor="middle">nothing to resolve</text><text class="t-s" x="855" y="66" text-anchor="middle">every path is new</text>
+        <text class="t-s" x="480" y="322" text-anchor="middle">then, on main: heldout actions --aut &lt;id&gt; --check (after a merge, or in CI)</text>
+      </svg>
+    </div>
+    <figcaption>Both branches only add files. Both stories also call <code>openCatalogue</code>, which TOOL-1 proved earlier: each re-proves it with a new map file, and nobody edits its code.</figcaption>
+  </figure>
   <div class="tbl"><table>
     <thead><tr><th>What people do on their branches</th><th>What happens when the branches merge</th></tr></thead>
     <tbody>
       <tr><td>Add new actions</td><td>Each is a new file: git merges them on its own, nothing to resolve</td></tr>
       <tr><td>Harvest their stories</td><td>Each harvest is new map files, never an edit: git merges them on its own</td></tr>
       <tr><td>Use, and so re-prove, an existing action</td><td>Only new map files again; the action file is untouched</td></tr>
+      <tr><td>Freeze, harden, run and stage stale marks</td><td>All in the story's own folder, <code>output/&lt;profile&gt;/&lt;KEY&gt;/</code> (<code>draft/actions.json</code>, <code>hardening/actions-staged.json</code>, <code>actions-harvest.json</code>): no other story writes there</td></tr>
       <tr><td>Fix the same action, both of them</td><td>A real conflict, in that one small file: the two fixes have to be reconciled anyway</td></tr>
-      <tr><td>Add the same action twice, under two names</td><td>No conflict, but a duplicate: <code>heldout actions --aut &lt;id&gt; --check</code> and <code>doctor</code> report actions that make the same calls or open the same page the same way</td></tr>
       <tr><td>Add the same action under the same name</td><td>Both create the same file: git shows one conflict to resolve, instead of two copies</td></tr>
+      <tr><td>Add the same action twice, under two names</td><td>No conflict, but a duplicate: <code>actions --check</code> and <code>doctor</code> report actions that make the same calls, or open the same routes with the same locators</td></tr>
     </tbody>
   </table></div>
+
+  <h4>What makes it work</h4>
   <ul class="clean">
-    <li><b>One action per file, named after it, in its domain's folder.</b> The lint warns about a file with several actions, a file not named after its action, a file outside a domain folder and an index file, which every new action would have to edit.</li>
-    <li><b>Maps that are only ever added to.</b> Each harvest writes new files, one per kind, named by time, story and a random part (<code>map/ui/&lt;time&gt;-&lt;story&gt;-&lt;random&gt;.json</code>). What the maps say is worked out when they are read, by folding every file of a kind: each action keeps the latest time it was proven and found stale, and the union of the stories that proved it. So the order of the files doesn't matter and a file folded twice changes nothing. An action is stale when its latest stale mark is newer than its latest proof.</li>
-    <li><b>A check after merging.</b> <code>heldout actions --aut &lt;id&gt; --check</code>, after a merge or in CI, lints every action file and lists possible duplicates, the actions not in the map yet and the map entries whose action is gone from the code. <code>doctor</code> reports the same in one line.</li>
-    <li><b>Compaction from one place.</b> <code>actions --aut &lt;id&gt; --compact</code> folds each kind's map files into one snapshot and deletes the files it folded. Run it from one place, such as a scheduled CI job or its owner, and commit the snapshots with the deletions; a second compaction elsewhere loses nothing. <code>doctor</code> suggests it past 200 files, and <code>actions --aut &lt;id&gt; --log</code> prints what the maps learned, when and from which story.</li>
+    <li><b>One action per file, named after it, in its domain's folder, and no index.</b> A new action is a new path, so two branches that add actions never touch the same file. Specs import each action file directly, so there is no index or barrel file that every new action would have to edit. The lint warns about a file with several actions, a file not named after its action, a file outside a domain folder and an index file, before they reach anyone else.</li>
+    <li><b>Maps that are only ever added to.</b> Each harvest writes new files, one per kind, named by time, story and a random part (<code>map/ui/&lt;time&gt;-&lt;story&gt;-&lt;random&gt;.json</code>), so two harvests never pick the same name, even of the same story at the same second.</li>
+    <li><b>A map worked out when it is read.</b> Every file of a kind is folded into one view: for each action and each version of what it does, the latest time it was proven, the latest time it was found stale, and the union of the stories that proved it. Taking the latest and the union gives the same result in any order, and folding a file twice changes nothing, so it doesn't matter which branch merged first. An action is stale when its latest stale mark is newer than its latest proof. Its current entry is the version proven most recently; an older proven version stays as an alternative.</li>
+    <li><b>Story files stay in the story's folder.</b> Everything one evaluation writes about actions, apart from new action files and new map files, lives under its own <code>output/&lt;profile&gt;/&lt;KEY&gt;/</code>.</li>
+    <li><b>A check after merging.</b> <code>heldout actions --aut &lt;id&gt; --check</code>, after a merge or in a CI job, lints every action file and lists possible duplicates, the actions not in the map yet and the map entries whose action is gone from the code. <code>doctor</code> reports the same in one line.</li>
+    <li><b>Compaction from one place.</b> Map files pile up, one or two per story. <code>actions --aut &lt;id&gt; --compact</code> folds each kind's files into one <code>snapshot-….json</code> and deletes the files it folded. Run it from one place, such as a scheduled CI job or the folder's owner, and commit the snapshot with the deletions. Snapshots fold like any other map file, so a branch harvested before the compaction still merges cleanly, and a second compaction somewhere else loses nothing. <code>doctor</code> suggests compacting past 200 files.</li>
   </ul>
-  <div class="plain">
-    <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
-    <p>The exam is still written from the syllabus alone. What the students share is a book of directions to the exam rooms: which corridor, which door, where the light switch is. Each student may use it while writing the exam, because it holds no answers, and adds the directions that got them there. Nobody is allowed to write an answer in it.</p>
+  <div class="code"><div class="hd">A map file on main, one from each branch, and what the map says after both merges</div><pre data-lang="sh">map/ui/20261005T011211Z-tool-1-383902.json   ui:catalogue.openCatalogue  proven  2026-10-05 01:12  by TOOL-1
+map/ui/20261012T091500Z-tool-5-3f2a1c.json   ui:catalogue.openCatalogue  proven  2026-10-12 09:15  by TOOL-5
+map/ui/20261013T140200Z-tool-6-9b07e4.json   ui:catalogue.openCatalogue  proven  2026-10-13 14:02  by TOOL-6
+
+folded (either order):                        ui:catalogue.openCatalogue  proven  latest 2026-10-13 14:02  by TOOL-1, TOOL-5, TOOL-6</pre></div>
+
+  <h4>What can still conflict, and what to do</h4>
+  <div class="grid two">
+    <div class="card"><h4>The same action fixed twice</h4><p>Two branches changed one action file, because the application changed or one of them bent it to a story. Reconcile the two in that file, keeping what works for every caller. The map lists the stories that proved the action: re-run one of them, and the next harvest proves the merged code.</p></div>
+    <div class="card"><h4>A domain's <code>_shared.ts</code></h4><p>The one file that several actions of a domain share. Two people adding helpers at its end can meet on the same lines. Keep a helper in your own action file until a second action needs it, and keep <code>_shared.ts</code> small.</p></div>
+    <div class="card"><h4>The same action under two names</h4><p><code>--check</code> groups them. Keep one, make the specs that import the other import it, and delete the other file. <code>--check</code> then lists its old map entries as gone from the code; they do no harm.</p></div>
+    <div class="card"><h4>The accounts recipe</h4><p>Not an action, but shared the same way: one recipe per application in <code>heldout.config.json</code>, saved by the first story that needs test users. Two branches saving it at the same time edit the same lines; keep the one whose story passed.</p></div>
   </div>
+
+  <h4>A team's routine</h4>
+  <ol>
+    <li>One branch per story. Evaluate it, then commit the new and fixed action files, the new map files and the story's <code>output/</code> folder together, in one merge request.</li>
+    <li>Pull the main branch before starting a story, so <code>heldout actions KEY</code> lists what other people's stories have proven since.</li>
+    <li>After merging, or in a CI job on the main branch: <code>heldout actions --aut &lt;id&gt; --check</code>.</li>
+    <li>Now and then, from one place only: <code>heldout actions --aut &lt;id&gt; --compact</code>, committed with its deletions. <code>--log</code> shows what the maps learned, when and from which story.</li>
+  </ol>
 </section>
 
 <!-- ============ SEEDING ============ -->
