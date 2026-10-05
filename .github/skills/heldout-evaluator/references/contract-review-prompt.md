@@ -20,6 +20,7 @@ other attachments are not sources, and there is no API document unless the pack 
 ## What to check
 
 Check each of these refs: {{REFS}}
+{{CHANGED}}
 
 - **AC-n**
   - The `quote` states that criterion at the cited lines.

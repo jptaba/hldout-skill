@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SKILL_DIR, assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './config';
 import { CONTRACT_FILE, checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
-import { REVIEW_FILE, checkReview, contractHash, evidencePack, readReview, reviewRefs, type ContractReview } from './evidence';
+import { REVIEW_FILE, changedSinceReview, checkReview, contractHash, evidencePack, readReview, reviewItemHashes, reviewRefs, type ContractReview } from './evidence';
 
 const BINARY = /\.(png|jpe?g|gif|webp|bmp|pdf|docx?|xlsx?|pptx?)$/i;
 
@@ -117,13 +117,24 @@ main(async () => {
       process.exit(1);
     }
     const tpl = fs.readFileSync(path.join(SKILL_DIR, 'references', 'contract-review-prompt.md'), 'utf8');
-    console.log(tpl.replaceAll('{{KEY}}', key).replaceAll('{{EVAL_DIR}}', rel(p.base)).replaceAll('{{PACK}}', rel(packFile))
+    // A re-review: name what changed since the last matching review. Every item is still checked and given a verdict.
+    const earlier = readReview(p.base);
+    const changed = earlier && earlier.contractHash !== contractHash(c) ? changedSinceReview(c, earlier) : undefined;
+    const changedNote = changed?.length
+      ? `\nThis is a re-review. Changed since the last review (${earlier?.reviewedAt}): ${changed.map((r) => `\`${r}\``).join(', ')}. Check these in full against the pack, and read the pack once more for anything the change now misses; every other item is unchanged since that review, so its verdict there carries over.\n`
+      : '';
+    console.log(tpl.replaceAll('{{CHANGED}}', changedNote).replaceAll('{{KEY}}', key).replaceAll('{{EVAL_DIR}}', rel(p.base)).replaceAll('{{PACK}}', rel(packFile))
       .replaceAll('{{CONTRACT}}', rel(file)).replaceAll('{{REVIEW}}', rel(path.join(p.base, REVIEW_FILE)))
       .replaceAll('{{HASH}}', contractHash(c)).replaceAll('{{REFS}}', reviewRefs(c).map((r) => `\`${r}\``).join(', ')));
     return;
   }
 
   const review = readReview(p.base);
+  // A review that matches the contract gets a hash per item, so a later change names the items to re-check.
+  if (review && review.contractHash === contractHash(c) && !review.itemHashes) {
+    review.itemHashes = reviewItemHashes(c);
+    writeFile(path.join(p.base, REVIEW_FILE), `${JSON.stringify(review, null, 2)}\n`);
+  }
   const reviewFindings = checkReview(c, review, { requireReview: !flags['allow-unreviewed'] });
   const listed = new Set(['oracle-gap-open', 'mechanics-to-discover']); // shown as the two lists below
   const all = [...findings, ...reviewFindings];

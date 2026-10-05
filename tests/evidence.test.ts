@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { requirementRevision, type RequirementContract } from '../.github/scripts/contract-model';
-import { checkCoverage, checkLiterals, checkReview, contractHash, evidencePack, inventedLiterals, reviewRefs, sourceLines, type ContractReview } from '../.github/scripts/evidence';
+import { changedSinceReview, checkCoverage, checkLiterals, checkReview, contractHash, reviewItemHashes, evidencePack, inventedLiterals, reviewRefs, sourceLines, type ContractReview } from '../.github/scripts/evidence';
 
 const STORY = `---
 key: ABC-1
@@ -181,6 +181,16 @@ describe('independent review', () => {
     const r = review(c);
     c.acceptanceCriteria[0].outcomes.push('extra');
     assert.deepEqual(codes(checkReview(c, r)), ['review-stale']);
+  });
+  it('names the items changed since a review that carries item hashes', () => {
+    const dir = fixture();
+    const c = contract(dir);
+    const r = review(c, { itemHashes: reviewItemHashes(c) });
+    assert.deepEqual(changedSinceReview(c, r), []);
+    c.acceptanceCriteria[1].outcomes.push('extra');
+    assert.deepEqual(changedSinceReview(c, r), ['AC-2']);
+    assert.match(checkReview(c, r)[0].message, /changed since: AC-2/);
+    assert.equal(changedSinceReview(c, review(c)), undefined, 'an unstamped review names nothing');
   });
   it('turns unsupported / misread items and missed lines into errors', () => {
     const dir = fixture();
