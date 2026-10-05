@@ -20,6 +20,10 @@ A **domain** is an area of the application as its users see it, named by what it
 `account`), not by the story that first needed it. An action goes in the folder of the area it works on, in a file
 named after it (`addToFavouritesOnProductPage` → `add-to-favourites-on-product-page.ts`).
 
+Test users are not actions: when the profile has an accounts recipe (`auts.<id>.accounts`), a test that needs a user
+takes one from `seed.account()` and signs it in with `signIn()`. Write an action that creates users only for a story
+that tests the creation itself, or needs fields the recipe doesn't send.
+
 ## What an action is, and what it never is
 
 ```ts

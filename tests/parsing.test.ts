@@ -44,11 +44,15 @@ describe('readSuite: wrapped notes and table titles', () => {
 //   which holds every match.
 // from story.md#L2
 test(\`SCN-001.\${i + 1}: Pages at 12: \${row.name}\`, { tag: ['@AC-1', '@type:boundary'] }, async () => {});
+test(\`SCN-002.\${i + 1}: A password of \${row.length} characters is \${row.outcome}\`, { tag: ['@AC-2', '@type:boundary'] }, async () => {});
+test(\`SCN-003.\${i + 1}: 422 names the rule "\${rule.text}"\`, { tag: ['@AC-2', '@type:negative'] }, async () => {});
 `);
   const f = readSuite(dir);
   it('joins a note wrapped onto the comment lines below it, and drops the per-case part of a table title', () => {
     assert.deepEqual(f.assumptions, ['lists are compared on the first page, which holds every match.']);
     assert.equal(f.scenarios[0].title, 'Pages at 12');
+    assert.equal(f.scenarios[1].title, 'A password of … characters is …');
+    assert.equal(f.scenarios[2].title, '422 names the rule …');
     assert.deepEqual(f.scenarios[0].sources, ['story.md#L2']);
   });
 });

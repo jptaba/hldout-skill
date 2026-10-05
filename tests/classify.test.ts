@@ -122,6 +122,11 @@ describe('relevantExchange', () => {
     const e = parseError(pw(['Error: [REQ AC-6] attempts respond 401', 'Expected: [401, 401, 401, 401, 401]', 'Received: [401, 401, 401, 423, 423]']));
     assert.equal(relevantExchange(logins, e), 4);
   });
+  it('for one call of a repeated run, picks the first received status after the last expected one', () => {
+    const logins = [exchange('POST', 'https://x.test/users/register', 201), ...[401, 401, 401, 423, 423, 423].map((s) => exchange('POST', 'https://x.test/users/login', s))];
+    const e = parseError(pw(['Error: [REQ AC-6] POST /users/login attempt 4 responds 401', 'Expected: 401', 'Received: 423']));
+    assert.equal(relevantExchange(logins, e), 4);
+  });
 });
 
 describe('looseRegexMatch', () => {
