@@ -69,7 +69,7 @@ function skillFingerprint(): string {
     .map((f) => path.join(import.meta.dirname, f));
   const support = path.resolve('heldout-support', 'fixtures.ts');
   const h = createHash('sha256');
-  for (const f of [...files, ...(fs.existsSync(support) ? [support] : [])]) h.update(fs.readFileSync(f));
+  for (const f of [...files, ...(fs.existsSync(support) ? [support] : [])]) h.update(fs.readFileSync(f, 'utf8').replace(/\r\n/g, '\n'));
   return h.digest('hex').slice(0, 16);
 }
 

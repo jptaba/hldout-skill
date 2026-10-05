@@ -22,7 +22,9 @@ import { confluenceLinks, createTracker, createWiki, embeddedAttachments, type J
 
 const hashDir = (dir: string): Map<string, string> => new Map(fs.existsSync(dir)
   ? fs.readdirSync(dir).filter((f) => fs.statSync(path.join(dir, f)).isFile())
-    .map((f) => [f, crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, f))).digest('hex')])
+    // Text with LF line endings, so a CRLF checkout (Windows) doesn't read as a requirement revision.
+    .map((f) => [f, crypto.createHash('sha256').update(/\.(md|txt|html?|xml|json|ya?ml|csv)$/i.test(f)
+      ? fs.readFileSync(path.join(dir, f), 'utf8').replace(/\r\n/g, '\n') : fs.readFileSync(path.join(dir, f))).digest('hex')])
   : []);
 const body = (md: string) => md.replace(/^fetchedAt: .*$/m, '').trim();
 

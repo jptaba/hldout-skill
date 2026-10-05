@@ -63,6 +63,16 @@ describe('requirement contract', () => {
     assert.deepEqual(c.revision, requirementRevision(dir));
   });
 
+  it('is the same revision when a checkout turns the text to CRLF line endings', () => {
+    const dir = fixture();
+    const before = requirementRevision(dir);
+    for (const f of ['story.md', 'linked/rules.csv']) {
+      const file = path.join(dir, f);
+      fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace(/\r?\n/g, '\r\n'));
+    }
+    assert.deepEqual(requirementRevision(dir), before);
+  });
+
   it('normalises markdown, quotes and whitespace for quote anchoring', () => {
     assert.equal(normaliseText('**AC-1**:  `POST`\n“x” — y'), 'ac-1: post "x" - y');
     assert.equal(normaliseText('distinct slug (**201**).'), normaliseText('distinct slug (201).'));
