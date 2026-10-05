@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Held-out evaluator configuration",
-  "description": "Everything application-specific the held-out evaluator needs. One profile per application; a story is evaluated in output/<profile>/<KEY>/ and its tests share the journey fixtures in journeys/<profile>/.",
+  "description": "Everything application-specific the held-out evaluator needs. One profile per application; a story is evaluated in output/<profile>/<KEY>/ and its tests share the actions in actions/<profile>/.",
   "type": "object",
   "required": [
     "auts"
@@ -421,10 +421,10 @@
       "default": "output",
       "description": "Everything of a story, per application: <outputDir>/<profile>/<KEY>/ (requirement, contract, tests, hardening, runs, verdict)."
     },
-    "journeysDir": {
+    "actionsDir": {
       "type": "string",
-      "default": "journeys",
-      "description": "The reusable journey fixtures of each application and their UI / API maps: <journeysDir>/<profile>/ui|api/<domain>.ts, map/ui|api/*.json."
+      "default": "actions",
+      "description": "The reusable actions of each application, one per file, and their UI / API maps: <actionsDir>/<profile>/ui|api/<domain>/<action>.ts, map/ui|api/*.json."
     },
     "run": {
       "type": "object",

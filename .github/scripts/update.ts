@@ -199,7 +199,7 @@ main(() => {
   // init runs update first and prints its own next steps.
   if (!process.env.HELDOUT_INIT) {
     console.log(fs.existsSync(path.join(ROOT, 'heldout.config.json'))
-      ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; stories and journey fixtures carry on as before)'
+      ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; stories and actions carry on as before)'
       : `\nNext: set the project up — npx -y tsx "${path.join(SCRIPTS_DIR, 'heldout.ts').split(path.sep).join('/')}" init --base-url https://your-app --install`);
   }
 });

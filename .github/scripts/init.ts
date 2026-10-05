@@ -13,7 +13,7 @@
  * installs the skill, its scripts, the subagents and the workspace files (and the CI pipeline with --ci [gitlab|github]),
  * then continues from the project's own copy of the scripts. There it creates or completes, and never overwrites:
  * heldout.config.json (with $schema for editor help), .env (from .env.example), package.json (the `heldout` npm script
- * and dev dependencies), .gitignore entries, mock-jira/, output/ and journeys/, and the root .mcp.json (Claude Code reads MCP
+ * and dev dependencies), .gitignore entries, mock-jira/, output/ and actions/, and the root .mcp.json (Claude Code reads MCP
  * servers only there) with the skill's servers from .vscode/mcp.json, added to any the project already has. --install runs `npm install` and installs
  * Chromium. Unless given, the profile id comes from the host name, and one visit of the start page supplies the name
  * (page title), the test-id attribute and blockHosts (the ad/analytics networks the page loads).
@@ -31,13 +31,13 @@ const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', MCP_FILE, '.en
 const STARTER_CONFIG = {
   jira: { mode: 'mock', mockRoot: 'mock-jira', baseUrl: 'https://jira.example.com', acceptanceCriteriaField: '', verdictLabelPrefix: 'heldout-' },
   outputDir: 'output',
-  journeysDir: 'journeys',
+  actionsDir: 'actions',
   run: { retries: 1, workers: 4, headless: true, actionTimeoutMs: 10000, expectTimeoutMs: 5000, testTimeoutMs: 60000 },
 };
 const STARTER_PROFILE = {
   testIdAttribute: 'data-testid',
   healthcheck: ['/'],
-  notes: 'Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/, its journey fixtures to journeys/<profile>/.',
+  notes: 'Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/, its actions to actions/<profile>/.',
 };
 /** Versions the skill is tested with (caret ranges — npm resolves the latest compatible). */
 const DEV_DEPENDENCIES: Record<string, string> = { '@playwright/test': '^1.63.0', tsx: '^4.23.0', typescript: '^7.0.0', '@types/node': '^26.0.0' };
@@ -200,7 +200,7 @@ main(async () => {
   }
   const needInstall = ensurePackageJson();
   ensureGitignore(say);
-  for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'output', 'journeys']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
+  for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'output', 'actions']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
   // Claude Code reads MCP servers only from the root .mcp.json: give it the skill's servers from .vscode/mcp.json (those
   // update recorded; the project's own VS Code servers stay VS Code's).
   const servers = mcpServersIn(path.join(ROOT, MCP_FILE));
@@ -243,12 +243,12 @@ main(async () => {
 
   // Run again in a set-up project: nothing to onboard.
   if (existingProject && !flagStr(flags, 'base-url') && !(needInstall && !flags.install)) {
-    console.log('\nNext: npm run heldout -- doctor   (checks the project; stories and journey fixtures carry on as before)');
+    console.log('\nNext: npm run heldout -- doctor   (checks the project; stories and actions carry on as before)');
     return;
   }
   console.log('\nNext:');
   if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');
-  console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor  checks config, AUT reachability, Jira, browser, the journey fixtures`);
+  console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor  checks config, AUT reachability, Jira, browser, the actions`);
   console.log(`  ${needInstall && !flags.install ? '3' : '2'}. Ask Opus: "Run a held-out evaluation of ABC-123"   (no Jira? npm run heldout -- new ABC-1 --from story.md)`);
   console.log('  Test users, when stories need them (Opus asks when it gets there):');
   console.log('     accounts that already exist  npm run heldout -- accounts --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1');

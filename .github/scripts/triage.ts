@@ -16,9 +16,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, assertIssueKey, evalPaths, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
+import { ROOT, actionPaths, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, type AutoClassification, type Category, type ParsedError } from './classify';
-import { journeysUsedBy, profileFixtures } from './journeys-store';
+import { actionsUsedBy, profileActions } from './actions-store';
 import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles, type Endpoint } from './spec-model';
 import { readContract, requestContracts } from './contract-model';
 import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
@@ -51,13 +51,13 @@ function deepestFailingStep(steps: PwStep[] = []): string | undefined {
 const attachmentText = (a?: PwAttachment) => (!a ? '' : a.body ? Buffer.from(a.body, 'base64').toString('utf8')
   : a.path && fs.existsSync(a.path) ? fs.readFileSync(a.path, 'utf8') : '');
 
-/** The calls the story's journey fixtures make: plumbing, like the spec's SEED-ENDPOINT lines. */
-function journeyEndpoints(cfg: HeldoutConfig, specs: string[]): Endpoint[] {
-  const used = journeysUsedBy(cfg, specs);
-  const base = journeyPaths(cfg, cfg.autId).base;
-  return profileFixtures(cfg, cfg.autId).filter((f) => used.includes(path.join(base, f.file))).flatMap((f) => (f.endpoints ?? []).map((e) => {
+/** The calls the story's actions (and their domains' shared helpers) make: plumbing, like the spec's SEED-ENDPOINT lines. */
+function actionEndpoints(cfg: HeldoutConfig, specs: string[]): Endpoint[] {
+  const used = actionsUsedBy(cfg, specs);
+  const base = actionPaths(cfg, cfg.autId).base;
+  return profileActions(cfg, cfg.autId, true).filter((a) => used.includes(path.join(base, a.file))).flatMap((a) => (a.endpoints ?? []).map((e) => {
     const [method, p] = e.split(' ');
-    return { method, path: p, note: `journey fixture ${f.kind}/${f.domain}.${f.fixture}` };
+    return { method, path: p, note: `action ${a.kind}/${a.domain}.${a.action}` };
   }));
 }
 
@@ -66,7 +66,7 @@ function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFi
   const results = readJson<{ suites: PwSuite[] }>(resultsFile);
   const contract = readContract(p.base);
   const feature = readSuite(p.tests, contract);
-  const plumbing = [...feature.seedEndpoints, ...journeyEndpoints(cfg, specFiles(p.tests))];
+  const plumbing = [...feature.seedEndpoints, ...actionEndpoints(cfg, specFiles(p.tests))];
   const requests = requestContracts(contract);
   const entries: TriageEntry[] = [];
   for (const spec of specsOf(results.suites)) {

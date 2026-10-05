@@ -10,7 +10,7 @@
       "healthcheck": [
         "/"
       ],
-      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/, its journey fixtures to journeys/<profile>/.",
+      "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/, its actions to actions/<profile>/.",
       "accounts": {
         "password": "${env:TS_USER_PASSWORD}",
         "username": "hldout-${uid}@example.com",
@@ -63,7 +63,7 @@
     "verdictLabelPrefix": "heldout-"
   },
   "outputDir": "output",
-  "journeysDir": "journeys",
+  "actionsDir": "actions",
   "run": {
     "retries": 1,
     "workers": 4,

@@ -13,18 +13,18 @@ Jira story (title, description, acceptance criteria) + the screenshots they show
   → requirement contract: built by a subagent from any story format, every item cited to source lines,
     every line accounted for, every expected value grounded — then checked by an independent reviewer subagent
   → Playwright UI/API tests straight from the contract (criteria, test type and source on every test),
-    their steps on the app's reusable journey fixtures → freeze → harden vs the live AUT
+    their steps on the app's reusable actions → freeze → harden vs the live AUT
   → run → triage (script defect vs application defect, reproduced live) → repair & re-run
   → verdict.md (traceability, reproduction steps, evidence) → Jira comment + attachment → you decide
-  → journey maps: the fixtures the passing tests proved, for the next story (never what the app answers)
+  → action maps: the actions the passing tests proved, for the next story (never what the app answers)
 ```
 
 Two folders in your project hold the work:
 
 ```
-journeys/<app>/ui/<domain>.ts, api/<domain>.ts   reusable journey fixtures (sign-in, catalogue, cart…), shared by every story
-journeys/<app>/map/ui/*.json, map/api/*.json     which fixture touches which page or endpoint, proven by which story
-output/<app>/<KEY>/                              everything of one story: requirement, contract, tests, runs, verdict
+actions/<app>/ui|api/<domain>/<action>.ts      reusable actions, one per file (open-product.ts, add-favourite.ts…)
+actions/<app>/map/ui/*.json, map/api/*.json    which action touches which page or endpoint, proven by which story
+output/<app>/<KEY>/                            everything of one story: requirement, contract, tests, runs, verdict
 ```
 
 **The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains every capability with diagrams, plain-English
@@ -65,7 +65,7 @@ Add `--api-base-url` if the API lives elsewhere, and `--ci gitlab` for a GitLab 
 
 1. `npm run heldout -- doctor`. It checks Node, dependencies, the browser, config, reachability, Jira, subagents,
    secrets (including any secret value that has slipped into a file git would commit), the accounts recipe and the
-   journey fixtures. Every problem comes with the command that fixes it.
+   actions. Every problem comes with the command that fixes it.
 2. Reload VS Code once (or start a new Claude Code session), so the agent loads the Playwright MCP server and the
    subagents.
 3. Ask GitHub Copilot (agent mode) or Claude Code: **"Run a held-out evaluation of ABC-123"**.
@@ -78,7 +78,7 @@ npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" update
 ```
 
 It replaces the project's copy of the skill and its scripts, and refreshes every file it copied (configs, fixtures,
-subagents and bridges) unless you changed it since. It never touches your config, `.env`, `journeys/` or `output/`. `doctor` shows
+subagents and bridges) unless you changed it since. It never touches your config, `.env`, `actions/` or `output/`. `doctor` shows
 which version is installed, the exact update command, and the copied files you changed, which updates leave as they are.
 
 Or just ask GitHub Copilot or Claude Code to "set up held-out evaluation for https://your-app". The skill asks for anything it can't infer,
@@ -107,7 +107,7 @@ tests it judges.
 | --- | --- | --- | --- | --- |
 | `heldout-contract-extractor` | 1b build the requirement contract | — | Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol | `opus`, falling back to `sonnet` |
 | `heldout-contract-reviewer` | 1b review it independently | — | Claude Sonnet 5.5 → Claude Sonnet 5 → Claude Opus 5.5 → GPT-6.1 Sol | `sonnet`, falling back to `opus` |
-| `heldout-test-author` | 2 write the tests from the contract, on the journey fixtures | — | as the extractor | `opus`, falling back to `sonnet` |
+| `heldout-test-author` | 2 write the tests from the contract, on the app's actions | — | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-hardener` | 3 harden tests and fixtures; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-triager` | 5 triage, reproduce live | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 
@@ -126,7 +126,7 @@ agent asks you its questions in the chat, and passes `--quiet` to `heldout run` 
 | Test accounts, written once per app and used by `seed.account()` / `signIn()` in every story: existing accounts (passwords in `.env`, CI variables or HashiCorp Vault), or accounts the tests create over the API or on the app's sign-up page (deleted afterwards when the app allows it) | `npm run heldout -- accounts --add-existing …` · `auts.<id>.accounts` — [data-and-journeys.md §4a](.github/skills/heldout-evaluator/references/data-and-journeys.md) |
 | Secrets | `.env` (git-ignored), real environment variables (CI; they win over `.env`), or Vault: `${env:NAME}` / `${vault:path#field}` wherever a secret is referenced; `VAULT_ADDR` + `vault login` (or `VAULT_TOKEN`, AppRole) |
 | Which application a story targets | `npm run heldout -- fetch KEY --aut <id>` (the story goes to `output/<id>/KEY/`) |
-| Where outputs and journey fixtures go | `outputDir` (default `output`) and `journeysDir` (default `journeys`) in `heldout.config.json` |
+| Where outputs and actions go | `outputDir` (default `output`) and `actionsDir` (default `actions`) in `heldout.config.json` |
 | Jira and Confluence | `JIRA_MODE=datacenter`, `JIRA_BASE_URL` and a personal access token `JIRA_PAT` (`CONFLUENCE_PAT` if Confluence needs its own) in `.env`; `doctor --jira` finds your acceptance-criteria custom field — [jira.md](.github/skills/heldout-evaluator/references/jira.md) |
 | Browser tier 2 (Playwright MCP) | [.vscode/mcp.json](.vscode/mcp.json) (GitHub Copilot) · root `.mcp.json` (Claude Code; `init` and `update` write it from `.vscode/mcp.json`) |
 | Subagents (contract, tests, hardening, triage) | [.github/agents/](.github/agents/) |
@@ -144,7 +144,7 @@ Everything goes through one entry point: `npm run heldout -- <command>`. `npm ru
 | `fetch KEY [--aut id]` | the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (never comments or other attachments); binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
-| `journeys KEY` · `journeys KEY --harvest --apply` · `journeys --aut <id> --check` | the app's journey fixtures for this story; record in the UI / API maps what passing tests proved; lint them all |
+| `actions KEY` · `actions KEY --harvest --apply` · `actions --aut <id> --check` | the app's actions for this story; record in the UI / API maps what passing tests proved; lint them all and find duplicates (after merging) |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
 | `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira and Confluence) · TypeScript |
@@ -204,18 +204,23 @@ as validated preconditions, and start where the AC starts. A failed precondition
 never as the requirement failing. Strategy:
 [data-and-journeys.md](.github/skills/heldout-evaluator/references/data-and-journeys.md).
 
-## Journey fixtures: each story makes the next one faster
+## Actions: each story makes the next one faster
 
-The HOW of driving each application lives as code in `journeys/<app>/`: UI fixtures (`ui/<domain>.ts`: open a page and
-wait until it is ready, fill a form) and API fixtures (`api/<domain>.ts`: create and delete a record, find one), one
-file per area of the application (`auth`, `catalogue`, `cart`…). The test author calls them for the steps of a new
-story's tests and adds the ones it needs; the hardener makes them work; the tests keep every expectation. Fixtures never
-hold what the application answers (the lint and the integrity check refuse it), so tests stay held out.
+The HOW of driving each application lives as code in `actions/<app>/`: UI actions (`ui/product/open-product.ts`: open
+a page and wait until it is ready, fill a form) and API actions (`api/favorites/add-favourite.ts`: create and delete a
+record, find one), one action per file, in the folder of the area of the application it works on (`auth`, `catalogue`,
+`cart`…). The test author calls them for the steps of a new story's tests and adds the ones it needs; the hardener makes
+them work; the tests keep every expectation. Actions never hold what the application answers (the lint and the
+integrity check refuse it), so tests stay held out.
 
-The UI and API maps (`journeys/<app>/map/ui/`, `map/api/`) say which fixture opens which page and calls which endpoint,
-and which stories' passing tests proved it. Every story adds new map files instead of editing one, so many people on
-many branches share them through git without merge conflicts. See
-[journeys.md](.github/skills/heldout-evaluator/references/journeys.md).
+The UI and API maps (`actions/<app>/map/ui/`, `map/api/`) say which action opens which page and calls which endpoint,
+and which stories' passing tests proved it.
+
+**Many people, one application, no merge conflicts.** Each team evaluates its own stories on its own branch and adds
+the actions they need. A new action is a new file and every harvest adds new map files, so git merges their work on its
+own. Only two people changing the same action meet in one small file. The same action added twice under two names is
+found by `npm run heldout -- actions --aut <app> --check` (run it after merging, or in CI) and by `doctor`. See
+[actions.md](.github/skills/heldout-evaluator/references/actions.md).
 
 ## Demos and evaluator testing
 

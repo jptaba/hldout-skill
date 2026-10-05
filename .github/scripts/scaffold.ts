@@ -4,7 +4,7 @@
  *   heldout scaffold KEY [--force]
  *
  * What it writes (never overwrites unless forced):
- *   tests/<key>.spec.ts imports (the shared fixtures and where the journey fixtures are), the ASSUMPTION / OPEN-QUESTION
+ *   tests/<key>.spec.ts imports (the shared fixtures and where the actions are), the ASSUMPTION / OPEN-QUESTION
  *                       lines of the contract's gaps, an empty @req-constants block, typed endpoint helpers, and one
  *                       test stub per criterion with its "// from" source and tags. Stubs are TODO(test): the lint
  *                       refuses them until implemented, and a criterion may need several tests (one @type each).
@@ -13,7 +13,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, assertIssueKey, createsAccounts, evalPaths, journeyPaths, loadConfig, main, parseArgs, rel, writeFile } from './config';
+import { ROOT, actionPaths, assertIssueKey, createsAccounts, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './config';
 import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint } from './contract-model';
 import { TEST_TYPES } from './spec-model';
 
@@ -67,7 +67,7 @@ main(() => {
   const anySpec = fs.existsSync(p.tests) && fs.readdirSync(p.tests).some((f) => f.endsWith('.spec.ts'));
   if (anySpec && !flags.force) { console.log(`• keep    ${rel(p.tests)}/ (a spec exists; --force to regenerate)`); return; }
   const fixtures = path.relative(p.tests, path.join(ROOT, 'heldout-support', 'fixtures')).split(path.sep).join('/');
-  const journeys = path.relative(p.tests, journeyPaths(cfg, cfg.autId).base).split(path.sep).join('/');
+  const actionsRel = path.relative(p.tests, actionPaths(cfg, cfg.autId).base).split(path.sep).join('/');
   // One helper per path (all methods on it listed in its comment).
   const byPath = new Map<string, ContractEndpoint[]>();
   for (const e of c.endpoints) byPath.set(e.path, [...(byPath.get(e.path) ?? []), e]);
@@ -94,10 +94,10 @@ main(() => {
     '/**',
     ` * Held-out acceptance tests for ${key} — "${c.title}".`,
     ' * Written from requirement-contract.json (the requirement only; never from the AUT\'s code). The steps call the',
-    ` * journey fixtures in ${rel(journeyPaths(cfg, cfg.autId).base)}/ (npm run heldout -- journeys ${key}); every expectation stays here.`,
+    ` * actions in ${rel(actionPaths(cfg, cfg.autId).base)}/ (npm run heldout -- actions ${key}); every expectation stays here.`,
     ' */',
     `import { test, expect${c.endpoints.length ? ', expectResponse' : ''}${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,
-    `// Journey fixtures: import { … } from '${journeys}/api/<domain>' and '${journeys}/ui/<domain>'.`,
+    `// Actions: import { … } from '${actionsRel}/api/<domain>/<action>' and '${actionsRel}/ui/<domain>/<action>'.`,
     ...(accounts ? [
       '',
       `// Accounts: \`const me = await seed.account()\` ${whoAccounts}.`,
@@ -125,7 +125,7 @@ main(() => {
       // The test type is a judgement about the test you write (a refusal is negative, a limit is boundary…): no default.
       `  // TODO(test) add '@type:<${TEST_TYPES.join('|')}>' (what this test truly proves); then go round the types for more tests of this criterion`,
       `  test('SCN-${String(i + 1).padStart(3, '0')}: ${shortTitle(ac).replace(/'/g, "\\'")}', { tag: ['@${ac.id}', '@layer:${ac.layer}', '@P1'${open.some((g) => g.required && g.affects.includes(ac.id)) ? ", '@needs-clarification'" : ''}] }, async ({ ${ac.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`,
-      `    // TODO(test) journey.step('Given …' / 'When …' / 'Then …') for each step; seed preconditions with seed.* (or a journey fixture); assert with "[REQ ${ac.id}] …" messages${ac.layer !== 'ui' && c.endpoints.length ? ` (API answers: expectResponse(res, { status, body }, '[REQ ${ac.id}] <METHOD /path> …'))` : ''}`,
+      `    // TODO(test) journey.step('Given …' / 'When …' / 'Then …') for each step; seed preconditions with seed.* (or an action); assert with "[REQ ${ac.id}] …" messages${ac.layer !== 'ui' && c.endpoints.length ? ` (API answers: expectResponse(res, { status, body }, '[REQ ${ac.id}] <METHOD /path> …'))` : ''}`,
       ...(ac.outcomes.length ? [`    // Then: ${ac.outcomes.join(' · ')}`] : []),
       '  });',
       '',
@@ -142,5 +142,5 @@ main(() => {
   else if (/\b(creat|regist|sign ?up)\w*\b[^.]*\b(user|account|customer)/i.test(JSON.stringify([c.testData, c.auth]))) {
     console.log(`• the tests make their own accounts: once hardening has found how (create, sign in, delete), save it as auts.${cfg.autId}.accounts in heldout.config.json — then seed.account() does it for this and every later story (references/data-and-journeys.md)`);
   }
-  console.log(`\nNext: the journey fixtures you can call (heldout journeys ${key}); write the tests, then: heldout lint ${key} --allow-unhardened`);
+  console.log(`\nNext: the actions you can call (heldout actions ${key}); write the tests, then: heldout lint ${key} --allow-unhardened`);
 });

@@ -102,8 +102,8 @@ export interface HeldoutConfig {
   };
   /** Everything of a story, per AUT profile: <outputDir>/<profile>/<KEY>/. */
   outputDir: string;
-  /** Reusable journey fixtures and their UI / API maps, per AUT profile: <journeysDir>/<profile>/. */
-  journeysDir: string;
+  /** Reusable actions and their UI / API maps, per AUT profile: <actionsDir>/<profile>/. */
+  actionsDir: string;
   run: {
     retries: number;
     workers?: number;
@@ -189,7 +189,7 @@ export function loadConfig(opts: { key?: string; aut?: string } = {}): HeldoutCo
   cfg.run ??= { retries: 1 };
   cfg.defaultAut ??= Object.keys(cfg.auts)[0];
   cfg.outputDir ??= 'output';
-  cfg.journeysDir ??= 'journeys';
+  cfg.actionsDir ??= 'actions';
 
   const bound = opts.key && !opts.aut && !process.env.HELDOUT_AUT ? boundProfile(cfg, opts.key) : undefined;
   const autId = opts.aut ?? process.env.HELDOUT_AUT ?? bound ?? cfg.defaultAut;
@@ -313,9 +313,9 @@ export function listStories(cfg: Pick<HeldoutConfig, 'outputDir'>): { profile: s
       .map((d) => ({ profile: p.name, key: d.name, dir: path.join(out, p.name, d.name) })));
 }
 
-/** The reusable journey fixtures of a profile: ui/<domain>.ts, api/<domain>.ts and the map fragments under map/. */
-export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir'>, profile: string) {
-  const base = path.resolve(ROOT, cfg.journeysDir, profile);
+/** The reusable actions of a profile: ui/<domain>/<action>.ts, api/<domain>/<action>.ts and the map files under map/. */
+export function actionPaths(cfg: Pick<HeldoutConfig, 'actionsDir'>, profile: string) {
+  const base = path.resolve(ROOT, cfg.actionsDir, profile);
   return { base, ui: path.join(base, 'ui'), api: path.join(base, 'api'), map: path.join(base, 'map') };
 }
 

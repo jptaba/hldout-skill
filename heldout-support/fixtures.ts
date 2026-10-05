@@ -14,7 +14,7 @@
  *
  * Assertion convention: every assertion that encodes a requirement carries a message tagged
  * `[REQ AC-n] ...` — triage uses the tag to separate application behaviour from script mechanics. Those assertions live
- * in the story's spec only; the shared journey fixtures (journeys/<profile>/) import from here and assert nothing a
+ * in the story's spec only; the shared actions (actions/<profile>/) import from here and assert nothing a
  * story expects.
  *
  * Secret redaction and the page helpers come from the skill installed in this project, so the tests and the skill's

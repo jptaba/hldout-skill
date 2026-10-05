@@ -12,13 +12,13 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { AGENT_FILES, ROOT, SKILL_DIR, createsAccounts, fileHash, dataPrefix, journeyPaths, listStories, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
+import { AGENT_FILES, ROOT, SKILL_DIR, actionPaths, createsAccounts, fileHash, dataPrefix, listStories, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
 import { appRootOf, describeCounts, discoverApp } from './detect';
 import { createTracker } from './jira';
 import { safeToScrub } from './redact';
 import { checkAccountRecipe, envNamesIn } from './accounts-recipe';
 import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './secrets';
-import { entries, journeyFiles, lintJourneys, loadMap, profileFixtures } from './journeys-store';
+import { actionFiles, duplicateActions, entries, lintActions, loadMap, profileActions } from './actions-store';
 import { CLAUDE_MCP_FILE, MCP_FILE } from './mcp-config';
 
 type Level = 'ok' | 'warn' | 'fail';
@@ -233,20 +233,23 @@ main(async () => {
     }
   }
 
-  // ---- journey fixtures (journeys/<profile>/) -----------------------------------------------------
+  // ---- actions (actions/<profile>/) ---------------------------------------------------------------
   if (cfg) {
     const ids = typeof flags.aut === 'string' ? [flags.aut] : Object.keys(cfg.auts);
     for (const id of ids.filter((x) => cfg!.auts[x])) {
-      const files = journeyFiles(cfg, id);
-      const where = rel(journeyPaths(cfg, id).base);
-      if (!files.length) { check('ok', 'journeys', `${id}: no journey fixtures yet — the first story's tests start them in ${where}/ui|api/<domain>.ts`); continue; }
+      const files = actionFiles(cfg, id);
+      const where = rel(actionPaths(cfg, id).base);
+      if (!files.length) { check('ok', 'actions', `${id}: no actions yet — the first story's tests start them in ${where}/ui|api/<domain>/<action>.ts`); continue; }
       const map = loadMap(cfg, id);
       const all = entries(map.records);
-      const fixtures = profileFixtures(cfg, id);
-      const errors = lintJourneys(files).filter((f) => f.level === 'error');
-      for (const e of errors) check('fail', 'journeys', e.message, 'move what a story expects into its test; fixtures hold HOW only');
-      check('ok', 'journeys', `${id}: ${fixtures.length} fixture(s) in ${files.length} domain file(s); the UI / API maps hold ${all.filter((e) => e.status === 'proven').length} proven, ${all.filter((e) => e.status === 'stale').length} stale, in ${map.files.length} fragment(s)${map.snapshots.length ? ` and ${map.snapshots.length} snapshot(s)` : ''}`,
-        map.files.length > 200 ? `${H} journeys --aut ${id} --compact   (from one place, e.g. a scheduled CI job)` : undefined);
+      const actions = profileActions(cfg, id);
+      const findings = lintActions(files, undefined, actionPaths(cfg, id).base);
+      for (const e of findings.filter((f) => f.level === 'error')) check('fail', 'actions', e.message, 'move what a story expects into its test; actions hold HOW only');
+      const layout = findings.filter((f) => f.level === 'warn' && f.code !== 'no-summary').length;
+      const dups = duplicateActions(actions).length;
+      if (layout || dups) check('warn', 'actions', `${id}: ${layout ? `${layout} file(s) off the one-action-per-file layout (a merge-conflict risk for everyone adding actions)` : ''}${layout && dups ? '; ' : ''}${dups ? `${dups} group(s) of possible duplicate actions` : ''}`, `${H} actions --aut ${id} --check`);
+      check('ok', 'actions', `${id}: ${actions.length} action(s) in ${files.length} file(s); the UI / API maps hold ${all.filter((e) => e.status === 'proven').length} proven, ${all.filter((e) => e.status === 'stale').length} stale, in ${map.files.length} map file(s)${map.snapshots.length ? ` and ${map.snapshots.length} snapshot(s)` : ''}`,
+        map.files.length > 200 ? `${H} actions --aut ${id} --compact   (from one place, e.g. a scheduled CI job)` : undefined);
     }
   }
 

@@ -349,7 +349,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <a href="#tests">Writing the tests</a>
   <a href="#integrity">Integrity freeze</a>
   <a href="#hardening">Hardening</a>
-  <a href="#journeys">Journey fixtures</a>
+  <a href="#actions">Actions</a>
   <a href="#seeding">Seeding and teardown</a>
   <a href="#run">Running</a>
   <a href="#triage">Triage</a>
@@ -369,7 +369,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <h1>The <em>held-out</em> evaluator</h1>
   <p class="lede">An AI agent skill for GitHub Copilot or Claude Code that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
   <div class="rail" aria-label="Pipeline">
-    <span class="chip">Fetch</span><i class="arr">›</i><span class="chip">Contract</span><i class="arr">›</i><span class="chip">Write tests</span><i class="arr">›</i><span class="chip">Freeze</span><i class="arr">›</i><span class="chip">Harden</span><i class="arr">›</i><span class="chip">Run</span><i class="arr">›</i><span class="chip">Triage</span><i class="arr">›</i><span class="chip">Verdict</span><i class="arr">›</i><span class="chip">Publish</span><i class="arr">›</i><span class="chip">Journey maps</span>
+    <span class="chip">Fetch</span><i class="arr">›</i><span class="chip">Contract</span><i class="arr">›</i><span class="chip">Write tests</span><i class="arr">›</i><span class="chip">Freeze</span><i class="arr">›</i><span class="chip">Harden</span><i class="arr">›</i><span class="chip">Run</span><i class="arr">›</i><span class="chip">Triage</span><i class="arr">›</i><span class="chip">Verdict</span><i class="arr">›</i><span class="chip">Publish</span><i class="arr">›</i><span class="chip">Action maps</span>
   </div>
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
@@ -435,7 +435,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <rect class="box plain" x="750" y="268" width="190" height="64" rx="12"/><text class="t-b" x="845" y="295" text-anchor="middle">CI pipeline</text><text class="t-s" x="845" y="314" text-anchor="middle">GitLab CI</text>
         <path class="edge" d="M750 300 H644"/><text class="t-s" x="695" y="292" text-anchor="middle">regression</text>
 
-        <rect class="box plain" x="280" y="378" width="440" height="80" rx="12"/><text class="t-b" x="500" y="404" text-anchor="middle">Your project (git)</text><text class="t-s" x="500" y="423" text-anchor="middle">heldout.config.json · .env (ignored) · heldout-support/fixtures.ts</text><text class="t-s" x="500" y="441" text-anchor="middle">output/&lt;app&gt;/KEY/ (tests, runs, verdict) · journeys/&lt;app&gt;/</text>
+        <rect class="box plain" x="280" y="378" width="440" height="80" rx="12"/><text class="t-b" x="500" y="404" text-anchor="middle">Your project (git)</text><text class="t-s" x="500" y="423" text-anchor="middle">heldout.config.json · .env (ignored) · heldout-support/fixtures.ts</text><text class="t-s" x="500" y="441" text-anchor="middle">output/&lt;app&gt;/KEY/ (tests, runs, verdict) · actions/&lt;app&gt;/</text>
         <path class="edge both" d="M500 338 V374"/><text class="t-s" x="514" y="361">evidence, history</text>
       </svg>
     </div>
@@ -455,13 +455,13 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="phases">
     <div class="phase"><div class="n">1</div><div><h4>Fetch <span class="badge b-muted">script</span></h4><p>Pulls the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link, and binds the story to an application profile. Comments and other attachments are not read. A later fetch notices when the requirement changed.</p><span class="cmd">heldout fetch KEY</span></div><div class="ex"><b>TOOL-4</b>story + criteria in a Jira custom field + 1 linked page with the API definition</div></div>
     <div class="phase"><div class="n">1b</div><div><h4>Contract <span class="badge b-inc">subagents</span></h4><p>One subagent turns the story into a structured, cited requirement contract. A second one, on a different model (Sonnet), reviews it in a fresh context. Scripts check that every item is grounded.</p><span class="cmd">heldout contract KEY --pack · heldout contract KEY</span></div><div class="ex"><b>TOOL-4</b>6 acceptance criteria · 6 gaps (5 how-to, found in the app) · reviewed</div></div>
-    <div class="phase"><div class="n">2</div><div><h4>Write the tests <span class="badge b-inc">subagent</span></h4><p>The test author, with no browser, writes Playwright TypeScript tests for the UI and the API straight from the reviewed contract. First one test per criterion, then round the test types (functional, negative, boundary, security, idempotency, concurrency…) for what each criterion implies. Each test is one journey, tagged with its criteria, the one test type it truly proves, and the source it comes from. Its steps call the app's <a href="#journeys">journey fixtures</a>, adding the missing ones. Guessed locators are marked for hardening.</p><span class="cmd">heldout scaffold KEY · heldout journeys KEY · heldout lint KEY</span></div><div class="ex"><b>TOOL-4</b>1 spec file, 11 tests (functional, security, idempotency, integration)</div></div>
-    <div class="phase"><div class="n">3</div><div><h4>Freeze + harden <span class="badge b-inc">subagent</span></h4><p>A script seals every expected value before the tests meet the real application. Then the hardener makes locators, waits and API plumbing work against the live app, in the tests and the journey fixtures they call, without touching what is expected.</p><span class="cmd">heldout integrity KEY --snapshot · inspect · api-probe --chain · run --label harden</span></div><div class="ex"><b>TOOL-4</b>14 requirement assertions frozen · tier 3 · accounts recipe saved · 0 open TODOs</div></div>
+    <div class="phase"><div class="n">2</div><div><h4>Write the tests <span class="badge b-inc">subagent</span></h4><p>The test author, with no browser, writes Playwright TypeScript tests for the UI and the API straight from the reviewed contract. First one test per criterion, then round the test types (functional, negative, boundary, security, idempotency, concurrency…) for what each criterion implies. Each test is one journey, tagged with its criteria, the one test type it truly proves, and the source it comes from. Its steps call the app's <a href="#actions">actions</a>, adding the missing ones, one file each. Guessed locators are marked for hardening.</p><span class="cmd">heldout scaffold KEY · heldout actions KEY · heldout lint KEY</span></div><div class="ex"><b>TOOL-4</b>1 spec file, 11 tests (functional, security, idempotency, integration)</div></div>
+    <div class="phase"><div class="n">3</div><div><h4>Freeze + harden <span class="badge b-inc">subagent</span></h4><p>A script seals every expected value before the tests meet the real application. Then the hardener makes locators, waits and API plumbing work against the live app, in the tests and the actions they call, without touching what is expected.</p><span class="cmd">heldout integrity KEY --snapshot · inspect · api-probe --chain · run --label harden</span></div><div class="ex"><b>TOOL-4</b>14 requirement assertions frozen · tier 3 · accounts recipe saved · 0 open TODOs</div></div>
     <div class="phase"><div class="n">4</div><div><h4>Run <span class="badge b-muted">script</span></h4><p>Preflight checks, then the full suite. Each run gets its own numbered folder that is never deleted.</p><span class="cmd">heldout run KEY --label eval</span></div><div class="ex"><b>TOOL-4</b>11 passed in 17.1 s, UI and API on separate hosts</div></div>
     <div class="phase"><div class="n">5</div><div><h4>Triage <span class="badge b-inc">subagent</span></h4><p>The triager classifies each failure as a script defect or an application defect, and reproduces every application defect live.</p><span class="cmd">heldout triage KEY [--set …]</span></div><div class="ex"><b>TOOL-4</b>nothing to triage</div></div>
     <div class="phase"><div class="n">6</div><div><h4>Verdict <span class="badge b-muted">script</span></h4><p>Renders the recommendation with traceability, reproduction steps and evidence.</p><span class="cmd">heldout verdict KEY → verdict.md, verdict.json</span></div><div class="ex"><b>TOOL-4</b><span class="badge b-pass">PASS</span> matches the answer key</div></div>
     <div class="phase"><div class="n">7</div><div><h4>Publish <span class="badge b-muted">script</span></h4><p>Attaches the verdict to the story, posts a summary comment and sets a label. Nothing else.</p><span class="cmd">heldout publish KEY</span></div><div class="ex"><b>TOOL-4</b>comment + attachment + label heldout-pass</div></div>
-    <div class="phase"><div class="n">8</div><div><h4>Journey maps <span class="badge b-muted">script</span></h4><p>Records in the app's UI and API maps the journey fixtures this story's passing tests called, with what each opens and calls and the story as its proof, for the next story on the app. Fixtures only failing tests called are left out. See <a href="#journeys">Journey fixtures</a>.</p><span class="cmd">heldout journeys KEY --harvest → --harvest --apply</span></div><div class="ex"><b>Writes</b>new files in journeys/&lt;app&gt;/map/ui/ and map/api/, committed with the fixture code</div></div>
+    <div class="phase"><div class="n">8</div><div><h4>Action maps <span class="badge b-muted">script</span></h4><p>Records in the app's UI and API maps the actions this story's passing tests called, with what each opens and calls and the story as its proof, for the next story on the app. Actions only failing tests called are left out. See <a href="#actions">Actions</a>.</p><span class="cmd">heldout actions KEY --harvest → --harvest --apply</span></div><div class="ex"><b>Writes</b>new files in actions/&lt;app&gt;/map/ui/ and map/api/, committed with the action files</div></div>
   </div>
   <p class="small">At any point, <code>npm run heldout -- status KEY</code> shows where a story is and prints the next command.</p>
 </section>
@@ -521,7 +521,7 @@ npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url http
         <rect class="box" x="764" y="140" width="176" height="72" rx="10"/><text class="t-b" x="852" y="167" text-anchor="middle">--ci gitlab</text><text class="t-s" x="852" y="186" text-anchor="middle">a regression pipeline</text><text class="t-s" x="852" y="202" text-anchor="middle">(GitLab CI job)</text>
       </svg>
     </div>
-    <figcaption><code>init</code> runs the skill repository's <code>update</code> first, then sets the project up from its own copy of the scripts. It never overwrites your config, <code>.env</code>, <code>journeys/</code> or <code>output/</code>. Later, <code>update</code> on its own refreshes the skill and every copied file you haven't changed.</figcaption>
+    <figcaption><code>init</code> runs the skill repository's <code>update</code> first, then sets the project up from its own copy of the scripts. It never overwrites your config, <code>.env</code>, <code>actions/</code> or <code>output/</code>. Later, <code>update</code> on its own refreshes the skill and every copied file you haven't changed.</figcaption>
   </figure>
 
   <h3>Discovery: one visit fills in the profile</h3>
@@ -554,13 +554,13 @@ npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url http
         <rect class="box" x="430" y="250" width="510" height="52" rx="10"/><text class="t-b" x="446" y="271">blockHosts</text><text class="t-m" x="580" y="271">ad and analytics networks</text><text class="t-s" x="446" y="290">blocked in every test: they inject content and cause flakiness</text>
       </svg>
     </div>
-    <figcaption>Values from the real Toolshop onboarding above. Any flag you pass, such as <code>--api-base-url</code>, wins over what discovery finds. <code>doctor</code> repeats the check later and warns if the app and the profile disagree. The app's <a href="#journeys">journey fixtures</a> start empty and grow with each story.</figcaption>
+    <figcaption>Values from the real Toolshop onboarding above. Any flag you pass, such as <code>--api-base-url</code>, wins over what discovery finds. <code>doctor</code> repeats the check later and warns if the app and the profile disagree. The app's <a href="#actions">actions</a> start empty and grow with each story.</figcaption>
   </figure>
 
   <h3>Doctor: the pre-flight check</h3>
   <div class="grid three">
     <div class="card"><h4>Runtime</h4><p>Node, Playwright, tsx, TypeScript and Chromium are installed.</p></div>
-    <div class="card"><h4>Config and files</h4><p>The config matches its JSON schema. Fixtures, subagents and the MCP server are in place, and the journey fixtures pass their lint.</p></div>
+    <div class="card"><h4>Config and files</h4><p>The config matches its JSON schema. Fixtures, subagents and the MCP server are in place, and the app's actions pass their check: lint, possible duplicates, map entries whose action is gone.</p></div>
     <div class="card"><h4>Secrets</h4><p>Every referenced secret is set. No secret value has slipped into a file git would commit.</p></div>
     <div class="card"><h4>Application</h4><p>Each URL answers. The test-id attribute, API host and ad networks still match the profile.</p></div>
     <div class="card"><h4>Test accounts</h4><p>The accounts recipe is exercised live: sign in, or create, sign in and delete.</p></div>
@@ -727,7 +727,7 @@ npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url http
 <section id="tests" class="reveal">
   <div class="kicker">Evaluating a story</div>
   <h2>Writing the tests</h2>
-  <p class="lede">The test author, who has no browser and never sees the application, writes Playwright TypeScript tests straight from the reviewed contract. <code>heldout scaffold</code> gives it a head start: one stub per criterion, the contract's gaps as comment lines and an empty block for the expected values. <code>heldout journeys KEY</code> lists the app's <a href="#journeys">journey fixtures</a> its steps can call.</p>
+  <p class="lede">The test author, who has no browser and never sees the application, writes Playwright TypeScript tests straight from the reviewed contract. <code>heldout scaffold</code> gives it a head start: one stub per criterion, the contract's gaps as comment lines and an empty block for the expected values. <code>heldout actions KEY</code> lists the app's <a href="#actions">actions</a> its steps can call.</p>
   <p>Each test is one user journey: an <code>SCN-nnn</code> id, the criteria it proves (<code>@AC-n</code>), exactly one <code>@type:</code>, a <code>@layer:</code>, and a <code>// from …</code> comment above it naming the story section, linked page or screenshot it comes from. Its steps read as <code>journey.step('Given …')</code>, <code>'When …'</code>, <code>'Then …'</code>. Ambiguity is never resolved silently: it becomes <code>// ASSUMPTION:</code>, <code>// OPEN-QUESTION:</code> or <code>@needs-clarification</code>, and all three show up in the verdict. <code>// OBSERVATION:</code> notes something the story's goal implies but no criterion states, and <code>// SEED-ENDPOINT:</code> names a plumbing call the requirement doesn't declare.</p>
   <h3>Test types</h3>
   <p>The tests come in two passes. First, one test per criterion, the criterion as it is stated, so every criterion is covered once. Then the test author goes round the criteria again, through the types below in their order, and adds a test for each type the criterion's wording states or clearly implies that none of its tests has yet, until a round adds nothing. A type the story doesn't state or clearly imply becomes a question in the contract, not a guessed test.</p>
@@ -748,11 +748,11 @@ npx -y tsx "$HOME/heldout-skill/.github/scripts/heldout.ts" init --base-url http
     </tbody>
   </table></div>
   <p class="small">A requirement that is real but can't be observed from the outside, such as a trail kept only in server logs, is listed in the verdict as not verified instead of being tested.</p>
-  <p>An excerpt of the TOOL-4 spec for Toolshop: one API test and one UI test, their steps on the app's journey fixtures, every expected value in the spec.</p>
+  <p>An excerpt of the TOOL-4 spec for Toolshop: one API test and one UI test, their steps on the app's actions (each imported straight from its own file), every expected value in the spec.</p>
   <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts</div><pre data-lang="ts">import { test, expect, signIn, type Account } from '../../../../heldout-support/fixtures';
-import { products } from '../../../../journeys/practicesoftwaretesting/api/catalogue';   // journey fixtures: HOW, never WHAT
-import { openProduct } from '../../../../journeys/practicesoftwaretesting/ui/product';
-import { openFavourites } from '../../../../journeys/practicesoftwaretesting/ui/account';
+import { products } from '../../../../actions/practicesoftwaretesting/api/catalogue/products';   // actions: HOW, never WHAT
+import { openProduct } from '../../../../actions/practicesoftwaretesting/ui/product/open-product';
+import { openFavourites } from '../../../../actions/practicesoftwaretesting/ui/account/open-favourites';
 
 // ASSUMPTION: G2 — status of a refused duplicate: 409 (the linked Favourites API page shows it)
 
@@ -794,11 +794,11 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
   });
 });</pre></div>
   <div class="grid three">
-    <div class="card"><h4><span class="tag">[REQ AC-n]</span></h4><p>An assertion message that ties a check to its criterion. Only these can make a test fail as a requirement failure, and they stay in the spec, never in a fixture.</p></div>
+    <div class="card"><h4><span class="tag">[REQ AC-n]</span></h4><p>An assertion message that ties a check to its criterion. Only these can make a test fail as a requirement failure, and they stay in the spec, never in an action.</p></div>
     <div class="card"><h4><span class="tag">journey.step</span></h4><p>Each Given / When / Then line is a step, so failures, screenshots and the verdict speak the requirement's language.</p></div>
-    <div class="card"><h4><span class="tag">journeys/…</span></h4><p>Opening a page, signing in, finding a product: shared HOW code per application domain, reused by every story on the app. See <a href="#journeys">Journey fixtures</a>.</p></div>
+    <div class="card"><h4><span class="tag">actions/…</span></h4><p>Opening a page, signing in, finding a product: shared HOW code, one action per file in its domain's folder, reused by every story on the app. See <a href="#actions">Actions</a>.</p></div>
   </div>
-  <p><code>heldout lint</code> checks traceability: every criterion has a test and a [REQ] assertion, every test has exactly one type and its criteria tags, every declared endpoint is used, no journey fixture holds a [REQ] assertion, an <code>expectResponse</code> or an expected literal, and no test is focused, skipped or waiting on a fixed sleep. It warns about a test without a <code>// from</code> source. It also type-checks the story's specs, so a draft that doesn't compile can't be frozen.</p>
+  <p><code>heldout lint</code> checks traceability: every criterion has a test and a [REQ] assertion, every test has exactly one type and its criteria tags, every declared endpoint is used, no action holds a [REQ] assertion, an <code>expectResponse</code> or an expected literal, and no test is focused, skipped or waiting on a fixed sleep. It warns about a test without a <code>// from</code> source. It also type-checks the story's specs, so a draft that doesn't compile can't be frozen.</p>
 </section>
 
 <!-- ============ INTEGRITY ============ -->
@@ -824,7 +824,7 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
     </div>
   </figure>
   <p>There are only two audited exceptions, and both are listed in the verdict. <code>integrity --amend</code> fixes a buggy assertion <i>implementation</i>, such as an over-strict regular expression. <code>integrity --snapshot --reason</code> re-freezes after the requirement itself was revised.</p>
-  <p>Journey fixtures are not frozen, because they hold no expected values. The freeze records the hashes of the journey files the draft uses (<code>draft/journeys.json</code>), the verdict lists the ones that changed after it, and a <code>[REQ …]</code> assertion inside a fixture is a violation: it would escape the freeze.</p>
+  <p>Actions are not frozen, because they hold no expected values. The freeze records the hashes of the action files the draft uses (<code>draft/actions.json</code>), the verdict lists the ones that changed after it, and a <code>[REQ …]</code> assertion inside an action is a violation: it would escape the freeze.</p>
   <div class="plain">
     <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
     <p>The answer key is sealed in an envelope before the practice round. During practice you may fix your pen or find the right room, but you may not change the answers. If someone does, the result is thrown out as inconclusive.</p>
@@ -845,64 +845,92 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
   </div>
   <p>Cookie banners and welcome dialogs that the app itself shows go in the profile's <code>overlays</code>: the button that closes each. Tests, the UI sign-in and the inspector click it whenever it appears, so no test has to deal with it.</p>
   <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract TOOL-4 --resolve G4 --value … --evidence hardening/signin-steps.json</code> (how a web shop test signs in). Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
-  <p>The hardener makes the journey fixtures the tests call work too, the same way: a fixture is mechanics to verify, never evidence. A fix keeps every other story that calls it working; a fixture that no longer works and is replaced is marked with <code>journeys KEY --stale "ui:product.openProduct" --evidence …</code>.</p>
+  <p>The hardener makes the actions the tests call work too, the same way: an action is mechanics to verify, never evidence. A fix keeps every other story that calls it working; an action that no longer works and is replaced is marked with <code>actions KEY --stale "ui:product.openProduct" --evidence …</code>.</p>
   <p>The first story that needs users also produces the accounts recipe: the probe chain that signed up and signed in becomes <code>accounts --from-chain</code>, and the login steps from <code>inspect</code> become the UI sign-in.</p>
 </section>
 
-<!-- ============ JOURNEY FIXTURES ============ -->
-<section id="journeys" class="reveal">
+<!-- ============ ACTIONS ============ -->
+<section id="actions" class="reveal">
   <div class="kicker">Evaluating a story</div>
-  <h2>Journey fixtures</h2>
-  <p class="lede">Every story on the same application needs the same mechanics: where the sign-in page is, what shows that a page has loaded, which locator reaches a button, how to create and delete a record. Journey fixtures keep them as code, per application and per domain, so the tests of a later story call what earlier stories proved instead of discovering it again.</p>
+  <h2>Actions</h2>
+  <p class="lede">Every story on the same application needs the same mechanics: where the sign-in page is, what shows that a page has loaded, which locator reaches a button, how to create and delete a record. Actions keep them as code, per application, one action per file in the folder of the domain it works on, so the tests of a later story call what earlier stories proved instead of discovering it again.</p>
   <figure>
     <div class="fig">
-      <svg class="dia" viewBox="0 0 960 350" role="img" aria-label="Journey fixtures: the test author reads and adds fixtures before the freeze, the hardener makes them work against the live app, passing tests feed the harvest, and the harvest writes new UI and API map files that are folded when read">
-        <rect class="box violet" x="20" y="30" width="220" height="84" rx="12"/><text class="t-b" x="130" y="57" text-anchor="middle">Test author</text><text class="t-s" x="130" y="77" text-anchor="middle">no browser · from the contract</text><text class="t-m" x="130" y="97" text-anchor="middle">journeys KEY</text>
+      <svg class="dia" viewBox="0 0 960 380" role="img" aria-label="Actions: the test author reads and adds actions before the freeze, one file per action in its domain folder; the hardener makes them work against the live app, passing tests feed the harvest, and the harvest writes new UI and API map files that are folded when read">
+        <rect class="box violet" x="20" y="30" width="220" height="84" rx="12"/><text class="t-b" x="130" y="57" text-anchor="middle">Test author</text><text class="t-s" x="130" y="77" text-anchor="middle">no browser · from the contract</text><text class="t-m" x="130" y="97" text-anchor="middle">actions KEY</text>
         <path class="edge acc" d="M240 72 H286"/><text class="t-s" x="263" y="64" text-anchor="middle">freeze</text>
-        <rect class="box blue" x="290" y="30" width="210" height="84" rx="12"/><text class="t-b" x="395" y="57" text-anchor="middle">Hardener</text><text class="t-s" x="395" y="77" text-anchor="middle">makes the tests and the</text><text class="t-s" x="395" y="95" text-anchor="middle">fixtures work, live</text>
+        <rect class="box blue" x="290" y="30" width="210" height="84" rx="12"/><text class="t-b" x="395" y="57" text-anchor="middle">Hardener</text><text class="t-s" x="395" y="77" text-anchor="middle">makes the tests and the</text><text class="t-s" x="395" y="95" text-anchor="middle">actions work, live</text>
         <path class="edge" d="M500 72 H546"/>
-        <rect class="box plain" x="550" y="30" width="186" height="84" rx="12"/><text class="t-b" x="643" y="57" text-anchor="middle">Run · triage · verdict</text><text class="t-s" x="643" y="77" text-anchor="middle">which tests passed,</text><text class="t-s" x="643" y="95" text-anchor="middle">which fixtures they called</text>
+        <rect class="box plain" x="550" y="30" width="186" height="84" rx="12"/><text class="t-b" x="643" y="57" text-anchor="middle">Run · triage · verdict</text><text class="t-s" x="643" y="77" text-anchor="middle">which tests passed,</text><text class="t-s" x="643" y="95" text-anchor="middle">which actions they called</text>
         <path class="edge" d="M736 72 H778"/><text class="t-s" x="757" y="64" text-anchor="middle">passing</text>
         <rect class="box green" x="782" y="30" width="158" height="84" rx="12"/><text class="t-b" x="861" y="57" text-anchor="middle">Harvest</text><text class="t-m" x="861" y="77" text-anchor="middle">--harvest</text><text class="t-m" x="861" y="95" text-anchor="middle">--harvest --apply</text>
 
-        <rect class="box acc" x="20" y="196" width="440" height="124" rx="12"/><text class="t-b" x="240" y="222" text-anchor="middle">Fixture code, one file per domain and layer</text><text class="t-m" x="240" y="243" text-anchor="middle">journeys/&lt;profile&gt;/ui/&lt;domain&gt;.ts · api/&lt;domain&gt;.ts</text><text class="t-s" x="240" y="265" text-anchor="middle">routes · readiness anchors · locators · calls · seeding · cleanup</text><text class="t-s" x="240" y="285" text-anchor="middle">never a [REQ] assertion, expectResponse or expected value:</text><text class="t-s" x="240" y="303" text-anchor="middle">lint and integrity refuse them</text>
-        <rect class="box" x="500" y="196" width="440" height="124" rx="12"/><text class="t-b" x="720" y="222" text-anchor="middle">UI and API maps</text><text class="t-m" x="720" y="243" text-anchor="middle">map/ui/*.json · map/api/*.json</text><text class="t-s" x="720" y="265" text-anchor="middle">which fixture opens which page, calls which endpoint,</text><text class="t-s" x="720" y="285" text-anchor="middle">proven by which story · a new file per harvest, never an edit</text><text class="t-s" x="720" y="303" text-anchor="middle">folded when read · compactable · no merge conflicts</text>
+        <rect class="box acc" x="20" y="196" width="440" height="144" rx="12"/><text class="t-b" x="240" y="222" text-anchor="middle">Action code: one action per file, in its domain's folder</text><text class="t-m" x="240" y="243" text-anchor="middle">actions/&lt;profile&gt;/ui|api/&lt;domain&gt;/&lt;action&gt;.ts</text><text class="t-m" x="240" y="262" text-anchor="middle">api/favorites/add-favourite.ts · ui/cart/read-cart-total.ts</text><text class="t-s" x="240" y="283" text-anchor="middle">optional _shared.ts per domain · no index file · specs import each file</text><text class="t-s" x="240" y="303" text-anchor="middle">routes · readiness anchors · locators · calls · seeding · cleanup</text><text class="t-s" x="240" y="323" text-anchor="middle">never a [REQ] assertion or expected value: lint and integrity refuse it</text>
+        <rect class="box" x="500" y="196" width="440" height="144" rx="12"/><text class="t-b" x="720" y="222" text-anchor="middle">UI and API maps</text><text class="t-m" x="720" y="243" text-anchor="middle">map/ui/*.json · map/api/*.json</text><text class="t-s" x="720" y="265" text-anchor="middle">which action opens which page, calls which endpoint,</text><text class="t-s" x="720" y="285" text-anchor="middle">proven by which story</text><text class="t-s" x="720" y="305" text-anchor="middle">a new file per harvest, never an edit · folded when read</text><text class="t-s" x="720" y="325" text-anchor="middle">compacted from one place</text>
 
-        <path class="edge both" d="M130 118 V192"/><text class="t-s" x="140" y="160">reads · adds missing ones</text>
-        <path class="edge acc" d="M395 118 V192"/><text class="t-s" x="405" y="160">fixes HOW</text>
+        <path class="edge both" d="M130 118 V192"/><text class="t-s" x="140" y="160">reads · adds missing ones as new files</text>
+        <path class="edge acc" d="M395 118 V192"/><text class="t-s" x="405" y="180">fixes HOW</text>
         <path class="edge" d="M861 118 V192"/><text class="t-s" x="851" y="160" text-anchor="end">new files</text>
-        <text class="t-s" x="480" y="340" text-anchor="middle">the maps tell the next story's test author which fixtures exist, what each does and which stories proved it</text>
+        <text class="t-s" x="480" y="366" text-anchor="middle">the maps tell the next story's test author which actions exist, what each does and which stories proved it</text>
       </svg>
     </div>
-    <figcaption>The test author reads and calls the fixtures while drafting, before the freeze. That is safe because a fixture holds only HOW: every expected value still comes from the requirement and stays in the frozen spec.</figcaption>
+    <figcaption>The test author reads and calls the actions while drafting, before the freeze. That is safe because an action holds only HOW: every expected value still comes from the requirement and stays in the frozen spec.</figcaption>
   </figure>
   <div class="tbl"><table>
     <thead><tr><th>Part</th><th>Where</th><th>Holds</th></tr></thead>
     <tbody>
-      <tr><td>UI fixtures</td><td><code>journeys/&lt;profile&gt;/ui/&lt;domain&gt;.ts</code></td><td>one area of the app as its users see it (<code>auth</code>, <code>catalogue</code>, <code>cart</code>…): open a page and wait until it is ready, fill a form, sign in</td></tr>
-      <tr><td>API fixtures</td><td><code>journeys/&lt;profile&gt;/api/&lt;domain&gt;.ts</code></td><td>create and delete a record, find one, the fields an endpoint takes, seeding and cleanup</td></tr>
-      <tr><td>UI map</td><td><code>journeys/&lt;profile&gt;/map/ui/*.json</code></td><td>which fixture opens which route, waits on which anchor, uses which locators; the stories whose passing tests proved it</td></tr>
-      <tr><td>API map</td><td><code>journeys/&lt;profile&gt;/map/api/*.json</code></td><td>which fixture calls which endpoints; the stories that proved it</td></tr>
+      <tr><td>UI actions</td><td><code>actions/&lt;profile&gt;/ui/&lt;domain&gt;/&lt;action&gt;.ts</code></td><td>one action per file, in the folder of the area of the app it works on (<code>auth</code>, <code>product</code>, <code>cart</code>…): open a page and wait until it is ready, fill a form, sign in</td></tr>
+      <tr><td>API actions</td><td><code>actions/&lt;profile&gt;/api/&lt;domain&gt;/&lt;action&gt;.ts</code></td><td>create and delete a record, find one, the fields an endpoint takes, seeding and cleanup</td></tr>
+      <tr><td>Shared helpers</td><td><code>actions/&lt;profile&gt;/&lt;kind&gt;/&lt;domain&gt;/_shared.ts</code></td><td>optional: helpers and types the actions of one domain share; not actions themselves</td></tr>
+      <tr><td>UI map</td><td><code>actions/&lt;profile&gt;/map/ui/*.json</code></td><td>which action opens which route, waits on which anchor, uses which locators; the stories whose passing tests proved it</td></tr>
+      <tr><td>API map</td><td><code>actions/&lt;profile&gt;/map/api/*.json</code></td><td>which action calls which endpoints; the stories that proved it</td></tr>
     </tbody>
   </table></div>
-  <p>A fixture is an exported function with a doc comment that says what it does. It takes what it needs as parameters and may check its own preconditions with a plain <code>expect(…, '… (precondition)')</code>. It never holds what a story expects: no <code>[REQ …]</code> assertion, no <code>expectResponse</code>, no message or value the requirement says the app shows. It returns what its step produced, and the test asserts it.</p>
-  <div class="code"><div class="hd">journeys/practicesoftwaretesting/ui/product.ts</div><pre data-lang="ts">import { expect, gotoPage, type Page } from '../../../heldout-support/fixtures';
+  <p>A domain is an area of the application as its users see it, named by what it is about (<code>cart</code>, <code>favorites</code>, <code>account</code>), not by the story that first needed it. Each file holds one exported function, named in kebab case after it (<code>addFavourite</code> → <code>api/favorites/add-favourite.ts</code>), with a doc comment that says what it does. It takes what it needs as parameters, imports only <code>heldout-support/fixtures</code>, other actions and its domain's <code>_shared.ts</code>, and may check its own preconditions with a plain <code>expect(…, '… (precondition)')</code>. It never holds what a story expects: no <code>[REQ …]</code> assertion, no <code>expectResponse</code>, no message or value the requirement says the app shows. It returns what its step produced, and the test asserts it. There is no index file: specs import each action file directly.</p>
+  <div class="code"><div class="hd">actions/practicesoftwaretesting/api/favorites/add-favourite.ts</div><pre data-lang="ts">import { expect, type Account, type Api, type Seed } from '../../../../heldout-support/fixtures';
+
+/** Add a product to a customer's favourites; removed after the test. */
+export async function addFavourite(api: Api, seed: Seed, me: Account, productId: string) {
+  return seed.create('favourite', async () => {
+    const res = await api.post&lt;{ id: string }&gt;('/favorites', { headers: me.headers, data: { product_id: productId } });
+    expect(res.ok, 'add favourite (precondition)').toBe(true);
+    return res.body;
+  }, (f) => api.delete(`/favorites/${f.id}`, { headers: me.headers }));
+}</pre></div>
+  <div class="code"><div class="hd">actions/practicesoftwaretesting/ui/product/open-product.ts</div><pre data-lang="ts">import { expect, gotoPage, type Page } from '../../../../heldout-support/fixtures';
 
 /** Open a product's page and wait until it shows the product. */
 export async function openProduct(page: Page, id: string) {
   await gotoPage(page, `/product/${id}`);
   await expect(page.getByTestId('product-name'), 'the product page is ready (precondition)').toBeVisible();
 }</pre></div>
+  <p class="small">A spec imports it straight from its file: <code>import { addFavourite } from '../../../../actions/practicesoftwaretesting/api/favorites/add-favourite';</code></p>
   <h3>How it grows</h3>
   <div class="grid two">
-    <div class="card"><h4><span class="tag">phase 2</span> Writing the tests</h4><p><code>journeys KEY</code> lists the app's fixtures, the ones the story concerns first, with what each calls and opens and its map status. The test author calls them for the steps and adds the missing ones to the right domain file, with <code>// TODO(harden)</code> on what it guessed.</p></div>
-    <div class="card"><h4><span class="tag">phase 3</span> Hardening</h4><p>The hardener makes every fixture the tests call work against the live app, like the tests themselves. A fix must keep the other stories that call it working. A fixture that no longer works and is replaced is marked with <code>--stale "&lt;key&gt;" --evidence …</code>.</p></div>
-    <div class="card"><h4><span class="tag">phase 8</span> After the verdict</h4><p><code>journeys KEY --harvest</code> previews what the story proved; <code>--harvest --apply</code> writes it into the maps as new files. Kept: each fixture a passing test called, with what its code opens and calls now. Left out: fixtures only failing tests called, which may work around a defect.</p></div>
-    <div class="card"><h4><span class="tag">later</span> Change</h4><p>A fixture whose code changed since it was proven shows as <i>changed since proven</i> until a passing story proves the new code. <code>journeys --aut &lt;id&gt; --check</code> lints every journey file and lists fixtures not yet in the map and map entries whose fixture is gone.</p></div>
+    <div class="card"><h4><span class="tag">phase 2</span> Writing the tests</h4><p><code>actions KEY</code> lists the app's actions, the ones the story concerns first, with what each calls and opens and its map status. The test author calls them for the steps and adds the missing ones, each a new file in its domain's folder, with <code>// TODO(harden)</code> on what it guessed.</p></div>
+    <div class="card"><h4><span class="tag">phase 3</span> Hardening</h4><p>The hardener makes every action the tests call work against the live app, like the tests themselves. A fix must keep the other stories that call it working. An action that no longer works and is replaced is marked with <code>--stale "&lt;key&gt;" --evidence …</code>; keys are <code>ui:&lt;domain&gt;.&lt;action&gt;</code> and <code>api:&lt;domain&gt;.&lt;action&gt;</code>.</p></div>
+    <div class="card"><h4><span class="tag">phase 8</span> After the verdict</h4><p><code>actions KEY --harvest</code> previews what the story proved; <code>--harvest --apply</code> writes it into the maps as new files. Kept: each action a passing test called, with what its code opens and calls now. Left out: actions only failing tests called, which may work around a defect, and files that break the rules.</p></div>
+    <div class="card"><h4><span class="tag">later</span> Change</h4><p>An action whose code changed since it was proven shows as <i>changed since proven</i> until a passing story proves the new code. A change must hold for every caller (the application changed); otherwise add a new action.</p></div>
   </div>
-  <h3>Many people, no merge conflicts</h3>
-  <p>The maps never conflict: every harvest writes new files, one per layer, named by time, story and a random part (<code>map/ui/&lt;time&gt;-&lt;story&gt;-&lt;random&gt;.json</code>), and no map file is ever edited. Two people harvesting on two branches add two files, and git merges them cleanly. What the map says is worked out when it's read, by folding every file of a layer: each fixture keeps the latest time it was proven and found stale, and the union of the stories that proved it. So the fold gives the same answer in any order, and reading a file twice changes nothing. A fixture is stale when its latest stale mark is newer than its latest proof.</p>
-  <p>The fixture code is one file per domain and layer. Two people adding fixtures to the same domain file merge like any code; small fixtures in the domain they belong to keep most work in different files. From time to time, <code>journeys --aut &lt;id&gt; --compact</code>, run from one place such as a scheduled CI job, folds each layer's files into one snapshot. <code>doctor</code> suggests it past 200 files, and <code>journeys --aut &lt;id&gt; --log</code> prints what the maps learned, when and from which story.</p>
+  <h3>Many people on the same application</h3>
+  <p>Several people, or teams, evaluate their own stories against the same application on their own branches, and each adds the actions their stories need. The folder is laid out so that their work merges without conflicts:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>What people do on their branches</th><th>What happens when the branches merge</th></tr></thead>
+    <tbody>
+      <tr><td>Add new actions</td><td>Each is a new file: git merges them on its own, nothing to resolve</td></tr>
+      <tr><td>Harvest their stories</td><td>Each harvest is new map files, never an edit: git merges them on its own</td></tr>
+      <tr><td>Use, and so re-prove, an existing action</td><td>Only new map files again; the action file is untouched</td></tr>
+      <tr><td>Fix the same action, both of them</td><td>A real conflict, in that one small file: the two fixes have to be reconciled anyway</td></tr>
+      <tr><td>Add the same action twice, under two names</td><td>No conflict, but a duplicate: <code>heldout actions --aut &lt;id&gt; --check</code> and <code>doctor</code> report actions that make the same calls or open the same page the same way</td></tr>
+      <tr><td>Add the same action under the same name</td><td>Both create the same file: git shows one conflict to resolve, instead of two copies</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="clean">
+    <li><b>One action per file, named after it, in its domain's folder.</b> The lint warns about a file with several actions, a file not named after its action, a file outside a domain folder and an index file, which every new action would have to edit.</li>
+    <li><b>Maps that are only ever added to.</b> Each harvest writes new files, one per kind, named by time, story and a random part (<code>map/ui/&lt;time&gt;-&lt;story&gt;-&lt;random&gt;.json</code>). What the maps say is worked out when they are read, by folding every file of a kind: each action keeps the latest time it was proven and found stale, and the union of the stories that proved it. So the order of the files doesn't matter and a file folded twice changes nothing. An action is stale when its latest stale mark is newer than its latest proof.</li>
+    <li><b>A check after merging.</b> <code>heldout actions --aut &lt;id&gt; --check</code>, after a merge or in CI, lints every action file and lists possible duplicates, the actions not in the map yet and the map entries whose action is gone from the code. <code>doctor</code> reports the same in one line.</li>
+    <li><b>Compaction from one place.</b> <code>actions --aut &lt;id&gt; --compact</code> folds each kind's map files into one snapshot and deletes the files it folded. Run it from one place, such as a scheduled CI job or its owner, and commit the snapshots with the deletions; a second compaction elsewhere loses nothing. <code>doctor</code> suggests it past 200 files, and <code>actions --aut &lt;id&gt; --log</code> prints what the maps learned, when and from which story.</li>
+  </ul>
   <div class="plain">
     <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
     <p>The exam is still written from the syllabus alone. What the students share is a book of directions to the exam rooms: which corridor, which door, where the light switch is. Each student may use it while writing the exam, because it holds no answers, and adds the directions that got them there. Nobody is allowed to write an answer in it.</p>
@@ -1061,7 +1089,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <li>A header with the verdict and why, the app profile, the final run, counts, integrity status and the tiers used.</li>
       <li>Test results, requirement coverage, and a traceability matrix from criterion to source, test type, layer, tests and finding.</li>
       <li>Coverage by test type, repaired script defects, audited amendments and re-freezes.</li>
-      <li>A <b>Journey fixtures</b> row: the fixtures the tests reused and added, the ones changed after the freeze, and the ones marked stale.</li>
+      <li>An <b>Actions</b> row: the actions the tests reused and added, the ones changed after the freeze, and the ones marked stale.</li>
       <li>Gaps, assumptions and open questions, and observations outside the criteria.</li>
       <li>The method, the full run history and links to every artifact. <code>verdict.json</code> has the same content for machines.</li>
     </ul>
@@ -1149,7 +1177,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>Requirement</td><td><code>new</code> · <code>fetch KEY [--aut id]</code></td><td>create a story in the mock Jira; fetch a story from Jira and bind it to an app</td></tr>
       <tr><td></td><td><code>contract</code></td><td>evidence pack and checks for the model-built, independently reviewed contract</td></tr>
       <tr><td>Tests</td><td><code>scaffold</code></td><td>a spec skeleton (one stub per criterion) and test data from the contract</td></tr>
-      <tr><td></td><td><code>journeys KEY [--all | --stale &lt;key&gt; --evidence … | --harvest [--apply]]</code> · <code>journeys --aut &lt;id&gt; [--check | --log | --compact]</code></td><td>the app's journey fixtures for this story; mark one stale; record in the UI and API maps what passing tests proved; lint all of them, show the map's history, compact it</td></tr>
+      <tr><td></td><td><code>actions KEY [--all | --stale &lt;key&gt; --evidence … | --harvest [--apply]]</code> · <code>actions --aut &lt;id&gt; [--check | --log | --compact]</code></td><td>the app's actions for this story; mark one stale; record in the UI and API maps what passing tests proved; check all of them (lint, possible duplicates, map entries whose action is gone), show the map's history, compact it</td></tr>
       <tr><td></td><td><code>lint</code> · <code>integrity</code></td><td>traceability and type checks; freeze and verify</td></tr>
       <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3</td></tr>
       <tr><td>Run</td><td><code>run</code> · <code>triage</code></td><td>preflight and run; classify and record decisions</td></tr>
@@ -1169,23 +1197,25 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
 ├── heldout-support/fixtures.ts     <span class="c">api, journey, seed, signIn, expectResponse</span>
 ├── .vscode/mcp.json · .mcp.json    <span class="c">Playwright MCP for GitHub Copilot · the same for Claude Code</span>
 ├── playwright.config.ts
-├── journeys/&lt;profile&gt;/            <span class="c">shared by every story on the app (journeysDir), committed</span>
-│   ├── ui/&lt;domain&gt;.ts · api/&lt;domain&gt;.ts   <span class="c">journey fixtures: the reusable HOW (phases 2–3)</span>
-│   └── map/ui/*.json · map/api/*.json      <span class="c">UI and API maps: new files per harvest, folded on read (phase 8)</span>
+├── actions/&lt;profile&gt;/             <span class="c">shared by every story on the app (actionsDir), committed</span>
+│   ├── ui/&lt;domain&gt;/&lt;action&gt;.ts         <span class="c">one UI action per file: the reusable HOW (phases 2–3)</span>
+│   ├── api/&lt;domain&gt;/&lt;action&gt;.ts        <span class="c">one API action per file, e.g. api/favorites/add-favourite.ts</span>
+│   ├── &lt;kind&gt;/&lt;domain&gt;/_shared.ts       <span class="c">optional helpers a domain's actions share; no index files</span>
+│   └── map/ui/*.json · map/api/*.json   <span class="c">UI and API maps: new files per harvest, folded on read (phase 8)</span>
 └── output/&lt;profile&gt;/KEY/            <span class="c">everything of one story (outputDir)</span>
     ├── evaluation.json             <span class="c">when, and for which application profile</span>
     ├── requirement/                <span class="c">story.md, linked/ (screenshots, Confluence pages), transcripts/, CHANGES.md, history/</span>
     ├── requirement-contract.json   <span class="c">+ .md, + .review.json bound to the contract's hash</span>
     ├── tests/*.spec.ts · test-data.json
-    ├── draft/                      <span class="c">the frozen oracle, and journeys.json: hashes of the journey files it uses</span>
-    ├── hardening/                  <span class="c">hardening log, integrity.json, amendments, probes, journeys-staged.json, journeys-harvest.json</span>
+    ├── draft/                      <span class="c">the frozen oracle, and actions.json: hashes of the action files it uses</span>
+    ├── hardening/                  <span class="c">hardening log, integrity.json, amendments, probes, actions-staged.json, actions-harvest.json</span>
     ├── runs/NN-label/              <span class="c">results, JUnit, HTML report, artifacts, triage (never renumbered)</span>
     └── verdict.md · verdict.json</div>
   <h3>Non-negotiable guardrails</h3>
   <ul class="clean">
     <li><b>Held-out isolation.</b> Tests come only from the story (title, description, acceptance criteria, the screenshots they show, the Confluence pages they link) and black-box observation.</li>
     <li><b>Hardening changes how, never what.</b> Two audited exceptions, both shown in the verdict.</li>
-    <li><b>Journey fixtures are how, never what.</b> They hold no [REQ] assertion, <code>expectResponse</code> or expected value, so the test author may call them before the freeze; lint and integrity refuse anything else. A fixture is shared: fix how it works for every caller, never bend it to one story.</li>
+    <li><b>Actions are how, never what.</b> They hold no [REQ] assertion, <code>expectResponse</code> or expected value, so the test author may call them before the freeze; lint and integrity refuse anything else. An action is shared: fix how it works for every caller, never bend it to one story. One action per file, named after it, in its domain's folder.</li>
     <li><b>Surface ambiguity.</b> <code>// ASSUMPTION:</code>, <code>// OPEN-QUESTION:</code> and <code>@needs-clarification</code> all appear in the verdict.</li>
     <li><b>No application defect without live reproduction.</b></li>
     <li><b>A person decides.</b> No issues are created, transitioned or assigned.</li>

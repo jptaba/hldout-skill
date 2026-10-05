@@ -1,36 +1,35 @@
 # Hardening the draft against the live AUT (phase 3)
 
 Goal: every locator, wait, navigation step and API mechanic works against the real AUT, in the tests and in the
-journey fixtures they call, **without changing what the test expects**.
+actions they call, **without changing what the test expects**.
 
 ## 0. Freeze
 
 ```bash
-npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → draft/, records the journey files they use
+npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → draft/, records the action files they use
 ```
 
-## 0b. The journey fixtures the tests call
+## 0b. The actions the tests call
 
 ```bash
-npm run heldout -- journeys KEY          # the fixtures this story concerns, with their map status (--all: every one)
+npm run heldout -- actions KEY          # the actions this story concerns, with their map status (--all: every one)
 ```
 
-The tests call shared fixtures in `journeys/<profile>/ui|api/<domain>.ts` ([journeys.md](journeys.md)). Harden them
-like the tests: a `proven` fixture worked for a passing test of an earlier story, *changed since proven* or
+The tests call shared actions in `actions/<profile>/ui|api/<domain>/<action>.ts` ([actions.md](actions.md)). Harden
+them like the tests: a `proven` action worked for a passing test of an earlier story, *changed since proven* or
 *not proven yet* ones haven't been shown to work in their current form, a `STALE` one stopped working. Spend the
-probes where they are needed: a `proven` fixture is checked by the first harden run (`--label harden`), and probed only
+probes where they are needed: a `proven` action is checked by the first harden run (`--label harden`), and probed only
 if that run fails in it; *changed since proven*, *not proven yet* and `STALE` ones are probed like any mechanic you
-found yourself. That is where the journeys save work: the more of a story's steps earlier stories proved, the less
-there is to discover. Replace the `// TODO(harden)` marks the test author left in
-fixtures as in the tests.
+found yourself. That is where the actions save work: the more of a story's steps earlier stories proved, the less
+there is to discover. Replace the `// TODO(harden)` marks the test author left in actions as in the tests.
 
-A fixture is shared by every story that calls it. Fix HOW it works when the application changed (a new locator, a new
-field) so every caller gets the fix; never bend it to one story's need (add a fixture, or keep that step in the
-test). Never move an expectation into a fixture: no `[REQ …]`, no `expectResponse`, no expected message. A fixture you
-replace with another: `npm run heldout -- journeys KEY --stale "<key>" --evidence "<probe report>"`. What you discover
-that later stories will need (opening a page and waiting for it, creating and deleting a record) becomes a fixture in
-the right domain file, called from the test, with a `/** doc comment */`. The harvest after the verdict records in the
-UI and API maps what the passing tests proved.
+An action is shared by every story that calls it. Fix HOW it works when the application changed (a new locator, a new
+field) so every caller gets the fix; never bend it to one story's need (add an action, or keep that step in the test).
+Never move an expectation into an action: no `[REQ …]`, no `expectResponse`, no expected message. An action you
+replace with another: `npm run heldout -- actions KEY --stale "<key>" --evidence "<probe report>"`. What you discover
+that later stories will need (opening a page and waiting for it, creating and deleting a record) becomes a new action:
+one file, named after it, in its domain's folder, with a `/** doc comment */`, called from the test. The harvest after
+the verdict records in the UI and API maps what the passing tests proved.
 
 ## 1. Choose the tier
 
@@ -77,7 +76,7 @@ attribute. An id that looks generated (a UUID, a long number) changes on every p
 text with a stable id (a detail page's fields, a total, a message) is listed in a table of its own. The report also lists
 the API calls the page made on the app's site (method, path, status and the answer's shape, types only): how the UI
 does what it does, e.g. which call returns the signed-in user's id when the documented sign-in call doesn't. And it
-lists what the page keeps in `localStorage` and `sessionStorage` (a guest's cart id, a flag): where a UI fixture finds
+lists what the page keeps in `localStorage` and `sessionStorage` (a guest's cart id, a flag): where a UI action finds
 or sets the page's state, without a script of your own.
 
 A shared sandbox that answers 429 (rate limited) is the environment, not the application: triage says so, and `heldout run`
@@ -127,7 +126,7 @@ MSYS rewrites `/…` arguments into Windows paths.
 ## 2. Walk each test
 
 UI: perform the test's journey steps live, in order. At each step, snapshot the page, pick the most
-resilient **unique** locator, probe it, replace the draft locator (in the test or the fixture it calls) and remove
+resilient **unique** locator, probe it, replace the draft locator (in the test or the action it calls) and remove
 `// TODO(harden)`.
 Fix mechanics the draft couldn't know: menus that must be opened first, asynchronous UI, iframes,
 dialogs, empty live regions that shadow `role=alert`, and so on.
@@ -211,8 +210,8 @@ The old draft is archived under `hardening/draft-history/`, and the absorbed cha
 | Test(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |
 ## API mechanics
 | Item | Verified | Evidence |
-## Journey fixtures (reused, fixed, added)
-| Fixture | Change | Why | Evidence |
+## Actions (reused, fixed, added)
+| Action | Change | Why | Evidence |
 ## Mechanics changed (non-locator)
 ## Observed deviations (assertions intentionally left unchanged)
 | Test | Requirement says | AUT shows | Evidence |

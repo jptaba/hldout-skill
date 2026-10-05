@@ -11,12 +11,12 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
+import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR, actionPaths, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import type { Category } from './classify';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from './spec-model';
 import { oracleDigest, readContract } from './contract-model';
 import { checkIntegrity, type IntegrityResult } from './integrity-check';
-import { entries, fixtureUse, journeysUsedBy, loadMap, profileFixtures } from './journeys-store';
+import { actionUse, actionsUsedBy, entries, loadMap, profileActions } from './actions-store';
 import { curlFor, exchangeLine, rerunCommand } from './repro';
 import { decideVerdict, type Verdict } from './verdict-rules';
 import type { TriageEntry, TriageReport } from './triage';
@@ -33,22 +33,22 @@ function frontMatter(file: string): Record<string, string> {
 }
 
 /**
- * How the shared journey fixtures took part: how many the tests call, how many earlier stories had proven, and the
- * fixture files that changed after the freeze (hardening may fix HOW a fixture works; the tests keep WHAT is expected).
+ * How the shared actions took part: how many the tests call, how many earlier stories had proven, and the action files
+ * that changed after the freeze (hardening may fix HOW an action works; the tests keep WHAT is expected).
  */
-function journeysLine(cfg: HeldoutConfig, p: ReturnType<typeof evalPaths>, scenarios: { id: string; code: string }[], integrity: IntegrityResult): string {
+function actionsLine(cfg: HeldoutConfig, p: ReturnType<typeof evalPaths>, scenarios: { id: string; code: string }[], integrity: IntegrityResult): string {
   const specs = specFiles(p.tests);
-  const used = journeysUsedBy(cfg, specs);
+  const used = actionsUsedBy(cfg, specs);
   if (!used.length) return 'none used';
-  const base = journeyPaths(cfg, cfg.autId).base;
-  const fixtures = profileFixtures(cfg, cfg.autId).filter((f) => used.includes(path.join(base, f.file)));
-  const calls = [...fixtureUse(fixtures, specs, scenarios).keys()];
+  const base = actionPaths(cfg, cfg.autId).base;
+  const code = profileActions(cfg, cfg.autId, true).filter((a) => used.includes(path.join(base, a.file)));
+  const calls = [...actionUse(code, specs, scenarios).keys()];
   const mapped = new Map(entries(loadMap(cfg, cfg.autId).records).map((e) => [e.key, e]));
   const earlier = calls.filter((k) => mapped.get(k)?.status === 'proven' && mapped.get(k)!.best.stories.some((s) => s !== path.basename(p.base))).length;
-  const changed = integrity.journeysChanged ?? [];
+  const changed = integrity.actionsChanged ?? [];
   return [
-    `${calls.length} fixture(s) from ${rel(base)}/ (${earlier} proven by earlier stories, ${calls.length - earlier} new to the map)`,
-    ...(changed.length ? [`changed after the freeze: ${changed.join(', ')}`] : []),
+    `${calls.length} action(s) from ${rel(base)}/ (${earlier} proven by earlier stories, ${calls.length - earlier} new to the map)`,
+    ...(changed.length ? [`${changed.length} action file(s) changed after the freeze: ${changed.slice(0, 5).map((f) => path.relative(rel(base), f).split(path.sep).join('/')).join(', ')}${changed.length > 5 ? ', …' : ''}`] : []),
   ].join(' · ');
 }
 
@@ -81,8 +81,8 @@ main(() => {
   const contract = readContract(p.base);
   if (!contract) throw new Error(`No requirement contract for ${key} — phase 1b first: heldout contract ${key} --pack`);
   const feature = readSuite(p.tests, contract);
-  const integrity = checkIntegrity(p.tests, p.draft, amendmentsFile, oracleDigest(contract), journeysUsedBy(cfg, specFiles(p.tests)));
-  const journeys = journeysLine(cfg, p, feature.scenarios, integrity);
+  const integrity = checkIntegrity(p.tests, p.draft, amendmentsFile, oracleDigest(contract), actionsUsedBy(cfg, specFiles(p.tests)));
+  const actions = actionsLine(cfg, p, feature.scenarios, integrity);
   const link = (projRel?: string) => (projRel ? path.relative(p.base, path.join(ROOT, projRel)).split(path.sep).join('/') : '');
 
   const failures = tri.entries.filter((e) => e.status === 'failed');
@@ -190,7 +190,7 @@ main(() => {
   const integrityCell = {
     PRESERVED: `✅ PRESERVED — ${reqCount} requirement assertions identical to the pre-hardening draft`,
     AMENDED: `✅ PRESERVED WITH ${integrity.amended.length} AUDITED AMENDMENT(S) — ${reqCount} requirement assertions; see "Assertion amendments"`,
-    VIOLATED: `❌ VIOLATED — ${integrity.changed.length + integrity.removed.length} requirement assertion(s) changed/removed without amendment${integrity.contractChanged ? '; expected outcomes in the requirement contract changed after the freeze' : ''}${integrity.journeyAssertions?.length ? `; ${integrity.journeyAssertions.length} requirement assertion(s) inside journey fixtures, outside the freeze` : ''}`,
+    VIOLATED: `❌ VIOLATED — ${integrity.changed.length + integrity.removed.length} requirement assertion(s) changed/removed without amendment${integrity.contractChanged ? '; expected outcomes in the requirement contract changed after the freeze' : ''}${integrity.actionAssertions?.length ? `; ${integrity.actionAssertions.length} requirement assertion(s) inside actions, outside the freeze` : ''}`,
     NO_DRAFT: '⚠️ NO_DRAFT — no frozen draft to compare',
   }[integrity.status];
 
@@ -205,7 +205,7 @@ main(() => {
     `| Held-out integrity | ${integrityCell} |`,
     ...(meta.preflight === 'skipped' ? ['| ⚠️ Preflight | **skipped** for the final run (--skip-preflight): the traceability lint and AUT healthcheck were not enforced |'] : []),
     `| Hardening | ${esc(tierLine ?? 'not recorded: the hardening log has no "Tiers used" line')} |`,
-    `| Journey fixtures | ${esc(journeys)} |`,
+    `| Actions | ${esc(actions)} |`,
     ...(missingRuns.length ? [`| ⚠️ Run history | run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} were deleted: their results are not part of this record |`] : []),
     `| Evaluator | ${esc(flagStr(flags, 'evaluator') ?? 'Opus — heldout-evaluator skill')} |`,
     `| Generated | ${new Date().toISOString()} |`, '',
@@ -382,8 +382,8 @@ main(() => {
 
   md.push('## How this verdict was produced', '',
     '1. The requirement (the story\'s title, description and acceptance criteria, the images they show and the Confluence pages they link) was fetched from Jira and turned into a requirement contract ([requirement-contract.md](requirement-contract.md)): every criterion quoted from its source, the endpoints, error cases and gaps, checked by an independent reviewer.',
-    '2. Playwright TypeScript tests (UI and API) were written from the contract **only**, with no access to the AUT source or developer tests. Each test is tagged with the criteria it proves, its test type and the requirement source it comes from; expected values were copied verbatim from the requirement. Their steps call the shared journey fixtures of the application (how to reach pages and call endpoints, never what the application answers).',
-    '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only, in the tests and in the journey fixtures. Expected outcomes were never aligned with AUT behaviour (integrity check above).',
+    '2. Playwright TypeScript tests (UI and API) were written from the contract **only**, with no access to the AUT source or developer tests. Each test is tagged with the criteria it proves, its test type and the requirement source it comes from; expected values were copied verbatim from the requirement. Their steps call the shared actions of the application (how to reach pages and call endpoints, never what the application answers).',
+    '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only, in the tests and in the actions they call. Expected outcomes were never aligned with AUT behaviour (integrity check above).',
     '4. Preflight gates (traceability lint and an AUT healthcheck) passed before the run. Every failure was triaged automatically, then re-investigated live before being classified as an application defect.',
     ...(repaired.length ? ['5. Script defects were repaired (mechanics only) and the full suite re-run. This verdict reflects the final run.', ''] : ['5. No script defect needed repairing after hardening. This verdict reflects the final run.', '']),
     '| Run | Passed | Failed | Flaky |', '| --- | --- | --- | --- |',
@@ -395,7 +395,7 @@ main(() => {
     '## Artifacts', '',
     '- Requirement: [requirement/story.md](requirement/story.md) · contract: [requirement-contract.md](requirement-contract.md)',
     '- Tests: [tests/](tests/) · frozen draft: [draft/](draft/)',
-    `- Journey fixtures: ${rel(journeyPaths(cfg, cfg.autId).base)}/`,
+    `- Actions: ${rel(actionPaths(cfg, cfg.autId).base)}/`,
     '- Hardening log: [hardening/hardening-log.md](hardening/hardening-log.md)',
     `- Triage: [runs/${finalRun}/triage.md](runs/${finalRun}/triage.md) · JUnit: runs/${finalRun}/junit.xml`,
     `- HTML report: \`npx playwright show-report ${rel(path.join(p.runs, finalRun, 'html'))}\``, '');
@@ -405,7 +405,7 @@ main(() => {
   writeFile(path.join(p.runs, finalRun, 'verdict.md'), out.replace(/\]\((?!https?:|#)([^)]+)\)/g, (_m, l: string) => `](${path.posix.join('../..', l)})`));
   const json = {
     key, verdict, reason, finalRun, generatedAt: new Date().toISOString(), autId: cfg.autId, aut: cfg.aut, summary: s,
-    integrity: integrity.status, amendments: integrity.amended.length, journeys,
+    integrity: integrity.status, amendments: integrity.amended.length, actions,
     applicationDefects: [...groups.entries()].map(([title, g]) => ({
       id: appIds.get(g[0]), title: g[0].final ? title : g[0].title, testType: typeOf(g[0]), source: sourceOf(g[0].scenario), confirmed: Boolean(g[0].final), severity: g[0].final?.severity ?? null,
       criteria: [...new Set(g.flatMap((e) => e.requirementRefs))], tests: g.map((e) => e.scenario),
