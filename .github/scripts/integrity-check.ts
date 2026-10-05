@@ -38,6 +38,8 @@ export function readAmendments(file: string): Amendment[] {
 }
 
 const squash = (s: string) => s.replace(/\s+/g, ' ').trim();
+/** Comments inside an assertion (a `// TODO(harden)` mark) are not what it expects: removing one changes nothing. */
+const withoutComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[\s,;{(\[])\/\/[^\n]*/g, '$1');
 
 /**
  * A literal timeout-only options argument is mechanics (how long to wait), so hardening may add or change it:
@@ -61,7 +63,8 @@ export function reqAssertions(source: string): Map<string, string> {
     const n = (seen.get(message) ?? 0) + 1;
     seen.set(message, n);
     const strict = /^\[REQ [^\]]*\bstrict\b/.test(message);
-    map.set(n > 1 ? `${message} #${n}` : message, squash(strict ? `${subject} ${withoutTimeout(matcher)}` : withoutTimeout(matcher)));
+    const [subj, match] = [withoutComments(subject), withoutComments(matcher)];
+    map.set(n > 1 ? `${message} #${n}` : message, squash(strict ? `${subj} ${withoutTimeout(match)}` : withoutTimeout(match)));
   };
   // The subject may not cross a statement boundary (`;`) — otherwise a lazy match starting at an
   // earlier non-REQ expect( would swallow unrelated code up to the next [REQ …] message.

@@ -38,6 +38,13 @@ describe('reqAssertions', () => {
   it('freezes subject + matcher for strict assertions and never swallows earlier statements', () => {
     assert.equal(m.get('[REQ AC-2 strict] labelled'), "page.getByRole('textbox', { name: 'Message' }) .toBeVisible()");
   });
+  it('ignores comments inside an assertion, but not a URL in a string', () => {
+    const src = `expect.soft(res.body, '[REQ AC-1] details').toMatchObject({
+      email: c.email, // TODO(harden) field names
+      site: 'https://x.test/a', /* note */
+    });`;
+    assert.equal(reqAssertions(src).get('[REQ AC-1] details'), ".toMatchObject({ email: c.email, site: 'https://x.test/a', })");
+  });
   it('reads the @req-constants block', () => {
     assert.match(reqConstants(SPEC), /MSG: 'Hello'/);
   });
