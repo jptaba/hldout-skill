@@ -73,7 +73,7 @@
     "mode": "mock",
     "mockRoot": "mock-jira",
     "baseUrl": "https://jira.example.com",
-    "acceptanceCriteriaField": "",
+    "acceptanceCriteriaField": "customfield_10035",
     "verdictLabelPrefix": "heldout-"
   },
   "outputDir": "output",

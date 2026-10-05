@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "kind": "api",
+  "by": "TOOL-4",
+  "at": "2026-10-05T12:28:35.351Z",
+  "entries": [
+    {
+      "key": "api:favorites.addFavourite",
+      "kind": "api",
+      "value": {
+        "action": "addFavourite",
+        "domain": "favorites",
+        "endpoints": [
+          "POST /favorites"
+        ],
+        "file": "api/favorites/add-favourite.ts",
+        "params": "api: Api, seed: Seed, owner: { headers: Record<string, string> }, productId: string",
+        "summary": "Add a product to a signed-in customer's favourites through POST /favorites as a precondition (\"given the product is one of my favourites\") and return the new favourite's id with the product id."
+      },
+      "status": "proven",
+      "at": "2026-10-05T12:28:35.347Z",
+      "by": "TOOL-4",
+      "evidence": "03-eval: SCN-003, SCN-004, SCN-006, SCN-008 passed"
+    },
+    {
+      "key": "api:products.pickCatalogueProducts",
+      "kind": "api",
+      "value": {
+        "action": "pickCatalogueProducts",
+        "domain": "products",
+        "endpoints": [
+          "GET /products"
+        ],
+        "file": "api/products/pick-catalogue-products.ts",
+        "params": "api: Api, seed: Seed, count = 1",
+        "summary": "Pick `count` different products of the catalogue (the first ones of GET /products, page 1): a lookup pre-step for a test that needs existing products to act on (catalogue products are reference data, never changed)."
+      },
+      "status": "proven",
+      "at": "2026-10-05T12:28:35.347Z",
+      "by": "TOOL-4",
+      "evidence": "03-eval: SCN-001, SCN-002, SCN-003, SCN-004, SCN-005, SCN-006, SCN-007, SCN-008, SCN-009, SCN-010 passed"
+    }
+  ]
+}

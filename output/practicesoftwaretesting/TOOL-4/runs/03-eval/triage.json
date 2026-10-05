@@ -1,0 +1,333 @@
+{
+  "key": "TOOL-4",
+  "run": "03-eval",
+  "generatedAt": "2026-10-05T12:28:32.834Z",
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: A signed-in customer adds a product to favourites and gets 201 with that product",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Adding a product that is already a favourite again is rejected with 409 and it stays listed once",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:idempotency",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "idempotency",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: GET /favorites answers 200 with the customer's own favourites",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.1",
+      "title": "SCN-004.1: GET /favorites without a token answers 401",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.2",
+      "title": "SCN-004.2: GET /favorites with an invalid token answers 401",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.3",
+      "title": "SCN-004.3: POST /favorites without a token answers 401",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.4",
+      "title": "SCN-004.4: POST /favorites with an invalid token answers 401",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.5",
+      "title": "SCN-004.5: DELETE /favorites/{favoriteId} without a token answers 401",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004.6",
+      "title": "SCN-004.6: DELETE /favorites/{favoriteId} with an invalid token answers 401",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: In the web shop, a customer adds a product to favourites on its page and finds it on the Favorites page",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: DELETE /favorites/{favoriteId} removes the favourite with 204 and GET /favorites no longer lists it",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-6",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: POST /favorites answers with the favourite: its id and its product id",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:contract",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "contract",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: GET /favorites never includes another customer's favourites",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: A favourite added with POST is listed by GET and removed with its id by DELETE",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@AC-3",
+        "@AC-6",
+        "@type:composition",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-1",
+        "AC-3",
+        "AC-6"
+      ],
+      "testType": "composition",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010",
+      "title": "SCN-010: A product added to favourites in the web shop is in the customer's GET /favorites",
+      "file": "practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:integration",
+        "@layer:e2e",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "integration",
+      "layer": "e2e",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

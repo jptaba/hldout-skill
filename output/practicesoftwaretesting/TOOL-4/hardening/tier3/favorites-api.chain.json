@@ -1,0 +1,13 @@
+{
+  "steps": [
+    { "name": "register a customer (accounts recipe)", "method": "POST", "path": "users/register", "setup": true,
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-probe-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}", "dob": "1990-01-01", "phone": "0612345678",
+                "address": { "street": "Test Street 1", "city": "Utrecht", "state": "Utrecht", "country": "NL", "postal_code": "3511AA" } } },
+    { "name": "sign in", "method": "POST", "path": "users/login", "setup": true,
+      "json": { "email": "hldout-probe-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}" }, "save": { "token": "access_token" } },
+    { "name": "first catalogue product (G1)", "method": "GET", "path": "products?page=1", "save": { "pid": "data.0.id" }, "show": ["data.0.id", "data.0.name"] },
+    { "name": "add favourite", "method": "POST", "path": "favorites", "headers": { "Authorization": "Bearer ${token}" }, "json": { "product_id": "${pid}" }, "save": { "fid": "id" } },
+    { "name": "list favourites", "method": "GET", "path": "favorites", "headers": { "Authorization": "Bearer ${token}" } },
+    { "name": "remove favourite", "method": "DELETE", "path": "favorites/${fid}", "headers": { "Authorization": "Bearer ${token}" } }
+  ]
+}

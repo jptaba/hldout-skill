@@ -1,0 +1,25 @@
+{
+  "status": "PRESERVED",
+  "checkedAt": "2026-10-05T12:28:00.770Z",
+  "files": [
+    {
+      "file": "tool-4.spec.ts",
+      "draftAssertions": 20,
+      "currentAssertions": 20
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": [],
+  "actionsChanged": [
+    "actions/practicesoftwaretesting/api/favorites/_shared.ts",
+    "actions/practicesoftwaretesting/ui/account/open-favorites-page.ts",
+    "actions/practicesoftwaretesting/ui/account/read-favorite-product-names.ts",
+    "actions/practicesoftwaretesting/ui/product/click-add-to-favourites.ts",
+    "actions/practicesoftwaretesting/ui/product/open-product-page.ts"
+  ],
+  "actionAssertions": []
+}

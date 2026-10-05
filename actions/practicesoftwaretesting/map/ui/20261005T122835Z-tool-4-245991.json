@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "kind": "ui",
+  "by": "TOOL-4",
+  "at": "2026-10-05T12:28:35.351Z",
+  "entries": [
+    {
+      "key": "ui:account.openFavoritesPage",
+      "kind": "ui",
+      "value": {
+        "action": "openFavoritesPage",
+        "domain": "account",
+        "file": "ui/account/open-favorites-page.ts",
+        "params": "page: Page",
+        "routes": [
+          "/account/favorites"
+        ],
+        "summary": "Open the \"Favorites\" page of the signed-in customer's account and wait until it has loaded the favourites list (the page's request for the customer's favourites has been answered)."
+      },
+      "status": "proven",
+      "at": "2026-10-05T12:28:35.347Z",
+      "by": "TOOL-4",
+      "evidence": "03-eval: SCN-005 passed"
+    },
+    {
+      "key": "ui:account.readFavoriteProductNames",
+      "kind": "ui",
+      "value": {
+        "action": "readFavoriteProductNames",
+        "domain": "account",
+        "file": "ui/account/read-favorite-product-names.ts",
+        "locators": [
+          "locator('[data-test^=\"favorite-\"]')"
+        ],
+        "params": "page: Page",
+        "summary": "Read the names of the products the open \"Favorites\" page of the account lists now, in the order shown."
+      },
+      "status": "proven",
+      "at": "2026-10-05T12:28:35.347Z",
+      "by": "TOOL-4",
+      "evidence": "03-eval: SCN-005 passed"
+    },
+    {
+      "key": "ui:product.clickAddToFavourites",
+      "kind": "ui",
+      "value": {
+        "action": "clickAddToFavourites",
+        "domain": "product",
+        "file": "ui/product/click-add-to-favourites.ts",
+        "locators": [
+          "getByRole('button', { name: 'Add to favourites', exact: true })"
+        ],
+        "params": "page: Page",
+        "summary": "On an open product page of the web shop, click its \"Add to favourites\" button (needs a signed-in customer)."
+      },
+      "status": "proven",
+      "at": "2026-10-05T12:28:35.347Z",
+      "by": "TOOL-4",
+      "evidence": "03-eval: SCN-005, SCN-010 passed"
+    },
+    {
+      "key": "ui:product.openProductPage",
+      "kind": "ui",
+      "value": {
+        "action": "openProductPage",
+        "domain": "product",
+        "file": "ui/product/open-product-page.ts",
+        "locators": [
+          "getByTestId('product-name')"
+        ],
+        "params": "page: Page, productId: string",
+        "routes": [
+          "/product/{}"
+        ],
+        "summary": "Open a product's page in the web shop by the product's id and wait until the page shows the product's name."
+      },
+      "status": "proven",
+      "at": "2026-10-05T12:28:35.347Z",
+      "by": "TOOL-4",
+      "evidence": "03-eval: SCN-005, SCN-010 passed"
+    }
+  ]
+}

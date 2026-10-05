@@ -1,0 +1,8 @@
+### add-comment (simulated — no Jira; this request was NOT sent)
+POST https://jira.example.com/rest/api/2/issue/TOOL-4/comment
+Authorization: Bearer <JIRA_PAT>
+Content-Type: application/json
+
+{
+  "body": "h3. 🧪 Held-out evaluation: PASS (recommendation)\n\n{panel:title=SUCCESS}\nEvery test passed and every acceptance criterion is covered.\n{panel}\n\n*AUT: *Practice Software Testing (https://practicesoftwaretesting.com/)\n\n*Tests: *15/15 passed, 0 failed, 0 flaky*  ·  Held-out integrity: *PRESERVED*  ·  Script defects self-repaired: *0\n\nh4. Coverage by test type\n\n||*Test type*||*Tests*||*Passed*||*Failed*||*Findings*||\n|idempotency|1|1|0|-|\n|security|7|7|0|-|\n|contract|1|1|0|-|\n|composition|1|1|0|-|\n|integration|1|1|0|-|\n|functional|4|4|0|-|\n\n*Open questions (not tested): *what DELETE /favorites/{favoriteId} must answer for another customer's favourite (no criterion says; not tested). · whether adding the same product twice at the same moment must also leave it in the list once (AC-2 speaks of a product that is already a favourite; not tested). · what POST /favorites must answer without product_id (R3 makes it required) or for an unknown product, and DELETE for an unknown favourite id (no status stated; not tested).\n\n* Full report attached: {{heldout-verdict-TOOL-4-202610051228.md}}\n* Final run: 03-eval\n\n_Posted automatically by the heldout-evaluator skill._"
+}

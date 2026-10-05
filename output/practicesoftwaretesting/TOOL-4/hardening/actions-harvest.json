@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-05T12:28:35.347Z",
+  "finalRun": "03-eval",
+  "files": [
+    "actions/practicesoftwaretesting/map/ui/20261005T122835Z-tool-4-245991.json",
+    "actions/practicesoftwaretesting/map/api/20261005T122835Z-tool-4-058e07.json"
+  ],
+  "proven": 6,
+  "stale": 0,
+  "dropped": []
+}

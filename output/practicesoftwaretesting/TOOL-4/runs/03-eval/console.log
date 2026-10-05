@@ -1,0 +1,20 @@
+
+Running 15 tests using 4 workers
+
+  ok  3 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:148:9 › TOOL-4 Favourites for signed-in customers › SCN-004.1: GET /favorites without a token answers 401 @AC-4 @type:security @layer:api @P1 (1.4s)
+  ok  5 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:148:9 › TOOL-4 Favourites for signed-in customers › SCN-004.2: GET /favorites with an invalid token answers 401 @AC-4 @type:security @layer:api @P1 (1.1s)
+  ok  2 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:76:7 › TOOL-4 Favourites for signed-in customers › SCN-001: A signed-in customer adds a product to favourites and gets 201 with that product @AC-1 @type:functional @layer:api @P1 (3.2s)
+  ok  6 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:148:9 › TOOL-4 Favourites for signed-in customers › SCN-004.3: POST /favorites without a token answers 401 @AC-4 @type:security @layer:api @P1 (1.1s)
+  ok  1 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:93:7 › TOOL-4 Favourites for signed-in customers › SCN-002: Adding a product that is already a favourite again is rejected with 409 and it stays listed once @AC-2 @type:idempotency @layer:api @P1 (4.1s)
+  ok  7 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:148:9 › TOOL-4 Favourites for signed-in customers › SCN-004.4: POST /favorites with an invalid token answers 401 @AC-4 @type:security @layer:api @P1 (1.1s)
+  ok  4 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:119:7 › TOOL-4 Favourites for signed-in customers › SCN-003: GET /favorites answers 200 with the customer's own favourites @AC-3 @type:functional @layer:api @P1 (4.7s)
+  ok  8 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:148:9 › TOOL-4 Favourites for signed-in customers › SCN-004.5: DELETE /favorites/{favoriteId} without a token answers 401 @AC-4 @type:security @layer:api @P1 (3.5s)
+  ok  9 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:148:9 › TOOL-4 Favourites for signed-in customers › SCN-004.6: DELETE /favorites/{favoriteId} with an invalid token answers 401 @AC-4 @type:security @layer:api @P1 (3.7s)
+  ok 11 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:189:7 › TOOL-4 Favourites for signed-in customers › SCN-006: DELETE /favorites/{favoriteId} removes the favourite with 204 and GET /favorites no longer lists it @AC-6 @type:functional @layer:api @P1 (4.1s)
+  ok 12 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:212:7 › TOOL-4 Favourites for signed-in customers › SCN-007: POST /favorites answers with the favourite: its id and its product id @AC-1 @type:contract @layer:api @P2 (2.9s)
+  ok 10 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:167:7 › TOOL-4 Favourites for signed-in customers › SCN-005: In the web shop, a customer adds a product to favourites on its page and finds it on the Favorites page @AC-5 @type:functional @layer:ui @P1 (8.9s)
+  ok 14 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:252:7 › TOOL-4 Favourites for signed-in customers › SCN-009: A favourite added with POST is listed by GET and removed with its id by DELETE @AC-1 @AC-3 @AC-6 @type:composition @layer:api @P2 (4.8s)
+  ok 13 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:230:7 › TOOL-4 Favourites for signed-in customers › SCN-008: GET /favorites never includes another customer's favourites @AC-3 @type:security @layer:api @P1 (8.2s)
+  ok 15 [chromium] › output\practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts:280:7 › TOOL-4 Favourites for signed-in customers › SCN-010: A product added to favourites in the web shop is in the customer's GET /favorites @AC-5 @type:integration @layer:e2e @P2 (10.3s)
+
+  15 passed (21.7s)

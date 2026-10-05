@@ -1,0 +1,48 @@
+{
+  "id": "10004",
+  "key": "TOOL-4",
+  "self": "https://jira.example.com/rest/api/2/issue/TOOL-4",
+  "fields": {
+    "summary": "Favourites for signed-in customers",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [
+      "heldout-pass"
+    ],
+    "description": "Signed-in customers can keep a personal list of favourite products, from the product page (web shop) and through the API (mobile app).\n\n*Technical notes:* the favourites API is defined on the [Favourites API|https://confluence.example.com/pages/viewpage.action?pageId=880001] page.",
+    "attachment": [
+      {
+        "id": "10170",
+        "filename": "heldout-verdict-TOOL-4-202610051228.md",
+        "mimeType": "text/markdown",
+        "size": 13176,
+        "content": "https://jira.example.com/secure/attachment/10170/heldout-verdict-TOOL-4-202610051228.md",
+        "created": "2026-10-05T12:28:34.536Z",
+        "author": {
+          "displayName": "Held-out Evaluator (bot)"
+        }
+      }
+    ],
+    "comment": {
+      "comments": [
+        {
+          "id": "20001",
+          "author": {
+            "displayName": "Held-out Evaluator (bot)"
+          },
+          "body": "h3. 🧪 Held-out evaluation: PASS (recommendation)\n\n{panel:title=SUCCESS}\nEvery test passed and every acceptance criterion is covered.\n{panel}\n\n*AUT: *Practice Software Testing (https://practicesoftwaretesting.com/)\n\n*Tests: *15/15 passed, 0 failed, 0 flaky*  ·  Held-out integrity: *PRESERVED*  ·  Script defects self-repaired: *0\n\nh4. Coverage by test type\n\n||*Test type*||*Tests*||*Passed*||*Failed*||*Findings*||\n|idempotency|1|1|0|-|\n|security|7|7|0|-|\n|contract|1|1|0|-|\n|composition|1|1|0|-|\n|integration|1|1|0|-|\n|functional|4|4|0|-|\n\n*Open questions (not tested): *what DELETE /favorites/{favoriteId} must answer for another customer's favourite (no criterion says; not tested). · whether adding the same product twice at the same moment must also leave it in the list once (AC-2 speaks of a product that is already a favourite; not tested). · what POST /favorites must answer without product_id (R3 makes it required) or for an unknown product, and DELETE for an unknown favourite id (no status stated; not tested).\n\n* Full report attached: {{heldout-verdict-TOOL-4-202610051228.md}}\n* Final run: 03-eval\n\n_Posted automatically by the heldout-evaluator skill._",
+          "created": "2026-10-05T12:28:34.538Z"
+        }
+      ],
+      "total": 1
+    },
+    "customfield_10035": "- AC-1: A signed-in customer adds a product to favourites with POST /favorites; the API responds 201 with the favourite (its id and the product id).\n- AC-2: Adding a product that is already a favourite is rejected and the list still contains it once.\n- AC-3: GET /favorites lists the customer's own favourites only; another customer's favourites are never included.\n- AC-4: Every favourites endpoint responds 401 without a valid token.\n- AC-5: On the web shop, a signed-in customer who clicks \"Add to favourites\" on a product page sees \"Product added to your favorites list.\" and the product then appears on the \"Favorites\" page of their account.\n- AC-6: DELETE /favorites/{favoriteId} removes the favourite (204) and it no longer appears in GET /favorites."
+  }
+}

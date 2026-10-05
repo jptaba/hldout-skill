@@ -1,0 +1,14 @@
+### update-labels (simulated — no Jira; this request was NOT sent)
+PUT https://jira.example.com/rest/api/2/issue/TOOL-4
+Authorization: Bearer <JIRA_PAT>
+Content-Type: application/json
+
+{
+  "update": {
+    "labels": [
+      {
+        "add": "heldout-pass"
+      }
+    ]
+  }
+}

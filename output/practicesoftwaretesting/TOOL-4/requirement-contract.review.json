@@ -1,0 +1,124 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5.5)",
+  "reviewedAt": "2026-10-05T12:16:08.267Z",
+  "contractHash": "46085e86b0c42664",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "story.md#L23; linked/confluence-880001-favourites-api.md#L30",
+      "note": ""
+    },
+    {
+      "ref": "AC-2",
+      "verdict": "supported",
+      "evidence": "story.md#L24; linked/confluence-880001-favourites-api.md#L32",
+      "note": "409 comes from the API page"
+    },
+    {
+      "ref": "AC-3",
+      "verdict": "supported",
+      "evidence": "story.md#L25; linked/confluence-880001-favourites-api.md#L16",
+      "note": "200 from the API page"
+    },
+    {
+      "ref": "AC-4",
+      "verdict": "supported",
+      "evidence": "story.md#L26; linked/confluence-880001-favourites-api.md#L17, #L31, #L39",
+      "note": "no token and invalid token both fall under 'without a valid token'"
+    },
+    {
+      "ref": "AC-5",
+      "verdict": "supported",
+      "evidence": "story.md#L27",
+      "note": ""
+    },
+    {
+      "ref": "AC-6",
+      "verdict": "supported",
+      "evidence": "story.md#L28; linked/confluence-880001-favourites-api.md#L38",
+      "note": ""
+    },
+    {
+      "ref": "R1",
+      "verdict": "supported",
+      "evidence": "story.md#L17, #L25; linked/confluence-880001-favourites-api.md#L13, #L16",
+      "note": ""
+    },
+    {
+      "ref": "R2",
+      "verdict": "supported",
+      "evidence": "story.md#L24; linked/confluence-880001-favourites-api.md#L32",
+      "note": ""
+    },
+    {
+      "ref": "R3",
+      "verdict": "supported",
+      "evidence": "linked/confluence-880001-favourites-api.md#L21-L28",
+      "note": ""
+    },
+    {
+      "ref": "E1",
+      "verdict": "supported",
+      "evidence": "story.md#L26; linked/confluence-880001-favourites-api.md#L17, #L31, #L39",
+      "note": ""
+    },
+    {
+      "ref": "E2",
+      "verdict": "supported",
+      "evidence": "linked/confluence-880001-favourites-api.md#L32",
+      "note": ""
+    },
+    {
+      "ref": "POST /favorites",
+      "verdict": "supported",
+      "evidence": "linked/confluence-880001-favourites-api.md#L11, #L18; story.md#L23",
+      "note": ""
+    },
+    {
+      "ref": "GET /favorites",
+      "verdict": "supported",
+      "evidence": "linked/confluence-880001-favourites-api.md#L11-L12; story.md#L25",
+      "note": ""
+    },
+    {
+      "ref": "DELETE /favorites/{favoriteId}",
+      "verdict": "supported",
+      "evidence": "linked/confluence-880001-favourites-api.md#L33-L34; story.md#L28",
+      "note": ""
+    },
+    {
+      "ref": "POST /users/login",
+      "verdict": "supported",
+      "evidence": "linked/confluence-880001-favourites-api.md#L5",
+      "note": ""
+    }
+  ],
+  "missed": [],
+  "observations": [
+    {
+      "field": "testData.strategy",
+      "note": "mentions seed.account(), which is not in the pack. The text does say the strategy is not stated in the sources, so this is only a warning."
+    }
+  ],
+  "summary": "Every AC, rule, error and endpoint is grounded in the story or the Favourites API page, with no changes to conditions. The gaps are all mechanics (HOW) and none hides an expected behaviour. No requirement-bearing line was missed.",
+  "itemHashes": {
+    "AC-1": "74b811baa93f",
+    "AC-2": "7c39c993a442",
+    "AC-3": "8daabc2bb791",
+    "AC-4": "942db952ff37",
+    "AC-5": "1be240971040",
+    "AC-6": "32022f54dd3c",
+    "R1": "e625a6180280",
+    "R2": "adb5d2591af8",
+    "R3": "99aa678b2ba7",
+    "E1": "d144822c93a1",
+    "E2": "1712293298f1",
+    "POST /favorites": "916e16c2a1ec",
+    "GET /favorites": "55a461695384",
+    "DELETE /favorites/{favoriteId}": "d3898876ec5f",
+    "POST /users/login": "40cc223cd654",
+    "auth": "da874bde4754",
+    "coverage": "13f8681c1c57"
+  }
+}

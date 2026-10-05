@@ -1,0 +1,25 @@
+{
+  "id": "10004",
+  "key": "TOOL-4",
+  "self": "https://jira.example.com/rest/api/2/issue/TOOL-4",
+  "fields": {
+    "summary": "Favourites for signed-in customers",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [],
+    "description": "Signed-in customers can keep a personal list of favourite products, from the product page (web shop) and through the API (mobile app).\n\n*Technical notes:* the favourites API is defined on the [Favourites API|https://confluence.example.com/pages/viewpage.action?pageId=880001] page.",
+    "attachment": [],
+    "comment": {
+      "comments": [],
+      "total": 0
+    },
+    "customfield_10035": "- AC-1: A signed-in customer adds a product to favourites with POST /favorites; the API responds 201 with the favourite (its id and the product id).\n- AC-2: Adding a product that is already a favourite is rejected and the list still contains it once.\n- AC-3: GET /favorites lists the customer's own favourites only; another customer's favourites are never included.\n- AC-4: Every favourites endpoint responds 401 without a valid token.\n- AC-5: On the web shop, a signed-in customer who clicks \"Add to favourites\" on a product page sees \"Product added to your favorites list.\" and the product then appears on the \"Favorites\" page of their account.\n- AC-6: DELETE /favorites/{favoriteId} removes the favourite (204) and it no longer appears in GET /favorites."
+  }
+}

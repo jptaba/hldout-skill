@@ -1,0 +1,98 @@
+<testsuites id="" name="" tests="45" failures="0" skipped="0" errors="0" time="101.669985">
+<testsuite name="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" timestamp="2026-10-05T12:25:25.563Z" hostname="chromium" tests="15" failures="0" skipped="0" time="63.687" errors="0">
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-001: A signed-in customer adds a product to favourites and gets 201 with that product" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.1">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-002: Adding a product that is already a favourite again is rejected with 409 and it stays listed once" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.512">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-003: GET /favorites answers 200 with the customer&apos;s own favourites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.584">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.1: GET /favorites without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.298">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.2: GET /favorites with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.023">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.3: POST /favorites without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.056">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.4: POST /favorites with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.037">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.5: DELETE /favorites/{favoriteId} without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.452">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.6: DELETE /favorites/{favoriteId} with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.425">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-005: In the web shop, a customer adds a product to favourites on its page and finds it on the Favorites page" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="10.32">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-006: DELETE /favorites/{favoriteId} removes the favourite with 204 and GET /favorites no longer lists it" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.272">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-007: POST /favorites answers with the favourite: its id and its product id" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.441">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-008: GET /favorites never includes another customer&apos;s favourites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="7.1">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-009: A favourite added with POST is listed by GET and removed with its id by DELETE" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.478">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-010: A product added to favourites in the web shop is in the customer&apos;s GET /favorites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="10.589">
+</testcase>
+</testsuite>
+<testsuite name="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" timestamp="2026-10-05T12:25:25.563Z" hostname="chromium" tests="15" failures="0" skipped="0" time="58.63" errors="0">
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-001: A signed-in customer adds a product to favourites and gets 201 with that product" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.811">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-002: Adding a product that is already a favourite again is rejected with 409 and it stays listed once" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.89">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-003: GET /favorites answers 200 with the customer&apos;s own favourites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.716">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.1: GET /favorites without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.053">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.2: GET /favorites with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.3: POST /favorites without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.206">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.4: POST /favorites with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.401">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.5: DELETE /favorites/{favoriteId} without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.443">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.6: DELETE /favorites/{favoriteId} with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.183">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-005: In the web shop, a customer adds a product to favourites on its page and finds it on the Favorites page" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="8.586">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-006: DELETE /favorites/{favoriteId} removes the favourite with 204 and GET /favorites no longer lists it" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.656">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-007: POST /favorites answers with the favourite: its id and its product id" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="2.703">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-008: GET /favorites never includes another customer&apos;s favourites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="6.139">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-009: A favourite added with POST is listed by GET and removed with its id by DELETE" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.386">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-010: A product added to favourites in the web shop is in the customer&apos;s GET /favorites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="8.457">
+</testcase>
+</testsuite>
+<testsuite name="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" timestamp="2026-10-05T12:25:25.563Z" hostname="chromium" tests="15" failures="0" skipped="0" time="60.674" errors="0">
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-001: A signed-in customer adds a product to favourites and gets 201 with that product" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="2.994">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-002: Adding a product that is already a favourite again is rejected with 409 and it stays listed once" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.821">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-003: GET /favorites answers 200 with the customer&apos;s own favourites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.596">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.1: GET /favorites without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.092">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.2: GET /favorites with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="0.978">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.3: POST /favorites without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.249">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.4: POST /favorites with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="1.097">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.5: DELETE /favorites/{favoriteId} without a token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.23">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-004.6: DELETE /favorites/{favoriteId} with an invalid token answers 401" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.409">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-005: In the web shop, a customer adds a product to favourites on its page and finds it on the Favorites page" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="8.999">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-006: DELETE /favorites/{favoriteId} removes the favourite with 204 and GET /favorites no longer lists it" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.352">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-007: POST /favorites answers with the favourite: its id and its product id" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="3.234">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-008: GET /favorites never includes another customer&apos;s favourites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="6.8">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-009: A favourite added with POST is listed by GET and removed with its id by DELETE" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="4.832">
+</testcase>
+<testcase name="TOOL-4 Favourites for signed-in customers › SCN-010: A product added to favourites in the web shop is in the customer&apos;s GET /favorites" classname="practicesoftwaretesting\TOOL-4\tests\tool-4.spec.ts" time="9.991">
+</testcase>
+</testsuite>
+</testsuites>

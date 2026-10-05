@@ -1,0 +1,18 @@
+{
+  "id": "880001",
+  "type": "page",
+  "status": "current",
+  "title": "Favourites API",
+  "space": {
+    "key": "DEV"
+  },
+  "body": {
+    "storage": {
+      "value": "<p>The favourites endpoints of the shop API, used by the mobile app. Every call needs <code>Authorization: Bearer &lt;token&gt;</code>, the token from <code>POST /users/login</code>.</p>\n<p>Excerpt of the service's OpenAPI definition (favourites only):</p>\n<ac:structured-macro ac:name=\"code\"><ac:parameter ac:name=\"language\">yaml</ac:parameter><ac:plain-text-body><![CDATA[paths:\n  /favorites:\n    get:\n      summary: The signed-in customer's favourites\n      security: [{ bearer: [] }]\n      responses:\n        \"200\": { description: The customer's own favourites }\n        \"401\": { description: No valid token }\n    post:\n      summary: Add a product to the signed-in customer's favourites\n      security: [{ bearer: [] }]\n      requestBody:\n        content:\n          application/json:\n            schema:\n              type: object\n              required: [product_id]\n              properties:\n                product_id: { type: string }\n      responses:\n        \"201\": { description: The favourite, with its id and the product id }\n        \"401\": { description: No valid token }\n        \"409\": { description: The product is already a favourite (a conflict) }\n  /favorites/{favoriteId}:\n    delete:\n      summary: Remove a favourite\n      security: [{ bearer: [] }]\n      responses:\n        \"204\": { description: Removed }\n        \"401\": { description: No valid token }]]></ac:plain-text-body></ac:structured-macro>",
+      "representation": "storage"
+    }
+  },
+  "_links": {
+    "webui": "/pages/viewpage.action?pageId=880001"
+  }
+}

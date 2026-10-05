@@ -1,0 +1,8 @@
+{
+  "steps": [
+    { "name": "sign in the probe customer", "method": "POST", "path": "users/login", "setup": true,
+      "json": { "email": "hldout-probe-v7zz1puoe@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}" }, "save": { "token": "access_token" } },
+    { "name": "list favourites", "method": "GET", "path": "favorites", "headers": { "Authorization": "Bearer ${token}" }, "save": { "fid": "0.id" } },
+    { "name": "remove the favourite the UI probe added", "method": "DELETE", "path": "favorites/${fid}", "headers": { "Authorization": "Bearer ${token}" }, "expect": 204 }
+  ]
+}

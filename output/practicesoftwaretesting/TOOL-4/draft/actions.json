@@ -1,0 +1,10 @@
+{
+  "actions/practicesoftwaretesting/api/favorites/_shared.ts": "6f842070bfedcc6e",
+  "actions/practicesoftwaretesting/api/favorites/add-favourite.ts": "36d96f5d12cc3077",
+  "actions/practicesoftwaretesting/api/products/_shared.ts": "de95f636019b9434",
+  "actions/practicesoftwaretesting/api/products/pick-catalogue-products.ts": "5c4543c791423af5",
+  "actions/practicesoftwaretesting/ui/account/_shared.ts": "3463543e998fb234",
+  "actions/practicesoftwaretesting/ui/account/open-favorites-page.ts": "d4a2a6a38047322c",
+  "actions/practicesoftwaretesting/ui/account/read-favorite-product-names.ts": "90f14962b7398dec",
+  "actions/practicesoftwaretesting/ui/product/open-product-page.ts": "6175576a94a74af0"
+}

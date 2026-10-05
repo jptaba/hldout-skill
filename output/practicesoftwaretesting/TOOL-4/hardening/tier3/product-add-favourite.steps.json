@@ -1,0 +1,11 @@
+[
+  { "do": "goto", "url": "auth/login" },
+  { "do": "fill", "target": "getByTestId('email')", "value": "${var:email}" },
+  { "do": "fill", "target": "getByTestId('password')", "value": "${env:PST_CUSTOMER_PASSWORD}" },
+  { "do": "click", "target": "getByTestId('login-submit')" },
+  { "do": "wait", "target": "url:/account" },
+  { "do": "goto", "url": "product/${var:pid}" },
+  { "do": "wait", "target": "getByTestId('product-name')" },
+  { "do": "click", "target": "getByTestId('add-to-favorites')" },
+  { "do": "wait", "target": "getByText('Product added to your favorites list.')" }
+]

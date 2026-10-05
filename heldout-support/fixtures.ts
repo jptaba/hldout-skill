@@ -34,7 +34,7 @@ export type TestData = Record<string, any>;
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 
 export interface Journey {
-  /** One Gherkin line == one step. Title should be the Gherkin text verbatim. */
+  /** One observable action or outcome per step, titled as the user or client sees it ("Given …", "When …", "Then …"). */
   step<T>(title: string, body: () => Promise<T>): Promise<T>;
   /** Manually capture an ARIA snapshot (attached to the report). */
   capture(label: string): Promise<void>;
