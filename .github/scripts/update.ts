@@ -45,7 +45,15 @@ const SOURCE_FILE = path.join(PROJECT_SKILL, 'SOURCE.json');
 const SOURCE_ROOT = path.resolve(SCRIPTS_DIR, '..', '..');
 type SourceInfo = { from: string; update: string; remote?: string; commit?: string; installedAt: string; scripts: string[]; files: Record<string, string>; mcpServers?: string[] };
 
-const say = (mark: string, msg: string) => console.log(`${mark} ${msg}`);
+/** Files left exactly as they are: one summary line at the end instead of a line each. */
+const unchanged: string[] = [];
+const say = (mark: string, msg: string) => {
+  const keep = mark === '•' && msg.match(/^keep\s+(\S+)$/);
+  if (keep) unchanged.push(keep[1]); else console.log(`${mark} ${msg}`);
+};
+const sayUnchanged = () => {
+  if (unchanged.length) console.log(`• unchanged: ${unchanged.length > 4 ? `${unchanged.slice(0, 3).join(', ')} and ${unchanged.length - 3} more` : unchanged.join(', ')}`);
+};
 const readSource = (): SourceInfo | undefined => (fs.existsSync(SOURCE_FILE) ? JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8')) : undefined);
 const writeSource = (info: SourceInfo) => fs.writeFileSync(SOURCE_FILE, `${JSON.stringify(info, null, 2)}\n`);
 // Line endings don't count as a change (git on Windows checks out CRLF; editors may normalise either way).
@@ -196,6 +204,7 @@ main(() => {
   if (flags.ci) ensureCi(flags);
   // A set-up project gains the .gitignore entries a newer version needs (init adds them for a new one).
   if (fs.existsSync(path.join(ROOT, 'heldout.config.json'))) ensureGitignore(say);
+  sayUnchanged();
   // init runs update first and prints its own next steps.
   if (!process.env.HELDOUT_INIT) {
     console.log(fs.existsSync(path.join(ROOT, 'heldout.config.json'))
