@@ -107,15 +107,19 @@ const sha = (b: Buffer | string) => crypto.createHash('sha256').update(b).digest
 /** story.md without the volatile fetch timestamp. */
 const storyBody = (md: string) => md.replace(/^fetchedAt: .*$/m, '').trim();
 
+const TEXT_FILE = /\.(md|txt|html?|xml|json|ya?ml|csv)$/i;
+const lf = (s: string) => s.replace(/\r\n/g, '\n');
+
 export function requirementRevision(reqDir: string): RequirementContract['revision'] {
   const storyFile = path.join(reqDir, 'story.md');
   const dir = path.join(reqDir, 'linked');
   const linked: Record<string, string> = {};
   if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir).sort()) {
     const full = path.join(dir, f);
-    if (fs.statSync(full).isFile()) linked[f] = sha(fs.readFileSync(full));
+    // Text is hashed with LF line endings: a clone that checks files out with CRLF (Windows) is the same requirement.
+    if (fs.statSync(full).isFile()) linked[f] = sha(TEXT_FILE.test(f) ? lf(fs.readFileSync(full, 'utf8')) : fs.readFileSync(full));
   }
-  return { story: fs.existsSync(storyFile) ? sha(storyBody(fs.readFileSync(storyFile, 'utf8'))) : '', linked };
+  return { story: fs.existsSync(storyFile) ? sha(storyBody(lf(fs.readFileSync(storyFile, 'utf8')))) : '', linked };
 }
 
 // ---- quote anchoring ----------------------------------------------------------------------------

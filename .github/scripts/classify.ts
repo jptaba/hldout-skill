@@ -103,6 +103,14 @@ export function relevantExchange(sequence: ApiExchange[], e?: ParsedError): numb
   }
   const status = got.length ? got[0] : NaN;
   if (Number.isInteger(status) && status >= 100 && status <= 599) {
+    // One status expected, another received, in a run of repeated calls (401 ×3 then 423 ×3, expected 401): the first
+    // call that answered the received status after the last one that answered the expected status.
+    const expected = want.length === 1 ? want[0] : NaN;
+    const lastExpected = Number.isInteger(expected) ? sequence.map((x) => x.response.status).lastIndexOf(expected) : -1;
+    if (lastExpected >= 0) {
+      const first = sequence.findIndex((x, i) => i > lastExpected && x.response.status === status);
+      if (first >= 0) return first;
+    }
     for (let i = sequence.length - 1; i >= 0; i--) if (sequence[i].response.status === status) return i;
   }
   // The assertion names its call ("[REQ AC-4] POST /createAccount returns the balance"): the latest call it names.

@@ -135,8 +135,10 @@ function readSpec(file: string, into: Suite): void {
     }
     into.scenarios.push({
       id,
-      // A table's per-case part (`… (${row.x})`, `…: ${row.name}`) is dropped: the scenario title is what the cases share.
-      title: unescape(m[4]).replace(/\s*\(\$\{[^}]*\}[^)]*\)\s*$/, '').replace(/\s*[:—–-]?\s*\$\{[^}]*\}\s*$/, '').trim(),
+      // A table's per-case part (`… (${row.x})`, `…: ${row.name}`) is dropped: the scenario title is what the cases
+      // share. A value inside the title (`of ${row.length} characters`, `the rule "${rule.text}"`) reads "…".
+      title: unescape(m[4]).replace(/\s*\(\$\{[^}]*\}[^)]*\)\s*$/, '').replace(/\s*[:—–-]\s*\$\{[^}]*\}\s*$/, '')
+        .replace(/(["']?)\$\{[^}]*\}\1/g, '…').trim(),
       tags,
       acs: [],
       rawTypes: [],

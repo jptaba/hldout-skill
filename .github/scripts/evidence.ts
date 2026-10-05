@@ -253,6 +253,8 @@ export interface ContractReview {
   /** Descriptive fields (actors, auth, testData…) that state more than the sources: warnings for the builder. */
   observations?: { field: string; note: string }[];
   summary?: string;
+  /** Stamped by `heldout contract` once the review matches the contract: a hash per reviewed item, so a later change shows which items a re-review must check. */
+  itemHashes?: Record<string, string>;
 }
 
 const canonical = (v: unknown): unknown => (Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object'
@@ -294,6 +296,29 @@ export function reviewRefs(c: RequirementContract): string[] {
   ];
 }
 
+/** A hash of each reviewed item (every review ref, plus the stated auth and the coverage ledger). */
+export function reviewItemHashes(c: RequirementContract): Record<string, string> {
+  const rc = reviewedContent(c);
+  const h = (v: unknown) => crypto.createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex').slice(0, 12);
+  const items: [string, unknown][] = [
+    ...rc.acceptanceCriteria.map((a) => [a.id, a] as [string, unknown]),
+    ...rc.rules.map((r) => [r.id, r] as [string, unknown]),
+    ...rc.errorModel.map((e) => [e.id, e] as [string, unknown]),
+    ...rc.gaps.map((g) => [g.id, g] as [string, unknown]),
+    ...rc.endpoints.map((e) => [`${e.method} ${e.path}`, e] as [string, unknown]),
+    ['auth', rc.auth], ['coverage', rc.coverage],
+  ];
+  return Object.fromEntries(items.map(([ref, v]) => [ref, h(v)]));
+}
+
+/** The items added or changed since a stamped review (undefined when the review carries no item hashes). */
+export function changedSinceReview(c: RequirementContract, review: ContractReview): string[] | undefined {
+  if (!review.itemHashes) return undefined;
+  const now = reviewItemHashes(c);
+  return [...Object.entries(now).filter(([ref, hash]) => review.itemHashes?.[ref] !== hash).map(([ref]) => ref),
+    ...Object.keys(review.itemHashes).filter((ref) => !(ref in now)).map((ref) => `${ref} (removed)`)];
+}
+
 export function readReview(evalDir: string): ContractReview | undefined {
   const f = path.join(evalDir, REVIEW_FILE);
   return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')) as ContractReview) : undefined;
@@ -306,7 +331,9 @@ export function checkReview(c: RequirementContract, review: ContractReview | und
     return out;
   }
   if (review.contractHash !== contractHash(c)) {
-    out.push({ level: opts.requireReview ? 'error' : 'warn', code: 'review-stale', message: `The review (${review.reviewedAt}) was for another version of the contract (hash ${review.contractHash} ≠ ${contractHash(c)}) — the contract changed after review; run the reviewer again` });
+    const changed = changedSinceReview(c, review);
+    const which = changed?.length ? ` — changed since: ${changed.join(', ')}` : '';
+    out.push({ level: opts.requireReview ? 'error' : 'warn', code: 'review-stale', message: `The review (${review.reviewedAt}) was for another version of the contract (hash ${review.contractHash} ≠ ${contractHash(c)})${which}; run the reviewer again` });
     return out;
   }
   const byRef = new Map(review.items.map((i) => [i.ref, i]));

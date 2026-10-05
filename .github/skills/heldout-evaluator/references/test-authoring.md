@@ -155,7 +155,8 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
 3. **Black-box journeys.** Step titles describe what a user or client sees and does (`Given …`, `When …`, `Then …`),
    one observable action or outcome each. Locators are decided later.
 4. **One root cause, one failure.** Don't assert the same rule in many tests (boundary rows assert "accepted", and one
-   test asserts the exact success status). Record that choice as an `// ASSUMPTION:`.
+   test asserts the exact success status). Record that choice as an `// ASSUMPTION:` written for the reviewer, who
+   never sees this list: which test asserts the exact value and what the others check (not "rule 4").
 5. **Ambiguity:** take the most literal reading and tag it `@needs-clarification`, or write an `// OPEN-QUESTION:` (not
    tested). Never ask the AUT which reading is right. Keep the tag on what the question decides only: what holds under
    **every** reading goes in a test of its own without the tag. When the readings share nothing, that test asserts the
