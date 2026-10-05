@@ -1,0 +1,460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Held-out evaluator configuration",
+  "description": "Everything application-specific the held-out evaluator needs. One profile per application; a story is evaluated in output/<profile>/<KEY>/ and its tests share the actions in actions/<profile>/.",
+  "type": "object",
+  "required": [
+    "auts"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "defaultAut": {
+      "type": "string",
+      "description": "Profile used when a story has no evaluation.json binding."
+    },
+    "auts": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Named AUT profiles.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "baseURL"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Human-readable name shown in verdicts."
+          },
+          "baseURL": {
+            "type": "string",
+            "pattern": "^https?://",
+            "description": "Web UI origin (Playwright baseURL)."
+          },
+          "apiBaseURL": {
+            "type": "string",
+            "pattern": "^https?://",
+            "description": "API origin for the api fixture and api-probe. Defaults to baseURL."
+          },
+          "overlays": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Page-locator expressions of the button that closes a banner or dialog that can cover the page at any time (cookie consent, welcome dialog): clicked whenever it appears"
+          },
+          "blockHosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Third-party hosts (ads, analytics, consent) whose requests the browser aborts, e.g. [\"googlesyndication.com\", \"doubleclick.net\"]. They are not part of the application and make pages flaky"
+          },
+          "minTestIntervalMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Minimum gap between test starts in ms, across workers and worker restarts: for hosts that ban bursts of traffic (e.g. 12000)"
+          },
+          "dataPrefix": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,15}$",
+            "description": "Prefix of every name the tests make on this AUT (users, records, seed tags). Default \"hldout\"; another one where the application's rules need it"
+          },
+          "accounts": {
+            "type": "object",
+            "description": "How tests get accounts on this AUT, written once and used by seed.account() and signIn() in every story: accounts the tests create (\"create\", plus \"delete\" when the application allows it), or accounts that already exist (\"existing\", shared out among parallel workers, never deleted). Secrets are \"${env:NAME}\" (.env or the environment) or \"${vault:path#field}\" (HashiCorp Vault), never literal. Other strings may use ${username}, ${password}, ${id}, ${token}, ${uid}. `heldout accounts` writes it; `heldout doctor` checks it live.",
+            "properties": {
+              "password": {
+                "type": "string",
+                "pattern": "^\\$\\{(env|vault):[^}]+\\}$",
+                "description": "Password of the accounts the tests create: \"${env:NAME}\" or \"${vault:path#field}\""
+              },
+              "username": {
+                "type": "string",
+                "description": "User-name template; ${uid} is unique per account. Default \"<dataPrefix>-${uid}\""
+              },
+              "create": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path",
+                  "id"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Dotted path of the new account's id in the response body, e.g. \"userID\""
+                  }
+                }
+              },
+              "token": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path",
+                  "token"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "Dotted path of the token in the response body"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Dotted path of the account id in the sign-in answer (for existing accounts)"
+                  }
+                }
+              },
+              "authHeader": {
+                "type": "string",
+                "description": "Default \"Authorization: Bearer ${token}\""
+              },
+              "before": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Calls made first, each time an account is made or signed in (a CSRF token, a valid security-question id…); save maps a name to a dotted path in the answer, usable as ${name} below",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "method",
+                    "path",
+                    "save"
+                  ],
+                  "properties": {
+                    "method": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "body": {},
+                    "form": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "save": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "delete": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "reset": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "Existing accounts: restores an account the tests change (clears its data), with its token; run before each test that takes it and after it"
+              },
+              "signIn": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "steps"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fill": {
+                          "type": "string"
+                        },
+                        "click": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "done": {
+                    "type": "string",
+                    "description": "\"url:/profile\" or a page-locator expression that appears once signed in"
+                  }
+                }
+              },
+              "existing": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Accounts someone already made. Each parallel worker gets its own share; the tests never create or delete them.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "username",
+                    "password"
+                  ],
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "description": "The user name, or \"${env:NAME}\" / \"${vault:path#field}\""
+                    },
+                    "password": {
+                      "type": "string",
+                      "pattern": "^\\$\\{(env|vault):[^}]+\\}$",
+                      "description": "\"${env:NAME}\" or \"${vault:path#field}\""
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The account id, when tests need it and the sign-in answer doesn't carry it"
+                    }
+                  }
+                }
+              },
+              "lookup": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "path",
+                  "id"
+                ],
+                "description": "A call made after signing in (a \"who am I\", with the auth header) to read the account id, when the sign-in answer doesn't carry it",
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "form": {
+                    "type": "object"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Dotted path of the account id in the answer"
+                  }
+                }
+              },
+              "perTest": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "The most existing accounts one test uses at once (default 1). Runs use at most existing / perTest parallel workers"
+              },
+              "signUp": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "steps"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fill": {
+                          "type": "string"
+                        },
+                        "click": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "done": {
+                    "type": "string",
+                    "description": "\"url:/profile\" or a page-locator expression that appears once signed in"
+                  }
+                },
+                "description": "UI sign-up, for applications whose accounts can only be made on their sign-up page: open path, fill/click the steps, wait for done. The id comes from lookup or the token answer"
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "create",
+                  "password"
+                ]
+              },
+              {
+                "required": [
+                  "existing"
+                ]
+              }
+            ]
+          },
+          "maxWorkers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Most parallel test workers the host tolerates: set it for shared sandboxes behind rate limits or bot protection (e.g. 1). Caps --workers"
+          },
+          "testIdAttribute": {
+            "type": "string",
+            "description": "Attribute used by getByTestId(): data-testid, data-test, data-qa…",
+            "default": "data-testid"
+          },
+          "healthcheck": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Checked before every run. UI paths resolve against baseURL, \"api:/path\" against apiBaseURL.",
+            "default": [
+              "/"
+            ]
+          },
+          "healthSlowMs": {
+            "type": "number",
+            "description": "Slowest healthcheck sample above this (ms) = degraded AUT; the run is refused.",
+            "default": 5000
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "jira": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "mock",
+            "datacenter"
+          ],
+          "description": "mock = file-backed Jira and Confluence in ./mock-jira; datacenter = Jira and Confluence Data Center / Server, REST API (JIRA_PAT, and CONFLUENCE_PAT when Confluence needs its own, in .env).",
+          "default": "mock"
+        },
+        "mockRoot": {
+          "type": "string",
+          "default": "mock-jira"
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "Your Jira Data Center's address, e.g. https://jira.example.com"
+        },
+        "acceptanceCriteriaField": {
+          "type": "string",
+          "pattern": "^(customfield_\\d+)?$",
+          "description": "Custom field holding acceptance criteria, if your Jira uses one. Find it with: heldout doctor --jira"
+        },
+        "verdictLabelPrefix": {
+          "type": "string",
+          "default": "heldout-"
+        }
+      }
+    },
+    "outputDir": {
+      "type": "string",
+      "default": "output",
+      "description": "Everything of a story, per application: <outputDir>/<profile>/<KEY>/ (requirement, contract, tests, hardening, runs, verdict)."
+    },
+    "actionsDir": {
+      "type": "string",
+      "default": "actions",
+      "description": "The reusable actions of each application, one per file, and their UI / API maps: <actionsDir>/<profile>/ui|api/<domain>/<action>.ts, map/ui|api/*.json."
+    },
+    "run": {
+      "type": "object",
+      "properties": {
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1
+        },
+        "workers": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "headless": {
+          "type": "boolean",
+          "default": true
+        },
+        "actionTimeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expectTimeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "testTimeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

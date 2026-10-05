@@ -1,0 +1,309 @@
+# Writing the held-out tests (phase 2)
+
+Write `output/<profile>/<KEY>/tests/<key-lowercase>.spec.ts` straight from the reviewed requirement contract
+(`requirement-contract.json`), **before** anyone looks at the AUT. The draft encodes the oracle; hardening (phase 3)
+only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, its test type (one: what it
+truly proves) and the requirement source it comes from. Its steps call the application's shared **actions**
+([actions.md](actions.md)); every expectation stays in the test.
+
+`heldout scaffold KEY` writes a head start: the imports, the `ASSUMPTION` / `OPEN-QUESTION` lines of the contract's
+gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`): the first
+pass below. `heldout actions KEY` lists the actions you can call.
+
+## Two passes: every criterion first, then round the test types
+
+1. **First pass: one test per criterion.** Write, for each AC in the contract's order, the test of the criterion as it
+   is stated: its own journey and outcomes. Its type is what the AC is about (a refusal is `negative`, a limit is
+   `boundary`, an ordinary outcome `functional`). When this pass is done, every AC is covered once.
+2. **Second pass: round robin over the types.** Go round the criteria again, and for each one go through the taxonomy
+   below in its order and ask: *does this AC's wording state or clearly imply this type, and has no test of this AC that
+   type yet*? Add a test for each yes: the limits it names (`boundary`), its refusals (`negative`), who
+   may do it (`security`), what happens when it is sent again (`idempotency`) or at the same moment (`concurrency`), its
+   hand-offs to other ACs (`composition`), UI and API agreeing (`integration`), the answer's shape (`contract`), labels
+   and keyboard (`accessibility`). One more test per round; the next AC; repeat until a full round adds nothing.
+3. **Stop at the requirement.** A type the AC doesn't state or clearly imply is not a test: leave it out. When it
+   matters (no criterion says what deleting another customer's record must answer), name it in your reply as a
+   question for the owner; it may go in the spec as an `// OPEN-QUESTION:` without a gap id, and the verdict lists it
+   for the owner's information. Only the contract's own gaps (`G<n>`), which the reviewer checked, can hold up
+   acceptance. The second pass adds depth to what the story asks for, never new expectations.
+
+## Choosing the type: what the test truly proves
+
+Every test has exactly one `@type:`. It drives triage (a `concurrency` test that failed once is a race, not a flaky
+test) and the verdict's coverage by type, so it must say what the test really is, not what it touches on the way.
+
+- **Read the type off the `[REQ …]` assertions, not the steps.** Ask: *if this test fails, what has the application
+  got wrong?* Its limit (`boundary`), its refusal (`negative`), who may do it (`security`), a repeated request
+  (`idempotency`), simultaneous requests (`concurrency`), the answer's shape (`contract`), a hand-off between criteria
+  (`composition`), UI and API disagreeing (`integration`), labels or keyboard (`accessibility`), or the outcome itself
+  (`functional`). Signing in first, creating data first or calling the API to check a UI result are steps, not the type.
+- **It seems to fit two?** Take the more specific, the one higher in the taxonomy table: a value just outside a limit
+  that is refused is `boundary` (the refusal is part of what a boundary is), a request without a token that is refused
+  is `security`.
+- **It truly proves two things?** Then it is two tests, one per type, each with its own assertions (rule 4: one root
+  cause, one failure). Don't merge a `boundary` table and a `contract` check of the error body into one test.
+- **Check before handing over.** The lint warns when a test's code doesn't match its type (`type-mismatch`): a
+  `concurrency` test that sends nothing together, an `idempotency` test that never repeats its request, a
+  `composition` that chains no other criterion, an `integration` test that doesn't use both the page and the API, a
+  `boundary` test that is neither a table of cases nor names its value. Fix the type, or the test.
+
+## Template
+
+```ts
+import { test, expect, expectResponse, unique, gotoPage, signIn, type Api, type Account } from '../../../../heldout-support/fixtures';
+import { addFavourite } from '../../../../actions/<profile>/api/favorites/add-favourite';   // actions (HOW), one per file
+import { openProduct } from '../../../../actions/<profile>/ui/product/open-product';
+
+// ASSUMPTION: G2 — status of a refused duplicate: 409 (the linked page shows it for the same API)
+// OPEN-QUESTION: G3 — how many favourites may a customer keep?
+
+// @req-constants-start — expected outcomes copied verbatim from <KEY> (never edit during hardening)
+const REQ = {
+  ADDED_MESSAGE: 'Product added to your favorites list.',
+  STATUS: { CREATED: 201, UNAUTHORIZED: 401, CONFLICT: 409 },
+  BOUNDARIES: [{ field: 'name', value: 1, outcome: 'rejected' }, { field: 'name', value: 2, outcome: 'accepted' }],
+} as const;
+// @req-constants-end
+
+const EP = { favorites: '/favorites', favorite: (id: string) => `/favorites/${id}` };   // as the contract declares them
+
+test.describe('<KEY> <summary>', () => {
+  // from story AC-1
+  test('SCN-001: A customer adds a product to favourites', { tag: ['@AC-1', '@type:functional', '@layer:api', '@P1'] }, async ({ api, journey, seed }) => {
+    let me!: Account; let res!: Awaited<ReturnType<Api['post']>>;
+    await journey.step('Given I am a signed-in customer', async () => { me = await seed.account(); });
+    await journey.step('When I POST /favorites with a product id', async () => { res = await api.post(EP.favorites, { headers: me.headers, data: { product_id: '…' } }); });
+    await journey.step('Then the answer is 201', async () => {
+      expectResponse(res, { status: REQ.STATUS.CREATED }, '[REQ AC-1] POST /favorites');
+    });
+  });
+
+  // from story AC-5, linked/confluence-880001-favourites-api.md §Web shop
+  test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:integration', '@layer:ui', '@P1'] }, async ({ page, journey, seed }) => {
+    let me!: Account;
+    await journey.step('Given I am a signed-in customer on a product page', async () => {
+      me = await seed.account(); await signIn(page, me); await openProduct(page, '…');
+    });
+    await journey.step('When I click "Add to favourites"', async () => { await page.getByTestId('add-to-favorites').click(); }); // TODO(harden)
+    await journey.step('Then I see "Product added to your favorites list."', async () => {
+      await expect(page.getByText(REQ.ADDED_MESSAGE), '[REQ AC-5] the confirmation is shown').toBeVisible();
+    });
+  });
+
+  // A table of cases: one test per row (SCN-006.1 … .n)
+  // from linked/field-rules.csv
+  REQ.BOUNDARIES.forEach((row, i) => {
+    test(`SCN-006.${i + 1}: Name length limits (${row.field} ${row.value})`, { tag: ['@AC-4', '@type:boundary', '@layer:api'] }, async ({ api, journey }) => { /* … */ });
+  });
+});
+```
+
+## Tags and comment lines (the scripts read them)
+
+| Element | Required | Meaning |
+| --- | --- | --- |
+| `test('SCN-nnn: <who does what, and the outcome>', …)` | yes | Unique test id. A table of cases is `` `SCN-nnn.${i + 1}: …` `` in a loop |
+| `@AC-n` | yes (≥1) | The criteria the test proves (the contract's ids). An AC without a test downgrades the verdict |
+| `@type:<t>` | yes (exactly 1) | The test type, from the taxonomy below: what the test truly proves ("Choosing the type"). It drives triage and the verdict's counts |
+| `// from …` right above the test | strongly recommended (lint warns) | The story section, linked page or image transcript it comes from, shown in the traceability matrix |
+| `@layer:ui\|api\|e2e` | recommended | Which layer the test drives |
+| `@P1`..`@P3` | recommended | P1: core journey / money / security; P3: cosmetic |
+| `// ASSUMPTION:` / `// OPEN-QUESTION:` / `@needs-clarification` | when needed | Surfaced in the verdict. A `@needs-clarification` test checks the literal reading of an open question: a confirmed failure is a question for the owner (verdict at most PASS_WITH_WARNINGS), never a defect |
+| `// OBSERVATION:` | when needed | Something seen during evaluation that the story's goal implies but no AC states. Listed for the owner; doesn't change the verdict. May be added after the freeze |
+| `@NFR-<n>` | on a test that verifies one of the contract's non-functional requirements | One no test verifies is listed as not verified: at most PASS_WITH_WARNINGS |
+| `@assumes:G<n>` | on every test whose expected value comes from an assumed oracle gap | A confirmed failure there is "an assumption the application contradicts" (a question for the owner), never a defect. Keep requirement-backed checks in other tests so they still count. An assumption that only leaves something unasserted: write `// ASSUMPTION: G<n> … (not asserted)` and tag nothing |
+| `@depends:SCN-x` | when the test's pre-steps rely on another test's endpoint | A BLOCKED dependant names its cause |
+| `@irreversible` | on a test whose action changes the application for good (locks an account, sends a real e-mail or payment, uses up a one-time code) | It runs once per run: never retried, never repeated by `--repeat-each`, so every run does exactly the damage it must. Give it data of its own (a fresh account) |
+| `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the actions make count as plumbing too |
+
+### Test-type taxonomy (`@type:`)
+
+From the most specific to the most general. A test that seems to fit two types takes the one higher in the table.
+
+| Type | Use for | Aliases |
+| --- | --- | --- |
+| `concurrency` | different requests at the same moment on shared state: two buyers and the last item, a double booking | race, parallel |
+| `idempotency` | the same request sent again, one after the other: retries, repeated submits | |
+| `security` | authentication, authorisation, data exposure | auth |
+| `boundary` | values on and just outside limits (a table of cases) | |
+| `contract` | API schema / shape / status-code contract | schema |
+| `composition` | several steps or ACs chained into one flow, one step's output the next one's input | workflow, chain |
+| `integration` | cross-layer consistency: what the UI does is what the API returns, and back | e2e, cross-layer |
+| `accessibility` | accessible names, alt text, keyboard, WCAG criteria | a11y |
+| `negative` | invalid input, error handling, refusals | validation |
+| `functional` | the happy path does what the AC says | positive, happy |
+
+A requirement that fits none of them either has a concrete, observable outcome (then it is one of the types: a message
+shown in red is `functional`, and so is a change the application shows on a history page), or it is a `nonFunctional`
+item the verdict lists as not verified (a record kept only in a database or a log). A slow environment is never a
+defect: raise the config's `run` timeouts instead.
+
+**What a throw-away environment can't show.** A `concurrency` test that passes shows the rule holds on one instance; a
+race between replicas only shows on a multi-instance deployment (say so in an `// ASSUMPTION:` when the requirement is
+about a scaled system). `security` tests check the application's own authentication and authorisation; platform
+controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` unless the environment has them.
+
+## Rules for what to test
+
+1. **Cover every AC**, first once each, then with the types the requirement implies (the two passes above): limits need
+   `boundary`; "requires a token" needs `security`; "retries are safe" needs `idempotency`; "only one", a stock, a
+   balance or a unique name under simultaneous use needs `concurrency`; ACs that hand data to each other need one
+   `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. Add a type only when the requirement states or clearly
+   implies it: an unstated expectation is a gap.
+2. **Quote the requirement.** Expected texts, numbers, formulas and codes are copied verbatim from the contract (its
+   quotes, outcomes, error model and answered gaps). Never "improve" them: a mismatch is what the evaluation finds.
+3. **Black-box journeys.** Step titles describe what a user or client sees and does (`Given …`, `When …`, `Then …`),
+   one observable action or outcome each. Locators are decided later.
+4. **One root cause, one failure.** Don't assert the same rule in many tests (boundary rows assert "accepted", and one
+   test asserts the exact success status). Record that choice as an `// ASSUMPTION:`.
+5. **Ambiguity:** take the most literal reading and tag it `@needs-clarification`, or write an `// OPEN-QUESTION:` (not
+   tested). Never ask the AUT which reading is right. Keep the tag on what the question decides only: what holds under
+   **every** reading goes in a test of its own without the tag. When the readings share nothing, that test asserts the
+   answer is one of them.
+6. **Concurrency** (API layer): send the competing requests together (`Promise.all`), 2–5 at a time (respect the
+   profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few
+   rounds inside the test.
+7. **Composition:** tag every AC the flow chains and assert the hand-offs; single-AC tests keep their own checks.
+
+## Actions: reuse, then add
+
+The application's actions (`actions/<profile>/ui/<domain>/<action>.ts`, `api/<domain>/<action>.ts`, one per file) hold
+the HOW every story needs: open a page and wait until it is ready, fill a form, create and delete a record, find one.
+Call them for the steps; they hold no expected value, so reading them can't leak the oracle. `heldout actions KEY`
+lists them, the ones the story concerns first, with what each calls and which stories proved it.
+
+- **Reuse** an action whose doc comment says it does the step you need. One marked `STALE` doesn't work any more: call
+  it anyway if it's the right step (the hardener fixes it), or write the step in the test.
+- **Add** an action when the step is something later stories will need too (signing in on a page, creating an order,
+  opening the cart): a **new file** named after it, in the folder of the domain it belongs to
+  (`actions/<profile>/api/orders/create-order.ts`; create the folder when there is none), exporting that one action
+  with a `/** doc comment */` saying what it does. What several actions of a domain share (a type, a parser) goes in
+  its `_shared.ts`. Guessed routes, locators and fields get `// TODO(harden)`, as in the tests. Never change what an
+  existing action does for its other callers: add a new one.
+- **Why one per file:** other people add actions for their own stories on their own branches. A new action in a new
+  file never meets theirs in a merge; see [actions.md](actions.md).
+- **Keep in the test** what is only this story's: the action under test, and every assertion of what is expected.
+- An action may check its own preconditions with a plain `expect(…, '… (precondition)')`. Never a `[REQ …]` message,
+  never `expectResponse`, never a message or value the requirement says the application shows: return what the step
+  produced and let the test assert it. The lint refuses anything else (`actions/req-assertion`,
+  `actions/oracle-literal`) and warns about the layout (`actions/one-action-per-file`, `actions/file-name`).
+- Actions take what they need as parameters (`api`, `seed`, `page`, the account) and import only from
+  `heldout-support/fixtures`, other actions and their domain's `_shared.ts`, never from a story's folder. Import each
+  action from its own file; there is no index file.
+
+## Fixtures (`heldout-support/fixtures.ts`)
+
+| Fixture / helper | Purpose |
+| --- | --- |
+| `page` | Playwright page; `baseURL` = the story's AUT profile |
+| `journey.step(title, fn)` | One Given / When / Then step. Captures an ARIA snapshot on failure (and after every step with `--capture`) |
+| `api.get/post/put/patch/delete(path, { data, headers, params, cookies })` | HTTP client on the profile's `apiBaseURL`. Returns `{ status, body, text, headers, durationMs }`. Every exchange is attached, redacted, as triage and verdict evidence (replayable as curl). A string `data` is sent raw (e.g. malformed JSON) |
+| `data` | `test-data.json`, with `${env:NAME}` resolved |
+| `unique(prefix?)` | Collision-free values for shared AUTs, starting with the profile's data prefix (`"hldout k3x9q2-1"`, with a space); `unique('Guest')` for a name of your own |
+| `uniqueId(prefix?)` | The same without spaces, for e-mails, user names and slugs |
+| `expectResponse(res, { status, body? }, '[REQ AC-n] <call>')` | A requirement check of an API answer: status, and the exact body when given (soft). Frozen by integrity like any `[REQ]` assertion. Use it rather than a local helper, whose built messages integrity can't see |
+| `checkShape(value, schema, label)` | Contract check returning readable violations: `expect(checkShape(body, ROOM), '[REQ AC-11] schema').toEqual([])` |
+
+## Conventions (triage, integrity, lint and verdict depend on them)
+
+| Convention | Why |
+| --- | --- |
+| Every requirement check: `expect(x, '[REQ AC-n] <what>')`, in the spec | Triage: a failing `[REQ]` on a located element or declared endpoint is an application-defect candidate |
+| An API body check names its call: `'[REQ AC-4] POST /createAccount returns balance 100.00'` | Triage and the verdict's reproduction pick that call as the evidence |
+| Money and other decimals compared as the requirement writes them (`toBeCloseTo(100, 2)`) | The verdict shows `100 → 0`, readable to the owner |
+| `[REQ AC-n strict]` when the locator itself is the requirement (accessible name, role, alt text) | Integrity freezes subject + matcher, and triage treats "not found" as an application candidate |
+| Expected values in `@req-constants` or literal in `[REQ]` matchers | Frozen by the integrity check |
+| An expected value computed in the test uses only the requirement and the test's own data, never a value the application answers about the property under test (its `last_page` when pages are checked, its `per_page` when the page size is) | Otherwise the test checks the application against itself and expects nonsense when it deviates: derive the page to read and the count to expect from the requirement (`Math.ceil(total / 12)`) |
+| Inputs (a search term, a product to add, a quantity under test) outside `@req-constants`: in `test-data.json` or a plain `const` | Only what is *expected* is frozen; an input the hardener may have to swap (a term the app ignores, a product out of stock) must stay swappable. A limit the requirement states (99) is expected and frozen; the value the test sends at it is an input |
+| Endpoints exactly as the contract declares them (one `EP` map) | Triage flags calls to undeclared endpoints as script defects |
+| Guessed locators, routes and fields end with `// TODO(harden)` (in the spec and in actions) | Lint and integrity block the official run until they are hardened |
+| Preconditions use plain `expect(…, 'precondition …')` (no `[REQ]`) | A broken precondition is not reported as a requirement failure |
+| `expect.soft` when one test checks several facts | The report shows every deviation, not only the first |
+
+## Style
+
+- Locator preference: `getByRole` (with `name`) → `getByLabel` → `getByPlaceholder` → `getByText`
+  → `getByTestId` → CSS. Use `exact: true` when names overlap.
+- Web-first assertions only; for eventual consistency use `expect.poll(fn, { message: '[REQ …]', timeout })`.
+  Never `waitForTimeout`.
+- Independent, parallel-safe tests. Each builds its own data (`unique()`).
+- Assert at the precision the requirement states, nothing more. Extra assertions create false defects.
+- `test.only`, `test.fixme` and `.skip` are forbidden (lint error). An unimplemented feature is a failing test, not a
+  skipped one.
+- **Native dialogs** (`alert`, `confirm`, `prompt`): the action that opens one does not return while it is open.
+  Register a handler before the action that records the dialog and answers it, then assert the record:
+
+  ```ts
+  const dialogs: { type: string; message: string }[] = [];
+  page.on('dialog', (d) => { dialogs.push({ type: d.type(), message: d.message() }); void d.accept(); }); // d.dismiss() for Cancel
+  await journey.step('When I submit the form', () => page.getByRole('button', { name: 'Submit' }).click());
+  expect(dialogs, '[REQ AC-7] confirmation shown').toEqual([{ type: 'confirm', message: 'Press OK to proceed!' }]);
+  ```
+- **Something must NOT happen after an action** ("the form is not sent", "no message appears"): an immediate
+  `toHaveCount(0)` passes before the app has had time to react. First wait for a positive sign that the app handled
+  the action (a validation message, a request, the form re-rendered) — or, when there is none, a bounded wait for the
+  unwanted outcome — and say which in the step title.
+- **A page that loads its record after it opens** (a details or edit page of a single-page app): before acting, wait
+  for a value the page loads, not only for the URL. Otherwise a click can do nothing, now and then. An action that
+  opens such a page waits for it.
+- **Concurrency** (`@type:concurrency`, API): fire the competing calls together and check the invariant after each
+  round. Keep the burst small and repeat it; the first round that breaks the rule fails the test:
+
+  ```ts
+  for (let round = 1; round <= 3; round++) {
+    const target = await seed.create('a fresh review', () => createReview(api, author));
+    const answers = await Promise.all([1, 2, 3].map(() => api.post(EP.like, { headers: liker.headers, data: { id: target.id } })));
+    const after = await api.get(EP.reviews(target.product));
+    expect.soft(answers.map((a) => a.status).filter((s) => s < 300).length, `[REQ AC-5] round ${round}: exactly one like is accepted`).toBe(1);
+    expect(likesOf(after.body, target.id), `[REQ AC-5] round ${round}: GET /reviews counts one like`).toBe(1);
+  }
+  ```
+
+  Never assert which request won or in what order they finished. Triage counts a concurrency test whose `[REQ]` check
+  failed on any attempt as failed. To reproduce it live, give the `api-probe --chain` step `"parallel": 3`.
+- **A record of who did what** ("every change appears in the history"): a `functional` test when the application shows
+  it (a history page, an activity endpoint): read it back and check the fields the requirement lists, who being the
+  signed-in account, not a value the request supplied. A record kept only in a database or a log is a `nonFunctional`
+  item the verdict lists as not verified.
+- **Composition** (`@type:composition`): one test that chains the steps, passing each step's output (an id, a token) to
+  the next. Tag every AC it chains and assert the hand-offs.
+- **A length limit in a form field:** enter the over-long text with `fill`, which the field's `maxlength` applies to
+  like typing.
+- **"Not shown" is `toBeHidden()`, not `toHaveCount(0)`.** Pages often keep a message in the markup, hidden until it is
+  needed.
+
+## Data seeding and entry points
+
+Full strategy: [data-and-journeys.md](data-and-journeys.md).
+
+| Helper | Use |
+| --- | --- |
+| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. An action that creates a record wraps it in `seed.create` |
+| `seed.track(label, created, cleanup)` | Register cleanup for data the test itself created (the POST under test, or data the AUT wrongly accepted) |
+| `seed.tag` | Per-test tag for naming seeded data (sweepable) |
+| `seed.account()` · `signIn(page, account)` | A test user from the profile's accounts recipe and its UI sign-in. See [data-and-journeys.md](data-and-journeys.md) §4a |
+| `gotoPage(page, path)` | Entry-point navigation: DOMContentLoaded + bounded `load` settle |
+
+- Never read "whatever exists" (e.g. `list[0]`) as a precondition. Seed your own record.
+- Seed assertions are plain preconditions (`expect(…, 'create booking (seed)')`), never `[REQ]`.
+- Start where the AC starts: deep-link to the page it names, unless navigation is part of the requirement.
+
+### API pre-steps
+
+| Helper | Use |
+| --- | --- |
+| `seed.once(key, label, make, ttlMs?)` | Auth or other reusable context, once per worker (e.g. a token). Not for the test's own subject |
+| `seed.step(label, run)` | Lookups, discovery, protocol values (ETag/CSRF), state checks. No cleanup |
+| `seed.until(label, probe, ready, { timeoutMs, intervalMs })` | Readiness / eventual consistency. BLOCKED on timeout |
+| `@depends:SCN-x` (test tag) | Declares that the test's pre-steps rely on another test's endpoint working |
+
+Validate each pre-step's output (the token or id you need), not just its status. See [data-and-journeys.md](data-and-journeys.md) §5b.
+
+## test-data.json
+
+```json
+{ "users": { "standard": { "username": "…", "password": "${env:AUT_PASSWORD}" } } }
+```
+
+Loaded by the `data` fixture, with `${env:NAME}` resolved from `.env`. Expected *outcomes* belong in the spec's
+`@req-constants` block, not here: test data is plumbing, expected values are the oracle.

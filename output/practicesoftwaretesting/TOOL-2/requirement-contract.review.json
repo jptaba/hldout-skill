@@ -1,0 +1,130 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5.5)",
+  "reviewedAt": "2026-10-05T01:31:20.004Z",
+  "contractHash": "3b8724fc5645a03f",
+  "items": [
+    {
+      "ref": "AC-1",
+      "verdict": "supported",
+      "evidence": "story.md#L23-L27",
+      "note": "Outcome now reads \"the customer's details\", matching L26."
+    },
+    {
+      "ref": "AC-2",
+      "verdict": "supported",
+      "evidence": "story.md#L29-L32",
+      "note": ""
+    },
+    {
+      "ref": "AC-3",
+      "verdict": "supported",
+      "evidence": "story.md#L34-L37",
+      "note": ""
+    },
+    {
+      "ref": "AC-4",
+      "verdict": "supported",
+      "evidence": "story.md#L39-L43",
+      "note": "ui layer matches"
+    },
+    {
+      "ref": "AC-5",
+      "verdict": "supported",
+      "evidence": "story.md#L45-L49",
+      "note": "UI action plus API status is e2e"
+    },
+    {
+      "ref": "AC-6",
+      "verdict": "supported",
+      "evidence": "story.md#L51-L55",
+      "note": ""
+    },
+    {
+      "ref": "AC-7",
+      "verdict": "supported",
+      "evidence": "story.md#L57-L60",
+      "note": "logout 2xx comes from user-provided G4, recorded as such"
+    },
+    {
+      "ref": "R1",
+      "verdict": "supported",
+      "evidence": "story.md#L37",
+      "note": ""
+    },
+    {
+      "ref": "R2",
+      "verdict": "supported",
+      "evidence": "story.md#L29-L32",
+      "note": ""
+    },
+    {
+      "ref": "R3",
+      "verdict": "supported",
+      "evidence": "story.md#L51-L55",
+      "note": ""
+    },
+    {
+      "ref": "E1",
+      "verdict": "supported",
+      "evidence": "story.md#L32",
+      "note": ""
+    },
+    {
+      "ref": "E2",
+      "verdict": "supported",
+      "evidence": "story.md#L37",
+      "note": ""
+    },
+    {
+      "ref": "E3",
+      "verdict": "supported",
+      "evidence": "story.md#L48-L49, story.md#L54",
+      "note": ""
+    },
+    {
+      "ref": "E4",
+      "verdict": "supported",
+      "evidence": "story.md#L55",
+      "note": ""
+    },
+    {
+      "ref": "E5",
+      "verdict": "supported",
+      "evidence": "story.md#L60",
+      "note": ""
+    },
+    {
+      "ref": "G4",
+      "verdict": "supported",
+      "evidence": "story.md#L19, story.md#L59",
+      "note": "Sources state no logout response; resolved as provided-by-user, not taken from the app."
+    },
+    {
+      "ref": "POST /users/register",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": ""
+    },
+    {
+      "ref": "POST /users/login",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": "response shape stated at L19"
+    },
+    {
+      "ref": "GET /users/me",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": ""
+    },
+    {
+      "ref": "GET /users/logout",
+      "verdict": "supported",
+      "evidence": "story.md#L19",
+      "note": ""
+    }
+  ],
+  "missed": [],
+  "observations": [],
+  "summary": "Contract is fully grounded in story.md after the AC-1 fix; no missed lines."
+}

@@ -1,0 +1,8 @@
+### add-comment (simulated — no Jira; this request was NOT sent)
+POST https://jira.example.com/rest/api/2/issue/TOOL-2/comment
+Authorization: Bearer <JIRA_PAT>
+Content-Type: application/json
+
+{
+  "body": "h3. 🧪 Held-out evaluation: FAIL (recommendation)\n\n{panel:title=ERROR}\n1 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-6. Awaiting reviewer confirmation.\n{panel}\n\n*AUT: *Practice Software Testing (https://practicesoftwaretesting.com/)\n\n*Tests: *16/17 passed, 1 failed, 0 flaky*  ·  Held-out integrity: *AMENDED (1 audited amendment(s))*  ·  Script defects self-repaired: *0\n\nh4. Coverage by test type\n\n||*Test type*||*Tests*||*Passed*||*Failed*||*Findings*||\n|concurrency|1|1|0|-|\n|security|4|3|1|APP-1|\n|boundary|2|2|0|-|\n|negative|7|7|0|-|\n|functional|3|3|0|-|\n\nh4. Findings for review (1)\n\n||*ID*||*Suggested severity*||*Criteria*||*Type*||*Finding*||*Expected (requirement)*||*Actual (AUT)*||\n|APP-1|Major|AC-6|security|Account locks after three failed sign-ins instead of five|401|423|\n\n_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._\n\n* Full report attached: {{heldout-verdict-TOOL-2-202610050151.md}}\n* Final run: 03-eval\n\n_Posted automatically by the heldout-evaluator skill._"
+}

@@ -1,0 +1,5 @@
+[
+  { "do": "wait", "target": "locator('a.card[data-test^=\"product-\"]')" },
+  { "do": "check", "target": "getByRole('checkbox', { name: 'Hammer', exact: true })" },
+  { "do": "select", "target": "getByTestId('sort')", "value": "price,asc" }
+]

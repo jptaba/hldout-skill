@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "kind": "ui",
+  "by": "TOOL-1",
+  "at": "2026-10-05T01:12:11.275Z",
+  "entries": [
+    {
+      "key": "ui:catalogue.chooseSortOrder",
+      "kind": "ui",
+      "value": {
+        "action": "chooseSortOrder",
+        "domain": "catalogue",
+        "file": "ui/catalogue/choose-sort-order.ts",
+        "locators": [
+          "getByTestId('sort')"
+        ],
+        "params": "page: Page, label: string",
+        "summary": "Choose a sort order by its label in the catalogue page's sort control and wait for the re-sorted list to load."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-007 passed"
+    },
+    {
+      "key": "ui:catalogue.filterCatalogueByCategory",
+      "kind": "ui",
+      "value": {
+        "action": "filterCatalogueByCategory",
+        "domain": "catalogue",
+        "file": "ui/catalogue/filter-catalogue-by-category.ts",
+        "locators": [
+          "getByRole('checkbox', { name: category, exact: true })"
+        ],
+        "params": "page: Page, category: string",
+        "summary": "Tick a category by its name in the catalogue page's category filter and wait for the filtered list to load."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-009 passed"
+    },
+    {
+      "key": "ui:catalogue.openCatalogue",
+      "kind": "ui",
+      "value": {
+        "action": "openCatalogue",
+        "domain": "catalogue",
+        "file": "ui/catalogue/open-catalogue.ts",
+        "params": "page: Page",
+        "routes": [
+          "/"
+        ],
+        "summary": "Open the web shop's catalogue page (the product overview, at the site root) and wait until its first product list has arrived and is shown, so a search, sort or filter chosen next isn't overwritten by that late first answer."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-001, SCN-002, SCN-005, SCN-007, SCN-009 passed"
+    },
+    {
+      "key": "ui:catalogue.readProductCards",
+      "kind": "ui",
+      "value": {
+        "action": "readProductCards",
+        "domain": "catalogue",
+        "file": "ui/catalogue/read-product-cards.ts",
+        "params": "page: Page",
+        "summary": "Read the name and price of every product card the catalogue page shows now, in the order shown."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-001, SCN-002, SCN-007, SCN-009 passed"
+    },
+    {
+      "key": "ui:catalogue.searchCatalogue",
+      "kind": "ui",
+      "value": {
+        "action": "searchCatalogue",
+        "domain": "catalogue",
+        "file": "ui/catalogue/search-catalogue.ts",
+        "locators": [
+          "getByTestId('search-query')",
+          "getByTestId('search-submit')"
+        ],
+        "params": "page: Page, term: string",
+        "summary": "Search the catalogue page for a term (type it in the search field and submit) and wait for the results to load."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-001, SCN-002, SCN-005 passed"
+    }
+  ]
+}

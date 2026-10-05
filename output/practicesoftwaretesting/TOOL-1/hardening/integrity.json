@@ -1,0 +1,36 @@
+{
+  "status": "AMENDED",
+  "checkedAt": "2026-10-05T01:08:16.246Z",
+  "files": [
+    {
+      "file": "tool-1.spec.ts",
+      "draftAssertions": 28,
+      "currentAssertions": 28
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [
+    {
+      "assertion": "tool-1.spec.ts: [REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page",
+      "draft": ".toBe(total - REQ.PER_PAGE * (lastPage - 1))",
+      "current": ".toBe(total - REQ.PER_PAGE * (reqLastPage() - 1))",
+      "reason": "The expected count was computed from the application own last_page; it now comes from the requirement alone (total / 12 rounded up), read from that page",
+      "approvedAt": "2026-10-05T01:08:15.484Z"
+    }
+  ],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": [],
+  "actionsChanged": [
+    "actions/practicesoftwaretesting/api/categories/find-category-id.ts",
+    "actions/practicesoftwaretesting/api/products/_shared.ts",
+    "actions/practicesoftwaretesting/api/products/read-whole-catalogue.ts",
+    "actions/practicesoftwaretesting/ui/catalogue/_shared.ts",
+    "actions/practicesoftwaretesting/ui/catalogue/choose-sort-order.ts",
+    "actions/practicesoftwaretesting/ui/catalogue/filter-catalogue-by-category.ts",
+    "actions/practicesoftwaretesting/ui/catalogue/open-catalogue.ts",
+    "actions/practicesoftwaretesting/ui/catalogue/search-catalogue.ts"
+  ],
+  "actionAssertions": []
+}

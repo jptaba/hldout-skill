@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "kind": "api",
+  "by": "TOOL-1",
+  "at": "2026-10-05T01:12:11.275Z",
+  "entries": [
+    {
+      "key": "api:categories.findCategoryId",
+      "kind": "api",
+      "value": {
+        "action": "findCategoryId",
+        "domain": "categories",
+        "endpoints": [
+          "GET /categories/tree"
+        ],
+        "file": "api/categories/find-category-id.ts",
+        "params": "api: Api, seed: Seed, name: string",
+        "summary": "Look up a category's id by its name in GET /categories/tree (searched at every level of the tree)."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-009, SCN-010 passed"
+    },
+    {
+      "key": "api:products.readWholeCatalogue",
+      "kind": "api",
+      "value": {
+        "action": "readWholeCatalogue",
+        "domain": "products",
+        "endpoints": [
+          "GET /products"
+        ],
+        "file": "api/products/read-whole-catalogue.ts",
+        "params": "api: Api, seed: Seed",
+        "summary": "Read every product of the catalogue, page by page through GET /products (a lookup pre-step, no cleanup)."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:12:11.274Z",
+      "by": "TOOL-1",
+      "evidence": "04-eval: SCN-009 passed"
+    }
+  ]
+}

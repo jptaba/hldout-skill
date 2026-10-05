@@ -1,0 +1,61 @@
+# Audit: round r27, TOOL-2 (second story in the same project, evaluation only)
+
+Project: `heldout-rounds/r27-fresh` · profile `practicesoftwaretesting` · answer key `demo/answer-keys/TOOL-2.json` · skill hash in run-meta `3c1fbdaab04f7d95`.
+
+## Score (`npx tsx demo/score.ts TOOL-2 --from ../heldout-rounds/r27-fresh`)
+
+| | |
+| --- | --- |
+| Verdict | expected FAIL, got **FAIL** (match) |
+| Defects | 1/1 found: D1 (locks after 3 failures, the 4th gets 423) found as APP-1 "Account locks after three failed sign-ins instead of five" |
+| False positives | 0 (precision 100%) |
+| Automatic triage vs confirmed decision | 1/1 agree, 0 abstained, 0 wrong |
+| Tests | 17 (13 scenarios): 16 passed, 1 failed (SCN-006, the real defect) |
+
+## Runs
+
+| Run | Why |
+| --- | --- |
+| 01-harden (`--capture`) | first hardening run: 16 passed, SCN-006 failed (the deviation) |
+| 02-harden (`--repeat-each 3 --workers 2`) | stability check: 48 passed, SCN-006 failed. It ran once, because it is tagged `@irreversible` |
+| 03-eval | official run, after the one integrity amendment (approved 01:48:32, run started 01:48:43) |
+
+These are the minimum runs. There were no extra runs, no SCRIPT_DEFECT, no NEEDS_INVESTIGATION and no BLOCKED. The whole round took about 32 minutes, from fetching the story (01:19) to publishing (01:51).
+
+## Hiccups
+
+| # | What | Evidence | Class | Proposed change |
+| --- | --- | --- | --- | --- |
+| 1 | The triage and the verdict point at the **wrong request** as "the one that contradicts the requirement". They mark request 6, the sixth sign-in with the correct password, which answered 423. That request **meets** AC-6. The first contradiction is request 4, the 4th wrong-password attempt (423 where 401 was expected). The failing assertion itself is about attempt 4. `relevantExchange` takes a single received status ("423") and returns the *most recent* exchange with that status. | `runs/03-eval/triage.md` "Relevant API exchange (#6 of 6)", whose request carries the correct password (`redacted:3ce5`, the same as P1's registration password); `verdict.md` APP-1 "Request 6 (⟵) is the one that contradicts the requirement"; `results.json` attachments 02–07: 401, 401, 401, 423, 423, 423; error: "attempt 4 responds 401" | **Skill defect** | `.github/scripts/classify.ts` `relevantExchange`: when the expected value is also a single status, return the **first exchange that answered the received status after the last exchange that answered the expected status** (here: after the 401s, the first 423 is request 4). Use the most recent exchange only when the expected status never appears in the sequence. This keeps "create → GET 500" working. Add a case to the classify unit tests: sequence 401 ×3 then 423 ×3, expected "401", received "423", result index 3 |
+| 2 | Table-driven scenario titles still show raw templates in the traceability matrix: `SCN-010 A password of ${row.length} characters meeting every other rule is` (the trailing `${row.outcome}` was dropped, so the sentence stops at "is") and `SCN-011 A password with ${row.note} is refused with 422 and the rule "${rule.text}"`. The TOOL-1 fix (d3e619d) is installed in this project (`spec-model.ts` is identical to the repo's), but it only strips a template at the **end** of the title. A template in the middle, or one inside quotes, survives | `verdict.md` Traceability matrix, AC-3 rows 2–3; `tests/tool-2.spec.ts:237,264` | **Skill defect** (the known TOOL-1 fix is incomplete) | `.github/scripts/spec-model.ts` (scenario `title`): after stripping the trailing case part, replace every remaining `${…}` (with any quotes around it) by `…`, so the matrix reads "A password of … characters meeting every other rule is …". Better: `verdict.ts` takes the executed case titles from the run results and shows "(N cases)". Add both titles above to `tests/parsing.test.ts` |
+| 3 | The author wrote a new action `api:users.registerCustomer` for "given a registered customer", and the hardener then saved the same registration as the profile's accounts recipe. `hardening.md` says to "switch the spec to `seed.account()`", but the spec kept the action in six tests. The log explains this as "the account is the story's subject". That reason holds for SCN-001/002/003/008/009/010/011, which call the endpoint directly, but not for the precondition-only tests (SCN-004/005/006/007/012/013). The profile now has two proven ways to make a customer: the action, which is in the actions map as proven, and the recipe. A later story may pick the action instead of `seed.account()` | `hardening-log.md` "Accounts recipe"; `tests/tool-2.spec.ts:140,157,167,187,284,299`; `actions/.../map/api/20261005T015106Z-tool-2-9302ee.json` | **Skill defect** (minor, no cost this round) | `references/hardening.md` (the "accounts recipe … switch the spec to `seed.account()`" paragraph): add that calls the story itself tests stay direct, that precondition-only "given a registered user" steps switch to `seed.account()`, and that an action which only repeats the recipe's create call is either removed or kept for tests that need custom fields, with its summary saying so ("use `seed.account()` for an ordinary signed-in user"). `references/actions.md`: an author checks the profile's accounts recipe before writing a create-user action |
+| 4 | An `// ASSUMPTION:` cites the skill's internal numbering: "rule 4 — the exact success status of a registration (201) is asserted once, in SCN-001…". It appears in the verdict's "Assumptions the evaluation made", where a reviewer has no idea what "rule 4" means. `test-authoring.md` §4 itself says "Record that choice as an `// ASSUMPTION:`" | `verdict.md` "Assumptions the evaluation made"; `tests/tool-2.spec.ts:21`; `references/test-authoring.md:157-158` | **Skill defect** (cosmetic) | `references/test-authoring.md` rule 4: "Record that choice as an `// ASSUMPTION:` written for the reviewer (which test asserts the exact status, what the others check), without referring to this list's numbers" |
+| 5 | Integrity amendment: a `// TODO(harden)` comment inside the `[REQ AC-1]` `toMatchObject` was counted as part of the assertion. The hardening log also still says "One mark is left … Integrity: PRESERVED, with the one unhardened mark above", although the final state is AMENDED with no markers left (the log was not updated after the amendment) | `hardening/amendments.json`; `hardening/integrity.json`; `hardening-log.md` "Mechanics changed", "Stability" | Skill defect, **already known and fixed** (integrity-check.ts strips comments) | none. With the fix there is neither an amendment nor a stale log line |
+| 6 | The contract review went through at least two rounds (review notes: "Outcome now reads…", "after the AC-1 fix"). Only the last review is kept | `requirement-contract.review.json` | Already known (the re-reviewer now gets the changed items) | none |
+| 7 | `test-data.json` is `{}` and the run's test-data line was long | `test-data.json` | Already known (run.ts now groups the kept records) | none |
+| 8 | Live-app side effects: there is no delete for customers, so every run leaves accounts behind. That is about 15 per run (01, 02 ×3, 03) plus the probes and the triage replay: roughly 80 `hldout-…@example.com` customers on the public demo, a few of them locked by SCN-006 and the replay | `tests/tool-2.spec.ts` header; `hardening-log.md` "Accounts recipe"; `runs/03-eval/confirm/scn-006-repro.md` | Expected (live app for now; the records are tagged by name, as designed) | none |
+| 9 | G4 (the logout response) is an oracle gap answered by the user ("any 2xx"). SCN-013 tests it and is tagged with the gap in its source | `requirement-contract.md` Gaps; `tests/tool-2.spec.ts:295` | Expected | none |
+
+## Traps and criteria
+
+- **Trap "Gherkin scenarios: the contract must quote each Scenario block": avoided.** AC-1…AC-7 each quote one Scenario (story.md#L23…#L57), and the coverage ledger accounts for every line.
+- **Trap "the lockout test must use its own fresh account": avoided.** SCN-006 registers its own customer (`registerCustomer`), is tagged `@irreversible`, and ran once in the repeat run. The SCN-005/SCN-012 wrong-password tests also use accounts of their own, so they cannot add to the count. The live re-check used another fresh account (`hldout-triage-…`).
+- **Held-out leaks: none.** The actions (`actions/practicesoftwaretesting/api/users/*`, `ui/account/*`) hold only mechanics (request fields, test ids, route). Every expected value is in `@req-constants` or comes from the customer the test created (`${me.first_name} ${me.last_name}`). G1–G3 are mechanics found in the AUT, and G4 was provided by the user.
+- **Criteria:** AC-1…AC-5 and AC-7 are met, AC-6 is not met. This matches the answer key (D1 on AC-6). No expected outcome is contradicted. The analysis rules out a changed sandbox setting, and the replay chain confirms the result.
+
+## Compared with TOOL-1
+
+- **Reuse of actions: correct, with nothing to reuse.** TOOL-1 left only catalogue, products and categories actions. TOOL-2 is about identity (register, sign in, sign out), so no earlier action applied. The verdict says so correctly ("0 proven by earlier stories, 4 new to the map"). TOOL-2 did not duplicate any TOOL-1 action, and its 4 new actions were harvested as proven (`hardening/actions-harvest.json`, `map/*/20261005T015106Z-tool-2-*.json`). The reuse path itself (author picking a proven action from an earlier story) was **not exercised** in this pair. A third story on the same profile that needs a signed-in customer or the catalogue would test it.
+- **Accounts recipe: saved correctly.** `auts.practicesoftwaretesting.accounts` was written by `heldout accounts --from-chain` from `hardening/tier3/account-chain.json`, a chain that passed (201 / 200 / 200). It has a reference password (`${env:PST_CUSTOMER_PASSWORD}`, generated into `.env`, with no literal secret), a `username` template with `${uid}` and the data prefix, `create` with `id`, no `delete` (the application offers none, so accounts stay tagged by name, as data-and-journeys.md §4a describes), `token` from `access_token`, a `lookup` on GET /users/me, `authHeader` Bearer, and a UI `signIn` with the hardened test ids and `done: url:/account`. This matches the §4a format. It was saved for later stories, and TOOL-2 did not use it (see hiccup 3). No `accounts --check --create` is recorded, but the chain it came from is a live proof.
+- **TOOL-1 fixes seen in this round:** "Preconditions the test seeded" now lists only the created customer (fixed). The finding's source is no longer duplicated (fixed). The tier-2 walk was replayed with `inspect` and logged as such (fixed). The `reviewedAt` is a real timestamp (fixed). Template titles in the matrix are only partly fixed (hiccup 2).
+
+## Skill defects ranked by cost to this round
+
+1. **Wrong "contradicting request" (1)**, `classify.ts` `relevantExchange`. It did not change the verdict, but the finding's reproduction and the triage evidence point the reviewer at a request that meets the requirement. A reviewer who checks that one request could reject a real defect. This affects any test that makes repeated calls of the same kind (lockouts, rate limits, retries).
+2. **Template titles still raw (2)**, `spec-model.ts` / `verdict.ts`. The TOOL-1 fix handles only a trailing template. This is a visible defect in the report and lowers the reviewer's trust in it.
+3. **Recipe and action overlap (3)**, `hardening.md` / `actions.md`. It cost nothing now, but it is a likely source of inconsistency in the next story on this profile.
+4. **"rule 4" in an assumption (4)**, `test-authoring.md`. Cosmetic.
+
+## Re-run
+
+A fresh-onboarding re-run of TOOL-2 is **not needed**. The score is perfect, and fixes 1, 2 and 4 are report and wording fixes that unit tests cover: a `relevantExchange` case with 401 ×3 then 423 ×3, and two table titles with a template in the middle and in quotes in `tests/parsing.test.ts`. After fix 3, the useful check is a **third story on this same project**, one that needs a signed-in customer. It should show that the author uses `seed.account()` from the saved recipe (not `registerCustomer`) and reuses proven actions from TOOL-1/TOOL-2.

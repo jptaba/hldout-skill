@@ -1,0 +1,6 @@
+[
+  { "do": "wait", "target": "locator('a.card[data-test^=\"product-\"]')" },
+  { "do": "fill", "target": "getByTestId('search-query')", "value": "hldoutnomatch123" },
+  { "do": "click", "target": "getByTestId('search-submit')" },
+  { "do": "wait", "target": "getByTestId('no-results')" }
+]

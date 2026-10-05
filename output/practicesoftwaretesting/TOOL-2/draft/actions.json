@@ -1,0 +1,8 @@
+{
+  "actions/practicesoftwaretesting/api/users/_shared.ts": "24489480cf480662",
+  "actions/practicesoftwaretesting/api/users/register-customer.ts": "0f9007406b12fb4f",
+  "actions/practicesoftwaretesting/api/users/sign-in-customer.ts": "f28bb63f354f1d66",
+  "actions/practicesoftwaretesting/ui/account/_shared.ts": "ef9c3df879bed79b",
+  "actions/practicesoftwaretesting/ui/account/open-sign-in-page.ts": "859a6dead6d8c1db",
+  "actions/practicesoftwaretesting/ui/account/submit-sign-in-form.ts": "434db8faceed550a"
+}

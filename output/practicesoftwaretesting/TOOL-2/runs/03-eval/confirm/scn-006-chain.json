@@ -1,0 +1,12 @@
+{ "steps": [
+  { "name": "register a fresh customer", "setup": true, "method": "POST", "path": "users/register", "expect": 201,
+    "json": { "first_name": "Hldout", "last_name": "Triage", "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}",
+              "dob": "1990-01-01", "phone": "0612345678",
+              "address": { "street": "Test Street 1", "city": "Utrecht", "state": "Utrecht", "country": "NL", "postal_code": "3511AA" } } },
+  { "name": "wrong password attempt 1", "method": "POST", "path": "users/login", "expect": 401, "json": { "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}x1" } },
+  { "name": "wrong password attempt 2", "method": "POST", "path": "users/login", "expect": 401, "json": { "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}x2" } },
+  { "name": "wrong password attempt 3", "method": "POST", "path": "users/login", "expect": 401, "json": { "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}x3" } },
+  { "name": "wrong password attempt 4", "method": "POST", "path": "users/login", "expect": 401, "json": { "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}x4" } },
+  { "name": "wrong password attempt 5", "method": "POST", "path": "users/login", "expect": 401, "json": { "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}x5" } },
+  { "name": "sixth attempt, correct password", "method": "POST", "path": "users/login", "expect": 423, "json": { "email": "hldout-triage-${uid}@example.com", "password": "Hld0ut!Pw${uid}" } }
+] }

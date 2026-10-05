@@ -1,0 +1,59 @@
+{
+  "key": "TOOL-2",
+  "run": "03-eval",
+  "label": "eval",
+  "startedAt": "2026-10-05T01:48:43.194Z",
+  "finishedAt": "2026-10-05T01:48:56.179Z",
+  "autId": "practicesoftwaretesting",
+  "aut": {
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
+    "apiBaseURL": "https://api.practicesoftwaretesting.com"
+  },
+  "command": "npx playwright test output/practicesoftwaretesting/TOOL-2/tests/ --workers 4",
+  "repeatEach": null,
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://practicesoftwaretesting.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 662,
+        "samples": [
+          662,
+          429,
+          159
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://practicesoftwaretesting.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 325,
+        "samples": [
+          311,
+          325,
+          137
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "skill": "3c1fbdaab04f7d95",
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-10-05T01:48:43.665Z",
+    "duration": 11645.819,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

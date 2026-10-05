@@ -1,0 +1,105 @@
+<testsuites id="" name="" tests="17" failures="1" skipped="0" errors="0" time="11.645819">
+<testsuite name="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" timestamp="2026-10-05T01:48:43.884Z" hostname="chromium" tests="16" failures="0" skipped="0" time="24.51" errors="0">
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-001: A new customer registers and the API answers 201 with their details and an id" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="1.39">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-002: Registering an already registered e-mail address again is refused with 409" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="1.707">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-003: Registering with the password &quot;abc&quot; is refused with 422 and all four password rules" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="1.368">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-004: A registered customer signs in on the web shop and lands on &quot;My account&quot; with their name shown" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="3.181">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-005: Signing in with a wrong password is refused by POST /users/login with 401" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="1.323">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-007: After GET /users/logout the same token gets 401 from GET /users/me" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="2.916">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-008: The registration answer does not contain the password" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.814">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-009: Simultaneous registrations of one e-mail address: exactly one is accepted, the others get 409" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="2.675">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-010.1: A password of 7 characters meeting every other rule is rejected" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.719">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-010.2: A password of 8 characters meeting every other rule is accepted" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.765">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-011.1: A password with no upper case letter is refused with 422 and the rule &quot;upper and lower case letters&quot;" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.683">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-011.2: A password with no lower case letter is refused with 422 and the rule &quot;upper and lower case letters&quot;" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.547">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-011.3: A password with no symbol is refused with 422 and the rule &quot;a symbol&quot;" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.542">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-011.4: A password with no number is refused with 422 and the rule &quot;a number&quot;" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="0.594">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-012: Signing in on the web shop with a wrong password shows &quot;Invalid email or password&quot;" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="3.476">
+</testcase>
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-013: Signing out with GET /users/logout answers a 2xx success" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="1.81">
+</testcase>
+</testsuite>
+<testsuite name="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" timestamp="2026-10-05T01:48:43.884Z" hostname="chromium-once" tests="1" failures="1" skipped="0" time="4.106" errors="0">
+<testcase name="TOOL-2 Customer registration, sign-in and account protection › SCN-006: After five failed sign-ins the account is locked: the sixth, with the correct password, gets 423" classname="practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts" time="4.106">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] POST /users/login wrong-password attempt 4 responds 401" type="expect.toBe">
+<![CDATA[  [chromium-once] › practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:165:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-006: After five failed sign-ins the account is locked: the sixth, with the correct password, gets 423 @AC-6 @type:security @layer:api @P1 @irreversible › Then attempts one to five respond 401 
+
+    Error: [REQ AC-6] POST /users/login wrong-password attempt 4 responds 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 423
+
+      171 |     await journey.step('Then attempts one to five respond 401', async () => {
+      172 |       attempts.forEach((res, i) => {
+    > 173 |         expect.soft(res.status, `[REQ AC-6] POST /users/login wrong-password attempt ${i + 1} responds 401`).toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                                                              ^
+      174 |       });
+      175 |     });
+      176 |     await journey.step('And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked', async () => {
+        at forEach (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:173:110)
+        at body (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:172:16)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:171:5
+
+    Error: [REQ AC-6] POST /users/login wrong-password attempt 5 responds 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 423
+
+      171 |     await journey.step('Then attempts one to five respond 401', async () => {
+      172 |       attempts.forEach((res, i) => {
+    > 173 |         expect.soft(res.status, `[REQ AC-6] POST /users/login wrong-password attempt ${i + 1} responds 401`).toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                                                              ^
+      174 |       });
+      175 |     });
+      176 |     await journey.step('And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked', async () => {
+        at forEach (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:173:110)
+        at body (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:172:16)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:171:5
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>

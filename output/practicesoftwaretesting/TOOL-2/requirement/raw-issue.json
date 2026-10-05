@@ -1,0 +1,24 @@
+{
+  "id": "10002",
+  "key": "TOOL-2",
+  "self": "https://jira.example.com/rest/api/2/issue/TOOL-2",
+  "fields": {
+    "summary": "Customer registration, sign-in and account protection",
+    "issuetype": {
+      "name": "Story"
+    },
+    "status": {
+      "name": "Ready for QA"
+    },
+    "priority": {
+      "name": "High"
+    },
+    "labels": [],
+    "description": "As a customer I want to register and sign in, and I want my account protected against password guessing.\n\nIdentity API: `POST /users/register`, `POST /users/login` (returns `{ \"access_token\", \"token_type\", \"expires_in\" }`), `GET /users/me` and `GET /users/logout` (both need `Authorization: Bearer <access_token>`). Web shop sign-in page: \"Sign in\" in the navigation.\n\n## Acceptance criteria\n\nScenario: Registration creates the customer without echoing the password\n  Given a new customer with a unique e-mail address\n  When their details are posted to POST /users/register\n  Then the API responds 201 with the customer's details and an id\n  And the response does not contain the password\n\nScenario: A registered e-mail address cannot register twice\n  Given a customer already registered with an e-mail address\n  When the same e-mail address is registered again\n  Then the API responds 409 with the message \"A customer with this email address already exists.\"\n\nScenario: Weak passwords are rejected with every broken rule listed\n  Given a new customer whose password is \"abc\"\n  When they register\n  Then the API responds 422 and the password errors state all four rules: at least 8 characters, upper and lower case letters, a symbol, a number\n\nScenario: Signing in on the web shop\n  Given a registered customer on the web shop's sign-in page\n  When they sign in with their e-mail address and password\n  Then they land on the \"My account\" page\n  And the navigation shows their first and last name\n\nScenario: A wrong password is refused\n  Given a registered customer\n  When they sign in with a wrong password\n  Then POST /users/login responds 401\n  And the web shop shows \"Invalid email or password\"\n\nScenario: The account locks after five failed attempts\n  Given a registered customer\n  When five sign-in attempts with a wrong password are made\n  Then attempts one to five respond 401\n  And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked\n\nScenario: Signing out invalidates the token\n  Given a signed-in customer with an access token\n  When they sign out with GET /users/logout\n  Then GET /users/me with the same token responds 401",
+    "attachment": [],
+    "comment": {
+      "comments": [],
+      "total": 0
+    }
+  }
+}

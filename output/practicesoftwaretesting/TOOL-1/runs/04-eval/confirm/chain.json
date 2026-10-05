@@ -1,0 +1,8 @@
+{ "steps": [
+  { "name": "products page 1", "method": "GET", "path": "products", "show": ["per_page","total","last_page","current_page"] },
+  { "name": "products page 4", "method": "GET", "path": "products?page=4", "show": ["per_page","total","last_page","current_page"] },
+  { "name": "products page 6 (last)", "method": "GET", "path": "products?page=6", "show": ["per_page","total","last_page","current_page","to","from"] },
+  { "name": "search pliers", "method": "GET", "path": "products/search?q=pliers", "show": ["per_page","total","last_page"] },
+  { "name": "empty search q=", "method": "GET", "path": "products/search?q=", "show": ["per_page","total","last_page","data"] },
+  { "name": "search q omitted", "method": "GET", "path": "products/search", "show": ["per_page","total","last_page"] }
+] }

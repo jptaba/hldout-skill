@@ -1,0 +1,9 @@
+[
+  {
+    "assertion": "tool-1.spec.ts: [REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page",
+    "draft": ".toBe(total - REQ.PER_PAGE * (lastPage - 1))",
+    "current": ".toBe(total - REQ.PER_PAGE * (reqLastPage() - 1))",
+    "reason": "The expected count was computed from the application own last_page; it now comes from the requirement alone (total / 12 rounded up), read from that page",
+    "approvedAt": "2026-10-05T01:08:15.484Z"
+  }
+]

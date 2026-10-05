@@ -1,0 +1,14 @@
+{
+  "steps": [
+    { "name": "register a new customer", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}",
+                "dob": "1990-01-01", "phone": "0612345678",
+                "address": { "street": "Test Street 1", "city": "Utrecht", "state": "Utrecht", "country": "NL", "postal_code": "3511AA" } },
+      "save": { "id": "id" }, "expect": 201 },
+    { "name": "sign in", "method": "POST", "path": "users/login",
+      "json": { "email": "hldout-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}" },
+      "save": { "token": "access_token" }, "expect": 200 },
+    { "name": "who am I", "method": "GET", "path": "users/me", "headers": { "Authorization": "Bearer ${token}" },
+      "save": { "id": "id" }, "expect": 200 }
+  ]
+}

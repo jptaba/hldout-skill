@@ -1,0 +1,79 @@
+
+Running 17 tests using 4 workers
+
+  ok  4 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:118:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-003: Registering with the password "abc" is refused with 422 and all four password rules @AC-3 @type:negative @layer:api @P1 (1.4s)
+  ok  2 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:88:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-001: A new customer registers and the API answers 201 with their details and an id @AC-1 @type:functional @layer:api @P1 (1.4s)
+  ok  3 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:105:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-002: Registering an already registered e-mail address again is refused with 409 @AC-2 @type:negative @layer:api @P1 (1.7s)
+  ok  7 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:204:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-008: The registration answer does not contain the password @AC-1 @type:security @layer:api @P1 (814ms)
+  ok  5 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:155:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-005: Signing in with a wrong password is refused by POST /users/login with 401 @AC-5 @type:security @layer:api @P1 (1.3s)
+  ok  1 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:137:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-004: A registered customer signs in on the web shop and lands on "My account" with their name shown @AC-4 @type:functional @layer:ui @P1 (3.2s)
+  ok  9 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:237:9 › TOOL-2 Customer registration, sign-in and account protection › SCN-010.1: A password of 7 characters meeting every other rule is rejected @AC-3 @type:boundary @layer:api @P2 (719ms)
+  ok 10 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:237:9 › TOOL-2 Customer registration, sign-in and account protection › SCN-010.2: A password of 8 characters meeting every other rule is accepted @AC-3 @type:boundary @layer:api @P2 (765ms)
+  ok 11 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:264:9 › TOOL-2 Customer registration, sign-in and account protection › SCN-011.1: A password with no upper case letter is refused with 422 and the rule "upper and lower case letters" @AC-3 @type:negative @layer:api @P2 (683ms)
+  ok  6 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:184:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-007: After GET /users/logout the same token gets 401 from GET /users/me @AC-7 @type:security @layer:api @P1 (2.9s)
+  ok 12 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:264:9 › TOOL-2 Customer registration, sign-in and account protection › SCN-011.2: A password with no lower case letter is refused with 422 and the rule "upper and lower case letters" @AC-3 @type:negative @layer:api @P2 (547ms)
+  ok 13 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:264:9 › TOOL-2 Customer registration, sign-in and account protection › SCN-011.3: A password with no symbol is refused with 422 and the rule "a symbol" @AC-3 @type:negative @layer:api @P2 (542ms)
+  ok 14 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:264:9 › TOOL-2 Customer registration, sign-in and account protection › SCN-011.4: A password with no number is refused with 422 and the rule "a number" @AC-3 @type:negative @layer:api @P2 (594ms)
+  ok  8 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:219:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-009: Simultaneous registrations of one e-mail address: exactly one is accepted, the others get 409 @AC-2 @type:concurrency @layer:api @P2 (2.7s)
+  ok 16 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:296:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-013: Signing out with GET /users/logout answers a 2xx success @AC-7 @type:functional @layer:api @P2 (1.8s)
+  ok 15 [chromium] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:281:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-012: Signing in on the web shop with a wrong password shows "Invalid email or password" @AC-5 @type:negative @layer:ui @P1 (3.5s)
+  x  17 [chromium-once] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:165:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-006: After five failed sign-ins the account is locked: the sixth, with the correct password, gets 423 @AC-6 @type:security @layer:api @P1 @irreversible (4.1s)
+
+
+  1) [chromium-once] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:165:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-006: After five failed sign-ins the account is locked: the sixth, with the correct password, gets 423 @AC-6 @type:security @layer:api @P1 @irreversible › Then attempts one to five respond 401 
+
+    Error: [REQ AC-6] POST /users/login wrong-password attempt 4 responds 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 423
+
+      171 |     await journey.step('Then attempts one to five respond 401', async () => {
+      172 |       attempts.forEach((res, i) => {
+    > 173 |         expect.soft(res.status, `[REQ AC-6] POST /users/login wrong-password attempt ${i + 1} responds 401`).toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                                                              ^
+      174 |       });
+      175 |     });
+      176 |     await journey.step('And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked', async () => {
+        at forEach (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:173:110)
+        at body (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:172:16)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:171:5
+
+    Error: [REQ AC-6] POST /users/login wrong-password attempt 5 responds 401
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 423
+
+      171 |     await journey.step('Then attempts one to five respond 401', async () => {
+      172 |       attempts.forEach((res, i) => {
+    > 173 |         expect.soft(res.status, `[REQ AC-6] POST /users/login wrong-password attempt ${i + 1} responds 401`).toBe(REQ.STATUS.UNAUTHORIZED);
+          |                                                                                                              ^
+      174 |       });
+      175 |     });
+      176 |     await journey.step('And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked', async () => {
+        at forEach (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:173:110)
+        at body (./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:172:16)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:171:5
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    output\practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: output\practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\error-context.md
+
+    attachment #11: trace (application/zip) ────────────────────────────────────────────────────────
+    output\practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\trace.zip
+    Usage:
+
+        npx playwright show-trace output\practicesoftwaretesting\TOOL-2\runs\03-eval\artifacts\practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-once] › output\practicesoftwaretesting\TOOL-2\tests\tool-2.spec.ts:165:7 › TOOL-2 Customer registration, sign-in and account protection › SCN-006: After five failed sign-ins the account is locked: the sixth, with the correct password, gets 423 @AC-6 @type:security @layer:api @P1 @irreversible 
+  16 passed (11.6s)

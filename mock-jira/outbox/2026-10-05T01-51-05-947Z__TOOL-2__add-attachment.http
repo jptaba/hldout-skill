@@ -1,0 +1,12 @@
+### add-attachment (simulated — no Jira; this request was NOT sent)
+POST https://jira.example.com/rest/api/2/issue/TOOL-2/attachments
+Authorization: Bearer <JIRA_PAT>
+X-Atlassian-Token: no-check
+Content-Type: multipart/form-data; boundary=----heldout
+
+------heldout
+Content-Disposition: form-data; name="file"; filename="heldout-verdict-TOOL-2-202610050151.md"
+Content-Type: text/markdown
+
+<21051 bytes from output\practicesoftwaretesting\TOOL-2\verdict.md>
+------heldout--

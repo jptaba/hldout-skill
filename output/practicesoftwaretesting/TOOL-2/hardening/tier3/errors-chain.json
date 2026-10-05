@@ -1,0 +1,24 @@
+{
+  "steps": [
+    { "name": "register a new customer", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}",
+                "dob": "1990-01-01", "phone": "0612345678",
+                "address": { "street": "Test Street 1", "city": "Utrecht", "state": "Utrecht", "country": "NL", "postal_code": "3511AA" } },
+      "save": { "id": "id" } },
+    { "name": "register the same e-mail again (409 shape)", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}",
+                "dob": "1990-01-01", "phone": "0612345678",
+                "address": { "street": "Test Street 1", "city": "Utrecht", "state": "Utrecht", "country": "NL", "postal_code": "3511AA" } } },
+    { "name": "register with password abc (422 shape)", "method": "POST", "path": "users/register",
+      "json": { "first_name": "Hldout", "last_name": "Tester", "email": "hldout-${uid}-weak@example.com", "password": "abc",
+                "dob": "1990-01-01", "phone": "0612345678",
+                "address": { "street": "Test Street 1", "city": "Utrecht", "state": "Utrecht", "country": "NL", "postal_code": "3511AA" } } },
+    { "name": "wrong password 1", "method": "POST", "path": "users/login", "json": { "email": "hldout-${uid}@example.com", "password": "Wrong-pass-1x" } },
+    { "name": "wrong password 2", "method": "POST", "path": "users/login", "json": { "email": "hldout-${uid}@example.com", "password": "Wrong-pass-2x" } },
+    { "name": "wrong password 3", "method": "POST", "path": "users/login", "json": { "email": "hldout-${uid}@example.com", "password": "Wrong-pass-3x" } },
+    { "name": "wrong password 4", "method": "POST", "path": "users/login", "json": { "email": "hldout-${uid}@example.com", "password": "Wrong-pass-4x" } },
+    { "name": "wrong password 5", "method": "POST", "path": "users/login", "json": { "email": "hldout-${uid}@example.com", "password": "Wrong-pass-5x" } },
+    { "name": "correct password after five failures (423 shape)", "method": "POST", "path": "users/login",
+      "json": { "email": "hldout-${uid}@example.com", "password": "${env:PST_CUSTOMER_PASSWORD}" } }
+  ]
+}

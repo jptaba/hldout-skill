@@ -1,0 +1,8 @@
+### add-comment (simulated — no Jira; this request was NOT sent)
+POST https://jira.example.com/rest/api/2/issue/TOOL-1/comment
+Authorization: Bearer <JIRA_PAT>
+Content-Type: application/json
+
+{
+  "body": "h3. 🧪 Held-out evaluation: FAIL (recommendation)\n\n{panel:title=ERROR}\n2 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-6, AC-7. Awaiting reviewer confirmation.\n{panel}\n\n*AUT: *Practice Software Testing (https://practicesoftwaretesting.com/)\n\n*Tests: *10/15 passed, 5 failed, 0 flaky*  ·  Held-out integrity: *AMENDED (1 audited amendment(s))*  ·  Script defects self-repaired: *0\n\nh4. Coverage by test type\n\n||*Test type*||*Tests*||*Passed*||*Failed*||*Findings*||\n|boundary|2|0|2|APP-1|\n|contract|1|1|0|-|\n|integration|1|1|0|-|\n|functional|11|8|3|APP-1, APP-2|\n\nh4. Findings for review (2)\n\n||*ID*||*Suggested severity*||*Criteria*||*Type*||*Finding*||*Expected (requirement)*||*Actual (AUT)*||\n|APP-1|Major|AC-6|functional|Catalogue paginates 9 products per page, not 12 (web shop and API)|12|9|\n|APP-2|Major|AC-7|functional|Empty search returns no products instead of the whole catalogue|50|0|\n\n_Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically._\n\n* Full report attached: {{heldout-verdict-TOOL-1-202610050112.md}}\n* Final run: 04-eval\n\n_Posted automatically by the heldout-evaluator skill._"
+}

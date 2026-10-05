@@ -1,0 +1,11 @@
+{
+  "actions/practicesoftwaretesting/api/categories/find-category-id.ts": "17678a2acbe26e2d",
+  "actions/practicesoftwaretesting/api/products/_shared.ts": "6d9961d597f05197",
+  "actions/practicesoftwaretesting/api/products/read-whole-catalogue.ts": "b446fd6dd50cd15a",
+  "actions/practicesoftwaretesting/ui/catalogue/_shared.ts": "b4af91648ab132ef",
+  "actions/practicesoftwaretesting/ui/catalogue/choose-sort-order.ts": "7c6b9ed570cb6159",
+  "actions/practicesoftwaretesting/ui/catalogue/filter-catalogue-by-category.ts": "8b84c2c96f22bf1f",
+  "actions/practicesoftwaretesting/ui/catalogue/open-catalogue.ts": "15bea3145efffeff",
+  "actions/practicesoftwaretesting/ui/catalogue/read-product-cards.ts": "2028bf937b05a4e0",
+  "actions/practicesoftwaretesting/ui/catalogue/search-catalogue.ts": "981fc43d46c61e98"
+}

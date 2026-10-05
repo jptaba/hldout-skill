@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "kind": "ui",
+  "by": "TOOL-2",
+  "at": "2026-10-05T01:51:06.751Z",
+  "entries": [
+    {
+      "key": "ui:account.openSignInPage",
+      "kind": "ui",
+      "value": {
+        "action": "openSignInPage",
+        "domain": "account",
+        "file": "ui/account/open-sign-in-page.ts",
+        "params": "page: Page",
+        "routes": [
+          "/auth/login"
+        ],
+        "summary": "Open the web shop's sign-in page (the one \"Sign in\" in the navigation leads to) and wait until its form is shown."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:51:06.749Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-004, SCN-012 passed"
+    },
+    {
+      "key": "ui:account.submitSignInForm",
+      "kind": "ui",
+      "value": {
+        "action": "submitSignInForm",
+        "domain": "account",
+        "file": "ui/account/submit-sign-in-form.ts",
+        "params": "page: Page, email: string, password: string",
+        "summary": "On the open sign-in page, enter an e-mail address and a password and submit the form."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:51:06.749Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-004, SCN-012 passed"
+    }
+  ]
+}

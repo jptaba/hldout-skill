@@ -1,0 +1,402 @@
+{
+  "key": "TOOL-1",
+  "title": "Catalogue search, sorting and category filter",
+  "revision": {
+    "story": "04c04d6c32917bdf",
+    "linked": {}
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "user story, rule that web shop and API behave the same, catalogue API endpoints and response shape, AC 1-7, category-id note, out of scope"
+    }
+  ],
+  "actors": [
+    "shopper",
+    "mobile app (consumer of the public catalogue API)"
+  ],
+  "context": "As a shopper I want to search, sort and filter the tool catalogue so that I find the right tool quickly.",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "Searching the web shop for a term shows only products whose name contains the term, and a caption \"Searched for: <term>\".",
+      "source": "story.md#L23",
+      "text": "Searching the web shop for a term shows only products whose name contains the term, and a caption \"Searched for: <term>\".",
+      "layer": "ui",
+      "entryPoint": "web shop catalogue page",
+      "outcomes": [
+        "every product shown has a name that contains the searched term, regardless of letter case (G6, provided by the user)",
+        "caption \"Searched for: <term>\" is shown"
+      ],
+      "gaps": [
+        "G1",
+        "G6"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "GET /products/search?q=<term> returns 200 with only products whose name contains the term, regardless of letter case (searching \"PLIERS\" finds the same products as \"pliers\").",
+      "source": "story.md#L24",
+      "text": "GET /products/search?q=<term> returns 200 with only products whose name contains the term, regardless of letter case (searching \"PLIERS\" finds the same products as \"pliers\").",
+      "layer": "api",
+      "endpoints": [
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "GET /products/search?q=<term> returns 200",
+        "every product in data has a name that contains the term, regardless of letter case",
+        "searching \"PLIERS\" finds the same products as \"pliers\""
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "A search without matches shows \"There are no products found.\" on the web shop, and the API returns 200 with an empty data list and total 0.",
+      "source": "story.md#L25",
+      "text": "A search without matches shows \"There are no products found.\" on the web shop, and the API returns 200 with an empty data list and total 0.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue page",
+      "endpoints": [
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "web shop: a search without matches shows \"There are no products found.\"",
+        "API: GET /products/search with a term without matches returns 200",
+        "API: data is an empty list",
+        "API: total is 0"
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "Choosing \"Price (Low - High)\" on the web shop lists the products by ascending price; GET /products?sort=price,asc returns the products in ascending price order.",
+      "source": "story.md#L26",
+      "text": "Choosing \"Price (Low - High)\" on the web shop lists the products by ascending price; GET /products?sort=price,asc returns the products in ascending price order.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue page",
+      "endpoints": [
+        "GET /products"
+      ],
+      "outcomes": [
+        "web shop: after choosing \"Price (Low - High)\" the products are listed by ascending price",
+        "API: GET /products?sort=price,asc returns 200 (G3, provided by the user)",
+        "API: GET /products?sort=price,asc returns the products in ascending price order"
+      ],
+      "gaps": [
+        "G1",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "Filtering the web shop by the category \"Hammer\" shows only hammers; GET /products?by_category=<id of Hammer> returns only products in that category.",
+      "source": "story.md#L27",
+      "text": "Filtering the web shop by the category \"Hammer\" shows only hammers; GET /products?by_category=<id of Hammer> returns only products in that category.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue page",
+      "endpoints": [
+        "GET /categories/tree",
+        "GET /products"
+      ],
+      "outcomes": [
+        "web shop: filtering by the category \"Hammer\" shows only hammers (products in the Hammer category)",
+        "API: GET /products?by_category=<id of Hammer> returns 200 (G3, provided by the user)",
+        "API: GET /products?by_category=<id of Hammer> returns only products in the Hammer category"
+      ],
+      "gaps": [
+        "G1",
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "quote": "Results are paginated with 12 products per page (per_page 12) on the web shop and in the API.",
+      "source": "story.md#L28",
+      "text": "Results are paginated with 12 products per page (per_page 12) on the web shop and in the API.",
+      "layer": "e2e",
+      "entryPoint": "web shop catalogue page",
+      "endpoints": [
+        "GET /products",
+        "GET /products/search"
+      ],
+      "outcomes": [
+        "web shop: a full page of results shows 12 products",
+        "API: GET /products returns 200 (G3, provided by the user)",
+        "API: the response has per_page 12",
+        "API: a full page holds 12 products in data"
+      ],
+      "gaps": [
+        "G1",
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "quote": "An empty search (no term) returns all products, so the mobile app can reuse the search endpoint for its \"All tools\" screen.",
+      "source": "story.md#L29",
+      "text": "An empty search (no term) returns all products, so the mobile app can reuse the search endpoint for its \"All tools\" screen.",
+      "layer": "api",
+      "endpoints": [
+        "GET /products/search",
+        "GET /products"
+      ],
+      "outcomes": [
+        "GET /products/search?q= (q with no value, G5) returns 200 (G3)",
+        "the answer is a normal paginated answer whose total equals the whole catalogue, the same total as GET /products (G4, provided by the user)"
+      ],
+      "gaps": [
+        "G3",
+        "G4",
+        "G5"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/products",
+      "source": "story.md#L20",
+      "auth": "none",
+      "success": "{ \"current_page\", \"data\": [products], \"per_page\", \"total\", \"last_page\" } (paginated); 200 per G3 (provided by the user)",
+      "request": "query parameters sort (e.g. ?sort=price,asc) and by_category (e.g. ?by_category=<id of Hammer>); auth none from \"the public catalogue API\" (story.md#L18)"
+    },
+    {
+      "method": "GET",
+      "path": "/products/search",
+      "source": "story.md#L20",
+      "auth": "none",
+      "success": "200 { \"current_page\", \"data\": [products], \"per_page\", \"total\", \"last_page\" }",
+      "request": "?q=<term>; auth none from \"the public catalogue API\" (story.md#L18)"
+    },
+    {
+      "method": "GET",
+      "path": "/categories/tree",
+      "source": "story.md#L32",
+      "request": "source of category ids (e.g. the id of Hammer for by_category)"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "The web shop and the public catalogue API (used by our mobile app) must behave the same way.",
+      "source": "story.md#L18"
+    },
+    {
+      "id": "R2",
+      "text": "Category ids come from GET /categories/tree.",
+      "source": "story.md#L32"
+    }
+  ],
+  "errorModel": [],
+  "testData": {
+    "strategy": "not stated in the sources; the criteria only read the existing catalogue",
+    "constraints": [
+      "the catalogue has a category \"Hammer\" (story.md#L27)",
+      "the catalogue has products found by searching \"pliers\" (story.md#L24)"
+    ],
+    "source": "story.md#L24, story.md#L27"
+  },
+  "outOfScope": [
+    "product detail pages",
+    "brands filter"
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "web shop catalogue page: its route and how the search field, the search caption, the no-results message, the sort control, the category filter, the product cards (name, price) and the page of results are found",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-1",
+        "AC-3",
+        "AC-4",
+        "AC-5",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "story.md#L23-L28 name the web shop behaviour but no route, field labels or locators"
+        },
+        {
+          "where": "config",
+          "result": "the profile gives only the web base URL"
+        },
+        {
+          "where": "aut",
+          "result": "Catalogue page is the site root '/'; search field getByTestId('search-query'), submit getByTestId('search-submit'); caption getByTestId('search-caption') (text 'Searched for: <term>'); no-results getByTestId('no-results'); sort control getByTestId('sort') (select, options by label); category filter getByRole('checkbox', { name: <category>, exact: true }); product cards a.card[data-test^='product-'] with getByTestId('product-name') and getByTestId('product-price') ('$14.15'); the page loads lists with HTTP QUERY /products and QUERY /products/search; page of results via pagination-next/prev, API ?page=N"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "Catalogue page is the site root '/'; search field getByTestId('search-query'), submit getByTestId('search-submit'); caption getByTestId('search-caption') (text 'Searched for: <term>'); no-results getByTestId('no-results'); sort control getByTestId('sort') (select, options by label); category filter getByRole('checkbox', { name: <category>, exact: true }); product cards a.card[data-test^='product-'] with getByTestId('product-name') and getByTestId('product-price') ('$14.15'); the page loads lists with HTTP QUERY /products and QUERY /products/search; page of results via pagination-next/prev, API ?page=N",
+      "evidence": "hardening/tier3/search.md, hardening/tier3/no-results.md, hardening/tier3/filter-sort.md (tier 2 Playwright MCP walk, see hardening-log.md)"
+    },
+    {
+      "id": "G2",
+      "element": "where the id of the category \"Hammer\" is in the GET /categories/tree answer (nesting, field names), and how a product's category is seen in the product data and on the web shop to check \"only hammers\"",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "story.md#L32 names the endpoint only; story.md#L20 does not list product fields"
+        },
+        {
+          "where": "aut",
+          "result": "GET /categories/tree answers a JSON array of top-level nodes {id, name, slug, parent_id, sub_categories:[nodes]}; 'Hammer' is a sub-category of 'Hand Tools' (id 01M44NSB700A1N91T5WRW6YVJH, a string ULID). A product's category is the nested object category {id, name, slug} in the product data; on the web shop the card shows no category, so 'only hammers' is checked against the API's products whose category.id is the Hammer id"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "GET /categories/tree answers a JSON array of top-level nodes {id, name, slug, parent_id, sub_categories:[nodes]}; 'Hammer' is a sub-category of 'Hand Tools' (id 01M44NSB700A1N91T5WRW6YVJH, a string ULID). A product's category is the nested object category {id, name, slug} in the product data; on the web shop the card shows no category, so 'only hammers' is checked against the API's products whose category.id is the Hammer id",
+      "evidence": "hardening/tier3/api-cat-tree.md, hardening/tier3/api-by-category-hammer.md, hardening/tier3/filter-sort.md"
+    },
+    {
+      "id": "G3",
+      "element": "exact success status of GET /products (sort, by_category, pagination) and of the empty search: the story states 200 only for GET /products/search with a term (AC-2, AC-3)",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-4",
+        "AC-5",
+        "AC-6",
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "story.md#L26-L29 say \"returns\" without a status"
+        },
+        {
+          "where": "user",
+          "result": "GET /products (sort, filter, pagination) and the empty search return 200"
+        }
+      ],
+      "resolution": "provided-by-user",
+      "value": "GET /products (sort, filter, pagination) and the empty search return 200",
+      "evidence": "user (via coordinator), 2026-10-05"
+    },
+    {
+      "id": "G4",
+      "element": "what \"returns all products\" means for an empty search given that results are paginated (AC-6): a paginated answer whose total equals the whole catalogue (the total of GET /products), or every product in one answer? Proposed reading: paginated, total equals the catalogue total",
+      "kind": "oracle",
+      "required": true,
+      "affects": [
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "story.md#L29 says \"returns all products\"; story.md#L28 says results are paginated in the API; neither supersedes the other"
+        },
+        {
+          "where": "user",
+          "result": "a normal paginated answer whose total equals the whole catalogue (the same total as GET /products)"
+        }
+      ],
+      "resolution": "provided-by-user",
+      "value": "a normal paginated answer whose total equals the whole catalogue (the same total as GET /products)",
+      "evidence": "user (via coordinator), 2026-10-05"
+    },
+    {
+      "id": "G5",
+      "element": "what counts as an empty search (no term): q present but empty, q left out, or both must return all products",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "story.md#L29 says \"An empty search (no term)\" without naming the request"
+        },
+        {
+          "where": "user",
+          "result": "an empty search is the search endpoint called with q= with no value"
+        }
+      ],
+      "resolution": "provided-by-user",
+      "value": "an empty search is the search endpoint called with q= with no value",
+      "evidence": "user (via coordinator), 2026-10-05"
+    },
+    {
+      "id": "G6",
+      "element": "whether the web shop search must also ignore letter case: AC-2 states it for the API only, while story.md#L18 says the web shop and the API must behave the same way",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-1"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "story.md#L23 is silent on letter case; story.md#L24 states it for the API; story.md#L18 requires the same behaviour"
+        },
+        {
+          "where": "user",
+          "result": "yes, the web shop search must also ignore letter case, like the API (R1)"
+        }
+      ],
+      "resolution": "provided-by-user",
+      "value": "yes, the web shop search must also ignore letter case, like the API (R1)",
+      "evidence": "user (via coordinator), 2026-10-05"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L18",
+      "as": "R1, endpoint",
+      "note": "also states the catalogue API is public (auth none)"
+    },
+    {
+      "lines": "story.md#L20",
+      "as": "endpoint"
+    },
+    {
+      "lines": "story.md#L23",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L24",
+      "as": "AC-2"
+    },
+    {
+      "lines": "story.md#L25",
+      "as": "AC-3"
+    },
+    {
+      "lines": "story.md#L26",
+      "as": "AC-4"
+    },
+    {
+      "lines": "story.md#L27",
+      "as": "AC-5"
+    },
+    {
+      "lines": "story.md#L28",
+      "as": "AC-6"
+    },
+    {
+      "lines": "story.md#L29",
+      "as": "AC-7"
+    },
+    {
+      "lines": "story.md#L32",
+      "as": "R2, endpoint"
+    },
+    {
+      "lines": "story.md#L33",
+      "as": "out-of-scope"
+    }
+  ]
+}

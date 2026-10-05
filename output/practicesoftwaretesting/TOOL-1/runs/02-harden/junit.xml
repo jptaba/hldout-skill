@@ -1,0 +1,2108 @@
+<testsuites id="" name="" tests="45" failures="18" skipped="0" errors="0" time="133.65231599999998">
+<testsuite name="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" timestamp="2026-10-05T01:00:31.685Z" hostname="chromium" tests="15" failures="8" skipped="0" time="83.096" errors="0">
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-001: A shopper searches the web shop and sees only matching products and the caption" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.554">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-002: The web shop search for &quot;PLIERS&quot; shows the products the API finds for &quot;pliers&quot;" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="26.402">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-1] the web shop search for &quot;PLIERS&quot; shows the products GET /products/search?q=pliers returns" type="expect.toEqual">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:69:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-002: The web shop search for "PLIERS" shows the products the API finds for "pliers" @AC-1 @AC-2 @type:integration @layer:ui @P2 › Then the web shop shows the same products as GET /products/search?q=pliers 
+
+    Error: [REQ AC-1] the web shop search for "PLIERS" shows the products GET /products/search?q=pliers returns
+
+    [REQ AC-1] the web shop search for "PLIERS" shows the products GET /products/search?q=pliers returns
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 6
+    + Received  + 1
+
+    - Array [
+    -   "Combination Pliers",
+    -   "Long Nose Pliers",
+    -   "Pliers",
+    -   "Slip Joint Pliers",
+    - ]
+    + Array []
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      80 |     await journey.step(`Then the web shop shows the same products as GET /products/search?q=${lower}`, async () => {
+      81 |       await expect.poll(async () => (await readProductCards(page)).map((c) => c.name).sort(byName),
+    > 82 |         { message: `[REQ AC-1] the web shop search for "${upper}" shows the products GET /products/search?q=${lower} returns`, timeout: 10_000 }).toEqual(apiNames);
+         |                                                                                                                                                   ^
+      83 |     });
+      84 |   });
+      85 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:82:147)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:80:5
+
+    attachment #2: aria-snapshot 04-failed-then-the-web-shop-shows-the-same-products-as-get-prod (text/yaml) 
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then the web shop shows the same products as GET /products/search?q=pliers
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testin...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-1] the web shop search for "PLIERS" shows the products GET /products/search?q=pliers returns
+
+    [REQ AC-1] the web shop search for "PLIERS" shows the products GET /products/search?q=pliers returns
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 6
+    + Received  + 1
+
+    - Array [
+    -   "Combination Pliers",
+    -   "Long Nose Pliers",
+    -   "Pliers",
+    -   "Slip Joint Pliers",
+    - ]
+    + Array []
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      80 |     await journey.step(`Then the web shop shows the same products as GET /products/search?q=${lower}`, async () => {
+      81 |       await expect.poll(async () => (await readProductCards(page)).map((c) => c.name).sort(byName),
+    > 82 |         { message: `[REQ AC-1] the web shop search for "${upper}" shows the products GET /products/search?q=${lower} returns`, timeout: 10_000 }).toEqual(apiNames);
+         |                                                                                                                                                   ^
+      83 |     });
+      84 |   });
+      85 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:82:147)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:80:5
+
+    attachment #2: aria-snapshot 04-failed-then-the-web-shop-shows-the-same-products-as-get-prod (text/yaml) 
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then the web shop shows the same products as GET /products/search?q=pliers
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testin...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-19864-s-the-API-finds-for-pliers--chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-003: GET /products/search finds only products whose name contains the term, in any letter case" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.31">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-2] GET /products/search?q=PLIERS finds the same products as q=pliers" type="expect.toEqual">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:89:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-003: GET /products/search finds only products whose name contains the term, in any letter case @AC-2 @type:functional @layer:api @P1 › Then searching "PLIERS" finds the same products as "pliers" 
+
+    Error: [REQ AC-2] GET /products/search?q=PLIERS finds the same products as q=pliers
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 6
+    + Received  + 1
+
+    - Array [
+    -   "01M44NSB8F5H6AYX8DH9W40E75",
+    -   "01M44NSB8JYQ6PB8AGEAMS8BV5",
+    -   "01M44NSB8NG12ZBVC9AN82RKG0",
+    -   "01M44NSB8Q3Z8947MPB01YTY95",
+    - ]
+    + Array []
+
+      104 |     await journey.step(`Then searching "${upper}" finds the same products as "${lower}"`, async () => {
+      105 |       const ids = (r: Answer) => (r.body?.data ?? []).map((p) => String(p.id)).sort();
+    > 106 |       expect.soft(ids(resUpper), `[REQ AC-2] GET /products/search?q=${upper} finds the same products as q=${lower}`).toEqual(ids(resLower));
+          |                                                                                                                      ^
+      107 |     });
+      108 |   });
+      109 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:106:118)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:104:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-2] GET /products/search?q=PLIERS finds the same products as q=pliers
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 6
+    + Received  + 1
+
+    - Array [
+    -   "01M44NSB8F5H6AYX8DH9W40E75",
+    -   "01M44NSB8JYQ6PB8AGEAMS8BV5",
+    -   "01M44NSB8NG12ZBVC9AN82RKG0",
+    -   "01M44NSB8Q3Z8947MPB01YTY95",
+    - ]
+    + Array []
+
+      104 |     await journey.step(`Then searching "${upper}" finds the same products as "${lower}"`, async () => {
+      105 |       const ids = (r: Answer) => (r.body?.data ?? []).map((p) => String(p.id)).sort();
+    > 106 |       expect.soft(ids(resUpper), `[REQ AC-2] GET /products/search?q=${upper} finds the same products as q=${lower}`).toEqual(ids(resLower));
+          |                                                                                                                      ^
+      107 |     });
+      108 |   });
+      109 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:106:118)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:104:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-4e468-the-term-in-any-letter-case-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-004: The catalogue API answers with the paginated shape { current_page, data, per_page, total, last_page }" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.692">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-005: A web shop search without matches shows &quot;There are no products found.&quot;" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.123">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-006: GET /products/search without matches returns 200, an empty data list and total 0" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="0.53">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-007: Choosing &quot;Price (Low - High)&quot; lists the web shop products by ascending price" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.135">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-008: GET /products?sort=price,asc returns the products in ascending price order" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.04">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-009: Filtering the web shop by the category &quot;Hammer&quot; shows only hammers" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="5.458">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-010: GET /products?by_category=&lt;id of Hammer&gt; returns only products in that category" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.206">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="GET /products?by_category lists products (precondition: the catalogue has Hammer products)" type="expect.toBeGreaterThan">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:205:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-010: GET /products?by_category=<id of Hammer> returns only products in that category @AC-5 @type:functional @layer:api @P1 › Then every product in data is in the category "Hammer" 
+
+    Error: GET /products?by_category lists products (precondition: the catalogue has Hammer products)
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      213 |     await journey.step(`Then every product in data is in the category "${category}"`, async () => {
+      214 |       const found = res.body?.data ?? [];
+    > 215 |       expect(found.length, `GET /products?by_category lists products (precondition: the catalogue has ${category} products)`).toBeGreaterThan(0);
+          |                                                                                                                               ^
+      216 |       expect.soft(found.filter((p) => categoryIdOf(p) !== id).map((p) => p.name),
+      217 |         '[REQ AC-5] GET /products?by_category=<id of Hammer> returns only products in that category (those that aren\'t)').toEqual([]);
+      218 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:215:127)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:213:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: GET /products?by_category lists products (precondition: the catalogue has Hammer products)
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      213 |     await journey.step(`Then every product in data is in the category "${category}"`, async () => {
+      214 |       const found = res.body?.data ?? [];
+    > 215 |       expect(found.length, `GET /products?by_category lists products (precondition: the catalogue has ${category} products)`).toBeGreaterThan(0);
+          |                                                                                                                               ^
+      216 |       expect.soft(found.filter((p) => categoryIdOf(p) !== id).map((p) => p.name),
+      217 |         '[REQ AC-5] GET /products?by_category=<id of Hammer> returns only products in that category (those that aren\'t)').toEqual([]);
+      218 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:215:127)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:213:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-1a4c7-y-products-in-that-category-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-011: The web shop shows 12 products on a full page of results" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="26.96">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] a full page of results shows 12 products" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:224:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The web shop shows 12 products on a full page of results @AC-6 @type:functional @layer:ui @P1 @depends:SCN-012 › Then it shows 12 products 
+
+    Error: [REQ AC-6] a full page of results shows 12 products
+
+    [REQ AC-6] a full page of results shows 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      232 |     await journey.step('Then it shows 12 products', async () => {
+      233 |       await expect.poll(async () => (await readProductCards(page)).length,
+    > 234 |         { message: '[REQ AC-6] a full page of results shows 12 products', timeout: 10_000 }).toBe(REQ.PER_PAGE);
+          |                                                                                              ^
+      235 |     });
+      236 |   });
+      237 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:234:94)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:232:5
+
+    attachment #2: aria-snapshot 03-failed-then-it-shows-12-products (text/yaml) ───────────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then it shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - button...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] a full page of results shows 12 products
+
+    [REQ AC-6] a full page of results shows 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      232 |     await journey.step('Then it shows 12 products', async () => {
+      233 |       await expect.poll(async () => (await readProductCards(page)).length,
+    > 234 |         { message: '[REQ AC-6] a full page of results shows 12 products', timeout: 10_000 }).toBe(REQ.PER_PAGE);
+          |                                                                                              ^
+      235 |     });
+      236 |   });
+      237 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:234:94)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:232:5
+
+    attachment #2: aria-snapshot 03-failed-then-it-shows-12-products (text/yaml) ───────────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then it shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - button...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-012: GET /products answers per_page 12 with 12 products on a full page" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.38">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products returns per_page 12" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:239:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-012: GET /products answers per_page 12 with 12 products on a full page @AC-6 @type:functional @layer:api @P1 
+
+    Error: [REQ AC-6] GET /products returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      243 |     await journey.step('Then GET /products answers 200 with per_page 12 and 12 products in data', async () => {
+      244 |       expectResponse(list, { status: REQ.STATUS.OK }, '[REQ AC-6] GET /products');
+    > 245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+      247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+      248 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:245:88)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products holds 12 products in data on a full page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+    > 247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+          |                                                                                                                 ^
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+      250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:247:113)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products/search?q=pliers returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+    > 250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+          |                                                                                                                       ^
+      251 |     });
+      252 |   });
+      253 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:250:119)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:249:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      243 |     await journey.step('Then GET /products answers 200 with per_page 12 and 12 products in data', async () => {
+      244 |       expectResponse(list, { status: REQ.STATUS.OK }, '[REQ AC-6] GET /products');
+    > 245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+      247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+      248 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:245:88)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products holds 12 products in data on a full page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+    > 247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+          |                                                                                                                 ^
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+      250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:247:113)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products/search?q=pliers returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+    > 250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+          |                                                                                                                       ^
+      251 |     });
+      252 |   });
+      253 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:250:119)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:249:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-013.1: GET /products pagination at 12 per page: the page before the last holds exactly 12 products" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.456">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products page 5 (before the last) holds 12 products" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:261:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-013.1: GET /products pagination at 12 per page: the page before the last holds exactly 12 products @AC-6 @type:boundary @layer:api @P2 @depends:SCN-012 › Then the page before the last holds exactly 12 products 
+
+    Error: [REQ AC-6] GET /products page 5 (before the last) holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      275 |       await journey.step(`Then ${row.name}`, async () => {
+      276 |         if (row.which === 'before-last') {
+    > 277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+          |                                                                                                                                ^
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:277:128)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products page 5 (before the last) holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      275 |       await journey.step(`Then ${row.name}`, async () => {
+      276 |         if (row.which === 'before-last') {
+    > 277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+          |                                                                                                                                ^
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:277:128)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-013.2: GET /products pagination at 12 per page: the last page holds the rest (1 to 12) and last_page is total / 12 rounded up" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.362">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products last_page is the total (50) / 12 rounded up" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:261:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-013.2: GET /products pagination at 12 per page: the last page holds the rest (1 to 12) and last_page is total / 12 rounded up @AC-6 @type:boundary @layer:api @P2 @depends:SCN-012 › Then the last page holds the rest (1 to 12) and last_page is total / 12 rounded up 
+
+    Error: [REQ AC-6] GET /products last_page is the total (50) / 12 rounded up
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 6
+
+      277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+      278 |         } else {
+    > 279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+          |                                                                                                               ^
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+      281 |         }
+      282 |       });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:279:111)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    Error: [REQ AC-6] GET /products last page holds the rest of the 50 products at 12 per page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: -10
+    Received: 5
+
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+    > 280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+          |                                                                                                                                            ^
+      281 |         }
+      282 |       });
+      283 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:280:140)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products last_page is the total (50) / 12 rounded up
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 6
+
+      277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+      278 |         } else {
+    > 279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+          |                                                                                                               ^
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+      281 |         }
+      282 |       });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:279:111)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    Error: [REQ AC-6] GET /products last page holds the rest of the 50 products at 12 per page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: -10
+    Received: 5
+
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+    > 280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+          |                                                                                                                                            ^
+      281 |         }
+      282 |       });
+      283 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:280:140)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-014: An empty search (q= with no value) returns all products: total equals the catalogue total" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.488">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:289:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-014: An empty search (q= with no value) returns all products: total equals the catalogue total @AC-7 @type:functional @layer:api @P1 @depends:SCN-012 › Then the answer is 200 and its total equals the whole catalogue 
+
+    Error: [REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      299 |     await journey.step('Then the answer is 200 and its total equals the whole catalogue', async () => {
+      300 |       expectResponse(res, { status: REQ.STATUS.OK }, '[REQ AC-7] GET /products/search?q=');
+    > 301 |       expect.soft(res.body?.total, '[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total').toBe(catalogueTotal);
+          |                                                                                                                                 ^
+      302 |     });
+      303 |   });
+      304 | });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:301:129)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:299:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      299 |     await journey.step('Then the answer is 200 and its total equals the whole catalogue', async () => {
+      300 |       expectResponse(res, { status: REQ.STATUS.OK }, '[REQ AC-7] GET /products/search?q=');
+    > 301 |       expect.soft(res.body?.total, '[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total').toBe(catalogueTotal);
+          |                                                                                                                                 ^
+      302 |     });
+      303 |   });
+      304 | });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:301:129)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:299:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" timestamp="2026-10-05T01:00:31.685Z" hostname="chromium" tests="15" failures="5" skipped="0" time="57.268" errors="0">
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-001: A shopper searches the web shop and sees only matching products and the caption" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.449">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-002: The web shop search for &quot;PLIERS&quot; shows the products the API finds for &quot;pliers&quot;" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.802">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-003: GET /products/search finds only products whose name contains the term, in any letter case" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.03">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-004: The catalogue API answers with the paginated shape { current_page, data, per_page, total, last_page }" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.653">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-005: A web shop search without matches shows &quot;There are no products found.&quot;" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.042">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-006: GET /products/search without matches returns 200, an empty data list and total 0" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="0.566">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-007: Choosing &quot;Price (Low - High)&quot; lists the web shop products by ascending price" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.081">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-008: GET /products?sort=price,asc returns the products in ascending price order" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.099">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-009: Filtering the web shop by the category &quot;Hammer&quot; shows only hammers" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="5.622">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-010: GET /products?by_category=&lt;id of Hammer&gt; returns only products in that category" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.017">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-011: The web shop shows 12 products on a full page of results" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="26.896">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] a full page of results shows 12 products" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:224:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The web shop shows 12 products on a full page of results @AC-6 @type:functional @layer:ui @P1 @depends:SCN-012 › Then it shows 12 products 
+
+    Error: [REQ AC-6] a full page of results shows 12 products
+
+    [REQ AC-6] a full page of results shows 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      232 |     await journey.step('Then it shows 12 products', async () => {
+      233 |       await expect.poll(async () => (await readProductCards(page)).length,
+    > 234 |         { message: '[REQ AC-6] a full page of results shows 12 products', timeout: 10_000 }).toBe(REQ.PER_PAGE);
+          |                                                                                              ^
+      235 |     });
+      236 |   });
+      237 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:234:94)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:232:5
+
+    attachment #2: aria-snapshot 03-failed-then-it-shows-12-products (text/yaml) ───────────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then it shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - button...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] a full page of results shows 12 products
+
+    [REQ AC-6] a full page of results shows 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      232 |     await journey.step('Then it shows 12 products', async () => {
+      233 |       await expect.poll(async () => (await readProductCards(page)).length,
+    > 234 |         { message: '[REQ AC-6] a full page of results shows 12 products', timeout: 10_000 }).toBe(REQ.PER_PAGE);
+          |                                                                                              ^
+      235 |     });
+      236 |   });
+      237 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:234:94)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:232:5
+
+    attachment #2: aria-snapshot 03-failed-then-it-shows-12-products (text/yaml) ───────────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then it shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - button...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-012: GET /products answers per_page 12 with 12 products on a full page" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.35">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products returns per_page 12" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:239:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-012: GET /products answers per_page 12 with 12 products on a full page @AC-6 @type:functional @layer:api @P1 
+
+    Error: [REQ AC-6] GET /products returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      243 |     await journey.step('Then GET /products answers 200 with per_page 12 and 12 products in data', async () => {
+      244 |       expectResponse(list, { status: REQ.STATUS.OK }, '[REQ AC-6] GET /products');
+    > 245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+      247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+      248 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:245:88)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products holds 12 products in data on a full page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+    > 247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+          |                                                                                                                 ^
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+      250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:247:113)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products/search?q=pliers returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+    > 250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+          |                                                                                                                       ^
+      251 |     });
+      252 |   });
+      253 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:250:119)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:249:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      243 |     await journey.step('Then GET /products answers 200 with per_page 12 and 12 products in data', async () => {
+      244 |       expectResponse(list, { status: REQ.STATUS.OK }, '[REQ AC-6] GET /products');
+    > 245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+      247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+      248 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:245:88)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products holds 12 products in data on a full page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+    > 247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+          |                                                                                                                 ^
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+      250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:247:113)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products/search?q=pliers returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+    > 250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+          |                                                                                                                       ^
+      251 |     });
+      252 |   });
+      253 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:250:119)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:249:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-013.1: GET /products pagination at 12 per page: the page before the last holds exactly 12 products" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.503">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products page 5 (before the last) holds 12 products" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:261:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-013.1: GET /products pagination at 12 per page: the page before the last holds exactly 12 products @AC-6 @type:boundary @layer:api @P2 @depends:SCN-012 › Then the page before the last holds exactly 12 products 
+
+    Error: [REQ AC-6] GET /products page 5 (before the last) holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      275 |       await journey.step(`Then ${row.name}`, async () => {
+      276 |         if (row.which === 'before-last') {
+    > 277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+          |                                                                                                                                ^
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:277:128)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products page 5 (before the last) holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      275 |       await journey.step(`Then ${row.name}`, async () => {
+      276 |         if (row.which === 'before-last') {
+    > 277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+          |                                                                                                                                ^
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:277:128)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-013.2: GET /products pagination at 12 per page: the last page holds the rest (1 to 12) and last_page is total / 12 rounded up" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.705">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products last_page is the total (50) / 12 rounded up" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:261:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-013.2: GET /products pagination at 12 per page: the last page holds the rest (1 to 12) and last_page is total / 12 rounded up @AC-6 @type:boundary @layer:api @P2 @depends:SCN-012 › Then the last page holds the rest (1 to 12) and last_page is total / 12 rounded up 
+
+    Error: [REQ AC-6] GET /products last_page is the total (50) / 12 rounded up
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 6
+
+      277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+      278 |         } else {
+    > 279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+          |                                                                                                               ^
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+      281 |         }
+      282 |       });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:279:111)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    Error: [REQ AC-6] GET /products last page holds the rest of the 50 products at 12 per page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: -10
+    Received: 5
+
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+    > 280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+          |                                                                                                                                            ^
+      281 |         }
+      282 |       });
+      283 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:280:140)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products last_page is the total (50) / 12 rounded up
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 6
+
+      277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+      278 |         } else {
+    > 279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+          |                                                                                                               ^
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+      281 |         }
+      282 |       });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:279:111)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    Error: [REQ AC-6] GET /products last page holds the rest of the 50 products at 12 per page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: -10
+    Received: 5
+
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+    > 280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+          |                                                                                                                                            ^
+      281 |         }
+      282 |       });
+      283 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:280:140)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-014: An empty search (q= with no value) returns all products: total equals the catalogue total" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.453">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:289:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-014: An empty search (q= with no value) returns all products: total equals the catalogue total @AC-7 @type:functional @layer:api @P1 @depends:SCN-012 › Then the answer is 200 and its total equals the whole catalogue 
+
+    Error: [REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      299 |     await journey.step('Then the answer is 200 and its total equals the whole catalogue', async () => {
+      300 |       expectResponse(res, { status: REQ.STATUS.OK }, '[REQ AC-7] GET /products/search?q=');
+    > 301 |       expect.soft(res.body?.total, '[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total').toBe(catalogueTotal);
+          |                                                                                                                                 ^
+      302 |     });
+      303 |   });
+      304 | });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:301:129)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:299:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      299 |     await journey.step('Then the answer is 200 and its total equals the whole catalogue', async () => {
+      300 |       expectResponse(res, { status: REQ.STATUS.OK }, '[REQ AC-7] GET /products/search?q=');
+    > 301 |       expect.soft(res.body?.total, '[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total').toBe(catalogueTotal);
+          |                                                                                                                                 ^
+      302 |     });
+      303 |   });
+      304 | });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:301:129)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:299:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" timestamp="2026-10-05T01:00:31.685Z" hostname="chromium" tests="15" failures="5" skipped="0" time="60.96" errors="0">
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-001: A shopper searches the web shop and sees only matching products and the caption" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="3.278">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-002: The web shop search for &quot;PLIERS&quot; shows the products the API finds for &quot;pliers&quot;" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.937">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-003: GET /products/search finds only products whose name contains the term, in any letter case" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.341">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-004: The catalogue API answers with the paginated shape { current_page, data, per_page, total, last_page }" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.36">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-005: A web shop search without matches shows &quot;There are no products found.&quot;" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="3.044">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-006: GET /products/search without matches returns 200, an empty data list and total 0" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="0.566">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-007: Choosing &quot;Price (Low - High)&quot; lists the web shop products by ascending price" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.503">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-008: GET /products?sort=price,asc returns the products in ascending price order" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.059">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-009: Filtering the web shop by the category &quot;Hammer&quot; shows only hammers" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="6.231">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-010: GET /products?by_category=&lt;id of Hammer&gt; returns only products in that category" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="1.093">
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-011: The web shop shows 12 products on a full page of results" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="26.629">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] a full page of results shows 12 products" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:224:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-011: The web shop shows 12 products on a full page of results @AC-6 @type:functional @layer:ui @P1 @depends:SCN-012 › Then it shows 12 products 
+
+    Error: [REQ AC-6] a full page of results shows 12 products
+
+    [REQ AC-6] a full page of results shows 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      232 |     await journey.step('Then it shows 12 products', async () => {
+      233 |       await expect.poll(async () => (await readProductCards(page)).length,
+    > 234 |         { message: '[REQ AC-6] a full page of results shows 12 products', timeout: 10_000 }).toBe(REQ.PER_PAGE);
+          |                                                                                              ^
+      235 |     });
+      236 |   });
+      237 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:234:94)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:232:5
+
+    attachment #2: aria-snapshot 03-failed-then-it-shows-12-products (text/yaml) ───────────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then it shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - button...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] a full page of results shows 12 products
+
+    [REQ AC-6] a full page of results shows 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      232 |     await journey.step('Then it shows 12 products', async () => {
+      233 |       await expect.poll(async () => (await readProductCards(page)).length,
+    > 234 |         { message: '[REQ AC-6] a full page of results shows 12 products', timeout: 10_000 }).toBe(REQ.PER_PAGE);
+          |                                                                                              ^
+      235 |     });
+      236 |   });
+      237 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:234:94)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:232:5
+
+    attachment #2: aria-snapshot 03-failed-then-it-shows-12-products (text/yaml) ───────────────────
+    # url: https://practicesoftwaretesting.com/
+    # step: FAILED Then it shows 12 products
+    - text: View the
+    - link "Documentation":
+      - /url: https://testsmith-io.github.io/practice-software-testing/#/
+    - text: for this application. Practice Black Box Testing & Bug Hunting
+    - button "Testing Guide"
+    - button...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-012: GET /products answers per_page 12 with 12 products on a full page" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.511">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products returns per_page 12" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:239:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-012: GET /products answers per_page 12 with 12 products on a full page @AC-6 @type:functional @layer:api @P1 
+
+    Error: [REQ AC-6] GET /products returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      243 |     await journey.step('Then GET /products answers 200 with per_page 12 and 12 products in data', async () => {
+      244 |       expectResponse(list, { status: REQ.STATUS.OK }, '[REQ AC-6] GET /products');
+    > 245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+      247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+      248 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:245:88)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products holds 12 products in data on a full page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+    > 247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+          |                                                                                                                 ^
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+      250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:247:113)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products/search?q=pliers returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+    > 250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+          |                                                                                                                       ^
+      251 |     });
+      252 |   });
+      253 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:250:119)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:249:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      243 |     await journey.step('Then GET /products answers 200 with per_page 12 and 12 products in data', async () => {
+      244 |       expectResponse(list, { status: REQ.STATUS.OK }, '[REQ AC-6] GET /products');
+    > 245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+          |                                                                                        ^
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+      247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+      248 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:245:88)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products holds 12 products in data on a full page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      245 |       expect.soft(list.body?.per_page, '[REQ AC-6] GET /products returns per_page 12').toBe(REQ.PER_PAGE);
+      246 |       expect(Number(list.body?.total), 'the catalogue fills its first page (precondition)').toBeGreaterThanOrEqual(REQ.PER_PAGE);
+    > 247 |       expect.soft(list.body?.data?.length, '[REQ AC-6] GET /products holds 12 products in data on a full page').toBe(REQ.PER_PAGE);
+          |                                                                                                                 ^
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+      250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:247:113)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:243:5
+
+    Error: [REQ AC-6] GET /products/search?q=pliers returns per_page 12
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      248 |     });
+      249 |     await journey.step('Then GET /products/search answers per_page 12 too', async () => {
+    > 250 |       expect.soft(search.body?.per_page, `[REQ AC-6] GET /products/search?q=${data.search.term} returns per_page 12`).toBe(REQ.PER_PAGE);
+          |                                                                                                                       ^
+      251 |     });
+      252 |   });
+      253 |
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:250:119)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:249:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-54935--12-products-on-a-full-page-chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-013.1: GET /products pagination at 12 per page: the page before the last holds exactly 12 products" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.385">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products page 5 (before the last) holds 12 products" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:261:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-013.1: GET /products pagination at 12 per page: the page before the last holds exactly 12 products @AC-6 @type:boundary @layer:api @P2 @depends:SCN-012 › Then the page before the last holds exactly 12 products 
+
+    Error: [REQ AC-6] GET /products page 5 (before the last) holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      275 |       await journey.step(`Then ${row.name}`, async () => {
+      276 |         if (row.which === 'before-last') {
+    > 277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+          |                                                                                                                                ^
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:277:128)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products page 5 (before the last) holds 12 products
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 12
+    Received: 9
+
+      275 |       await journey.step(`Then ${row.name}`, async () => {
+      276 |         if (row.which === 'before-last') {
+    > 277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+          |                                                                                                                                ^
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:277:128)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-2bb34-t-holds-exactly-12-products-chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-013.2: GET /products pagination at 12 per page: the last page holds the rest (1 to 12) and last_page is total / 12 rounded up" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.557">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-6] GET /products last_page is the total (50) / 12 rounded up" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:261:9 › TOOL-1 Catalogue search, sorting and category filter › SCN-013.2: GET /products pagination at 12 per page: the last page holds the rest (1 to 12) and last_page is total / 12 rounded up @AC-6 @type:boundary @layer:api @P2 @depends:SCN-012 › Then the last page holds the rest (1 to 12) and last_page is total / 12 rounded up 
+
+    Error: [REQ AC-6] GET /products last_page is the total (50) / 12 rounded up
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 6
+
+      277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+      278 |         } else {
+    > 279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+          |                                                                                                               ^
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+      281 |         }
+      282 |       });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:279:111)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    Error: [REQ AC-6] GET /products last page holds the rest of the 50 products at 12 per page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: -10
+    Received: 5
+
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+    > 280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+          |                                                                                                                                            ^
+      281 |         }
+      282 |       });
+      283 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:280:140)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-6] GET /products last_page is the total (50) / 12 rounded up
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 6
+
+      277 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products page ${pageNo()} (before the last) holds 12 products`).toBe(REQ.PER_PAGE);
+      278 |         } else {
+    > 279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+          |                                                                                                               ^
+      280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+      281 |         }
+      282 |       });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:279:111)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    Error: [REQ AC-6] GET /products last page holds the rest of the 50 products at 12 per page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: -10
+    Received: 5
+
+      278 |         } else {
+      279 |           expect.soft(lastPage, `[REQ AC-6] GET /products last_page is the total (${total}) / 12 rounded up`).toBe(Math.ceil(total / REQ.PER_PAGE));
+    > 280 |           expect.soft(res.body?.data?.length, `[REQ AC-6] GET /products last page holds the rest of the ${total} products at 12 per page`).toBe(total - REQ.PER_PAGE * (lastPage - 1));
+          |                                                                                                                                            ^
+      281 |         }
+      282 |       });
+      283 |     });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:280:140)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:275:7
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-6a742-page-is-total-12-rounded-up-chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="TOOL-1 Catalogue search, sorting and category filter › SCN-014: An empty search (q= with no value) returns all products: total equals the catalogue total" classname="practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts" time="2.466">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\trace.zip]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\test-failed-1.png]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\error-context.md]]
+
+[[ATTACHMENT|artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\trace.zip]]
+]]>
+</system-out>
+<failure message="[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total" type="expect.toBe">
+<![CDATA[  [chromium] › practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:289:7 › TOOL-1 Catalogue search, sorting and category filter › SCN-014: An empty search (q= with no value) returns all products: total equals the catalogue total @AC-7 @type:functional @layer:api @P1 @depends:SCN-012 › Then the answer is 200 and its total equals the whole catalogue 
+
+    Error: [REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      299 |     await journey.step('Then the answer is 200 and its total equals the whole catalogue', async () => {
+      300 |       expectResponse(res, { status: REQ.STATUS.OK }, '[REQ AC-7] GET /products/search?q=');
+    > 301 |       expect.soft(res.body?.total, '[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total').toBe(catalogueTotal);
+          |                                                                                                                                 ^
+      302 |     });
+      303 |   });
+      304 | });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:301:129)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:299:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 50
+    Received: 0
+
+      299 |     await journey.step('Then the answer is 200 and its total equals the whole catalogue', async () => {
+      300 |       expectResponse(res, { status: REQ.STATUS.OK }, '[REQ AC-7] GET /products/search?q=');
+    > 301 |       expect.soft(res.body?.total, '[REQ AC-7] GET /products/search?q= returns all products: total equals GET /products total').toBe(catalogueTotal);
+          |                                                                                                                                 ^
+      302 |     });
+      303 |   });
+      304 | });
+        at body (./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:301:129)
+        at ./heldout-support\fixtures.ts:576:34
+        at ./output\practicesoftwaretesting\TOOL-1\tests\tool-1.spec.ts:299:5
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\trace.zip
+    Usage:
+
+        npx playwright show-trace practicesoftwaretesting\TOOL-1\runs\02-harden\artifacts\practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1-repeat2\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>

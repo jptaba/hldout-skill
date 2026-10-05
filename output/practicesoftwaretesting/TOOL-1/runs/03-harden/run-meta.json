@@ -1,0 +1,59 @@
+{
+  "key": "TOOL-1",
+  "run": "03-harden",
+  "label": "harden",
+  "startedAt": "2026-10-05T01:03:45.883Z",
+  "finishedAt": "2026-10-05T01:05:42.769Z",
+  "autId": "practicesoftwaretesting",
+  "aut": {
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
+    "apiBaseURL": "https://api.practicesoftwaretesting.com"
+  },
+  "command": "npx playwright test output/practicesoftwaretesting/TOOL-1/tests/ --workers 2",
+  "repeatEach": 3,
+  "grep": null,
+  "capture": false,
+  "preflight": {
+    "health": [
+      {
+        "url": "https://practicesoftwaretesting.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 508,
+        "samples": [
+          508,
+          504,
+          167
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "postflight": {
+    "health": [
+      {
+        "url": "https://practicesoftwaretesting.com/",
+        "ok": true,
+        "status": 200,
+        "ms": 327,
+        "samples": [
+          320,
+          327,
+          151
+        ],
+        "slow": false
+      }
+    ]
+  },
+  "skill": "5b27140c44a22c69",
+  "exitCode": 1,
+  "stats": {
+    "startTime": "2026-10-05T01:03:46.390Z",
+    "duration": 113630.499,
+    "expected": 30,
+    "skipped": 0,
+    "unexpected": 15,
+    "flaky": 0
+  }
+}

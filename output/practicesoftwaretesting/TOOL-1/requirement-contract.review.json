@@ -1,0 +1,26 @@
+{
+  "reviewer": "heldout-contract-reviewer (Claude Sonnet 5.5)",
+  "reviewedAt": "2026-10-05T01:00:00.000Z",
+  "contractHash": "8002386806e8015f",
+  "items": [
+    { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L23, story.md#L18", "note": "Quote and text unchanged; G6 now resolved by the user (web search also ignores case, per R1) and recorded as provided-by-user." },
+    { "ref": "AC-2", "verdict": "supported", "evidence": "story.md#L24", "note": "Unchanged." },
+    { "ref": "AC-3", "verdict": "supported", "evidence": "story.md#L25", "note": "Unchanged." },
+    { "ref": "AC-4", "verdict": "supported", "evidence": "story.md#L26", "note": "New outcome 'returns 200' is labelled as G3, provided by the user; the rest follows L26." },
+    { "ref": "AC-5", "verdict": "supported", "evidence": "story.md#L27, story.md#L32", "note": "New 200 outcome is labelled G3, provided by the user." },
+    { "ref": "AC-6", "verdict": "supported", "evidence": "story.md#L28", "note": "New 200 outcome for GET /products is labelled G3, provided by the user." },
+    { "ref": "AC-7", "verdict": "supported", "evidence": "story.md#L29", "note": "Outcomes now rest on user answers G3 (200), G4 (paginated, total equals the catalogue total) and G5 (q= with no value); each is labelled provided-by-user and is compatible with L28-L29." },
+    { "ref": "R1", "verdict": "supported", "evidence": "story.md#L18", "note": "" },
+    { "ref": "R2", "verdict": "supported", "evidence": "story.md#L32", "note": "" },
+    { "ref": "G3", "verdict": "supported", "evidence": "story.md#L24-L29", "note": "The gap is real (200 is stated only for search with a term, L24-L25). It is resolved provided-by-user with value and evidence recorded." },
+    { "ref": "G4", "verdict": "supported", "evidence": "story.md#L28-L29", "note": "Real tension between 'returns all' and pagination; resolved provided-by-user." },
+    { "ref": "G5", "verdict": "supported", "evidence": "story.md#L29", "note": "L29 does not say what the request looks like; resolved provided-by-user." },
+    { "ref": "G6", "verdict": "supported", "evidence": "story.md#L18, story.md#L23-L24", "note": "Case-insensitivity is stated for the API only; resolved provided-by-user, consistent with L18." },
+    { "ref": "GET /products", "verdict": "supported", "evidence": "story.md#L20", "note": "The success text now includes 200 per G3, provided by the user." },
+    { "ref": "GET /products/search", "verdict": "supported", "evidence": "story.md#L20", "note": "" },
+    { "ref": "GET /categories/tree", "verdict": "supported", "evidence": "story.md#L32", "note": "" }
+  ],
+  "missed": [],
+  "observations": [],
+  "summary": "Only the user answers to G3-G6 changed. Each is recorded as provided-by-user with its value and evidence, and the outcomes that use them name that gap. Nothing is taken from the application and no source line is missed."
+}

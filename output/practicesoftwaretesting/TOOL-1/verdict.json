@@ -1,0 +1,612 @@
+{
+  "key": "TOOL-1",
+  "verdict": "FAIL",
+  "reason": "2 application defect(s) reproduced by the evaluator: the AUT does not satisfy AC-6, AC-7. Awaiting reviewer confirmation.",
+  "finalRun": "04-eval",
+  "generatedAt": "2026-10-05T01:19:05.285Z",
+  "autId": "practicesoftwaretesting",
+  "aut": {
+    "testIdAttribute": "data-test",
+    "healthcheck": [
+      "/"
+    ],
+    "notes": "Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/, its actions to actions/<profile>/.",
+    "name": "Practice Software Testing",
+    "baseURL": "https://practicesoftwaretesting.com/",
+    "apiBaseURL": "https://api.practicesoftwaretesting.com"
+  },
+  "summary": {
+    "total": 15,
+    "passed": 10,
+    "failed": 5,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "integrity": "AMENDED",
+  "amendments": 1,
+  "actions": "7 action(s) from actions/practicesoftwaretesting/ (0 proven by earlier stories, 7 new to the map) · 8 action file(s) changed after the freeze: api/categories/find-category-id.ts, api/products/_shared.ts, api/products/read-whole-catalogue.ts, ui/catalogue/_shared.ts, ui/catalogue/choose-sort-order.ts, …",
+  "applicationDefects": [
+    {
+      "id": "APP-1",
+      "title": "Catalogue paginates 9 products per page, not 12 (web shop and API)",
+      "testType": "functional",
+      "source": "story.md#L28 (status: G3, provided by the user)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-6"
+      ],
+      "tests": [
+        "SCN-011",
+        "SCN-012",
+        "SCN-013.1",
+        "SCN-013.2"
+      ],
+      "expected": "12",
+      "actual": "9",
+      "rationale": "Web shop catalogue reached (cards rendered, pagination Next present), locator a.card counts the product cards; a full page shows 9, AC-6 requires 12.",
+      "liveCheck": "Replayed live 2026-10-05 (tier 3): api-probe chain confirm/api-repro.md: GET /products, ?page=4, ?page=6 and /products/search?q=pliers all answer 200 with per_page 9, total 50, last_page 6 (page 6 from 46 to 50); inspect confirm/ui-catalogue.md + ui-catalogue.png: web shop root shows 9 product cards (a.card) with a Next button, i.e. a full page of 9. Pre/post healthchecks OK; the public demo has no page-size setting, nothing points at the sandbox.",
+      "steps": [
+        "Given the catalogue has more than 12 products (GET /products)",
+        "When I open the web shop catalogue page",
+        "Then it shows 12 products"
+      ],
+      "api": null,
+      "screenshot": "output/practicesoftwaretesting/TOOL-1/runs/04-eval/artifacts/practicesoftwaretesting-TO-2ef8c-s-on-a-full-page-of-results-chromium-retry1/test-failed-1.png",
+      "apiSequence": null,
+      "reproduce": [
+        "npm run heldout -- run TOOL-1 --label repro --grep \"SCN-011:\"",
+        "npm run heldout -- run TOOL-1 --label repro --grep \"SCN-012:\"",
+        "npm run heldout -- run TOOL-1 --label repro --grep \"SCN-013\\.1:\"",
+        "npm run heldout -- run TOOL-1 --label repro --grep \"SCN-013\\.2:\""
+      ]
+    },
+    {
+      "id": "APP-2",
+      "title": "Empty search returns no products instead of the whole catalogue",
+      "testType": "functional",
+      "source": "story.md#L29 (status G3, meaning G4, request G5: provided by the user)",
+      "confirmed": true,
+      "severity": "Major",
+      "criteria": [
+        "AC-7"
+      ],
+      "tests": [
+        "SCN-014"
+      ],
+      "expected": "50",
+      "actual": "0",
+      "rationale": "GET /products/search?q= (the empty search as defined by G5) answers 200 with total 0 and data [], while GET /products total is 50. AC-7 (with G4) requires a paginated answer whose total equals the catalogue total. Omitting q also returns total 0, so no reading of 'empty search' is met. Mobile 'All tools' screen cannot reuse the search endpoint; workaround is GET /products.",
+      "liveCheck": "Replayed live 2026-10-05 (tier 3, api-probe chain confirm/api-repro.md steps 1, 5, 6): GET /products total 50; GET /products/search?q= -> 200 {data:[], total:0, per_page:9, last_page:1}; GET /products/search (no q) -> 200 total 0. Healthchecks OK.",
+      "steps": [
+        "Given the whole catalogue's total from GET /products",
+        "When I GET /products/search?q= (no term)",
+        "Then the answer is 200 and its total equals the whole catalogue"
+      ],
+      "api": {
+        "request": {
+          "method": "GET",
+          "url": "https://api.practicesoftwaretesting.com/products/search?q=",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "response": {
+          "status": 200,
+          "durationMs": 451,
+          "headers": {
+            "date": "Mon, 05 Oct 2026 01:09:10 GMT",
+            "server": "Apache/2.4.52 (Ubuntu)",
+            "cache-control": "max-age=120, public",
+            "access-control-allow-origin": "*",
+            "access-control-expose-headers": "Content-Disposition",
+            "upgrade": "h2",
+            "connection": "Upgrade, close",
+            "etag": "\"e8af5371f5301cfa540111399410ceb4-gzip\"",
+            "vary": "Accept-Encoding",
+            "content-encoding": "gzip",
+            "content-length": "87",
+            "content-type": "application/json"
+          },
+          "body": {
+            "current_page": 1,
+            "data": [],
+            "from": null,
+            "last_page": 1,
+            "per_page": 9,
+            "to": null,
+            "total": 0
+          }
+        }
+      },
+      "screenshot": "output/practicesoftwaretesting/TOOL-1/runs/04-eval/artifacts/practicesoftwaretesting-TO-13e19--equals-the-catalogue-total-chromium-retry1/test-failed-1.png",
+      "apiSequence": [
+        {
+          "request": {
+            "method": "GET",
+            "url": "https://api.practicesoftwaretesting.com/products/search?q=",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "durationMs": 451,
+            "headers": {
+              "date": "Mon, 05 Oct 2026 01:09:10 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "max-age=120, public",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "etag": "\"e8af5371f5301cfa540111399410ceb4-gzip\"",
+              "vary": "Accept-Encoding",
+              "content-encoding": "gzip",
+              "content-length": "87",
+              "content-type": "application/json"
+            },
+            "body": {
+              "current_page": 1,
+              "data": [],
+              "from": null,
+              "last_page": 1,
+              "per_page": 9,
+              "to": null,
+              "total": 0
+            }
+          }
+        }
+      ],
+      "reproduce": [
+        "npm run heldout -- run TOOL-1 --label repro --grep \"SCN-014:\""
+      ]
+    }
+  ],
+  "contradictedReadings": [],
+  "scriptDefectsRepaired": [],
+  "uncoveredCriteria": [],
+  "coverageByType": [
+    {
+      "type": "boundary",
+      "scenarios": 1,
+      "tests": 2,
+      "passed": 0,
+      "failed": 2,
+      "flaky": 0,
+      "defects": [
+        "APP-1"
+      ]
+    },
+    {
+      "type": "contract",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "integration",
+      "scenarios": 1,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "flaky": 0,
+      "defects": []
+    },
+    {
+      "type": "functional",
+      "scenarios": 11,
+      "tests": 11,
+      "passed": 8,
+      "failed": 3,
+      "flaky": 0,
+      "defects": [
+        "APP-1",
+        "APP-2"
+      ]
+    }
+  ],
+  "traceability": [
+    {
+      "criterion": "AC-1",
+      "text": "Searching the web shop for a term shows only products whose name contains the term, and a caption \"Searched for: <term>\".",
+      "scenarios": [
+        {
+          "id": "SCN-001",
+          "title": "A shopper searches the web shop and sees only matching products and the caption",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L23 (letter case: G6, provided by the user)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-001",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-002",
+          "title": "The web shop search for \"PLIERS\" shows the products the API finds for \"pliers\"",
+          "type": "integration",
+          "layer": "ui",
+          "sources": [
+            "story.md#L18 (R1: the web shop and the API behave the same), story.md#L23-L24, G6"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-2",
+      "text": "GET /products/search?q=<term> returns 200 with only products whose name contains the term, regardless of letter case (searching \"PLIERS\" finds the same products as \"pliers\").",
+      "scenarios": [
+        {
+          "id": "SCN-002",
+          "title": "The web shop search for \"PLIERS\" shows the products the API finds for \"pliers\"",
+          "type": "integration",
+          "layer": "ui",
+          "sources": [
+            "story.md#L18 (R1: the web shop and the API behave the same), story.md#L23-L24, G6"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-002",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-003",
+          "title": "GET /products/search finds only products whose name contains the term, in any letter case",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L24"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-003",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-004",
+          "title": "The catalogue API answers with the paginated shape { current_page, data, per_page, total, last_page }",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story.md#L20 (the answer's shape), story.md#L24, story.md#L28-L29"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-3",
+      "text": "A search without matches shows \"There are no products found.\" on the web shop, and the API returns 200 with an empty data list and total 0.",
+      "scenarios": [
+        {
+          "id": "SCN-005",
+          "title": "A web shop search without matches shows \"There are no products found.\"",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L25"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-005",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-006",
+          "title": "GET /products/search without matches returns 200, an empty data list and total 0",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L25"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-006",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-4",
+      "text": "Choosing \"Price (Low - High)\" on the web shop lists the products by ascending price; GET /products?sort=price,asc returns the products in ascending price order.",
+      "scenarios": [
+        {
+          "id": "SCN-007",
+          "title": "Choosing \"Price (Low - High)\" lists the web shop products by ascending price",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L26"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-007",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-008",
+          "title": "GET /products?sort=price,asc returns the products in ascending price order",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L26 (status: G3, provided by the user)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-008",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-5",
+      "text": "Filtering the web shop by the category \"Hammer\" shows only hammers; GET /products?by_category=<id of Hammer> returns only products in that category.",
+      "scenarios": [
+        {
+          "id": "SCN-009",
+          "title": "Filtering the web shop by the category \"Hammer\" shows only hammers",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L27, story.md#L32 (R2: category ids from GET /categories/tree)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-009",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-010",
+          "title": "GET /products?by_category=<id of Hammer> returns only products in that category",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L27, story.md#L32 (status: G3, provided by the user)"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-010",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-6",
+      "text": "Results are paginated with 12 products per page (per_page 12) on the web shop and in the API.",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "The catalogue API answers with the paginated shape { current_page, data, per_page, total, last_page }",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story.md#L20 (the answer's shape), story.md#L24, story.md#L28-L29"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-011",
+          "title": "The web shop shows 12 products on a full page of results",
+          "type": "functional",
+          "layer": "ui",
+          "sources": [
+            "story.md#L28"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-011",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        },
+        {
+          "id": "SCN-012",
+          "title": "GET /products answers per_page 12 with 12 products on a full page",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L28 (status: G3, provided by the user)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-012",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        },
+        {
+          "id": "SCN-013",
+          "title": "GET /products pagination at 12 per page",
+          "type": "boundary",
+          "layer": "api",
+          "sources": [
+            "story.md#L28"
+          ],
+          "passed": 0,
+          "total": 2,
+          "result": "fails requirement",
+          "defects": [
+            "APP-1"
+          ],
+          "tests": [
+            {
+              "id": "SCN-013.1",
+              "status": "failed",
+              "defect": "APP-1"
+            },
+            {
+              "id": "SCN-013.2",
+              "status": "failed",
+              "defect": "APP-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AC-7",
+      "text": "An empty search (no term) returns all products, so the mobile app can reuse the search endpoint for its \"All tools\" screen.",
+      "scenarios": [
+        {
+          "id": "SCN-004",
+          "title": "The catalogue API answers with the paginated shape { current_page, data, per_page, total, last_page }",
+          "type": "contract",
+          "layer": "api",
+          "sources": [
+            "story.md#L20 (the answer's shape), story.md#L24, story.md#L28-L29"
+          ],
+          "passed": 1,
+          "total": 1,
+          "result": "meets requirement",
+          "defects": [],
+          "tests": [
+            {
+              "id": "SCN-004",
+              "status": "passed",
+              "defect": null
+            }
+          ]
+        },
+        {
+          "id": "SCN-014",
+          "title": "An empty search (q= with no value) returns all products: total equals the catalogue total",
+          "type": "functional",
+          "layer": "api",
+          "sources": [
+            "story.md#L29 (status G3, meaning G4, request G5: provided by the user)"
+          ],
+          "passed": 0,
+          "total": 1,
+          "result": "fails requirement",
+          "defects": [
+            "APP-2"
+          ],
+          "tests": [
+            {
+              "id": "SCN-014",
+              "status": "failed",
+              "defect": "APP-2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "openQuestions": [],
+  "observations": [],
+  "verdictFile": "output/practicesoftwaretesting/TOOL-1/verdict.md"
+}

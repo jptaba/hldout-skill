@@ -1,0 +1,725 @@
+{
+  "key": "TOOL-2",
+  "run": "03-eval",
+  "generatedAt": "2026-10-05T01:49:56.427Z",
+  "summary": {
+    "total": 17,
+    "passed": 16,
+    "failed": 1,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "entries": [
+    {
+      "scenario": "SCN-001",
+      "title": "SCN-001: A new customer registers and the API answers 201 with their details and an id",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:functional",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-002",
+      "title": "SCN-002: Registering an already registered e-mail address again is refused with 409",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-003",
+      "title": "SCN-003: Registering with the password \"abc\" is refused with 422 and all four password rules",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-004",
+      "title": "SCN-004: A registered customer signs in on the web shop and lands on \"My account\" with their name shown",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-4",
+        "@type:functional",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-4"
+      ],
+      "testType": "functional",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-005",
+      "title": "SCN-005: Signing in with a wrong password is refused by POST /users/login with 401",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-006",
+      "title": "SCN-006: After five failed sign-ins the account is locked: the sixth, with the correct password, gets 423",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "failed",
+      "tags": [
+        "@AC-6",
+        "@type:security",
+        "@layer:api",
+        "@P1",
+        "@irreversible"
+      ],
+      "requirementRefs": [
+        "AC-6"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1,
+        "screenshot": "output/practicesoftwaretesting/TOOL-2/runs/03-eval/artifacts/practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once/test-failed-1.png",
+        "trace": "output/practicesoftwaretesting/TOOL-2/runs/03-eval/artifacts/practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once/trace.zip",
+        "errorContext": "output/practicesoftwaretesting/TOOL-2/runs/03-eval/artifacts/practicesoftwaretesting-TO-0acda-e-correct-password-gets-423-chromium-once/error-context.md",
+        "seed": {
+          "tag": "hldoutlcprl40",
+          "records": [
+            {
+              "label": "registered customer hldout-ulcprnun-1@example.com",
+              "kind": "data",
+              "cleanup": "none",
+              "created": {
+                "first_name": "Hldout",
+                "last_name": "Testerzfiazm",
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted***",
+                "dob": "1990-01-01",
+                "phone": "0612345678",
+                "address": {
+                  "street": "Test Street 1",
+                  "city": "Utrecht",
+                  "state": "Utrecht",
+                  "country": "NL",
+                  "postal_code": "3511AA"
+                },
+                "id": "01m44vzqcqk49bv8qkygrhv93y"
+              }
+            }
+          ]
+        },
+        "apiCalls": 6,
+        "apiSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:accc***"
+              }
+            },
+            "response": {
+              "status": 401,
+              "durationMs": 685,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:52 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "error": "Unauthorized"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:6098***"
+              }
+            },
+            "response": {
+              "status": 401,
+              "durationMs": 537,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:52 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "error": "Unauthorized"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:beff***"
+              }
+            },
+            "response": {
+              "status": 401,
+              "durationMs": 559,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:53 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "error": "Unauthorized"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:709a***"
+              }
+            },
+            "response": {
+              "status": 423,
+              "durationMs": 476,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:53 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "error": "Account locked, too many failed attempts. Please contact the administrator."
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:29cd***"
+              }
+            },
+            "response": {
+              "status": 423,
+              "durationMs": 444,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:54 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "error": "Account locked, too many failed attempts. Please contact the administrator."
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/login",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:3ce5***"
+              }
+            },
+            "response": {
+              "status": 423,
+              "durationMs": 457,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:54 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "error": "Account locked, too many failed attempts. Please contact the administrator."
+              }
+            }
+          }
+        ],
+        "apiRelevantIndex": 5,
+        "api": {
+          "request": {
+            "method": "POST",
+            "url": "https://api.practicesoftwaretesting.com/users/login",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "hldout-ulcprnun-1@example.com",
+              "password": "***redacted:3ce5***"
+            }
+          },
+          "response": {
+            "status": 423,
+            "durationMs": 457,
+            "headers": {
+              "date": "Mon, 05 Oct 2026 01:48:54 GMT",
+              "server": "Apache/2.4.52 (Ubuntu)",
+              "cache-control": "no-cache, private",
+              "access-control-allow-origin": "*",
+              "access-control-expose-headers": "Content-Disposition",
+              "upgrade": "h2",
+              "connection": "Upgrade, close",
+              "transfer-encoding": "chunked",
+              "content-type": "application/json"
+            },
+            "body": {
+              "error": "Account locked, too many failed attempts. Please contact the administrator."
+            }
+          }
+        },
+        "preSequence": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.practicesoftwaretesting.com/users/register",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              "body": {
+                "first_name": "Hldout",
+                "last_name": "Testerzfiazm",
+                "email": "hldout-ulcprnun-1@example.com",
+                "password": "***redacted:3ce5***",
+                "dob": "1990-01-01",
+                "phone": "0612345678",
+                "address": {
+                  "street": "Test Street 1",
+                  "city": "Utrecht",
+                  "state": "Utrecht",
+                  "country": "NL",
+                  "postal_code": "3511AA"
+                }
+              }
+            },
+            "response": {
+              "status": 201,
+              "durationMs": 740,
+              "headers": {
+                "date": "Mon, 05 Oct 2026 01:48:51 GMT",
+                "server": "Apache/2.4.52 (Ubuntu)",
+                "cache-control": "no-cache, private",
+                "access-control-allow-origin": "*",
+                "access-control-expose-headers": "Content-Disposition",
+                "upgrade": "h2",
+                "connection": "Upgrade, close",
+                "transfer-encoding": "chunked",
+                "content-type": "application/json"
+              },
+              "body": {
+                "first_name": "Hldout",
+                "last_name": "Testerzfiazm",
+                "email": "hldout-ulcprnun-1@example.com",
+                "dob": "1990-01-01",
+                "phone": "0612345678",
+                "id": "01m44vzqcqk49bv8qkygrhv93y",
+                "created_at": "2026-10-05 01:48:51",
+                "address": {
+                  "street": "Test Street 1",
+                  "house_number": null,
+                  "city": "Utrecht",
+                  "state": "Utrecht",
+                  "country": "NL",
+                  "postal_code": "3511AA"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "otherFailures": [
+        {
+          "headline": "[REQ AC-6] POST /users/login wrong-password attempt 5 responds 401",
+          "reqTag": "AC-6",
+          "expected": "401",
+          "received": "423"
+        }
+      ],
+      "error": {
+        "headline": "[REQ AC-6] POST /users/login wrong-password attempt 4 responds 401",
+        "reqTag": "AC-6",
+        "matcher": "toBe",
+        "expected": "401",
+        "received": "423",
+        "message": "Error: [REQ AC-6] POST /users/login wrong-password attempt 4 responds 401\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 401\nReceived: 423\n\n  171 |     await journey.step('Then attempts one to five respond 401', async () => {\n  172 |       attempts.forEach((res, i) => {\n> 173 |         expect.soft(res.status, `[REQ AC-6] POST /users/login wrong-password attempt ${i + 1} responds 401`).toBe(REQ.STATUS.UNAUTHORIZED);\n      |                                                                                                              ^\n  174 |       });\n  175 |     });\n  176 |     await journey.step('And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked', async () => {\n    at forEach (./output\\practicesoftwaretesting\\TOOL-2\\tests\\tool-2.spec.ts:173:110)\n    at body (./output\\practicesoftwaretesting\\TOOL-2\\tests\\tool-2.spec.ts:172:16)\n    at ./heldout-support\\fixtures.ts:576:34\n    at ./output\\practicesoftwaretesting\\TOOL-2\\tests\\tool-2.spec.ts:171:5"
+      },
+      "failingStep": "Then attempts one to five respond 401",
+      "auto": {
+        "category": "APPLICATION_DEFECT",
+        "confidence": "high",
+        "signals": [
+          "Last API exchange: POST /users/login → 423",
+          "Requirement assertion [REQ AC-6] failed.",
+          "Expected: 401",
+          "Received: 423",
+          "Also failed: [REQ AC-6] POST /users/login wrong-password attempt 5 responds 401 — expected 401, received 423"
+        ],
+        "next": "Confirm live in the AUT (replay with api-probe.ts, observe the actual value), then record with --set."
+      },
+      "final": {
+        "category": "APPLICATION_DEFECT",
+        "severity": "Major",
+        "title": "Account locks after three failed sign-ins instead of five",
+        "rationale": "AC-6 requires wrong-password attempts one to five to respond 401 and the sixth (correct password) to respond 423. The test registered a fresh customer (no prior attempts) and called the declared endpoint POST /users/login with the declared body; attempts 1-3 answered 401, attempts 4 and 5 already answered 423 'Account locked, too many failed attempts. Please contact the administrator.'. The request mechanics are correct (same endpoint and body shape answer 401 for attempts 1-3 and the 423 message and status at the end match AC-6), so the app locks after three failures, not five. The lock threshold is server-side; the public demo exposes no settings page that governs it, so this is not a changed sandbox setting.",
+        "evidence": "Replayed live on 2026-10-05 (tier 3, api-probe chain, fresh customer hldout-triage-ulerxpesw@example.com): register 201; wrong-password attempts 1-3 -> 401 {error: Unauthorized}; attempts 4-5 -> 423 {error: Account locked, too many failed attempts...}; sixth with correct password -> 423. runs/03-eval/confirm/scn-006-chain.json, runs/03-eval/confirm/scn-006-repro.md. Run 03-eval exchanges #1-#6 show the same pattern.",
+        "confirmedAt": "2026-10-05T01:50:48.789Z"
+      }
+    },
+    {
+      "scenario": "SCN-007",
+      "title": "SCN-007: After GET /users/logout the same token gets 401 from GET /users/me",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-008",
+      "title": "SCN-008: The registration answer does not contain the password",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-1",
+        "@type:security",
+        "@layer:api",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-1"
+      ],
+      "testType": "security",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-009",
+      "title": "SCN-009: Simultaneous registrations of one e-mail address: exactly one is accepted, the others get 409",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-2",
+        "@type:concurrency",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-2"
+      ],
+      "testType": "concurrency",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010.1",
+      "title": "SCN-010.1: A password of 7 characters meeting every other rule is rejected",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:boundary",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-010.2",
+      "title": "SCN-010.2: A password of 8 characters meeting every other rule is accepted",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:boundary",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "boundary",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.1",
+      "title": "SCN-011.1: A password with no upper case letter is refused with 422 and the rule \"upper and lower case letters\"",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.2",
+      "title": "SCN-011.2: A password with no lower case letter is refused with 422 and the rule \"upper and lower case letters\"",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.3",
+      "title": "SCN-011.3: A password with no symbol is refused with 422 and the rule \"a symbol\"",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-011.4",
+      "title": "SCN-011.4: A password with no number is refused with 422 and the rule \"a number\"",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-3",
+        "@type:negative",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-3"
+      ],
+      "testType": "negative",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-012",
+      "title": "SCN-012: Signing in on the web shop with a wrong password shows \"Invalid email or password\"",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-5",
+        "@type:negative",
+        "@layer:ui",
+        "@P1"
+      ],
+      "requirementRefs": [
+        "AC-5"
+      ],
+      "testType": "negative",
+      "layer": "ui",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    },
+    {
+      "scenario": "SCN-013",
+      "title": "SCN-013: Signing out with GET /users/logout answers a 2xx success",
+      "file": "practicesoftwaretesting/TOOL-2/tests/tool-2.spec.ts",
+      "status": "passed",
+      "tags": [
+        "@AC-7",
+        "@type:functional",
+        "@layer:api",
+        "@P2"
+      ],
+      "requirementRefs": [
+        "AC-7"
+      ],
+      "testType": "functional",
+      "layer": "api",
+      "evidence": {
+        "attempts": 1
+      },
+      "otherFailures": []
+    }
+  ]
+}

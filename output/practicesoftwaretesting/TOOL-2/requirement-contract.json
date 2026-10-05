@@ -1,0 +1,365 @@
+{
+  "key": "TOOL-2",
+  "title": "Customer registration, sign-in and account protection",
+  "revision": {
+    "story": "ea05a5c4e5fc68b1",
+    "linked": {}
+  },
+  "sourcesRead": [
+    {
+      "file": "story.md",
+      "read": true,
+      "contributes": "user story, identity API endpoints and auth, web shop sign-in entry point, seven Gherkin scenarios"
+    }
+  ],
+  "actors": [
+    "customer"
+  ],
+  "context": "As a customer I want to register and sign in, and I want my account protected against password guessing.",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "quote": "Scenario: Registration creates the customer without echoing the password Given a new customer with a unique e-mail address When their details are posted to POST /users/register Then the API responds 201 with the customer's details and an id And the response does not contain the password",
+      "source": "story.md#L23",
+      "text": "Registration creates the customer without echoing the password: given a new customer with a unique e-mail address, when their details are posted to POST /users/register, then the API responds 201 with the customer's details and an id, and the response does not contain the password.",
+      "layer": "api",
+      "endpoints": [
+        "POST /users/register"
+      ],
+      "outcomes": [
+        "201",
+        "the response contains the customer's details",
+        "the response contains an id",
+        "the response does not contain the password"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "quote": "Scenario: A registered e-mail address cannot register twice Given a customer already registered with an e-mail address When the same e-mail address is registered again Then the API responds 409 with the message \"A customer with this email address already exists.\"",
+      "source": "story.md#L29",
+      "text": "A registered e-mail address cannot register twice: given a customer already registered with an e-mail address, when the same e-mail address is registered again, then the API responds 409 with the message \"A customer with this email address already exists.\"",
+      "layer": "api",
+      "endpoints": [
+        "POST /users/register"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "409",
+        "message \"A customer with this email address already exists.\""
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "quote": "Scenario: Weak passwords are rejected with every broken rule listed Given a new customer whose password is \"abc\" When they register Then the API responds 422 and the password errors state all four rules: at least 8 characters, upper and lower case letters, a symbol, a number",
+      "source": "story.md#L34",
+      "text": "Weak passwords are rejected with every broken rule listed: given a new customer whose password is \"abc\", when they register, then the API responds 422 and the password errors state all four rules: at least 8 characters, upper and lower case letters, a symbol, a number.",
+      "layer": "api",
+      "endpoints": [
+        "POST /users/register"
+      ],
+      "outcomes": [
+        "registering with password \"abc\" responds 422",
+        "the password errors state the rule: at least 8 characters",
+        "the password errors state the rule: upper and lower case letters",
+        "the password errors state the rule: a symbol",
+        "the password errors state the rule: a number"
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "quote": "Scenario: Signing in on the web shop Given a registered customer on the web shop's sign-in page When they sign in with their e-mail address and password Then they land on the \"My account\" page And the navigation shows their first and last name",
+      "source": "story.md#L39",
+      "text": "Signing in on the web shop: given a registered customer on the web shop's sign-in page, when they sign in with their e-mail address and password, then they land on the \"My account\" page and the navigation shows their first and last name.",
+      "layer": "ui",
+      "entryPoint": "web shop sign-in page (\"Sign in\" in the navigation)",
+      "outcomes": [
+        "after signing in, the customer is on the \"My account\" page",
+        "the navigation shows the customer's first and last name"
+      ],
+      "gaps": [
+        "G1",
+        "G2"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "quote": "Scenario: A wrong password is refused Given a registered customer When they sign in with a wrong password Then POST /users/login responds 401 And the web shop shows \"Invalid email or password\"",
+      "source": "story.md#L45",
+      "text": "A wrong password is refused: given a registered customer, when they sign in with a wrong password, then POST /users/login responds 401 and the web shop shows \"Invalid email or password\".",
+      "layer": "e2e",
+      "entryPoint": "web shop sign-in page (\"Sign in\" in the navigation)",
+      "endpoints": [
+        "POST /users/login"
+      ],
+      "outcomes": [
+        "POST /users/login with a wrong password responds 401",
+        "the web shop shows \"Invalid email or password\""
+      ],
+      "gaps": [
+        "G1"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "quote": "Scenario: The account locks after five failed attempts Given a registered customer When five sign-in attempts with a wrong password are made Then attempts one to five respond 401 And the sixth attempt, even with the correct password, responds 423 with a message that the account is locked",
+      "source": "story.md#L51",
+      "text": "The account locks after five failed attempts: given a registered customer, when five sign-in attempts with a wrong password are made, then attempts one to five respond 401, and the sixth attempt, even with the correct password, responds 423 with a message that the account is locked.",
+      "layer": "api",
+      "endpoints": [
+        "POST /users/login"
+      ],
+      "needsData": true,
+      "outcomes": [
+        "sign-in attempts one to five with a wrong password each respond 401",
+        "the sixth attempt, with the correct password, responds 423",
+        "the 423 response carries a message saying the account is locked"
+      ],
+      "gaps": [
+        "G3"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "quote": "Scenario: Signing out invalidates the token Given a signed-in customer with an access token When they sign out with GET /users/logout Then GET /users/me with the same token responds 401",
+      "source": "story.md#L57",
+      "text": "Signing out invalidates the token: given a signed-in customer with an access token, when they sign out with GET /users/logout, then GET /users/me with the same token responds 401.",
+      "layer": "api",
+      "endpoints": [
+        "GET /users/logout",
+        "GET /users/me"
+      ],
+      "outcomes": [
+        "GET /users/logout responds any 2xx success (body not checked) (G4, provided by the user)",
+        "after GET /users/logout, GET /users/me with the same token responds 401"
+      ],
+      "gaps": [
+        "G4"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/users/register",
+      "source": "story.md#L19",
+      "success": "201 with the customer's details and an id, without the password (story.md#L26-L27)",
+      "request": "the new customer's details (fields not stated)"
+    },
+    {
+      "method": "POST",
+      "path": "/users/login",
+      "source": "story.md#L19",
+      "success": "returns { \"access_token\", \"token_type\", \"expires_in\" }",
+      "request": "e-mail address and password (story.md#L41)"
+    },
+    {
+      "method": "GET",
+      "path": "/users/me",
+      "source": "story.md#L19",
+      "auth": "required",
+      "request": "Authorization: Bearer <access_token>"
+    },
+    {
+      "method": "GET",
+      "path": "/users/logout",
+      "source": "story.md#L19",
+      "auth": "required",
+      "request": "Authorization: Bearer <access_token>"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "text": "Password rules: at least 8 characters, upper and lower case letters, a symbol, a number",
+      "source": "story.md#L37"
+    },
+    {
+      "id": "R2",
+      "text": "An e-mail address can be registered only once",
+      "source": "story.md#L29-L32"
+    },
+    {
+      "id": "R3",
+      "text": "The account locks after five failed sign-in attempts; while locked, sign-in responds 423 even with the correct password",
+      "source": "story.md#L51-L55"
+    }
+  ],
+  "errorModel": [
+    {
+      "id": "E1",
+      "case": "registering an e-mail address that is already registered",
+      "status": 409,
+      "body": "A customer with this email address already exists.",
+      "source": "story.md#L32"
+    },
+    {
+      "id": "E2",
+      "case": "registering with a weak password (\"abc\"): the password errors state all four rules",
+      "status": 422,
+      "source": "story.md#L37"
+    },
+    {
+      "id": "E3",
+      "case": "signing in with a wrong password (attempts one to five); the web shop shows \"Invalid email or password\"",
+      "status": 401,
+      "source": "story.md#L48-L49, story.md#L54"
+    },
+    {
+      "id": "E4",
+      "case": "signing in to a locked account (the sixth attempt, even with the correct password), with a message that the account is locked",
+      "status": 423,
+      "source": "story.md#L55"
+    },
+    {
+      "id": "E5",
+      "case": "GET /users/me with a token that was signed out",
+      "status": 401,
+      "source": "story.md#L60"
+    }
+  ],
+  "auth": {
+    "mechanism": "Bearer token: Authorization: Bearer <access_token>, the access_token returned by POST /users/login",
+    "source": "story.md#L19"
+  },
+  "testData": {
+    "strategy": "not stated in the sources; AC-1 and AC-3 post a new customer with a unique e-mail address, AC-2 needs a customer already registered with an e-mail address, AC-6 needs a registered customer whose account the test locks",
+    "source": "story.md#L24, story.md#L30, story.md#L35, story.md#L52"
+  },
+  "gaps": [
+    {
+      "id": "G1",
+      "element": "web shop sign-in page: its route (reached through \"Sign in\" in the navigation), how the e-mail, password and submit elements are found, and where the \"Invalid email or password\" message appears",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-4",
+        "AC-5"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19 says only that the sign-in page is reached through \"Sign in\" in the navigation; no route or element names"
+        },
+        {
+          "where": "aut",
+          "result": "Route /auth/login (the navigation's \"Sign in\" link, href /auth/login). Fields by test id: getByTestId('email'), getByTestId('password'), submit getByTestId('login-submit') (label 'Password *' so getByLabel('Password', {exact:true}) matches nothing). A wrong password shows 'Invalid email or password' in getByTestId('login-error') under the form; the page stays on /auth/login"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "Route /auth/login (the navigation's \"Sign in\" link, href /auth/login). Fields by test id: getByTestId('email'), getByTestId('password'), submit getByTestId('login-submit') (label 'Password *' so getByLabel('Password', {exact:true}) matches nothing). A wrong password shows 'Invalid email or password' in getByTestId('login-error') under the form; the page stays on /auth/login",
+      "evidence": "hardening/tier3/sign-in-form.md; hardening/tier3/sign-in-wrong.md"
+    },
+    {
+      "id": "G2",
+      "element": "\"My account\" page and navigation: how the page is recognised, where the navigation shows the customer's name, and where the signed-in customer's first and last name come from (the seeded account's details)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-4"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L42-L43 name the page and the navigation but give no route, locators or name source"
+        },
+        {
+          "where": "aut",
+          "result": "After sign-in the app goes to /account; the page is recognised by heading 'My account' (h1, test id page-title, getByRole('heading', { name: 'My account' }) unique). The single navigation landmark (getByRole('navigation')) shows the signed-in customer's 'first_name last_name' as the nav-menu button; the name is the one the customer registered with (POST /users/register first_name/last_name, echoed by GET /users/me)"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "After sign-in the app goes to /account; the page is recognised by heading 'My account' (h1, test id page-title, getByRole('heading', { name: 'My account' }) unique). The single navigation landmark (getByRole('navigation')) shows the signed-in customer's 'first_name last_name' as the nav-menu button; the name is the one the customer registered with (POST /users/register first_name/last_name, echoed by GET /users/me)",
+      "evidence": "hardening/tier3/sign-in.md"
+    },
+    {
+      "id": "G3",
+      "element": "where the error responses carry their messages: the 409 message (AC-2), the 422 password errors (AC-3) and the 423 lock message (AC-6)",
+      "kind": "mechanics",
+      "required": true,
+      "affects": [
+        "AC-2",
+        "AC-3",
+        "AC-6"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L32, L37 and L55 give the messages or their meaning but not the response field that holds them"
+        },
+        {
+          "where": "aut",
+          "result": "JSON bodies: 409 {\"email\": [\"<message>\"]}; 422 {\"password\": [\"<one message per broken rule>\"]} (other fields' errors under their own field names); 423 {\"error\": \"<message>\"}; 401 from /users/login {\"error\": \"Unauthorized\"}"
+        }
+      ],
+      "resolution": "discovered-in-aut",
+      "value": "JSON bodies: 409 {\"email\": [\"<message>\"]}; 422 {\"password\": [\"<one message per broken rule>\"]} (other fields' errors under their own field names); 423 {\"error\": \"<message>\"}; 401 from /users/login {\"error\": \"Unauthorized\"}",
+      "evidence": "hardening/tier3/errors-chain.md"
+    },
+    {
+      "id": "G4",
+      "element": "what GET /users/logout itself must respond (status, body) when the customer signs out",
+      "kind": "oracle",
+      "required": false,
+      "affects": [
+        "AC-7"
+      ],
+      "tried": [
+        {
+          "where": "story",
+          "result": "L19 and L59 name GET /users/logout but state no response; AC-7 only checks GET /users/me afterwards"
+        },
+        {
+          "where": "user",
+          "result": "GET /users/logout must return any 2xx success; its body is not checked"
+        }
+      ],
+      "resolution": "provided-by-user",
+      "value": "GET /users/logout must return any 2xx success; its body is not checked",
+      "evidence": "user, 2026-10-05"
+    }
+  ],
+  "coverage": [
+    {
+      "lines": "story.md#L17",
+      "as": "context"
+    },
+    {
+      "lines": "story.md#L19",
+      "as": "endpoint, auth, G1"
+    },
+    {
+      "lines": "story.md#L23-L27",
+      "as": "AC-1"
+    },
+    {
+      "lines": "story.md#L29-L32",
+      "as": "AC-2, R2, E1"
+    },
+    {
+      "lines": "story.md#L34-L37",
+      "as": "AC-3, R1, E2"
+    },
+    {
+      "lines": "story.md#L39-L43",
+      "as": "AC-4"
+    },
+    {
+      "lines": "story.md#L45-L49",
+      "as": "AC-5, E3"
+    },
+    {
+      "lines": "story.md#L51-L55",
+      "as": "AC-6, R3, E4"
+    },
+    {
+      "lines": "story.md#L57-L60",
+      "as": "AC-7, E5"
+    }
+  ]
+}

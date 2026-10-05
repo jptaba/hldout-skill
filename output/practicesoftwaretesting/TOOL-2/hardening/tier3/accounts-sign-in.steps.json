@@ -1,0 +1,5 @@
+[
+  { "do": "fill", "target": "getByTestId('email')", "value": "${username}" },
+  { "do": "fill", "target": "getByTestId('password')", "value": "${password}" },
+  { "do": "click", "target": "getByTestId('login-submit')" }
+]

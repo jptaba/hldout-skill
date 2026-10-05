@@ -1,0 +1,33 @@
+{
+  "status": "AMENDED",
+  "checkedAt": "2026-10-05T01:48:33.475Z",
+  "files": [
+    {
+      "file": "tool-2.spec.ts",
+      "draftAssertions": 25,
+      "currentAssertions": 25
+    }
+  ],
+  "removed": [],
+  "changed": [],
+  "amended": [
+    {
+      "assertion": "tool-2.spec.ts: [REQ AC-1] POST /users/register answers the customer's details",
+      "draft": ".toMatchObject({ first_name: customer.first_name, last_name: customer.last_name, email: customer.email, // TODO(harden) field names of the answer })",
+      "current": ".toMatchObject({ first_name: customer.first_name, last_name: customer.last_name, email: customer.email, })",
+      "reason": "Only a TODO(harden) comment inside the assertion was removed (field names confirmed in tier3/account-chain.md); the code and expected values are unchanged",
+      "approvedAt": "2026-10-05T01:48:32.712Z"
+    }
+  ],
+  "added": [],
+  "constantsChanged": [],
+  "unhardenedMarkers": [],
+  "actionsChanged": [
+    "actions/practicesoftwaretesting/api/users/_shared.ts",
+    "actions/practicesoftwaretesting/api/users/register-customer.ts",
+    "actions/practicesoftwaretesting/api/users/sign-in-customer.ts",
+    "actions/practicesoftwaretesting/ui/account/_shared.ts",
+    "actions/practicesoftwaretesting/ui/account/open-sign-in-page.ts"
+  ],
+  "actionAssertions": []
+}

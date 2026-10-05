@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "profile": "practicesoftwaretesting",
+  "kind": "api",
+  "by": "TOOL-2",
+  "at": "2026-10-05T01:51:06.751Z",
+  "entries": [
+    {
+      "key": "api:users.registerCustomer",
+      "kind": "api",
+      "value": {
+        "action": "registerCustomer",
+        "domain": "users",
+        "endpoints": [
+          "POST /users/register"
+        ],
+        "file": "api/users/register-customer.ts",
+        "params": "api: Api, seed: Seed, details: Partial<NewCustomer> = {}",
+        "summary": "Register a new customer through POST /users/register (a precondition: \"given a registered customer\") and return its details with the id the registration answered."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:51:06.749Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-002, SCN-004, SCN-005, SCN-007, SCN-012, SCN-013 passed"
+    },
+    {
+      "key": "api:users.signInCustomer",
+      "kind": "api",
+      "value": {
+        "action": "signInCustomer",
+        "domain": "users",
+        "endpoints": [
+          "POST /users/login"
+        ],
+        "file": "api/users/sign-in-customer.ts",
+        "params": "api: Api, seed: Seed, email: string, password: string",
+        "summary": "Sign a customer in over the API (POST /users/login with e-mail address and password) as a precondition and return the access token with the Authorization header that authenticates as the customer."
+      },
+      "status": "proven",
+      "at": "2026-10-05T01:51:06.749Z",
+      "by": "TOOL-2",
+      "evidence": "03-eval: SCN-007, SCN-013 passed"
+    }
+  ]
+}
