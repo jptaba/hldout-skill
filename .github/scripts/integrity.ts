@@ -64,12 +64,17 @@ main(() => {
   if (amend) {
     const reason = flagStr(flags, 'reason');
     if (!reason || reason.length < 20) throw new Error('--reason is required: explain why the assertion implementation was wrong and why the requirement is unchanged.');
-    const pending = checkIntegrity(p.tests, p.draft, amendmentsFile, oracle).changed.find((c) => c.assertion === amend);
+    // The key is "<spec file>: <assertion message>"; the message alone is enough when only one spec has it.
+    const changed = checkIntegrity(p.tests, p.draft, amendmentsFile, oracle).changed;
+    const exact = changed.filter((c) => c.assertion === amend);
+    const matches = exact.length ? exact : changed.filter((c) => c.assertion.endsWith(`: ${amend}`));
+    if (matches.length > 1) throw new Error(`"${amend}" is changed in ${matches.length} spec files — give the full key:\n${matches.map((c) => `  ${c.assertion}`).join('\n')}`);
+    const pending = matches[0];
     if (!pending) throw new Error(`"${amend}" is not a changed assertion. Run: heldout integrity ${key} to list changed keys.`);
-    const all = readAmendments(amendmentsFile).filter((a) => a.assertion !== amend);
+    const all = readAmendments(amendmentsFile).filter((a) => a.assertion !== pending.assertion);
     all.push({ ...pending, reason, approvedAt: new Date().toISOString() });
     writeFile(amendmentsFile, `${JSON.stringify(all, null, 2)}\n`);
-    console.log(`✔ Amendment recorded for ${amend}\n  draft:   ${pending.draft}\n  current: ${pending.current}\n  → ${rel(amendmentsFile)}`);
+    console.log(`✔ Amendment recorded for ${pending.assertion}\n  draft:   ${pending.draft}\n  current: ${pending.current}\n  → ${rel(amendmentsFile)}`);
     return;
   }
 

@@ -90,10 +90,15 @@ const unescape = (s: string) => s.replace(/\\(['"`\\])/g, '$1');
 function readSpec(file: string, into: Suite): void {
   const src = fs.readFileSync(file, 'utf8');
   const lines = src.split(/\r?\n/);
+  // A note may wrap onto the plain // lines right below it (not a "// from …" source or another LABEL: line).
+  let open: string[] | undefined;
   for (const line of lines) {
+    const more = open && line.match(/^\s*\/\/\s+(.+?)\s*$/)?.[1];
+    if (open && more && !/^[A-Z][A-Z-]+[:(]/.test(more) && !/^from\s/i.test(more)) { open[open.length - 1] += ` ${more}`; continue; }
+    open = undefined;
     for (const [label, list] of [['ASSUMPTION', into.assumptions], ['OPEN-QUESTION', into.openQuestions], ['OBSERVATION', into.observations]] as const) {
       const m = line.match(COMMENT(label));
-      if (m) list.push(m[1]);
+      if (m && /^\s*\/\//.test(line)) { list.push(m[1]); open = list; } else if (m) list.push(m[1]);
     }
     const sep = line.match(COMMENT('SEED-ENDPOINT'))?.[1].match(ENDPOINT_LINE);
     if (sep) into.seedEndpoints.push({ method: sep[1], path: sep[2], note: sep[3] });
@@ -130,7 +135,8 @@ function readSpec(file: string, into: Suite): void {
     }
     into.scenarios.push({
       id,
-      title: unescape(m[4]).replace(/\s*\(\$\{[^}]*\}[^)]*\)\s*$/, '').trim(),
+      // A table's per-case part (`… (${row.x})`, `…: ${row.name}`) is dropped: the scenario title is what the cases share.
+      title: unescape(m[4]).replace(/\s*\(\$\{[^}]*\}[^)]*\)\s*$/, '').replace(/\s*[:—–-]?\s*\$\{[^}]*\}\s*$/, '').trim(),
       tags,
       acs: [],
       rawTypes: [],

@@ -38,6 +38,21 @@ test.describe('ABC-1 Demo', () => {
 });
 `;
 
+describe('readSuite: wrapped notes and table titles', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-w-'));
+  fs.writeFileSync(path.join(dir, 'w.spec.ts'), `// ASSUMPTION: lists are compared on the first page,
+//   which holds every match.
+// from story.md#L2
+test(\`SCN-001.\${i + 1}: Pages at 12: \${row.name}\`, { tag: ['@AC-1', '@type:boundary'] }, async () => {});
+`);
+  const f = readSuite(dir);
+  it('joins a note wrapped onto the comment lines below it, and drops the per-case part of a table title', () => {
+    assert.deepEqual(f.assumptions, ['lists are compared on the first page, which holds every match.']);
+    assert.equal(f.scenarios[0].title, 'Pages at 12');
+    assert.deepEqual(f.scenarios[0].sources, ['story.md#L2']);
+  });
+});
+
 describe('readSuite', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-s-'));
   fs.writeFileSync(path.join(dir, 'abc-1.spec.ts'), SPEC);

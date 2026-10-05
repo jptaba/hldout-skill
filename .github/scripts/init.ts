@@ -202,12 +202,12 @@ main(async () => {
   ensureGitignore(say);
   for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'output', 'actions']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
   // Claude Code reads MCP servers only from the root .mcp.json: give it the skill's servers from .vscode/mcp.json (those
-  // update recorded; the project's own VS Code servers stay VS Code's).
+  // update recorded; the project's own VS Code servers stay VS Code's). Update already reported the file: say only a change.
   const servers = mcpServersIn(path.join(ROOT, MCP_FILE));
   if (servers) {
     const sourceFile = path.join(SKILL_DIR, 'SOURCE.json');
     const shipped = fs.existsSync(sourceFile) ? (JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { mcpServers?: string[] }).mcpServers : undefined;
-    writeClaudeCodeMcp(ROOT, Object.fromEntries(Object.entries(servers).filter(([name]) => !shipped || shipped.includes(name))), say);
+    writeClaudeCodeMcp(ROOT, Object.fromEntries(Object.entries(servers).filter(([name]) => !shipped || shipped.includes(name))), (mark, msg) => { if (mark !== '•') say(mark, msg); });
   }
 
   if (flags.install) {

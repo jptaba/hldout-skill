@@ -97,7 +97,9 @@ MSYS rewrites `/…` arguments into Windows paths.
 
 - **Loaded natively** (tools `mcp__playwright__browser_*` in your list): `browser_navigate` → `browser_wait_for`
   (a readiness anchor) → `browser_snapshot` → act with `browser_click` / `browser_type` / `browser_select_option`
-  / `browser_handle_dialog`, using the `target` ref from the snapshot.
+  / `browser_handle_dialog`, using the `target` ref from the snapshot. The server saves its snapshots wherever the
+  app started it, not in the story's folder: the walk is not evidence until you replay the steps that matter with
+  `mcp-probe … --out output/<profile>/KEY/hardening/tier2/<walk>.md` (below) or prove them with `heldout inspect`.
 - **Not loaded** (pending approval, CI, other hosts): drive the same server through the bundled stdio client.
   Same tools, same snapshots, recorded as evidence:
 
@@ -178,8 +180,11 @@ requirement says, then record it:
 npm run heldout -- integrity KEY --amend "<file>: [REQ AC-3] <message>" --reason "<why the implementation was wrong; why the requirement is unchanged>"
 ```
 
+The message alone is enough when only one spec has it. When the fix also changes what the assertion reads (another
+page, another call), say so in the reason: integrity tracks the assertion, not the request before it.
 Integrity becomes AMENDED and the verdict lists the amendment. Never use an amendment to align
-with AUT behaviour.
+with AUT behaviour. An expected value computed from what the application answers about the property under test
+(its `last_page` when pages are checked) is such a bug: derive it from the requirement.
 
 The test: after the amendment, does the assertion still fail for every application that violates **its own**
 criterion, and pass for every one that meets it? Then it is an implementation fix. Typical cases: a regex stricter than

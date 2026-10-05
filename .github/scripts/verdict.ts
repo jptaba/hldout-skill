@@ -157,6 +157,13 @@ main(() => {
     const sc = scenarioOf(id);
     return sc?.sources.length ? sc.sources.join('; ') : `story ${(sc?.acs ?? []).join(', ')}`;
   };
+  /** Several tests' sources, each once: one that another already contains ("story.md#L28" in "story.md#L28 (status: G3)") is dropped. */
+  const sourcesOf = (ids: string[]): string => {
+    const all = [...new Set(ids.flatMap((id) => sourceOf(id).split('; ')))];
+    return all.filter((s) => !all.some((o) => o !== s && o.includes(s))).join('; ');
+  };
+  /** The data a test created (to recreate before reproducing); lookups, sign-ins and readiness waits replay as P1…Pn. */
+  const seededOf = (e: TriageEntry) => (e.evidence.seed?.records ?? []).filter((r) => r.error || !['pre-step', 'auth', 'readiness'].includes(r.kind ?? ''));
   const typeOf = (e: TriageEntry): string => e.testType ?? scenarioOf(e.scenario)?.testType ?? '-';
   /** What the AUT actually did, phrased as an observation. */
   const actualOf = (x: TriageEntry): string => x.error?.received
@@ -233,16 +240,16 @@ main(() => {
       '| | |', '| --- | --- |',
       `| Suggested severity | ${f?.severity ?? 'TBD'} |`,
       ...[...new Set(g.flatMap((x) => x.requirementRefs))].map((ac) => `| Requirement ${ac} | ${esc(acText(ac))} |`),
-      `| Requirement source | ${esc([...new Set(g.map((x) => sourceOf(x.scenario)))].join('; '))} |`,
+      `| Requirement source | ${esc(sourcesOf(g.map((x) => x.scenario)))} |`,
       `| Test type · layer | ${[...new Set(g.map(typeOf))].join(', ')} · ${[...new Set(g.map((x) => x.layer ?? scenarioOf(x.scenario)?.layer ?? '-'))].join(', ')} |`,
       ...g.map((x) => `| ${x.scenario}: expected (requirement) → actual (AUT) | \`${esc(x.error?.expected ?? '-')}\` → \`${esc(actualOf(x))}\` |`),
       ...g.flatMap((x) => (x.otherFailures ?? []).map((o) => `| ${x.scenario}: also failed | ${esc(o.headline)}${o.expected !== undefined ? ` — \`${esc(short(o.expected, 120))}\` → \`${esc(short(o.received, 160))}\`` : ''} |`)),
       `| Failing step | ${esc(e.failingStep ?? '-')} |`,
       `| Evaluator classification | ${f ? `APPLICATION_DEFECT (reproduced live${e.auto && e.auto.category !== 'APPLICATION_DEFECT' ? `; automatic triage said ${e.auto.category}, overridden after investigation` : ''})` : `auto: ${e.auto?.category} (${e.auto?.confidence})`} |`, '',
       '#### How to reproduce', '',
-      ...(e.evidence.seed?.records.length ? [
-        `**Preconditions the test seeded** (tag \`${e.evidence.seed.tag}\`; recreate equivalent data before reproducing):`, '',
-        ...e.evidence.seed.records.map((r) => `- ${esc(r.label)}: \`${esc(short(r.created ?? '-', 160))}\` · cleanup: ${r.cleanup ?? 'pending'}${r.error ? ` (${esc(r.error)})` : ''}`), ''] : []),
+      ...(seededOf(e).length ? [
+        `**Preconditions the test seeded** (tag \`${e.evidence.seed?.tag}\`; recreate equivalent data before reproducing):`, '',
+        ...seededOf(e).map((r) => `- ${esc(r.label)}: \`${esc(short(r.created ?? '-', 160))}\` · cleanup: ${r.cleanup ?? 'pending'}${r.error ? ` (${esc(r.error)})` : ''}`), ''] : []),
       '**Manually (the test\'s steps):**', '', ...stepsOf(e.scenario).map((st, n) => `${n + 1}. ${st}`), '',
       ...g.flatMap((x) => apiReproduction(x)),
       '**Automated re-run of the failing test(s):**', '', '```bash', ...g.map((x) => rerunCommand(key, x.scenario)), '```', '',
@@ -407,7 +414,7 @@ main(() => {
     key, verdict, reason, finalRun, generatedAt: new Date().toISOString(), autId: cfg.autId, aut: cfg.aut, summary: s,
     integrity: integrity.status, amendments: integrity.amended.length, actions,
     applicationDefects: [...groups.entries()].map(([title, g]) => ({
-      id: appIds.get(g[0]), title: g[0].final ? title : g[0].title, testType: typeOf(g[0]), source: sourceOf(g[0].scenario), confirmed: Boolean(g[0].final), severity: g[0].final?.severity ?? null,
+      id: appIds.get(g[0]), title: g[0].final ? title : g[0].title, testType: typeOf(g[0]), source: sourcesOf(g.map((x) => x.scenario)), confirmed: Boolean(g[0].final), severity: g[0].final?.severity ?? null,
       criteria: [...new Set(g.flatMap((e) => e.requirementRefs))], tests: g.map((e) => e.scenario),
       expected: g[0].error?.expected ?? null, actual: actualOf(g[0]),
       rationale: g[0].final?.rationale ?? null, liveCheck: g[0].final?.evidence ?? null,

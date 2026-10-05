@@ -72,7 +72,7 @@ only if the contract records the conflict as a gap and says which source it foll
 ```json
 {
   "reviewer": "heldout-contract-reviewer (<model name>)",
-  "reviewedAt": "<ISO timestamp>",
+  "reviewedAt": "<the current time, from: node -p \"new Date().toISOString()\">",
   "contractHash": "{{HASH}}",
   "items": [
     { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L23-L24", "note": "" }
