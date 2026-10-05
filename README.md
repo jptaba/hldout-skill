@@ -192,7 +192,7 @@ test covers yet. A type the story doesn't state or imply becomes a question, not
 | `negative` | invalid input and refusals are handled, and nothing is stored |
 | `functional` | the happy path does what the criterion says (including a change the app shows on a history page) |
 
-There is no audit type: a record the application shows is checked by a `functional` test, and one kept only in a
+An audit requirement is tested like any other: a record the application shows is checked by a `functional` test, and one kept only in a
 database or log can't be observed by a black-box test, so the verdict lists it as not verified.
 
 Rules for each type: [test-authoring.md](.github/skills/heldout-evaluator/references/test-authoring.md).
