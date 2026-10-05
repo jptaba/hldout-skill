@@ -27,7 +27,7 @@ import { loadedVaultSecrets, requireVaultSecrets } from './secrets';
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
 /** What the tests' seeding did, from the seed-ledger attachments: data created, cleaned, already gone, kept, and left behind. */
-function seedSummary(results: unknown): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[]; accounts: { used: number; reset: number; notReset: string[] } } {
+function seedSummary(results: unknown, prefix: string): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[]; accounts: { used: number; reset: number; notReset: string[] } } {
   const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, keptBy: {} as Record<string, number>, leftovers: [] as string[], accounts: { used: 0, reset: 0, notReset: [] as string[] } };
   const walk = (v: unknown, title: string): void => {
     if (Array.isArray(v)) { v.forEach((x) => walk(x, title)); return; }
@@ -48,8 +48,10 @@ function seedSummary(results: unknown): { created: number; cleaned: number; alre
           if (r.cleanup === 'done') { if (/already gone/.test(r.error ?? '')) sum.alreadyGone++; else sum.cleaned++; }
           else if (r.cleanup === 'failed') sum.leftovers.push(`${t}: ${r.label} — ${r.error ?? 'failed'} (${JSON.stringify(r.created ?? null).slice(0, 100)})`);
           else {
-            // "(created by the scenario)" is what seed.track adds; a label that already says so doesn't need it twice.
-            const label = /by the scenario .*\(created by the scenario\)$/.test(r.label) ? r.label.replace(/ \(created by the scenario\)$/, '') : r.label;
+            // Counted per kind of record: the run's own names (prefixed test data) and seed.track's
+            // "(created by the scenario)" are dropped, so 13 customers read "registered customer ×13".
+            const label = r.label.replace(/ \(created by the scenario\)$/, '').split(/\s+/)
+              .filter((w) => !(prefix && w.toLowerCase().replace(/^["'`]/, '').startsWith(prefix.toLowerCase()))).join(' ') || r.label;
             sum.kept++; sum.keptBy[label] = (sum.keptBy[label] ?? 0) + 1;
           }
         }
@@ -193,7 +195,7 @@ main(async () => {
   console.log(`  run dir: ${rel(runDir)}`);
   console.log(`  html:    npx playwright show-report ${rel(path.join(runDir, 'html'))}`);
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
-  const seeded = seedSummary(readJson<unknown>(resultsFile));
+  const seeded = seedSummary(readJson<unknown>(resultsFile), dataPrefix(cfg.aut));
   const leftovers = seeded.leftovers;
   const acc = seeded.accounts;
   if (acc.used) {
