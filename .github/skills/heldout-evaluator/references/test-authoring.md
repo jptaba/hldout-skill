@@ -277,7 +277,7 @@ Full strategy: [data-and-journeys.md](data-and-journeys.md).
 
 | Helper | Use |
 | --- | --- |
-| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. A journey fixture that creates a record wraps it in `seed.create` |
+| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. An action that creates a record wraps it in `seed.create` |
 | `seed.track(label, created, cleanup)` | Register cleanup for data the test itself created (the POST under test, or data the AUT wrongly accepted) |
 | `seed.tag` | Per-test tag for naming seeded data (sweepable) |
 | `seed.account()` · `signIn(page, account)` | A test user from the profile's accounts recipe and its UI sign-in. See [data-and-journeys.md](data-and-journeys.md) §4a |
