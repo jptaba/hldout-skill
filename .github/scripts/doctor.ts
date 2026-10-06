@@ -12,13 +12,13 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { AGENT_FILES, ROOT, SKILL_DIR, actionPaths, createsAccounts, fileHash, dataPrefix, listStories, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
+import { AGENT_FILES, ROOT, SKILL_DIR, UPDATE_HINT, journeyPaths, createsAccounts, fileHash, dataPrefix, listStories, loadConfig, loadEnv, main, parseArgs, rel, resolveUrl, validateConfig, type HeldoutConfig } from './config';
 import { appRootOf, describeCounts, discoverApp } from './detect';
 import { createTracker } from './jira';
 import { safeToScrub } from './redact';
 import { checkAccountRecipe, envNamesIn } from './accounts-recipe';
 import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from './secrets';
-import { actionFiles, duplicateActions, entries, lintActions, loadMap, profileActions } from './actions-store';
+import { allJourneys, duplicateJourneys, journeyFiles, lintJourneys, readRegistry, syncRegistry } from './journeys-store';
 import { CLAUDE_MCP_FILE, MCP_FILE } from './mcp-config';
 
 type Level = 'ok' | 'warn' | 'fail';
@@ -46,10 +46,8 @@ main(async () => {
   // ---- skill --------------------------------------------------------------------------------------
   const sourceFile = path.join(SKILL_DIR, 'SOURCE.json');
   if (fs.existsSync(sourceFile)) {
-    const s = JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { from: string; update: string; remote?: string; commit?: string; installedAt: string };
-    const update = fs.existsSync(s.from) ? `${s.update} (from this folder)` : `clone ${s.remote ?? 'the skill repository'} (README "Adopt it") and run its init from this folder`;
-    const origin = s.commit?.endsWith('+local changes') || !s.remote ? `the folder ${s.from}` : s.remote;
-    check('ok', 'skill', `installed ${s.installedAt.slice(0, 10)} from ${origin}${s.commit ? ` @ ${s.commit}` : ''} — to update: ${update}`);
+    const s = JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { remote?: string; commit?: string; installedAt: string };
+    check('ok', 'skill', `installed ${s.installedAt.slice(0, 10)} from ${s.remote ?? 'a local copy of the skill'}${s.commit ? ` @ ${s.commit}` : ''} — to update: ${UPDATE_HINT}`);
   }
 
   // ---- runtime ------------------------------------------------------------------------------------
@@ -84,9 +82,9 @@ main(async () => {
       if (!issues.length) { cfg = loadConfig(); check('ok', 'config', `heldout.config.json valid — ${Object.keys(cfg.auts).length} AUT profile(s), default "${cfg.defaultAut}"`); }
     }
   }
-  for (const [file, fix] of [['playwright.config.ts', `${H} init`], ['heldout-support/fixtures.ts', `${H} init`], ['tsconfig.json', `${H} init`]] as const) {
+  for (const file of ['playwright.config.ts', 'heldout-support/fixtures.ts', 'tsconfig.json']) {
     if (fs.existsSync(path.join(ROOT, file))) check('ok', 'files', file);
-    else check('fail', 'files', `${file} is missing`, fix);
+    else check('fail', 'files', `${file} is missing`, UPDATE_HINT);
   }
   // Files init copied from the skill repository: one changed here is kept on updates, so it may fall behind.
   const installed = fs.existsSync(sourceFile) ? (JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { files?: Record<string, string> }).files ?? {} : {};
@@ -101,10 +99,10 @@ main(async () => {
   for (const target of AGENT_FILES) {
     const what = target.startsWith('.claude/') ? 'Claude Code bridge' : 'phase subagent';
     if (fs.existsSync(path.join(ROOT, target))) check('ok', 'subagents', target);
-    else check('warn', 'subagents', `${target} is missing (${what})`, `${H} init   (then restart your agent app)`);
+    else check('warn', 'subagents', `${target} is missing (${what})`, `${UPDATE_HINT}; then restart your agent app`);
   }
   // Playwright MCP (tier 2): .vscode/mcp.json for GitHub Copilot, the root .mcp.json for Claude Code.
-  for (const [file, app, fix] of [[MCP_FILE, 'GitHub Copilot', 'run update from the skill repository (README "Update")'], [CLAUDE_MCP_FILE, 'Claude Code', `${H} init`]] as const) {
+  for (const [file, app, fix] of [[MCP_FILE, 'GitHub Copilot', UPDATE_HINT], [CLAUDE_MCP_FILE, 'Claude Code', `${H} init`]] as const) {
     const at = path.join(ROOT, file);
     if (fs.existsSync(at) && /playwright\/mcp/.test(fs.readFileSync(at, 'utf8'))) check('ok', 'browser tiers', `Playwright MCP configured for ${app} (${file}) — tier 2 after restarting it`);
     else check('warn', 'browser tiers', `Playwright MCP not configured for ${app} (${file}) — hardening there falls back to heldout mcp-probe and the bundled inspector`, fix);
@@ -233,23 +231,26 @@ main(async () => {
     }
   }
 
-  // ---- actions (actions/<profile>/) ---------------------------------------------------------------
+  // ---- journeys (journeys/fixtures/<domain>.ts, journeys/registry.yml) ----------------------------
   if (cfg) {
     const ids = typeof flags.aut === 'string' ? [flags.aut] : Object.keys(cfg.auts);
     for (const id of ids.filter((x) => cfg!.auts[x])) {
-      const files = actionFiles(cfg, id);
-      const where = rel(actionPaths(cfg, id).base);
-      if (!files.length) { check('ok', 'actions', `${id}: no actions yet — the first story's tests start them in ${where}/ui|api/<domain>/<action>.ts`); continue; }
-      const map = loadMap(cfg, id);
-      const all = entries(map.records);
-      const actions = profileActions(cfg, id);
-      const findings = lintActions(files, undefined, actionPaths(cfg, id).base);
-      for (const e of findings.filter((f) => f.level === 'error')) check('fail', 'actions', e.message, 'move what a story expects into its test; actions hold HOW only');
-      const layout = findings.filter((f) => f.level === 'warn' && f.code !== 'no-summary').length;
-      const dups = duplicateActions(actions).length;
-      if (layout || dups) check('warn', 'actions', `${id}: ${layout ? `${layout} file(s) off the one-action-per-file layout (a merge-conflict risk for everyone adding actions)` : ''}${layout && dups ? '; ' : ''}${dups ? `${dups} group(s) of possible duplicate actions` : ''}`, `${H} actions --aut ${id} --check`);
-      check('ok', 'actions', `${id}: ${actions.length} action(s) in ${files.length} file(s); the UI / API maps hold ${all.filter((e) => e.status === 'proven').length} proven, ${all.filter((e) => e.status === 'stale').length} stale, in ${map.files.length} map file(s)${map.snapshots.length ? ` and ${map.snapshots.length} snapshot(s)` : ''}`,
-        map.files.length > 200 ? `${H} actions --aut ${id} --compact   (from one place, e.g. a scheduled CI job)` : undefined);
+      const jp = journeyPaths(cfg, id);
+      const files = journeyFiles(cfg, id);
+      const aut = ids.length > 1 ? `${id}: ` : '';
+      if (!files.length) { check('ok', 'journeys', `${aut}no journeys yet — the first story's tests start them in ${rel(jp.fixtures)}/<domain>.ts`); continue; }
+      const journeys = allJourneys(cfg, id);
+      const findings = lintJourneys(files, undefined, jp.base);
+      for (const e of findings.filter((f) => f.level === 'error')) check('fail', 'journeys', e.message, 'move what a story expects into its test; journeys hold HOW only');
+      const layout = findings.filter((f) => f.code === 'layout').length;
+      const dups = duplicateJourneys(journeys).length;
+      if (layout || dups) check('warn', 'journeys', `${aut}${layout ? `${layout} file(s) outside ${rel(jp.fixtures)}/<domain>.ts` : ''}${layout && dups ? '; ' : ''}${dups ? `${dups} group(s) of possible duplicate journeys` : ''}`, `${H} journeys${ids.length > 1 ? ` --aut ${id}` : ''} --check`);
+      let registry;
+      try { registry = readRegistry(cfg, id); } catch (e) { check('fail', 'journeys', (e as Error).message, `${H} journeys${ids.length > 1 ? ` --aut ${id}` : ''} --resolve`); continue; }
+      const s = syncRegistry(registry, journeys);
+      const counts = (st: string) => Object.values(s.registry.journeys).filter((e) => e.status === st).length;
+      check('ok', 'journeys', `${aut}${journeys.length} journey(s) in ${files.length} file(s); ${rel(jp.registry)}: ${counts('proven')} proven, ${counts('changed')} changed since proven, ${counts('stale')} stale, ${counts('unproven')} not proven yet`);
+      if (s.added.length || s.removed.length || s.updated.length) check('warn', 'journeys', `${aut}${rel(jp.registry)} is behind the code (${s.added.length} new, ${s.updated.length} changed, ${s.removed.length} gone; a story's harvest records them after its verdict)`, `${H} journeys${ids.length > 1 ? ` --aut ${id}` : ''} --sync   (to bring it in line now)`);
     }
   }
 

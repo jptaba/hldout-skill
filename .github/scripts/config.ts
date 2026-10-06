@@ -29,6 +29,8 @@ export interface AutProfile {
   /** Prefix of every name the tests make on this AUT (users, records, seed tags), so its test data is easy to find and
    *  sweep. Default "hldout"; set another one where the application's rules need it (letters only, a length limit). */
   dataPrefix?: string;
+  /** This application's journeys folder, when the project holds more than one application (default: journeysDir). */
+  journeysDir?: string;
   /** How to make a test account on this AUT (mechanics, found while hardening the first story): seed.account() and signIn(). */
   accounts?: AccountRecipe;
   notes?: string;
@@ -102,8 +104,8 @@ export interface HeldoutConfig {
   };
   /** Everything of a story, per AUT profile: <outputDir>/<profile>/<KEY>/. */
   outputDir: string;
-  /** Reusable actions and their UI / API maps, per AUT profile: <actionsDir>/<profile>/. */
-  actionsDir: string;
+  /** The application's journeys: fixtures/<domain>.ts and registry.yml (a profile's own journeysDir wins). */
+  journeysDir: string;
   run: {
     retries: number;
     workers?: number;
@@ -121,6 +123,8 @@ export const ROOT = process.cwd();
 /** The skill's scripts (.github/scripts) and the skill itself (.github/skills/heldout-evaluator: SKILL.md, references). */
 export const SCRIPTS_DIR = import.meta.dirname;
 export const SKILL_DIR = path.resolve(SCRIPTS_DIR, '..', 'skills', 'heldout-evaluator');
+/** How a project updates the skill: setup pulls the clone, then updates the project it is run in. */
+export const UPDATE_HINT = 'in this folder, run setup from your clone of the skill — <clone>/setup.ps1 (PowerShell) or <clone>/setup.sh (bash, zsh)';
 /** The JSON schema of heldout.config.json (its $schema, for editor help). */
 export const CONFIG_SCHEMA = path.join(SCRIPTS_DIR, 'heldout.config.schema.json');
 
@@ -189,7 +193,7 @@ export function loadConfig(opts: { key?: string; aut?: string } = {}): HeldoutCo
   cfg.run ??= { retries: 1 };
   cfg.defaultAut ??= Object.keys(cfg.auts)[0];
   cfg.outputDir ??= 'output';
-  cfg.actionsDir ??= 'actions';
+  cfg.journeysDir ??= 'journeys';
 
   const bound = opts.key && !opts.aut && !process.env.HELDOUT_AUT ? boundProfile(cfg, opts.key) : undefined;
   const autId = opts.aut ?? process.env.HELDOUT_AUT ?? bound ?? cfg.defaultAut;
@@ -267,6 +271,15 @@ export function validateConfig(raw: unknown): string[] {
       if (!/^(\/|api:\/|https?:\/\/)/.test(h) && h !== '') out.push(`auts.${id}.healthcheck entry ${JSON.stringify(h)} must start with "/", "api:/" or http(s):// (a Windows path here usually means Git Bash rewrote the argument)`);
     }
   }
+  // Journeys are one application's: two applications in one folder would mix their journeys and registries.
+  if (auts && typeof auts === 'object' && Object.keys(auts).length > 1) {
+    const dirs = new Map<string, string[]>();
+    for (const [id, p] of Object.entries(auts)) {
+      const d = path.normalize(String((p as Record<string, unknown>)?.journeysDir ?? c.journeysDir ?? 'journeys'));
+      dirs.set(d, [...(dirs.get(d) ?? []), id]);
+    }
+    for (const [d, ids] of dirs) if (ids.length > 1) out.push(`auts ${ids.join(', ')} share the journeys folder ${d} — give each application its own: "journeysDir": "journeys-<profile>" in its profile`);
+  }
   if (c.defaultAut !== undefined && auts && !(String(c.defaultAut) in auts)) out.push(`defaultAut "${String(c.defaultAut)}" is not one of the profiles (${Object.keys(auts).join(', ')})`);
   const j = c.jira as Record<string, unknown> | undefined;
   if (j !== undefined) {
@@ -313,10 +326,10 @@ export function listStories(cfg: Pick<HeldoutConfig, 'outputDir'>): { profile: s
       .map((d) => ({ profile: p.name, key: d.name, dir: path.join(out, p.name, d.name) })));
 }
 
-/** The reusable actions of a profile: ui/<domain>/<action>.ts, api/<domain>/<action>.ts and the map files under map/. */
-export function actionPaths(cfg: Pick<HeldoutConfig, 'actionsDir'>, profile: string) {
-  const base = path.resolve(ROOT, cfg.actionsDir, profile);
-  return { base, ui: path.join(base, 'ui'), api: path.join(base, 'api'), map: path.join(base, 'map') };
+/** An application's journeys: fixtures/<domain>.ts and registry.yml, in its journeysDir (the project's by default). */
+export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir' | 'auts'>, profile: string) {
+  const base = path.resolve(ROOT, cfg.auts?.[profile]?.journeysDir ?? cfg.journeysDir ?? 'journeys');
+  return { base, fixtures: path.join(base, 'fixtures'), registry: path.join(base, 'registry.yml') };
 }
 
 /** Prefix of the names tests make on an AUT (users, records, seed tags). */

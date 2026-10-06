@@ -24,7 +24,7 @@ const COMMANDS: Record<string, Command> = {
   fetch: { script: 'jira-fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch the story (title, description, acceptance criteria, the images they show, linked Confluence pages); binds it to an AUT profile' },
   contract: { script: 'contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --answer G2 --value … --by … | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
   scaffold: { script: 'scaffold.ts', group: 'Tests', args: 'KEY [--force]', about: 'a spec skeleton (one test stub per criterion) and test data from the contract' },
-  actions: { script: 'actions.ts', group: 'Tests', args: 'KEY [--all | --stale <key> --evidence … | --harvest [--apply]]  |  --aut id [--check | --log | --compact]', about: 'the reusable actions (actions/<profile>/, one per file) and their UI / API maps' },
+  journeys: { script: 'journeys.ts', group: 'Tests', args: 'KEY [--all | --stale <id> --evidence … | --harvest [--apply]]  |  [--aut id] [--check | --sync | --resolve]', about: 'the reusable journeys (journeys/fixtures/<domain>.ts) and their registry (journeys/registry.yml)' },
   lint: { script: 'lint.ts', group: 'Tests', args: 'KEY [--allow-unhardened] [--no-health]', about: 'traceability lint + AUT healthcheck' },
   integrity: { script: 'integrity.ts', group: 'Tests', args: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]', about: 'freeze the draft / verify nothing expected changed' },
   inspect: { script: 'inspect.ts', group: 'Hardening', args: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]', about: 'tier-3 UI inspector: ARIA snapshot + ranked locators' },
@@ -66,6 +66,19 @@ if (rest.includes('--help') || rest.includes('-h')) {
   process.exit(0);
 }
 const known = knownFlags(src);
+// Windows PowerShell drops a bare `--`, so `npm run heldout -- run KEY --label eval` reaches npm as
+// `npm run heldout run KEY --label eval`: npm keeps the flags for itself (as npm_config_*, `--aut` expanded to
+// `--auth-type`) and passes their values on as plain arguments. Stop rather than run the command without them.
+if (process.env.npm_lifecycle_event) {
+  const npmKeys = Object.keys(process.env).filter((k) => /^npm_config_/i.test(k)).map((k) => k.slice(11).toLowerCase().replace(/_/g, '-'));
+  const passed = new Set(rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]));
+  const swallowed = [...known].filter((f) => !passed.has(f) && npmKeys.some((k) => k === f || (f.length >= 3 && k.startsWith(f))));
+  if (swallowed.length) {
+    console.error(`✖ npm kept ${swallowed.map((f) => `--${f}`).join(', ')} for itself: the "--" after "npm run heldout" didn't reach npm (Windows PowerShell drops it).`);
+    console.error(`  In PowerShell, quote it: npm run heldout '--' ${cmd} …   (or use npm.cmd: npm.cmd run heldout -- ${cmd} …)`);
+    process.exit(1);
+  }
+}
 const unknown = rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]).filter((f) => !known.has(f));
 if (unknown.length) {
   console.error(`✖ ${cmd} does not take ${unknown.map((f) => `--${f}`).join(', ')}. It takes: ${[...known].sort().map((f) => `--${f}`).join(' ')}`);

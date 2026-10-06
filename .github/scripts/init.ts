@@ -9,11 +9,12 @@
  *   heldout init [--profile <id>] --max-workers 1 --min-test-interval-ms 10000   pacing for a rate-limited host
  *   heldout add-aut <profile> --base-url … [--api-base-url …] [--name …] [--test-id-attr …] [--healthcheck …]
  *
+ * setup.ps1 / setup.sh at the root of the skill's clone run it for a new project (and `update` for a set-up one).
  * Run from the skill repository (a clone anywhere, any git host), it first runs that repository's `update`, which
  * installs the skill, its scripts, the subagents and the workspace files (and the CI pipeline with --ci [gitlab|github]),
  * then continues from the project's own copy of the scripts. There it creates or completes, and never overwrites:
  * heldout.config.json (with $schema for editor help), .env (from .env.example), package.json (the `heldout` npm script
- * and dev dependencies), .gitignore entries, mock-jira/, output/ and actions/, and the root .mcp.json (Claude Code reads MCP
+ * and dev dependencies), .gitignore entries, mock-jira/, output/ and journeys/fixtures/, and the root .mcp.json (Claude Code reads MCP
  * servers only there) with the skill's servers from .vscode/mcp.json, added to any the project already has. --install runs `npm install` and installs
  * Chromium. Unless given, the profile id comes from the host name, and one visit of the start page supplies the name
  * (page title), the test-id attribute and blockHosts (the ad/analytics networks the page loads).
@@ -21,7 +22,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { AGENT_FILES, CONFIG_SCHEMA, JIRA_MODES, ROOT, SCRIPTS_DIR, SKILL_DIR, ensureGitignore, flagStr, main, parseArgs, rel, unmangleMsysPath, type Flags } from './config';
+import { AGENT_FILES, CONFIG_SCHEMA, JIRA_MODES, ROOT, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitignore, flagStr, main, parseArgs, rel, unmangleMsysPath, type Flags } from './config';
 import { appNameFrom, appRootOf, baseUrlOf, describeCounts, discoverApp, profileIdFor } from './detect';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
@@ -31,13 +32,13 @@ const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', MCP_FILE, '.en
 const STARTER_CONFIG = {
   jira: { mode: 'mock', mockRoot: 'mock-jira', baseUrl: 'https://jira.example.com', acceptanceCriteriaField: '', verdictLabelPrefix: 'heldout-' },
   outputDir: 'output',
-  actionsDir: 'actions',
+  journeysDir: 'journeys',
   run: { retries: 1, workers: 4, headless: true, actionTimeoutMs: 10000, expectTimeoutMs: 5000, testTimeoutMs: 60000 },
 };
 const STARTER_PROFILE = {
   testIdAttribute: 'data-testid',
   healthcheck: ['/'],
-  notes: 'Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/, its actions to actions/<profile>/.',
+  notes: 'Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/; its journeys go to journeys/ (a second application gets its own journeysDir).',
 };
 /** Versions the skill is tested with (caret ranges — npm resolves the latest compatible). */
 const DEV_DEPENDENCIES: Record<string, string> = { '@playwright/test': '^1.63.0', tsx: '^4.23.0', typescript: '^7.0.0', '@types/node': '^26.0.0' };
@@ -158,8 +159,8 @@ main(async () => {
     process.exit(node(path.join(PROJECT_SCRIPTS, 'heldout.ts'), [cmd, ...rest]));
   }
   // The CI pipeline comes from the skill repository: init passes --ci on to update when started from there.
-  if (flags.ci) say('⚠', 'the CI pipeline is copied from the skill repository: run update --ci from there (README "Update")');
-  for (const file of WORKSPACE_FILES) if (!fs.existsSync(path.join(ROOT, file))) say('⚠', `${file} is missing — run update from the skill repository to restore it (README "Update")`);
+  if (flags.ci) say('⚠', 'the CI pipeline is copied from the skill repository: run setup from your clone of the skill with -Ci (setup.ps1) or --ci (setup.sh)');
+  for (const file of WORKSPACE_FILES) if (!fs.existsSync(path.join(ROOT, file))) say('⚠', `${file} is missing — to restore it, ${UPDATE_HINT}`);
 
   const addAut = flagStr(flags, 'add-aut') ?? (flags['add-aut'] === true ? _[0] : undefined);
   if (addAut || flags['add-aut']) {
@@ -168,9 +169,11 @@ main(async () => {
     if (!flagStr(flags, 'base-url')) throw new Error('--base-url is required with add-aut');
     const cfg = JSON.parse(fs.readFileSync(configFile, 'utf8'));
     if (cfg.auts[addAut]) throw new Error(`AUT profile "${addAut}" already exists`);
-    cfg.auts[addAut] = profileFrom(flags);
+    // Journeys are one application's: the new one gets a folder of its own.
+    cfg.auts[addAut] = { ...profileFrom(flags), journeysDir: `journeys-${addAut}` };
     fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
-    say('✔', `added AUT profile "${addAut}". Stories bind to it with: heldout fetch KEY --aut ${addAut}`);
+    fs.mkdirSync(path.join(ROOT, `journeys-${addAut}`, 'fixtures'), { recursive: true });
+    say('✔', `added AUT profile "${addAut}", its journeys in journeys-${addAut}/. Stories bind to it with: heldout fetch KEY --aut ${addAut}`);
     await discover(configFile, addAut, flags);
     return;
   }
@@ -200,7 +203,7 @@ main(async () => {
   }
   const needInstall = ensurePackageJson();
   ensureGitignore(say);
-  for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'output', 'actions']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
+  for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'output', 'journeys/fixtures']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
   // Claude Code reads MCP servers only from the root .mcp.json: give it the skill's servers from .vscode/mcp.json (those
   // update recorded; the project's own VS Code servers stay VS Code's). Update already reported the file: say only a change.
   const servers = mcpServersIn(path.join(ROOT, MCP_FILE));
@@ -241,15 +244,20 @@ main(async () => {
   }
   if (flagStr(flags, 'base-url')) await discover(configFile, flagStr(flags, 'profile') ?? JSON.parse(fs.readFileSync(configFile, 'utf8')).defaultAut, flags, !flagStr(flags, 'profile'));
 
+  // setup runs doctor right after init: no need to ask for it.
+  const bySetup = Boolean(process.env.HELDOUT_SETUP);
   // Run again in a set-up project: nothing to onboard.
   if (existingProject && !flagStr(flags, 'base-url') && !(needInstall && !flags.install)) {
-    console.log('\nNext: npm run heldout -- doctor   (checks the project; stories and actions carry on as before)');
+    if (!bySetup) console.log('\nNext: npm run heldout -- doctor   (checks the project; stories and journeys carry on as before)');
     return;
   }
+  const steps = [
+    ...(needInstall && !flags.install ? ['npm install && npx playwright install chromium   (or re-run init with --install)'] : []),
+    ...(bySetup ? [] : ['npm run heldout -- doctor  checks config, AUT reachability, Jira, browser, the journeys']),
+    'Ask Opus: "Run a held-out evaluation of ABC-123"   (no Jira? npm run heldout -- new ABC-1 --from story.md)',
+  ];
   console.log('\nNext:');
-  if (needInstall && !flags.install) console.log('  1. npm install && npx playwright install chromium   (or re-run init with --install)');
-  console.log(`  ${needInstall && !flags.install ? '2' : '1'}. npm run heldout -- doctor  checks config, AUT reachability, Jira, browser, the actions`);
-  console.log(`  ${needInstall && !flags.install ? '3' : '2'}. Ask Opus: "Run a held-out evaluation of ABC-123"   (no Jira? npm run heldout -- new ABC-1 --from story.md)`);
+  steps.forEach((s, i) => console.log(`  ${i + 1}. ${s}`));
   console.log('  Test users, when stories need them (Opus asks when it gets there):');
   console.log('     accounts that already exist  npm run heldout -- accounts --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1');
   console.log('                                  (password in .env: npm run heldout -- secret APP_PASSWORD_1 --ask; or in Vault: --password-vault secret/qa/app#password)');

@@ -30,8 +30,8 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const failures = meta?.stats ? meta.stats.unexpected + meta.stats.flaky : 0;
   const pending = triage ? triage.entries.filter((e) => e.status !== 'passed' && !e.final).length : failures;
   const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string; generatedAt?: string }>(p.verdictJson) : undefined;
-  const harvestFile = path.join(p.hardening, 'actions-harvest.json');
-  const harvested = fs.existsSync(harvestFile) ? readJson<{ finalRun: string; proven: number }>(harvestFile) : undefined;
+  const harvestFile = path.join(p.hardening, 'journeys-harvest.json');
+  const harvested = fs.existsSync(harvestFile) ? readJson<{ finalRun: string; proven: string[] }>(harvestFile) : undefined;
   // Stale when a later evaluation run exists than the one the verdict judged (by run name: file times change with a
   // clone or a copy, the recorded final run does not).
   const verdictStale = Boolean(verdict && lastEval && verdict.finalRun && verdict.finalRun < lastEval);
@@ -43,14 +43,14 @@ function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   return [
     { name: 'fetch', done: fs.existsSync(p.storyMd), detail: fs.existsSync(p.storyMd) ? `story + ${fs.existsSync(p.linked) ? fs.readdirSync(p.linked).length : 0} linked file(s)${bound ? ` · AUT ${bound}` : ''}` : 'not fetched', next: `${H} fetch ${key}` },
     { name: 'contract', done: Boolean(contract) && contractErrors === 0, detail: !contract ? 'missing' : contractErrors ? `${contractErrors} error(s) (incl. review)` : `${contract.acceptanceCriteria.length} AC · ${contract.gaps.length} gap(s) · reviewed`, next: contract ? `${H} contract ${key}   (extractor / reviewer subagents until clean)` : `${H} contract ${key} --pack` },
-    { name: 'tests', done: specs.length > 0 && !/TODO\(test\)/.test(src), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}` : 'missing', next: `heldout-test-author subagent (from the contract, with the actions: tests/*.spec.ts, lint clean with --allow-unhardened)` },
+    { name: 'tests', done: specs.length > 0 && !/TODO\(test\)/.test(src), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}` : 'missing', next: `heldout-test-author subagent (from the contract, with the journeys: tests/*.spec.ts, lint clean with --allow-unhardened)` },
     { name: 'freeze', done: fs.existsSync(p.draft) && fs.readdirSync(p.draft).some((f) => f.endsWith('.spec.ts')), detail: fs.existsSync(p.draft) ? 'draft frozen' : 'not frozen', next: `${H} integrity ${key} --snapshot` },
     { name: 'harden', done: todo === 0 && fs.existsSync(p.hardeningLog) && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${fs.existsSync(p.hardeningLog) ? '' : ' · no hardening log'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
     { name: 'run', done: Boolean(lastEval), detail: lastEval ? `${lastEval}${meta?.stats ? `: ${meta.stats.expected} passed, ${meta.stats.unexpected} failed, ${meta.stats.flaky} flaky` : ''}` : 'no evaluation run', next: `${H} run ${key}` },
     { name: 'triage', done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: `heldout-triager subagent (${triage ? 'reproduces each pending failure live and records it' : `runs ${H} triage ${key}, then reproduces each failure live`})` },
     { name: 'verdict', done: Boolean(verdict) && !verdictStale, detail: verdict ? `${verdict.verdict}${verdictStale ? ' (older than the last run)' : ''}` : 'none', next: `${H} verdict ${key}` },
     { name: 'publish', done: Boolean(published) && (!verdict || published!.verdict === verdict.verdict) && !verdictStale, detail: published ? `${published.verdict} at ${published.at.slice(0, 16)}` : 'not published', next: `${H} publish ${key}` },
-    { name: 'actions', done: Boolean(harvested) && harvested!.finalRun === verdict?.finalRun, detail: harvested ? `${harvested.proven} action(s) recorded in the UI / API maps${harvested.finalRun === verdict?.finalRun ? '' : ` (from ${harvested.finalRun}, an older run)`}` : 'maps not harvested', next: `${H} actions ${key} --harvest --apply` },
+    { name: 'journeys', done: Boolean(harvested) && harvested!.finalRun === verdict?.finalRun, detail: harvested ? `${harvested.proven.length} journey(s) recorded in the registry${harvested.finalRun === verdict?.finalRun ? '' : ` (from ${harvested.finalRun}, an older run)`}` : 'not harvested', next: `${H} journeys ${key} --harvest --apply` },
   ];
 }
 

@@ -1,6 +1,6 @@
 ---
 name: heldout-hardener
-description: Hardens a frozen held-out test draft against the live application — discovers routes, locators, endpoints and request fields with the browser and API tiers, makes the tests and the shared actions they call work, resolves the contract's mechanics gaps and proves stability with repeated runs, changing HOW a test works and never WHAT it expects. Also repairs confirmed script defects after triage. Use during phase 3 (and the phase 5 repair loop) of the heldout-evaluator skill, after `heldout integrity KEY --snapshot`.
+description: Hardens a frozen held-out test draft against the live application — discovers routes, locators, endpoints and request fields with the browser and API tiers, makes the tests and the shared journeys they call work, resolves the contract's mechanics gaps and proves stability with repeated runs, changing HOW a test works and never WHAT it expects. Also repairs confirmed script defects after triage. Use during phase 3 (and the phase 5 repair loop) of the heldout-evaluator skill, after `heldout integrity KEY --snapshot`.
 model: opus
 ---
 

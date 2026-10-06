@@ -3,12 +3,12 @@
 Write `output/<profile>/<KEY>/tests/<key-lowercase>.spec.ts` straight from the reviewed requirement contract
 (`requirement-contract.json`), **before** anyone looks at the AUT. The draft encodes the oracle; hardening (phase 3)
 only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, its test type (one: what it
-truly proves) and the requirement source it comes from. Its steps call the application's shared **actions**
-([actions.md](actions.md)); every expectation stays in the test.
+truly proves) and the requirement source it comes from. Its steps call the application's shared **journeys**
+([journeys.md](journeys.md)); every expectation stays in the test.
 
 `heldout scaffold KEY` writes a head start: the imports, the `ASSUMPTION` / `OPEN-QUESTION` lines of the contract's
 gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`): the first
-pass below. `heldout actions KEY` lists the actions you can call.
+pass below. `heldout journeys KEY` lists the journeys you can call.
 
 ## Two passes: every criterion first, then round the test types
 
@@ -51,8 +51,8 @@ test) and the verdict's coverage by type, so it must say what the test really is
 
 ```ts
 import { test, expect, expectResponse, unique, gotoPage, signIn, type Api, type Account } from '../../../../heldout-support/fixtures';
-import { addFavourite } from '../../../../actions/<profile>/api/favorites/add-favourite';   // actions (HOW), one per file
-import { openProduct } from '../../../../actions/<profile>/ui/product/open-product';
+import { addFavourite } from '../../../../journeys/fixtures/favorites';   // journeys (HOW), one file per domain
+import { openProduct } from '../../../../journeys/fixtures/product';
 
 // ASSUMPTION: G2 — status of a refused duplicate: 409 (the linked page shows it for the same API)
 // OPEN-QUESTION: G3 — how many favourites may a customer keep?
@@ -114,7 +114,7 @@ test.describe('<KEY> <summary>', () => {
 | `@assumes:G<n>` | on every test whose expected value comes from an assumed oracle gap | A confirmed failure there is "an assumption the application contradicts" (a question for the owner), never a defect. Keep requirement-backed checks in other tests so they still count. An assumption that only leaves something unasserted: write `// ASSUMPTION: G<n> … (not asserted)` and tag nothing |
 | `@depends:SCN-x` | when the test's pre-steps rely on another test's endpoint | A BLOCKED dependant names its cause |
 | `@irreversible` | on a test whose action changes the application for good (locks an account, sends a real e-mail or payment, uses up a one-time code) | It runs once per run: never retried, never repeated by `--repeat-each`, so every run does exactly the damage it must. Give it data of its own (a fresh account) |
-| `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the actions make count as plumbing too |
+| `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the journeys make count as plumbing too |
 
 ### Test-type taxonomy (`@type:`)
 
@@ -166,31 +166,31 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    rounds inside the test.
 7. **Composition:** tag every AC the flow chains and assert the hand-offs; single-AC tests keep their own checks.
 
-## Actions: reuse, then add
+## Journeys: reuse, then add
 
-The application's actions (`actions/<profile>/ui/<domain>/<action>.ts`, `api/<domain>/<action>.ts`, one per file) hold
+The application's journeys (`journeys/fixtures/<domain>.ts`, one file per area of the application, UI and API) hold
 the HOW every story needs: open a page and wait until it is ready, fill a form, create and delete a record, find one.
-Call them for the steps; they hold no expected value, so reading them can't leak the oracle. `heldout actions KEY`
-lists them, the ones the story concerns first, with what each calls and which stories proved it.
+Call them for the steps; they hold no expected value, so reading them can't leak the oracle. `heldout journeys KEY`
+lists them, the ones the story concerns first, with what each calls, what must run before it (`requires`, from
+`journeys/registry.yml`) and which stories proved it.
 
-- **Reuse** an action whose doc comment says it does the step you need. One marked `STALE` doesn't work any more: call
-  it anyway if it's the right step (the hardener fixes it), or write the step in the test.
-- **Add** an action when the step is something later stories will need too (signing in on a page, creating an order,
-  opening the cart): a **new file** named after it, in the folder of the domain it belongs to
-  (`actions/<profile>/api/orders/create-order.ts`; create the folder when there is none), exporting that one action
-  with a `/** doc comment */` saying what it does. What several actions of a domain share (a type, a parser) goes in
-  its `_shared.ts`. Guessed routes, locators and fields get `// TODO(harden)`, as in the tests. Never change what an
-  existing action does for its other callers: add a new one.
-- **Why one per file:** other people add actions for their own stories on their own branches. A new action in a new
-  file never meets theirs in a merge; see [actions.md](actions.md).
+- **Reuse** a journey whose doc comment says it does the step you need, after what its `requires` lists (sign the
+  account in before a journey that requires `support.sign-in`). One marked `STALE` doesn't work any more: call it
+  anyway if it's the right step (the hardener fixes it), or write the step in the test.
+- **Add** a journey when the step is something later stories will need too (signing in on a page, creating an order,
+  opening the cart): an exported function with a `/** doc comment */` saying what it does, in the file of the domain
+  it belongs to (`journeys/fixtures/orders.ts`; a new domain is a new file, named in lower case). Helpers the domain's
+  journeys share (a type, a parser) stay in the file, not exported. Guessed routes, locators and fields get
+  `// TODO(harden)`, as in the tests. Never change what an existing journey does for its other callers: add a new one.
+- **Don't edit `registry.yml`:** the harvest records new journeys once a passing test used them; see
+  [journeys.md](journeys.md).
 - **Keep in the test** what is only this story's: the action under test, and every assertion of what is expected.
-- An action may check its own preconditions with a plain `expect(…, '… (precondition)')`. Never a `[REQ …]` message,
+- A journey may check its own preconditions with a plain `expect(…, '… (precondition)')`. Never a `[REQ …]` message,
   never `expectResponse`, never a message or value the requirement says the application shows: return what the step
-  produced and let the test assert it. The lint refuses anything else (`actions/req-assertion`,
-  `actions/oracle-literal`) and warns about the layout (`actions/one-action-per-file`, `actions/file-name`).
-- Actions take what they need as parameters (`api`, `seed`, `page`, the account) and import only from
-  `heldout-support/fixtures`, other actions and their domain's `_shared.ts`, never from a story's folder. Import each
-  action from its own file; there is no index file.
+  produced and let the test assert it. The lint refuses anything else (`journeys/req-assertion`,
+  `journeys/oracle-literal`) and warns about the layout (`journeys/layout`, `journeys/no-summary`).
+- Journeys take what they need as parameters (`api`, `seed`, `page`, the account) and import only from
+  `heldout-support/fixtures` and other domains' files, never from a story's folder.
 
 ## Fixtures (`heldout-support/fixtures.ts`)
 
@@ -217,7 +217,7 @@ lists them, the ones the story concerns first, with what each calls and which st
 | An expected value computed in the test uses only the requirement and the test's own data, never a value the application answers about the property under test (its `last_page` when pages are checked, its `per_page` when the page size is) | Otherwise the test checks the application against itself and expects nonsense when it deviates: derive the page to read and the count to expect from the requirement (`Math.ceil(total / 12)`) |
 | Inputs (a search term, a product to add, a quantity under test) outside `@req-constants`: in `test-data.json` or a plain `const` | Only what is *expected* is frozen; an input the hardener may have to swap (a term the app ignores, a product out of stock) must stay swappable. A limit the requirement states (99) is expected and frozen; the value the test sends at it is an input |
 | Endpoints exactly as the contract declares them (one `EP` map) | Triage flags calls to undeclared endpoints as script defects |
-| Guessed locators, routes and fields end with `// TODO(harden)` (in the spec and in actions) | Lint and integrity block the official run until they are hardened |
+| Guessed locators, routes and fields end with `// TODO(harden)` (in the spec and in journeys) | Lint and integrity block the official run until they are hardened |
 | Preconditions use plain `expect(…, 'precondition …')` (no `[REQ]`) | A broken precondition is not reported as a requirement failure |
 | `expect.soft` when one test checks several facts | The report shows every deviation, not only the first |
 
@@ -245,7 +245,7 @@ lists them, the ones the story concerns first, with what each calls and which st
   the action (a validation message, a request, the form re-rendered) — or, when there is none, a bounded wait for the
   unwanted outcome — and say which in the step title.
 - **A page that loads its record after it opens** (a details or edit page of a single-page app): before acting, wait
-  for a value the page loads, not only for the URL. Otherwise a click can do nothing, now and then. An action that
+  for a value the page loads, not only for the URL. Otherwise a click can do nothing, now and then. A journey that
   opens such a page waits for it.
 - **Concurrency** (`@type:concurrency`, API): fire the competing calls together and check the invariant after each
   round. Keep the burst small and repeat it; the first round that breaks the rule fails the test:
@@ -279,7 +279,7 @@ Full strategy: [data-and-journeys.md](data-and-journeys.md).
 
 | Helper | Use |
 | --- | --- |
-| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. An action that creates a record wraps it in `seed.create` |
+| `seed.create(label, make, cleanup?)` | Establish a precondition (Given) through the AUT, normally its API. A failure becomes `[SEED] …` → triage **BLOCKED**. Cleanup runs after the test. API calls made inside are tagged `[seed]` and kept out of the evidence. A journey that creates a record wraps it in `seed.create` |
 | `seed.track(label, created, cleanup)` | Register cleanup for data the test itself created (the POST under test, or data the AUT wrongly accepted) |
 | `seed.tag` | Per-test tag for naming seeded data (sweepable) |
 | `seed.account()` · `signIn(page, account)` | A test user from the profile's accounts recipe and its UI sign-in. See [data-and-journeys.md](data-and-journeys.md) §4a |

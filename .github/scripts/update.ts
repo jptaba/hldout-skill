@@ -1,8 +1,10 @@
 /**
- * Install or update the skill in a project — run it from the skill repository (a clone anywhere, any git host), in the
- * project's folder. `heldout init` runs it first, so a new project gets the same files.
+ * Install or update the skill in a project — run from the skill repository (a clone anywhere, any git host), in the
+ * project's folder. setup.ps1 / setup.sh at the clone's root pull it and run this (or `init`, which runs it first, for a
+ * new project), then doctor.
  *
- *   npx tsx <skill repository>/.github/scripts/heldout.ts update [--ci [gitlab|github]]
+ *   <clone>/setup.ps1 [-Ci gitlab|github]        or   <clone>/setup.sh [--ci gitlab|github]
+ *   npx tsx <clone>/.github/scripts/heldout.ts update [--ci [gitlab|github]]     (what setup runs)
  *
  * Copies, as they are in the skill repository (same paths; there are no templates):
  *   .github/skills/heldout-evaluator   the skill (replaced as a whole)
@@ -17,12 +19,13 @@
  * .github/ only, so it doesn't load the bridges too) and .vscode/mcp.json (the Playwright MCP server, browser tier 2),
  * whose servers also go into the root .mcp.json for Claude Code, which reads only that file.
  * --ci [gitlab|github] adds the regression pipeline (default: from the git remote).
- * Run inside a project (its own copy of the scripts), it checks the files and prints the command that updates them.
+ * Run inside a project (its own copy of the scripts), it checks the files and says how to update them. SOURCE.json is
+ * committed with the project, so it records the skill's remote and commit, never a path on this machine.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { AGENT_FILES, ROOT, SCRIPTS_DIR, SKILL_DIR, ensureGitignore, fileHash, flagStr, main, parseArgs, rel, type Flags } from './config';
+import { AGENT_FILES, ROOT, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitignore, fileHash, flagStr, main, parseArgs, rel, type Flags } from './config';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
 /** Files a project gets from the skill repository, at the same path. */
@@ -35,15 +38,14 @@ const SETTINGS: [file: string, why: string][] = [
 ];
 /** The regression pipeline (--ci), from the same paths in the skill repository. */
 const CI_FILES = { github: '.github/workflows/heldout.yml', gitlab: '.gitlab/heldout.gitlab-ci.yml' };
-/** What a sparse clone of the skill repository needs (top-level files come with it). */
-const SPARSE = '.github .claude .vscode .gitlab heldout-support';
 
 const PROJECT_SKILL = path.join(ROOT, '.github', 'skills', 'heldout-evaluator');
 const PROJECT_SCRIPTS = path.join(ROOT, '.github', 'scripts');
 const SOURCE_FILE = path.join(PROJECT_SKILL, 'SOURCE.json');
 /** The skill repository these scripts are in. */
 const SOURCE_ROOT = path.resolve(SCRIPTS_DIR, '..', '..');
-type SourceInfo = { from: string; update: string; remote?: string; commit?: string; installedAt: string; scripts: string[]; files: Record<string, string>; mcpServers?: string[] };
+/** What the project records of its copy (committed, so no machine paths): where it came from, and what it copied. */
+type SourceInfo = { remote?: string; commit?: string; installedAt: string; scripts: string[]; files: Record<string, string>; mcpServers?: string[] };
 
 /** Files left exactly as they are: one summary line at the end instead of a line each. */
 const unchanged: string[] = [];
@@ -58,7 +60,7 @@ const readSource = (): SourceInfo | undefined => (fs.existsSync(SOURCE_FILE) ? J
 const writeSource = (info: SourceInfo) => fs.writeFileSync(SOURCE_FILE, `${JSON.stringify(info, null, 2)}\n`);
 // Line endings don't count as a change (git on Windows checks out CRLF; editors may normalise either way).
 const normalised = (s: string) => s.replace(/\r\n/g, '\n');
-const notInSource = (file: string) => `${file} is not in ${SOURCE_ROOT} — a sparse clone needs cone mode (older git leaves the top-level files out without it): git -C "${SOURCE_ROOT}" sparse-checkout init --cone, then git -C "${SOURCE_ROOT}" sparse-checkout set ${SPARSE}`;
+const notInSource = (file: string) => `${file} is not in the skill clone ${SOURCE_ROOT} — clone the whole repository (git clone --depth 1 <skill-repository-url>), not part of it`;
 const git = (dir: string, ...args: string[]) => {
   const r = spawnSync('git', ['-C', dir, ...args], { encoding: 'utf8' });
   return r.status === 0 ? r.stdout.trim() : undefined;
@@ -91,13 +93,11 @@ function installSkill(): SourceInfo {
   const head = git(SOURCE_ROOT, 'rev-parse', '--short', 'HEAD');
   const shipped = ['.github/skills/heldout-evaluator', '.github/scripts', ...WORKSPACE_FILES, ...SETTINGS.map(([f]) => f), ...Object.values(CI_FILES)];
   const commit = head && git(SOURCE_ROOT, 'status', '--porcelain', '--', ...shipped) ? `${head}+local changes` : head;
-  // Where to pull from and what to run again to update (paths in the form the local git prints them).
-  const repo = git(SOURCE_ROOT, 'rev-parse', '--show-toplevel');
-  const info: SourceInfo = { from: repo ?? SOURCE_ROOT, update: `${repo ? `git -C "${repo}" pull, then ` : ''}npx -y tsx "${path.join(scriptsSource, 'heldout.ts').split(path.sep).join('/')}" update`,
-    remote: git(SOURCE_ROOT, 'remote', 'get-url', 'origin'), commit, installedAt: new Date().toISOString(), scripts, files: before?.files ?? {} };
+  const remote = git(SOURCE_ROOT, 'remote', 'get-url', 'origin');
+  const info: SourceInfo = { ...(remote ? { remote } : {}), ...(commit ? { commit } : {}), installedAt: new Date().toISOString(), scripts, files: before?.files ?? {} };
   writeSource(info);
   const was = before?.commit;
-  say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} + ${rel(PROJECT_SCRIPTS)} (from ${commit?.endsWith('+local changes') || !info.remote ? `the folder ${info.from}${commit ? ` @ ${commit}` : ''}` : `${info.remote}${commit ? ` @ ${commit}` : ''}`})`);
+  say('✔', `${before ? `updated the skill${was || commit ? ` (${was ?? '?'} → ${commit ?? '?'})` : ''}` : 'installed the skill'} → ${rel(PROJECT_SKILL)} + ${rel(PROJECT_SCRIPTS)} (from ${remote ?? 'a local copy'}${commit ? ` @ ${commit}` : ''})`);
   return info;
 }
 
@@ -189,8 +189,7 @@ main(() => {
   // The project's own copy: nothing to copy from, so check the files and say how to update.
   if (!fromRepository) {
     for (const file of WORKSPACE_FILES) if (!fs.existsSync(path.join(ROOT, file))) say('⚠', `${file} is missing`);
-    const how = readSource()?.update;
-    console.log(`Update runs from the skill repository, in this folder: ${how ?? 'npx -y tsx "<skill repository>/.github/scripts/heldout.ts" update'}`);
+    console.log(`To update: ${UPDATE_HINT}`);
     return;
   }
 
@@ -205,10 +204,10 @@ main(() => {
   // A set-up project gains the .gitignore entries a newer version needs (init adds them for a new one).
   if (fs.existsSync(path.join(ROOT, 'heldout.config.json'))) ensureGitignore(say);
   sayUnchanged();
-  // init runs update first and prints its own next steps.
-  if (!process.env.HELDOUT_INIT) {
+  // init runs update first and prints its own next steps; setup runs doctor itself.
+  if (!process.env.HELDOUT_INIT && !process.env.HELDOUT_SETUP) {
     console.log(fs.existsSync(path.join(ROOT, 'heldout.config.json'))
-      ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; stories and actions carry on as before)'
-      : `\nNext: set the project up — npx -y tsx "${path.join(SCRIPTS_DIR, 'heldout.ts').split(path.sep).join('/')}" init --base-url https://your-app --install`);
+      ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; stories and journeys carry on as before)'
+      : '\nNext: set the project up — <clone>/setup.ps1 -BaseUrl https://your-app (PowerShell) or <clone>/setup.sh --base-url https://your-app (bash, zsh)');
   }
 });

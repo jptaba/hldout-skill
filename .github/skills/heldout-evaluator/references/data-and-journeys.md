@@ -2,8 +2,8 @@
 
 Held-out tests must be **independent, repeatable and correctly attributed**. Two decisions matter
 most: where each test's data comes from, and where each journey starts. How to seed a kind of record, and how to reach
-a page, is the same for every story on an application: write it once as an action
-([actions.md](actions.md)) and call it from every test that needs it.
+a page, is the same for every story on an application: write it once as a journey
+([journeys.md](journeys.md)) and call it from every test that needs it.
 
 ## 1. Data seeding — principles
 
@@ -13,7 +13,7 @@ a page, is the same for every story on an application: write it once as an actio
    signed in" is set up by `seed.create(…)`, not by assuming state, and not by clicking through the
    UI when an API exists.
 3. **Seed through the black box.** Use the AUT's own interfaces (API first). Seeding is *mechanics*
-   (HOW), so it may use endpoints the requirement doesn't cover: in an action, or in the spec declared as
+   (HOW), so it may use endpoints the requirement doesn't cover: in a journey, or in the spec declared as
    `// SEED-ENDPOINT:`.
 4. **Seed failures are not requirement failures.** `seed.create` re-throws as `[SEED] …`, and triage
    classifies it **BLOCKED** (test not evaluated), never APPLICATION_DEFECT for the AC under test.
@@ -52,11 +52,11 @@ a page, is the same for every story on an application: write it once as an actio
 
 ## 4. How it looks in a spec
 
-The seeding recipe is an action, shared by every story that needs a booking:
+The seeding recipe is a journey, shared by every story that needs a booking:
 
 ```ts
-// actions/<profile>/api/bookings/create-booking.ts
-import { expect, type Api, type Seed } from '../../../../heldout-support/fixtures';
+// journeys/fixtures/bookings.ts
+import { expect, type Api, type Seed } from '../../heldout-support/fixtures';
 
 /** Create a booking through the API; deleted after the test. */
 export async function createBooking(api: Api, seed: Seed, headers: Record<string, string>, b: Booking) {
@@ -71,7 +71,7 @@ export async function createBooking(api: Api, seed: Seed, headers: Record<string
 ```ts
 // output/<profile>/<KEY>/tests/<key>.spec.ts
 import { test, expect } from '../../../../heldout-support/fixtures';
-import { createBooking } from '../../../../actions/<profile>/api/bookings/create-booking';
+import { createBooking } from '../../../../journeys/fixtures/bookings';
 
 test('SCN-004: …', { tag: ['@AC-4', '@type:functional', '@layer:api'] }, async ({ api, journey, data, seed }) => {
   let id = 0;
@@ -250,17 +250,17 @@ Triage support:
 | --- | --- |
 | **Start where the AC starts.** If the AC says "On the Checkboxes page…", the Given deep-links there: `await gotoPage(page, '/checkboxes')` | Attribution: a broken menu must not fail the checkbox AC. Also speed and stability |
 | **Start from the base URL only when navigation is part of the requirement** ("from the home page a guest can reach…") or the journey truly begins there | Otherwise navigation steps add unrelated failure points |
-| **Seed state instead of walking to it.** Signed in, items in cart, an existing record: seed via the API (or UI setup in `seed.create`), through an action | Keeps each test about its own AC |
-| **When deep links are impossible** (SPA state, POST-only flows), take the shortest stable path and keep it in Given/setup steps (a UI action) | Failures there read as setup, not as the AC |
+| **Seed state instead of walking to it.** Signed in, items in cart, an existing record: seed via the API (or UI setup in `seed.create`), through a journey | Keeps each test about its own AC |
+| **When deep links are impossible** (SPA state, POST-only flows), take the shortest stable path and keep it in Given/setup steps (a UI journey) | Failures there read as setup, not as the AC |
 | **Test navigation once, explicitly**, if the requirement mentions it (menu items, links) as its own test | One clear signal instead of noise in every test |
 | **Be explicit about negative preconditions** ("Given I am not signed in") rather than implying them | Readers and lint can see the state the test relies on |
 
 `gotoPage(page, path)` waits for DOMContentLoaded, then gives `load` a bounded settle time. Some
-AUTs never fire `load` (slow third-party assets), and page scripts may bind their handlers late. A UI action
+AUTs never fire `load` (slow third-party assets), and page scripts may bind their handlers late. A UI journey
 that opens a page also waits for its readiness anchor (a heading or field that is there only once it loaded).
 
 The preflight lint warns when a UI/e2e test doesn't start with a `Given` step (`no-entry-point`), and
-when tests have data preconditions but neither the spec nor its actions use `seed` (`no-seeding`).
+when tests have data preconditions but neither the spec nor its journeys use `seed` (`no-seeding`).
 
 ## 6. Recommended next steps for teams adopting this
 
@@ -270,7 +270,7 @@ when tests have data preconditions but neither the spec nor its actions use `see
    shared ones, keep `workers` low. This evaluation measured shared sandboxes dropping connections
    under 8 repeats × 4 workers.
 3. **Write the accounts recipe** (§4a) for each application as soon as a story needs users.
-4. **Keep seeding recipes per entity as actions** (`actions/<profile>/api/<domain>/<action>.ts`), so every story
+4. **Keep seeding recipes per entity as journeys** (`journeys/fixtures/<domain>.ts`), so every story
    on the application reuses them. Data builders that encode what a story requires (`validBooking()` built from the
    requirement's schema) stay in that story's spec.
 5. **Sweep leftovers by prefix** after interrupted runs. Every name the tests make starts with the profile's data

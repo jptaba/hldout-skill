@@ -1,7 +1,7 @@
 /**
  * Evidence-based automatic failure classification (pure functions — unit tested in tests/).
  * UI signals: failure-time ARIA snapshot. API signals: last api-exchange attachment + the
- * endpoints the requirement contract declares, plus the plumbing the specs and their actions call.
+ * endpoints the requirement contract declares, plus the plumbing the specs and their journeys call.
  */
 import { matchEndpoint, type Endpoint } from './spec-model';
 

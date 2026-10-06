@@ -18,8 +18,8 @@ the commands below from its root.
   per criterion, written before the evaluation. The evaluator never saw it.
 - `<project>/output/<profile>/KEY/`: everything the round produced (contract and review, tests and `draft/`,
   `hardening/`, every `runs/NN-label/` with `triage.json`, `verdict.json`, `verdict.md`).
-- `<project>/actions/<profile>/`: the actions the tests called (and the maps the harvest wrote). An action holding an
-  expected value of the story is a held-out leak.
+- `<project>/journeys/`: the journeys the tests called (`fixtures/<domain>.ts`) and the registry the harvest wrote
+  (`registry.yml`). A journey holding an expected value of the story is a held-out leak.
 - `.github/skills/heldout-evaluator/` and `.github/agents/`: what the skill told the evaluator to do.
 
 Do this:

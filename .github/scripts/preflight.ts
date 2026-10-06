@@ -1,15 +1,15 @@
 /**
  * Preflight gates run before every official run (scripts/run.ts) and on demand (scripts/lint.ts):
- *   1. Traceability lint — contract ⇄ tests ⇄ [REQ] assertions are consistent, and the actions hold no oracle.
+ *   1. Traceability lint — contract ⇄ tests ⇄ [REQ] assertions are consistent, and the journeys hold no oracle.
  *   2. AUT healthcheck   — the target is reachable, so environment noise never reaches triage.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, actionPaths, evalPaths, rel, resolveUrl, type HeldoutConfig } from './config';
+import { ROOT, evalPaths, journeyPaths, rel, resolveUrl, type HeldoutConfig } from './config';
 import { checkContract, checkSuiteAgainstContract, readContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
-import { actionsUsedBy, lintActions } from './actions-store';
+import { journeysUsedBy, lintJourneys } from './journeys-store';
 import { TEST_TYPES, readSuite, specFiles, type Scenario, type TestType } from './spec-model';
 
 export interface Finding { level: 'error' | 'warn'; code: string; message: string }
@@ -83,10 +83,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any test`);
 
   const src = specs.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
-  const actions = actionsUsedBy(cfg, specs);
-  const actionSrc = actions.map((a) => fs.readFileSync(a, 'utf8'));
+  const journeys = journeysUsedBy(cfg, cfg.autId, specs);
+  const journeySrc = journeys.map((a) => fs.readFileSync(a, 'utf8'));
   // A control character in source (a "\b" that became a backspace through a shell edit) silently changes a regex.
-  for (const s of [...specs, ...actions]) {
+  for (const s of [...specs, ...journeys]) {
     const lines = fs.readFileSync(s, 'utf8').split('\n');
     const bad = lines.map((l, i) => (/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(l) ? i + 1 : 0)).filter(Boolean);
     if (bad.length) err('control-character', `${rel(s)} line(s) ${bad.slice(0, 5).join(', ')} contain a control character — likely an escape (\\b, \\t) mangled by a shell edit`);
@@ -97,10 +97,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   }
   const stubs = (src.match(/TODO\(test\)/g) ?? []).length;
   if (stubs) err('unfinished-scaffold', `${stubs} TODO(test) marker(s) from "heldout scaffold" remain in the spec — write the journeys and assertions`);
-  // The actions the tests use: HOW only, never an expected value (they are not frozen with the tests), one per file.
-  for (const x of lintActions(actions, contract, actionPaths(cfg, cfg.autId).base)) out.push({ ...x, code: `actions/${x.code}` });
-  const todo = [src, ...actionSrc].reduce((n, s) => n + (s.match(/TODO\(harden\)/g) ?? []).length, 0);
-  if (todo) (opts.allowUnhardened ? warn : err)('unhardened', `${todo} TODO(harden) marker(s) remain (in the spec or the actions it uses)`);
+  // The journeys the tests use: HOW only, never an expected value (they are not frozen with the tests), one file per domain.
+  for (const x of lintJourneys(journeys, contract, journeyPaths(cfg, cfg.autId).base)) out.push({ ...x, code: `journeys/${x.code}` });
+  const todo = [src, ...journeySrc].reduce((n, s) => n + (s.match(/TODO\(harden\)/g) ?? []).length, 0);
+  if (todo) (opts.allowUnhardened ? warn : err)('unhardened', `${todo} TODO(harden) marker(s) remain (in the spec or the journey files it uses)`);
   // Once hardened, the log says which browser/API tiers were used; the verdict quotes it.
   if (!opts.allowUnhardened && fs.existsSync(p.hardeningLog) && !/^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'))) {
     err('hardening-log-empty', `${rel(p.hardeningLog)} has no "Tiers used" — record the tiers you used and what hardening changed before the evaluation run (the verdict quotes it)`);
@@ -118,10 +118,10 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const givens = (steps: string[]) => { const out: string[] = []; let inGiven = false; for (const st of steps) { if (/^Given\b/.test(st)) inGiven = true; else if (/^(When|Then)\b/.test(st)) inGiven = false; if (inGiven && /^(Given|And|But)\b/.test(st)) out.push(st); } return out; };
   const needsData = f.scenarios.filter((x) => givens(x.steps).some((st) => /\b(exists?|created|signed in|have added|know (the|an) id|registered)\b/i.test(st)));
   // Lookups ("I know the id of …") are satisfied by seed.step; data by seed.create/track; auth by seed.once — in the
-  // spec or in the actions it calls.
-  const seeding = [src, ...actionSrc].some((s) => /\bseed\.(create|track|step|once|until|account)\(/.test(s));
+  // spec or in the journeys it calls.
+  const seeding = [src, ...journeySrc].some((s) => /\bseed\.(create|track|step|once|until|account)\(/.test(s));
   if (needsData.length && !seeding) {
-    warn('no-seeding', `${needsData.length} test(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but neither the spec nor its actions use seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
+    warn('no-seeding', `${needsData.length} test(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but neither the spec nor its journeys use seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
   }
 
   // An assertion whose message starts from a variable (a local helper building "[REQ …]") is invisible to the integrity
@@ -129,11 +129,11 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const hidden = [...src.matchAll(/expect(?:\.soft)?\([^;]*?,\s*`\$\{/g)].length;
   if (hidden) warn('req-message-not-literal', `${hidden} assertion(s) take their message from a variable (e.g. a helper that builds "[REQ …]"), so the integrity freeze can't see them — use expectResponse(res, { status, body }, '[REQ AC-n] …') for API answers, or write the [REQ] message literally`);
 
-  const used = [src, ...actionSrc].join('\n');
+  const used = [src, ...journeySrc].join('\n');
   for (const ep of f.endpoints) {
     const prefix = ep.path.split(/[{:]/)[0].replace(/\/+$/, '');
-    // The profile's accounts recipe calls endpoints on the tests' behalf (seed.account()), and so do actions.
-    if (prefix && !used.includes(prefix) && !JSON.stringify(cfg.aut.accounts ?? {}).includes(prefix)) warn('endpoint-unused', `Declared endpoint ${ep.method} ${ep.path} is not referenced by any test or action it uses`);
+    // The profile's accounts recipe calls endpoints on the tests' behalf (seed.account()), and so do journeys.
+    if (prefix && !used.includes(prefix) && !JSON.stringify(cfg.aut.accounts ?? {}).includes(prefix)) warn('endpoint-unused', `Declared endpoint ${ep.method} ${ep.path} is not referenced by any test or journey it uses`);
   }
 
   if (fs.existsSync(p.testData)) {
