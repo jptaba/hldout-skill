@@ -644,6 +644,166 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
     <figcaption>Scripts and subagents never call each other: every hand-off is a file in the story's folder, and the main agent runs the scripts between the subagents. Steps 1 to 6 turn the story into tests; the dimmed row is what happens to those tests afterwards.</figcaption>
   </figure>
 
+  <h3>The artifacts, step by step</h3>
+  <p>What each step of the diagram reads and writes, shown on one criterion of one story: AC3 of TOOL-6, the run in the <a href="#pipeline">end-to-end replay</a>. Every excerpt is from that run's files, shortened where marked with an ellipsis. AC3 is a useful one to follow because half of it can't be settled from the story: it points to a document the evaluator doesn't read.</p>
+
+  <p><span class="badge b-muted">1 · script</span> <b><code>fetch TOOL-6</code> writes <code>requirement/</code></b>: the story as text, and each Confluence page it links as a file beside it.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement/story.md (excerpt)</div><pre>## Description
+
+The mobile app shows the shop's categories as a tree, the same one the web shop shows in its filter. It reads them from the public catalogue API.
+
+API reference: [Toolshop API reference|https://jira.example.com/confluence/pages/viewpage.action?pageId=880002]
+The complete OpenAPI file is on the API portal: https://api.practicesoftwaretesting.com/api/documentation
+
+## Acceptance criteria (custom field)
+
+AC1 - GET /categories/tree returns the top-level categories (Hand Tools, Power Tools, Other), each with its sub-categories.
+AC2 - Every sub-category's parent_id is the id of the category it is listed under.
+AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-categories. For an id that does not exist the API answers with the error status given in the OpenAPI file.
+…</pre></div>
+
+  <p><span class="badge b-muted">2 · script</span> <b><code>contract TOOL-6 --pack</code> writes <code>evidence-pack.md</code></b>: every source line numbered, and each line that may carry a requirement marked ●. This is all the extractor and the reviewer read.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement/evidence-pack.md (excerpt)</div><pre>## story.md
+● L20  | The complete OpenAPI file is on the API portal: https://api.practicesoftwaretesting.com/api/documentation
+…
+● L26  | AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-categories. For an id that does not exist the API answers with the error status given in the OpenAPI file.
+
+## linked/confluence-880002-toolshop-api-reference-v5.md
+…
+● L66  | /categories/tree/{categoryId}:
+● L67  |   get:
+● L68  |     summary: One category with its sub_categories
+● L69  |     responses:
+● L70  |       "200": { description: The category with sub_categories }</pre></div>
+
+  <p><span class="badge b-inc">3 · subagent</span> <b>The contract extractor writes <code>requirement-contract.json</code></b>: the criterion quoted from its line, its outcomes in the source's own words, and a gap for what the sources don't settle. The coverage ledger accounts for every ● line.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement-contract.json (excerpt: AC-3, its gap, three ledger entries)</div><pre data-lang="json">{ "id": "AC-3",
+  "quote": "GET /categories/tree/{categoryId} returns that one category with its sub-categories. For an id that does not exist the API answers with the error status given in the OpenAPI file.",
+  "source": "story.md#L26",
+  "layer": "api",
+  "endpoints": ["GET /categories/tree", "GET /categories/tree/{categoryId}"],
+  "outcomes": [
+    "for an existing category id: 200 with that one category",
+    "the category comes with its sub-categories (sub_categories)",
+    "for an id that does not exist: the error status given in the OpenAPI file (not in the sources: G1, open)"
+  ],
+  "gaps": ["G1"] }
+
+{ "id": "G1", "kind": "oracle", "required": true, "affects": ["AC-3"],
+  "element": "the error status GET /categories/tree/{categoryId} must answer for an id that does not exist. AC3 says it is the one \"given in the OpenAPI file\", and that file is on the API portal, not among the story's sources",
+  "tried": [
+    { "where": "story", "result": "L26 gives no status, it points to the OpenAPI file; L20 says the complete OpenAPI file is on the API portal, which is not part of the requirement (and is on the application, so it is not consulted)" },
+    { "where": "linked", "result": "the API reference page lists only a 200 answer for /categories/tree/{categoryId} (L66-L70) … It states an error status for a missing brand only (L37-L41), which says nothing about categories" }
+  ],
+  "resolution": "open" }
+
+"coverage": [
+  { "lines": "story.md#L19", "as": "context", "note": "pointer to the linked API reference page, which is in the pack" },
+  { "lines": "story.md#L20", "as": "G1", "note": "the complete OpenAPI file is outside the story's sources; AC3 takes its error status from it" },
+  { "lines": "story.md#L24", "as": "AC-1, test-data" },
+  … ]</pre></div>
+  <p class="small">The page states 404 for a missing <i>brand</i>. The extractor did not carry that over to categories, and nobody was asked: the gap stays open and travels on.</p>
+
+  <p><span class="badge b-inc">4 · subagent</span> <b>The contract reviewer writes <code>requirement-contract.review.json</code></b>, in a fresh context and on another model, from the pack alone. <span class="badge b-muted">script</span> <code>contract TOOL-6</code> accepts the contract only with a review of this exact hash.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement-contract.review.json (excerpt)</div><pre data-lang="json">{ "reviewer": "heldout-contract-reviewer (Claude Sonnet 5.5)",
+  "contractHash": "4f7cd8cf62eadfd0",
+  "items": [
+    { "ref": "AC-3", "verdict": "supported",
+      "evidence": "story.md#L26; linked/confluence-880002-toolshop-api-reference-v5.md#L66-L70",
+      "note": "Error status is recorded as open gap G1." },
+    { "ref": "G1", "verdict": "supported",
+      "evidence": "story.md#L20, story.md#L26; linked/confluence-880002-toolshop-api-reference-v5.md#L66-L70",
+      "note": "The only error response for /categories/tree/{categoryId} is absent from the pack; the gap is open." },
+    … ],
+  "missed": [],
+  "summary": "All listed items are grounded in the pack. The one oracle gap (the 404-style status for a missing category) is correctly recorded as open." }</pre></div>
+
+  <p><span class="badge b-inc">5 · subagent</span> <b>The test author writes <code>tests/tool-6.spec.ts</code></b> from the reviewed contract, without a browser. The open question is written at the top of the spec, and the test asserts only what holds under every answer to it: an error status, not which one.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/tests/tool-6.spec.ts (excerpt)</div><pre data-lang="ts">import { test, expect, expectResponse, checkShape, type ApiResponse, type ShapeRule } from '../../../../heldout-support/fixtures';
+import { categoryTree, missingCategoryId, topLevelCategory } from '../../../../journeys/fixtures/categories';
+
+// OPEN-QUESTION: G1 — the error status GET /categories/tree/{categoryId} must answer for an id that does not exist. AC3 says it is the one "given in the OpenAPI file", and that file is on the API portal, not among the story's sources. …
+
+// @req-constants-start — expected outcomes copied verbatim from TOOL-6 (never edit during hardening)
+const REQ = {
+  STATUS: { OK: 200, ERROR_FROM: 400, ERROR_TO: 599 },
+  TOP_LEVEL: ['Hand Tools', 'Power Tools', 'Other'],
+  FILTER_NAME: 'By category',
+  SEARCH_CASES: [{ text: 'ham', finds: 'Hammer' }, { text: 'HAM', finds: 'Hammer' }],
+  ID_LENGTH: 26,
+} as const;
+// @req-constants-end
+…
+  // from story.md#L26 (the status itself: G1, open)
+  test('SCN-004: Asking the tree for a category id that does not exist is answered with an error status', { tag: ['@AC-3', '@type:negative', '@layer:api', '@P2', '@depends:SCN-001'] }, async ({ api, journey, seed }) => {
+    let id = ''; let res!: ApiResponse;
+    await journey.step('Given a category id that does not exist', async () => { id = await missingCategoryId(api, seed); });
+    await journey.step('When I GET /categories/tree/{categoryId} with that id', async () => { res = await api.get(EP.categoriesTreeByCategoryId(id)); });
+    await journey.step('Then the answer is an error status', async () => {
+      expect.soft(res.status, '[REQ AC-3] GET /categories/tree/{categoryId} for an id that does not exist answers an error status').toBeGreaterThanOrEqual(REQ.STATUS.ERROR_FROM);
+      expect.soft(res.status, '[REQ AC-3] GET /categories/tree/{categoryId} for an id that does not exist answers an error status, no higher than 599').toBeLessThanOrEqual(REQ.STATUS.ERROR_TO);
+    });
+  });</pre></div>
+  <p>The step that needs an id no category has is a journey: how to do something on this application, with no expected value in it. The test author added it to the domain's file, and the hardener later corrected one detail on the live app (the made-up id is no longer lower-cased, because the application writes its ids in upper case).</p>
+  <div class="code"><div class="hd">journeys/fixtures/categories.ts (excerpt, as it is after hardening)</div><pre data-lang="ts">/** Make a category id that no category has: a random id in the format of the application's ids, checked against the tree. */
+export async function missingCategoryId(api: Api, seed: Seed): Promise&lt;string&gt; {
+  const known = idsOf(await categoryTree(api, seed)).map((id) =&gt; String(id).toLowerCase());
+  const id = randomUlid();
+  expect(known, 'the made-up id is not the id of a category (precondition)').not.toContain(id.toLowerCase());
+  return id;
+}</pre></div>
+
+  <p><span class="badge b-muted">6 · script</span> <b><code>integrity TOOL-6 --snapshot</code> freezes the draft</b> into <code>draft/</code>: the spec, the contract's expected values and a hash of each journey the spec uses. After the hardener's work, <code>integrity TOOL-6</code> compares against it.</p>
+  <div class="grid two">
+    <div class="code"><div class="hd">…/TOOL-6/draft/journeys.json</div><pre data-lang="json">{
+  "api.categories.category-tree": "ac619859518f",
+  "api.categories.missing-category-id": "27b85b5d4c7f",
+  "api.categories.top-level-category": "7a753e9fd10d",
+  "ui.shop.open-shop": "5780ce4d920e",
+  "ui.shop.read-filter-tree": "51fbf937c7e1",
+  "ui.shop.shop-filter": "570b3e6600a2"
+}</pre></div>
+    <div class="code"><div class="hd">…/TOOL-6/hardening/integrity.json (excerpt)</div><pre data-lang="json">{
+  "status": "PRESERVED",
+  "files": [
+    { "file": "tool-6.spec.ts",
+      "draftAssertions": 26,
+      "currentAssertions": 26 }
+  ],
+  "removed": [], "changed": [], "amended": [],
+  "constantsChanged": [],
+  "journeysChanged": [
+    "api.categories.missing-category-id",
+    "ui.shop.open-shop",
+    "ui.shop.shop-filter"
+  ] }</pre></div>
+  </div>
+  <p class="small">Three journeys changed after the freeze, which is allowed (they are HOW) and listed in the verdict. None of the 26 requirement assertions did.</p>
+
+  <p><b>After the tests: the run, the verdict and the registry.</b> The run passed 13 of 13. The open question arrives where a person reads it, and the journey the test used is recorded with this story as its proof, for the next story to reuse.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/verdict.md (excerpts)</div><pre># Held-out Evaluation Verdict — TOOL-6
+
+&gt; **Verdict: ⚠️ PASS WITH WARNINGS** — All tests passed, with warnings: 1 open question(s) not tested.
+
+| Tests | 13 total · 13 passed · 0 failed · 0 flaky · 0 skipped (from 12 scenarios) |
+| Held-out integrity | ✅ PRESERVED — 26 requirement assertions identical to the pre-hardening draft |
+…
+| SCN-004 | Asking the tree for a category id that does not exist is answered with an error status | AC-3 | negative | ✅ passed | - |
+…
+- ❓ G1 — the error status GET /categories/tree/{categoryId} must answer for an id that does not exist. AC3 says it is the one "given in the OpenAPI file", and that file is on the API portal, not among the story's sources. SCN-004 checks only what every reading shares: the answer is an error status (400-599), not which one. _(not tested)_</pre></div>
+  <div class="code"><div class="hd">journeys/registry.yml (excerpt)</div><pre data-lang="yaml">  api.categories.missing-category-id:
+    fixture: "fixtures/categories.ts#missingCategoryId"
+    kind: api
+    summary: "Make a category id that no category has: a random id in the format of the application's ids, checked against the tree."
+    params: "api: Api, seed: Seed"
+    calls: ["api.categories.category-tree"]
+    status: proven
+    proven:
+      at: "2026-10-10T23:11:50.721Z"
+      by: ["TOOL-6"]
+      evidence: "02-eval: SCN-004 passed"
+      hash: "dba2480cdcfc"</pre></div>
+
   <h3>One criterion, traced</h3>
   <p>TOOL-4 (favourites for signed-in customers), from round 28. AC-2 says a duplicate is <i>rejected</i>; the story never says how. The status comes from the Confluence page the story links, and the contract records exactly where.</p>
   <div class="grid three">
@@ -1732,7 +1892,7 @@ const CASTS = {"onboarding":{"cwd":"~/toolshop-qa","steps":[{"cmd":"git clone --
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const RULES = {
     json: [[/"(?:[^"\\]|\\.)*"(?=\s*:)/y, 'tk-f'], [/"(?:[^"\\]|\\.)*"/y, 'tk-s'], [/\b(?:true|false|null)\b|-?\d+(?:\.\d+)?/y, 'tk-n']],
-    ts: [[/\/\/.*/y, 'tk-c'], [/'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"/y, 'tk-s'], [/\b(?:const|let|await|async|return|import|export|function|from|type|interface|as|if|new)\b/y, 'tk-k'], [/\b(?:test|expect|seed|journey|api|page)\b/y, 'tk-f'], [/\b\d+\b/y, 'tk-n']],
+    ts: [[/\/\/.*/y, 'tk-c'], [/\/\*[\s\S]*?\*\//y, 'tk-c'], [/'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"/y, 'tk-s'], [/\b(?:const|let|await|async|return|import|export|function|from|type|interface|as|if|new)\b/y, 'tk-k'], [/\b(?:test|expect|seed|journey|api|page)\b/y, 'tk-f'], [/\b\d+\b/y, 'tk-n']],
     sh: [[/#.*/y, 'tk-c'], [/'[^']*'|"[^"]*"/y, 'tk-s'], [/(?:^|(?<=\s))--?[\w-]+/y, 'tk-t'], [/\b(?:git|npx|npm|curl)\b/y, 'tk-k'], [/🧹/y, 'tk-k']],
   };
   function highlight(text, lang) {
