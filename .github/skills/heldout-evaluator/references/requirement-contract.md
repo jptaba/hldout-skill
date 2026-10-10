@@ -50,7 +50,8 @@ re-run the checks and review again. Stop after 3 rounds and surface what is stil
 The builder works from the evidence pack only. It does not probe the application: HOW to exercise it (routes,
 labels, request fields, an endpoint the story doesn't name) is recorded as an open **mechanics** gap and discovered
 during hardening, where the evaluator records it as `discovered-in-aut` with evidence, with no re-review. WHAT is
-correct is never discovered: open **oracle** gaps are the questions for the user (`heldout contract KEY` lists both).
+correct is never discovered, and nobody is asked while an evaluation runs: open **oracle** gaps go into the tests and
+the verdict as questions for the story's owner (`heldout contract KEY` lists both kinds).
 The dividing line: where to find something (a response field's name, a locator, a route) is mechanics; the value it
 must have (a status, a message, a count, whether an error is an HTTP status or a code in the body) is oracle. When the
 sources themselves disagree (the description and a linked page give different statuses), that is an oracle gap: see
@@ -83,11 +84,12 @@ transcription only. Re-run `--pack` and cite the transcript. The reviewer compar
 | `errorModel[]` | `{ "id": "E1", "case", "status"?, "body"?, "source" }`: each error case the sources state. `status` is a number (`400`); when the source allows another answer ("400, or 200 with the owner unchanged"), `case` says so. `body` is the message, or the whole body as the sources give it (`{"error": "Invalid credentials"}`), which may be an envelope line and a table row together (`{"code": "1200", "message": "User not authorized!"}`) |
 | `auth` | `{ "mechanism", "credentials"?, "source" }`. Required when an endpoint has `auth: "required"` |
 | `testData` | `{ "strategy", "constraints"? (list of strings), "cleanup"?, "source"? }`: how the evaluation gets its data ("tests register their own customer via POST /users/register", "none stated: the criteria only read the catalogue"). State only what the sources or the project say; when they say nothing about data, write "not stated in the sources" (the evaluator decides the seeding). Data the sources only imply (products to add to favourites) is not a constraint: how a test finds or makes it is a mechanics gap |
+| `variants[]` | `{ "id": "V1", "name": "user type", "key": "user-type", "values": [{ "id": "guest", "text": "not signed in" }, { "id": "customer" }, { "id": "administrator" }], "appliesTo": ["*"], "source": "story.md#L19-L27" }`: setups the story says criteria must be checked across ("validate every criterion for each user type", "for each of the data sets A, B and C"). One variant per dimension; each value is a setup the sources name; `appliesTo` the criteria it covers (`*` for all). The tests then need one test per combination of the values of every variant that applies to a criterion, tagged `@variant:<key>=<value>`; the lint refuses a missing combination. Each criterion's `outcomes` still say what each setup must get (an outcome per user type when they differ) |
 | `actors` (list of strings), `context` (string), `nonFunctional[]` (`{ id, text, source }`), `outOfScope[]` (list of strings) | Optional; only what the sources say. A statement that some behaviour may stay as it is ("the web shop can keep its current message") sets no expected value: quote it in `outOfScope`, never read the value off the application |
 | `gaps[]` | `{ "id": "G1", "element", "kind": "mechanics" \| "oracle", "required", "affects": ["AC-2"] or ["*"], "tried": [{ "where": "story" \| "linked" \| "aut" \| "config" \| "user", "result" }], "resolution", "value"?, "evidence"? }`. `resolution` is `found-in-requirement`, `found-in-config`, `discovered-in-aut` (mechanics only), `provided-by-user`, `assumed` or `open`. Omit `value` while open. `required` means the affected ACs can't be evaluated without it (blocking one outcome of an AC is enough); a gap that only concerns cleanup (how a test removes what it made) is not required. An AC that states the outcome itself ("returns `null`") is judged as written, even when another source is looser ("absent or null"): that difference is a question for the owner, not required. For UI mechanics, one gap per page (its route and how its elements are found) is the right size |
 | `coverage[]` | `{ "lines": "story.md#L20-L22", "as", "note"? }`. `as` holds one or more refs, separated by commas: item ids (`AC-1`, `R2`, `E1`, `G3`, `NFR-1`) or the kinds `endpoint`, `error-model`, `auth`, `test-data`, `context`, `out-of-scope`, `non-functional`, `example`, `duplicate`, `not-a-requirement` (needs a note saying why). Every ● line must be covered, and every AC referenced by some entry |
 
-## Gaps: find, then ask. Never read expected behaviour off the app
+## Gaps: find, then report. Never read expected behaviour off the app
 
 Walk the ladder in order and log each step in `tried[]`:
 
@@ -97,11 +99,15 @@ Walk the ladder in order and log each step in `tried[]`:
    probing it (`heldout inspect` and the API calls its pages make, `heldout api-probe`). → `discovered-in-aut`, evidence
    = the probe output. Don't go looking for an API document on the app: there is none unless the requirement gives one.
 3. **Project config**, e.g. the AUT profile. → `found-in-config`.
-4. **The user, for oracle gaps**: one `AskUserQuestion` call with at most 4 questions, required first.
-   → `provided-by-user`, value plus who and when: `heldout contract KEY --answer G<n> --value "…" --by "<who>"`,
-   then a fresh review (the oracle changed). If you can't ask, use `assumed` (it must appear as
-   `// ASSUMPTION: G<n> …` in the spec) or leave it `open` (`@needs-clarification` on the affected tests, or
-   `// OPEN-QUESTION: G<n> …` when the criterion can still be tested without the answer).
+4. **An oracle gap none of these answers is reported, never asked.** An evaluation runs without a person from the
+   fetch onwards, so nobody is asked in the chat. Leave the gap `open` (`@needs-clarification` on the affected tests,
+   or `// OPEN-QUESTION: G<n> …` when the criterion can still be tested without the answer), or, when the sources
+   allow one reasonable reading, use `assumed` with that reading stated (it must appear as `// ASSUMPTION: G<n> …` in
+   the spec). The verdict lists every open question and assumption for the story's owner, and an unanswered question
+   that leaves something untested makes it PASS_WITH_WARNINGS at best. When the owner answers afterwards, in the story
+   or to the person who ran the evaluation, the answer enters the *next* evaluation: a revised story is fetched
+   again, or `heldout contract KEY --answer G<n> --value "…" --by "<who>"` records it as `provided-by-user` (value
+   plus who and when), followed by a fresh review, since the oracle changed.
 
 | Kind | Examples | May come from the app? |
 | --- | --- | --- |
@@ -111,7 +117,7 @@ Walk the ladder in order and log each step in `tried[]`:
 **Conflicting sources** (a description saying 422 and the linked API page saying 409; a general criterion "any request
 for a missing cart → 404" next to a specific one "deleting a deleted cart → 204"): record an oracle gap naming both.
 Resolve it as `found-in-requirement` only if one source explicitly supersedes the other ("not X as stated above", "this
-page is the definition of record"). Otherwise it's `assumed` (say which reading and why) or `open` for the user.
+page is the definition of record"). Otherwise it's `assumed` (say which reading and why) or `open`, for the verdict to put to the story's owner.
 
 **A need no criterion covers** (the user story says "discover articles by tag", the API lists a `tag` parameter, but no AC
 says what it must do): don't write an AC for it. Record a non-required oracle gap ("no acceptance criterion covers
@@ -138,6 +144,14 @@ base URL the sources state is grounded as is; cite the line that gives each part
 
 **A statement that applies across criteria** (a Background line, "one entry per product"): it is a rule. Add it to
 an AC's outcomes only when that AC's check depends on it, citing the rule's line as well as the AC's.
+
+**Checks across setups** ("validate each criterion for every user type", "for the data sets Hammer, Hand Saw and
+Wrench", a table of roles or environments the criteria must hold for): record each dimension as a `variant`, with the
+values the sources name and the criteria it applies to. Two dimensions on one criterion mean every pair (3 user types
+× 3 data sets is 9 tests). Where a setup must get a different answer (an administrator 200, a customer 403), each
+answer is its own outcome of the criterion. Accounts of different kinds (an administrator, a second customer) are a
+mechanics gap for the evaluator: the profile's existing accounts get a role (`accounts --add-existing … --role admin`)
+and tests ask for one with `seed.account('admin', { role: 'admin' })`.
 
 **HTML entities** (`&lt;brand&gt;`): quote the line as the pack shows it or as it reads (`<brand>`); the checks
 treat both the same.
@@ -264,8 +278,9 @@ The description shows `!signup.png!`; fetch saved it as `linked/signup.png` → 
 ### 7. A story with no acceptance criteria
 
 "Improve the checkout experience." Don't invent criteria. Record one required oracle gap: "what are the
-acceptance criteria?", affecting `*`. Cover the lines as `context`, ask the user, and if nobody answers, report
-the story as not evaluable.
+acceptance criteria?", affecting `*`, left `open`. Cover the lines as `context`. Nobody is asked: `heldout advance KEY`
+reports the story as not evaluable, with an INCONCLUSIVE verdict that puts the question to the story's owner (and
+publishes it like any other verdict).
 
 ## Common mistakes (all of these are caught by the checks or the reviewer)
 

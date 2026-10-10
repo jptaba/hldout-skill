@@ -67,5 +67,6 @@ attachments are never requirement input.
 
 In mock mode the result is in `mock-jira/issues/KEY/ISSUE_VIEW.md` (rendered like the issue page),
 `issue.json`, and `mock-jira/outbox/*.http` (the exact REST requests Jira Data Center would have
-received). Publishing to a real Jira is outward-facing: confirm with the user before running it in
-datacenter mode.
+received). Publishing is the evaluation's last outward step and needs no confirmation: `heldout advance` runs it
+after the verdict. A project that wants a person to look first sets `"publish": "manual"` under `jira` in
+`heldout.config.json`; `advance` then finishes without publishing and prints the command (`heldout publish KEY`).

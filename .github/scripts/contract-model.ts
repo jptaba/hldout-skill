@@ -77,6 +77,25 @@ export interface Gap {
   evidence?: string;
 }
 
+/**
+ * A dimension the story says every criterion it names must be checked across ("for each user type", "for the data
+ * sets A, B and C"). Each value is one setup; a criterion it applies to needs a test for every combination of the
+ * values of all the variants that apply to it, tagged @variant:<key>=<value>.
+ */
+export interface Variant {
+  /** V1, V2… */
+  id: string;
+  /** As the story names it: "user type", "category". */
+  name: string;
+  /** The tag key: "user-type" → @variant:user-type=<value>. */
+  key: string;
+  /** Each setup: an id for the tag ("guest") and the story's words for it ("not signed in"). */
+  values: { id: string; text?: string }[];
+  /** The criteria it applies to; "*" for every criterion. */
+  appliesTo: string[];
+  source: string;
+}
+
 export interface RequirementContract {
   key: string;
   title: string;
@@ -93,6 +112,8 @@ export interface RequirementContract {
   auth?: { mechanism: string; credentials?: string; source: string };
   testData?: { strategy: string; constraints?: string[]; cleanup?: string; source?: string };
   nonFunctional?: { id: string; text: string; source: string }[];
+  /** Setups every criterion they apply to must be checked across (user types, data sets). */
+  variants?: Variant[];
   outOfScope?: string[];
   gaps: Gap[];
   /** Where every requirement-bearing source line went (captured as …, or dismissed with a reason). */
@@ -198,6 +219,8 @@ export function shapeFindings(c: RequirementContract): ContractFinding[] {
   list('actors', c.actors, true);
   list('outOfScope', c.outOfScope, true);
   list('nonFunctional', c.nonFunctional, true);
+  list('variants', c.variants, true);
+  if (Array.isArray(c.variants)) for (const v of c.variants) { list(`${v.id}.values`, v.values); list(`${v.id}.appliesTo`, v.appliesTo); }
   list('testData.constraints', c.testData?.constraints, true);
   if (c.context !== undefined && typeof c.context !== 'string') out.push({ level: 'error', code: 'contract-shape', message: 'context must be a string' });
   if (Array.isArray(c.acceptanceCriteria)) for (const a of c.acceptanceCriteria) {
@@ -231,7 +254,8 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   }
 
   // Acceptance criteria: present, unique, anchored, observable.
-  if (!c.acceptanceCriteria?.length) err('no-acs', 'The contract has no acceptance criteria. If the story has none, record a required oracle gap and ask the user — do not invent criteria.');
+  if (!c.acceptanceCriteria?.length && notEvaluable(c)) warn('not-evaluable', 'The story states no acceptance criteria, and the contract records that as a required open question: nothing is tested, and heldout advance reports the story as not evaluable (verdict INCONCLUSIVE, the question put to its owner).');
+  else if (!c.acceptanceCriteria?.length) err('no-acs','The contract has no acceptance criteria. If the story has none, record a required oracle gap ("what are the acceptance criteria?", affecting *) and leave it open: the story is reported as not evaluable — do not invent criteria.');
   const ids = new Set<string>();
   const endpointKeys = new Set((c.endpoints ?? []).map(epKey));
   const gapIds = new Set((c.gaps ?? []).map((g) => g.id));
@@ -301,6 +325,34 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   };
   for (const r of c.rules ?? []) cites(r.id, r.source);
   for (const e of c.errorModel ?? []) cites(e.id, e.source);
+  // Variants: a setup grid the story requires; each value must be one the sources name.
+  const variantKeys = new Set<string>();
+  for (const v of c.variants ?? []) {
+    if (!/^V\d+$/.test(v.id ?? '')) err('variant-id', `variant "${v.name}" needs an id V<n>`);
+    else if (itemIds.has(v.id)) err('variant-duplicate', `${v.id} appears twice`);
+    itemIds.add(v.id);
+    if (!/^[a-z][a-z0-9-]*$/.test(v.key ?? '')) err('variant-key', `${v.id}: key "${v.key}" must be lower case with dashes (the tag is @variant:<key>=<value>)`);
+    else if (variantKeys.has(v.key)) err('variant-duplicate', `${v.id}: key ${v.key} is used twice`);
+    variantKeys.add(v.key);
+    if ((v.values ?? []).length < 2) err('variant-values', `${v.id} (${v.name}) needs at least two values — one setup is not a variant`);
+    const valueIds = new Set<string>();
+    for (const x of v.values ?? []) {
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(x.id ?? '')) err('variant-value', `${v.id}: value "${x.id}" must be lower case with dashes`);
+      if (valueIds.has(x.id)) err('variant-value', `${v.id}: value ${x.id} appears twice`);
+      valueIds.add(x.id);
+    }
+    if (!(v.appliesTo ?? []).length) err('variant-applies', `${v.id} applies to no criterion — list the AC ids, or "*" for every criterion`);
+    for (const a of v.appliesTo ?? []) if (a !== '*' && !ids.has(a)) err('variant-applies', `${v.id} applies to ${a}, which is not an AC in the contract`);
+    if (!v.source) err('variant-source', `${v.id} has no source — cite the lines that require the checks across ${v.name}`);
+    cites(v.id, v.source);
+    // Each setup is one the sources name (its words, or its id read as words): never one the builder made up.
+    const transcripts = fs.existsSync(path.join(reqDir, 'transcripts')) ? fs.readdirSync(path.join(reqDir, 'transcripts')).map((f) => `transcripts/${f}`) : [];
+    const text = normaliseText([...requirementFiles(reqDir), ...transcripts].filter((f) => TEXT_FILE.test(f) && fs.existsSync(path.join(reqDir, f))).map((f) => fs.readFileSync(path.join(reqDir, f), 'utf8')).join('\n'));
+    for (const x of v.values ?? []) {
+      const words = [x.text, x.id?.replace(/-/g, ' ')].filter((w): w is string => Boolean(w)).map(normaliseText);
+      if (!words.some((w) => text.includes(w))) err('variant-ungrounded', `${v.id}: value "${x.text ?? x.id}" is not in the sources — a setup the story doesn't name is not part of the requirement`);
+    }
+  }
   for (const n of c.nonFunctional ?? []) cites(n.id, n.source);
   for (const e of c.endpoints ?? []) cites(`endpoint ${epKey(e)}`, e.source, true);
 
@@ -308,7 +360,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   for (const g of c.gaps ?? []) {
     const tried = (g.tried ?? []).map((t) => t.where);
     if (g.kind === 'oracle' && g.resolution === 'discovered-in-aut') {
-      err('oracle-from-aut', `${g.id} (${g.element}) is about expected behaviour but was "discovered in the AUT" — that makes the oracle circular. Ask the user, or keep it open / an explicit assumption.`);
+      err('oracle-from-aut', `${g.id} (${g.element}) is about expected behaviour but was "discovered in the AUT" — that makes the oracle circular. Keep it open (the verdict puts the question to the story's owner) or make it an explicit assumption.`);
     }
     if (g.kind === 'oracle' && tried.includes('aut')) warn('oracle-probed', `${g.id}: probing the AUT for expected behaviour is not a valid source — observations may only inform the question you ask`);
     if (!tried.includes('story') && !tried.includes('linked')) err('gap-ladder', `${g.id}: the requirement (the story, its screenshots and linked pages) was not searched before resolving "${g.element}"`);
@@ -319,7 +371,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
     if (g.resolution === 'provided-by-user' && !tried.includes('user')) err('gap-ladder', `${g.id}: resolved by the user but "user" is not in tried[]`);
     if (g.resolution === 'found-in-requirement' && !g.evidence) warn('gap-evidence', `${g.id}: cite where in the requirement it was found (evidence)`);
     if (g.resolution === 'open' && g.kind === 'mechanics') warn('mechanics-to-discover', `${g.id} (${g.element}) — discover it from the application during hardening (heldout inspect and the API calls its pages make, heldout api-probe) and record discovered-in-aut with evidence`);
-    if (g.resolution === 'open' && g.kind === 'oracle' && g.required) warn('oracle-gap-open', `${g.id} (${g.element}) is unresolved — ask the user; unanswered, ${g.affects.join(', ') || 'the affected criteria'} must be tagged @needs-clarification or the spec must carry // OPEN-QUESTION: ${g.id}`);
+    if (g.resolution === 'open' && g.kind === 'oracle' && g.required) warn('oracle-gap-open', `${g.id} (${g.element}) is unresolved — nobody is asked during an evaluation: ${g.affects.join(', ') || 'the affected criteria'} must be tagged @needs-clarification or the spec must carry // OPEN-QUESTION: ${g.id}, and the verdict puts the question to the story's owner`);
     if (g.resolution === 'assumed' && g.kind === 'oracle') warn('oracle-assumed', `${g.id}: expected behaviour is assumed (${g.value ?? '?'}) — it must appear as // ASSUMPTION: in the spec and in the verdict`);
     for (const a of g.affects ?? []) if (!ids.has(a) && a !== '*') err('gap-affects', `${g.id} affects ${a}, which is not an AC in the contract`);
   }
@@ -329,9 +381,20 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   return out;
 }
 
-/** Questions for the user: open oracle gaps (required first). Only the requirement's owner can say WHAT is correct. */
+/**
+ * Open oracle gaps (required first): the questions the verdict puts to the story's owner. Only the owner can say WHAT
+ * is correct, and nobody is asked while an evaluation runs.
+ */
 export function openQuestions(c: RequirementContract): Gap[] {
   return (c.gaps ?? []).filter((g) => g.resolution === 'open' && g.kind === 'oracle').sort((a, b) => Number(b.required) - Number(a.required));
+}
+
+/**
+ * The builder found no acceptance criteria and recorded that as a required open oracle gap: nothing can be tested and
+ * nobody is asked, so the story's result is an INCONCLUSIVE verdict that puts the question to its owner.
+ */
+export function notEvaluable(c: RequirementContract): boolean {
+  return !c.acceptanceCriteria?.length && openQuestions(c).some((g) => g.required);
 }
 
 /** Open mechanics gaps: HOW to exercise the app, found by black-box discovery during hardening. */
@@ -350,7 +413,43 @@ export function oracleDigest(c: RequirementContract): string {
     rules: (c.rules ?? []).map((r) => ({ id: r.id, text: r.text })),
     errorModel: (c.errorModel ?? []).map((e) => ({ id: e.id, case: e.case, status: e.status ?? null, body: e.body ?? null })),
     oracleGaps: (c.gaps ?? []).filter((g) => g.kind === 'oracle').map((g) => ({ id: g.id, resolution: g.resolution, value: g.value ?? null })),
+    ...(c.variants?.length ? { variants: c.variants.map((v) => ({ id: v.id, key: v.key, values: v.values.map((x) => x.id), appliesTo: v.appliesTo })) } : {}),
   }, null, 2);
+}
+
+/** The variants that apply to a criterion. */
+export const variantsOf = (c: RequirementContract | undefined, ac: string): Variant[] =>
+  (c?.variants ?? []).filter((v) => v.appliesTo.includes('*') || v.appliesTo.includes(ac));
+
+/** Every combination of values a criterion must be tested in: [{ "user-type": "guest", category: "hammer" }, …]. */
+export function variantCombinations(c: RequirementContract | undefined, ac: string): Record<string, string>[] {
+  return variantsOf(c, ac).reduce<Record<string, string>[]>((combos, v) => combos.flatMap((combo) => v.values.map((x) => ({ ...combo, [v.key]: x.id }))), [{}])
+    .filter((combo) => Object.keys(combo).length);
+}
+
+/** "user-type=guest × category=hammer" */
+export const comboLabel = (combo: Record<string, string>) => Object.entries(combo).map(([k, v]) => `${k}=${v}`).join(' × ');
+
+/**
+ * The traceability lint's part for variants: every criterion they apply to is tested in every combination of their
+ * values (each test's @variant:<key>=<value> tags, or a table's // cases: line), and no test names a setup the
+ * contract doesn't have.
+ */
+export function checkVariantCoverage(c: RequirementContract, suite: { acs: { id: string }[]; scenarios: { id: string; acs: string[]; cases: Record<string, string[]>[] }[] }): ContractFinding[] {
+  const out: ContractFinding[] = [];
+  const keys = new Map((c.variants ?? []).map((v) => [v.key, new Set(v.values.map((x) => x.id))]));
+  for (const s of suite.scenarios) for (const cs of s.cases) for (const [k, vals] of Object.entries(cs)) {
+    if (!keys.has(k)) out.push({ level: 'error', code: 'unknown-variant', message: `${s.id} is tagged @variant:${k}=…, but the contract has no variant with the key ${k}${keys.size ? ` (keys: ${[...keys.keys()].join(', ')})` : ''}` });
+    else if (!vals.length) out.push({ level: 'error', code: 'variant-cases-missing', message: `${s.id} builds its @variant:${k}=… tag from its rows, but no "// cases: ${k}=${[...keys.get(k)!].join('|')}" line above it says which values it covers` });
+    else for (const v of vals) if (!keys.get(k)!.has(v)) out.push({ level: 'error', code: 'unknown-variant', message: `${s.id}: ${k}=${v} is not a value of that variant (${[...keys.get(k)!].join(', ')})` });
+  }
+  for (const ac of suite.acs) {
+    const combos = variantCombinations(c, ac.id);
+    const tested = (combo: Record<string, string>) => suite.scenarios.some((s) => s.acs.includes(ac.id) && s.cases.some((cs) => Object.entries(combo).every(([k, v]) => cs[k]?.includes(v))));
+    const missing = combos.filter((combo) => !tested(combo));
+    if (missing.length) out.push({ level: 'error', code: 'variant-uncovered', message: `${ac.id} must be tested in ${combos.length} setup(s) and ${missing.length} have no test: ${missing.slice(0, 6).map(comboLabel).join('; ')}${missing.length > 6 ? '; …' : ''} — tag a test for each with @variant:<key>=<value> (or give a table of cases a "// cases: …" line)` });
+  }
+  return out;
 }
 
 /** Request contracts for triage: endpoints with a declared envelope and/or request field names. */

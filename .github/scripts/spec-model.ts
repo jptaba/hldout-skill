@@ -7,6 +7,7 @@
  *   await journey.step('Given …' / 'When …' / 'Then …', …)                              the journey's steps
  *   // ASSUMPTION: … / // OPEN-QUESTION: … / // OBSERVATION: …                         surfaced in the verdict
  *   // SEED-ENDPOINT: METHOD /path — why                                               plumbing-only endpoints
+ *   tag: ['@variant:user-type=guest'] · `@variant:category=${row.cat}` + // cases: category=hammer|wrench   setups
  * The acceptance criteria and the declared endpoints come from the contract itself.
  */
 import fs from 'node:fs';
@@ -55,6 +56,12 @@ export interface Scenario {
   nfrs: string[];
   /** A table of cases: tests SCN-nnn.1 … .n. */
   outline: boolean;
+  /**
+   * The variant values each test() call covers, one entry per call: `@variant:user-type=guest` tags it with one value;
+   * a table whose tag is built from its rows (`@variant:user-type=${row.role}`) covers the values its
+   * `// cases: user-type=guest|customer, category=hammer|wrench` line lists (every combination of them).
+   */
+  cases: Record<string, string[]>[];
   /** How many test() calls declare this id (more than one, without case numbers, is a duplicate). */
   declarations: number;
   /** Spec file (project-relative path is up to the caller). */
@@ -113,13 +120,29 @@ function readSpec(file: string, into: Suite): void {
     const head = src.slice(start, Math.min(end, src.indexOf('=>', start) === -1 ? end : src.indexOf('=>', start)));
     const list = head.match(/\btag:\s*\[([^\]]*)\]/)?.[1] ?? head.match(/\btag:\s*(['"`]@[^'"`]+['"`])/)?.[1] ?? '';
     const tags = [...list.matchAll(/['"`](@[^'"`]+)['"`]/g)].map((t) => t[1]);
-    // Sources: the "// from …" lines directly above the call (other comment lines in between are fine).
+    // Sources: the "// from …" lines directly above the call (other comment lines in between are fine); and the
+    // "// cases: …" line of a table whose variant tags come from its rows. Inside a loop the comment may sit above it.
     const sources: string[] = [];
-    for (let l = lineAt(start) - 1; l >= 0; l--) {
+    for (let l = lineAt(start) - 1, loop = false; l >= 0; l--) {
       const text = lines[l].trim();
+      // A table's comments may sit above the loop that declares its tests.
+      if (!loop && !sources.length && /^(for\s*\(|[\w.$[\]()]+\.(forEach|map)\()/.test(text)) { loop = true; continue; }
       if (!text.startsWith('//')) break;
       const from = text.match(/^\/\/\s*from\s+(.+)$/i);
       if (from) sources.unshift(from[1].trim());
+    }
+    let casesLine: string | undefined;
+    for (let l = lineAt(start) - 1; l >= Math.max(0, lineAt(start) - 8); l--) {
+      const cs = lines[l].trim().match(/^\/\/\s*cases:\s*(.+)$/i);
+      if (cs) { casesLine = cs[1]; break; }
+    }
+    const listed = Object.fromEntries((casesLine ?? '').split(/\s*[,;]\s*/).map((p) => p.match(/^([a-z][a-z0-9-]*)\s*=\s*(.+)$/)).filter((x): x is RegExpMatchArray => Boolean(x))
+      .map((x) => [x[1], x[2].split('|').map((v) => v.trim()).filter(Boolean)]));
+    const covers: Record<string, string[]> = {};
+    for (const t of tags.filter((x) => x.startsWith('@variant:'))) {
+      const [key, value] = t.slice(9).split('=');
+      if (!key || value === undefined) continue;
+      covers[key] = value.includes('${') ? listed[key] ?? [] : [...new Set([...(covers[key] ?? []), value])];
     }
     const code = src.slice(start, end);
     const steps = [...code.matchAll(STEP_CALL)].map((s) => unescape(s[2]));
@@ -129,6 +152,7 @@ function readSpec(file: string, into: Suite): void {
       known.code += `\n${code}`;
       known.declarations += outline && known.outline ? 0 : 1;
       known.tags = [...new Set([...known.tags, ...tags])];
+      known.cases.push(covers);
       if (!known.steps.length) known.steps = steps;
       if (!known.sources.length) known.sources = sources;
       return;
@@ -149,6 +173,7 @@ function readSpec(file: string, into: Suite): void {
       assumes: [],
       nfrs: [],
       outline,
+      cases: [covers],
       declarations: 1,
       file,
       code,

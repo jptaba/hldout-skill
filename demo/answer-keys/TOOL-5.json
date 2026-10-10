@@ -1,0 +1,8 @@
+{ "key": "TOOL-5", "aut": "toolshop", "writtenAt": "2026-10-10 (before evaluation)", "expectedVerdict": "FAIL",
+  "format": "no acceptance-criteria field: informal bullets in the description, mixed with notes, an emoji, a nice-to-have list, a Figma link and a pointer to another story",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-4", "AC-5", "AC-6"], "origin": "genuine", "keywords": ["craft", "MightyCraft", "anywhere", "contains", "search"], "description": "GET /brands/search matches only from the start of a word: \"craft\" finds nothing instead of MightyCraft Hardware" }
+  ],
+  "seededScriptDefects": [],
+  "expectedContract": ["six criteria, one per requirement bullet, numbered by the extractor and quoted verbatim", "the nice-to-have line, the Figma link and the TOOL-12 pointer are dismissed (out of scope / not a requirement), not criteria and not oracle gaps"],
+  "traps": ["shared demo: other users create brands (names ending in 'editado'); tests must not expect an exact list or count of brands", "the search examples are the oracle: 'FORGE' finds ForgeFlex Tools (passes), 'craft' finds MightyCraft Hardware (fails)"] }

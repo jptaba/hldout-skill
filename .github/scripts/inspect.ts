@@ -5,6 +5,8 @@
  *   heldout inspect [--key KEY | --aut <profile>] [--url login]   (path relative to the AUT base URL, or a full URL)
  *       [--steps steps.json | --steps-json '[{"do":"fill","target":"getByLabel(\'Email\')","value":"a@b.c"}]']
  *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
+ *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values; what was
+ *                                 typed into fields left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
  *
@@ -14,7 +16,8 @@
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address.
- *   The report lists the API calls the page made (fetch/XHR on the app's site: method, path, status, answer shape)
+ *   The report lists the API calls the page made (fetch/XHR on the app's site), on load and after each step: method,
+ *   path, what was sent (query parameter names, the body with secrets redacted), status and the answer's shape
  *   and what the page keeps in localStorage / sessionStorage (long values and tokens by length only).
  */
 import fs from 'node:fs';
@@ -22,7 +25,7 @@ import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './config';
 import { generatedId, siteOf } from './detect';
 import { closeOverlays, locateOn } from './page';
-import { redactSnapshot, shapeOf } from './redact';
+import { redact, redactSnapshot, shapeOf } from './redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
@@ -90,9 +93,20 @@ main(async () => {
   // The application's own API calls (fetch/XHR on its site): how the UI does what it does, e.g. which call returns an id.
   const sites = new Set([cfg.aut.baseURL, cfg.aut.apiBaseURL].filter((u): u is string => Boolean(u)).map((u) => siteOf(new URL(u).hostname)));
   const calls: Promise<string>[] = [];
+  // Which step a call followed ("load" for the page itself), and calls still in flight (a step's call may start late).
+  let phase = 'load';
+  let inFlight = 0;
+  let lastActivity = Date.now();
+  const api = (r: { resourceType(): string }) => ['fetch', 'xhr'].includes(r.resourceType());
+  const startedIn = new WeakMap<object, string>();
+  page.on('request', (r) => { if (api(r)) { inFlight++; lastActivity = Date.now(); startedIn.set(r, phase); } });
+  const settled = (r: { resourceType(): string }) => { if (api(r)) { inFlight = Math.max(0, inFlight - 1); lastActivity = Date.now(); } };
+  page.on('requestfinished', settled);
+  page.on('requestfailed', settled);
   page.on('response', (res) => {
     const req = res.request();
     if (!['fetch', 'xhr'].includes(req.resourceType())) return;
+    const after = startedIn.get(req) ?? phase;
     const u = new URL(res.url());
     if (!sites.has(siteOf(u.hostname))) return;
     // A CDN's own beacons and challenges, and the app's static files (translations, config) are not its API.
@@ -106,16 +120,28 @@ main(async () => {
       const shape = json !== undefined ? `\`${JSON.stringify(shapeOf(json)).replace(/\|/g, '\\|').slice(0, 300)}\`` : isJson ? '(JSON not kept: the page moved on; read it with heldout api-probe)' : '-';
       // The host too when the call goes to another one than the page's (an API on its own host).
       const host = u.host === new URL(cfg.aut.baseURL).host ? '' : u.host;
-      return `| ${req.method()} | \`${host}${u.pathname}${u.search ? '?…' : ''}\` | ${res.status()} | ${shape} |`;
+      // What the page sent: the query's parameter names and the body, secrets redacted (a select's code, a filter's
+      // id: the values the endpoint really takes).
+      const params = [...u.searchParams.keys()];
+      const body = req.postData();
+      let sent: unknown;
+      try { sent = body ? redact(JSON.parse(body)) : undefined; } catch { sent = body ? `(${body.length} characters, not JSON)` : undefined; }
+      const request = [params.length ? `?${[...new Set(params)].join('&')}` : '', sent !== undefined ? `body \`${JSON.stringify(sent).replace(/\|/g, '\\|').slice(0, 200)}\`` : ''].filter(Boolean).join(' · ') || '-';
+      return `| ${after} | ${req.method()} | \`${host}${u.pathname}\` | ${request} | ${res.status()} | ${shape} |`;
     })());
   });
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
   await closeOverlays(page, cfg.aut.overlays);
   const out: string[] = [];
   try {
+    // Until the page's own calls have settled (none in flight and none started for a moment; ≤10 s).
+    const quiet = async () => { for (const until = Date.now() + 10_000; Date.now() < until && (inFlight > 0 || Date.now() - lastActivity < 700);) await page.waitForTimeout(100); };
     await page.goto(target);
+    // The calls of the page's load are its own: a step's calls are the ones it starts.
+    if (steps.length) await quiet();
     const stepLog: string[] = [];
     for (const [i, s] of steps.entries()) {
+      phase = `step ${i + 1}`;
       try { await runStep(page, s, cfg.aut.baseURL); stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✔ |`); }
       catch (e) {
         stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
@@ -123,6 +149,8 @@ main(async () => {
       }
     }
     await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
+    // "networkidle" is reached once per page: wait for the calls the last step started as well (≤10 s).
+    await quiet();
     const waitFor = flagStr(flags, 'wait-for');
     // "attached", not "visible": some elements are never visible (<option>, hidden inputs) yet prove the page is ready.
     if (waitFor) await locate(page, waitFor).first().waitFor({ state: 'attached', timeout: 15_000 });
@@ -136,8 +164,8 @@ main(async () => {
     // The same call answered the same way several times (a config the page reloads) is one row: "×N".
     const counts = new Map<string, number>();
     for (const row of await Promise.all(calls)) counts.set(row, (counts.get(row) ?? 0) + 1);
-    const made = [...counts].map(([row, n]) => (n > 1 ? row.replace(/^\| (\S+) \|/, `| $1 ×${n} |`) : row));
-    if (made.length) out.push('## API calls the page made (answers as types only)', '', '| method | path | status | answer shape |', '| --- | --- | --- | --- |', ...made, '');
+    const made = [...counts].map(([row, n]) => (n > 1 ? row.replace(/^\| ([^|]+) \| (\S+) \|/, `| $1 | $2 ×${n} |`) : row));
+    if (made.length) out.push('## API calls the page made (what it sent, secrets redacted; the answers as types only)', '', '| after | method | path | sent | status | answer shape |', '| --- | --- | --- | --- | --- | --- |', ...made, '');
     // Where the page keeps its state (a guest cart id, a session flag): how a test can find or set it. Long values and
     // tokens are shown by length only.
     const stored = await page.evaluate(() => (['localStorage', 'sessionStorage'] as const).flatMap((area) => {
@@ -261,6 +289,20 @@ main(async () => {
         }
       }
       out.push('');
+    }
+
+    // How an element is built (nesting the accessibility tree doesn't show), for locators that walk the structure.
+    for (const expr of flagList(flags, 'html')) {
+      try {
+        const loc = locate(page, expr);
+        const count = await loc.count();
+        const html = count ? await loc.first().evaluate((el) => el.outerHTML) : '';
+        // Field values never leave the page: the HTML shows structure, not what was typed.
+        const clean = html.replace(/(<(?:input|textarea)\b[^>]*?\s)value="[^"]*"/g, '$1value="…"').replace(/<!--[\s\S]*?-->/g, '').slice(0, 20_000);
+        out.push(`## HTML of \`${expr}\`${count > 1 ? ` (first of ${count})` : ''}`, '', count ? '```html' : '_no match_', ...(count ? [clean, '```'] : []), '');
+      } catch (e) {
+        out.push(`## HTML of \`${expr}\``, '', `error: ${(e as Error).message.split('\n')[0]}`, '');
+      }
     }
 
     const shot = flagStr(flags, 'screenshot');

@@ -10,16 +10,16 @@ Works in any agent app that loads skills. The skill lives in `.github/skills/hel
 `.github/agents/*.agent.md` and the Playwright MCP server in `.vscode/mcp.json`; GitHub Copilot reads them there. Claude Code
 reads only `.claude/`, so `.claude/skills/heldout-evaluator/SKILL.md` and `.claude/agents/*.md` are short bridges that
 point here, and it reads MCP servers only from the root `.mcp.json`, which `init` and `update` write from
-`.vscode/mcp.json`. Tool names below such as `AskUserQuestion` and the Agent tool are Claude Code's examples. In GitHub Copilot,
-ask the user in the chat, run each subagent with Copilot's `agent` tool (or as a fresh chat with the agent's
-instructions), and pass `--quiet` to `heldout run` so it prints a digest.
+`.vscode/mcp.json`. Tool names below such as `AskUserQuestion` (used during setup only) and the Agent tool are Claude Code's examples. In
+GitHub Copilot, ask the setup questions in the chat, run each subagent with Copilot's `agent` tool (or as a fresh chat
+with the agent's instructions), and pass `--quiet` to `heldout run` so it prints a digest.
 
 A **held-out test** is an independent oracle: written from the requirement alone, never from the
 application's code or its developers' tests, so it catches an implementation that drifted from what
 the story asked for. This skill runs the whole loop for one Jira story:
 
 ```
-Jira story (title, description, AC) + its screenshots + linked Confluence pages ─► requirement contract (gaps → ask) ─► review
+Jira story (title, description, AC) + its screenshots + linked Confluence pages ─► requirement contract (open questions → verdict) ─► review
   ─► Playwright UI/API spec from the contract (AC + test type + source per test), steps on the app's journeys
   ─► freeze ─► harden vs live AUT (tests and journeys) ─► preflight ─► run
   ─► triage (script vs application, confirmed live) ─► repair script defects & re-run
@@ -36,13 +36,18 @@ never files issues: it reports findings with evidence, and a person decides what
 
 If `heldout.config.json` is missing, set the project up before anything else:
 
-1. Ask the user, in one `AskUserQuestion` call, for anything you can't infer:
+1. Ask the user, in one `AskUserQuestion` call, for anything you can't infer. Setup is the only time questions are
+   asked: once a story is fetched, the evaluation runs to its published verdict without the user (see "Unattended"
+   below), so settle here everything a story may need.
    - the web app URL
    - the API URL (if different)
    - Jira: mock (nothing to connect to) or your Jira Data Center (its URL; the user puts a personal access token in
      `.env` with `npm run heldout -- secret JIRA_PAT --ask`)
    - test accounts: the tests create their own / existing accounts with passwords in `.env` or CI variables /
-     existing accounts in HashiCorp Vault / none needed
+     existing accounts in HashiCorp Vault / none needed; and, when the application has kinds of user a person must
+     create (an administrator), an account of each kind
+   - with a real Jira: whether each verdict is published to its story automatically (the default) or left for a
+     person to publish (`"publish": "manual"` under `jira` in `heldout.config.json`)
 2. Run setup from the user's clone of the skill (ask where it is if you don't know; usually `$HOME/heldout-skill`), in
    the project's folder:
 
@@ -103,23 +108,52 @@ the acceptance-criteria custom field. See
 `H="npm run heldout --"`. In Windows PowerShell, quote the dashes (`npm run heldout '--' …`): PowerShell drops a bare
 `--`, and npm then keeps the command's flags for itself (`heldout` stops with this hint when it notices). Every command takes the issue key. `$H status [KEY]` shows where a story is and the next command.
 
+**Drive a story with `$H advance KEY`.** It runs every script step that comes next (fetch, the evidence pack, lint and
+the freeze, the integrity check and the evaluation run, the automatic triage, the verdict, publish, the journey
+registry) and stops where a subagent has work to do, printing the subagent, its task and the command that follows:
+
+```
+■ Next: the heldout-test-author subagent — from the reviewed contract, without a browser
+  Task: "Write the tests for KEY"
+  Then: npm run heldout -- advance KEY
+```
+
+Run that subagent with that task, then the `Then:` command, until it prints `✔ KEY is complete`. It reads where the
+story is from the files on disk, so a new session picks a story up with the same command. The table below is what it
+runs, and what to run by hand when a step needs a closer look.
+
+**Unattended.** From the fetch to the published verdict, never stop to ask the user anything, and never wait for an
+answer or a go-ahead. Whatever is unclear or missing becomes part of the result:
+
+| What comes up | Where it goes |
+| --- | --- |
+| The requirement doesn't say what is correct (an open oracle gap), or its sources disagree | `// OPEN-QUESTION:` or `@needs-clarification` in the tests; the verdict lists the question for the story's owner |
+| One reasonable reading exists | `assumed`, `// ASSUMPTION:` in the spec; the verdict lists it, and says so when the application contradicts it |
+| The story has no acceptance criteria | `advance` writes an INCONCLUSIVE verdict saying so, and publishes it |
+| An account, role or secret the tests need is missing and the application can't create it | Those tests end BLOCKED; the verdict names what is missing |
+| The application is down or degraded, or a failure stays unexplained after 3 repair cycles | ENVIRONMENT_ISSUE or NEEDS_INVESTIGATION; verdict INCONCLUSIVE |
+| An assertion's implementation is wrong (not its expected value) | You decide on the audited amendment yourself; the verdict shows it |
+
+The owner's later answer to an open question enters the next evaluation: a revised story is fetched again, or
+`$H contract KEY --answer G<n> --value "…" --by "<who>"` records it (then a fresh review).
+
 | # | Phase | You do | Command / output |
 | --- | --- | --- | --- |
 | 1 | **Fetch** | Pull the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (comments and other attachments are not requirement), into the folder of its AUT profile. A re-fetch detects requirement revisions | `$H fetch KEY [--aut <profile>]` → `output/<profile>/KEY/requirement/`, `evaluation.json` (+ `CHANGES.md`, `history/`) |
-| 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 3) or *oracle* (WHAT: found in the requirement, or a question for the user); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean. **Ask the user** the oracle questions it lists (`AskUserQuestion`, interactive sessions); record answers as `provided-by-user` and re-review | `requirement-contract.json`, `requirement-contract.review.json` — [requirement-contract](references/requirement-contract.md) |
-| 2 | **Write the tests** | **Delegate** to the `heldout-test-author` subagent ("Write the tests for KEY"). With no browser and from the reviewed contract alone, it runs `$H scaffold KEY`, lists the application's journeys (`$H journeys KEY`) and writes the Playwright TS tests: one user journey each, tagged with its `@AC-n`, one `@type` (what it truly proves) and a `// from` source, written in two passes: one test per criterion first, then round the test types per criterion for what the requirement implies; the steps call journeys, adding the missing ones to their domain's file (`journeys/fixtures/<domain>.ts`); every data precondition seeded; every expectation in the test (`expectResponse(…, '[REQ AC-n] …')`, `[REQ AC-n]` messages, `@req-constants`); guessed mechanics marked `// TODO(harden)`; lint clean (`--allow-unhardened`). **Ask the user** the questions it returns | `tests/*.spec.ts`, `test-data.json`, `journeys/fixtures/<domain>.ts` — [test-authoring](references/test-authoring.md), [journeys](references/journeys.md), [data-and-journeys](references/data-and-journeys.md) |
+| 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 3) or *oracle* (WHAT: found in the requirement, otherwise left open or assumed for the verdict to report); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean (after 3 rounds, what is still disputed becomes an open question). **Don't ask the user** the open oracle questions it lists: they go to the tests and the verdict | `requirement-contract.json`, `requirement-contract.review.json` — [requirement-contract](references/requirement-contract.md) |
+| 2 | **Write the tests** | **Delegate** to the `heldout-test-author` subagent ("Write the tests for KEY"). With no browser and from the reviewed contract alone, it runs `$H scaffold KEY`, lists the application's journeys (`$H journeys KEY`) and writes the Playwright TS tests: one user journey each, tagged with its `@AC-n`, one `@type` (what it truly proves) and a `// from` source, written in two passes: one test per criterion first, then round the test types per criterion for what the requirement implies; the steps call journeys, adding the missing ones to their domain's file (`journeys/fixtures/<domain>.ts`); every data precondition seeded; every expectation in the test (`expectResponse(…, '[REQ AC-n] …')`, `[REQ AC-n]` messages, `@req-constants`); guessed mechanics marked `// TODO(harden)`; lint clean (`--allow-unhardened`). The open questions it returns are already in the tests (`// OPEN-QUESTION:`, `@needs-clarification`) and reach the verdict; nobody is asked | `tests/*.spec.ts`, `test-data.json`, `journeys/fixtures/<domain>.ts` — [test-authoring](references/test-authoring.md), [journeys](references/journeys.md), [data-and-journeys](references/data-and-journeys.md) |
 | 3 | **Freeze + harden** | **You** freeze the draft together with the contract's oracle (and a hash of each journey it uses): `$H integrity KEY --snapshot`. Then **delegate** to the `heldout-hardener` subagent ("Harden the tests for KEY"). It makes the mechanics work against the live AUT with the browser and API tiers, in the tests and the journeys they call, resolves the open mechanics gaps (`discovered-in-aut`, which changes no reviewed content), saves an accounts recipe when the story needs users, and proves stability with `$H run KEY --label harden --repeat-each 3 --workers 2`. Check `$H integrity KEY` yourself afterwards. When it reports an over-strict assertion implementation, **you** decide on `$H integrity KEY --amend` | `hardening/` — [hardening](references/hardening.md) |
 | 4 | **Run** | **You** run the full suite. Preflight (lint, contract and review, journeys, 3-sample healthcheck) runs automatically; a down or **degraded** AUT aborts the run (`--allow-degraded` overrides) | `$H run KEY --label eval` → `runs/NN-eval/` |
 | 5 | **Triage** | **Delegate** to the `heldout-triager` subagent ("Triage run NN-eval of KEY"). It auto-classifies, **reproduces each failure live** and records each decision with evidence; it never edits the tests or the journeys. Send the script defects it confirms to the `heldout-hardener` ("Repair these script defects for KEY: …"), re-run everything (`$H run KEY --label rerun`) and triage again (the triager uses `--carry-from auto`). At most 3 cycles | `runs/NN/triage.json`, `confirm/` — [triage](references/triage.md) |
 | 6 | **Verdict** | Render the recommendation with traceability, reproduction and evidence | `$H verdict KEY` → `verdict.md`, `verdict.json` — [verdict-and-publish](references/verdict-and-publish.md) |
-| 7 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else | `$H publish KEY` |
+| 7 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else. Part of the evaluation, with no confirmation; a project that wants a person to publish sets `jira.publish` to `"manual"`, and `advance` then leaves this step out | `$H publish KEY` |
 | 8 | **Journey registry** | Record in `journeys/registry.yml` the journeys this story's passing tests used (this story as their proof, and what ran before each), and the stale marks. Journeys only failing tests used are left out. Preview, then apply; commit `registry.yml` with the journey files and the story's output. After merging other people's work, `$H journeys --check` lints every journey and lists possible duplicates; a merge conflict in `registry.yml` is settled by `$H journeys --resolve` | `$H journeys KEY --harvest` → `--harvest --apply` → `journeys/registry.yml` — [journeys](references/journeys.md) |
 
-Work through the phases in order and do not skip the freeze. Track them with a todo list. **You orchestrate:** each
-subagent runs in a fresh context, works from the files on disk and the scripts, and replies with a summary; you run
-the steps between them (freeze, runs, verdict, publish, journey registry), check what each wrote (`$H status KEY`), and ask
-the user the questions they return, since subagents can't. Give each one the story KEY, and the run or findings when
-there are any. If your app can't run subagents, do the subagent's work yourself in the same order, following its
+Work through the phases in order and do not skip the freeze. **You orchestrate:** each subagent runs in a fresh
+context, works from the files on disk and the scripts, and replies with a summary; `$H advance KEY` runs the steps
+between them (freeze, runs, verdict, publish, journey registry) and names the next subagent with its task. Keep the
+questions and missing pieces the subagents report for your closing summary; they are never a reason to pause. Give
+each one the story KEY, and the run or findings when there are any. If your app can't run subagents, do the subagent's work yourself in the same order, following its
 instructions in `.github/agents/<name>.agent.md`.
 Self-tests for the skill's own logic: `npm run test:skill`.
 
@@ -174,7 +208,7 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   (`fixtures/products.ts`), every journey documented; `registry.yml` is written by `journeys --sync` and the harvest,
   never by hand, and `journeys --resolve` settles a merge conflict in it. `journeys --check` finds the same journey
   added twice.
-- **Gaps: find, then ask; never read the oracle off the AUT.** A missing element about HOW to exercise the AUT is discovered from it during hardening, with evidence. A missing element about WHAT is correct (status, message, limit) comes from the requirement or the user, or stays an explicit assumption or open question. Ask the user with `AskUserQuestion` when a session is interactive.
+- **Gaps: find, then report; never read the oracle off the AUT.** A missing element about HOW to exercise the AUT is discovered from it during hardening, with evidence. A missing element about WHAT is correct (status, message, limit) comes from the requirement, or stays an explicit assumption or an open question that the verdict puts to the story's owner. Nobody is asked while an evaluation runs.
 - **Surface ambiguity; don't resolve it silently.** Use `# ASSUMPTION:`, `# OPEN-QUESTION:` and
   `@needs-clarification`. All three appear in the verdict.
 - **Pre-steps are preconditions.** API calls needed before the call under test (auth, parent data, state chains, lookups, readiness) use `seed.once/create/step/until`; they are validated by output, BLOCKED on failure, and replayable as P1…Pn in the verdict. Cross-test reliance is declared with `@depends:SCN-x`.
@@ -214,6 +248,7 @@ Tell the user:
 - script defects that were repaired
 - the integrity status, including any amendments or re-freezes
 - the tiers actually used, and the journeys: reused, added, fixed after the freeze, recorded in the registry, stale
-- requirement gaps and how each was filled (found, discovered, answered by the user, assumed or open)
-- open questions
+- requirement gaps and how each was filled (found, discovered, answered by the owner earlier, assumed or open)
+- the open questions for the story's owner, and anything that was missing (an account, a role, a secret) with the
+  tests it blocked: this summary and the verdict are where they are raised
 - where `verdict.md` and the Jira comment/attachment ended up

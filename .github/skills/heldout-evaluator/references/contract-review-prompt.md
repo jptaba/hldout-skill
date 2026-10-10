@@ -33,6 +33,10 @@ Check each of these refs: {{REFS}}
   - A value "found in the requirement" is really there. Cite where.
   - An expected behaviour is never taken from the application.
 - **Endpoints** (`METHOD /path` refs): the method and path appear at the cited source line.
+- **V-n** (variants: setups every criterion they apply to must be checked across, such as user types or data sets):
+  the cited lines require the checks across them; each value is one the sources name, none is missing and none added;
+  `appliesTo` lists exactly the criteria the sources apply it to ("every criterion" is `*`). A story that requires
+  such checks but has no variant for them is a `missed` line.
 
 Out of scope: mechanics gaps (HOW to exercise the app: routes, labels, request fields) and the endpoints they list as
 their source, and an AC's `endpoints`, `entryPoint` and `needsData` (the calls and data its test uses, e.g. reading the

@@ -28,6 +28,12 @@ a page, is the same for every story on an application: write it once as a journe
    on shared environments.
 7. **Evidence.** The seed ledger (what was created, and whether it was cleaned up) is attached to each
    test and shown in the verdict's reproduction steps, so a reviewer can recreate the preconditions.
+8. **Data the application can't delete is made once.** A record no call removes (a placed order, an invoice, a sent
+   message) stays in the environment after every run. When tests only *read* it (they open it, list it, are refused
+   it), create it once per worker and share it: `seed.once('order-of-customer', 'an order of the customer (POST
+   /invoices)', () => placeOrder(…), 3_600_000)` (a lifetime that outlasts the run; the default is 10 minutes), recorded with `seed.track(label, created)` and no cleanup, so the run lists
+   it as kept by design. A test whose own action creates such a record still creates its own. This keeps a suite of
+   many setups (one test per user type) from leaving one record per test behind, and saves its time.
 
 ## 2. Where seed data comes from (preference order)
 
@@ -119,6 +125,26 @@ takes the account (so a crashed earlier run leaves nothing behind) and again aft
 ```bash
 npm run heldout -- accounts --aut <profile> --reset 'DELETE /BookStore/v1/Books?UserId=${id}'
 ```
+
+**Kinds of users (roles).** When stories need different kinds of users (an administrator, a customer, a second
+customer), give each existing account its role, and ask for the kind a step needs:
+
+```bash
+npm run heldout -- accounts --aut <profile> --add-existing --username admin@example.com --password-env ADMIN_PASSWORD --role admin
+npm run heldout -- accounts --aut <profile> --add-existing --username customer1@example.com --password-env CUSTOMER1_PASSWORD --role customer
+npm run heldout -- accounts --aut <profile> --add-existing --username customer2@example.com --password-env CUSTOMER2_PASSWORD --role customer
+```
+
+```ts
+const admin = await seed.account('administrator', { role: 'admin' });
+const me = await seed.account('customer', { role: 'customer' });
+const other = await seed.account('another customer', { role: 'customer' });   // the next customer account
+```
+
+A role works next to accounts the tests create: `seed.account()` without a role still creates one, and
+`seed.account('admin', { role: 'admin' })` takes an existing administrator. Each worker gets its own share of every
+role, so `heldout run` starts no more workers than the scarcest role has accounts (one administrator: one worker).
+When the profile's accounts have roles, the lint warns about a `seed.account()` that names none.
 
 Without one, undo what the test added with `seed.track(…)`.
 

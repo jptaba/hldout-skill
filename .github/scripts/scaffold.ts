@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, journeyPaths, assertIssueKey, createsAccounts, evalPaths, loadConfig, main, parseArgs, rel, writeFile } from './config';
-import { openQuestions, readContract, toDiscover, type ContractAC, type ContractEndpoint } from './contract-model';
+import { comboLabel, openQuestions, readContract, toDiscover, variantCombinations, type ContractAC, type ContractEndpoint } from './contract-model';
 import { TEST_TYPES } from './spec-model';
 
 
@@ -135,6 +135,7 @@ main(() => {
       `  test('SCN-${String(i + 1).padStart(3, '0')}: ${shortTitle(ac).replace(/'/g, "\\'")}', { tag: ['@${ac.id}', '@layer:${ac.layer}', '@P1'${open.some((g) => g.required && g.affects.includes(ac.id)) ? ", '@needs-clarification'" : ''}] }, async ({ ${ac.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`,
       `    // TODO(test) journey.step('Given …' / 'When …' / 'Then …') for each step; seed preconditions with seed.* (or a journey); assert with "[REQ ${ac.id}] …" messages${ac.layer !== 'ui' && c.endpoints.length ? ` (API answers: expectResponse(res, { status, body }, '[REQ ${ac.id}] <METHOD /path> …'))` : ''}`,
       ...(ac.outcomes.length ? [`    // Then: ${ac.outcomes.join(' · ')}`] : []),
+      ...(variantCombinations(c, ac.id).length ? [`    // TODO(test) required setups (one test each, tagged @variant:…): ${variantCombinations(c, ac.id).map(comboLabel).join('; ')}`] : []),
       '  });',
       '',
     ]),

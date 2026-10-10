@@ -6,8 +6,8 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, evalPaths, journeyPaths, rel, resolveUrl, type HeldoutConfig } from './config';
-import { checkContract, checkSuiteAgainstContract, readContract } from './contract-model';
+import { ROOT, accountRoles, evalPaths, journeyPaths, rel, resolveUrl, type HeldoutConfig } from './config';
+import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
 import { journeysUsedBy, lintJourneys } from './journeys-store';
 import { TEST_TYPES, readSuite, specFiles, type Scenario, type TestType } from './spec-model';
@@ -75,6 +75,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   // Reviewer observations are notes for the contract's builder (shown by `heldout contract`), not test-suite problems.
   for (const x of checkReview(contract, readReview(p.base), { requireReview: true }).filter((r) => r.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
   out.push(...checkSuiteAgainstContract(contract, f));
+  out.push(...checkVariantCoverage(contract, f));
   // A non-functional requirement the story states is verified by a test tagged @NFR-n, or reported as not verified.
   for (const n of contract.nonFunctional ?? []) {
     if (!f.scenarios.some((s) => s.nfrs.includes(n.id))) warn('nfr-not-verified', `${n.id} is not verified by any test — tag the test that checks it @${n.id}; otherwise the verdict lists it as not verified (at most PASS WITH WARNINGS)`);
@@ -123,6 +124,11 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   if (needsData.length && !seeding) {
     warn('no-seeding', `${needsData.length} test(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but neither the spec nor its journeys use seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
   }
+
+  // Accounts with roles: a test that asks for "an account" without one may be handed any kind of user.
+  const roles = accountRoles(cfg.aut.accounts);
+  const roleless = [src, ...journeySrc].join('\n').match(/\bseed\.account\(\s*(?:(['"`])[^'"`]*\1\s*)?\)/g) ?? [];
+  if (roles.size && roleless.length) warn('account-without-role', `${roleless.length} seed.account() call(s) ask for no role, so they may get any of the profile's accounts (${[...roles.keys()].join(', ')}) — pass the kind of user the step needs: seed.account('admin', { role: '${[...roles.keys()][0]}' })`);
 
   // An assertion whose message starts from a variable (a local helper building "[REQ …]") is invisible to the integrity
   // freeze: its expected value could change unnoticed. expectResponse() or a literal message keeps it frozen.

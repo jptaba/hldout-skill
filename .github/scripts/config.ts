@@ -40,7 +40,11 @@ export interface AutProfile {
 export interface RecipeCall { method: string; path: string; body?: unknown; form?: Record<string, string> }
 
 /** An account that already exists in the AUT. Secrets as ${env:NAME} or ${vault:path#field}, never literal. */
-export interface ExistingAccount { username: string; password: string; id?: string }
+export interface ExistingAccount {
+  username: string; password: string; id?: string;
+  /** The kind of user it is ("admin", "customer"): seed.account({ role }) hands out only accounts of that role. */
+  role?: string;
+}
 
 /**
  * How tests get accounts on this AUT. Either the tests create them (`create`, with `delete` when the application
@@ -83,6 +87,26 @@ export interface UiForm { path: string; steps: { fill?: string; click?: string; 
 /** Whether the tests make their own accounts (over the API, or on the sign-up page). */
 export const createsAccounts = (r?: AccountRecipe) => Boolean(r?.create || r?.signUp);
 
+/** The roles the existing accounts have, with how many accounts each. */
+export function accountRoles(r?: AccountRecipe): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const a of r?.existing ?? []) if (a.role) out.set(a.role, (out.get(a.role) ?? 0) + 1);
+  return out;
+}
+
+/**
+ * The most parallel workers the existing accounts allow: each worker has accounts of its own. Without roles, the pool
+ * divided by the accounts one test takes (perTest); with roles, also each role's count (a test takes at most one
+ * account of a role at a time, unless perTest says more). Undefined when the tests make every account they use.
+ */
+export function existingAccountWorkers(r?: AccountRecipe): number | undefined {
+  const roles = accountRoles(r);
+  if (!r?.existing?.length || (createsAccounts(r) && !roles.size)) return undefined;
+  const per = Math.max(1, r.perTest ?? 1);
+  const caps = [...(createsAccounts(r) ? [] : [Math.floor(r.existing.length / per)]), ...[...roles.values()]];
+  return Math.max(1, Math.min(...caps));
+}
+
 export interface HeldoutConfig {
   /** Named AUT profiles. A story is bound to one by its folder, output/<profile>/<KEY>/. */
   auts: Record<string, AutProfile>;
@@ -101,6 +125,8 @@ export interface HeldoutConfig {
     acceptanceCriteriaField?: string;
     /** Labels written on publish: <prefix>pass | <prefix>fail | ... */
     verdictLabelPrefix?: string;
+    /** auto (default): `heldout advance` publishes the verdict to the story itself. manual: it leaves that to a person (`heldout publish KEY`). */
+    publish?: 'auto' | 'manual';
   };
   /** Everything of a story, per AUT profile: <outputDir>/<profile>/<KEY>/. */
   outputDir: string;
@@ -246,6 +272,7 @@ export function validateConfig(raw: unknown): string[] {
         const list = Array.isArray(existing) ? existing as Record<string, unknown>[] : [];
         if (!list.length) out.push(`auts.${id}.accounts.existing must be a list of { username, password }`);
         list.forEach((a, i) => {
+          if (a?.role !== undefined && !(typeof a.role === 'string' && /^[a-z][a-z0-9-]*$/.test(a.role))) out.push(`auts.${id}.accounts.existing[${i}].role must be a lower-case name such as "admin" or "customer"`);
           if (typeof a?.username !== 'string' || typeof a?.password !== 'string') out.push(`auts.${id}.accounts.existing[${i}] needs a username and a password`);
           // This file is committed: a password must be a reference to .env / the environment or to Vault.
           else if (!/^\$\{(env|vault):[^}]+\}$/.test(a.password)) out.push(`auts.${id}.accounts.existing[${i}].password must be "\${env:NAME}" or "\${vault:path#field}", never the password itself (heldout.config.json is committed)`);
@@ -285,7 +312,8 @@ export function validateConfig(raw: unknown): string[] {
   if (j !== undefined) {
     if (j.mode !== undefined && !(JIRA_MODES as readonly string[]).includes(String(j.mode))) out.push(`jira.mode must be ${JIRA_MODES.map((m) => `"${m}"`).join(', ')} (got ${JSON.stringify(j.mode)})`);
     if (j.mode !== undefined && j.mode !== 'mock' && !isUrl(j.baseUrl) && !process.env.JIRA_BASE_URL) out.push(`jira.mode is "${j.mode}" but jira.baseUrl (or JIRA_BASE_URL) is not an https URL`);
-    if (j.acceptanceCriteriaField && !/^customfield_\d+$/.test(String(j.acceptanceCriteriaField))) out.push(`jira.acceptanceCriteriaField looks wrong (${JSON.stringify(j.acceptanceCriteriaField)}); expected "customfield_12345" — list fields with: heldout doctor --jira`);
+    if (j.publish !== undefined && j.publish !== 'auto' && j.publish !== 'manual') out.push(`jira.publish must be "auto" or "manual" (got ${JSON.stringify(j.publish)})`);
+    if (j.acceptanceCriteriaField &&!/^customfield_\d+$/.test(String(j.acceptanceCriteriaField))) out.push(`jira.acceptanceCriteriaField looks wrong (${JSON.stringify(j.acceptanceCriteriaField)}); expected "customfield_12345" — list fields with: heldout doctor --jira`);
   }
   const r = c.run as Record<string, unknown> | undefined;
   if (r) for (const k of ['retries', 'workers', 'actionTimeoutMs', 'expectTimeoutMs', 'testTimeoutMs']) {

@@ -93,7 +93,9 @@ export function signInFromSteps(signIn: { path: string; steps: InspectStep[]; do
   // field (the inspected steps of an account whose user name is in Vault too); otherwise the password.
   const isUsername = (ref: string, target = '') => existing.some((a) => a.username === ref)
     || (!existing.some((a) => a.password === ref) && !/pass/i.test(target) && /user|e-?mail|login|name/i.test(target));
-  const toUi = (v = '', target = '') => v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, (ref) => (isUsername(ref, target) ? '${username}' : '${password}'));
+  // A user name typed as it is (the steps were recorded as one account) stands for whichever account signs in.
+  const toUi = (v = '', target = '') => (existing.some((a) => a.username === v) ? '${username}'
+    : v.replace(/\$\{var:\w+\}/g, '${username}').replace(/\$\{(?:env|vault):[^}]+\}/g, (ref) => (isUsername(ref, target) ? '${username}' : '${password}')));
   // Inspect steps ({"do": "fill", "target": …}) or steps already in the recipe's own shape ({"fill": …} / {"click": …}).
   type UiStep = { fill?: string; click?: string; value?: string };
   const steps = signIn.steps.flatMap((s): UiStep[] => {

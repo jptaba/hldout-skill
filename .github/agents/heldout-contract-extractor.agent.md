@@ -29,13 +29,14 @@ Do this:
 2. Fill in the contract as the reference describes. `quote` is verbatim. `source` / `lines` cite line numbers from the
    pack. Every ● line goes in `coverage`. HOW to exercise the app that the story doesn't say (routes, labels, an
    unnamed endpoint, request fields) is an open **mechanics** gap for the evaluator to discover later. WHAT is correct
-   that the story doesn't say is an **oracle** gap: resolved only by the sources, otherwise `open` (a question for
-   the user) or, when your task says the run is non-interactive and a reasonable reading exists, `assumed` with that
-   reading stated.
+   that the story doesn't say is an **oracle** gap: resolved only by the sources, otherwise `open` (the verdict puts
+   the question to the story's owner; nobody is asked during an evaluation) or, when the sources allow one reasonable
+   reading, `assumed` with that reading stated. A story with no acceptance criteria at all gets one required open
+   oracle gap ("what are the acceptance criteria?", affecting `*`) and no invented criteria.
 3. Run `npm run heldout -- contract KEY --allow-unreviewed`. Fix every ✖ by correcting the contract to match the
    sources, never by loosening a value until the check passes. Repeat until there is no ✖ (⚠ warnings for open gaps
    and the missing review are expected).
-4. Reply with a summary: ACs captured, gaps (kind and how each was resolved) and the questions for the user.
+4. Reply with a summary: ACs captured, gaps (kind and how each was resolved) and the open questions that go to the verdict.
    Do **not** write the review file. An independent reviewer does that.
 
 When your task gives you a reviewer's findings, fix exactly those items (or explain, with line citations, why a

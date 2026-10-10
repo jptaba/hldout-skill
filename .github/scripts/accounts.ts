@@ -6,6 +6,7 @@
  *   heldout accounts --aut <profile> --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1
  *   heldout accounts --aut <profile> --add-existing --username-vault secret/qa/app#user1 --password-vault secret/qa/app#password1
  *       [--id <account id>]   secrets stay where they are: .env / the environment (--…-env NAME) or Vault (--…-vault path#field)
+ *       [--role admin]        the kind of user it is: tests ask for one with seed.account('admin', { role: 'admin' })
  *   heldout accounts --aut <profile> --reset "DELETE /api/cart?user=${id}"   tests change them: the call that restores one,
  *       run when a test takes the account and again after it
  *
@@ -29,7 +30,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, createsAccounts, dataPrefix, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './config';
+import { ROOT, accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, evalPaths, flagStr, loadConfig, main, parseArgs, unmangleMsysPath, type AccountRecipe, type ExistingAccount } from './config';
 import { checkAccountRecipe, recipeFromChain, signInFromSteps } from './accounts-recipe';
 import { loadVaultSecrets } from './secrets';
 
@@ -56,7 +57,12 @@ main(async () => {
     fs.writeFileSync(configFile, `${JSON.stringify(raw, null, 2)}\n`);
     cfg.aut.accounts = recipe;
   };
-  const merge = (list: ExistingAccount[], add: ExistingAccount[]) => [...list.filter((a) => !add.some((b) => b.username === a.username)), ...add];
+  // An account already in the list keeps its place and what it had (its role, its id) unless the new entry says otherwise.
+  const merge = (list: ExistingAccount[], add: ExistingAccount[]) => {
+    const out = [...list];
+    for (const b of add) { const i = out.findIndex((a) => a.username === b.username); if (i >= 0) out[i] = { ...out[i], ...b }; else out.push(b); }
+    return out;
+  };
   let changed = false;
   /** Set when this command only added an existing account: only that one is checked. */
   let added: ExistingAccount | undefined;
@@ -142,16 +148,20 @@ main(async () => {
     const password = reference('password', flagStr(flags, 'password'), flagStr(flags, 'password-env'), flagStr(flags, 'password-vault'), false);
     if (!username || !password) throw new Error('--add-existing needs a user name (--username, --username-env or --username-vault) and a password (--password-env or --password-vault)');
     const id = flagStr(flags, 'id');
+    const role = flagStr(flags, 'role');
+    if (role !== undefined && !/^[a-z][a-z0-9-]*$/.test(role)) throw new Error('--role takes a lower-case name such as admin or customer');
     const before = cfg.aut.accounts ?? {};
-    added = { username, password, ...(id ? { id } : {}) };
+    added = { username, password, ...(id ? { id } : {}), ...(role ? { role } : {}) };
     save({ ...before, existing: merge(before.existing ?? [], [added]) });
-    console.log(`✔ existing account ${username} ${(before.existing ?? []).some((a) => a.username === username) ? 'updated in' : 'added to'} auts.${cfg.autId}.accounts (${(cfg.aut.accounts?.existing ?? []).length} in all)${before.create ? ' — note: the recipe also creates accounts, which takes precedence; remove "create" to use the existing ones' : ''}`);
+    console.log(`✔ existing account ${username}${role ? ` (role ${role})` : ''} ${(before.existing ?? []).some((a) => a.username === username) ? 'updated in' : 'added to'} auts.${cfg.autId}.accounts (${(cfg.aut.accounts?.existing ?? []).length} in all)${before.create && !role ? ' — note: the recipe also creates accounts, which seed.account() uses; give this one a --role to hand it out with seed.account({ role })' : ''}`);
     changed = true;
   }
 
   const recipe = cfg.aut.accounts;
   if (!recipe) throw new Error(`auts.${cfg.autId} has no accounts yet — add existing ones (--add-existing) or save how tests create them (--from-chain); see references/data-and-journeys.md §4a`);
   if (!changed && !flags.check) { console.log(JSON.stringify(recipe, null, 2)); return; }
+  // A setting that changes no call (how many accounts a test takes, keeping created accounts) needs no live check.
+  if (!flags.check && ![chainFile, signInSteps, signUpSteps, lookup, resetCall, added].some(Boolean)) { console.log('  (not checked live: no sign-in or account call changed; heldout accounts --check signs each account in)'); return; }
 
   const problems = await loadVaultSecrets([recipe]);
   for (const p of problems) console.log(`  ✖ ${p}`);
@@ -162,8 +172,9 @@ main(async () => {
   const steps = await checkAccountRecipe(onlyAdded ? { ...recipe, existing: [added!] } : recipe, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, { createUndeletable: Boolean(flags.create), profile: cfg.autId, dataPrefix: dataPrefix(cfg.aut), ui: { baseURL: cfg.aut.baseURL, blockHosts: cfg.aut.blockHosts, testIdAttribute: cfg.aut.testIdAttribute, overlays: cfg.aut.overlays } });
   for (const s of steps) console.log(`  ${s.ok ? '✔' : '✖'} ${s.step} → ${s.detail}`);
   if (steps.some((s) => !s.ok)) { process.exitCode = 1; return; }
-  const pool = createsAccounts(recipe) ? undefined : Math.max(1, Math.floor((recipe.existing?.length ?? 0) / Math.max(1, recipe.perTest ?? 1)));
-  console.log(`✔ accounts ready${pool ? ` (${recipe.existing?.length} existing${(recipe.perTest ?? 1) > 1 ? `, ${recipe.perTest} per test` : ''}; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account();${recipe.signIn ? ' await signIn(page, me);' : ''}`);
+  const pool = existingAccountWorkers(recipe);
+  const roles = accountRoles(recipe);
+  console.log(`✔ accounts ready${pool ? ` (${recipe.existing?.length} existing${roles.size ? `: ${[...roles].map(([r, n]) => `${n} ${r}`).join(', ')}` : ''}${(recipe.perTest ?? 1) > 1 ? `, ${recipe.perTest} per test` : ''}; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account(${roles.size ? `'me', { role: '${[...roles.keys()][0]}' }` : ''});${recipe.signIn ? ' await signIn(page, me);' : ''}`);
   if (recipe.token || recipe.signIn) console.log(`  in the spec: import { ${recipe.signIn ? 'signIn, ' : ''}type Account } from '<…>/heldout-support/fixtures' — seed.account() and me.headers need nothing else`);
   if (!recipe.token && !recipe.signIn) console.log(`  next: save how to sign in — the api-probe chain of the sign-in call (heldout accounts --from-chain …), and/or the UI steps (--sign-in-json …)`);
 });

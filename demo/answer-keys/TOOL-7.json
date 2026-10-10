@@ -1,0 +1,16 @@
+{ "key": "TOOL-7", "aut": "toolshop", "writtenAt": "2026-10-10 (before evaluation)", "expectedVerdict": "FAIL",
+  "format": "the description requires every criterion to be validated for three user types (guest, customer, administrator), and AC-6 also for three data sets (Hammer, Hand Saw, Wrench)",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-5"], "origin": "genuine", "keywords": ["403", "404", "another customer", "invoice"], "description": "a customer reading another customer's invoice gets 404, not the required 403 (administrator 200 and guest 401 are as required)" }
+  ],
+  "seededScriptDefects": [],
+  "expectedCoverage": {
+    "AC-1": ["guest", "customer", "administrator"],
+    "AC-2": ["guest", "customer", "administrator"],
+    "AC-3": ["guest", "customer", "administrator"],
+    "AC-4": ["guest", "customer", "administrator"],
+    "AC-5": ["guest", "customer", "administrator"],
+    "AC-6": ["guest × Hammer, Hand Saw, Wrench", "customer × Hammer, Hand Saw, Wrench", "administrator × Hammer, Hand Saw, Wrench"]
+  },
+  "accounts": "existing accounts (public demo credentials): customer@practicesoftwaretesting.com, customer2@practicesoftwaretesting.com (the 'another customer' of AC-5), admin@practicesoftwaretesting.com (role admin); the customers get the role customer; the password is the one the demo publishes for its sample accounts, kept in .env",
+  "traps": ["the framework's accounts are one pool of interchangeable users: a test asking for 'a customer' may be handed the administrator", "AC-5 needs a second customer who owns an invoice", "the defect shows only for the customer variant of AC-5"] }

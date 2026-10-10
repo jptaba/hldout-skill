@@ -24,7 +24,12 @@ Do this:
    stories, changed since, not proven yet, stale) and what each requires. Probe the ones not proven in their current
    form; a proven journey is checked by your first harden run, and probed only if that run fails in it.
 2. `npm run heldout -- contract KEY` lists the open mechanics gaps. Discover each from the application and record it
-   with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …`. A gap a proven journey already answers
+   with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …`. Tests that ask for a kind of user
+   (`seed.account(label, { role })`) need existing accounts with that role: confirm each account's role on the app and
+   record it (`npm run heldout -- accounts --add-existing … --role <role>`). When the tests need an account, a role or
+   a secret the project doesn't have and the application can't create, don't stop to ask for it: leave those tests as
+   they are (they end BLOCKED, which the verdict reports), harden the rest, and name what is missing in your log and
+   your reply. A gap a proven journey already answers
    (how to find a product, the route of a page) needs no new probe: cite the journey and the story that proved it, and
    your harden run. Never resolve an oracle gap.
 3. Replace every `// TODO(harden)`, in the spec and in the journeys it calls, with a mechanic you verified: each final

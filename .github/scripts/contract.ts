@@ -5,9 +5,9 @@
  *   heldout contract KEY --pack           evidence pack (every source line numbered) + empty contract bound to this revision
  *   heldout contract KEY                  check: anchoring, coverage ledger, literal grounding, review status → requirement-contract.md
  *   heldout contract KEY --review-prompt  the independent reviewer's instructions (for the heldout-contract-reviewer subagent)
- *   heldout contract KEY --questions      open oracle gaps to ask the user (JSON)
+ *   heldout contract KEY --questions      open oracle gaps: the questions the verdict puts to the story's owner (JSON)
  *   heldout contract KEY --resolve G1 --value "…" --evidence "hardening/api-x.md"   a mechanics gap found in the application
- *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the user's answer to an oracle gap (re-review)
+ *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the owner's answer to a verdict's open question, before the next evaluation (re-review)
  *   … --allow-unreviewed  accept a contract without an independent review (warning instead of error)
  *
  * --pack never overwrites an existing contract; it always refreshes the evidence pack.
@@ -83,7 +83,7 @@ main(async () => {
     console.log(JSON.stringify(openQuestions(c).map((g) => ({ id: g.id, required: g.required, affects: g.affects, question: g.element, tried: g.tried })), null, 2));
     return;
   }
-  // --resolve G<n>: a mechanics gap found in the application (no re-review). --answer G<n>: the user's answer to an
+  // --resolve G<n>: a mechanics gap found in the application (no re-review). --answer G<n>: the owner's answer to an
   // oracle gap (changes the oracle, so the contract goes back to the reviewer).
   const gapFlag = flagStr(flags, 'resolve') ? 'resolve' : flagStr(flags, 'answer') ? 'answer' : undefined;
   if (gapFlag) {
@@ -92,7 +92,7 @@ main(async () => {
     const value = flagStr(flags, 'value');
     if (!value) throw new Error(`--${gapFlag} ${g.id} needs --value "<what was found / answered>"`);
     if (gapFlag === 'resolve') {
-      if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Ask the user, then: heldout contract ${key} --answer ${g.id} --value "…" --by "<who>"`);
+      if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Leave it open: the verdict puts it to the story's owner, whose answer is recorded with: heldout contract ${key} --answer ${g.id} --value "…" --by "<who>"`);
       const evidence = flagStr(flags, 'evidence');
       if (!evidence) throw new Error(`--resolve ${g.id} needs --evidence "<probe report or run that shows it>"`);
       Object.assign(g, { resolution: 'discovered-in-aut', value, evidence });
@@ -150,7 +150,7 @@ main(async () => {
     return;
   }
   if (questions.length) {
-    console.log(`\nQuestions for the user (${questions.length}) — the main agent asks the user (AskUserQuestion in Claude Code, in the chat elsewhere; a builder subagent leaves them open); unanswered, the affected criteria are @needs-clarification or # OPEN-QUESTION:`);
+    console.log(`\nOpen questions about the requirement (${questions.length}) — nobody is asked now: the affected criteria are @needs-clarification or carry // OPEN-QUESTION:, and the verdict puts each question to the story's owner:`);
     for (const g of questions) console.log(`  ${g.id}${g.required ? ' [required]' : ''} ${g.element} → affects ${g.affects.join(', ') || 'no criterion'}`);
   }
   if (discover.length) {

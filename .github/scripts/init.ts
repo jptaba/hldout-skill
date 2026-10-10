@@ -258,7 +258,7 @@ main(async () => {
   ];
   console.log('\nNext:');
   steps.forEach((s, i) => console.log(`  ${i + 1}. ${s}`));
-  console.log('  Test users, when stories need them (Opus asks when it gets there):');
+  console.log('  Test users, when stories need them (set them up now: nothing is asked once a story is being evaluated):');
   console.log('     accounts that already exist  npm run heldout -- accounts --add-existing --username qa.user1@example.com --password-env APP_PASSWORD_1');
   console.log('                                  (password in .env: npm run heldout -- secret APP_PASSWORD_1 --ask; or in Vault: --password-vault secret/qa/app#password)');
   console.log('     accounts the tests create    saved while hardening the first story that needs them (npm run heldout -- accounts --from-chain …)');

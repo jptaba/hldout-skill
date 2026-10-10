@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
-  checkContract, checkSuiteAgainstContract, locateQuote, normaliseText, openQuestions, oracleDigest,
+  checkContract, checkSuiteAgainstContract, locateQuote, normaliseText, notEvaluable, openQuestions, oracleDigest,
   requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
 } from '../.github/scripts/contract-model';
 import { checkIntegrity, snapshotDraft } from '../.github/scripts/integrity-check';
@@ -109,7 +109,7 @@ describe('requirement contract', () => {
     assert.ok(f.includes('gap-ladder'));
   });
 
-  it('open oracle gaps are questions for the user and must be surfaced in the specs', () => {
+  it('open oracle gaps are questions for the owner of the story and must be surfaced in the specs', () => {
     const dir = fixture();
     const c = goodContract(dir);
     c.gaps.push({ id: 'G3', element: 'maximum widgets per user', kind: 'oracle', required: true, affects: ['AC-1'], tried: [{ where: 'story', result: 'silent' }, { where: 'linked', result: 'silent' }], resolution: 'open' });
@@ -119,6 +119,16 @@ describe('requirement contract', () => {
     assert.ok(codes(checkSuiteAgainstContract(c, suite)).includes('open-gap-not-surfaced'));
     suite.openQuestions = ['G3: how many widgets may a user own?'];
     assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
+  });
+
+  it('a story without acceptance criteria is not evaluable once the builder recorded that as a required open question', () => {
+    const dir = fixture();
+    const c = goodContract(dir);
+    assert.equal(notEvaluable(c), false);
+    c.acceptanceCriteria = [];
+    assert.equal(notEvaluable(c), false, 'an unfinished contract (no gap recorded) goes back to the builder');
+    c.gaps.push({ id: 'G9', element: 'what are the acceptance criteria?', kind: 'oracle', required: true, affects: ['*'], tried: [{ where: 'story', result: 'none stated' }, { where: 'linked', result: 'none' }], resolution: 'open' });
+    assert.equal(notEvaluable(c), true);
   });
 
   it('an assumption that asserts nothing needs no @assumes tag when marked "(not asserted)"', () => {

@@ -155,9 +155,11 @@ export interface Seed {
    * A test account from the AUT profile's `accounts` recipe, signed in over the API when the recipe has a `token` call.
    * Created (unique user name, deleted after the test when the recipe has `delete`), or one of the `existing` accounts:
    * each parallel worker gets its own share, and each call in a test the next one (never deleted; the recipe's `reset`,
-   * when set, restores it before and after the test). A failure is BLOCKED.
+   * when set, restores it before and after the test). `role` hands out only existing accounts of that role
+   * (`existing[].role` in the recipe: "admin", "customer"), even when the recipe also creates accounts. A failure is
+   * BLOCKED.
    */
-  account(label?: string, options?: { username?: string }): Promise<Account>;
+  account(label?: string, options?: { username?: string; role?: string }): Promise<Account>;
 }
 
 /** A test account from seed.account(). `headers` authenticate API calls as it: api.get(path, { headers: acct.headers }). */
@@ -174,7 +176,7 @@ export interface Account {
 interface RecipeCall { method: string; path: string; body?: Json; form?: Record<string, string> }
 interface AccountRecipe {
   password?: string; username?: string; authHeader?: string; before?: (RecipeCall & { save: Record<string, string> })[];
-  create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string }[];
+  create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string; role?: string }[];
   token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall; reset?: RecipeCall;
   signIn?: UiForm; signUp?: UiForm;
 }
@@ -353,7 +355,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
     void api;
     const ledger: SeedRecord[] = [];
     const cleanups: { rec: SeedRecord; run: () => Promise<unknown> }[] = [];
-    let accountsTaken = 0; // existing accounts handed out in this test
+    const accountsTaken = new Map<string, number>(); // existing accounts handed out in this test, per role ('' = any)
     const tag = `${DATA_PREFIX}${Date.now().toString(36).slice(-5)}${testInfo.workerIndex}${testInfo.repeatEachIndex}`;
     /** Run a precondition in the [seed] phase with ledger + BLOCKED semantics. */
     const pre = async <T,>(rec: SeedRecord, run: () => Promise<T>): Promise<T> => {
@@ -468,15 +470,20 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
           if (first && !res.ok) throw new Error(`reset ${r!.reset!.method} ${r!.reset!.path} for ${account.username} → ${res.status} ${res.text.slice(0, 200)}`);
           return res;
         };
-        if (r && !r.create && !r.signUp) {
-          // Existing accounts: this worker's share of the list, one per call within a test; never created or deleted.
-          const rec: SeedRecord = { label, kind: 'account', cleanup: r.reset ? undefined : 'none' };
+        const role = (options as { role?: string }).role;
+        if (r && (role || (!r.create && !r.signUp))) {
+          // Existing accounts (of the role asked for): this worker's share of the list, one per call within a test;
+          // never created or deleted.
+          const rec: SeedRecord = { label: role ? `${label} (${role})` : label, kind: 'account', cleanup: r.reset ? undefined : 'none' };
           const taken = await pre(rec, async () => {
-            const pool = r.existing ?? [];
+            const pool = (r.existing ?? []).filter((a) => !role || a.role === role);
+            if (role && !pool.length) throw new Error(`no existing account has the role "${role}": npm run heldout -- accounts --aut ${process.env.HELDOUT_AUT ?? '<profile>'} --add-existing --username … --password-env … --role ${role}`);
             const workers = Math.max(1, testInfo.config.workers);
             const mine = pool.filter((_, i) => i % workers === testInfo.parallelIndex);
-            const a = mine[accountsTaken++];
-            if (!a) throw new Error(`tests use ${accountsTaken} accounts at once: npm run heldout -- accounts --aut ${process.env.HELDOUT_AUT ?? '<profile>'} --per-test ${accountsTaken} (runs then use fewer workers), or add accounts — worker ${testInfo.parallelIndex + 1} of ${workers} has ${mine.length} of ${pool.length}`);
+            const n = accountsTaken.get(role ?? '') ?? 0;
+            accountsTaken.set(role ?? '', n + 1);
+            const a = mine[n];
+            if (!a) throw new Error(`tests use ${n + 1} ${role ? `"${role}" ` : ''}accounts at once: npm run heldout -- accounts --aut ${process.env.HELDOUT_AUT ?? '<profile>'} --per-test ${n + 1} (runs then use fewer workers), or add accounts${role ? ` with --role ${role}` : ''} — worker ${testInfo.parallelIndex + 1} of ${workers} has ${mine.length} of ${pool.length}`);
             vars.username = String(resolveEnv(a.username));
             vars.password = String(resolveEnv(a.password));
             vars.id = a.id ? String(resolveEnv(a.id)) : undefined;

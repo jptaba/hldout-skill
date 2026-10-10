@@ -14,7 +14,7 @@ import path from 'node:path';
 import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR, journeyPaths, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import type { Category } from './classify';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from './spec-model';
-import { oracleDigest, readContract } from './contract-model';
+import { comboLabel, oracleDigest, readContract, variantCombinations } from './contract-model';
 import { checkIntegrity, type IntegrityResult } from './integrity-check';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, storyJourneys } from './journeys-store';
 import { curlFor, exchangeLine, rerunCommand } from './repro';
@@ -100,6 +100,13 @@ main(() => {
   const other = failures.filter((e) => (cat(e) !== 'APPLICATION_DEFECT' || !e.final) && !contradicted.includes(e));
   const covered = new Set(feature.scenarios.flatMap((s) => s.acs));
   const uncovered = feature.acs.filter((a) => !covered.has(a.id));
+  // Setups (criterion × the values of its variants), from the tests that actually ran: their tags, rows resolved.
+  const setups = feature.acs.flatMap((ac) => variantCombinations(contract, ac.id).map((combo) => {
+    const es = tri.entries.filter((e) => e.tags.includes(`@${ac.id}`) && Object.entries(combo).every(([k, v]) => e.tags.includes(`@variant:${k}=${v}`)));
+    const status = !es.length ? 'not tested' : es.some((e) => e.status === 'failed') ? 'failed' : es.some((e) => e.status === 'flaky') ? 'flaky' : 'passed';
+    return { criterion: ac.id, setup: comboLabel(combo), status, tests: es.map((e) => e.scenario) };
+  }));
+  const untestedSetups = setups.filter((s) => s.status === 'not tested');
   const clarifications = feature.scenarios.filter((s) => s.needsClarification);
   // One that passed means the application meets the requirement as written: the question stays for the owner, but it
   // doesn't hold up acceptance. Only a clarification scenario that didn't pass is a warning.
@@ -145,7 +152,7 @@ main(() => {
     integrity: integrity.status,
     confirmedAppDefects: [...groups.values()].filter((g) => g.some((e) => e.final)).map((g) => ({ refs: [...new Set(g.flatMap((e) => e.requirementRefs))] })),
     failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length,
-    environmentFailures: failures.filter((e) => e.final?.category === 'ENVIRONMENT_ISSUE').length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length, unverifiedRequirements: unverifiedNfrs.length,
+    environmentFailures: failures.filter((e) => e.final?.category === 'ENVIRONMENT_ISSUE').length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length, unverifiedRequirements: unverifiedNfrs.length, untestedSetups: untestedSetups.length,
   });
 
   const acText = (id: string) => feature.acs.find((a) => a.id === id)?.text ?? '';
@@ -326,6 +333,15 @@ main(() => {
   }
   md.push('');
 
+  // The setups the story requires each criterion to be checked in (its variants), and how each fared.
+  if (setups.length) {
+    const SETUP_ICON: Record<string, string> = { passed: '✅', failed: '❌', flaky: '⚠️', 'not tested': '⚠️' };
+    md.push('## Setups', '',
+      `The story requires these criteria to be checked in each setup (${(contract.variants ?? []).map((v) => `${v.name}: ${v.values.map((x) => x.id).join(', ')}`).join('; ')}). ${untestedSetups.length ? `**${untestedSetups.length} of ${setups.length} were not tested.**` : `All ${setups.length} were tested.`}`, '',
+      '| Criterion | Setup | Result | Tests |', '| --- | --- | --- | --- |',
+      ...setups.map((s) => `| ${s.criterion} | ${esc(s.setup)} | ${SETUP_ICON[s.status]} ${s.status} | ${s.tests.join(', ') || '-'} |`), '');
+  }
+
   // In the taxonomy's order, most specific first.
   const types = [...new Set(tri.entries.map(typeOf))]
     .sort((a, b) => (TEST_TYPES as readonly string[]).indexOf(a) - (TEST_TYPES as readonly string[]).indexOf(b));
@@ -354,7 +370,7 @@ main(() => {
   if (feature.openQuestions.length || clarifications.length || feature.assumptions.length || contractGaps.length || contradicted.length) {
     md.push('## Requirement gaps, assumptions and open questions', '');
     if (contractGaps.length) {
-      const how: Record<string, string> = { 'found-in-requirement': 'found elsewhere in the requirement', 'found-in-config': 'project configuration', 'discovered-in-aut': 'discovered from the AUT (mechanics only)', 'provided-by-user': 'answered by the user', assumed: 'assumed', open: '❓ open' };
+      const how: Record<string, string> = { 'found-in-requirement': 'found elsewhere in the requirement', 'found-in-config': 'project configuration', 'discovered-in-aut': 'discovered from the AUT (mechanics only)', 'provided-by-user': 'answered by the story\'s owner', assumed: 'assumed', open: '❓ open' };
       md.push('**Elements the story did not state, and how they were filled** ([requirement-contract.md](requirement-contract.md)):', '',
         '| Gap | Missing element | Kind | Affects | Resolution |', '| --- | --- | --- | --- | --- |',
         ...contractGaps.map((g) => `| ${g.id} | ${esc(g.element)} | ${g.kind === 'oracle' ? 'expected behaviour' : 'how to exercise'} | ${g.affects.join(', ')} | ${how[g.resolution] ?? g.resolution}${g.value ? `: ${esc(g.value)}` : ''} |`), '');
@@ -427,7 +443,7 @@ main(() => {
     scriptDefectsRepaired: repaired.map(({ run, e }) => ({ run, scenario: e.scenario, action: e.final?.action ?? null })),
     uncoveredCriteria: uncovered.map((a) => a.id),
     coverageByType,
-    traceability,
+    traceability, setups,
     openQuestions: feature.openQuestions,
     observations: feature.observations,
     verdictFile: rel(p.verdictMd),

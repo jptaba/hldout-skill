@@ -17,11 +17,13 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, assertIssueKey, autEnv, createsAccounts, dataPrefix, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
+import { NON_EVAL_RUN, ROOT, accountRoles, assertIssueKey, autEnv, dataPrefix, existingAccountWorkers, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile } from './config';
 import { healthcheck, lintEvaluation, printFindings } from './preflight';
 import { relativizePaths, scrubDir, secretValuesFor } from './redact';
 import { failedTests } from './triage-model';
 import { envNamesIn } from './accounts-recipe';
+import { journeysUsedBy } from './journeys-store';
+import { specFiles } from './spec-model';
 import { loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
@@ -120,14 +122,16 @@ main(async () => {
   // Playwright greps the title and the tags: "SCN-001" would also pick every test tagged @depends:SCN-001.
   if (grep) args.push('--grep', /SCN-/.test(grep) ? `(?<!@depends:)(?:${grep})` : grep);
   // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
-  // Existing accounts are shared out among workers, so there are never more workers than accounts.
-  const pool = cfg.aut.accounts && !createsAccounts(cfg.aut.accounts) && cfg.aut.accounts.existing?.length
-    ? Math.max(1, Math.floor(cfg.aut.accounts.existing.length / Math.max(1, cfg.aut.accounts.perTest ?? 1))) : undefined;
+  // Existing accounts are shared out among workers, so there are never more workers than accounts (of each role) — when
+  // the story's tests take accounts at all.
+  const specsHere = specFiles(p.tests);
+  const takesAccounts = [...specsHere, ...journeysUsedBy(cfg, cfg.autId, specsHere)].some((f) => /\bseed\.account\(/.test(fs.readFileSync(f, 'utf8')));
+  const pool = takesAccounts ? existingAccountWorkers(cfg.aut.accounts) : undefined;
   const cap = [cfg.aut.maxWorkers, pool].filter((x): x is number => Boolean(x)).reduce<number | undefined>((a, b) => (a === undefined ? b : Math.min(a, b)), undefined);
   const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
   const workers = cap ? Math.min(asked ?? cap, cap) : asked;
   if (workers) args.push('--workers', String(workers));
-  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap}: ${cap === pool ? `${cfg.aut.accounts?.existing?.length} existing test account(s)${(cfg.aut.accounts?.perTest ?? 1) > 1 ? `, ${cfg.aut.accounts?.perTest} per test,` : ''} in the "${cfg.autId}" profile` : `the "${cfg.autId}" profile's maxWorkers`})`);
+  if (cap && asked && asked > cap) console.log(`  (workers capped at ${cap}: ${cap === pool ? `${cfg.aut.accounts?.existing?.length} existing test account(s)${accountRoles(cfg.aut.accounts).size ? ` (${[...accountRoles(cfg.aut.accounts)].map(([r, n]) => `${n} ${r}`).join(', ')})` : ''}${(cfg.aut.accounts?.perTest ?? 1) > 1 ? `, ${cfg.aut.accounts?.perTest} per test,` : ''} in the "${cfg.autId}" profile` : `the "${cfg.autId}" profile's maxWorkers`})`);
   // Stability check during hardening: run each test N times to expose races that one green run hides. Passed to the
   // config, not the CLI: a test tagged @irreversible (it locks an account, sends a real e-mail…) still runs once, and is
   // never retried (playwright.config.ts).

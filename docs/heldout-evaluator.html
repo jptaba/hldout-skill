@@ -399,7 +399,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <div class="tech">
     <div class="lbl">Who does what</div>
     <ul class="clean">
-      <li><b>You</b> ask Opus, in GitHub Copilot's agent mode or in Claude Code: <i>"Run a held-out evaluation of ABC-123."</i> You answer questions only you can answer, such as what a vague criterion means.</li>
+      <li><b>You</b> ask Opus, in GitHub Copilot's agent mode or in Claude Code: <i>"Run a held-out evaluation of ABC-123."</i> That is your last step until the verdict: from the fetch on, Opus asks nothing and waits for nothing. What a vague criterion leaves open is listed in the verdict as a question for the story's owner.</li>
       <li><b>Opus</b> follows the skill: it reads the story, writes the tests, hardens them against the app, triages failures and writes the verdict.</li>
       <li><b>Five subagents</b> do the phases that need a model, each in a fresh context: the contract extractor and its independent reviewer, the test author (no browser, never sees the application), the hardener and the triager. The reviewer runs on Sonnet and the others on Opus, so the review is independent in model as well as context. Each agent file's <code>model:</code> line sets this, with fallbacks.</li>
       <li><b>The <code>heldout</code> command line</b> does everything mechanical: fetching, checking, freezing, running, rendering and publishing. It is deterministic TypeScript, so the same inputs give the same checks.</li>
@@ -465,7 +465,22 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
     <div class="phase"><div class="n">7</div><div><h4>Publish <span class="badge b-muted">script</span></h4><p>Attaches the verdict to the story, posts a summary comment and sets a label. Nothing else.</p><span class="cmd">heldout publish KEY</span></div><div class="ex"><b>TOOL-4</b>comment + attachment + label heldout-pass</div></div>
     <div class="phase"><div class="n">8</div><div><h4>Journey registry <span class="badge b-muted">script</span></h4><p>Records in the app's journey registry the journeys this story's passing tests used, with what ran before each and the story as its proof, for the next story on the app. Journeys only failing tests used are left out. See <a href="#journeys">Journeys</a>.</p><span class="cmd">heldout journeys KEY --harvest → --harvest --apply</span></div><div class="ex"><b>Writes</b>journeys/registry.yml, committed with the journey files</div></div>
   </div>
-  <p class="small">At any point, <code>npm run heldout -- status KEY</code> shows where a story is and prints the next command.</p>
+  <p class="small">At any point, <code>npm run heldout -- status KEY</code> shows where a story is and prints the next command. <code>npm run heldout -- advance KEY</code> goes further: it runs every script step that comes next and stops only where a subagent has work to do, naming the subagent and its task.</p>
+  <div class="tech">
+    <div class="lbl">Unattended from the fetch to the verdict</div>
+    <p class="small">Questions belong to setup (the application's address, Jira, test accounts). Once a story is fetched, nothing stops for a person. Whatever is unclear or missing becomes part of the result.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>What comes up</th><th>Where it goes</th></tr></thead>
+      <tbody>
+      <tr><td>The story doesn't say what is correct, or its sources disagree</td><td>The tests check what holds under every answer and carry the question (<code>// OPEN-QUESTION:</code>, <code>@needs-clarification</code>). The verdict lists it for the story's owner; anything left untested makes it PASS WITH WARNINGS at best.</td></tr>
+      <tr><td>One reasonable reading exists</td><td>An assumption, written in the spec. The verdict lists it, and says so when the application contradicts it.</td></tr>
+      <tr><td>The story has no acceptance criteria</td><td>No criteria are invented. <code>advance</code> writes an INCONCLUSIVE verdict that says so, and publishes it.</td></tr>
+      <tr><td>An account, a role or a secret the tests need is missing</td><td>Those tests end BLOCKED and the rest run. The verdict names what is missing.</td></tr>
+      <tr><td>The application is down, or a failure stays unexplained after three repair cycles</td><td>Environment issue or needs investigation: the verdict is INCONCLUSIVE.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">The owner's answer enters the next evaluation: a revised story is fetched again, or <code>contract KEY --answer G2 --value "…" --by "…"</code> records it and the contract is reviewed afresh. The verdict is published to the story as the last step; a project that wants a person to publish sets <code>"publish": "manual"</code> under <code>jira</code> in <code>heldout.config.json</code>. What remains is your agent app's own approval of commands and file edits.</p>
+  </div>
 </section>
 
 <!-- ============ STORY TO TESTS ============ -->
@@ -542,7 +557,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="440" class="t-m">contract KEY</text>
         <text x="74" y="460" class="t-s">clean only with a review of this</text>
         <text x="74" y="476" class="t-s">exact contract hash; lists the</text>
-        <text x="74" y="492" class="t-s">oracle questions to ask you</text>
+        <text x="74" y="492" class="t-s">open questions for the verdict</text>
         <rect x="360" y="416" width="260" height="84" rx="10" class="box plain"/>
         <text x="374" y="440" class="t-m">…contract.review.json</text>
         <text x="374" y="460" class="t-s">per item: supported, unsupported,</text>
@@ -669,7 +684,7 @@ test('SCN-002: Adding a product
   <p>The extractor records every missing element as a gap and says what kind it is. The kind decides where an answer may come from, and that rule keeps the tests independent of the application.</p>
   <figure>
     <div class="fig">
-      <svg class="dia" viewBox="0 0 900 250" role="img" aria-label="Gap resolution: a mechanics gap (how to exercise the app) may be discovered from the application during hardening; an oracle gap (what is correct) may come only from the requirement or the user, otherwise it stays an assumption or an open question, never from the application.">
+      <svg class="dia" viewBox="0 0 900 250" role="img" aria-label="Gap resolution: a mechanics gap (how to exercise the app) may be discovered from the application during hardening; an oracle gap (what is correct) may come only from the requirement, otherwise it stays an assumption or an open question that the verdict puts to the story's owner; nobody is asked during the evaluation, and it never comes from the application.">
         <text x="20" y="64" class="t-b">Mechanics (HOW)</text>
         <text x="20" y="82" class="t-s">a route, a field name,</text>
         <text x="20" y="98" class="t-s">how to get a product id</text>
@@ -684,10 +699,10 @@ test('SCN-002: Adding a product
         <path d="M570 75 H646" class="edge"/>
 
         <rect x="190" y="166" width="130" height="50" rx="10" class="box plain"/><text x="255" y="196" text-anchor="middle">story + linked</text>
-        <rect x="400" y="166" width="170" height="50" rx="10" class="box acc"/><text x="485" y="188" text-anchor="middle">you</text><text x="485" y="205" text-anchor="middle" class="t-s">asked in the chat</text>
-        <rect x="650" y="166" width="240" height="50" rx="10" class="box plain"/><text x="770" y="188" text-anchor="middle" class="t-m">// ASSUMPTION · OPEN-QUESTION</text><text x="770" y="205" text-anchor="middle" class="t-s">shown in the verdict, never decided</text>
+        <rect x="400" y="166" width="170" height="50" rx="10" class="box acc"/><text x="485" y="188" text-anchor="middle">nobody is asked</text><text x="485" y="205" text-anchor="middle" class="t-s">the run goes on</text>
+        <rect x="650" y="166" width="240" height="50" rx="10" class="box plain"/><text x="770" y="188" text-anchor="middle" class="t-m">// ASSUMPTION · OPEN-QUESTION</text><text x="770" y="205" text-anchor="middle" class="t-s">put to the owner in the verdict</text>
         <path d="M320 191 H396" class="edge"/><text x="358" y="183" text-anchor="middle" class="t-s">not there</text>
-        <path d="M570 191 H646" class="edge"/><text x="608" y="183" text-anchor="middle" class="t-s">no answer</text>
+        <path d="M570 191 H646" class="edge"/>
 
         <path d="M485 160 L485 108" class="edge red"/>
         <path d="M473 126 L497 146 M497 126 L473 146" class="edge red" style="stroke-dasharray:none;stroke-width:2.2"/>
@@ -696,6 +711,37 @@ test('SCN-002: Adding a product
     </div>
     <figcaption>In TOOL-4 all four gaps were mechanics (where a product id comes from, the product page, the Favorites page, the answer's field names); the hardener found each on the live app after the freeze. Copying an expected status from the app would make the test agree with whatever the app does.</figcaption>
   </figure>
+
+  <h3>Stories in any shape</h3>
+  <p>No parser reads the story: a model does, and the scripts check what it wrote. So the shape of a story matters little. Three stories written to be awkward on purpose (rounds 29 and 30) show what happens to each shape:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>The story</th><th>What the evaluator does with it</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><b>No AC field</b>: informal bullets in the description, mixed with greetings, a nice-to-have list, a Figma link and a pointer to another story (TOOL-5)</td><td>Each requirement bullet becomes a criterion, numbered AC-1… in order and quoted word for word. The nice-to-haves, the link and the pointer are set aside with a written reason. Statuses the bullets leave out become questions for the owner</td><td><span class="badge b-fail">FAIL</span> the one real defect found, as the key</td></tr>
+      <tr><td><b>A long linked API reference</b> where only one part matters, with endpoints the story never uses (TOOL-6)</td><td>The whole Confluence page is read, and every line is either used or dismissed with a reason. An endpoint the page documents but no criterion uses gets no test. A 404 the page states for <i>another</i> endpoint is not borrowed</td><td rowspan="2"><span class="badge b-pww">PASS WITH WARNINGS</span> as the key</td></tr>
+      <tr><td><b>A link outside Jira and Confluence</b> ("the status is in the OpenAPI file on the API portal") (TOOL-6)</td><td>Not read: the requirement is the story, the images it shows and the Confluence pages it links. The missing status becomes an open question; the test checks only what holds under every answer, and the verdict carries the question</td></tr>
+      <tr><td><b>"Validate every criterion for each user type"</b>, one criterion also for three data sets (TOOL-7)</td><td>Each dimension becomes a <i>variant</i> of the contract; every criterion × setup needs a test; the kinds of user come from accounts with roles (below)</td><td><span class="badge b-fail">FAIL</span> the defect found in the one setup it shows in, as the key</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Checks across setups: variants</h3>
+  <p>When a story says its criteria must hold for every user type, data set or other setup, the contract records each dimension as a variant: the values the story names and the criteria it applies to. The reviewer checks them like any other item. From there the scripts hold the grid together:</p>
+  <ul class="clean">
+    <li><b>Every combination needs a test.</b> A criterion with two variants needs every pair (3 user types × 3 categories is 9 tests). Each test carries a <code>@variant:&lt;key&gt;=&lt;value&gt;</code> tag per variant, and the lint refuses a combination no test covers, by name: <i>AC-1 must be tested in 3 setup(s) and 1 have no test: user-type=administrator</i>.</li>
+    <li><b>Kinds of user are accounts with roles.</b> Existing accounts get a role once (<code>accounts --add-existing … --role admin</code>), and a test asks for the kind it needs: <code>seed.account('administrator', { role: 'admin' })</code>. A guest takes no account. See <a href="#accounts">Test users</a>.</li>
+    <li><b>The verdict shows the grid as it ran</b>, from the tags of the tests that actually executed. A required setup that didn't run is a warning, never a silent pass.</li>
+  </ul>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-7/verdict.md, "Setups" (excerpt: all 24 were tested)</div><pre data-lang="sh">| Criterion | Setup                                 | Result    | Tests     |
+| AC-3      | user-type=guest                       | ✅ passed | SCN-008   |
+| AC-3      | user-type=customer                    | ✅ passed | SCN-007   |
+| AC-3      | user-type=administrator               | ✅ passed | SCN-006   |
+| AC-5      | user-type=guest                       | ✅ passed | SCN-015   |
+| AC-5      | user-type=customer                    | ❌ failed | SCN-013   |
+| AC-5      | user-type=administrator               | ✅ passed | SCN-014   |
+| AC-6      | user-type=guest × category=hammer     | ✅ passed | SCN-016.1 |
+| AC-6      | user-type=guest × category=hand-saw   | ✅ passed | SCN-016.2 |
+| …         | (9 combinations for AC-6)             |           |           |</pre></div>
+  <p class="small">TOOL-7's one defect shows only for a customer on AC-5: reading another customer's invoice answers 404 where the story requires 403, while the administrator (200) and the guest (401) get what it says.</p>
 
   <h3>Who sees what</h3>
   <p>Each subagent runs in its own context and gets only what its job needs. The separation is part of the held-out design.</p>
@@ -750,7 +796,7 @@ test('SCN-002: Adding a product
     </tbody>
   </table></div>
   <p class="small">The main agent runs the <code>heldout</code> commands between phases and hands each phase that needs a model to its own subagent: contract extractor, contract reviewer, test author, hardener and triager. Only the hardener and the triager get browser tools. The reviewer runs on a different model from the builder, so the review is independent in model as well as context: Claude Sonnet 5.5 → Claude Sonnet 5 → Claude Opus 5.5 → GPT-6.1 Sol in Copilot (the first one available), <code>sonnet</code> falling back to <code>opus</code> in Claude Code. The others: Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol, or <code>opus</code> falling back to <code>sonnet</code>.</p>
-  <p class="small">In Copilot, choose Claude Opus in the model picker and use agent mode; in Claude Code, choose Opus with <code>/model</code>. Opus asks its questions in the chat, and passes <code>--quiet</code> to <code>heldout run</code> for the short digest (or set <code>HELDOUT_QUIET=1</code>).</p>
+  <p class="small">In Copilot, choose Claude Opus in the model picker and use agent mode; in Claude Code, choose Opus with <code>/model</code>. Opus asks its setup questions in the chat (none once a story is fetched), and passes <code>--quiet</code> to <code>heldout run</code> for the short digest (or set <code>HELDOUT_QUIET=1</code>).</p>
 
   <h3>Watch it: an onboarding</h3>
   <p>This is a replay of those commands in the VS Code terminal on Practice Software Testing (Toolshop), a public demo shop: the clone, then setup, which runs <code>init</code> and <code>doctor</code>. Notice what <code>init</code> worked out by itself: the app's name, its test-id attribute, and that its API lives on a different host.</p>
@@ -890,6 +936,7 @@ test('SCN-002: Adding a product
     <div class="worker"><div class="w">Worker 3</div><div class="acct">hldout.user5</div><div class="acct">hldout.user6</div></div>
   </div>
   <p class="small">Workers = floor(accounts ÷ accounts-per-test). A test that needs two users at once, such as "each customer sees only their own favourites", is recorded with <code>accounts --per-test 2</code>.</p>
+  <p class="small"><b>Kinds of users.</b> When stories need an administrator, a customer and a second customer, each existing account gets its role once (<code>accounts --add-existing … --role admin</code>), and a test asks for the kind a step needs: <code>seed.account('administrator', { role: 'admin' })</code>, <code>seed.account('another customer', { role: 'customer' })</code>. Each worker gets its own share of every role, so runs start no more workers than the scarcest role has accounts. Roles work next to accounts the tests create: without a role, <code>seed.account()</code> still creates one.</p>
   <p class="small">Existing accounts outlive every run, so what a test adds to one would reach the next test. Save the call that restores an account once, e.g. <code>accounts --reset 'DELETE /BookStore/v1/Books?UserId=${id}'</code>: it runs when a test takes the account (a crashed earlier run leaves nothing behind) and again after it, and the run reports how often accounts were taken and reset.</p>
   <p class="small">Everything the tests make is named with the app's data prefix, <code>hldout</code> unless the app's rules need another: users <code>hldout-…@example.com</code>, records <code>hldout …</code>, seed tags. Leftovers and users an app won't let tests delete are easy to find and sweep. Another prefix, once per app: <code>init --profile &lt;id&gt; --data-prefix &lt;prefix&gt;</code>.</p>
   <div class="plain">
@@ -979,7 +1026,7 @@ test('SCN-002: Adding a product
         "409": { description: The product is already a favourite (a conflict) }</pre></div>
   <div class="plain">
     <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
-    <p>Before writing any test, the evaluator writes down exactly what the story promises, with a line reference for every claim, like footnotes in an essay. A second, independent reader checks the footnotes. If the story doesn't say what the right answer is, the evaluator asks you. It never peeks at what the app does and calls that the answer.</p>
+    <p>Before writing any test, the evaluator writes down exactly what the story promises, with a line reference for every claim, like footnotes in an essay. A second, independent reader checks the footnotes. If the story doesn't say what the right answer is, the evaluator doesn't stop to ask: it tests what it can and puts the question to the story's owner in the verdict. It never peeks at what the app does and calls that the answer.</p>
   </div>
 </section>
 
@@ -1526,7 +1573,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Twenty-seven rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository now keeps one of them, Toolshop.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Thirty-one rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository now keeps one of them, Toolshop.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1560,6 +1607,9 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>26</td><td>TOOL-4 · Toolshop</td><td>an update, then the story again on top of steps proven by earlier stories (2 reused)</td><td><span class="badge b-pass">PASS</span> 15/15, as the key</td></tr>
       <tr><td>27</td><td>TOOL-1, TOOL-2, TOOL-4 · Toolshop</td><td>fresh onboarding, an update between stories, three stories in one project: reusable steps and the accounts recipe carried from story to story (<a href="#journeys-life">measured</a>)</td><td><span class="badge b-fail">FAIL</span> 2/2, <span class="badge b-fail">FAIL</span> 1/1, <span class="badge b-pass">PASS</span> 15/15, all as the key, 0 false positives</td></tr>
       <tr><td>28</td><td>TOOL-4 · Toolshop</td><td>journeys grouped by domain with a registry, and the setup script; run twice from a fresh setup to confirm the fixes the first run surfaced</td><td><span class="badge b-pass">PASS</span> 17/17 and 15/15, as the key</td></tr>
+      <tr><td>29</td><td>TOOL-5, TOOL-6 · Toolshop</td><td>stories in awkward shapes: criteria as informal bullets with no AC field; a long linked API reference with endpoints the story never uses and a status that lives only behind a non-Confluence link</td><td><span class="badge b-fail">FAIL</span> 1/1 and <span class="badge b-pww">PASS WITH WARNINGS</span>, both as the key, 0 false positives</td></tr>
+      <tr><td>30</td><td>TOOL-7 · Toolshop</td><td>"validate every criterion for each user type" and one criterion for three data sets: variants in the contract, the setup coverage lint, accounts with roles; all 24 setups tested</td><td><span class="badge b-fail">FAIL</span> 1/1, as the key, 0 false positives</td></tr>
+      <tr><td>31</td><td>TOOL-6 and a story with no criteria · Toolshop</td><td>unattended, driven by <code>advance</code>: no question asked from the fetch to the published verdict; the missing status reported as an open question, the story without criteria reported as not evaluable</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14, as the key; <span class="badge b-inc">INCONCLUSIVE</span> for the story without criteria</td></tr>
     </tbody>
   </table></div>
   <p class="small">The evaluations of these rounds, and the full test report with every defect the rounds found in the skill and how it was fixed, are in the repository history: tag <code>blind-round-evaluations</code> and the commits before the move to a single application.</p>
@@ -1576,14 +1626,15 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>Setup</td><td><code>setup.ps1</code> · <code>setup.sh</code> (in the skill's clone)</td><td>set a project up or update it: pull the skill, check Node, run <code>init</code> (which runs <code>update</code>), then <code>doctor</code></td></tr>
       <tr><td></td><td><code>init</code> · <code>update</code> · <code>add-aut</code></td><td>what setup runs; add another application</td></tr>
       <tr><td></td><td><code>doctor [--jira]</code> · <code>status [KEY]</code></td><td>check the setup, with a fix for each problem; see where each story is and what's next</td></tr>
+      <tr><td></td><td><code>advance KEY [--rerun]</code></td><td>run a story's next script steps, up to the next subagent; run it again after each one</td></tr>
       <tr><td></td><td><code>secret NAME --generate | --ask</code></td><td>a secret into <code>.env</code> without showing it</td></tr>
-      <tr><td></td><td><code>accounts …</code></td><td>test accounts: existing, or created by the tests; checked live</td></tr>
+      <tr><td></td><td><code>accounts …</code></td><td>test accounts: existing (each with a <code>--role</code> when stories need kinds of users), or created by the tests; checked live</td></tr>
       <tr><td>Requirement</td><td><code>new</code> · <code>fetch KEY [--aut id]</code></td><td>create a story in the mock Jira; fetch a story from Jira and bind it to an app</td></tr>
       <tr><td></td><td><code>contract</code></td><td>evidence pack and checks for the model-built, independently reviewed contract</td></tr>
       <tr><td>Tests</td><td><code>scaffold</code></td><td>a spec skeleton (one stub per criterion) and test data from the contract</td></tr>
       <tr><td></td><td><code>journeys KEY [--all | --stale &lt;id&gt; --evidence … | --harvest [--apply]]</code> · <code>journeys [--check | --sync | --resolve]</code></td><td>the app's journeys for this story; mark one stale; record in the registry what passing tests proved; check all of them (lint, possible duplicates, a registry behind the code), bring the registry in line with the code, settle a merge conflict in it</td></tr>
       <tr><td></td><td><code>lint</code> · <code>integrity</code></td><td>traceability and type checks; freeze and verify</td></tr>
-      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3</td></tr>
+      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3; <code>inspect</code> lists the calls each step made with what the page sent, and <code>--html</code> prints how an element is built</td></tr>
       <tr><td>Run</td><td><code>run</code> · <code>triage</code></td><td>preflight and run; classify and record decisions</td></tr>
       <tr><td>Report</td><td><code>verdict</code> · <code>publish</code> · <code>scrub</code></td><td>render; post to Jira; remove secrets from old artifacts</td></tr>
     </tbody>

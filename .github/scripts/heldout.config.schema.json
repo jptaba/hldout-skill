@@ -273,6 +273,11 @@
                       "pattern": "^\\$\\{(env|vault):[^}]+\\}$",
                       "description": "\"${env:NAME}\" or \"${vault:path#field}\""
                     },
+                    "role": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9-]*$",
+                      "description": "The kind of user (\"admin\", \"customer\"): seed.account(label, { role }) hands out only accounts of that role"
+                    },
                     "id": {
                       "type": "string",
                       "description": "The account id, when tests need it and the sign-in answer doesn't carry it"
@@ -417,6 +422,14 @@
         "verdictLabelPrefix": {
           "type": "string",
           "default": "heldout-"
+        },
+        "publish": {
+          "enum": [
+            "auto",
+            "manual"
+          ],
+          "description": "auto = heldout advance publishes the verdict to the story itself (attachment, comment, label); manual = it stops short of that and a person runs heldout publish KEY.",
+          "default": "auto"
         }
       }
     },

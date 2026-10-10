@@ -1,0 +1,6 @@
+{ "key": "TOOL-6", "aut": "toolshop", "writtenAt": "2026-10-10 (before evaluation)", "expectedVerdict": "PASS_WITH_WARNINGS",
+  "format": "criteria as 'AC1 - …' lines in the AC field; a long linked Confluence API reference where only the categories part matters; a second, non-Confluence link (the API portal) that holds the only statement of the unknown-id status",
+  "defects": [],
+  "seededScriptDefects": [],
+  "expectedContract": ["AC3's error status for an unknown id is an oracle gap (the OpenAPI file is outside the requirement), surfaced as an open question or an explicit assumption, never read off the app (the app answers 404)", "the rest of the API reference (brands, products, invoices, rate limits, changelog, deployment) is dismissed or kept as context, not turned into criteria, errors or non-functional requirements", "GET /categories/{categoryId} is documented on the page but no criterion uses it: no test calls it (the app answers 405 there, so a test of it would be a false positive)"],
+  "traps": ["documented-but-unused endpoint GET /categories/{categoryId} (405 on the app)", "the invoices section's 401/403 statuses and the 60 requests/minute rate limit belong to other parts of the API", "the API portal link must not be fetched or assumed"] }

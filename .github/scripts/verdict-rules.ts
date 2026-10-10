@@ -17,6 +17,8 @@ export interface VerdictInputs {
   openQuestions: number;
   /** Non-functional requirements the story states that no scenario verified. */
   unverifiedRequirements?: number;
+  /** Setups (criterion × variant values) the story requires that no executed test covered. */
+  untestedSetups?: number;
 }
 
 export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: string } {
@@ -35,8 +37,8 @@ export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: str
   if (i.skipped) {
     return { verdict: 'INCONCLUSIVE', reason: `${i.skipped} test(s) did not run (skipped), so the requirement is not fully evaluated.` };
   }
-  if (i.flaky || i.uncoveredAcs || i.clarifications || i.openQuestions || i.contradictedAssumptions || i.unverifiedRequirements) {
-    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} reading(s) the application contradicts (an assumed value or an open question: ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.clarifications && `${i.clarifications} test(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`, i.unverifiedRequirements && `${i.unverifiedRequirements} stated requirement(s) not verified`].filter(Boolean).join(', ');
+  if (i.flaky || i.uncoveredAcs || i.untestedSetups || i.clarifications || i.openQuestions || i.contradictedAssumptions || i.unverifiedRequirements) {
+    const why = [i.contradictedAssumptions && `${i.contradictedAssumptions} reading(s) the application contradicts (an assumed value or an open question: ask the owner)`, i.flaky && `${i.flaky} flaky`, i.uncoveredAcs && `${i.uncoveredAcs} uncovered AC(s)`, i.untestedSetups && `${i.untestedSetups} required setup(s) not tested`, i.clarifications && `${i.clarifications} test(s) needing clarification`, i.openQuestions && `${i.openQuestions} open question(s) not tested`, i.unverifiedRequirements && `${i.unverifiedRequirements} stated requirement(s) not verified`].filter(Boolean).join(', ');
     return { verdict: 'PASS_WITH_WARNINGS', reason: `${i.contradictedAssumptions ? 'Every requirement-backed test passed' : 'All tests passed'}, with warnings: ${why}.` };
   }
   return { verdict: 'PASS', reason: 'Every test passed and every acceptance criterion is covered.' };

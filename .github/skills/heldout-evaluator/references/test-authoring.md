@@ -102,7 +102,7 @@ test.describe('<KEY> <summary>', () => {
 
 | Element | Required | Meaning |
 | --- | --- | --- |
-| `test('SCN-nnn: <who does what, and the outcome>', …)` | yes | Unique test id. A table of cases is `` `SCN-nnn.${i + 1}: …` `` in a loop |
+| `test('SCN-nnn: <who does what, and the outcome>', …)` | yes | Unique test id. A table of cases is `` `SCN-nnn.${i + 1}: …` `` in a loop. A dotted id is only for the rows of one table: tests written one by one each get an id of their own (`SCN-004`, `SCN-005`), never `SCN-004.1` and `SCN-004.2` by hand, which the lint reads as one scenario |
 | `@AC-n` | yes (≥1) | The criteria the test proves (the contract's ids). An AC without a test downgrades the verdict |
 | `@type:<t>` | yes (exactly 1) | The test type, from the taxonomy below: what the test truly proves ("Choosing the type"). It drives triage and the verdict's counts |
 | `// from …` right above the test | strongly recommended (lint warns) | The story section, linked page or image transcript it comes from, shown in the traceability matrix |
@@ -113,6 +113,7 @@ test.describe('<KEY> <summary>', () => {
 | `@NFR-<n>` | on a test that verifies one of the contract's non-functional requirements | One no test verifies is listed as not verified: at most PASS_WITH_WARNINGS |
 | `@assumes:G<n>` | on every test whose expected value comes from an assumed oracle gap | A confirmed failure there is "an assumption the application contradicts" (a question for the owner), never a defect. Keep requirement-backed checks in other tests so they still count. An assumption that only leaves something unasserted: write `// ASSUMPTION: G<n> … (not asserted)` and tag nothing |
 | `@depends:SCN-x` | when the test's pre-steps rely on another test's endpoint | A BLOCKED dependant names its cause |
+| `@variant:<key>=<value>` | on every test of a criterion the contract's `variants` apply to: one tag per variant, naming the setup the test runs in (`@variant:user-type=guest`, `@variant:category=hammer`) | The lint refuses a criterion with a required setup no test covers; the verdict's Setups table shows each setup's result |
 | `@irreversible` | on a test whose action changes the application for good (locks an account, sends a real e-mail or payment, uses up a one-time code) | It runs once per run: never retried, never repeated by `--repeat-each`, so every run does exactly the damage it must. Give it data of its own (a fresh account) |
 | `// SEED-ENDPOINT: METHOD /path — why` | for plumbing calls in the spec | Endpoints the requirement doesn't declare, used only to seed or clean up. Calls the journeys make count as plumbing too |
 
@@ -165,6 +166,27 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few
    rounds inside the test.
 7. **Composition:** tag every AC the flow chains and assert the hand-offs; single-AC tests keep their own checks.
+8. **Setups (the contract's `variants`):** a criterion a variant applies to is tested in every combination of the
+   values of all its variants (user type × data set: 3 × 3 = 9). Each test carries one `@variant:<key>=<value>` tag
+   per variant. A table of cases builds the tag from its rows and says which values it covers on a `// cases:` line
+   above it, so the lint can count them before the run (the verdict counts the tags that actually ran):
+
+   ```ts
+   const USERS = ['guest', 'customer', 'administrator'] as const;
+   const CATEGORIES = ['Hammer', 'Hand Saw', 'Wrench'] as const;
+   // from story.md#L38, story.md#L19-L27
+   // cases: user-type=guest|customer|administrator, category=hammer|hand-saw|wrench
+   for (const [i, [user, category]] of USERS.flatMap((u) => CATEGORIES.map((c) => [u, c] as const)).entries()) {
+     test(`SCN-006.${i + 1}: Products of ${category} for a ${user}`, {
+       tag: ['@AC-6', '@type:functional', '@layer:api', `@variant:user-type=${user}`, `@variant:category=${slug(category)}`],
+     }, async ({ api, journey, seed }) => { /* … */ });
+   }
+   ```
+
+   Where setups must get different answers (an administrator 200, a customer 403), each setup's expected answer comes
+   from that criterion's outcome for it; keep the per-setup values in `@req-constants`. A setup that is a kind of user
+   takes its account by role: `seed.account('administrator', { role: 'admin' })` (data-and-journeys.md §4a); a guest
+   takes none.
 
 ## Journeys: reuse, then add
 

@@ -91,6 +91,9 @@ function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFi
         const parsed = messages.map(parseError);
         entry.error = parsed[0] ?? parseError('');
         entry.otherFailures = parsed.slice(1).map((x) => ({ headline: x.headline, reqTag: x.reqTag, expected: x.expected, received: x.received }));
+        // A test of several criteria (a composition) fails the criteria whose [REQ AC-n] assertions failed, not all it is tagged with.
+        const failedAcs = [...new Set(parsed.flatMap((x) => x.reqTag?.match(/\bAC-\d+\b/g) ?? []))];
+        if (failedAcs.length) entry.requirementRefs = failedAcs;
         entry.failingStep = deepestFailingStep(failedAttempt.steps);
         const att = (name: RegExp) => failedAttempt.attachments?.find((a) => name.test(a.name) && a.path)?.path;
         entry.evidence.screenshot = att(/^screenshot$/) && rel(att(/^screenshot$/)!);

@@ -77,6 +77,17 @@ fixes it. Then:
    subagents.
 2. Ask GitHub Copilot (agent mode) or Claude Code: **"Run a held-out evaluation of ABC-123"**.
 
+**It runs unattended.** Questions are asked once, during setup (the application's address, Jira, test accounts). From
+the moment a story is fetched to its published verdict, the agent asks you nothing and waits for nothing: what the
+story leaves unclear is tested as far as it can be and listed in the verdict as an open question for the story's
+owner, a story with no acceptance criteria gets an INCONCLUSIVE verdict that says so, and tests that need an account
+or a secret the project doesn't have end BLOCKED, with what is missing named in the verdict. One command carries a
+story between the subagents: `npm run heldout -- advance ABC-123` runs every script step that comes next and names
+the subagent whose turn it is. The verdict is published to the story when it is ready; set `"publish": "manual"`
+under `jira` in `heldout.config.json` to publish it yourself. The prompts that remain are your agent app's own (its
+approval of commands and file edits): allow the `heldout` command and the Playwright MCP server there to run a story
+start to finish.
+
 **Update:** the same command without the address, in the project's folder:
 
 ```powershell
@@ -108,8 +119,8 @@ so `init` adds short bridges there that point at `.github/`. Nothing is kept in 
 | Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` | ✔ `.mcp.json` (the only file it reads) |
 | The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) | ✔ (plain Node) |
 
-The main agent orchestrates: it runs the `heldout` commands between phases and hands each phase that needs a model to
-its own subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
+The main agent orchestrates: `heldout advance KEY` runs the commands between phases and names the next subagent with
+its task, and the agent hands each phase that needs a model to that subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
 builder's reasoning, the test author has no browser and never sees the application, and the triager didn't write the
 tests it judges.
 
@@ -125,7 +136,7 @@ To change a model, edit the `model:` list in `.github/agents/*.agent.md` (Copilo
 `.claude/agents/*.md` (Claude Code).
 
 In Copilot, pick **Claude Opus** in the model picker and use agent mode; in Claude Code, pick Opus with `/model`. The
-agent asks you its questions in the chat, and passes `--quiet` to `heldout run` for the short digest (or set
+agent asks its setup questions in the chat (none after that), and passes `--quiet` to `heldout run` for the short digest (or set
 `HELDOUT_QUIET=1`).
 
 ## Point it at your application and Jira
@@ -151,8 +162,9 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | Command | Purpose |
 | --- | --- |
 | `init`, `update`, `add-aut`, `doctor`, `status [KEY]` | set up, install or update the skill (what `setup.ps1` / `setup.sh` run from the skill's clone), add an application, check the setup, see where each story is and the next step |
+| `advance KEY [--rerun]` | run a story's next script steps (fetch, evidence pack, freeze, run, automatic triage, verdict, publish, journey registry) up to the next subagent; run it again after each one |
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
-| `accounts --add-existing …` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault) or created by the tests; checked live |
+| `accounts --add-existing … [--role admin]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users) or created by the tests; checked live |
 | `fetch KEY [--aut id]` | the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (never comments or other attachments); binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
@@ -178,6 +190,12 @@ factual:
 Missing elements become gaps, resolved in this order: the requirement, then the application (only for **how**
 to exercise it), then config, then **you**. **What** is correct is never read off the application.
 See [requirement-contract.md](.github/skills/heldout-evaluator/references/requirement-contract.md).
+
+**Checks across setups.** A story that says "validate every criterion for each user type" (or data set) gets a
+`variant` per dimension in the contract. Every criterion × setup then needs a test tagged `@variant:<key>=<value>`;
+the lint names a combination no test covers, and the verdict's Setups table shows how each one fared. Kinds of users are
+existing accounts with a role (`accounts --add-existing … --role admin`), handed out by
+`seed.account('administrator', { role: 'admin' })`.
 
 ## Test types
 
@@ -246,10 +264,13 @@ signed-in journeys.
 Running a story needs `TS_USER_PASSWORD` in `.env`, the password of the accounts the tests create
 (`npm run heldout -- secret TS_USER_PASSWORD --generate`).
 
-**Stories to try.** [demo/stories/](demo/stories/) holds six Toolshop stories: catalogue search, sorting and category
+**Stories to try.** [demo/stories/](demo/stories/) holds nine Toolshop stories: catalogue search, sorting and category
 filter (TOOL-1), customer registration, sign-in and account protection (TOOL-2), a shopping cart for guests (TOOL-3),
-favourites for signed-in customers, with its API defined on a linked Confluence page (TOOL-4), and release-candidate
-checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2). Each has a machine-readable
+favourites for signed-in customers, with its API defined on a linked Confluence page (TOOL-4), three stories in awkward
+shapes — shop by brand as informal bullets with no AC field (TOOL-5), a category tree whose linked API reference is
+mostly about other things and whose one missing status sits behind a non-Confluence link (TOOL-6), and account and
+invoice access to be validated for every user type and data set (TOOL-7, which needs existing accounts with roles) —
+and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2). Each has a machine-readable
 answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/)). `npx tsx demo/score.ts` scores the stories in `output/`
 against them → [demo/SCORECARD.md](demo/SCORECARD.md); `--from <project>` scores a round run in a project of its own.
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the

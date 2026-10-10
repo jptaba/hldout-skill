@@ -12,7 +12,7 @@
  * reviewer's call, based on the evidence in the report.
  *
  * JIRA_MODE=mock → writes into mock-jira/ (issue.json, ISSUE_VIEW.md) and logs the would-be REST calls to mock-jira/outbox/.
- * JIRA_MODE=datacenter → your Jira Data Center, REST v2 (outward-facing: confirm with the user first).
+ * JIRA_MODE=datacenter → your Jira Data Center, REST v2. `heldout advance` runs this itself unless jira.publish is "manual".
  */
 import fs from 'node:fs';
 import path from 'node:path';

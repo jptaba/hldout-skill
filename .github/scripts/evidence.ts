@@ -113,7 +113,7 @@ const compress = (ns: number[]) => ns.reduce<[number, number][]>((acc, n) => {
 export function checkCoverage(c: RequirementContract, reqDir: string): ContractFinding[] {
   const out: ContractFinding[] = [];
   const coverage = c.coverage;
-  const known = new Set([...(c.acceptanceCriteria ?? []).map((a) => a.id), ...(c.rules ?? []).map((r) => r.id), ...(c.errorModel ?? []).map((e) => e.id), ...(c.gaps ?? []).map((g) => g.id), ...(c.nonFunctional ?? []).map((n) => n.id)]);
+  const known = new Set([...(c.acceptanceCriteria ?? []).map((a) => a.id), ...(c.rules ?? []).map((r) => r.id), ...(c.errorModel ?? []).map((e) => e.id), ...(c.gaps ?? []).map((g) => g.id), ...(c.nonFunctional ?? []).map((n) => n.id), ...(c.variants ?? []).map((v) => v.id)]);
   const covered = new Set<string>();
   for (const e of coverage) {
     const r = parseRange(e.lines ?? '');
@@ -281,6 +281,7 @@ export const reviewedContent = (c: RequirementContract) => {
     endpoints: requirementEndpoints(c).map((e) => ({ method: e.method, path: e.path, source: e.source, auth: e.auth ?? null, success: e.success ?? null })),
     auth: c.auth ? { mechanism: c.auth.mechanism, source: c.auth.source } : null,
     coverage: c.coverage,
+    ...(c.variants?.length ? { variants: c.variants } : {}),
   };
 };
 export const contractHash = (c: RequirementContract) => crypto.createHash('sha256').update(JSON.stringify(canonical(reviewedContent(c)))).digest('hex').slice(0, 16);
@@ -293,6 +294,7 @@ export function reviewRefs(c: RequirementContract): string[] {
     ...(c.errorModel ?? []).map((e) => e.id),
     ...(c.gaps ?? []).filter((g) => g.kind === 'oracle').map((g) => g.id),
     ...requirementEndpoints(c).map((e) => `${e.method} ${e.path}`),
+    ...(c.variants ?? []).map((v) => v.id),
   ];
 }
 
@@ -306,6 +308,7 @@ export function reviewItemHashes(c: RequirementContract): Record<string, string>
     ...rc.errorModel.map((e) => [e.id, e] as [string, unknown]),
     ...rc.gaps.map((g) => [g.id, g] as [string, unknown]),
     ...rc.endpoints.map((e) => [`${e.method} ${e.path}`, e] as [string, unknown]),
+    ...(rc.variants ?? []).map((v) => [v.id, v] as [string, unknown]),
     ['auth', rc.auth], ['coverage', rc.coverage],
   ];
   return Object.fromEntries(items.map(([ref, v]) => [ref, h(v)]));

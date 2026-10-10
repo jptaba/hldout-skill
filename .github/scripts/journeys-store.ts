@@ -48,6 +48,8 @@ export interface JourneyInfo {
   locators?: string[];
   /** The journeys it calls itself. */
   calls?: string[];
+  /** UI: what it does with what it locates (click, fill, check…). */
+  acts?: string[];
 }
 export type JourneyCode = JourneyInfo & { body: string; hash: string };
 
@@ -149,8 +151,11 @@ export function journeysIn(file: string, base: string): JourneyCode[] {
     const kind = kindOf(params, body);
     const locators = kind === 'ui' ? uniq([...body.matchAll(/\b(?:page|\w+)\.((?:getBy\w+|locator)\((?:[^()]|\([^()]*\))*\))/g)].map((l) => l[1])).slice(0, 12) : [];
     const name = m[1] ?? m[3];
+    // What it does on the page (click, fill…): opening a form and submitting it use the same locators differently.
+    const acts = kind === 'ui' ? uniq([...body.matchAll(/\.(click|dblclick|fill|type|press|check|uncheck|selectOption|hover|setInputFiles|dragTo)\(/g)].map((a) => a[1])).sort() : [];
     return {
-      id: journeyId(kind, domain, name), kind, domain, name, file: relFile, body, hash: hashOf(own),
+      // The hash covers the file's helpers it uses: a locator fixed in a shared helper changes the journey.
+      id: journeyId(kind, domain, name), kind, domain, name, file: relFile, body, hash: hashOf(body), ...(acts.length ? { acts } : {}),
       ...(summary ? { summary } : {}), ...(params ? { params } : {}),
       ...(endpoints.length ? { endpoints } : {}), ...(routes.length ? { routes } : {}), ...(locators.length ? { locators } : {}),
     };
@@ -326,7 +331,7 @@ export function duplicateJourneys(journeys: JourneyInfo[]): JourneyInfo[][] {
   const calls = (a: JourneyInfo, seen = new Set<string>([a.id])): string[] => uniq([...(a.endpoints ?? []),
     ...(a.calls ?? []).filter((id) => !seen.has(id) && seen.add(id)).flatMap((id) => (byId.has(id) ? calls(byId.get(id)!, seen) : []))]);
   const sig = (a: JourneyInfo) => (calls(a).length ? `${a.kind}|calls|${calls(a).sort().join(',')}`
-    : a.routes?.length || a.locators?.length ? `${a.kind}|ui|${[...(a.routes ?? [])].sort().join(',')}|${[...(a.locators ?? [])].sort().join(',')}` : '');
+    : a.routes?.length || a.locators?.length ? `${a.kind}|ui|${[...(a.routes ?? [])].sort().join(',')}|${[...(a.locators ?? [])].sort().join(',')}|${(a.acts ?? []).join(',')}` : '');
   const groups = new Map<string, JourneyInfo[]>();
   // A journey that only calls others (a wrapper) adds no calls of its own: it is not a second copy of them.
   const own = (a: JourneyInfo) => Boolean(a.endpoints?.length || a.routes?.length || a.locators?.length);
