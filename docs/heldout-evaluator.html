@@ -340,6 +340,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <a href="#overview">What it is</a>
   <a href="#system">The system at a glance</a>
   <a href="#pipeline">One story, end to end</a>
+  <a href="#story-to-tests">From story to tests</a>
   <div class="grp">Setting up</div>
   <a href="#onboarding">Onboarding</a>
   <a href="#accounts">Test users</a>
@@ -465,6 +466,261 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
     <div class="phase"><div class="n">8</div><div><h4>Journey registry <span class="badge b-muted">script</span></h4><p>Records in the app's journey registry the journeys this story's passing tests used, with what ran before each and the story as its proof, for the next story on the app. Journeys only failing tests used are left out. See <a href="#journeys">Journeys</a>.</p><span class="cmd">heldout journeys KEY --harvest → --harvest --apply</span></div><div class="ex"><b>Writes</b>journeys/registry.yml, committed with the journey files</div></div>
   </div>
   <p class="small">At any point, <code>npm run heldout -- status KEY</code> shows where a story is and prints the next command.</p>
+</section>
+
+<!-- ============ STORY TO TESTS ============ -->
+<section id="story-to-tests" class="reveal">
+  <div class="kicker">The flow</div>
+  <h2>From story to tests</h2>
+  <p class="lede">A story turns into tests in two hops: the words become a checked requirement contract, and the contract becomes Playwright specs. Subagents do the reading and writing, scripts check every step without a model, and the two never call each other: every hand-off is a file in the story's folder. Nothing about the application is looked at until the expected values are frozen.</p>
+  <p class="small"><span class="badge b-muted">script</span> <code>npm run heldout …</code>, deterministic · <span class="badge b-inc">subagent</span> a model in a fresh context · plain boxes are files under <code>output/&lt;app&gt;/&lt;KEY&gt;/</code></p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 960 930" role="img" aria-label="From a Jira story to frozen Playwright tests. Scripts on the left and subagents on the right never call each other; each writes and reads files in the middle column. Steps: fetch, evidence pack, contract, independent review, tests, freeze. Only after the freeze does the hardener see the live application.">
+        <text x="175" y="30" text-anchor="middle" class="t-b t-s">SCRIPTS</text>
+        <text x="490" y="30" text-anchor="middle" class="t-b t-s">FILES</text>
+        <text x="815" y="30" text-anchor="middle" class="t-b t-s">SUBAGENTS</text>
+        <line x1="60" y1="42" x2="940" y2="42" class="life"/>
+
+        <!-- 1 fetch -->
+        <text x="24" y="100" class="t-h">1</text>
+        <rect x="60" y="62" width="230" height="84" rx="10" class="box"/>
+        <text x="74" y="86" class="t-m">heldout fetch KEY</text>
+        <text x="74" y="106" class="t-s">from Jira (or the mock): title,</text>
+        <text x="74" y="122" class="t-s">description, AC field, the images</text>
+        <text x="74" y="138" class="t-s">they show, the pages they link</text>
+        <rect x="360" y="62" width="260" height="84" rx="10" class="box plain"/>
+        <text x="374" y="86" class="t-m">requirement/</text>
+        <text x="374" y="106" class="t-s">story.md · raw-issue.json</text>
+        <text x="374" y="122" class="t-s">linked/ screenshots, confluence-*.md</text>
+        <text x="374" y="138" class="t-s">never comments, never attachments</text>
+        <path d="M290 104 H356" class="edge"/><text x="323" y="97" text-anchor="middle" class="t-s">writes</text>
+
+        <!-- 2 evidence -->
+        <text x="24" y="218" class="t-h">2</text>
+        <rect x="60" y="180" width="230" height="84" rx="10" class="box"/>
+        <text x="74" y="204" class="t-m">contract KEY --pack</text>
+        <text x="74" y="224" class="t-s">numbers every source line;</text>
+        <text x="74" y="240" class="t-s">starts an empty contract bound</text>
+        <text x="74" y="256" class="t-s">to this requirement revision</text>
+        <rect x="360" y="180" width="260" height="84" rx="10" class="box plain"/>
+        <text x="374" y="204" class="t-m">evidence-pack.md</text>
+        <text x="374" y="224" class="t-s">"story.md L24 | Adding a product…"</text>
+        <text x="374" y="240" class="t-s">+ transcripts/&lt;image&gt;.md</text>
+        <text x="374" y="256" class="t-s">+ requirement-contract.json (empty)</text>
+        <rect x="690" y="180" width="250" height="84" rx="10" class="box violet"/>
+        <text x="704" y="204" class="t-b">contract extractor</text>
+        <text x="704" y="224" class="t-s">transcribes each screenshot into</text>
+        <text x="704" y="240" class="t-s">text, word for word, so images</text>
+        <text x="704" y="256" class="t-s">become citable lines too</text>
+        <path d="M290 222 H356" class="edge"/><text x="323" y="215" text-anchor="middle" class="t-s">writes</text>
+        <path d="M690 222 H624" class="edge"/><text x="657" y="215" text-anchor="middle" class="t-s">writes</text>
+
+        <!-- 3 contract -->
+        <text x="24" y="336" class="t-h">3</text>
+        <rect x="60" y="298" width="230" height="84" rx="10" class="box"/>
+        <text x="74" y="322" class="t-m">contract KEY</text>
+        <text x="74" y="342" class="t-s">anchoring: each quote found at</text>
+        <text x="74" y="358" class="t-s">its cited line · coverage of every</text>
+        <text x="74" y="374" class="t-s">line · literals exist in the sources</text>
+        <rect x="360" y="298" width="260" height="84" rx="10" class="box plain"/>
+        <text x="374" y="322" class="t-m">requirement-contract.json</text>
+        <text x="374" y="342" class="t-s">ACs quoted + cited · rules · endpoints</text>
+        <text x="374" y="358" class="t-s">errors · auth · test data · gaps</text>
+        <text x="374" y="374" class="t-s">coverage ledger for every line</text>
+        <rect x="690" y="298" width="250" height="84" rx="10" class="box violet"/>
+        <text x="704" y="322" class="t-b">contract extractor</text>
+        <text x="704" y="342" class="t-s">reads the pack in any format and</text>
+        <text x="704" y="358" class="t-s">writes one shape; marks what is</text>
+        <text x="704" y="374" class="t-s">missing as gaps (HOW or WHAT)</text>
+        <path d="M356 340 H290" class="edge"/><text x="323" y="333" text-anchor="middle" class="t-s">checks</text>
+        <path d="M690 340 H624" class="edge"/><text x="657" y="333" text-anchor="middle" class="t-s">writes</text>
+
+        <!-- 4 review -->
+        <text x="24" y="454" class="t-h">4</text>
+        <rect x="60" y="416" width="230" height="84" rx="10" class="box"/>
+        <text x="74" y="440" class="t-m">contract KEY</text>
+        <text x="74" y="460" class="t-s">clean only with a review of this</text>
+        <text x="74" y="476" class="t-s">exact contract hash; lists the</text>
+        <text x="74" y="492" class="t-s">oracle questions to ask you</text>
+        <rect x="360" y="416" width="260" height="84" rx="10" class="box plain"/>
+        <text x="374" y="440" class="t-m">…contract.review.json</text>
+        <text x="374" y="460" class="t-s">per item: supported, unsupported,</text>
+        <text x="374" y="476" class="t-s">misread, incomplete, missed</text>
+        <text x="374" y="492" class="t-s">bound to the contract's hash</text>
+        <rect x="690" y="416" width="250" height="84" rx="10" class="box violet"/>
+        <text x="704" y="440" class="t-b">contract reviewer</text>
+        <text x="704" y="460" class="t-s">fresh context, a different model;</text>
+        <text x="704" y="476" class="t-s">never sees the builder's reasoning;</text>
+        <text x="704" y="492" class="t-s">findings go back to the extractor</text>
+        <path d="M356 458 H290" class="edge"/><text x="323" y="451" text-anchor="middle" class="t-s">checks</text>
+        <path d="M690 458 H624" class="edge"/><text x="657" y="451" text-anchor="middle" class="t-s">writes</text>
+
+        <!-- 5 tests -->
+        <text x="24" y="590" class="t-h">5</text>
+        <rect x="60" y="534" width="230" height="110" rx="10" class="box"/>
+        <text x="74" y="558" class="t-m">scaffold KEY</text>
+        <text x="74" y="576" class="t-s">one stub per criterion, gap lines,</text>
+        <text x="74" y="592" class="t-s">an empty @req-constants block</text>
+        <text x="74" y="614" class="t-m">lint KEY</text>
+        <text x="74" y="632" class="t-s">every AC tested, one @type, sources</text>
+        <rect x="360" y="534" width="260" height="110" rx="10" class="box plain"/>
+        <text x="374" y="558" class="t-m">tests/&lt;key&gt;.spec.ts</text>
+        <text x="374" y="576" class="t-s">test-data.json</text>
+        <text x="374" y="600" class="t-m">journeys/fixtures/&lt;domain&gt;.ts</text>
+        <text x="374" y="618" class="t-s">shared HOW, read through</text>
+        <text x="374" y="634" class="t-s">journeys/registry.yml</text>
+        <rect x="690" y="534" width="250" height="110" rx="10" class="box violet"/>
+        <text x="704" y="558" class="t-b">test author</text>
+        <text x="704" y="576" class="t-s">no browser, contract only;</text>
+        <text x="704" y="592" class="t-s">one user journey per test, values</text>
+        <text x="704" y="608" class="t-s">copied verbatim; reuses journeys,</text>
+        <text x="704" y="624" class="t-s">adds missing ones; TODO(harden)</text>
+        <text x="704" y="640" class="t-s">on every guessed locator</text>
+        <path d="M290 572 H356" class="edge"/><text x="323" y="565" text-anchor="middle" class="t-s">writes</text>
+        <path d="M356 620 H290" class="edge"/><text x="323" y="613" text-anchor="middle" class="t-s">checks</text>
+        <path d="M690 589 H624" class="edge both"/><text x="657" y="582" text-anchor="middle" class="t-s">reads</text><text x="657" y="604" text-anchor="middle" class="t-s">writes</text>
+
+        <!-- 6 freeze -->
+        <text x="24" y="716" class="t-h">6</text>
+        <rect x="60" y="678" width="230" height="84" rx="10" class="box"/>
+        <text x="74" y="702" class="t-m">integrity KEY --snapshot</text>
+        <text x="74" y="722" class="t-s">seals every [REQ …] assertion,</text>
+        <text x="74" y="738" class="t-s">the @req-constants block and</text>
+        <text x="74" y="754" class="t-s">the contract's expected outcomes</text>
+        <rect x="360" y="678" width="260" height="84" rx="10" class="box plain"/>
+        <text x="374" y="702" class="t-m">draft/</text>
+        <text x="374" y="722" class="t-s">a copy of the specs (the oracle)</text>
+        <text x="374" y="738" class="t-s">contract-oracle.json</text>
+        <text x="374" y="754" class="t-s">journeys.json: a hash per journey</text>
+        <path d="M290 720 H356" class="edge"/><text x="323" y="713" text-anchor="middle" class="t-s">writes</text>
+
+        <path d="M40 790 H940" class="edge red"/>
+        <text x="940" y="782" text-anchor="end" class="t-s t-red">above this line nobody has looked at the application</text>
+
+        <!-- after the freeze -->
+        <g opacity="0.55">
+          <rect x="60" y="812" width="230" height="84" rx="10" class="box"/>
+          <text x="74" y="836" class="t-m">run · triage · verdict</text>
+          <text x="74" y="856" class="t-s">integrity proves nothing expected</text>
+          <text x="74" y="872" class="t-s">changed; journeys --harvest</text>
+          <text x="74" y="888" class="t-s">records what passing tests proved</text>
+          <rect x="360" y="812" width="260" height="84" rx="10" class="box plain"/>
+          <text x="374" y="836" class="t-m">runs/ · verdict.md</text>
+          <text x="374" y="856" class="t-s">journeys/registry.yml updated</text>
+          <text x="374" y="872" class="t-s">for the next story</text>
+          <rect x="690" y="812" width="250" height="84" rx="10" class="box violet"/>
+          <text x="704" y="836" class="t-b">hardener · triager</text>
+          <text x="704" y="856" class="t-s">live browser and API: fix HOW</text>
+          <text x="704" y="872" class="t-s">(locators, waits, fields), never</text>
+          <text x="704" y="888" class="t-s">WHAT; reproduce each failure</text>
+          <path d="M290 854 H356" class="edge"/>
+          <path d="M690 854 H624" class="edge"/>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Scripts and subagents never call each other: every hand-off is a file in the story's folder, and the main agent runs the scripts between the subagents. Steps 1 to 6 turn the story into tests; the dimmed row is what happens to those tests afterwards.</figcaption>
+  </figure>
+
+  <h3>One criterion, traced</h3>
+  <p>TOOL-4 (favourites for signed-in customers), from round 28. AC-2 says a duplicate is <i>rejected</i>; the story never says how. The status comes from the Confluence page the story links, and the contract records exactly where.</p>
+  <div class="grid three">
+    <div class="code"><div class="hd">1 · sources (evidence pack)</div><pre>story.md L24
+- AC-2: Adding a product that is
+  already a favourite is <b>rejected</b>
+  and the list still contains it once.
+
+linked/confluence-880001-…md L32
+"<b>409</b>": { description: The product
+  is already a favourite (a conflict) }</pre></div>
+    <div class="code"><div class="hd">2 · contract (extractor)</div><pre>{ "id": "AC-2",
+  "quote": "Adding a product that is
+    already a favourite is rejected…",
+  "source": "story.md#L24",
+  "layer": "api",
+  "endpoints": ["POST /favorites",
+                "GET /favorites"],
+  "outcomes": ["…rejected with <b>409</b>
+    (linked/confluence-880001-…#L32)",
+    "GET /favorites afterwards
+     contains that product once"],
+  "gaps": ["G1", "G4"] }</pre></div>
+    <div class="code"><div class="hd">3 · spec (test author)</div><pre>const REQ = { STATUS:
+  { CONFLICT: <b>409</b> } };
+
+// from story.md#L24,
+//      linked/…-api.md#L32
+test('SCN-002: Adding a product
+  that is already a favourite
+  is refused…', { tag: ['@AC-2',
+  '@type:negative', '@layer:api'] },
+  async (…) => {
+  // Given seed.account(),
+  //   findProducts(), addFavourite()
+  // When POST /favorites again
+  expectResponse(res,
+    { status: REQ.STATUS.CONFLICT },
+    '[REQ AC-2] POST /favorites … 409');
+});</pre></div>
+  </div>
+  <p class="small">The script checks that the quote sits at L24 and that 409 appears in a source; the reviewer confirms the reading. In the spec, the tags carry the trace into the verdict, and the <code>[REQ AC-2]</code> message and the constants block are what the freeze seals.</p>
+
+  <h3>Gaps: what the story doesn't say</h3>
+  <p>The extractor records every missing element as a gap and says what kind it is. The kind decides where an answer may come from, and that rule keeps the tests independent of the application.</p>
+  <figure>
+    <div class="fig">
+      <svg class="dia" viewBox="0 0 900 250" role="img" aria-label="Gap resolution: a mechanics gap (how to exercise the app) may be discovered from the application during hardening; an oracle gap (what is correct) may come only from the requirement or the user, otherwise it stays an assumption or an open question, never from the application.">
+        <text x="20" y="64" class="t-b">Mechanics (HOW)</text>
+        <text x="20" y="82" class="t-s">a route, a field name,</text>
+        <text x="20" y="98" class="t-s">how to get a product id</text>
+        <text x="20" y="180" class="t-b">Oracle (WHAT)</text>
+        <text x="20" y="198" class="t-s">a status, a message,</text>
+        <text x="20" y="214" class="t-s">a limit</text>
+
+        <rect x="190" y="50" width="130" height="50" rx="10" class="box plain"/><text x="255" y="80" text-anchor="middle">story + linked</text>
+        <rect x="400" y="50" width="170" height="50" rx="10" class="box violet"/><text x="485" y="72" text-anchor="middle">the application</text><text x="485" y="89" text-anchor="middle" class="t-s">hardener, with evidence</text>
+        <rect x="650" y="50" width="240" height="50" rx="10" class="box plain"/><text x="770" y="72" text-anchor="middle" class="t-m">discovered-in-aut</text><text x="770" y="89" text-anchor="middle" class="t-s">recorded in the contract</text>
+        <path d="M320 75 H396" class="edge"/><text x="358" y="67" text-anchor="middle" class="t-s">not there</text>
+        <path d="M570 75 H646" class="edge"/>
+
+        <rect x="190" y="166" width="130" height="50" rx="10" class="box plain"/><text x="255" y="196" text-anchor="middle">story + linked</text>
+        <rect x="400" y="166" width="170" height="50" rx="10" class="box acc"/><text x="485" y="188" text-anchor="middle">you</text><text x="485" y="205" text-anchor="middle" class="t-s">asked in the chat</text>
+        <rect x="650" y="166" width="240" height="50" rx="10" class="box plain"/><text x="770" y="188" text-anchor="middle" class="t-m">// ASSUMPTION · OPEN-QUESTION</text><text x="770" y="205" text-anchor="middle" class="t-s">shown in the verdict, never decided</text>
+        <path d="M320 191 H396" class="edge"/><text x="358" y="183" text-anchor="middle" class="t-s">not there</text>
+        <path d="M570 191 H646" class="edge"/><text x="608" y="183" text-anchor="middle" class="t-s">no answer</text>
+
+        <path d="M485 160 L485 108" class="edge red"/>
+        <path d="M473 126 L497 146 M497 126 L473 146" class="edge red" style="stroke-dasharray:none;stroke-width:2.2"/>
+        <text x="507" y="140" class="t-s t-red">never read WHAT off the app</text>
+      </svg>
+    </div>
+    <figcaption>In TOOL-4 all four gaps were mechanics (where a product id comes from, the product page, the Favorites page, the answer's field names); the hardener found each on the live app after the freeze. Copying an expected status from the app would make the test agree with whatever the app does.</figcaption>
+  </figure>
+
+  <h3>Who sees what</h3>
+  <p>Each subagent runs in its own context and gets only what its job needs. The separation is part of the held-out design.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Subagent</th><th>Story sources</th><th>Contract</th><th>Live app</th><th>Journeys code</th><th>Writes</th></tr></thead>
+    <tbody>
+      <tr><td>Contract extractor</td><td>yes</td><td>builds it</td><td>no</td><td>no</td><td><code>requirement-contract.json</code>, transcripts</td></tr>
+      <tr><td>Contract reviewer</td><td>yes</td><td>reviews it</td><td>no</td><td>no</td><td><code>…review.json</code></td></tr>
+      <tr><td>Test author</td><td>as quoted in the contract</td><td>yes</td><td>no browser</td><td>reads, adds</td><td>specs, test data, new journeys</td></tr>
+      <tr><td>Hardener</td><td>—</td><td>its mechanics gaps</td><td>yes</td><td>fixes HOW</td><td>locators, waits, fields; the accounts recipe</td></tr>
+      <tr><td>Triager</td><td>—</td><td>yes</td><td>yes</td><td>reads</td><td>one decision per failure</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>What the scripts check</h3>
+  <p>The models understand language; the scripts don't need to. They only check that what a model wrote is grounded and traceable, and refuse to go on when it isn't.</p>
+  <div class="grid three">
+    <div class="card"><h4><span class="tag">anchoring</span></h4><p>Each acceptance criterion is a verbatim quote, found at the line it cites.</p></div>
+    <div class="card"><h4><span class="tag">coverage</span></h4><p>Every requirement-bearing source line is captured or dismissed with a reason, so nothing is silently dropped.</p></div>
+    <div class="card"><h4><span class="tag">literal grounding</span></h4><p>Every status, number, quoted message and path in an expected outcome exists in a source or in an answered gap.</p></div>
+    <div class="card"><h4><span class="tag">review hash</span></h4><p>A review counts only for the exact contract it reviewed; any edit needs a new review.</p></div>
+    <div class="card"><h4><span class="tag">traceability lint</span></h4><p>Every criterion has a test and a <code>[REQ AC-n]</code> assertion; every test has one <code>@type</code> and a <code>// from</code> source.</p></div>
+    <div class="card"><h4><span class="tag">freeze</span></h4><p>After hardening, every frozen assertion and constant is unchanged, or changed only through an audited amendment. Journeys may carry no expected value, which is why the author may use them before the freeze.</p></div>
+  </div>
+  <p>The details of each part: <a href="#contract">Requirement contract</a>, <a href="#tests">Writing the tests</a>, <a href="#integrity">Integrity freeze</a> and <a href="#journeys">Journeys</a>.</p>
 </section>
 
 <!-- ============ ONBOARDING ============ -->
