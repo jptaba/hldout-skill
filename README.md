@@ -84,9 +84,15 @@ owner, a story with no acceptance criteria gets an INCONCLUSIVE verdict that say
 or a secret the project doesn't have end BLOCKED, with what is missing named in the verdict. One command carries a
 story between the subagents: `npm run heldout -- advance ABC-123` runs every script step that comes next and names
 the subagent whose turn it is. The verdict is published to the story when it is ready; set `"publish": "manual"`
-under `jira` in `heldout.config.json` to publish it yourself. The prompts that remain are your agent app's own (its
-approval of commands and file edits): allow the `heldout` command and the Playwright MCP server there to run a story
-start to finish.
+under `jira` in `heldout.config.json` to publish it yourself. Setup pre-approves the `heldout` command for both agent apps
+(`permissions.allow` in `.claude/settings.json`, with the Playwright MCP server; `chat.tools.terminal.autoApprove` in
+`.vscode/settings.json`), so those run without an approval prompt; remove the entries to approve each one yourself.
+The prompts that remain are your agent app's own for file edits and other commands.
+
+![A story end to end: one request in the chat, then advance and the subagents up to the published verdict](docs/media/end-to-end.gif)
+
+The recording is TOOL-6 on Practice Software Testing: the `heldout` output as it was printed, each subagent's work
+shortened to a summary of its report, a little over nine minutes in real time.
 
 **Update:** the same command without the address, in the project's folder:
 

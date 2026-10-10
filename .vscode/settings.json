@@ -11,5 +11,8 @@
     ".github/agents": true,
     ".claude/agents": false,
     "~/.copilot/agents": true
+  },
+  "chat.tools.terminal.autoApprove": {
+    "/^npm(\\.cmd)? run heldout\\b/": true
   }
 }

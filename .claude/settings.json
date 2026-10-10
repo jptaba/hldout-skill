@@ -2,5 +2,11 @@
   "fallbackModel": [
     "opus",
     "sonnet"
-  ]
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(npm run heldout:*)",
+      "mcp__playwright"
+    ]
+  }
 }

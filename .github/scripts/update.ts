@@ -15,7 +15,7 @@
  *                                      (.claude/skills, .claude/agents: Claude Code reads only .claude/)
  * A workspace file is created when missing and refreshed unless the project changed it since it was copied
  * (SOURCE.json keeps the hash of each one written). Settings are merged into the project's own, keeping what it already
- * has and removing nothing: .claude/settings.json (Claude Code fallback models), .vscode/settings.json (Copilot reads
+ * has and removing nothing: .claude/settings.json (Claude Code fallback models, the heldout command pre-approved),.vscode/settings.json (Copilot reads
  * .github/ only, so it doesn't load the bridges too) and .vscode/mcp.json (the Playwright MCP server, browser tier 2),
  * whose servers also go into the root .mcp.json for Claude Code, which reads only that file.
  * --ci [gitlab|github] adds the regression pipeline (default: from the git remote).
@@ -32,8 +32,8 @@ import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', '.env.example', 'heldout-support/fixtures.ts', ...AGENT_FILES];
 /** Settings merged into the project's own, from the same files in the skill repository. */
 const SETTINGS: [file: string, why: string][] = [
-  ['.claude/settings.json', 'Claude Code fallback models, also used by the subagents'],
-  ['.vscode/settings.json', 'GitHub Copilot loads the skill and subagents from .github/ only, not the Claude Code bridges'],
+  ['.claude/settings.json', 'Claude Code fallback models, also used by the subagents; the heldout command and the Playwright MCP browser run without an approval prompt'],
+  ['.vscode/settings.json', 'GitHub Copilot loads the skill and subagents from .github/ only, not the Claude Code bridges; the heldout command runs without an approval prompt'],
   [MCP_FILE, 'the Playwright MCP server, browser tier 2, for GitHub Copilot'],
 ];
 /** The regression pipeline (--ci), from the same paths in the skill repository. */
@@ -131,7 +131,7 @@ function syncWorkspaceFiles(info: SourceInfo): void {
   writeSource(info);
 }
 
-/** Add the skill repository's settings the project doesn't have yet; an object setting gains only its missing entries. */
+/** Add the skill repository's settings the project doesn't have yet; an object setting gains only its missing entries, a list inside it too. */
 function ensureSettings(): void {
   for (const [target, why] of SETTINGS) {
     const file = path.join(ROOT, target);
@@ -148,7 +148,12 @@ function ensureSettings(): void {
     for (const [k, v] of Object.entries(want)) {
       const cur = have[k];
       if (cur === undefined) { have[k] = v; added++; } else if (cur && typeof cur === 'object' && !Array.isArray(cur) && v && typeof v === 'object') {
-        for (const [sk, sv] of Object.entries(v)) if (!(sk in cur)) { (cur as Record<string, unknown>)[sk] = sv; added++; }
+        for (const [sk, sv] of Object.entries(v)) {
+          const list = (cur as Record<string, unknown>)[sk];
+          if (!(sk in cur)) { (cur as Record<string, unknown>)[sk] = sv; added++; }
+          // A list inside an object setting (permissions.allow) gains the entries it lacks.
+          else if (Array.isArray(list) && Array.isArray(sv)) for (const item of sv) if (!list.includes(item)) { list.push(item); added++; }
+        }
       }
     }
     if (!added) { say('•', `keep    ${target}`); continue; }

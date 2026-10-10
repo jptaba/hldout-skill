@@ -66,8 +66,10 @@ repository (refreshed on later updates unless the project changed them):
   already has
 - the subagents in `.github/agents/` (contract extractor and reviewer, test author, hardener and triager, each with its
   model and fallbacks)
-- the Claude Code bridges in `.claude/` and its fallback models (`.claude/settings.json`)
-- `.vscode/settings.json`, so Copilot loads the skill and subagents from `.github/` only
+- the Claude Code bridges in `.claude/`, its fallback models and the approval of the `heldout` command and the
+  Playwright MCP server (`.claude/settings.json`), so an evaluation isn't interrupted by approval prompts for them
+- `.vscode/settings.json`, so Copilot loads the skill and subagents from `.github/` only and runs the `heldout`
+  command without an approval prompt
 
 Then, from the project's own copy of the scripts, `init` scaffolds, and never overwrites:
 
