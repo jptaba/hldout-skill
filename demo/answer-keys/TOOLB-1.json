@@ -1,6 +1,9 @@
-{ "key": "TOOLB-1", "aut": "toolshop-rc", "writtenAt": "2026-09-26 (before evaluation)", "expectedVerdict": "FAIL",
+{ "key": "TOOLB-1", "aut": "toolshop-rc", "writtenAt": "2026-09-26 (before evaluation); D2 and D3 added 2026-10-11 after round 32 found them on the environment's current build (\"v5.0 with bugs\") and they were checked against the live application",
   "defects": [
-    { "id": "D1", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["per_page", "12", "9", "page"], "description": "9 products per page, not 12" }
+    { "id": "D1", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["per_page", "12", "9", "page"], "description": "9 products per page, not 12" },
+    { "id": "D2", "criteria": ["AC-4"], "origin": "genuine (found by round 32)", "keywords": ["Price (Low - High)", "descending", "price,desc", "sort"], "description": "the web shop's \"Price (Low - High)\" option carries the value price,desc and lists the products by descending price (the API sorts correctly)" },
+    { "id": "D3", "criteria": ["AC-3"], "origin": "genuine (found by round 32)", "keywords": ["There are no products found", "0 products found", "message", "without matches"], "description": "a web-shop search without matches shows \"0 products found for '<term>'\" instead of \"There are no products found.\"" }
   ],
+  "expectedVerdict": "FAIL",
   "seededScriptDefects": [],
-  "traps": ["same criteria as TOOL-1 but a different build: AC-7 (empty search returns all) PASSES here while it fails on stable", "the RC web app uses hash routes (/#/…) and numeric ids — tests reused from TOOL-1 need mechanics repairs, which are script defects, not app defects"] }
+  "traps": ["same criteria as TOOL-1 but a different build: the empty search (AC-7) returns products here, where it returns none on stable; it returns 29 against 26 for GET /products (it includes rentals), which is a question for the owner about what \"all products\" means, not a defect", "the environment is a separate application profile with its own journeys: nothing proven on the stable shop counts as proven here"] }

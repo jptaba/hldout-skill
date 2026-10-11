@@ -34,6 +34,9 @@ Do this:
 Never edit the tests or the journeys, never change a shared sandbox's settings, and never create or change Jira
 issues.
 
+A project with several applications keeps each one's journeys in a folder of its own: `npm run heldout -- journeys KEY`
+prints this story's. Write the files you need (probe steps, chains) with your file tool, not with shell heredocs.
+
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
 doesn't survive PowerShell's quoting: put the steps in a file under the run's `confirm/` folder and pass

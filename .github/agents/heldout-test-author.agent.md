@@ -59,6 +59,9 @@ Never run the tests against the application and never freeze the draft: the main
 an existing journey does for its other callers; when it lacks something, give it an optional parameter that leaves
 every existing call as it was, or add a new journey.
 
+A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
+this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.
+
 A type-check is optional: `npx tsc --noEmit -p .` covers the spec and the journeys and prints nothing when they are clean.
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in

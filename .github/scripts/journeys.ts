@@ -14,6 +14,9 @@
  *                                             duplicates; a registry out of step with the code — run it after merging
  *   heldout journeys [--aut <id>] --sync      write registry.yml from the code (new journeys, moved ones, gone ones)
  *   heldout journeys [--aut <id>] --resolve   a merge conflict in registry.yml: keep both sides, then sync
+ *   heldout journeys --aut <id> --copy-from <other profile>   start this application's journeys from a related one's
+ *                                             (another environment or build of the same product): the domain files it
+ *                                             doesn't have yet are copied as drafts, proven by nothing here
  *
  * The test author reads the journeys while drafting (they hold no expected value, so they can't leak the oracle), calls
  * them for the steps of its tests and adds the ones it needs to their domain's file.
@@ -43,6 +46,7 @@ main(() => {
   const journeys = allJourneys(cfg, profile);
 
   if (!key) {
+    if (flagStr(flags, 'copy-from')) return copyFrom(cfg, profile, flagStr(flags, 'copy-from')!);
     if (flags.resolve) return resolve(cfg, profile, journeys);
     const registry = readRegistry(cfg, profile);
     if (flags.sync) {
@@ -125,6 +129,33 @@ function printJourneys(cfg: HeldoutConfig, profile: string, journeys: JourneyCod
 }
 
 /** A registry.yml with merge-conflict markers: both sides merged (every proof kept), then in step with the code. */
+/**
+ * Start a profile's journeys from a related application's (another environment or build of the same product): the
+ * domain files this profile doesn't have yet are copied as they are. Nothing is proven here by the copy: the registry
+ * lists them as not proven yet, so the hardener probes each before a story relies on it.
+ */
+function copyFrom(cfg: HeldoutConfig, profile: string, other: string): void {
+  if (!cfg.auts[other]) throw new Error(`"${other}" is not a profile of this project (${Object.keys(cfg.auts).join(', ')})`);
+  const from = journeyPaths(cfg, other), to = journeyPaths(cfg, profile);
+  if (from.base === to.base) throw new Error(`${profile} and ${other} share the journeys folder ${rel(to.base)}: nothing to copy`);
+  if (!fs.existsSync(from.fixtures)) throw new Error(`${other} has no journeys yet (${rel(from.fixtures)})`);
+  const depth = (d: string) => path.relative(path.resolve(to.base, '..', '..'), d).split(path.sep).length;
+  const copied: string[] = [], kept: string[] = [];
+  for (const f of fs.readdirSync(from.fixtures).filter((x) => x.endsWith('.ts'))) {
+    const dest = path.join(to.fixtures, f);
+    if (fs.existsSync(dest)) { kept.push(f); continue; }
+    fs.mkdirSync(to.fixtures, { recursive: true });
+    fs.copyFileSync(path.join(from.fixtures, f), dest);
+    copied.push(f);
+  }
+  const s = syncRegistry(readRegistry(cfg, profile), allJourneys(cfg, profile), cfg.aut.name);
+  writeRegistry(cfg, profile, s.registry);
+  console.log(`✔ ${copied.length} domain file(s) copied from ${rel(from.fixtures)} to ${rel(to.fixtures)}${copied.length ? `: ${copied.join(', ')}` : ''}`);
+  if (kept.length) console.log(`• kept as they are (this profile has its own): ${kept.join(', ')}`);
+  if (copied.length) console.log(`  ${s.added.length} journey(s) added to ${rel(to.registry)} as not proven yet: they are drafts for this application until a story's passing tests prove them`);
+  if (copied.length && depth(from.fixtures) !== depth(to.fixtures)) console.log('  ⚠ the two folders sit at different depths: check the relative imports in the copied files');
+}
+
 function resolve(cfg: HeldoutConfig, profile: string, journeys: JourneyCode[]): void {
   const file = journeyPaths(cfg, profile).registry;
   if (!fs.existsSync(file)) throw new Error(`No ${rel(file)} yet: ${H} journeys --sync`);

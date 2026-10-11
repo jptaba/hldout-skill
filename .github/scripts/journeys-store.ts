@@ -71,6 +71,8 @@ const uniq = (xs: string[]) => [...new Set(xs)];
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** A call of `name(` (or `name<T>(`), not a property of something else. */
 const callOf = (name: string, flags = '') => new RegExp(`(?<![\\w$.])${escapeRe(name)}\\s*(?:<[^()]*?>)?\\(`, flags);
+/** A helper is used where it is called or passed on by name (`data.map(productOf)`). */
+const usesOf = (name: string) => new RegExp(`(?<![\\w$.'"\`])${escapeRe(name)}(?![\\w$'"\`:])`);
 
 // ---- journey code ---------------------------------------------------------------------------------
 
@@ -132,7 +134,7 @@ export function journeysIn(file: string, base: string): JourneyCode[] {
     let all = body;
     while (queue.length) {
       const code = queue.shift()!;
-      for (const [n, b] of helpers) if (!seen.has(n) && callOf(n).test(code)) { seen.add(n); all += `\n${b}`; queue.push(b); }
+      for (const [n, b] of helpers) if (!seen.has(n) && usesOf(n).test(code)) { seen.add(n); all += `\n${b}`; queue.push(b); }
     }
     return all;
   };

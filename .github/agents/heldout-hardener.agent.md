@@ -62,6 +62,9 @@ Never run `heldout integrity --snapshot` or `--amend`, and never change a shared
 implementation (not its expected value) looks wrong, for example an over-strict regex, report it: the main agent
 decides on the audited amendment.
 
+A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
+this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.
+
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
 doesn't survive PowerShell's quoting: put the steps in a file under `hardening/` and pass `--steps <file>`. Read a
