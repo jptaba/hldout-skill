@@ -14,6 +14,8 @@ const HELPERS = ['getByRole', 'getByTestId', 'getByText', 'getByLabel', 'getByPl
  */
 export function locateOn<L>(page: object, expr: string): L {
   const p = page as Record<string, (...a: unknown[]) => unknown>;
+  // A locator is written as Playwright writes it; a bare selector ("a.card") gets a message that says so.
+  if (!/^(?:page\.)?(?:locator|getBy[A-Z]\w+|frameLocator)\(/.test(expr.trim())) throw new Error(`"${expr}" is not a locator expression — write it as Playwright does: locator('${expr.replace(/'/g, "\\'")}'), getByRole('button', { name: '…' }), getByTestId('…')`);
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
   return new Function('page', ...HELPERS, `return page.${expr.replace(/^page\./, '')};`)(page, ...HELPERS.map((h) => p[h].bind(page))) as L;
 }
