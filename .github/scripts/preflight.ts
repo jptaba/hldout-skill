@@ -9,7 +9,7 @@ import path from 'node:path';
 import { ROOT, accountRoles, evalPaths, journeyPaths, rel, resolveUrl, type HeldoutConfig } from './config';
 import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
-import { journeysUsedBy, lintJourneys } from './journeys-store';
+import { allJourneys, describeJourney, duplicateJourneys, journeysUsedBy, lintJourneys, readRegistry } from './journeys-store';
 import { TEST_TYPES, readSuite, specFiles, type Scenario, type TestType } from './spec-model';
 
 export interface Finding { level: 'error' | 'warn'; code: string; message: string }
@@ -106,6 +106,13 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   if (stubs) err('unfinished-scaffold', `${stubs} TODO(test) marker(s) from "heldout scaffold" remain in the spec — write the journeys and assertions`);
   // The journeys the tests use: HOW only, never an expected value (they are not frozen with the tests), one file per domain.
   for (const x of lintJourneys(journeys, contract, journeyPaths(cfg, cfg.autId).base)) out.push({ ...x, code: `journeys/${x.code}` });
+  // A journey this story adds (not in the registry yet) that makes the same calls as one already there: reuse that one.
+  const registry = readRegistry(cfg, cfg.autId).journeys;
+  for (const group of duplicateJourneys(allJourneys(cfg, cfg.autId))) {
+    const added = group.filter((j) => !registry[j.id]);
+    const known = group.filter((j) => registry[j.id]);
+    if (added.length && known.length) warn('journeys/possible-duplicate', `${added.map((j) => j.id).join(', ')} (new) ${added.length > 1 ? 'do' : 'does'} what ${known.map((j) => j.id).join(', ')} already ${known.length > 1 ? 'do' : 'does'} (${describeJourney(known[0])}) — call the existing journey, from the test or from the new journey, instead of repeating its calls`);
+  }
   const todo = [src, ...journeySrc].reduce((n, s) => n + (s.match(/TODO\(harden\)/g) ?? []).length, 0);
   if (todo) (opts.allowUnhardened ? warn : err)('unhardened', `${todo} TODO(harden) marker(s) remain (in the spec or the journey files it uses)`);
   // Once hardened, the log says which browser/API tiers were used; the verdict quotes it.

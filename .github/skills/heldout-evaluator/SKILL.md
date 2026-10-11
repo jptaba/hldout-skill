@@ -122,6 +122,12 @@ registry) and stops where a subagent has work to do, printing the subagent, its 
   Then: npm run heldout -- advance KEY
 ```
 
+When a draft leaves nothing to discover (it marks no guess with `TODO(harden)` and every journey its tests call is
+proven in the registry as it is), `advance` does the hardening itself: it runs the tests twice, and when each one
+passes or fails on a requirement assertion alone, it records the mechanics gaps as answered by those journeys, writes
+the hardening log and goes on to the evaluation run. Anything else in that run (a locator that no longer matches, a
+failed precondition, a flaky test) hands the story to the hardener as usual.
+
 Run that subagent with that task, then the `Then:` command, until it prints `✔ KEY is complete`. It reads where the
 story is from the files on disk, so a new session picks a story up with the same command. The table below is what it
 runs, and what to run by hand when a step needs a closer look.

@@ -66,8 +66,10 @@ on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
 A label the requirement names is found by its words: punctuation the page puts around it (a trailing colon, an
 asterisk on a required field) and letter case that comes from styling are mechanics. Other words are a deviation.
+The inspector's step table notes what the page announces after each step (alerts, status and live regions, toasts):
+`click … ✔ · the page announced: "Product added to shopping cart."`. That is usually all a message needs.
 A message that disappears again (a toast after a click) is gone when the inspector's `--probe` runs, at the end of the
-walk: probe it where it appears, with a step `{ "do": "probe", "target": "getByText('Product added to your favorites list.')" }`
+walk: to count the matches of your own locator, probe it where it appears, with a step `{ "do": "probe", "target": "getByText('Product added to your favorites list.')" }`
 right after the click. The step table then shows its count and text.
 Guesses the probe shows were right keep their code: only the `// TODO(harden)` mark goes. Correct the wrong ones by
 hand first, then remove what is left in one command per file:

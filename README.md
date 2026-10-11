@@ -168,7 +168,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | Command | Purpose |
 | --- | --- |
 | `init`, `update`, `add-aut`, `doctor`, `status [KEY]` | set up, install or update the skill (what `setup.ps1` / `setup.sh` run from the skill's clone), add an application, check the setup, see where each story is and the next step |
-| `advance KEY [--rerun]` | run a story's next script steps (fetch, evidence pack, freeze, run, automatic triage, verdict, publish, journey registry) up to the next subagent; run it again after each one |
+| `advance KEY [--rerun]` | run a story's next script steps (fetch, evidence pack, freeze, run, automatic triage, verdict, publish, journey registry) up to the next subagent; run it again after each one. When a draft leaves nothing to discover (no guess marked, every journey it calls proven in the registry), it also does the hardening itself: two runs of the tests instead of a hardener subagent |
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
 | `accounts --add-existing … [--role admin]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users) or created by the tests; checked live |
 | `fetch KEY [--aut id]` | the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (never comments or other attachments); binds the AUT; detects requirement revisions |

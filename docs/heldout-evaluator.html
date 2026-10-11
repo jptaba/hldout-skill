@@ -1807,6 +1807,17 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
     <li><b><code>journeys --copy-from</code></b> starts a second environment's journeys from the first one's, as drafts marked to be probed. TOOLB-2 reused 21 cart journeys that way, and the hardener corrected the ones the other build does differently (hash routes, no cart API).</li>
     <li><b>Smaller ones:</b> a sign-in that lands different kinds of users in different places, a fixed-time wait and a probes file in the inspector, lint that ignores comments, shared records counted once in the run summary, clearer messages from the probes and from triage, and a PowerShell note in every agent file.</li>
   </ul>
+  <h3>The same nine stories, a second time</h3>
+  <p>The round was then repeated in the same project, with every journey of the first pass in the registry, to look for what could still be better. The verdicts were the same nine. One finding changed: TOOL-1's empty-search defect was reported as a question for the owner, because that contract had recorded "all products" as an assumption and every test of the criterion carried it. That became the first change below.</p>
+  <ul class="clean">
+    <li><b>A criterion can no longer lose its defect to an assumption unnoticed.</b> A test tagged as resting on an assumption reports a failure as a question. When every test of a criterion carries such a tag, the lint now says so (<code>only-assumed-tests</code>), and the authoring rule asks for one untagged test of what holds under every reading ("an empty search returns products at all").</li>
+    <li><b>No hardener when there is nothing to harden.</b> When a draft marks no guess and every journey its tests call is proven in the registry, <code>advance</code> runs the tests twice itself. If each passes, or fails on a requirement assertion alone, it records the mechanics gaps as answered by those journeys and goes on. TOOL-6 and TOOL-7 went from frozen draft to evaluation run that way; the hardener is still called the moment a proven journey doesn't hold.</li>
+    <li><b>The reviewer no longer rejects an assumption for being unstated</b>, which every assumption is. And the reference no longer contradicts itself on whether a page compared with the API is a UI or an end-to-end criterion: that one sentence had cost TOOL-6 a second review in three separate runs.</li>
+    <li><b>The inspector notes what the page announces after each step</b> (alerts, toasts), and a <code>probe</code> step counts a locator at that point of the walk. Four hardeners and triagers had lost a walk to a message that was gone by the end of it.</li>
+    <li><b>Less typing for the agents:</b> several gaps recorded in one call (<code>contract --resolve-from</code>), ready-to-paste imports in the journey listing, a replay command beside each failing API call in the triage report, a list projection in a chain's <code>show</code> (<code>data.*.price</code>), and a clipped listing's <code>per_page</code> and <code>total</code> shown first.</li>
+    <li><b>A new journey that repeats the calls of an existing one</b> is now flagged in the story's own lint, where the author fixes it, and not only in the project-wide check.</li>
+  </ul>
+  <p class="small">With the journeys proven, the second pass was also cheaper where a hardener still ran: TOOL-1's needed 19 tool calls where the first pass took 47.</p>
   <p class="small">The evaluations of these rounds, and the full test report with every defect the rounds found in the skill and how it was fixed, are in the repository history: tag <code>blind-round-evaluations</code> and the commits before the move to a single application.</p>
 </section>
 
@@ -1821,7 +1832,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>Setup</td><td><code>setup.ps1</code> · <code>setup.sh</code> (in the skill's clone)</td><td>set a project up or update it: pull the skill, check Node, run <code>init</code> (which runs <code>update</code>), then <code>doctor</code></td></tr>
       <tr><td></td><td><code>init</code> · <code>update</code> · <code>add-aut</code></td><td>what setup runs; add another application</td></tr>
       <tr><td></td><td><code>doctor [--jira]</code> · <code>status [KEY]</code></td><td>check the setup, with a fix for each problem; see where each story is and what's next</td></tr>
-      <tr><td></td><td><code>advance KEY [--rerun]</code></td><td>run a story's next script steps, up to the next subagent; run it again after each one</td></tr>
+      <tr><td></td><td><code>advance KEY [--rerun]</code></td><td>run a story's next script steps, up to the next subagent; run it again after each one. With nothing left to discover (no guess marked, every journey proven), it hardens the story itself with two runs of the tests</td></tr>
       <tr><td></td><td><code>secret NAME --generate | --ask</code></td><td>a secret into <code>.env</code> without showing it</td></tr>
       <tr><td></td><td><code>accounts …</code></td><td>test accounts: existing (each with a <code>--role</code> when stories need kinds of users), or created by the tests; checked live</td></tr>
       <tr><td>Requirement</td><td><code>new</code> · <code>fetch KEY [--aut id]</code></td><td>create a story in the mock Jira; fetch a story from Jira and bind it to an app</td></tr>

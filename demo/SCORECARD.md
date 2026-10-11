@@ -2,6 +2,8 @@
 
 Generated 2026-10-11T10:33:02.912Z by `demo/score.ts` from `demo/answer-keys/*.json` (written before each evaluation), for the evaluations of round 32: one onboarding, then the nine stories one at a time in the same project.
 
+This is the first pass. A second pass of the same nine stories in the same project gave the same nine verdicts and 11 of 13 defects with 2 raised as owner questions (TOOL-1's empty-search defect joined TOOL-3's, because that contract recorded "all products" as an assumption and every test of the criterion carried it; the lint now warns about that), again with no false positive.
+
 One key changed after its evaluation: TOOLB-1 listed one defect when it was written (2026-09-26). The release-candidate environment has moved to another build since, and round 32 found two more defects there (the reversed price sort and the no-match message). Both were checked against the live application and added to the key, so they count as found, not as false positives. Against the key as first written, TOOLB-1 scores 1/1 with 2 false positives.
 
 | Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |
