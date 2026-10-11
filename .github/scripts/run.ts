@@ -13,7 +13,7 @@
  *   snapshots/ (ARIA snapshots per step when --capture), run-meta.json
  * Exit code is 0 whenever a results.json was produced — failing tests are data for triage, not a crash.
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -162,8 +162,18 @@ main(async () => {
   // An agent reads every line it is shown: keep Playwright's full output in the run folder and print a digest. Claude Code
   // says it is there (CLAUDECODE=1); other agent apps set HELDOUT_QUIET=1 or pass --quiet. --verbose forces the live output.
   const quiet = Boolean(flags.quiet) || ((process.env.CLAUDECODE === '1' || process.env.HELDOUT_QUIET === '1') && !flags.verbose);
-  const res = spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: quiet ? ['inherit', 'pipe', 'pipe'] : 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
-  if (quiet) writeFile(path.join(runDir, 'console.log'), `${res.stdout ?? ''}${res.stderr ?? ''}`);
+  // Quiet runs keep Playwright's output for console.log and say once a minute how far they are: a long run (many
+  // tests on one worker, repeated) is otherwise silent until it ends.
+  const res = quiet ? await new Promise<{ status: number | null; stdout: string }>((resolve) => {
+    const child = spawn(process.execPath, [cli, ...args.slice(1)], { stdio: ['inherit', 'pipe', 'pipe'], env });
+    let out = ''; const started = Date.now();
+    child.stdout.on('data', (d: Buffer) => { out += d.toString(); });
+    child.stderr.on('data', (d: Buffer) => { out += d.toString(); });
+    const done = () => (out.match(/^\s*(?:✓|✘|ok|x|-|±)\s+\d+\s/gm) ?? []).length;
+    const tick = setInterval(() => console.log(`  … ${done()} test result(s) after ${Math.round((Date.now() - started) / 60_000)} min`), 60_000);
+    child.on('close', (status) => { clearInterval(tick); resolve({ status, stdout: out }); });
+  }) : spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
+  if (quiet) writeFile(path.join(runDir, 'console.log'), String(res.stdout ?? ''));
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
   const secrets = secretValuesFor(p.testData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(vaultValues)].filter(Boolean));
   const scrubbed = scrubDir(runDir, secrets.values);

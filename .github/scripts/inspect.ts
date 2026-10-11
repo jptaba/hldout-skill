@@ -84,6 +84,8 @@ main(async () => {
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
+  // Git Bash turns "--url /" into a Windows path before it gets here: say that it was read as the path it stood for.
+  if (/^#?[A-Za-z]:[\\/]/.test(flagStr(flags, 'url') ?? '')) console.log(`• --url arrived as "${flagStr(flags, 'url')}" (Git Bash rewrote it) and was read as ${target}: the right page, nothing to repeat`);
   const stepsFile = flagStr(flags, 'steps');
   await requireVaultSecrets([process.argv.slice(2).join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
   const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8'))

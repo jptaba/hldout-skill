@@ -66,6 +66,10 @@ on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
 A label the requirement names is found by its words: punctuation the page puts around it (a trailing colon, an
 asterisk on a required field) and letter case that comes from styling are mechanics. Other words are a deviation.
+A journey that finds a record through the application's own search or filter ("find the products named …", used by
+assertions such as "none exists" and by cleanups) is proven with a name of the shape the tests make (`unique()`, with
+its digits and hyphen) and a control that must not be found: a search that misses such names makes "none exists" pass
+for the wrong reason and leaves records behind. Where the search can't be trusted, page through the list.
 The inspector's step table notes what the page announces after each step (alerts, status and live regions, toasts):
 `click … ✔ · the page announced: "Product added to shopping cart."`. That is usually all a message needs.
 A message that disappears again (a toast after a click) is gone when the inspector's `--probe` runs, at the end of the
