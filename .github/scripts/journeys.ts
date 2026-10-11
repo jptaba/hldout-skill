@@ -154,7 +154,10 @@ function copyFrom(cfg: HeldoutConfig, profile: string, other: string): void {
     });
     if (missing.length) { left.push(`${f} (needs ${missing.join(', ')})`); continue; }
     fs.mkdirSync(to.fixtures, { recursive: true });
-    fs.copyFileSync(path.join(from.fixtures, f), dest);
+    // Each copied journey is a guess here: marked like any other, so the lint counts it and the hardener probes it
+    // (routes, calls and locators of the other application) before a story relies on it.
+    const mark = `// TODO(harden): copied from the ${other} profile, not probed on this application`;
+    fs.writeFileSync(dest, fs.readFileSync(path.join(from.fixtures, f), 'utf8').replace(/^(export\s+(?:async\s+)?function\s[^\n]*?)[ \t]*$/gm, `$1 ${mark}`));
     copied.push(f);
   }
   const s = syncRegistry(readRegistry(cfg, profile), allJourneys(cfg, profile), cfg.aut.name);

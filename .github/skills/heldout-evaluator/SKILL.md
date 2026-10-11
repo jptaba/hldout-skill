@@ -88,7 +88,9 @@ title), test-id attribute, API host (where the page's own API calls go) and `blo
 Cookie and welcome dialogs the app shows go in `overlays` (see references/hardening.md).
 
 More applications: `npm run heldout -- add-aut <id> --base-url <url>`, and give that profile its own journeys folder
-(`"journeysDir": "journeys-<id>"` in its profile).
+(`"journeysDir": "journeys-<id>"` in its profile). When the new profile is another environment or build of an
+application that already has journeys, `npm run heldout -- journeys --aut <id> --copy-from <profile>` starts it from
+those: copied as drafts, each marked `TODO(harden)`, proven by nothing until a story's passing tests prove them there.
 
 **Test accounts** (record the answer; never ask for or handle a password yourself):
 - *Existing, `.env`/CI:* `$H accounts --add-existing --username <user> --password-env APP_PASSWORD_1`, then tell the user to

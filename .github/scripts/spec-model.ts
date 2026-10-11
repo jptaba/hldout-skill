@@ -123,10 +123,12 @@ function readSpec(file: string, into: Suite): void {
     // Sources: the "// from …" lines directly above the call (other comment lines in between are fine); and the
     // "// cases: …" line of a table whose variant tags come from its rows. Inside a loop the comment may sit above it.
     const sources: string[] = [];
-    for (let l = lineAt(start) - 1, loop = false; l >= 0; l--) {
+    for (let l = lineAt(start) - 1, loop = false, table = 12; l >= 0; l--) {
       const text = lines[l].trim();
-      // A table's comments may sit above the loop that declares its tests.
+      // A table's comments may sit above the loop that declares its tests, or above the rows declared just before it
+      // (`const CASES = [ … ];`, at most a dozen lines).
       if (!loop && !sources.length && /^(for\s*\(|[\w.$[\]()]+\.(forEach|map)\()/.test(text)) { loop = true; continue; }
+      if (loop && !sources.length && !text.startsWith('//') && table-- > 0 && /^(const\s|[{[\]}]|['"`\w].*,$)|[,;[]$/.test(text)) continue;
       if (!text.startsWith('//')) break;
       const from = text.match(/^\/\/\s*from\s+(.+)$/i);
       if (from) sources.unshift(from[1].trim());

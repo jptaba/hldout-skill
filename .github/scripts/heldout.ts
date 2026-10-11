@@ -33,7 +33,7 @@ const COMMANDS: Record<string, Command> = {
   'api-probe': { script: 'api-probe.ts', group: 'Hardening', args: '--key KEY <METHOD> <path> | --chain chain.json', about: 'call the API (or a chain of calls) with redacted output' },
   'mcp-probe': { script: 'mcp-probe.ts', group: 'Hardening', args: '--key KEY --steps steps.json [--var name=value]… [--out report.md]', about: 'tier 2: drive the Playwright MCP server over stdio' },
   run: { script: 'run.ts', group: 'Run', args: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]', about: 'preflight + run the held-out suite' },
-  triage: { script: 'triage.ts', group: 'Run', args: 'KEY [--set SCN --category … --rationale …] [--carry-from auto]', about: 'classify failures; record confirmed decisions' },
+  triage: { script: 'triage.ts', group: 'Run', args: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]', about: 'classify failures; record confirmed decisions' },
   verdict: { script: 'verdict.ts', group: 'Report', args: 'KEY', about: 'render verdict.md / verdict.json' },
   publish: { script: 'jira-publish.ts', group: 'Report', args: 'KEY', about: 'attach the verdict, comment, label (never creates issues)' },
   scrub: { script: 'scrub.ts', group: 'Report', args: 'KEY [--value <literal>]', about: 'remove the story\'s secrets from existing artifacts' },

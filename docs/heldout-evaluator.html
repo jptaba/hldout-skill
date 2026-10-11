@@ -1740,7 +1740,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Thirty-one rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository now keeps one of them, Toolshop.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Thirty-two rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository now keeps one of them, Toolshop.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1777,8 +1777,36 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>29</td><td>TOOL-5, TOOL-6 · Toolshop</td><td>stories in awkward shapes: criteria as informal bullets with no AC field; a long linked API reference with endpoints the story never uses and a status that lives only behind a non-Confluence link</td><td><span class="badge b-fail">FAIL</span> 1/1 and <span class="badge b-pww">PASS WITH WARNINGS</span>, both as the key, 0 false positives</td></tr>
       <tr><td>30</td><td>TOOL-7 · Toolshop</td><td>"validate every criterion for each user type" and one criterion for three data sets: variants in the contract, the setup coverage lint, accounts with roles; all 24 setups tested</td><td><span class="badge b-fail">FAIL</span> 1/1, as the key, 0 false positives</td></tr>
       <tr><td>31</td><td>TOOL-6 and a story with no criteria · Toolshop</td><td>unattended, driven by <code>advance</code>: no question asked from the fetch to the published verdict; the missing status reported as an open question, the story without criteria reported as not evaluable</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14, as the key; <span class="badge b-inc">INCONCLUSIVE</span> for the story without criteria</td></tr>
+      <tr><td>32</td><td>All nine demo stories · Toolshop and its release-candidate environment</td><td>one onboarding, then the stories one at a time in the same project, unattended; what each story showed was fixed in the skill and applied to the project before the next one started</td><td>9/9 verdicts as the keys, 12 of 13 keyed defects found and 1 raised as an owner question, 0 false positives</td></tr>
     </tbody>
   </table></div>
+
+  <h3>Round 32: nine stories in one project</h3>
+  <p>The latest round is the closest to how a team would use the skill: set a project up once, then evaluate story after story in it. Each story started from the journeys the earlier ones had proven.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Story</th><th>What it is</th><th>Verdict</th><th>Tests</th><th>Against the answer key</th></tr></thead>
+    <tbody>
+      <tr><td>TOOL-1</td><td>catalogue search, sort, filter</td><td><span class="badge b-fail">FAIL</span></td><td>12 / 20</td><td>2 of 2 defects</td></tr>
+      <tr><td>TOOL-2</td><td>registration, sign-in, lockout</td><td><span class="badge b-fail">FAIL</span></td><td>17 / 19</td><td>1 of 1</td></tr>
+      <tr><td>TOOL-3</td><td>guest cart; two criteria contradict each other</td><td><span class="badge b-fail">FAIL</span></td><td>17 / 20</td><td>1 of 2, the other raised as a question for the owner</td></tr>
+      <tr><td>TOOL-4</td><td>favourites for signed-in customers</td><td><span class="badge b-pass">PASS</span></td><td>14 / 14</td><td>no defect expected, none reported</td></tr>
+      <tr><td>TOOL-5</td><td>informal bullets, no criteria field</td><td><span class="badge b-fail">FAIL</span></td><td>12 / 14</td><td>1 of 1</td></tr>
+      <tr><td>TOOL-6</td><td>a status behind a link that is not read</td><td><span class="badge b-pww">PASS WITH WARNINGS</span></td><td>13 / 13</td><td>the open question, as expected</td></tr>
+      <tr><td>TOOL-7</td><td>every criterion for three user types</td><td><span class="badge b-fail">FAIL</span></td><td>24 / 25</td><td>1 of 1, all 24 setups tested</td></tr>
+      <tr><td>TOOLB-1</td><td>TOOL-1's criteria on the release candidate</td><td><span class="badge b-fail">FAIL</span></td><td>12 / 21</td><td>3 of 3 (two of them new: see below)</td></tr>
+      <tr><td>TOOLB-2</td><td>TOOL-3's criteria on the release candidate, which has no cart API</td><td><span class="badge b-fail">FAIL</span></td><td>1 / 16, 11 of them blocked</td><td>3 of 3</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Two of TOOLB-1's three defects were not in its answer key. The key was written in September; the release-candidate environment has moved to another build since, on which the web shop's "Price (Low - High)" sorts downwards and a search without matches shows a different message. Both were checked against the live application and added to the key. Against the key as first written they would count as two false positives.</p>
+  <p>What the round changed in the skill, each fix made after the story that showed the need:</p>
+  <ul class="clean">
+    <li><b><code>heldout confirm</code></b> removes the marks of the guesses a probe showed were right, one command per file. Before it, a hardener spent most of its edits deleting 25 comments one at a time.</li>
+    <li><b>Rules restate their lines.</b> Two of the first three contracts lost a fix-and-review cycle to a rule that added a consequence the story doesn't state. The extractor is now told so, and the six later contracts passed their first review.</li>
+    <li><b>The evidence pack names the test users the project already has</b>, so a story with signed-in users no longer records "how to sign in" as a gap.</li>
+    <li><b>Data the application can't delete is found before it is made.</b> TOOL-7 needs an invoice of each customer; its tests take one the account already has and place an order only when there is none. The round placed no order, where earlier rounds left about a dozen each.</li>
+    <li><b><code>journeys --copy-from</code></b> starts a second environment's journeys from the first one's, as drafts marked to be probed. TOOLB-2 reused 21 cart journeys that way, and the hardener corrected the ones the other build does differently (hash routes, no cart API).</li>
+    <li><b>Smaller ones:</b> a sign-in that lands different kinds of users in different places, a fixed-time wait and a probes file in the inspector, lint that ignores comments, shared records counted once in the run summary, clearer messages from the probes and from triage, and a PowerShell note in every agent file.</li>
+  </ul>
   <p class="small">The evaluations of these rounds, and the full test report with every defect the rounds found in the skill and how it was fixed, are in the repository history: tag <code>blind-round-evaluations</code> and the commits before the move to a single application.</p>
 </section>
 
@@ -1801,7 +1829,9 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>Tests</td><td><code>scaffold</code></td><td>a spec skeleton (one stub per criterion) and test data from the contract</td></tr>
       <tr><td></td><td><code>journeys KEY [--all | --stale &lt;id&gt; --evidence … | --harvest [--apply]]</code> · <code>journeys [--check | --sync | --resolve]</code></td><td>the app's journeys for this story; mark one stale; record in the registry what passing tests proved; check all of them (lint, possible duplicates, a registry behind the code), bring the registry in line with the code, settle a merge conflict in it</td></tr>
       <tr><td></td><td><code>lint</code> · <code>integrity</code></td><td>traceability and type checks; freeze and verify</td></tr>
-      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3; <code>inspect</code> lists the calls each step made with what the page sent, and <code>--html</code> prints how an element is built</td></tr>
+      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3; <code>inspect</code> lists the calls each step made with what the page sent, <code>--html</code> prints how an element is built, and <code>--probes file</code> takes one locator per line</td></tr>
+      <tr><td></td><td><code>confirm KEY --file … --evidence …</code></td><td>remove the <code>TODO(harden)</code> marks of the guesses a probe showed were right, in one go</td></tr>
+      <tr><td></td><td><code>journeys --aut id --copy-from profile</code></td><td>start an application's journeys from a related one's, as drafts to be probed</td></tr>
       <tr><td>Run</td><td><code>run</code> · <code>triage</code></td><td>preflight and run; classify and record decisions</td></tr>
       <tr><td>Report</td><td><code>verdict</code> · <code>publish</code> · <code>scrub</code></td><td>render; post to Jira; remove secrets from old artifacts</td></tr>
     </tbody>

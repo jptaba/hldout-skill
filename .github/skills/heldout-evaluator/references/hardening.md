@@ -66,7 +66,14 @@ on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
 A label the requirement names is found by its words: punctuation the page puts around it (a trailing colon, an
 asterisk on a required field) and letter case that comes from styling are mechanics. Other words are a deviation.
-A draft guess written as "A, or B" where the probe shows A: delete the B branch, then confirm.
+Guesses the probe shows were right keep their code: only the `// TODO(harden)` mark goes. Correct the wrong ones by
+hand first, then remove what is left in one command per file:
+`heldout confirm KEY --file journeys/fixtures/<domain>.ts --evidence "<probe report>"` (it notes the count in the log).
+A draft guess written as "A, or B" where the probe shows A: delete the B branch, then confirm. Journeys copied from a
+related profile (`journeys --copy-from`) carry the mark on every journey: each is a guess here until probed.
+A mechanics gap the application gives no answer to (the endpoint a criterion needs does not exist on this build, every
+route of it answers 404) stays open: don't record "nothing found" as its answer. Log it as an observed deviation, with
+the probe; the tests that depend on it end BLOCKED or fail on the criterion that owns the missing piece.
 
 ## 1b. Tier notes
 
