@@ -5,7 +5,7 @@
  *       [--data '<json>' | --data-file body.json | --raw-data '<string>' | --form 'a=1&b=2' or --form '{"a":1}']   (values support ${env:NAME})
  *   heldout api-probe [--key KEY] --chain chain.json [--out repro.md]   multi-call sequence, chain.json =
  *       { "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "token": "data.token" },
- *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt"],
+ *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt", "data.*.price"],
  *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true, "parallel"?: 3 } ] }
  *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (redacted in the report);
  *       "save" paths are relative to the answer's body ("id", "data.0.id", "data.token")
@@ -58,9 +58,14 @@ function redactBody(body: string, contentType = ''): unknown {
   try { return redact(JSON.parse(body)); } catch { return body; }
 }
 
-// "data.-1" is the last element of an array (a record just added to a list).
-const dig = (obj: unknown, dotted: string) => dotted.split('.').reduce<unknown>((o, k) => (Array.isArray(o) && /^-\d+$/.test(k) ? o[o.length + Number(k)]
-  : o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), obj);
+// "data.-1" is the last element of an array (a record just added to a list); "data.*.price" is that field of every
+// element (the order of a sorted list, the ids of a page).
+const dig = (obj: unknown, dotted: string): unknown => {
+  const [k, ...rest] = dotted.split('.');
+  if (k === '*' && Array.isArray(obj)) return obj.map((x) => (rest.length ? dig(x, rest.join('.')) : x));
+  const next = Array.isArray(obj) && /^-\d+$/.test(k) ? obj[obj.length + Number(k)] : obj && typeof obj === 'object' ? (obj as Record<string, unknown>)[k] : undefined;
+  return rest.length ? dig(next, rest.join('.')) : next;
+};
 
 /**
  * --chain chain.json: a reproducible multi-call sequence (pre-steps + the call under test), e.g. for live
