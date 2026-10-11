@@ -235,7 +235,7 @@ main(async () => {
   // A clipped body hides what often sits at its end (paging: total, per_page, last_page): its top-level values in full.
   const redacted = r.json !== undefined ? redact(r.json) : undefined;
   const topLevel = pretty.length > bodyLimit && redacted && typeof redacted === 'object' && !Array.isArray(redacted)
-    ? Object.entries(redacted as Record<string, unknown>).filter(([, v]) => v === null || typeof v !== 'object').map(([k, v]) => `${k}: ${JSON.stringify(v)}`) : [];
+    ? Object.entries(redacted as Record<string, unknown>).filter(([, v]) => v === null || typeof v !== 'object' || Array.isArray(v)).map(([k, v]) => `${k}: ${Array.isArray(v) ? `a list of ${v.length}` : JSON.stringify(v)}`) : [];
   const out = scrubEnv([
     `# API probe — ${method} ${shownUrl}`, '',
     `- AUT: ${cfg.aut.name} (profile \`${cfg.autId}\`) · captured ${new Date().toISOString()}`,
@@ -244,8 +244,9 @@ main(async () => {
     `- Content-Type: ${r.headers['content-type'] ?? '-'}`, '',
     ...(body !== undefined ? ['## Request body', '', '```json', reqBody, '```', ''] : []),
     '## Response headers (redacted)', '', '```json', JSON.stringify(redactHeaders(r.headers), null, 2), '```', '',
+    // A listing's wrapper values (per_page, total, how many items) come first: the clipped body below ends before them.
+    ...(topLevel.length ? ['## Top-level values (the body below is clipped)', '', ...topLevel.map((x) => `- ${x}`), ''] : []),
     `## Response body (redacted${pretty.length > bodyLimit ? `, first ${bodyLimit} of ${pretty.length} chars; --body-limit N for more` : ''})`, '', '```json', pretty.slice(0, bodyLimit), '```', '',
-    ...(topLevel.length ? ['## Top-level values (the clipped body in brief)', '', ...topLevel.map((x) => `- ${x}`), ''] : []),
     ...(r.json !== undefined ? ['## Shape (types only)', '', '```json', JSON.stringify(shapeOf(r.json), null, 2), '```', ''] : []),
   ].join('\n'), input);
   const file = flagStr(flags, 'out');

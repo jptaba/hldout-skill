@@ -162,7 +162,11 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
 5. **Ambiguity:** take the most literal reading and tag it `@needs-clarification`, or write an `// OPEN-QUESTION:` (not
    tested). Never ask the AUT which reading is right. Keep the tag on what the question decides only: what holds under
    **every** reading goes in a test of its own without the tag. When the readings share nothing, that test asserts the
-   answer is one of them.
+   answer is one of them. The same holds for an assumed value (`@assumes:G<n>`): a failure of a tagged test is reported
+   as a question for the owner, never as a defect, so a criterion with only tagged tests can't fail outright. "An empty
+   search returns all products", with "all" assumed to mean the catalogue's total: one untagged test asserts that the
+   empty search returns products at all, the tagged one that the totals are equal. The lint warns when every test of
+   a criterion carries a tag (`only-assumed-tests`).
 6. **Concurrency** (API layer): send the competing requests together (`Promise.all`), 2–5 at a time (respect the
    profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few
    rounds inside the test.

@@ -71,6 +71,12 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     if (open && (f.openQuestions.some((q) => q.startsWith(open.id)) || f.scenarios.filter((s) => s.acs.some((a) => open.affects.includes(a))).every((s) => s.needsClarification))) continue;
     out.push({ ...x, code: `contract/${x.code}` });
   }
+  // A criterion whose every test rests on an assumption or an open question can only raise a question, even when
+  // the application does nothing of what it says: one test of what holds under every reading keeps a plain defect a defect.
+  for (const ac of contract.acceptanceCriteria) {
+    const tests = f.scenarios.filter((s) => s.acs.includes(ac.id));
+    if (tests.length && tests.every((s) => s.assumes.length || s.needsClarification)) warn('only-assumed-tests', `every test of ${ac.id} is tagged @assumes or @needs-clarification, so a failure can only be reported as a question for the owner — if something of ${ac.id} holds under every reading (an empty search returns products at all; a refusal is an error status), assert that in a test without the tag`);
+  }
   // Independent review: required, current (hash-bound) and without findings.
   // Reviewer observations are notes for the contract's builder (shown by `heldout contract`), not test-suite problems.
   for (const x of checkReview(contract, readReview(p.base), { requireReview: true }).filter((r) => r.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
