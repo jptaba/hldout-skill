@@ -66,6 +66,9 @@ on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
 A label the requirement names is found by its words: punctuation the page puts around it (a trailing colon, an
 asterisk on a required field) and letter case that comes from styling are mechanics. Other words are a deviation.
+A message that disappears again (a toast after a click) is gone when the inspector's `--probe` runs, at the end of the
+walk: probe it where it appears, with a step `{ "do": "probe", "target": "getByText('Product added to your favorites list.')" }`
+right after the click. The step table then shows its count and text.
 Guesses the probe shows were right keep their code: only the `// TODO(harden)` mark goes. Correct the wrong ones by
 hand first, then remove what is left in one command per file:
 `heldout confirm KEY --file journeys/fixtures/<domain>.ts --evidence "<probe report>"` (it notes the count in the log).

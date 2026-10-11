@@ -11,7 +11,9 @@
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
  *
- * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|dialog, target?, value?, url? }
+ * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog, target?, value?, url? }
+ *   A "probe" step counts its target's matches at that point of the walk (what is gone by the end of it, such as a
+ *   toast after a click): the step table shows the count, whether it is visible and its text.
  *   { "do": "dialog", "value": "accept" | "dismiss" } answers the next browser dialog (alert, confirm, prompt) that way;
  *   dialogs nobody answers are dismissed. Every dialog shown is listed in the report.
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
@@ -47,9 +49,17 @@ const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 /** How to answer the next browser dialog (a "dialog" step), and every dialog seen, for the report. */
 const dialogs = { next: [] as string[], seen: [] as string[] };
 
-async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
+async function runStep(page: Page, s: Step, baseURL: string): Promise<string | void> {
   const t = () => locate(page, env(s.target ?? ''));
   switch (s.do) {
+    // A probe at this point of the walk, for what is gone by the end of it (a toast): waits up to 5 s for a match.
+    case 'probe': {
+      await t().first().waitFor({ state: 'attached', timeout: 5_000 }).catch(() => undefined);
+      const count = await t().count();
+      const visible = count ? await t().first().isVisible() : false;
+      const text = count ? (await t().first().innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 80) : '';
+      return `${count} match(es)${count === 1 ? ' ✔' : count ? ' ⚠ not unique' : ' ✖'} · visible ${visible}${text ? ` · "${text}"` : ''}`;
+    }
     case 'goto': await page.goto(autUrl(baseURL, env(s.url ?? s.value))); break;
     case 'fill': await t().fill(env(s.value)); break;
     case 'click': await t().click(); break;
@@ -144,7 +154,7 @@ main(async () => {
     const stepLog: string[] = [];
     for (const [i, s] of steps.entries()) {
       phase = `step ${i + 1}`;
-      try { await runStep(page, s, cfg.aut.baseURL); stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✔ |`); }
+      try { const seen = await runStep(page, s, cfg.aut.baseURL); stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ${seen ?? '✔'} |`); }
       catch (e) {
         stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
         break;
