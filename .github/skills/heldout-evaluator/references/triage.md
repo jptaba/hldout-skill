@@ -47,7 +47,9 @@ confirming an `APPLICATION_DEFECT` on a shared demo, and above all when several 
 same operation works through another path (the API call records it, the page doesn't), look at the
 application's own admin, settings or health page for a non-default setting (`heldout inspect --url <that page>`). If
 that explains it, confirm `ENVIRONMENT_ISSUE` with that page as evidence: the verdict is INCONCLUSIVE and says the
-environment caused it. Never change a shared sandbox's settings yourself; that is the owner's call.
+environment caused it. Never change a shared sandbox's settings yourself; that is the owner's call. Look only where
+the application shows such a page (a link in its navigation or footer, a page the profile's `notes` name): when there
+is none, say so in the rationale and go on; don't hunt for hidden pages or press controls to see what they do.
 
 **Tests tagged `@assumes:G<n>` or `@needs-clarification`** (the expected value is an assumption, or the literal
 reading of an open question, not a settled requirement): triage them like any other test. If the application really

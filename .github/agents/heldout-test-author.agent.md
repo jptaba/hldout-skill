@@ -57,3 +57,6 @@ Do this:
 
 Never run the tests against the application and never freeze the draft: the main agent freezes it. Never change what
 an existing journey does for its other callers; when it lacks something, add a new journey.
+
+Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
+bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself.

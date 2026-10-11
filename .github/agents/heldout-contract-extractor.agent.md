@@ -41,3 +41,6 @@ Do this:
 
 When your task gives you a reviewer's findings, fix exactly those items (or explain, with line citations, why a
 finding is wrong), run step 3 again, and reply with what you changed per finding.
+
+Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
+bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself.

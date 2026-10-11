@@ -33,3 +33,8 @@ Do this:
 
 Never edit the tests or the journeys, never change a shared sandbox's settings, and never create or change Jira
 issues.
+
+Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
+bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
+doesn't survive PowerShell's quoting: put the steps in a file under the run's `confirm/` folder and pass
+`--steps <file>`.

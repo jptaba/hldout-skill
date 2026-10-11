@@ -58,7 +58,9 @@ story on this application reuses it. Calls the story itself tests (its registrat
 step that only needs "a registered user" switches to `seed.account()`. A journey that only repeats the recipe's create
 call is then removed, or kept for tests that need other fields, with its summary saying so. `contract --resolve` refuses
 oracle gaps. It's mechanics only, so the review stays valid. Then add what the gap unlocks by hand, if anything: the
-endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`. For example, on the
+endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`. These fields are
+mechanics too: they are outside what the reviewer signed, so adding them keeps the review and the freeze valid
+(`heldout contract KEY` still says reviewed; if it says `review-stale`, you changed something else, so undo it). For example, on the
 endpoint: `{ "method": "POST", "path": "/Account/v1/User", "source": "story.md#L42", "requestFields": ["userName", "password"] }`;
 on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement (the story's endpoint doesn't
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.

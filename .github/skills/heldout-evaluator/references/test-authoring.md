@@ -90,7 +90,8 @@ test.describe('<KEY> <summary>', () => {
     });
   });
 
-  // A table of cases: one test per row (SCN-006.1 … .n)
+  // A table of cases: one test per row (SCN-006.1 … .n). The @AC-n, @type and @layer tags are written out in the
+  // test, never taken from the row: rows of different criteria or types are separate tests or tables.
   // from linked/field-rules.csv
   REQ.BOUNDARIES.forEach((row, i) => {
     test(`SCN-006.${i + 1}: Name length limits (${row.field} ${row.value})`, { tag: ['@AC-4', '@type:boundary', '@layer:api'] }, async ({ api, journey }) => { /* … */ });

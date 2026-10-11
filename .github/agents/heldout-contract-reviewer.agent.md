@@ -25,3 +25,6 @@ with the errors it printed: the builder must fix them first. Otherwise follow th
   `review-unsupported`, `review-incomplete`, `review-missed`) then block the contract until the builder fixes it,
   which is the expected outcome of a review that found something. It also brings `requirement-contract.md` up to date.
 - End with the one-line tally the instructions ask for.
+
+Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
+bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself.

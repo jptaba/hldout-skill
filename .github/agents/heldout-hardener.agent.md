@@ -56,3 +56,7 @@ main agent re-runs the suite.
 Never run `heldout integrity --snapshot` or `--amend`, and never change a shared sandbox's settings. If an assertion's
 implementation (not its expected value) looks wrong, for example an over-strict regex, report it: the main agent
 decides on the audited amendment.
+
+Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
+bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
+doesn't survive PowerShell's quoting: put the steps in a file under `hardening/` and pass `--steps <file>`.

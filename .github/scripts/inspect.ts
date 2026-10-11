@@ -15,7 +15,8 @@
  *   dialogs nobody answers are dismissed. Every dialog shown is listed in the report.
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
- *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address.
+ *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address;
+ *   without a target, value is a load state (load, networkidle) or a number of milliseconds ("1500").
  *   The report lists the API calls the page made (fetch/XHR on the app's site), on load and after each step: method,
  *   path, what was sent (query parameter names, the body with secrets redacted), status and the answer's shape
  *   and what the page keeps in localStorage / sessionStorage (long values and tokens by length only).
@@ -59,7 +60,7 @@ async function runStep(page: Page, s: Step, baseURL: string): Promise<void> {
     case 'dialog': dialogs.next.push(s.value === 'accept' ? 'accept' : 'dismiss'); break;
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
     // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
-    case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
+    case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : /^\d+$/.test(s.value ?? '') ? page.waitForTimeout(Math.min(Number(s.value), 15_000)) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
     default: throw new Error(`Unknown step "${s.do}"`);
   }
 }
