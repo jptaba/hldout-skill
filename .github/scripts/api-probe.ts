@@ -163,7 +163,8 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     else lines.push(`   \`${resp.replace(/\s+/g, ' ').slice(0, 300).replace(/`/g, "'")}\``);
     if (checks.length) lines.push(`   ${checks.join(' · ')}`);
   }
-  lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**` : 'All expectations held.', '');
+  lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**`
+    : chain.steps.some((s) => s.expect !== undefined || s.expectBody || s.notContains?.length) ? 'All expectations held.' : 'No expectation was declared: the statuses and bodies above are what the application answered, not a pass.', '');
   const out = scrubEnv(lines.join('\n'), fs.readFileSync(file, 'utf8'));
   if (outFile) { writeFile(outFile, out); console.log(`✔ chain of ${chain.steps.length} call(s) → ${outFile}${failed ? ` (${failed} unexpected)` : ''}`); } else console.log(out);
 }

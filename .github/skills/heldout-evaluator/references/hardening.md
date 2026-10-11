@@ -171,7 +171,8 @@ npm run heldout -- integrity KEY                       # PRESERVED (or AMENDED) 
 ```
 
 For the stability proof (`--repeat-each 3 --workers 2`), use `--repeat-each 2` and one worker on a host that
-rate-limits, and keep every test that changes the application for good tagged `@irreversible`: it runs once, never
+rate-limits, or when the tests create records the application can't delete (registered customers, placed orders):
+every repeat leaves another set behind on a shared environment, and keep every test that changes the application for good tagged `@irreversible`: it runs once, never
 retried or repeated. Narrow a dry run with `--grep "SCN-00[1-4]"` (a test tagged `@depends:` on them is not picked).
 
 Fix only failures that triage calls SCRIPT_DEFECT (after checking). `[REQ]` failures matching an

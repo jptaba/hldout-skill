@@ -31,6 +31,7 @@ interface Stats { expected: number; unexpected: number; flaky: number; skipped: 
 /** What the tests' seeding did, from the seed-ledger attachments: data created, cleaned, already gone, kept, and left behind. */
 function seedSummary(results: unknown, prefix: string): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[]; accounts: { used: number; reset: number; notReset: string[] } } {
   const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, keptBy: {} as Record<string, number>, leftovers: [] as string[], accounts: { used: 0, reset: 0, notReset: [] as string[] } };
+  const keptSeen = new Set<string>();
   const walk = (v: unknown, title: string): void => {
     if (Array.isArray(v)) { v.forEach((x) => walk(x, title)); return; }
     if (!v || typeof v !== 'object') return;
@@ -54,6 +55,10 @@ function seedSummary(results: unknown, prefix: string): { created: number; clean
             // "(created by the scenario)" are dropped, so 13 customers read "registered customer ×13".
             const label = r.label.replace(/ \(created by the scenario\)$/, '').split(/\s+/)
               .filter((w) => !(prefix && w.toLowerCase().replace(/^["'`]/, '').startsWith(prefix.toLowerCase()))).join(' ') || r.label;
+            // A record shared by several tests (made once per worker) is in each test's ledger: counted once.
+            const same = `${r.label}|${JSON.stringify(r.created ?? null)}`;
+            if (keptSeen.has(same)) { sum.created--; continue; }
+            keptSeen.add(same);
             sum.kept++; sum.keptBy[label] = (sum.keptBy[label] ?? 0) + 1;
           }
         }

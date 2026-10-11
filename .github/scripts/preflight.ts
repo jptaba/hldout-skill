@@ -26,7 +26,7 @@ export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 
     case 'idempotency': return /again|twice|repeat|second|retr(y|ies)|\bfor\s*\(|\.map\(/i.test(`${code}\n${s.steps.join('\n')}`) ? undefined : 'nothing in it sends the same request again';
     case 'composition': return s.acs.length >= 2 ? undefined : 'it chains no other criterion (a composition carries the @AC-n of every step it chains)';
     case 'integration': return /\bpage\b/.test(code) && /\bapi\b/.test(code) ? undefined : 'it does not drive the page and read the API both';
-    case 'boundary': return s.outline || /\d/.test(s.title) ? undefined : 'it is neither a table of cases nor names the limit value it tries';
+    case 'boundary': return s.outline || /\d|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred|thousand|empty|maximum|minimum)\b/i.test(s.title) ? undefined : 'it is neither a table of cases nor names the limit value it tries';
     default: return undefined;
   }
 }
@@ -127,7 +127,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
 
   // Accounts with roles: a test that asks for "an account" without one may be handed any kind of user.
   const roles = accountRoles(cfg.aut.accounts);
-  const roleless = [src, ...journeySrc].join('\n').match(/\bseed\.account\(\s*(?:(['"`])[^'"`]*\1\s*)?\)/g) ?? [];
+  const roleless = [src, ...journeySrc].join('\n').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').match(/\bseed\.account\(\s*(?:(['"`])[^'"`]*\1\s*)?\)/g) ?? [];
   if (roles.size && roleless.length) warn('account-without-role', `${roleless.length} seed.account() call(s) ask for no role, so they may get any of the profile's accounts (${[...roles.keys()].join(', ')}) — pass the kind of user the step needs: seed.account('admin', { role: '${[...roles.keys()][0]}' })`);
 
   // An assertion whose message starts from a variable (a local helper building "[REQ …]") is invisible to the integrity

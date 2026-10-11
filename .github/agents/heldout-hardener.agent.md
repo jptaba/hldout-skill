@@ -59,4 +59,5 @@ decides on the audited amendment.
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
-doesn't survive PowerShell's quoting: put the steps in a file under `hardening/` and pass `--steps <file>`.
+doesn't survive PowerShell's quoting: put the steps in a file under `hardening/` and pass `--steps <file>`. Read a
+file the tools wrote for you (`hardening/hardening-log.md`) before you write to it.
