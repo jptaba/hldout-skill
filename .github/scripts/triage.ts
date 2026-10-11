@@ -182,6 +182,9 @@ function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFi
 const short = (v: unknown, n = 600) => { const s = typeof v === 'string' ? v : JSON.stringify(v); return s && s.length > n ? `${s.slice(0, n)}…` : s ?? ''; };
 
 /** @param runDir absolute run folder — evidence links are written relative to it (triage.md lives there). */
+/** The call's address for a replay: its full URL as recorded (right whatever path the API sits under), else without a leading slash, which Git Bash would rewrite. */
+const replayPath = (url: string): string => (/^https?:\/\//.test(url) ? url : url.replace(/^\/+/, ''));
+
 export function renderTriageMd(r: TriageReport, runDir: string): string {
   const link = (projRel: string) => path.relative(runDir, path.join(ROOT, projRel)).split(path.sep).join('/');
   const out = [`# Triage — ${r.key} / run ${r.run}`, '', `Generated ${r.generatedAt}`, '', ...(r.environmentNote ? [`> ⚠️ **Environment:** ${r.environmentNote}`, ''] : []),
@@ -195,7 +198,10 @@ export function renderTriageMd(r: TriageReport, runDir: string): string {
       `- Error: \`${e.error!.headline}\``, ...(e.error!.locator ? [`- Locator: \`${e.error!.locator}\``] : []),
       ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\``] : []), ...(e.error!.received !== undefined ? [`- Received: \`${e.error!.received}\``] : []),
       ...(api ? [`- Relevant API exchange (${e.evidence.apiCalls ? '' : 'precondition '}#${(e.evidence.apiRelevantIndex ?? 0) + 1} of ${e.evidence.apiCalls ?? e.evidence.preSequence?.length ?? 1}): \`${api.request.method} ${api.request.url}\` → **${api.response.status}**`,
-        `  - request body: \`${short(api.request.body)}\``, `  - response body: \`${short(api.response.body)}\``] : []),
+        `  - request body: \`${short(api.request.body)}\``, `  - response body: \`${short(api.response.body)}\``,
+        // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
+        // are added by hand, or the sequence goes in a chain file).
+        ...(e.final ? [] : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''} --out ${path.relative(ROOT, path.join(runDir, 'confirm', `${e.scenario.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`)).split(path.sep).join('/')}\``])] : []),
       `- Evidence: ${[e.evidence.screenshot && `[screenshot](${link(e.evidence.screenshot)})`, e.evidence.trace && `trace: \`npx playwright show-trace ${e.evidence.trace}\``, e.evidence.errorContext && `[error-context](${link(e.evidence.errorContext)})`].filter(Boolean).join(' · ') || '-'}`,
       '', `**Auto: ${e.auto!.category} (${e.auto!.confidence})**`, '', ...e.auto!.signals.map((s) => `- ${s}`), '', `Next: ${e.auto!.next}`, '');
     if (e.final) out.push(`**Confirmed: ${e.final.category}${e.final.severity ? ` / ${e.final.severity}` : ''}** — ${e.final.rationale}`, ...(e.final.action ? ['', `Action: ${e.final.action}`] : []), '');

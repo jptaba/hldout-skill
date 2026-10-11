@@ -40,7 +40,7 @@ main(() => {
     const last = log.lastIndexOf(heading);
     const joins = last >= 0 && log.slice(last + heading.length).split('\n').every((l) => !l.trim() || l.startsWith('- '));
     fs.writeFileSync(p.hardeningLog, `${log}\n${joins ? '' : `\n${heading}\n`}${noted.join('\n')}\n`);
-    console.log(`  noted in ${rel(p.hardeningLog)}`);
+    console.log(`  noted in ${rel(p.hardeningLog)} — the log changed: read it again before you edit it`);
   }
   if (noted.length) console.log(`Next: npm run heldout -- integrity ${key}   (must say PRESERVED)`);
 });
