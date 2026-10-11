@@ -152,9 +152,24 @@ main(async () => {
     // The calls of the page's load are its own: a step's calls are the ones it starts.
     if (steps.length) await quiet();
     const stepLog: string[] = [];
+    // Messages the page announces (alerts, status and live regions, toasts): gone again by the end of the walk, so
+    // the ones a step makes appear are noted on that step.
+    const announced = (): Promise<string[]> => page.evaluate(() => [...document.querySelectorAll('[role="alert"], [role="status"], [aria-live="polite"], [aria-live="assertive"], [class*="toast" i], [class*="snackbar" i]')]
+      .filter((e) => (e as HTMLElement).getClientRects().length > 0).map((e) => (e.textContent ?? '').replace(/\s+/g, ' ').trim()).filter((t) => t && t.length <= 200)).catch(() => []);
+    const heard = new Set(await announced());
     for (const [i, s] of steps.entries()) {
       phase = `step ${i + 1}`;
-      try { const seen = await runStep(page, s, cfg.aut.baseURL); stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ${seen ?? '✔'} |`); }
+      try {
+        const seen = await runStep(page, s, cfg.aut.baseURL);
+        let fresh: string[] = [];
+        // An action's message may take a moment (it follows the call the action makes): look for up to 1.5 s.
+        for (let tries = /^(click|press|select|check|uncheck)$/.test(s.do) ? 4 : 1; tries > 0 && !fresh.length; tries--) {
+          fresh = [...new Set((await announced()).filter((t) => !heard.has(t)))];
+          if (!fresh.length && tries > 1) await page.waitForTimeout(500);
+        }
+        fresh.forEach((t) => heard.add(t));
+        stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ${seen ?? '✔'}${fresh.length ? ` · the page announced: ${fresh.slice(0, 3).map((t) => `"${t.replace(/\|/g, '/')}"`).join(', ')}` : ''} |`);
+      }
       catch (e) {
         stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
         break;

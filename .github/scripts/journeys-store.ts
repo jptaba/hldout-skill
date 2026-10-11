@@ -338,7 +338,13 @@ export function duplicateJourneys(journeys: JourneyInfo[]): JourneyInfo[][] {
   // A journey that only calls others (a wrapper) adds no calls of its own: it is not a second copy of them.
   const own = (a: JourneyInfo) => Boolean(a.endpoints?.length || a.routes?.length || a.locators?.length);
   for (const a of journeys.filter(own)) { const s = sig(a); if (s) groups.set(s, [...(groups.get(s) ?? []), a]); }
-  return [...groups.values()].filter((g) => g.length > 1);
+  // A journey that calls another of its group builds on it (a customer shared per worker registers through the
+  // journey that registers one): that is reuse, the opposite of a second copy.
+  const reaches = (a: JourneyInfo, seen = new Set<string>([a.id])): Set<string> => {
+    for (const id of a.calls ?? []) if (!seen.has(id)) { seen.add(id); if (byId.has(id)) reaches(byId.get(id)!, seen); }
+    return seen;
+  };
+  return [...groups.values()].map((g) => g.filter((a) => !g.some((o) => o !== a && reaches(a).has(o.id)))).filter((g) => g.length > 1);
 }
 
 /** Whether a journey concerns the story: it calls one of its endpoints' resources, opens a route it starts on, or its

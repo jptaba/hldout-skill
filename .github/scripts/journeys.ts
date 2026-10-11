@@ -101,7 +101,7 @@ main(() => {
     return;
   }
 
-  printJourneys(cfg, profile, journeys, readRegistry(cfg, profile), contract, Boolean(flags.all));
+  printJourneys(cfg, profile, journeys, readRegistry(cfg, profile), contract, Boolean(flags.all), p.tests);
   const imp = path.relative(p.tests, jp.fixtures).split(path.sep).join('/');
   console.log(`\nFrom ${rel(p.tests)}/*.spec.ts: import { … } from '${imp}/<domain>' (e.g. '${imp}/products').`);
   console.log(`A journey you need and don't find: add it to its domain's file, ${rel(jp.fixtures)}/<domain>.ts (a new domain is a new`);
@@ -109,7 +109,7 @@ main(() => {
   console.log('HOW only: no [REQ …] assertion, no expected value. The harvest records it in the registry once a passing test used it.');
 });
 
-function printJourneys(cfg: HeldoutConfig, profile: string, journeys: JourneyCode[], registry: Registry, contract: RequirementContract | undefined, all: boolean): void {
+function printJourneys(cfg: HeldoutConfig, profile: string, journeys: JourneyCode[], registry: Registry, contract: RequirementContract | undefined, all: boolean, testsDir?: string): void {
   const shown = all || !contract ? journeys : journeys.filter((a) => relevantJourney(a, contract));
   const jp = journeyPaths(cfg, profile);
   console.log(`Journeys of ${cfg.aut.name} in ${rel(jp.fixtures)}/: ${shown.length} of ${journeys.length}${all || !contract ? '' : ' that concern this story (--all for every one)'}`);
@@ -120,6 +120,14 @@ function printJourneys(cfg: HeldoutConfig, profile: string, journeys: JourneyCod
     const status = !e ? 'not in the registry yet' : statusOf(e, j.hash) === 'proven' ? `proven by ${e.proven!.by.join(', ')}, ${e.proven!.at.slice(0, 10)}`
       : statusOf(e, j.hash) === 'changed' ? `changed since proven by ${e.proven!.by.join(', ')}` : statusOf(e, j.hash) === 'stale' ? `STALE since ${e.stale!.at.slice(0, 10)}${e.stale!.evidence ? ` (${e.stale!.evidence})` : ''}` : 'not proven yet';
     console.log(`  ${j.id}  ${j.name}(${j.params ?? ''})  [${status}]\n      ${describeJourney(j)}${e?.requires?.length ? `\n      requires ${e.requires.join(', ')}` : ''}${j.calls?.length ? `\n      calls ${j.calls.join(', ')}` : ''}`);
+  }
+  // Ready-to-paste imports for a spec of this story (delete the names it doesn't call).
+  if (contract && shown.length && testsDir) {
+    console.log('\nImports for the spec:');
+    for (const file of [...new Set(shown.map((j) => j.file))]) {
+      const from = path.relative(testsDir, path.join(jp.base, file)).split(path.sep).join('/').replace(/\.ts$/, '');
+      console.log(`  import { ${shown.filter((j) => j.file === file).map((j) => j.name).join(', ')} } from '${from.startsWith('.') ? from : `./${from}`}';`);
+    }
   }
   if (!all && contract) {
     const others = [...new Set(journeys.filter((a) => !shown.includes(a)).map((a) => a.file))];
