@@ -19,11 +19,71 @@ import path from 'node:path';
 import { NON_EVAL_RUN, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
+import { allJourneys, journeyUse, journeysUsedBy, readRegistry, statusOf } from './journeys-store';
 import { phasesOf } from './phases';
+import { readSuite, specFiles } from './spec-model';
 
 const H = 'npm run heldout --';
 /** The repair loop is bounded: at most three repair → re-run cycles after the first evaluation run. */
 const MAX_EVAL_RUNS = 4;
+
+/**
+ * Nothing left to discover: the draft marks no guess (no TODO(harden) in the spec or the journeys it uses) and every
+ * journey its tests call is in the registry as proven, unchanged since. Returns which scenarios use which journey.
+ */
+function knownMechanics(cfg: HeldoutConfig, key: string): Map<string, Set<string>> | undefined {
+  const p = evalPaths(cfg, key);
+  const specs = specFiles(p.tests);
+  const files = [...specs, ...journeysUsedBy(cfg, cfg.autId, specs)];
+  if (files.some((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')))) return undefined;
+  const journeys = allJourneys(cfg, cfg.autId);
+  const use = journeyUse(journeys, specs, readSuite(p.tests, readContract(p.base)).scenarios);
+  const registry = readRegistry(cfg, cfg.autId).journeys;
+  const hashOf = new Map(journeys.map((j) => [j.id, j.hash]));
+  if (!use.size || ![...use.keys()].every((id) => registry[id] && statusOf(registry[id], hashOf.get(id)) === 'proven')) return undefined;
+  return use;
+}
+
+/**
+ * Hardening without the hardener, when nothing is left to discover: the stability run is the proof. Every test must
+ * pass or fail on a requirement assertion alone; anything else (a locator, a precondition, a flaky test) means a
+ * proven journey no longer holds, and the hardener takes over. Returns false in that case.
+ */
+function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Set<string>>, heldout: (...a: string[]) => number): string | true {
+  const p = evalPaths(cfg, key);
+  const before = new Set(listRuns(p.runs));
+  heldout('run', key, '--label', 'harden', '--repeat-each', '2', '--workers', '2', '--quiet');
+  const run = listRuns(p.runs).find((r) => !before.has(r));
+  if (!run) return 'the stability run did not start (preflight)';
+  heldout('triage', key, '--run', run);
+  const triageFile = path.join(p.runs, run, 'triage.json');
+  if (!fs.existsSync(triageFile)) return `${run} could not be classified`;
+  const entries = readJson<{ entries: { scenario: string; status: string; auto?: { category: string } }[] }>(triageFile).entries;
+  const bad = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped' && e.auto?.category !== 'APPLICATION_DEFECT');
+  if (bad.length) return `the proven journeys did not hold in ${run}: ${bad.slice(0, 6).map((e) => `${e.scenario} (${e.auto?.category ?? e.status})`).join(', ')}`;
+
+  // The open mechanics gaps are answered by the journeys the tests of their criteria call.
+  const contract = readContract(p.base)!;
+  const registry = readRegistry(cfg, cfg.autId).journeys;
+  const scenarios = readSuite(p.tests, contract).scenarios;
+  const proofOf = (ids: string[]) => [...new Set(ids.flatMap((id) => registry[id]?.proven?.by ?? []))].join(', ');
+  const answers = contract.gaps.filter((g) => g.kind === 'mechanics' && g.resolution === 'open').map((g) => {
+    const tests = new Set(scenarios.filter((s) => g.affects.includes('*') || s.acs.some((a) => g.affects.includes(a))).map((s) => s.id));
+    const ids = [...use].filter(([, by]) => [...by].some((s) => tests.has(s))).map(([id]) => id).sort();
+    const journeys = ids.length ? ids : [...use.keys()].sort();
+    return { id: g.id, value: `as the proven journeys the tests call do it: ${journeys.join(', ')}`, evidence: `journeys/registry.yml (proven by ${proofOf(journeys) || 'earlier stories'}); run ${run}` };
+  });
+  if (answers.length) {
+    const file = path.join(p.hardening, 'gaps-from-registry.json');
+    writeFile(file, `${JSON.stringify(answers, null, 2)}\n`);
+    if (heldout('contract', key, '--resolve-from', file) !== 0) return 'the mechanics gaps could not be recorded';
+  }
+  const failed = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped').map((e) => e.scenario);
+  const tiers = `**Tiers used:** none — nothing was left to discover: the draft marks no guess and the ${use.size} journey(s) its tests call are proven in the registry as they are (by ${proofOf([...use.keys()]) || 'earlier stories'}). Stability: run ${run}, each test twice; ${failed.length ? `${failed.join(', ')} failed on a requirement assertion each time (left for triage), the others passed` : 'every test passed'}. Written by \`heldout advance\`, no hardener.`;
+  const log = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8') : `# Hardening log — ${key}\n**Tiers used:** \n`;
+  writeFile(p.hardeningLog, `${log.replace(/^\*\*Tiers? used:\*\*.*$/m, tiers).replace(/\s+$/, '')}\n\n## Journeys reused as proven (nothing fixed, nothing added)\n${[...use.keys()].sort().map((id) => `- ${id} — proven by ${registry[id]?.proven?.by?.join(', ') ?? '-'}`).join('\n')}\n`);
+  return heldout('integrity', key) === 0 ? true : 'integrity is not preserved';
+}
 
 /** A story that is not evaluable: nothing is tested, and the verdict puts the question to the story's owner. */
 function writeNotEvaluable(cfg: HeldoutConfig, key: string, c: RequirementContract): void {
@@ -110,10 +170,20 @@ main(() => {
     if (next.name === 'freeze') {
       if (heldout('lint', key, '--allow-unhardened', '--no-health') !== 0) return handOver('heldout-test-author', `Fix the lint errors in the tests of ${key} (${H} lint ${key} --allow-unhardened --no-health)`, 'the draft is frozen only when it lints clean');
       if (heldout('integrity', key, '--snapshot') !== 0 || !moved()) stuck('the draft could not be frozen');
-      return handOver('heldout-hardener', `Harden the tests for ${key}`, 'the draft is frozen');
+      continue;
     }
 
-    if (next.name === 'harden') return handOver('heldout-hardener', `Harden the tests for ${key}`, next.detail);
+    if (next.name === 'harden') {
+      // Nothing to discover and no harden run yet: the stability run is the hardening, no subagent needed.
+      const use = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
+      if (use) {
+        console.log(`\n• nothing left to discover: no TODO(harden), and the ${use.size} journey(s) the tests call are proven as they are — proving stability without the hardener`);
+        const done = hardenFromRegistry(cfg, key, use, heldout);
+        if (done === true && moved()) continue;
+        return handOver('heldout-hardener', `Harden the tests for ${key}`, done === true ? next.detail : done);
+      }
+      return handOver('heldout-hardener', `Harden the tests for ${key}`, listRuns(p.runs).length ? next.detail : 'the draft is frozen');
+    }
 
     if (next.name === 'run') {
       if (heldout('integrity', key) !== 0) return handOver('heldout-hardener', `Integrity is not preserved for ${key}: restore what the tests expect, or report the assertion whose implementation is wrong (${H} integrity ${key})`);
