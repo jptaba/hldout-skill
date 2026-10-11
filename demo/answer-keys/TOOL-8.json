@@ -1,0 +1,9 @@
+{ "key": "TOOL-8", "aut": "toolshop", "writtenAt": "2026-10-11 (before evaluation; the API side probed that day, the web shop and the admin area not looked at, so the pages may hold defects this key doesn't list)",
+  "format": "a loose product-owner story, no numbered criteria, web shop and API together; the checks need data five levels deep: category, sub-category under it, brand, product under both, then the shop's search, filters and product page, then a cart line",
+  "expectedVerdict": "FAIL",
+  "defects": [
+    { "id": "D1", "criteria": ["AC-5"], "origin": "genuine", "keywords": ["not signed in", "guest", "customer", "create", "201", "token", "administrator"], "description": "the catalogue is not protected: a visitor who is not signed in and a customer can create brands, categories and products (201) and change them (PUT 200); only deleting is refused (401 for a visitor, 403 for a customer)" },
+    { "id": "D2", "criteria": ["AC-2"], "origin": "genuine", "keywords": ["500", "Something went wrong", "brand", "does not exist", "message"], "description": "creating a product under a brand that does not exist answers 500 \"Something went wrong\" instead of a refusal that says what is wrong" }
+  ],
+  "seededScriptDefects": [],
+  "traps": ["data dependencies: a product can't be removed while it is in a cart, nor a brand or category while a product uses it, so cleanup must run in reverse order (cart, product, sub-category, category, brand)", "the tests that show D1 create records without an administrator: those records must be removed with the administrator's token", "a cart accepts more than the stock (8 of 7): no criterion covers that, so it is not a finding", "records the tests create are visible to everyone on the shared demo while a run lasts"] }
