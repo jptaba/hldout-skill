@@ -98,6 +98,8 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
   const deep = (v: unknown): unknown => (typeof v === 'string' ? (whole(v) !== undefined && typed[whole(v)!] !== undefined ? typed[whole(v)!] : interp(v))
     : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
   for (const [k, v] of Object.entries(chain.vars ?? {})) { if (typeof v === 'string') vars[k] = interp(v); else { vars[k] = String(v); typed[k] = v; } }
+  // Each answer is shown in one line: its first 300 characters, or --body-limit N of them ("show" picks fields).
+  const chainBodyLimit = Number(process.argv.find((a, i, all) => all[i - 1] === '--body-limit') ?? 300);
   const lines = [`# API chain — ${file}`, '', `- AUT: ${cfgName} · ${base} · captured ${new Date().toISOString()}`, ''];
   let failed = 0;
   for (const [i, s] of chain.steps.entries()) {
@@ -160,7 +162,7 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
       const v = field.endsWith('.length') ? (dig(r.json, field.slice(0, -7)) as unknown[] | undefined)?.length : decode(dig(r.json, field), how);
       return `\`${f}\` = \`${JSON.stringify(redact(v))}\``;
     }).join(' · ')}`);
-    else lines.push(`   \`${resp.replace(/\s+/g, ' ').slice(0, 300).replace(/`/g, "'")}\``);
+    else lines.push(`   \`${resp.replace(/\s+/g, ' ').slice(0, chainBodyLimit).replace(/`/g, "'")}\``);
     if (checks.length) lines.push(`   ${checks.join(' · ')}`);
   }
   lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**`

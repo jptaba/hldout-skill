@@ -32,7 +32,11 @@ a page, is the same for every story on an application: write it once as a journe
    message) stays in the environment after every run. When tests only *read* it (they open it, list it, are refused
    it), create it once per worker and share it: `seed.once('order-of-customer', 'an order of the customer (POST
    /invoices)', () => placeOrder(…), 3_600_000)` (a lifetime that outlasts the run; the default is 10 minutes), recorded with `seed.track(label, created)` and no cleanup, so the run lists
-   it as kept by design. A test whose own action creates such a record still creates its own. This keeps a suite of
+   it as kept by design. With existing accounts, find before you
+   create: the journey takes a record the account already has (the newest invoice it lists, left by an earlier run)
+   and creates one only when there is none, so repeated runs add nothing. A create call that can't be probed without
+   leaving a record is verified as far as its validation answer (422) shows; the hardening log says so.
+   A test whose own action creates such a record still creates its own. This keeps a suite of
    many setups (one test per user type) from leaving one record per test behind, and saves its time.
 
 ## 2. Where seed data comes from (preference order)
@@ -169,6 +173,9 @@ login form (`--sign-in-json … --sign-in-path /login --sign-in-done url:/profil
     { "click": "getByRole('button', { name: 'Sign in' })" } ], "done": "url:/profile" }
 }
 ```
+
+`done` is how the sign-in is known to have worked: an address (`url:/profile`) or a locator that becomes visible. When
+kinds of users land in different places, name the alternatives with ` | ` between them (`"url:/account | url:/admin"`).
 
 For accounts the tests create, the recipe instead has `password` (a reference), an optional `username` template
 (`${uid}` is unique), `create` (`id` is where the answer carries the new account's id) and, if the application

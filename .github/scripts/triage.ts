@@ -239,7 +239,7 @@ main(() => {
     for (const e of entries) e.final = { ...decision };
     writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
     writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
-    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category} in ${rel(triageJson)}`);
+    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(triageJson)}`);
     return;
   }
 

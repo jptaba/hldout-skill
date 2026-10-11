@@ -212,8 +212,13 @@ async function fillForm(page: Page, form: UiForm, vars: Record<string, unknown>)
     if (s.fill !== undefined) await locate(page, s.fill).fill(String(fillRecipe(s.value ?? '', vars)));
     else if (s.click !== undefined) await locate(page, s.click).click();
   }
-  if (form.done?.startsWith('url:')) await expect(page).toHaveURL(new RegExp(form.done.slice(4).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), { timeout: 15_000 });
-  else if (form.done) await expect(locate(page, form.done).first()).toBeVisible({ timeout: 15_000 });
+  // "done" may name alternatives, separated by " | " (a customer lands on /account, an administrator on /admin).
+  const done = (form.done ?? '').split(' | ').map((d) => d.trim()).filter(Boolean);
+  const urls = done.filter((d) => d.startsWith('url:')).map((d) => d.slice(4).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const shown = done.filter((d) => !d.startsWith('url:')).map((d) => locate(page, d).first());
+  if (urls.length && !shown.length) await expect(page).toHaveURL(new RegExp(urls.join('|')), { timeout: 15_000 });
+  else if (shown.length && !urls.length) await expect(shown.slice(1).reduce((a, b) => a.or(b), shown[0]).first()).toBeVisible({ timeout: 15_000 });
+  else if (done.length) await Promise.any([expect(page).toHaveURL(new RegExp(urls.join('|')), { timeout: 15_000 }), ...shown.map((l) => expect(l).toBeVisible({ timeout: 15_000 }))]);
 }
 
 /**

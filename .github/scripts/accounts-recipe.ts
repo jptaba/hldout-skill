@@ -134,8 +134,11 @@ async function uiForm(form: NonNullable<AccountRecipe['signIn']>, baseURL: strin
       if (st.fill !== undefined) await locate(st.fill).fill(String(fill(st.value ?? '', vars)), { timeout: 15_000 });
       else if (st.click !== undefined) await locate(st.click).click({ timeout: 15_000 });
     }
-    if (signIn.done?.startsWith('url:')) await page.waitForURL((u: URL) => u.pathname.includes(signIn.done!.slice(4)) || u.href.includes(signIn.done!.slice(4)), { timeout: 15_000 });
-    else if (signIn.done) await locate(signIn.done).first().waitFor({ state: 'visible', timeout: 15_000 });
+    // "done" may name alternatives, separated by " | " (a customer lands on /account, an administrator on /admin).
+    const done = (signIn.done ?? '').split(' | ').map((d) => d.trim()).filter(Boolean);
+    if (done.length) await Promise.any(done.map((d) => (d.startsWith('url:')
+      ? page.waitForURL((u: URL) => u.pathname.includes(d.slice(4)) || u.href.includes(d.slice(4)), { timeout: 15_000 })
+      : locate(d).first().waitFor({ state: 'visible', timeout: 15_000 }))));
     return undefined;
   } catch (err) {
     return (err as Error).message.split('\n')[0];

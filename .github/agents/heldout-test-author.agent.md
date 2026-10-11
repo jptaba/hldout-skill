@@ -56,7 +56,8 @@ Do this:
    express as a test.
 
 Never run the tests against the application and never freeze the draft: the main agent freezes it. Never change what
-an existing journey does for its other callers; when it lacks something, add a new journey.
+an existing journey does for its other callers; when it lacks something, give it an optional parameter that leaves
+every existing call as it was, or add a new journey.
 
 A type-check is optional: `npx tsc --noEmit -p .` covers the spec and the journeys and prints nothing when they are clean.
 
