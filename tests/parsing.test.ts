@@ -112,6 +112,8 @@ describe('helpers', () => {
     assert.ok(matchEndpoint(eps, 'GET', '/api/room/7'));
     assert.equal(matchEndpoint(eps, 'GET', '/api/rooms/7'), undefined);
     assert.equal(matchEndpoint(eps, 'POST', '/api/room/7'), undefined);
+    // A journey's call `/categories/tree/${id}` is recorded with an empty placeholder.
+    assert.ok(matchEndpoint([{ method: 'GET', path: '/categories/tree/{}' }], 'GET', '/categories/tree/01m4pgegpst7e3hz78d3mzreh5'));
   });
   it('matchEndpoint accepts declared paths relative to the API base path', () => {
     const eps = [{ method: 'GET', path: '/accounts/{accountId}' }];

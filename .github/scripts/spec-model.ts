@@ -223,5 +223,5 @@ export function matchEndpoint(endpoints: Endpoint[], method: string, pathname: s
   const base = norm(basePath);
   const candidates = [full, ...(base !== '/' && full.startsWith(`${base}/`) ? [full.slice(base.length)] : [])];
   return endpoints.find((e) => e.method === method.toUpperCase() && candidates.some((c) =>
-    new RegExp(`^${norm(e.path).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\\?\{[^}]+\\?\}|:[A-Za-z_]+/g, '[^/]+')}$`).test(c)));
+    new RegExp(`^${norm(e.path).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\\?\{[^}]*\\?\}|:[A-Za-z_]+/g, '[^/]+')}$`).test(c)));
 }
