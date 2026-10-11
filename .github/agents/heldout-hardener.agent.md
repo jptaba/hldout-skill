@@ -47,7 +47,7 @@ Do this:
    `journeys/registry.yml` (the harvest writes it). A journey you replace:
    `npm run heldout -- journeys KEY --stale "<id>" --evidence …`.
 5. Prove stability: `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
-   `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once). Then `npm run heldout -- integrity KEY` must say PRESERVED.
+   `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED.
 6. Write `hardening/hardening-log.md`: what you changed and why (journeys in their own table), observed deviations, and
    `**Tiers used:** …`.
 7. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result

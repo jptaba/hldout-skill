@@ -64,7 +64,7 @@ export function sourceLines(reqDir: string): SourceLine[] {
 
 /** The numbered evidence pack the extractor and the reviewer work from. ● = must appear in the coverage ledger. */
 /** The project's facts about the application (not requirement): lets gaps such as "which host" resolve as found-in-config. */
-export interface PackConfig { profile: string; name: string; baseURL: string; apiBaseURL?: string }
+export interface PackConfig { profile: string; name: string; baseURL: string; apiBaseURL?: string; accounts?: string }
 
 export function evidencePack(key: string, reqDir: string, screenshots: string[], config?: PackConfig): string {
   const lines = sourceLines(reqDir);
@@ -81,7 +81,8 @@ export function evidencePack(key: string, reqDir: string, screenshots: string[],
   }
   if (config) {
     out.push('**Project configuration** (heldout.config.json: not requirement, nothing to cite or cover; a gap it answers is `found-in-config`):', '',
-      `- AUT profile \`${config.profile}\` "${config.name}": web ${config.baseURL}${config.apiBaseURL && config.apiBaseURL !== config.baseURL ? `, API ${config.apiBaseURL}` : ' (API on the same origin)'}`, '');
+      `- AUT profile \`${config.profile}\` "${config.name}": web ${config.baseURL}${config.apiBaseURL && config.apiBaseURL !== config.baseURL ? `, API ${config.apiBaseURL}` : ' (API on the same origin)'}`,
+      ...(config.accounts ? [`- Test users: ${config.accounts}. How a test gets a signed-in user is therefore not a gap (\`seed.account()\` and \`signIn()\` provide it), unless signing up or signing in is what a criterion is about`] : []), '');
   }
   let file = '';
   for (const l of lines) {

@@ -240,5 +240,5 @@ main(async () => {
   }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
   else if (!NON_EVAL_RUN.test(runName)) console.log(`\nNext: npm run heldout -- verdict ${key}`);
-  else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (contract ${key} --resolve Gn …, hardening/hardening-log.md), then: npm run heldout -- run ${key} --label eval`);
+  else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (any mechanics gap still open: contract ${key} --resolve Gn …; hardening/hardening-log.md), then: npm run heldout -- advance ${key}`);
 });

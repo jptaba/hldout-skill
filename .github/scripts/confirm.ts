@@ -34,7 +34,12 @@ main(() => {
     noted.push(`- ${rel(file)}: ${marks} guess(es) confirmed as drafted — ${evidence}`);
   }
   if (noted.length && fs.existsSync(p.hardeningLog)) {
-    fs.appendFileSync(p.hardeningLog, `\n**Guesses confirmed unchanged** (\`heldout confirm\`):\n${noted.join('\n')}\n`);
+    const heading = '**Guesses confirmed unchanged** (`heldout confirm`):';
+    const log = fs.readFileSync(p.hardeningLog, 'utf8').replace(/\s+$/, '');
+    // A second call adds to the list of the first when that list still ends the log.
+    const last = log.lastIndexOf(heading);
+    const joins = last >= 0 && log.slice(last + heading.length).split('\n').every((l) => !l.trim() || l.startsWith('- '));
+    fs.writeFileSync(p.hardeningLog, `${log}\n${joins ? '' : `\n${heading}\n`}${noted.join('\n')}\n`);
     console.log(`  noted in ${rel(p.hardeningLog)}`);
   }
   if (noted.length) console.log(`Next: npm run heldout -- integrity ${key}   (must say PRESERVED)`);

@@ -14,7 +14,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { SKILL_DIR, assertIssueKey, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile } from './config';
+import { SKILL_DIR, accountRoles, assertIssueKey, createsAccounts, evalPaths, flagStr, loadConfig, main, parseArgs, rel, writeFile, type AccountRecipe } from './config';
 import { CONTRACT_FILE, checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
 import { REVIEW_FILE, changedSinceReview, checkReview, contractHash, evidencePack, readReview, reviewItemHashes, reviewRefs, type ContractReview } from './evidence';
 
@@ -47,6 +47,15 @@ function render(c: RequirementContract, review: ContractReview | undefined, revi
   ].join('\n');
 }
 
+/** What the profile's accounts recipe already provides, for the evidence pack (no user names, no secrets). */
+function accountsLine(r?: AccountRecipe): string | undefined {
+  if (!r || !(r.token || r.signIn || createsAccounts(r))) return undefined;
+  const roles = [...accountRoles(r)].map(([role, n]) => `${n} ${role}`).join(', ');
+  const who = createsAccounts(r) ? 'the tests create their own users' : `${r.existing?.length ?? 0} existing account(s)${roles ? ` (${roles})` : ''}`;
+  const how = [r.token && 'sign-in over the API', r.signIn && 'sign-in on the web application'].filter(Boolean).join(' and ');
+  return `${who}${how ? `, with ${how} saved in the profile's accounts recipe` : ''}`;
+}
+
 main(async () => {
   const { _, flags } = parseArgs();
   const key = assertIssueKey(_[0]);
@@ -59,7 +68,7 @@ main(async () => {
   if (flags.pack) {
     const contract = skeletonContract(key, p.requirement);
     const binaries = requirementFiles(p.requirement).filter((f) => BINARY.test(f));
-    writeFile(packFile, evidencePack(key, p.requirement, binaries, { profile: cfg.autId, name: cfg.aut.name, baseURL: cfg.aut.baseURL, apiBaseURL: cfg.aut.apiBaseURL }));
+    writeFile(packFile, evidencePack(key, p.requirement, binaries, { profile: cfg.autId, name: cfg.aut.name, baseURL: cfg.aut.baseURL, apiBaseURL: cfg.aut.apiBaseURL, accounts: accountsLine(cfg.aut.accounts) }));
     const untranscribed = binaries.filter((b) => !fs.existsSync(path.join(p.requirement, 'transcripts', `${path.basename(b)}.md`)));
     if (fs.existsSync(file)) console.log(`= ${rel(file)} kept (your work so far; only the evidence pack is rebuilt)`);
     else { writeFile(file, `${JSON.stringify(contract, null, 2)}\n`); console.log(`✔ empty contract bound to this requirement revision → ${rel(file)}`); }
