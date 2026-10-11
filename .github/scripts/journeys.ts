@@ -140,10 +140,19 @@ function copyFrom(cfg: HeldoutConfig, profile: string, other: string): void {
   if (from.base === to.base) throw new Error(`${profile} and ${other} share the journeys folder ${rel(to.base)}: nothing to copy`);
   if (!fs.existsSync(from.fixtures)) throw new Error(`${other} has no journeys yet (${rel(from.fixtures)})`);
   const depth = (d: string) => path.relative(path.resolve(to.base, '..', '..'), d).split(path.sep).length;
-  const copied: string[] = [], kept: string[] = [];
+  const copied: string[] = [], kept: string[] = [], left: string[] = [];
+  const exportsOf = (file: string) => new Set([...fs.readFileSync(file, 'utf8').matchAll(/^export\s+(?:async\s+)?(?:function|const|interface|type|class)\s+([A-Za-z_$][\w$]*)/gm)].map((m) => m[1]));
   for (const f of fs.readdirSync(from.fixtures).filter((x) => x.endsWith('.ts'))) {
     const dest = path.join(to.fixtures, f);
     if (fs.existsSync(dest)) { kept.push(f); continue; }
+    // A file that needs something of a domain this profile wrote differently would not compile here: left out.
+    const missing = [...fs.readFileSync(path.join(from.fixtures, f), 'utf8').matchAll(/^import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['"]\.\/([\w-]+)['"]/gm)].flatMap((m) => {
+      const sibling = path.join(to.fixtures, `${m[2]}.ts`);
+      if (!fs.existsSync(sibling)) return [];
+      const has = exportsOf(sibling);
+      return m[1].split(',').map((n) => n.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0]).filter((n) => n && !has.has(n)).map((n) => `${n} of ${m[2]}.ts`);
+    });
+    if (missing.length) { left.push(`${f} (needs ${missing.join(', ')})`); continue; }
     fs.mkdirSync(to.fixtures, { recursive: true });
     fs.copyFileSync(path.join(from.fixtures, f), dest);
     copied.push(f);
@@ -152,6 +161,7 @@ function copyFrom(cfg: HeldoutConfig, profile: string, other: string): void {
   writeRegistry(cfg, profile, s.registry);
   console.log(`✔ ${copied.length} domain file(s) copied from ${rel(from.fixtures)} to ${rel(to.fixtures)}${copied.length ? `: ${copied.join(', ')}` : ''}`);
   if (kept.length) console.log(`• kept as they are (this profile has its own): ${kept.join(', ')}`);
+  if (left.length) console.log(`• not copied, they use what this profile's own files don't have: ${left.join('; ')}`);
   if (copied.length) console.log(`  ${s.added.length} journey(s) added to ${rel(to.registry)} as not proven yet: they are drafts for this application until a story's passing tests prove them`);
   if (copied.length && depth(from.fixtures) !== depth(to.fixtures)) console.log('  ⚠ the two folders sit at different depths: check the relative imports in the copied files');
 }
