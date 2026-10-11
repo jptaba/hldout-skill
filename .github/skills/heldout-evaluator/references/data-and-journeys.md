@@ -51,7 +51,7 @@ a page, is the same for every story on an application: write it once as a journe
 | --- | --- | --- |
 | Reference data | product catalogue, country list | Read-only; assert against the requirement, don't create |
 | Per-test entity | a booking, an enquiry, a cart line | `seed.create` in the Given (+ cleanup), or `seed.track` when the When-step creates it |
-| "Must not exist" id | unknown booking id for a 404 test | Seed it: create, then delete, and use that id. Never guess ids on shared environments |
+| "Must not exist" id | unknown booking id for a 404 test | Seed it: create, then delete, and use that id. Never guess ids on shared environments. When the tests can't create the record (creating it is out of the story's scope, or needs rights they don't have): a made-up id in the format of the application's ids, checked in a pre-step against the list of the records that exist (a journey such as `unknownBrandId`) |
 | Test account | "a signed-in customer" | `seed.account()` from the profile's accounts (§4a): created per test, or one of the existing accounts (.env, CI variables, Vault) |
 | Signed-in state | "Given I am signed in" | `signIn(page, account)` from the recipe; API login + cookie/`storageState` when the UI isn't needed |
 | Expensive shared setup | a merchant account with configuration | Worker-scoped fixture (Playwright `{ scope: 'worker' }`), created once per worker, tagged, cleaned at worker end |

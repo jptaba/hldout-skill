@@ -48,7 +48,8 @@ Do this:
    `npm run heldout -- journeys KEY --stale "<id>" --evidence …`.
 5. Prove stability: `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
    `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED.
-6. Write `hardening/hardening-log.md`: what you changed and why (journeys in their own table), observed deviations, and
+6. Fill in `hardening/hardening-log.md` (edit the template that is there; keep the "Guesses confirmed unchanged" list
+   `heldout confirm` added to it): what you changed and why (journeys in their own table), observed deviations, and
    `**Tiers used:** …`.
 7. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result
    and the integrity status.

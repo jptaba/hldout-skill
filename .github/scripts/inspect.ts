@@ -5,6 +5,7 @@
  *   heldout inspect [--key KEY | --aut <profile>] [--url login]   (path relative to the AUT base URL, or a full URL)
  *       [--steps steps.json | --steps-json '[{"do":"fill","target":"getByLabel(\'Email\')","value":"a@b.c"}]']
  *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
+ *       [--probes probes.txt]   the same, one locator per line in a file (regexes and nested quotes survive any shell)
  *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values; what was
  *                                 typed into fields left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
@@ -274,7 +275,9 @@ main(async () => {
         ...stable.map((t) => `| \`locator(${q(/^[A-Za-z_][\w-]*$/.test(t.id) ? `#${t.id}` : `[id="${t.id}"]`)})\` | ${t.text.replace(/\|/g, '\\|').slice(0, 100)} |`), '');
     }
 
-    const probes = flagList(flags, 'probe');
+    // --probes <file>: one locator per line, for locators a shell would mangle (regexes, nested quotes).
+    const probesFile = flagStr(flags, 'probes');
+    const probes = [...flagList(flags, 'probe'), ...(probesFile ? fs.readFileSync(probesFile, 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#')) : [])];
     if (probes.length) {
       out.push('## Locator probes', '', '| expression | count | visible | text / value |', '| --- | --- | --- | --- |');
       for (const expr of probes) {

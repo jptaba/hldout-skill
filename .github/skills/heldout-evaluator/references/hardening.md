@@ -64,6 +64,9 @@ mechanics too: they are outside what the reviewer signed, so adding them keeps t
 endpoint: `{ "method": "POST", "path": "/Account/v1/User", "source": "story.md#L42", "requestFields": ["userName", "password"] }`;
 on an AC: `"entryPoint": "/login"`. If what you find contradicts the requirement (the story's endpoint doesn't
 exist, a stated label is different), don't adapt the contract: keep the expectation and log an observed deviation.
+A label the requirement names is found by its words: punctuation the page puts around it (a trailing colon, an
+asterisk on a required field) and letter case that comes from styling are mechanics. Other words are a deviation.
+A draft guess written as "A, or B" where the probe shows A: delete the B branch, then confirm.
 
 ## 1b. Tier notes
 
