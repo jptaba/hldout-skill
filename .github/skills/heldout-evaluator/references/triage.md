@@ -58,6 +58,12 @@ reading of an open question, not a settled requirement): triage them like any ot
 behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it under "Readings the application
 contradicts" (a question for the owner), not as a defect, and asks the owner the question.
 
+**A refusal that answers 200.** The story says a request "is refused" or that someone "must not be able to" and names
+no status; the test expects a 4xx; the application answers 200 with an empty body, and the checks that nothing was
+disclosed or changed pass. Confirm it as `APPLICATION_DEFECT` with severity Minor: the protection holds, the answer
+does not say so (a client can't tell "refused" from "empty"). Say in the rationale that the content checks passed.
+When something *was* disclosed or changed, the severity follows that, not the status.
+
 ## Confirming each failure (mandatory)
 
 1. Read `triage.md`: failing step, expected vs received, API exchanges, screenshot, snapshot, trace

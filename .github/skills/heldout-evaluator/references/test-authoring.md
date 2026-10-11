@@ -169,7 +169,8 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    a criterion carries a tag (`only-assumed-tests`).
    **A refusal with no stated status is a client error.** "Is refused", "is rejected", "can't be saved", "must not be
    able to" say the application turns the request down: assert a status from 400 to 499 (and that nothing changed),
-   never just "not a success". A 5xx answer is the application failing, not refusing, and that test, untagged, reports
+   never just "not a success": `expectResponse(res, { status: '4xx' }, '[REQ AC-5] a customer's POST /brands is refused')`
+   (`'2xx'` likewise for "is accepted" with no stated status). A 5xx answer is the application failing, not refusing, and that test, untagged, reports
    it as a defect. Which 4xx it is, and what the message must say, stay open questions when the story doesn't say.
 6. **Concurrency** (API layer): send the competing requests together (`Promise.all`), 2–5 at a time (respect the
    profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few

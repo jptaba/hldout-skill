@@ -176,7 +176,7 @@ export interface Account {
 interface RecipeCall { method: string; path: string; body?: Json; form?: Record<string, string> }
 interface AccountRecipe {
   password?: string; username?: string; authHeader?: string; before?: (RecipeCall & { save: Record<string, string> })[];
-  create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string; role?: string }[];
+  create?: RecipeCall & { id: string; token?: string }; existing?: { username: string; password: string; id?: string; role?: string; shared?: boolean }[];
   token?: RecipeCall & { token: string; id?: string }; lookup?: RecipeCall & { id: string }; delete?: RecipeCall; reset?: RecipeCall;
   signIn?: UiForm; signUp?: UiForm;
 }
@@ -288,9 +288,12 @@ export type ShapeRule ='string' | 'number' | 'integer' | 'boolean' | 'array' | '
  * A requirement check of an API answer: its status and, if given, its exact body, as two soft assertions.
  * Write the message literally at the call site — `expectResponse(res, { status: 400, body: REQ.ERR.X }, '[REQ AC-8] POST /books duplicate')`
  * — the integrity freeze then holds the expected status and body like any other [REQ] assertion.
+ * When the requirement states an outcome but no status ("is refused", "is accepted"), give the status class:
+ * `{ status: '4xx' }` for a refusal (a 5xx is the application failing, not refusing), `{ status: '2xx' }` for a success.
  */
-export function expectResponse(res: ApiResponse, expected: { status: number; body?: unknown }, message: string): void {
-  expect.soft(res.status, `${message} (expects status ${expected.status})`).toBe(expected.status);
+export function expectResponse(res: ApiResponse, expected: { status: number | '2xx' | '3xx' | '4xx' | '5xx'; body?: unknown }, message: string): void {
+  if (typeof expected.status === 'string') expect.soft(`${Math.floor(res.status / 100)}xx`, `${message} (expects a ${expected.status} status, got ${res.status})`).toBe(expected.status);
+  else expect.soft(res.status, `${message} (expects status ${expected.status})`).toBe(expected.status);
   if ('body' in expected) expect.soft(res.body, `${message} (expects the body)`).toEqual(expected.body);
 }
 
@@ -484,7 +487,8 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
             const pool = (r.existing ?? []).filter((a) => !role || a.role === role);
             if (role && !pool.length) throw new Error(`no existing account has the role "${role}": npm run heldout -- accounts --aut ${process.env.HELDOUT_AUT ?? '<profile>'} --add-existing --username … --password-env … --role ${role}`);
             const workers = Math.max(1, testInfo.config.workers);
-            const mine = pool.filter((_, i) => i % workers === testInfo.parallelIndex);
+            // Each worker has accounts of its own; a shared account (it only acts on other records) serves them all.
+            const mine = [...pool.filter((a) => !a.shared).filter((_, i) => i % workers === testInfo.parallelIndex), ...pool.filter((a) => a.shared)];
             const n = accountsTaken.get(role ?? '') ?? 0;
             accountsTaken.set(role ?? '', n + 1);
             const a = mine[n];

@@ -36,6 +36,9 @@ a page, is the same for every story on an application: write it once as a journe
    create: the journey takes a record the account already has (the newest invoice it lists, left by an earlier run)
    and creates one only when there is none, so repeated runs add nothing. A create call that can't be probed without
    leaving a record is verified as far as its validation answer (422) shows; the hardening log says so.
+   A shared record is recognised by a short marker at the start of its text: lists cut long texts off (often at 50
+   characters) and show a page at a time, so a marker at the end is never seen and an old record drifts off the first
+   page. A test about the order or the content of a list makes its own fresh record.
    A test whose own action creates such a record still creates its own. This keeps a suite of
    many setups (one test per user type) from leaving one record per test behind, and saves its time.
 
@@ -148,6 +151,11 @@ const other = await seed.account('another customer', { role: 'customer' });   //
 A role works next to accounts the tests create: `seed.account()` without a role still creates one, and
 `seed.account('admin', { role: 'admin' })` takes an existing administrator. Each worker gets its own share of every
 role, so `heldout run` starts no more workers than the scarcest role has accounts (one administrator: one worker).
+An account that only acts on other records (an administrator who manages the catalogue or answers customers) can be
+marked as shared, and then serves every worker and sets no limit: add `--shared` to its `--add-existing` line. Use it
+only when the tests never change the account itself and the application keeps earlier sign-ins valid when the account
+signs in again (two tokens of the same account both work: check with a probe chain of two sign-ins and a call with
+the first token). A story of forty tests that all need the one administrator then runs on several workers.
 When the profile's accounts have roles, the lint warns about a `seed.account()` that names none.
 
 Without one, undo what the test added with `seed.track(…)`.

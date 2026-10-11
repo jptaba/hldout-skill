@@ -123,6 +123,15 @@ describe('accounts with roles', () => {
     assert.equal(existingAccountWorkers(recipe([], true)), undefined);
     assert.equal(existingAccountWorkers(recipe(['admin', 'admin'], true)), 2, 'created accounts don\'t limit workers; the role pool does');
   });
+  it('a shared account sets no limit on workers; the roles without one still do', () => {
+    const r = recipe(['customer', 'customer', 'admin']);
+    r.existing![2].shared = true;
+    assert.equal(existingAccountWorkers(r), 2, 'two customers, one administrator shared by every worker');
+    assert.equal(existingAccountWorkers({ ...r, perTest: 2 }), 1, 'a test that takes two customers leaves one worker');
+    const onlyAdmin = recipe(['admin']);
+    onlyAdmin.existing![0].shared = true;
+    assert.equal(existingAccountWorkers(onlyAdmin), undefined, 'nothing limits the workers');
+  });
   it('a role is a lower-case name', () => {
     const cfg = (role: string) => ({ auts: { app: { baseURL: 'https://x.example.com', accounts: { existing: [{ username: 'a', password: '${env:P}', role }] } } } });
     assert.deepEqual(validateConfig(cfg('admin')), []);

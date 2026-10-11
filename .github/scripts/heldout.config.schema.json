@@ -278,6 +278,10 @@
                       "pattern": "^[a-z][a-z0-9-]*$",
                       "description": "The kind of user (\"admin\", \"customer\"): seed.account(label, { role }) hands out only accounts of that role"
                     },
+                    "shared": {
+                      "type": "boolean",
+                      "description": "Several parallel workers may use this account at once: it only acts on other records, the tests never change the account itself, and a new sign-in doesn't end the earlier ones. It then sets no limit on a run's workers"
+                    },
                     "id": {
                       "type": "string",
                       "description": "The account id, when tests need it and the sign-in answer doesn't carry it"

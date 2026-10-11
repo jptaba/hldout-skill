@@ -49,7 +49,8 @@ Do this:
    `npm run heldout -- journeys KEY --stale "<id>" --evidence …`.
 5. Prove stability, always with `--workers` given (a run without it uses the profile's default, usually 4, which is
    too many for a shared environment). This run is also your first look at the tests: make no separate trial run before
-   it when the tests create records the application can't delete. `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
+   it when the tests create records the application can't delete, and add `--retries 0` then: a retry of a test
+   that fails on its requirement sends its records a second time. `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
    `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED.
 6. Fill in `hardening/hardening-log.md` (edit the template that is there; keep the "Guesses confirmed unchanged" list
    `heldout confirm` added to it): what you changed and why (journeys in their own table), observed deviations, and

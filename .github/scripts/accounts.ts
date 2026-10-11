@@ -7,6 +7,8 @@
  *   heldout accounts --aut <profile> --add-existing --username-vault secret/qa/app#user1 --password-vault secret/qa/app#password1
  *       [--id <account id>]   secrets stay where they are: .env / the environment (--…-env NAME) or Vault (--…-vault path#field)
  *       [--role admin]        the kind of user it is: tests ask for one with seed.account('admin', { role: 'admin' })
+ *       [--shared]            several parallel workers may use it at once (it only acts on other records, and a new
+ *                             sign-in doesn't end the earlier ones): one administrator then doesn't hold runs to one worker
  *   heldout accounts --aut <profile> --reset "DELETE /api/cart?user=${id}"   tests change them: the call that restores one,
  *       run when a test takes the account and again after it
  *
@@ -151,7 +153,7 @@ main(async () => {
     const role = flagStr(flags, 'role');
     if (role !== undefined && !/^[a-z][a-z0-9-]*$/.test(role)) throw new Error('--role takes a lower-case name such as admin or customer');
     const before = cfg.aut.accounts ?? {};
-    added = { username, password, ...(id ? { id } : {}), ...(role ? { role } : {}) };
+    added = { username, password, ...(id ? { id } : {}), ...(role ? { role } : {}), ...(flags.shared ? { shared: true } : {}) };
     save({ ...before, existing: merge(before.existing ?? [], [added]) });
     console.log(`✔ existing account ${username}${role ? ` (role ${role})` : ''} ${(before.existing ?? []).some((a) => a.username === username) ? 'updated in' : 'added to'} auts.${cfg.autId}.accounts (${(cfg.aut.accounts?.existing ?? []).length} in all)${before.create && !role ? ' — note: the recipe also creates accounts, which seed.account() uses; give this one a --role to hand it out with seed.account({ role })' : ''}`);
     changed = true;

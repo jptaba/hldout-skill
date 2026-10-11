@@ -62,6 +62,9 @@ every existing call as it was, or add a new journey.
 A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
 this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.
 
+Step titles: one action or one outcome each. "When …, then …" in one title fails the lint (`no-then`): write the
+`When` step and the `Then` step. A `// from` line sits directly above its test, or above the loop of a table.
+
 A type-check is optional: `npx tsc --noEmit -p .` covers the spec and the journeys and prints nothing when they are clean.
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in

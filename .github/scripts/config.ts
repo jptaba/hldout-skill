@@ -44,6 +44,12 @@ export interface ExistingAccount {
   username: string; password: string; id?: string;
   /** The kind of user it is ("admin", "customer"): seed.account({ role }) hands out only accounts of that role. */
   role?: string;
+  /**
+   * Several parallel workers may use this account at once: it only acts on other records (an administrator who
+   * manages the catalogue), the tests never change the account itself, and the application keeps earlier sign-ins
+   * valid when the account signs in again. It then doesn't limit how many workers a run uses.
+   */
+  shared?: boolean;
 }
 
 /**
@@ -103,8 +109,11 @@ export function existingAccountWorkers(r?: AccountRecipe): number | undefined {
   const roles = accountRoles(r);
   if (!r?.existing?.length || (createsAccounts(r) && !roles.size)) return undefined;
   const per = Math.max(1, r.perTest ?? 1);
-  const caps = [...(createsAccounts(r) ? [] : [Math.floor(r.existing.length / per)]), ...[...roles.values()]];
-  return Math.max(1, Math.min(...caps));
+  // A shared account serves every worker: a role that has one, and a pool that has one, set no limit.
+  const sharedRoles = new Set(r.existing.filter((a) => a.shared && a.role).map((a) => a.role!));
+  const anyShared = r.existing.some((a) => a.shared && !a.role);
+  const caps = [...(createsAccounts(r) || anyShared || sharedRoles.size ? [] : [Math.floor(r.existing.length / per)]), ...[...roles].filter(([role]) => !sharedRoles.has(role)).map(([, n]) => (per > 1 ? Math.floor(n / per) : n))];
+  return caps.length ? Math.max(1, Math.min(...caps)) : undefined;
 }
 
 export interface HeldoutConfig {
