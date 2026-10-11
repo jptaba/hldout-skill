@@ -91,7 +91,11 @@ main(() => {
       : `  ${doc} ${name}: '${p0}',`;
   });
   const hasUi = c.acceptanceCriteria.some((a) => a.layer !== 'api');
-  const accounts = Boolean(cfg.aut.accounts);
+  // Test users are offered only when the story has signed-in users (stated auth, a protected endpoint, or roles to
+  // check across); a guest-only story gets no account import or note.
+  const signedIn = Boolean(c.auth) || c.endpoints.some((e) => e.auth === 'required') || Boolean(c.variants?.length)
+    || [...(c.actors ?? []), ...c.acceptanceCriteria.map((a) => a.text ?? a.quote)].some((t) => /\b(?:sign(?:ed|s)?[ -]?in|log(?:ged|s)?[ -]?in|my account|administrator|admin)\b/i.test(t));
+  const accounts = Boolean(cfg.aut.accounts) && signedIn;
   const creates = createsAccounts(cfg.aut.accounts);
   const existing = cfg.aut.accounts?.existing?.length ?? 0;
   const whoAccounts = creates

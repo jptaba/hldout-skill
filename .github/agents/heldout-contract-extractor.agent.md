@@ -26,7 +26,8 @@ Do this:
    transcription of all the text it shows and what it shows without words, with no interpretation. Then run `npm run heldout -- contract KEY --pack` again. A transcript that
    already exists is evidence like any other: open the image and check it line by line; correct it only where it
    differs from the image.
-2. Fill in the contract as the reference describes. `quote` is verbatim. `source` / `lines` cite line numbers from the
+2. Fill in the contract as the reference describes. `quote` is verbatim. A rule, an outcome or an error case says what
+   its cited lines say and no consequence beyond them; every gap id in a gap's `affects` is also in that criterion's `gaps`. `source` / `lines` cite line numbers from the
    pack. Every ● line goes in `coverage`. HOW to exercise the app that the story doesn't say (routes, labels, an
    unnamed endpoint, request fields) is an open **mechanics** gap for the evaluator to discover later. WHAT is correct
    that the story doesn't say is an **oracle** gap: resolved only by the sources, otherwise `open` (the verdict puts

@@ -280,6 +280,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
     else if (loc.near === false) warn('source-line-drift', `${ac.id}: quote found in ${parseSource(ac.source).file} but not near the cited line`);
     const acGaps = (ac.gaps ?? []).filter((g) => gapIds.has(g));
     for (const g of ac.gaps ?? []) if (!gapIds.has(g)) err('unknown-gap', `${ac.id} references gap ${g}, which is not in gaps[]`);
+    for (const g of c.gaps ?? []) if (g.affects?.includes(ac.id) && !(ac.gaps ?? []).includes(g.id)) warn('gap-not-on-ac', `${g.id} affects ${ac.id}, but ${ac.id}.gaps does not list it — add it, so the tests of ${ac.id} carry the gap`);
     if (!ac.outcomes?.length && !acGaps.length) err('no-outcome', `${ac.id} has no observable outcome — add one, or record an oracle gap ("what does success/failure look like?")`);
     if (!['ui', 'api', 'e2e'].includes(ac.layer)) err('ac-layer', `${ac.id}: layer must be ui, api or e2e`);
     if (ac.layer !== 'ui') {

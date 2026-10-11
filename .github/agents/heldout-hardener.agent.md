@@ -35,7 +35,11 @@ Do this:
 3. Replace every `// TODO(harden)`, in the spec and in the journeys it calls, with a mechanic you verified: each final
    locator matches exactly one element in the right state, each API mechanic answers through `heldout api-probe`. Use
    the first browser tier available to you (your IDE browser tools, then Playwright MCP, then `heldout inspect` /
-   `heldout mcp-probe`). Save probe reports under `hardening/`.
+   `heldout mcp-probe`). Save probe reports under `hardening/`. Correct the guesses that were wrong by hand; then
+   remove the marks of the ones the probe confirmed in one command per file, not one edit per mark:
+   `npm run heldout -- confirm KEY --file journeys/fixtures/<domain>.ts --evidence "<probe report>"`. When your
+   session's folder is not the project, the native Playwright MCP browser is not usable for it: tier 2 is then
+   `heldout mcp-probe`, and `heldout inspect` (tier 3) reads a page's roles and names more reliably.
 4. Journeys are shared: fix HOW one works for every caller (the application changed), never bend it to this story; for
    a different need add a journey. What you discover that later stories will need (opening a page and waiting for it,
    creating and deleting a record) becomes a new journey: an exported function with a `/** doc comment */` in its
