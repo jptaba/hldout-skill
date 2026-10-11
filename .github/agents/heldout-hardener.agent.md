@@ -24,7 +24,8 @@ Do this:
    stories, changed since, not proven yet, stale) and what each requires. Probe the ones not proven in their current
    form; a proven journey is checked by your first harden run, and probed only if that run fails in it.
 2. `npm run heldout -- contract KEY` lists the open mechanics gaps. Discover each from the application and record it
-   with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …`. Tests that ask for a kind of user
+   with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …` (several at once: write
+   `[{ "id": "G1", "value": "…", "evidence": "…" }, …]` to a file under `hardening/` and pass `--resolve-from <file>`). Tests that ask for a kind of user
    (`seed.account(label, { role })`) need existing accounts with that role: confirm each account's role on the app and
    record it (`npm run heldout -- accounts --add-existing … --role <role>`). When the tests need an account, a role or
    a secret the project doesn't have and the application can't create, don't stop to ask for it: leave those tests as
@@ -46,7 +47,9 @@ Do this:
    domain's file, `journeys/fixtures/<domain>.ts`. Never put an expectation in a journey, and never edit
    `journeys/registry.yml` (the harvest writes it). A journey you replace:
    `npm run heldout -- journeys KEY --stale "<id>" --evidence …`.
-5. Prove stability: `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
+5. Prove stability, always with `--workers` given (a run without it uses the profile's default, usually 4, which is
+   too many for a shared environment). This run is also your first look at the tests: make no separate trial run before
+   it when the tests create records the application can't delete. `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host
    `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED.
 6. Fill in `hardening/hardening-log.md` (edit the template that is there; keep the "Guesses confirmed unchanged" list
    `heldout confirm` added to it): what you changed and why (journeys in their own table), observed deviations, and

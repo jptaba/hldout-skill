@@ -26,6 +26,8 @@ Do this:
    application.
 3. Decide with the reference's decision tree and record it:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.
+   Failures with one root cause take one call: `--set SCN-008,SCN-009` (a table's base id, `SCN-007`, covers all its
+   failing rows).
    Failures with one root cause share the same `--title`. Genuine ambiguity is NEEDS_INVESTIGATION with a
    clarification note.
 4. Reply with a summary per failure: category, severity, the evidence, and for each SCRIPT_DEFECT what is wrong with

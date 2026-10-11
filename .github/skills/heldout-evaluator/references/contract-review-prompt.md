@@ -31,6 +31,10 @@ Check each of these refs: {{REFS}}
 - **Gaps (G-n, oracle)**:
   - The missing element really is missing from the sources, or is resolved the way the gap says.
   - A value "found in the requirement" is really there. Cite where.
+  - An `assumed` value is by definition not stated in the sources: that alone is not a finding. It is `supported` when
+    the element really is missing and the value is one reading the sources allow, recorded as an assumption (the
+    verdict shows it to the owner). It is `unsupported` only when a source states the element after all, or the
+    assumed reading contradicts a source.
   - An expected behaviour is never taken from the application.
 - **Endpoints** (`METHOD /path` refs): the method and path appear at the cited source line.
 - **V-n** (variants: setups every criterion they apply to must be checked across, such as user types or data sets):

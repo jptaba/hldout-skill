@@ -7,6 +7,7 @@
  *   heldout contract KEY --review-prompt  the independent reviewer's instructions (for the heldout-contract-reviewer subagent)
  *   heldout contract KEY --questions      open oracle gaps: the questions the verdict puts to the story's owner (JSON)
  *   heldout contract KEY --resolve G1 --value "…" --evidence "hardening/api-x.md"   a mechanics gap found in the application
+ *   heldout contract KEY --resolve-from gaps.json    several of them at once: [{ "id", "value", "evidence" }, …]
  *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the owner's answer to a verdict's open question, before the next evaluation (re-review)
  *   … --allow-unreviewed  accept a contract without an independent review (warning instead of error)
  *
@@ -94,6 +95,26 @@ main(async () => {
   }
   // --resolve G<n>: a mechanics gap found in the application (no re-review). --answer G<n>: the owner's answer to an
   // oracle gap (changes the oracle, so the contract goes back to the reviewer).
+  // --resolve-from <file>: several mechanics gaps in one call, [{ "id": "G1", "value": "…", "evidence": "…" }, …].
+  const resolveFile = flagStr(flags, 'resolve-from');
+  if (resolveFile) {
+    const list = JSON.parse(fs.readFileSync(resolveFile, 'utf8')) as { id: string; value: string; evidence: string }[];
+    if (!Array.isArray(list) || !list.length) throw new Error(`${resolveFile} holds no gaps: [{ "id": "G1", "value": "…", "evidence": "…" }]`);
+    for (const r of list) {
+      const g = c.gaps.find((x) => x.id === r.id);
+      if (!g) throw new Error(`No gap ${r.id} in ${rel(file)} — gaps: ${c.gaps.map((x) => x.id).join(', ') || 'none'}`);
+      if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Nothing was written.`);
+      if (!r.value || !r.evidence) throw new Error(`${r.id} needs a "value" (what was found) and an "evidence" (the probe report, or the proven journey and the run that used it). Nothing was written.`);
+    }
+    for (const r of list) {
+      const g = c.gaps.find((x) => x.id === r.id)!;
+      Object.assign(g, { resolution: 'discovered-in-aut', value: r.value, evidence: r.evidence });
+      g.tried = [...g.tried.filter((t) => t.where !== 'aut'), { where: 'aut', result: r.value }];
+      console.log(`✔ ${g.id} → discovered-in-aut: ${r.value}`);
+    }
+    writeFile(file, `${JSON.stringify(c, null, 2)}\n`);
+    console.log('');
+  }
   const gapFlag = flagStr(flags, 'resolve') ? 'resolve' : flagStr(flags, 'answer') ? 'answer' : undefined;
   if (gapFlag) {
     const g = c.gaps.find((x) => x.id === flagStr(flags, gapFlag));
