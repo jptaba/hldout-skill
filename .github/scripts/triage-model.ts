@@ -153,7 +153,9 @@ export function mergeRepeats(entries: TriageEntry[]): TriageEntry[] {
 export function maskVolatile(s?: string): string | undefined {
   return s?.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?/g, '<ts>')
     .replace(/\b(?=[A-Za-z0-9]*\d)(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{6,}\b/g, '<id>')
-    .replace(/\b\d{4,}\b/g, '<n>');
+    .replace(/\b\d{4,}\b/g, '<n>')
+    // A short counter right after a per-run id ("hldout w8n3q-15 product") shifts with the order the tests ran in.
+    .replace(/<id>([-_.#])\d+\b/g, '<id>$1<n>');
 }
 
 /**

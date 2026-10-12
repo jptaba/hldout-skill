@@ -367,6 +367,8 @@ describe('failure signatures across runs', () => {
     const { maskVolatile } = await import('../.github/scripts/triage-model');
     assert.equal(maskVolatile('"Heldout-irl8v63eb2-74248"'), maskVolatile('"Heldout-irk2p0aa91-74230"'));
     assert.equal(maskVolatile('106886'), maskVolatile('106912'));
+    assert.equal(maskVolatile("hasText: 'hldout w8n3q4-20 product'"), maskVolatile("hasText: 'hldout x7k2m9-15 product'"), 'a counter after a per-run id');
+    assert.notEqual(maskVolatile('expects a 4xx status, got 200'), maskVolatile('expects a 4xx status, got 500'), 'a status keeps its value');
     assert.equal(maskVolatile('2026-09-26T19:08:35.136Z'), '<ts>');
     assert.equal(maskVolatile('[REQ AC-10] 401 vs 403'), '[REQ AC-10] 401 vs 403');
     assert.notEqual(maskVolatile('"Your account has been locked."'), maskVolatile('"Epic sadface: Sorry"'));
