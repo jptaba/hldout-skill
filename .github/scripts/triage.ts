@@ -23,7 +23,8 @@ import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, t
 import { allJourneys, journeysOfFiles, journeysUsedBy } from './journeys-store';
 import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles, type Endpoint } from './spec-model';
 import { readContract, requestContracts } from './contract-model';
-import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, maskVolatile, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
+import { renderTriageMd, replaySlug, signedIn } from './triage-report';
+import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
 
 export type { TriageEntry, TriageReport };
 
@@ -181,21 +182,6 @@ function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFi
   };
 }
 
-/** A body for the report, on one line: of an HTML page what it says (its text), not its markup; long ones cut. */
-const short = (v: unknown, n = 600) => {
-  let s = typeof v === 'string' ? v : JSON.stringify(v);
-  if (!s) return '';
-  if (/<html[\s>]|<!doctype html/i.test(s)) s = `(an HTML page) ${s.replace(/<!--[\s\S]*?-->|<(script|style|head)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ')}`;
-  s = s.replace(/\s+/g, ' ').trim();
-  return s.length > n ? `${s.slice(0, n)}…` : s;
-};
-
-/** @param runDir absolute run folder — evidence links are written relative to it (triage.md lives there). */
-/** The call's address for a replay: its full URL as recorded (right whatever path the API sits under), else without a leading slash, which Git Bash would rewrite. */
-const replayPath = (url: string): string => (/^https?:\/\//.test(url) ? url : url.replace(/^\/+/, ''));
-
-const replaySlug = (scenario: string) => scenario.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-const signedIn = (api?: ApiExchange) => Object.keys(api?.request.headers ?? {}).some((h) => /^(authorization|cookie)$/i.test(h));
 
 /**
  * A chain to start the live replay of a failure whose call was sent signed in: the sign-in of each kind of user the
@@ -238,80 +224,7 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   return { note: `${namesRecords ? 'The failing call names records by id, and the run\'s records may be gone: when the call answers "not found", add a setup step that makes each again (save its id) and put the saved ids in the call. Failures that need the same kind of record share one chain: each sign-in once, the record made once, then every failing call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
 
-export function renderTriageMd(r: TriageReport, runDir: string): string {
-  const link = (projRel: string) => path.relative(runDir, path.join(ROOT, projRel)).split(path.sep).join('/');
-  const out = [`# Triage — ${r.key} / run ${r.run}`, '', `Generated ${r.generatedAt}`, '', ...(r.environmentNote ? [`> ⚠️ **Environment:** ${r.environmentNote}`, ''] : []),
-    `**${r.summary.passed}/${r.summary.total} passed**, ${r.summary.failed} failed, ${r.summary.flaky} flaky, ${r.summary.skipped} skipped.`, '',
-    '| Test | Type | Criteria | Status | Auto classification | Confidence | Confirmed |', '| --- | --- | --- | --- | --- | --- | --- |',
-    // The tests that need a look, one row each; the ones that passed, in a line.
-    ...r.entries.filter((e) => e.status !== 'passed' || e.auto).map((e) => `| ${e.scenario} | ${e.testType ?? '-'} | ${e.requirementRefs.join(', ')} | ${e.status} | ${e.auto?.category ?? '-'} | ${e.auto?.confidence ?? '-'} | ${e.final ? `**${e.final.category}**` : e.auto ? '⏳ pending' : '-'} |`), '',
-    ...(r.entries.some((e) => e.status === 'passed' && !e.auto) ? [`Passed (${r.entries.filter((e) => e.status === 'passed' && !e.auto).length}): ${r.entries.filter((e) => e.status === 'passed' && !e.auto).map((e) => e.scenario).join(', ')}`, ''] : [])];
-  // Failures that look alike are read together: the same criterion, the same call (whatever records it names) with
-  // the same status, or the same locator. A hint for the reader, who decides what is one root cause.
-  const likeness = (e: TriageEntry) => {
-    const api = e.evidence.api;
-    const what = api ? `${api.request.method} ${maskVolatile(new URL(api.request.url, 'http://x').pathname)} → ${api.response.status}` : maskVolatile(e.error?.locator) ?? maskVolatile(e.error?.headline) ?? '';
-    return `${e.requirementRefs.join(', ') || '-'} · ${what}`;
-  };
-  const failed = r.entries.filter((x) => x.error);
-  const groups = new Map<string, TriageEntry[]>();
-  for (const e of failed) groups.set(likeness(e), [...(groups.get(likeness(e)) ?? []), e]);
-  if (failed.length > groups.size) out.push(`## Failures that look alike (${failed.length} failures, ${groups.size} groups)`, '',
-    'The same criterion and the same call and status (or the same locator). Read the first of a group in full; the others show what differs. Whether a group is one root cause is yours to decide.', '',
-    '| # | Criteria · what failed | Tests |', '| --- | --- | --- |',
-    ...[...groups].map(([k, g], i) => `| ${i + 1} | ${k.replace(/\|/g, '/')} | ${g.map((e) => e.scenario).join(', ')} |`), '');
-  // A test's screenshot, trace and page snapshot sit in one folder: the folder once, then the files in it.
-  const evidenceLine = (e: TriageEntry) => {
-    const files = [e.evidence.screenshot, e.evidence.trace, e.evidence.errorContext].filter((f): f is string => Boolean(f));
-    if (!files.length) return '- Evidence: -';
-    const dir = path.posix.dirname(files[0]);
-    if (files.some((f) => path.posix.dirname(f) !== dir)) return `- Evidence: ${files.map((f) => `[${path.posix.basename(f)}](${link(f)})`).join(' · ')}`;
-    return `- Evidence: ${files.map((f) => path.posix.basename(f)).join(', ')} in [this folder](${link(dir)}/)`;
-  };
-  const bodyOf = (v: unknown) => maskVolatile(typeof v === 'string' ? v : JSON.stringify(v ?? '')) ?? '';
-  const told = new Map<string, string>();
-  for (const [n, g] of [...groups.values()].entries()) for (const e of g) {
-    const api = e.evidence.api; const first = g[0]; const firstApi = first.evidence.api;
-    // A decision already written out for an earlier failure is named, not repeated.
-    const decision = e.final ? `${e.final.category}|${e.final.severity ?? ''}|${e.final.rationale}|${e.final.action ?? ''}` : '';
-    const confirmed = !e.final ? [] : told.has(decision) ? [`**Confirmed: ${e.final.category}${e.final.severity ? ` / ${e.final.severity}` : ''}** — as ${told.get(decision)}.`, '']
-      : [`**Confirmed: ${e.final.category}${e.final.severity ? ` / ${e.final.severity}` : ''}** — ${e.final.rationale}`, ...(e.final.action ? ['', `Action: ${e.final.action}`] : []), ''];
-    if (decision && !told.has(decision)) told.set(decision, e.scenario);
-    if (e !== first) {
-      // The rest of a group: what this failure has of its own, the rest as the first one.
-      const sameAnswer = api && firstApi && bodyOf(api.response.body) === bodyOf(firstApi.response.body);
-      out.push(`## ${e.title}`, '', `- Like ${first.scenario} (group ${n + 1}); type: ${e.testType ?? '-'} · layer: ${e.layer ?? '-'}${e.failingStep !== first.failingStep ? ` · failing step: ${e.failingStep ?? '-'}` : ''}`,
-        ...(e.evidence.repeats ? [`- Repeats: failed **${e.evidence.repeats.failed} of ${e.evidence.repeats.runs}**`] : []),
-        `- Error: \`${e.error!.headline}\``,
-        ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\` · received: \`${e.error!.received ?? '-'}\``] : []),
-        ...(api ? [`- Call: \`${api.request.method} ${api.request.url}\` → **${api.response.status}**${api.request.as ? ` · sent as: ${api.request.as}` : signedIn(api) ? '' : ' · sent as: a visitor (no token)'}`,
-          ...(api.request.body && short(api.request.body) !== short(firstApi?.request.body) ? [`  - request body: \`${short(api.request.body, 300)}\``] : []),
-          `  - response body: ${sameAnswer ? `as ${first.scenario}` : `\`${short(api.response.body, 300)}\``}`] : []),
-        evidenceLine(e),
-        ...(e.auto!.category !== first.auto!.category || e.auto!.confidence !== first.auto!.confidence ? [`- Auto: **${e.auto!.category} (${e.auto!.confidence})**, unlike ${first.scenario}: ${e.auto!.signals.filter((s) => !/^(Expected|Received):/.test(s)).join(' · ')}`] : []),
-        '', ...confirmed);
-      continue;
-    }
-    out.push(`## ${e.title}`, '', `- Requirement refs: ${e.requirementRefs.join(', ') || '-'} · type: ${e.testType ?? '-'} · layer: ${e.layer ?? '-'}`, `- Failing step: ${e.failingStep ?? '-'}`,
-      ...(e.evidence.repeats ? [`- Repeats: failed **${e.evidence.repeats.failed} of ${e.evidence.repeats.runs}**`] : []),
-      `- Error: \`${e.error!.headline}\``, ...(e.error!.locator ? [`- Locator: \`${e.error!.locator}\``] : []),
-      ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\``] : []), ...(e.error!.received !== undefined ? [`- Received: \`${e.error!.received}\``] : []),
-      ...(api ? [`- Relevant API exchange (${e.evidence.apiCalls ? '' : 'precondition '}#${(e.evidence.apiRelevantIndex ?? 0) + 1} of ${e.evidence.apiCalls ?? e.evidence.preSequence?.length ?? 1}): \`${api.request.method} ${api.request.url}\` → **${api.response.status}**`,
-        ...(api.request.as ? [`  - sent as: ${api.request.as}`] : signedIn(api) ? [] : ['  - sent as: a visitor (no token)']),
-        `  - request body: \`${short(api.request.body)}\``, `  - response body: \`${short(api.response.body)}\``,
-        // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
-        // are added by hand, or the sequence goes in a chain file).
-        ...(e.final ? [] : Object.keys(api.request.headers ?? {}).some((h) => /^(authorization|cookie)$/i.test(h))
-          ? [`  - replay: the test sent this call signed in, so replay it as a chain: the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator). A starting chain, when the profile has an API sign-in: \`npm run heldout -- api-probe --key ${r.key} --chain ${path.relative(ROOT, path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.chain.json`)).split(path.sep).join('/')} --out …\``]
-          : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''} --out ${path.relative(ROOT, path.join(runDir, 'confirm', `${e.scenario.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`)).split(path.sep).join('/')}\``])] : []),
-      evidenceLine(e),
-      // The expected and received values are above: the signals say only what the classification adds.
-      '', `**Auto: ${e.auto!.category} (${e.auto!.confidence})**`, '', ...e.auto!.signals.filter((s) => !/^(Expected|Received):/.test(s)).map((s) => `- ${s}`), '', `Next: ${e.auto!.next}`, '', ...confirmed);
-  }
-  return out.join('\n');
-}
-
-export { signature };
+export { renderTriageMd, signature };
 
 main(() => {
   const { _, flags } = parseArgs();
