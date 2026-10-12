@@ -207,6 +207,11 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   if (!accounts.length || accounts.some((a) => /\$\{vault:/.test(`${a.username}${a.password}`))) return undefined;
   const fill = (v: unknown, a: { username: string; password: string }): unknown => (typeof v === 'string' ? v.replace(/\$\{username\}/g, a.username).replace(/\$\{password\}/g, a.password)
     : Array.isArray(v) ? v.map((x) => fill(x, a)) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fill(x, a)])) : v);
+  // The failing call was recorded with the user it was sent as: that one's token goes on it.
+  const username = (a: { username: string }) => a.username.replace(/^\$\{env:([A-Za-z_][\w]*)\}$/, (_, n: string) => process.env[n] ?? '');
+  const sender = accounts.find((a) => api.request.as && username(a) && api.request.as.endsWith(`· ${username(a)}`))
+    ?? recipe.existing.find((a) => api.request.as && username(a) && api.request.as.endsWith(`· ${username(a)}`));
+  if (sender && !accounts.includes(sender)) accounts.push(sender);
   const tokenVar = (a: { role?: string }, i: number) => { const same = accounts.filter((x) => x.role === a.role); return `token_${a.role ?? 'account'}${same.length > 1 ? same.indexOf(a as typeof accounts[number]) + 1 : a.role ? '' : i + 1}`; };
   const header = (recipe.authHeader ?? 'Authorization: Bearer ${token}').split(/:\s*/);
   const steps: Record<string, unknown>[] = accounts.map((a, i) => ({
@@ -216,10 +221,10 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   const body = api.request.body;
   steps.push({
     name: `the failing call of ${e.scenario}`, method: api.request.method, path: api.request.url,
-    headers: { [header[0]]: header.slice(1).join(': ').replace(/\$\{token\}/g, `\${${tokenVar(accounts[0], 0)}}`) },
+    headers: { [header[0]]: header.slice(1).join(': ').replace(/\$\{token\}/g, `\${${tokenVar(sender ?? accounts[0], accounts.indexOf(sender ?? accounts[0]))}}`) },
     ...(body && typeof body === 'object' ? { json: body } : {}),
   });
-  return { note: `Starting point written by heldout triage for ${e.scenario}: check which user's token the failing call was sent with${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
+  return { note: `Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
 
 export function renderTriageMd(r: TriageReport, runDir: string): string {
@@ -235,6 +240,7 @@ export function renderTriageMd(r: TriageReport, runDir: string): string {
       `- Error: \`${e.error!.headline}\``, ...(e.error!.locator ? [`- Locator: \`${e.error!.locator}\``] : []),
       ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\``] : []), ...(e.error!.received !== undefined ? [`- Received: \`${e.error!.received}\``] : []),
       ...(api ? [`- Relevant API exchange (${e.evidence.apiCalls ? '' : 'precondition '}#${(e.evidence.apiRelevantIndex ?? 0) + 1} of ${e.evidence.apiCalls ?? e.evidence.preSequence?.length ?? 1}): \`${api.request.method} ${api.request.url}\` → **${api.response.status}**`,
+        ...(api.request.as ? [`  - sent as: ${api.request.as}`] : signedIn(api) ? [] : ['  - sent as: a visitor (no token)']),
         `  - request body: \`${short(api.request.body)}\``, `  - response body: \`${short(api.response.body)}\``,
         // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
         // are added by hand, or the sequence goes in a chain file).

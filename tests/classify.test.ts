@@ -111,6 +111,13 @@ describe('relevantExchange', () => {
   it('picks the exchange whose status is the failing received value, not the last one', () => {
     assert.equal(relevantExchange(seq, parseError(pw(['Error: [REQ AC-6] missing → 400', 'Expected: 400', 'Received: 500']))), 0);
   });
+  it('picks the changing call when a status class was expected and a read-back answered the same status', () => {
+    const changed = [exchange('PUT', 'https://x.test/api/brands/7', 200), exchange('GET', 'https://x.test/api/brands/7', 200)];
+    const e = parseError(pw(['Error: [REQ AC-5] a customer\'s change of a brand is refused (expects a 4xx status, got 200)', 'Expected: "4xx"', 'Received: "2xx"']));
+    assert.equal(relevantExchange(changed, e), 0);
+    const created = [exchange('POST', 'https://x.test/api/brands', 201), exchange('GET', 'https://x.test/api/brands/7', 200)];
+    assert.equal(relevantExchange(created, parseError(pw(['Error: [REQ AC-5] a visitor\'s create is refused (expects a 4xx status, got 201)', 'Expected: "4xx"', 'Received: "2xx"']))), 0);
+  });
   it('picks the call the assertion names for a body value', () => {
     assert.equal(relevantExchange(seq, parseError(pw(['Error: [REQ AC-4] POST /booking returns the balance', 'Expected: 100', 'Received: 0']))), 0);
   });

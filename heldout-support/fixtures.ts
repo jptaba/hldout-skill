@@ -278,6 +278,15 @@ async function signInExisting(api: Api, role?: string): Promise<SignedIn> {
   return { username: String(vars.username), token, headers: authHeader(r, token) };
 }
 
+/** The test user a call was sent as, from the token its headers carry; undefined for a visitor or an unknown token. */
+const sentAs = (headers: Record<string, string>): string | undefined => {
+  const sent = Object.values(headers).join('\n');
+  for (const [token, who] of actors) if (sent.includes(token)) return who;
+  return undefined;
+};
+/** Whose token is whose: a call sent with one is recorded as sent by that test user (the token itself is never shown). */
+const actors = new Map<string, string>();
+
 /** Worker-scoped cache for seed.once (one worker runs one test at a time). */
 const onceCache = new Map<string, { value: unknown; at: number }>();
 /** What seed.shared made in this worker, in order: removed by the worker's teardown. */
@@ -554,11 +563,12 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
               account.token = token;
               account.headers = authHeader(r, token);
               account.signInBody = t.body as Json;
+              actors.set(token, `${label}${role ? ` (${role})` : ''} · ${String(vars.username)}`);
               if (!account.id && r.token.id) { const id = dig(t.body, r.token.id); if (id !== undefined && id !== null) account.id = String(id); }
             },
           });
           // The create answer may already carry a token; otherwise sign in.
-          if (typeof tokenFromCreate === 'string' && tokenFromCreate) { account.token = tokenFromCreate; account.headers = authHeader(r!, tokenFromCreate); account.signInBody = createBody; } else await account.refresh();
+          if (typeof tokenFromCreate === 'string' && tokenFromCreate) { account.token = tokenFromCreate; account.headers = authHeader(r!, tokenFromCreate); account.signInBody = createBody; actors.set(tokenFromCreate, `${label}${role ? ` (${role})` : ''} · ${String(vars.username)}`); } else await account.refresh();
           if (!account.id && r?.lookup) {
             const l = await send(r.lookup, account.token);
             const id = dig(l.body, r.lookup.id);
@@ -767,7 +777,7 @@ function makeApi(apiContext: APIRequestContext, attach?: (name: string, body: st
       let body: unknown = text;
       if (/json/i.test(res.headers()['content-type'] ?? '') || /^\s*[[{]/.test(text)) { try { body = JSON.parse(text); } catch { /* keep text */ } }
       const exchange = {
-        request: { method, url: res.url(), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form, { testValues: true }) : redact(o.data, { testValues: true }), ...(retriedAfter ? { retriedAfter } : {}) },
+        request: { method, url: res.url(), ...(sentAs(headers) ? { as: sentAs(headers) } : {}), headers: redactHeaders(headers), body: raw ? clip(o.data as string) : o.form ? redact(o.form, { testValues: true }) : redact(o.data, { testValues: true }), ...(retriedAfter ? { retriedAfter } : {}) },
         response: { status: res.status(), durationMs, headers: redactHeaders(res.headers()), body: typeof body === 'string' ? clip(body) : redact(body) },
       };
       n++;

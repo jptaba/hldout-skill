@@ -12,7 +12,8 @@ export interface ParsedError {
   headline: string; reqTag?: string; matcher?: string; expected?: string; received?: string; locator?: string; message: string;
 }
 export interface ApiExchange {
-  request: { method: string; url: string; headers?: Record<string, string>; body?: unknown };
+  /** `as`: the test user the call was sent as ("another customer (customer) · user@example.com"), when it carried that user's token. */
+  request: { method: string; url: string; as?: string; headers?: Record<string, string>; body?: unknown };
   response: { status: number; durationMs?: number; headers?: Record<string, string>; body?: unknown };
 }
 export interface AutoClassification { category: Category; confidence: 'high' | 'medium' | 'low'; signals: string[]; next: string }
@@ -100,6 +101,16 @@ export function relevantExchange(sequence: ApiExchange[], e?: ParsedError): numb
     const nth = got.slice(0, k + 1).filter((s) => s === got[k]).length;
     const hits = sequence.map((x, i) => (x.response.status === got[k] ? i : -1)).filter((i) => i >= 0);
     if (hits.length >= nth) return hits[nth - 1];
+  }
+  // A status class was expected ("expects a 4xx status, got 201"): the status is in the message. Several calls may
+  // have answered it (the refused-expected PUT and the GET that reads the record back): the call the assertion is
+  // about is the one that changes something, unless the message names a GET.
+  const said = got.length ? NaN : Number(e?.headline.match(/\b(?:got|answered)\s+(\d{3})\b/)?.[1] ?? NaN);
+  if (Number.isInteger(said)) {
+    const hits = sequence.map((x, i) => (x.response.status === said ? i : -1)).filter((i) => i >= 0);
+    const changing = hits.filter((i) => !/^(GET|HEAD|OPTIONS)$/i.test(sequence[i].request.method));
+    if (changing.length && !/\bGET\s+\//.test(e?.headline ?? '')) return changing.at(-1)!;
+    if (hits.length) return hits.at(-1)!;
   }
   const status = got.length ? got[0] : NaN;
   if (Number.isInteger(status) && status >= 100 && status <= 599) {
