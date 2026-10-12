@@ -178,7 +178,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `journeys --aut <id> --copy-from <profile>` | start an application's journeys from a related one's (another environment or build of the same product): copied as drafts, marked to be probed, proven by nothing until a story passes on them |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
 | `confirm KEY --file <file> --evidence "<probe report>"` | hardening: remove the `TODO(harden)` marks of the guesses a probe showed were right, in one go |
-| `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts |
+| `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report). A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira and Confluence) · TypeScript |
 
 ## Requirement contract: any story format, evidence not recall
@@ -290,7 +290,9 @@ raised as a question for the story's owner, with no false positive. The two deep
 run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
 Round 35 took the skill to a second application, ParaBank, with three stories (PB-1 to PB-3) whose answer keys an
 independent author wrote and nobody changed: 2 of 3 verdicts as keyed, 16 of 17 defects found, and 2 findings the
-keys do not list. Both applications can be started on your own machine for a round and thrown away after it:
+keys do not list. Round 36 pointed round 34's project at Toolshop started locally, a newer build than the public
+demo: after one repair of two locators, the same two verdicts and 8 of 8 defects.
+Both applications can be started on your own machine for a round and thrown away after it:
 [demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md). What comes next is in [docs/next-steps.md](docs/next-steps.md).
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
 commits before this one).

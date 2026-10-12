@@ -378,7 +378,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
     <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
     <div class="stat"><b>6 apps</b><span>onboarded end to end in 22 rounds, with no app-specific code</span></div>
-    <div class="stat"><b>182</b><span>self-tests guarding the skill's own logic</span></div>
+    <div class="stat"><b>230</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
 
@@ -1128,7 +1128,7 @@ test('SCN-002: Adding a product
         <path class="edge acc flow" d="M620 62 H676"/><path class="edge acc flow" d="M620 182 C650 182, 650 80, 676 80"/>
         <rect class="box acc" x="680" y="20" width="260" height="84" rx="12"/><text class="t-b" x="810" y="46" text-anchor="middle">Test process</text><text class="t-s" x="810" y="66" text-anchor="middle">values held in memory only;</text><text class="t-s" x="810" y="84" text-anchor="middle">Vault is read once per run</text>
         <path class="edge" d="M810 104 V126"/>
-        <rect class="box green" x="680" y="130" width="260" height="104" rx="12"/><text class="t-b" x="810" y="156" text-anchor="middle">After every run</text><text class="t-s" x="810" y="176" text-anchor="middle">each secret is scrubbed</text><text class="t-s" x="810" y="194" text-anchor="middle">from every text artifact; logs and</text><text class="t-s" x="810" y="212" text-anchor="middle">curl lines are redacted as written</text>
+        <rect class="box green" x="680" y="130" width="260" height="104" rx="12"/><text class="t-b" x="810" y="156" text-anchor="middle">After every run</text><text class="t-s" x="810" y="176" text-anchor="middle">each secret is scrubbed</text><text class="t-s" x="810" y="194" text-anchor="middle">from every text artifact, trace</text><text class="t-s" x="810" y="212" text-anchor="middle">and report; logs redacted as written</text>
         <rect class="box red" x="330" y="258" width="610" height="40" rx="10"/><text class="t-s" x="635" y="283" text-anchor="middle" style="fill:var(--red)">doctor fails if any secret value appears in a file git would commit</text>
       </svg>
     </div>
@@ -1136,6 +1136,8 @@ test('SCN-002: Adding a product
   <div class="grid two">
     <div class="card"><h4>Put a password in <code>.env</code> without seeing it</h4><p><code>heldout secret APP_PASSWORD_1 --ask</code> reads it at a hidden prompt. <code>--generate</code> makes a strong one for accounts the tests create.</p></div>
     <div class="card"><h4>Refuses literal passwords</h4><p><code>accounts --add-existing --password …</code> is rejected. It points you to <code>--password-env</code> or <code>--password-vault</code> instead.</p></div>
+    <div class="card"><h4>Traces and reports too</h4><p>A browser trace records every request, a password in a form or an address included. After each run the secrets are taken out of the files inside every trace archive and out of the HTML report. Both stay out of git all the same.</p></div>
+    <div class="card"><h4>Probes mask what you type</h4><p>Write the reference in a probe's path, header or value (<code>${env:APP_PASSWORD_1}</code>). If the value itself is typed, the report and the console still show <code>***</code>.</p></div>
   </div>
   <div class="plain">
     <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
@@ -1314,7 +1316,7 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
     <div class="fall">↓ not available? fall through</div>
     <div class="tier"><div class="lv">2<small>Playwright MCP</small></div><div><h4>The Playwright MCP server, set up by <code>init</code></h4><p>Accessibility snapshots and actions, each returning the Playwright code it ran. Where the tools aren't loaded, such as in CI, <code>heldout mcp-probe</code> drives the same server.</p></div></div>
     <div class="fall">↓ always there</div>
-    <div class="tier"><div class="lv">3<small>Bundled</small></div><div><h4><code>inspect</code>, <code>api-probe --chain</code>, <code>run --capture</code></h4><p>An ARIA snapshot with ranked unique locators and probes. API calls or whole call chains with status, timing, shape and a redacted body. A snapshot after every step of a run.</p></div></div>
+    <div class="tier"><div class="lv">3<small>Bundled</small></div><div><h4><code>inspect</code>, <code>api-probe --chain</code>, <code>run --capture</code></h4><p>An ARIA snapshot with ranked unique locators and probes. Walks whose steps can also give a control a value it does not offer, change the page's next request, or make a call of their own; each step says what the page announced and where it landed. API calls or whole call chains with status, timing, shape and a redacted body. A snapshot after every step of a run.</p></div></div>
   </div>
   <p>Cookie banners and welcome dialogs that the app itself shows go in the profile's <code>overlays</code>: the button that closes each. Tests, the UI sign-in and the inspector click it whenever it appears, so no test has to deal with it.</p>
   <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract TOOL-4 --resolve G4 --value … --evidence hardening/signin-steps.json</code> (how a web shop test signs in). Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
@@ -1588,7 +1590,7 @@ $ npm run heldout -- journeys --resolve
       <tr><td><code>seed.create(label, make, cleanup)</code></td><td>data the test needs, removed afterwards</td><td>a contact, a booking, a cart line</td></tr>
       <tr><td><code>seed.track(label, value, cleanup)</code></td><td>data the action under test created</td><td>the favourite the POST just added</td></tr>
       <tr><td><code>seed.once(key, label, fn)</code></td><td>a shared pre-step, once per worker</td><td>a staff token</td></tr>
-      <tr><td><code>seed.shared(key, label, make, undo)</code></td><td>records many tests only look at: made once per parallel worker, kept through worker restarts, removed when the run is over by the calls <code>undo</code> lists</td><td>a category, a brand and a product under them</td></tr>
+      <tr><td><code>seed.shared(key, label, make, undo)</code></td><td>records many tests only look at: made once per parallel worker, kept through worker restarts, removed when the run is over by the calls <code>undo</code> lists. Without <code>undo</code>: a record the application can't delete, made once a run and listed as kept. A test user in it keeps its password as a reference, never the value</td><td>a category, a brand and a product under them; a placed order; a registered customer the tests only read</td></tr>
       <tr><td><code>seed.step(label, fn)</code></td><td>a lookup that must succeed</td><td>find the id of the seeded record</td></tr>
       <tr><td><code>seed.until(label, probe, ok)</code></td><td>waiting for eventual consistency</td><td>until the record is listed</td></tr>
     </tbody>
@@ -1661,7 +1663,9 @@ $ npm run heldout -- journeys --resolve
     </div>
     <figcaption>The automatic pass is a hypothesis built from the failure's ARIA snapshot, its <code>[REQ]</code> message and the full, redacted API exchange. Opus confirms each one live and records the decision with <code>triage --set</code>.</figcaption>
   </figure>
-  <p>Script defects are repaired, mechanics only, and the <b>whole</b> suite runs again. Decisions carry over only to failures with an identical signature. After three repair cycles, anything still unexplained stays NEEDS_INVESTIGATION.</p>
+  <p>The report a triager starts from is written to be read, not searched. It opens with the failures that look alike (the same criterion and the same call and status, or the same locator), writes the first of each group out in full and the others as what differs, and shows what an error page says, not its markup. The groups are a hint: in one run of 57 failures, 25 groups became 8 root causes, and two groups each hid two. For the replay, triage writes one chain with every distinct failing call of the run, and the inspector can submit what a page's own script won't send (<code>force</code>, <code>rewrite</code>) or make a call in the middle of a walk (<code>request</code>).</p>
+  <p>A failure on a test that rests on an assumption or an open question is a question for the story's owner, unless it is wrong whichever way the question is answered: a server error counts as that by itself, and the triager marks the others (<code>triage --set … --any-reading</code>, for all tests of the call or the ones named).</p>
+  <p>Script defects are repaired, mechanics only, and the <b>whole</b> suite runs again. The hardener checks a repair with a run of the repaired tests alone; such a run is never the evaluation, whatever comes of it. Decisions carry over only to failures with an identical signature. After three repairs in a row, anything still unexplained stays NEEDS_INVESTIGATION.</p>
 </section>
 
 <!-- ============ VERDICT ============ -->
@@ -1676,6 +1680,7 @@ $ npm run heldout -- journeys --resolve
     <div class="rung"><div class="i">4</div><div><span class="badge b-pww">PASS WITH WARNINGS</span></div><div class="small">All passed, but flaky tests, uncovered criteria, open questions, readings the app contradicts, or stated requirements nobody could verify remain.</div></div>
     <div class="rung"><div class="i">5</div><div><span class="badge b-pass">PASS</span></div><div class="small">All passed and every acceptance criterion is covered.</div></div>
   </div>
+  <p class="small">Questions the criteria can be judged without don't lower a verdict, but they are not left at the end of the report either: the verdict's first line, and the summary posted to the story, say how many there are and where they are listed. A verdict always comes from a run of every test: a run of some of them, such as the hardener's check of a repair, never stands in for it.</p>
   <p>A finding from a real FAIL verdict, TOOL-1 on Toolshop, abbreviated:</p>
   <div class="verdict">
     <div class="vh"><b>APP-1 · SCN-010, SCN-011 · AC-6: Catalogue pages hold 9 products, not 12</b></div>
@@ -1741,7 +1746,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
   <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
   <div class="grid three">
     <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Thirty-three rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository now keeps one of them, Toolshop.</p></div>
+    <div class="card"><h4>Onboarding rounds</h4><p>Thirty-six rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository keeps the stories of two of them, Toolshop and ParaBank; both can be started on your own machine for a round.</p></div>
     <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
   </div>
   <div class="tbl"><table>
@@ -1782,6 +1787,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>33</td><td>TOOL-8 and TOOL-9 · Toolshop</td><td>fresh setup; two loosely written stories whose checks need a chain of dependent data, four and five levels deep, over the web shop, the admin area and the API</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 5 of 6 defects found and 1 raised as an owner question, 0 false positives</td></tr>
       <tr><td>34</td><td>TOOL-8 and TOOL-9 · Toolshop</td><td>the same two stories from a fresh setup, after the changes round 33 led to</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 8 of 8 defects found, 0 false positives</td></tr>
       <tr><td>35</td><td>PB-1, PB-2 and PB-3 · ParaBank</td><td>a second application, started locally for the round; stories and answer keys by an independent author, the keys left as written</td><td>2 of 3 verdicts as the keys (<span class="badge b-fail">FAIL</span> ×2, and a PASS where the key says PASS WITH WARNINGS), 16 of 17 defects found, 2 findings the keys do not list</td></tr>
+      <tr><td>36</td><td>TOOL-8, TOOL-9 and a new TOOL-10 · Toolshop</td><td>round 34's project pointed at the application started locally, a newer build than the public demo; one repair of two locators</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 8 of 8 defects found, 0 false positives; TOOL-10 (no key) <span class="badge b-pass">PASS</span></td></tr>
     </tbody>
   </table></div>
 
@@ -1889,6 +1895,22 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
   <p class="small">The run without a hardener, checked on a real story: a second draft of PB-3 built on the proven journeys left two guesses. One sat in a journey the author added, so the hardener was still called, for about 100,000 tokens and two guesses that were right. Replayed from the same frozen draft with that journey proven, the guess left in the test was settled by the test's own run and the story went to its evaluation with no hardener. A guess in a new journey still calls one.</p>
   <p class="small">Hardening cost the most where the application was new: 65 tool calls and about 194,000 tokens for PB-1, then 51 and 29 for the two stories that followed on its journeys.</p>
 
+  <h3>After round 35: the open list, and a round on a local Toolshop</h3>
+  <p>What round 35 left open was worked through one item at a time, each checked by a run before the next. Then round 34's project, with its proven journeys, was pointed at Toolshop started on the same machine (round 36), which turned out to be a newer build than the public demo.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>What was open or went wrong</th><th>What changed</th><th>Checked by</th></tr></thead>
+    <tbody>
+      <tr><td>A verdict from four tests. The hardener checked a repair with a run of the four repaired tests; that run was taken for the story's latest evaluation, the repair limit (counted over every evaluation run the story ever had) allowed no further run, and the verdict read PASS while four confirmed defects sat in the run before</td><td>A run of some of the tests is never an evaluation, whatever its label. The repair loop counts repairs in a row</td><td>TOOL-9 on the local build: the full re-run gave FAIL with the four defects of the public demo</td></tr>
+      <tr><td>An application that takes a password in an address left it readable in every browser trace of a run (44 of 44) and in the HTML report</td><td>After a run, known secrets are taken out of the files inside each trace archive and out of the report's own archive</td><td>scrubbed copies hold none and pass an archive check; a run's stored artifacts scrubbed in place. Not yet opened in the trace viewer</td></tr>
+      <tr><td>The triage report for 57 failures was 115 KB, mostly one error page's markup and near-identical sections</td><td>Failures that look alike are grouped at the top, the first of a group is written out and the others as what differs, an error page is shown as what it says</td><td>PB-2 triaged again from nothing: read whole in two reads, 25 groups became 8 root causes, no trace opened, 11 of 11 defects</td></tr>
+      <tr><td>The inspector's new steps and the one chain per run had only been tried by hand</td><td>From their first use by a triager: the chain lists the call that made a state before the check that read it and carries the headers that shape an answer; a rewritten request is reported with the old and the new value</td><td>PB-1 triaged again from nothing with them, and no script of the triager's own</td></tr>
+      <tr><td>A PASS with questions for the owner looked like a clean PASS</td><td>The verdict stays PASS when no criterion waits on a question; its first line and the summary on the story now count the questions</td><td>PB-3's verdict</td></tr>
+      <tr><td>The application under a project changed (two controls lost their labels between builds)</td><td>Nothing: four tests failed on a journey's precondition, triage called them script defects, the hardener changed two locators in about twenty tool calls</td><td>TOOL-8 and TOOL-9 on the local build: the verdicts and the 8 defects of the public demo</td></tr>
+      <tr><td>One new one-line journey sent a whole story to the hardener</td><td>A run now settles a narrow case: a few new journeys beside proven ones, a guess on a journey's own statement that clicks, fills or waits</td><td>TOOL-10, written to try it, did not meet the rule: its author wrote all five guesses as locators a journey returns. The hardener found two of them wrong, one a paging stop no run would have exercised. The rule stays as narrow as it is</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Smaller ones from the same work: a confirmed decision carries over when only a counter in a test's own data shifted between runs; a word in a link's address no longer counts as a text the page shows; <code>--any-reading</code> can name some tests of one decision; a journey that walks through the pages of a list is proven on the last page too. Both demo applications can be started locally for a round and thrown away after it (<code>demo/RUNNING-LOCALLY.md</code> in the repository).</p>
+
   <h3>The same nine stories, a second time</h3>
   <p>The round was then repeated in the same project, with every journey of the first pass in the registry, to look for what could still be better. The verdicts were the same nine. One finding changed: TOOL-1's empty-search defect was reported as a question for the owner, because that contract had recorded "all products" as an assumption and every test of the criterion carried it. That became the first change below.</p>
   <ul class="clean">
@@ -1971,7 +1993,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
 <footer>
   Held-out Evaluator · an AI agent skill · the complete guide.<br>
   GIF versions of the replays for READMEs and slides: <a href="media/onboarding.gif">onboarding.gif</a>, <a href="media/end-to-end.gif">end-to-end.gif</a>.<br>
-  Recordings and excerpts come from the evaluator's own test rounds on a public demo application, Practice Software Testing (Toolshop).
+  Recordings and excerpts come from the evaluator's own test rounds on a public demo application, Practice Software Testing (Toolshop); later rounds also ran on ParaBank and on local instances of both.
 </footer>
 </main>
 </div>

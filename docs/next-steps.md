@@ -1,7 +1,8 @@
 # Next steps
 
-Recommended after round 34 (2026-10-12) and worked through in order in round 35. Results are in the guide
-([heldout-evaluator.html](heldout-evaluator.html), "Round 35").
+Recommended after round 34 (2026-10-12) and worked through in order in round 35; what round 35 left open was then
+worked through as well, and round 36 ran on a local Toolshop. Results are in the guide
+([heldout-evaluator.html](heldout-evaluator.html), "Round 35" and "After round 35").
 
 | # | Step | Why | Outcome |
 | --- | --- | --- | --- |
