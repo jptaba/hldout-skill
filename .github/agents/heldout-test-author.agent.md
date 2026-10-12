@@ -44,7 +44,7 @@ Do this:
 4. Seed every data precondition with `seed.*` (API first, with cleanup, usually through a journey); test users with
    `seed.account()` / `signIn()` when the profile has an accounts recipe. Never rely on records that happen to exist.
    A record the application can't delete (a placed order) that several tests only read is created once per worker
-   with `seed.once` and shared (data-and-journeys.md §1, rule 8), never once per test. A chain of dependent records
+   with `seed.shared` (no undo calls) and shared (data-and-journeys.md §1, rule 8), never once per test. A chain of dependent records
    that many tests only read is built once per worker with `seed.shared` and the
    list of calls that undo it (rule 9); a test that sends a change or a delete at a record makes that record its own,
    even when the request must be refused.
@@ -78,7 +78,8 @@ domain's file, once each: a journey that builds the request (`questionFields(sub
 answer (`readQuestion(body)`), marked `// TODO(harden)`, so the hardener corrects a field in one place.
 
 Step titles: one action or one outcome each. "When …, then …" in one title fails the lint (`no-then`): write the
-`When` step and the `Then` step. A `// from` line sits directly above its test, or above the loop of a table.
+`When` step and the `Then` step. The lint reads a title as it is written: begin it with the literal word (`` `Then ${what} is listed` ``), never
+with an expression that yields it. A `// from` line sits directly above its test, or above the loop of a table.
 
 Files: write and change the spec and the journeys with your file tools only. Never with a shell redirection, `sed`,
 or a script written to patch a file: such a change shows nobody what was changed.

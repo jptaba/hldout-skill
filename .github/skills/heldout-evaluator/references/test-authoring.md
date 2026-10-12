@@ -174,7 +174,9 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    it as a defect. Which 4xx it is, and what the message must say, stay open questions when the story doesn't say.
    When the form of the refusal is itself an open question in the contract (an error status, or a message in a
    successful answer), write two tests: one untagged, of what a refusal leaves behind under every reading (nothing
-   created, nothing changed, and never a 5xx), and one `@needs-clarification`, of the 4xx status.
+   created, nothing changed, and never a 5xx), and one `@needs-clarification`, of the 4xx status. On a page the split
+   is the same: untagged, nothing is confirmed and nothing changed; tagged, the message the open question is about
+   (that one is shown, what it names). Rows of one tagged question may share a table, each row with its own data.
 6. **Concurrency** (API layer): send the competing requests together (`Promise.all`), 2–5 at a time (respect the
    profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few
    rounds inside the test.

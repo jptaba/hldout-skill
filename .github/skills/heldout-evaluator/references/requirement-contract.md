@@ -136,6 +136,11 @@ like any other. Its paths, methods, request fields and auth are stated mechanics
 bodies are expected values for the endpoints it describes. Cover its lines like any others (a long schema block can be
 one `endpoint` or `context` entry per operation). Nothing it doesn't contain may be added from elsewhere.
 
+**A story that says an API description exists without giving it** ("the API is described on the site", a link that
+is not a linked requirement page): the description is not a source. Record the calls as one open mechanics gap and
+leave `endpoints[]` empty. While hardening, the description may be read like any other page of the application, for
+mechanics only (paths, methods, fields); its response codes and bodies are never expected values.
+
 **A header every call sends** ("clients send Accept: application/json"): mechanics the story states. Note it in each
 endpoint's `request` and cover the line as `endpoint`.
 

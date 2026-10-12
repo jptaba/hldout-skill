@@ -150,10 +150,12 @@ export interface Seed {
    * Data that many tests only look at (never the target of a change or a delete, even one that must be refused: an
    * application that wrongly accepts it would alter what later tests rely on): made once per parallel worker, the first time
    * a test asks for it, and removed when the run is over. For a chain of dependent records that is costly to build (a
-   * category, a brand and a product under them). What `make` returns is kept as plain data (ids, names: no functions,
-   * no signed-in account). `undo` lists the calls that remove it, in the order to send them:
-   * `(line) => [{ method: 'DELETE', path: `/products/${line.productId}`, as: 'admin' }, …]`. A test that changes or
-   * deletes such a record makes its own with `create`.
+   * category, a brand and a product under them). What `make` returns is kept as plain data in the run folder (ids, names:
+   * no functions), so it survives the new worker that follows every failed test; a test user in it keeps its name,
+   * id and password (stored as a reference, never the value). `undo` lists the calls that remove it, in the order to
+   * send them: `(line) => [{ method: 'DELETE', path: `/products/${line.productId}`, as: 'admin' }, …]`. Without
+   * `undo` the record stays (data the application can't delete, made once a run). A test that changes or deletes
+   * such a record makes its own with `create`.
    */
   shared<T>(key: string, label: string, make: () => Promise<T>, undo?: (created: T) => UndoCall[]): Promise<T>;
   /** Readiness / eventual consistency: poll `probe` until `ready(value)` holds or the timeout expires (→ BLOCKED). */
@@ -297,6 +299,29 @@ const sentAs = (headers: Record<string, string>): string | undefined => {
 };
 /** Whose token is whose: a call sent with one is recorded as sent by that test user (the token itself is never shown). */
 const actors = new Map<string, string>();
+
+/**
+ * What seed.shared keeps in the run folder never holds a secret: a value the environment gives under a secret's name
+ * (a test user's password) is written as a reference to that name and put back when the file is read.
+ */
+const secretEnv = () => Object.entries(process.env).filter(([name, v]) => /PASS|SECRET|TOKEN|KEY/i.test(name) && v && v.length >= 6) as [string, string][];
+const inJson = (v: string) => JSON.stringify(v).slice(1, -1);
+const withoutSecrets = (json: string) => secretEnv().reduce((t, [name, v]) => t.split(inJson(v)).join(`\${env:${name}}`), json);
+const withSecrets = (json: string) => secretEnv().reduce((t, [name, v]) => t.split(`\${env:${name}}`).join(inJson(v)), json);
+/** A test user read back from the run folder has its data but not its methods: `refresh()` is given back where the
+ *  application issues no token (nothing to refresh); elsewhere it says to take the user with seed.account(). */
+function reviveAccounts<T>(value: T): T {
+  const visit = (v: unknown): void => {
+    if (!v || typeof v !== 'object') return;
+    const o = v as Record<string, unknown>;
+    if (typeof o.username === 'string' && typeof o.password === 'string' && typeof o.refresh !== 'function') {
+      o.refresh = async () => { if (accountRecipe()?.token) throw new Error('a test user kept by seed.shared has no refresh(): sign it in again in the test, or take the user with seed.account()'); };
+    }
+    Object.values(o).forEach(visit);
+  };
+  visit(value);
+  return value;
+}
 
 /** Worker-scoped cache for seed.once (one worker runs one test at a time). */
 const onceCache = new Map<string, { value: unknown; at: number }>();
@@ -504,14 +529,14 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         // Playwright starts a new worker after every failed test: the record is kept in the run folder, per parallel
         // slot, so the new worker takes it up again instead of making another.
         const file = path.join(sharedDir(), `p${testInfo.parallelIndex}-${slug(key)}.json`);
-        if (!sharedStore.has(key) && fs.existsSync(file)) sharedStore.set(key, (JSON.parse(fs.readFileSync(file, 'utf8')) as { value: unknown }).value);
+        if (!sharedStore.has(key) && fs.existsSync(file)) sharedStore.set(key, reviveAccounts((JSON.parse(withSecrets(fs.readFileSync(file, 'utf8'))) as { value: unknown }).value));
         if (sharedStore.has(key)) {
           ledger.push({ label, kind: 'shared', cleanup: 'none', reused: true, created: '(made earlier in this run, removed when it ends)' });
           return sharedStore.get(key) as T;
         }
         const value = await pre({ label, kind: 'shared', cleanup: 'none' }, make);
         fs.mkdirSync(sharedDir(), { recursive: true });
-        fs.writeFileSync(file, `${JSON.stringify({ label, value, undo: undo?.(value) ?? null }, null, 2)}\n`);
+        fs.writeFileSync(file, `${withoutSecrets(JSON.stringify({ label, value, undo: undo?.(value) ?? null }, null, 2))}\n`);
         sharedStore.set(key, value);
         return value;
       },

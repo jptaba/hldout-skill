@@ -30,9 +30,10 @@ a page, is the same for every story on an application: write it once as a journe
    test and shown in the verdict's reproduction steps, so a reviewer can recreate the preconditions.
 8. **Data the application can't delete is made once.** A record no call removes (a placed order, an invoice, a sent
    message) stays in the environment after every run. When tests only *read* it (they open it, list it, are refused
-   it), create it once per worker and share it: `seed.once('order-of-customer', 'an order of the customer (POST
-   /invoices)', () => placeOrder(…), 3_600_000)` (a lifetime that outlasts the run; the default is 10 minutes), recorded with `seed.track(label, created)` and no cleanup, so the run lists
-   it as kept by design. With existing accounts, find before you
+   it), create it once per worker and share it: `seed.shared('order-of-customer', 'an order of the customer (POST
+   /invoices)', () => placeOrder(…))`, with no list of undo calls, so the run lists it as kept by design. The record
+   is kept in the run folder and survives the new worker that follows every failed test (`seed.once` does not: it is
+   for a token, not for a record). A customer the tests register and only read from is shared the same way. With existing accounts, find before you
    create: the journey takes a record the account already has (the newest invoice it lists, left by an earlier run)
    and creates one only when there is none, so repeated runs add nothing. A create call that can't be probed without
    leaving a record is verified as far as its validation answer (422) shows; the hardening log says so.
