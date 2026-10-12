@@ -147,12 +147,14 @@ export interface Seed {
    */
   once<T>(key: string, label: string, make: () => Promise<T>, ttlMs?: number): Promise<T>;
   /**
-   * Data that many tests only look at, or try and must fail to change: made once per worker, the first time a test
-   * asks for it, and removed when the worker ends. For a chain of dependent records that is costly to build (a category,
-   * a brand and a product under them). `cleanup` gets an API client of its own (the test's is gone by then) and runs in
-   * reverse order of creation. A test that changes or deletes such a record makes its own with `create`.
+   * Data that many tests only look at, or try and must fail to change: made once per parallel worker, the first time
+   * a test asks for it, and removed when the run is over. For a chain of dependent records that is costly to build (a
+   * category, a brand and a product under them). What `make` returns is kept as plain data (ids, names: no functions,
+   * no signed-in account). `undo` lists the calls that remove it, in the order to send them:
+   * `(line) => [{ method: 'DELETE', path: `/products/${line.productId}`, as: 'admin' }, …]`. A test that changes or
+   * deletes such a record makes its own with `create`.
    */
-  shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: SharedCleanup<T>): Promise<T>;
+  shared<T>(key: string, label: string, make: () => Promise<T>, undo?: (created: T) => UndoCall[]): Promise<T>;
   /** Readiness / eventual consistency: poll `probe` until `ready(value)` holds or the timeout expires (→ BLOCKED). */
   until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts?: { timeoutMs?: number; intervalMs?: number }): Promise<T>;
   /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). Without a
@@ -247,11 +249,13 @@ export async function signIn(page: Page, account: Account): Promise<void> {
 /** Who a shared record's cleanup may act as: an existing account of the profile, signed in afresh over the API. */
 export interface SignedIn { username: string; token: string; headers: Record<string, string> }
 /**
- * Removes what seed.shared made, when the worker ends. It gets an API client of its own and, for calls that need a
- * signed-in user, `signIn(role)`: an existing account of that role, signed in then (a token taken when the record was
- * made may have expired): `async (line, api, signIn) => removeLine(api, (await signIn('admin')).headers, line)`.
+ * One call that removes part of what seed.shared made, sent when the run is over. `as` names the role of an existing
+ * account of the profile to send it as, signed in at that moment (`'*'`: any account); without it the call is sent
+ * as a visitor. An answer of 404 or 410 means it was already gone.
  */
-export type SharedCleanup<T> = (created: T, api: Api, signIn: (role?: string) => Promise<SignedIn>) => Promise<unknown>;
+export interface UndoCall { method: string; path: string; as?: string; data?: Json }
+/** Where a run keeps what seed.shared made: one file per parallel slot and key, so a restarted worker finds it again. */
+const sharedDir = () => path.join(process.env.HELDOUT_RUN_DIR ?? path.join('test-results', 'heldout'), 'shared-data');
 
 /**
  * Sign an existing account of the profile in over the API (the recipe's token call), outside any test: the cleanup of
@@ -277,7 +281,7 @@ async function signInExisting(api: Api, role?: string): Promise<SignedIn> {
 /** Worker-scoped cache for seed.once (one worker runs one test at a time). */
 const onceCache = new Map<string, { value: unknown; at: number }>();
 /** What seed.shared made in this worker, in order: removed by the worker's teardown. */
-const sharedStore = new Map<string, { label: string; value: unknown; cleanup?: SharedCleanup<unknown> }>();
+const sharedStore = new Map<string, unknown>();
 
 /**
  * A path in a test is relative to the AUT profile's URL, including any path prefix: with baseURL
@@ -365,32 +369,44 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Seconds a 429 asks us to wait (Retry-After header, or a retry_after field some WAFs put in the body). */
 const retryAfter = (header: string | undefined, body = '') => Math.min(Number(header ?? body.match(/retry_after\D{0,5}(\d+)/i)?.[1] ?? 10) || 10, 120);
 
-export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed; pace: void }, { sharedData: void }>({
-  // What seed.shared made is removed when the worker ends, newest first, with an API client of its own. The outcome
-  // goes to the run folder: `heldout run` lists what could not be removed.
-  sharedData: [async ({}, use, workerInfo) => {
-    await use();
-    if (!sharedStore.size) return;
-    const report: { label: string; cleanup: 'done' | 'failed' | 'none' | 'skipped'; error?: string; created?: unknown }[] = [];
-    const ctx = await pwRequest.newContext({ baseURL: process.env.AUT_API_BASE_URL ?? process.env.AUT_BASE_URL });
-    const api = makeApi(ctx);
-    apiPhase = 'cleanup';
-    for (const entry of [...sharedStore.values()].reverse()) {
-      if (!entry.cleanup) { report.push({ label: entry.label, cleanup: 'none', created: redact(entry.value) }); continue; }
-      if (process.env.HELDOUT_KEEP_DATA === '1') { report.push({ label: entry.label, cleanup: 'skipped' }); continue; }
-      try {
-        const out = await entry.cleanup(entry.value, api, (role) => signInExisting(api, role)) as { status?: unknown } | undefined;
-        const status = typeof out?.status === 'number' ? out.status : undefined;
-        if (status !== undefined && status >= 400 && status !== 404 && status !== 410) throw new Error(`HTTP ${status}`);
-        report.push({ label: entry.label, cleanup: 'done' });
-      } catch (e) { report.push({ label: entry.label, cleanup: 'failed', error: (e as Error).message.split('\n')[0], created: redact(entry.value) }); }
-    }
-    apiPhase = 'test';
-    sharedStore.clear();
-    await ctx.dispose();
-    const dir = process.env.HELDOUT_RUN_DIR;
-    if (dir && fs.existsSync(dir)) fs.writeFileSync(path.join(dir, `shared-data-w${workerInfo.workerIndex}.json`), `${JSON.stringify(report, null, 2)}\n`);
-  }, { scope: 'worker', auto: true }],
+/**
+ * Remove what seed.shared made during the run: every record's undo calls, newest record first. Called once, when the
+ * run is over (playwright.config.ts → heldout-support/shared-teardown.ts). The outcome goes to shared-data.json in the
+ * run folder, where `heldout run` reads what could not be removed.
+ */
+export async function removeSharedData(): Promise<void> {
+  const dir = sharedDir();
+  if (!fs.existsSync(dir)) return;
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => path.join(dir, f)).sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+  if (!files.length) return;
+  const report: { label: string; cleanup: 'done' | 'failed' | 'none' | 'skipped'; error?: string; created?: unknown }[] = [];
+  const ctx = await pwRequest.newContext({ baseURL: process.env.AUT_API_BASE_URL ?? process.env.AUT_BASE_URL });
+  const api = makeApi(ctx);
+  const signedIn = new Map<string, Promise<SignedIn>>();
+  const as = (role: string) => signedIn.get(role) ?? signedIn.set(role, signInExisting(api, role === '*' ? undefined : role)).get(role)!;
+  apiPhase = 'cleanup';
+  for (const file of files) {
+    const entry = JSON.parse(fs.readFileSync(file, 'utf8')) as { label: string; value: unknown; undo: UndoCall[] | null };
+    if (!entry.undo?.length) { report.push({ label: entry.label, cleanup: 'none', created: redact(entry.value) }); fs.rmSync(file); continue; }
+    if (process.env.HELDOUT_KEEP_DATA === '1') { report.push({ label: entry.label, cleanup: 'skipped' }); continue; }
+    try {
+      for (const call of entry.undo) {
+        const send = async () => api.call(call.method, call.path, { ...(call.data !== undefined ? { data: call.data } : {}), ...(call.as ? { headers: (await as(call.as)).headers } : {}) });
+        let res = await send();
+        // A sign-in made for an earlier call may have run out on a long teardown: once more with a fresh one.
+        if ((res.status === 401 || res.status === 403) && call.as) { signedIn.delete(call.as); res = await send(); }
+        if (res.status >= 400 && res.status !== 404 && res.status !== 410) throw new Error(`${call.method} ${call.path} → HTTP ${res.status}`);
+      }
+      report.push({ label: entry.label, cleanup: 'done' });
+      fs.rmSync(file);
+    } catch (e) { report.push({ label: entry.label, cleanup: 'failed', error: (e as Error).message.split('\n')[0], created: redact(entry.value) }); }
+  }
+  apiPhase = 'test';
+  await ctx.dispose();
+  fs.writeFileSync(path.join(path.dirname(dir), 'shared-data.json'), `${JSON.stringify(report, null, 2)}\n`);
+}
+
+export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed; pace: void }>({
 
   // The profile's minTestIntervalMs: tests start at least that far apart, across workers and worker restarts, so a
   // host that bans bursts of traffic (shared sandboxes behind a WAF) never sees one.
@@ -464,14 +480,19 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         onceCache.set(key, { value, at: Date.now() });
         return value;
       },
-      async shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: SharedCleanup<T>): Promise<T> {
-        const hit = sharedStore.get(key);
-        if (hit) {
-          ledger.push({ label, kind: 'shared', cleanup: 'none', reused: true, created: '(made earlier in this worker, removed when it ends)' });
-          return hit.value as T;
+      async shared<T>(key: string, label: string, make: () => Promise<T>, undo?: (created: T) => UndoCall[]): Promise<T> {
+        // Playwright starts a new worker after every failed test: the record is kept in the run folder, per parallel
+        // slot, so the new worker takes it up again instead of making another.
+        const file = path.join(sharedDir(), `p${testInfo.parallelIndex}-${slug(key)}.json`);
+        if (!sharedStore.has(key) && fs.existsSync(file)) sharedStore.set(key, (JSON.parse(fs.readFileSync(file, 'utf8')) as { value: unknown }).value);
+        if (sharedStore.has(key)) {
+          ledger.push({ label, kind: 'shared', cleanup: 'none', reused: true, created: '(made earlier in this run, removed when it ends)' });
+          return sharedStore.get(key) as T;
         }
         const value = await pre({ label, kind: 'shared', cleanup: 'none' }, make);
-        sharedStore.set(key, { label, value, cleanup: cleanup as SharedCleanup<unknown> | undefined });
+        fs.mkdirSync(sharedDir(), { recursive: true });
+        fs.writeFileSync(file, `${JSON.stringify({ label, value, undo: undo?.(value) ?? null }, null, 2)}\n`);
+        sharedStore.set(key, value);
         return value;
       },
       until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts: { timeoutMs?: number; intervalMs?: number } = {}): Promise<T> {

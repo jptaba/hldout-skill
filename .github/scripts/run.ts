@@ -153,7 +153,9 @@ main(async () => {
     ...(Object.keys(vaultValues).length ? { HELDOUT_VAULT_SECRETS: JSON.stringify(vaultValues) } : {}),
     ...(flags.capture ? { HELDOUT_CAPTURE: '1' } : {}),
     ...(flags.headed ? { HELDOUT_HEADED: '1' } : {}),
-    ...(flagStr(flags, 'retries') !== undefined ? { HELDOUT_RETRIES: flagStr(flags, 'retries') } : {}),
+    // A hardening run repeats each test to show what is unstable: a retry would only hide it, and send a failing
+    // test's requests (and the records it leaves) a second time. Evaluation runs keep the profile's retries.
+    ...(flagStr(flags, 'retries') !== undefined ? { HELDOUT_RETRIES: flagStr(flags, 'retries') } : NON_EVAL_RUN.test(runName) ? { HELDOUT_RETRIES: '0' } : {}),
     ...(repeatEach ? { HELDOUT_REPEAT_EACH: repeatEach } : {}),
   };
 
@@ -219,12 +221,12 @@ main(async () => {
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
   const seeded = seedSummary(readJson<unknown>(resultsFile), dataPrefix(cfg.aut));
   const leftovers = seeded.leftovers;
-  // Data made once per worker (seed.shared) is removed when the worker ends: each worker reports what it did.
-  const shared = fs.readdirSync(runDir).filter((f) => /^shared-data-w\d+\.json$/.test(f))
-    .flatMap((f) => readJson<{ label: string; cleanup: string; error?: string; created?: unknown }[]>(path.join(runDir, f)));
+  // Data made once per worker (seed.shared) is removed when the run is over: the teardown reports what it did.
+  const sharedFile = path.join(runDir, 'shared-data.json');
+  const shared = fs.existsSync(sharedFile) ? readJson<{ label: string; cleanup: string; error?: string; created?: unknown }[]>(sharedFile) : [];
   if (shared.length) {
     const kept = shared.filter((s) => s.cleanup === 'none' || s.cleanup === 'skipped').length;
-    console.log(`  🧹 shared test data (made once per worker): ${shared.length} — ${shared.filter((s) => s.cleanup === 'done').length} removed when the worker ended${kept ? `, ${kept} kept (no cleanup given, or HELDOUT_KEEP_DATA)` : ''}`);
+    console.log(`  🧹 shared test data (made once per worker): ${shared.length} — ${shared.filter((s) => s.cleanup === 'done').length} removed when the run ended${kept ? `, ${kept} kept (no undo given, or HELDOUT_KEEP_DATA)` : ''}`);
     for (const s of shared.filter((x) => x.cleanup === 'failed')) leftovers.push(`shared: ${s.label} — ${s.error ?? 'failed'} (${JSON.stringify(s.created ?? null).slice(0, 100)})`);
   }
   const acc = seeded.accounts;

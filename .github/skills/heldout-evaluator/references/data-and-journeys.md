@@ -43,14 +43,27 @@ a page, is the same for every story on an application: write it once as a journe
 9. **A long chain of dependent records is built once per worker when tests only look at it.** A category, a
    sub-category, a brand and a product under them take four calls to make and four to remove. Tests that only read the
    chain (it is listed, found, shown on its page) or try and must fail to change it (a customer's refused update) share
-   one: `seed.shared('product-line', 'a product line (category, sub-category, brand, product)', () => createLine(api, …),
-   async (line, api, signIn) => removeLine(api, (await signIn('admin')).headers, line))`. It is made the first time a
-   test of the worker asks for it and removed when the worker ends, newest first. The cleanup gets an API client of its
-   own (the test's is gone by then) and `signIn(role)`, which signs an existing account of that role in at that moment:
-   a token taken when the record was made may have expired by the end of a long run. A test that changes or deletes a record of the chain,
-   or needs it in a particular state, makes its own with `seed.create`. Forty tests that each build and remove the whole
-   chain spend most of a run on setup; a failed cleanup is listed by `heldout run` like any other. This keeps a suite of
-   many setups (one test per user type) from leaving one record per test behind, and saves its time.
+   one:
+
+   ```ts
+   const line = await seed.shared('product-line', 'a product line (category, sub-category, brand, product)',
+     () => createLine(api, admin.headers),                      // returns plain data: ids and names
+     (l) => [                                                   // the calls that remove it, in the order to send them
+       { method: 'DELETE', path: `/products/${l.productId}`, as: 'admin' },
+       { method: 'DELETE', path: `/categories/${l.subCategoryId}`, as: 'admin' },
+       { method: 'DELETE', path: `/categories/${l.categoryId}`, as: 'admin' },
+       { method: 'DELETE', path: `/brands/${l.brandId}`, as: 'admin' },
+     ]);
+   ```
+
+   It is made the first time a test of the parallel worker asks for it and removed once, when the run is over. Playwright
+   starts a new worker after every failed test, so the record is kept in the run folder and the new worker takes it up
+   again: that is why what `make` returns must be plain data (no functions, no signed-in account) and why the undo is a
+   list of calls, not code. `as` names the role of an existing account to send the call as; it is signed in when the
+   call is sent, since a token taken when the record was made may have run out by then. A call answered 404 was
+   already gone. A test that changes or deletes a record of the chain, or needs it in a particular state, makes its
+   own with `seed.create`. Forty tests that each build and remove the whole chain spend most of a run on setup; an
+   undo that fails is listed by `heldout run` like any other leftover.
 
 ## 2. Where seed data comes from (preference order)
 

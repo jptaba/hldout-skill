@@ -29,7 +29,7 @@ import { AGENT_FILES, ROOT, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitignore
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
 /** Files a project gets from the skill repository, at the same path. */
-const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', '.env.example', 'heldout-support/fixtures.ts', ...AGENT_FILES];
+const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', '.env.example', 'heldout-support/fixtures.ts', 'heldout-support/shared-teardown.ts', ...AGENT_FILES];
 /** Settings merged into the project's own, from the same files in the skill repository. */
 const SETTINGS: [file: string, why: string][] = [
   ['.claude/settings.json', 'Claude Code fallback models, also used by the subagents; the heldout command and the Playwright MCP browser run without an approval prompt'],

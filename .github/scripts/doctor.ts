@@ -82,7 +82,7 @@ main(async () => {
       if (!issues.length) { cfg = loadConfig(); check('ok', 'config', `heldout.config.json valid — ${Object.keys(cfg.auts).length} AUT profile(s), default "${cfg.defaultAut}"`); }
     }
   }
-  for (const file of ['playwright.config.ts', 'heldout-support/fixtures.ts', 'tsconfig.json']) {
+  for (const file of ['playwright.config.ts', 'heldout-support/fixtures.ts', 'heldout-support/shared-teardown.ts', 'tsconfig.json']) {
     if (fs.existsSync(path.join(ROOT, file))) check('ok', 'files', file);
     else check('fail', 'files', `${file} is missing`, UPDATE_HINT);
   }

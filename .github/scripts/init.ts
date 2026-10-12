@@ -27,7 +27,7 @@ import { appNameFrom, appRootOf, baseUrlOf, describeCounts, discoverApp, profile
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
 /** Files update copies from the skill repository; init only checks they are there. */
-const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', MCP_FILE, '.env.example', 'heldout-support/fixtures.ts', ...AGENT_FILES];
+const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', MCP_FILE, '.env.example', 'heldout-support/fixtures.ts', 'heldout-support/shared-teardown.ts', ...AGENT_FILES];
 /** A new project's heldout.config.json: flags and one visit of the application fill in the profile. */
 const STARTER_CONFIG = {
   jira: { mode: 'mock', mockRoot: 'mock-jira', baseUrl: 'https://jira.example.com', acceptanceCriteriaField: '', verdictLabelPrefix: 'heldout-' },

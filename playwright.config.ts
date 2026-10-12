@@ -25,6 +25,8 @@ export default defineConfig({
   testMatch: '**/tests/**/*.spec.ts',
   outputDir: path.join(runDir, 'artifacts'),
   fullyParallel: true,
+  // Records the tests share through seed.shared are removed once, when the run is over.
+  globalTeardown: path.resolve(process.env.HELDOUT_ROOT ?? process.cwd(), 'heldout-support', 'shared-teardown.ts'),
   forbidOnly: true,
   retries: num(process.env.HELDOUT_RETRIES, cfg.run?.retries ?? 1),
   workers: num(process.env.HELDOUT_WORKERS, cfg.run?.workers ?? 4),
