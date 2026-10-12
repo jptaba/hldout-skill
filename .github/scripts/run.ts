@@ -134,7 +134,14 @@ main(async () => {
   const takesAccounts = accountCalls.length > 0;
   // Every call names its role as a literal: only those roles limit the workers. One that doesn't may take any account.
   const namedRoles = accountCalls.map((c) => c.match(/\brole:\s*['"`]([a-z][a-z0-9-]*)['"`]/)?.[1]);
-  const pool = takesAccounts ? existingAccountWorkers(cfg.aut.accounts, namedRoles.every(Boolean) ? new Set(namedRoles as string[]) : undefined) : undefined;
+  // A role asked for under several labels ("customer", "another customer") is taken that many times by one test, at
+  // most: each worker then needs that many accounts of the role.
+  const labelsOf = new Map<string, Set<string>>();
+  for (const c of accountCalls) {
+    const role = c.match(/\brole:\s*['"`]([a-z][a-z0-9-]*)['"`]/)?.[1]; const label = c.match(/\(\s*['"`]([^'"`]*)['"`]/)?.[1];
+    if (role) labelsOf.set(role, (labelsOf.get(role) ?? new Set()).add(label ?? ''));
+  }
+  const pool = takesAccounts ? existingAccountWorkers(cfg.aut.accounts, namedRoles.every(Boolean) ? new Map([...labelsOf].map(([role, labels]) => [role, labels.size])) : undefined) : undefined;
   const cap = [cfg.aut.maxWorkers, pool].filter((x): x is number => Boolean(x)).reduce<number | undefined>((a, b) => (a === undefined ? b : Math.min(a, b)), undefined);
   const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
   const workers = cap ? Math.min(asked ?? cap, cap) : asked;

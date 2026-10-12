@@ -123,6 +123,10 @@ MSYS rewrites `/…` arguments into Windows paths.
   (a readiness anchor) → `browser_snapshot` → act with `browser_click` / `browser_type` / `browser_select_option`
   / `browser_handle_dialog`, using the `target` ref from the snapshot. Wait for what you will act on, not only for the
   page: a heading can be there while the buttons still have no names, and a snapshot taken then shows them unnamed.
+  On a page that shows one record (a detail page with a form on it), wait for something the page loaded (the
+  record's text), not for the form: a form can be usable before its record has arrived, and a click made then sends
+  no call. A step that should have sent a call and sent none is a sign of this before it is a sign of a defect; the
+  same holds for an `inspect` walk and for the journey you write.
   Before a step that clicks by role and name, wait for that text (the button's label). The server saves its snapshots wherever the
   app started it, not in the story's folder: the walk is not evidence until you replay the steps that matter with
   `mcp-probe … --out output/<profile>/KEY/hardening/tier2/<walk>.md` (below) or prove them with `heldout inspect`.

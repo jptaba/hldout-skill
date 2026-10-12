@@ -138,6 +138,8 @@ describe('accounts with roles', () => {
     assert.equal(existingAccountWorkers(r, new Set(['customer'])), 3, 'no test takes the administrator');
     assert.equal(existingAccountWorkers(r, new Set(['customer', 'admin'])), 1);
     assert.equal(existingAccountWorkers({ ...r, perTest: 2 }, new Set(['customer'])), 1, 'a test takes two customers');
+    assert.equal(existingAccountWorkers(r, new Map([['customer', 2]])), 1, 'the tests ask for a customer under two labels');
+    assert.equal(existingAccountWorkers(r, new Map([['customer', 1]])), 3);
     r.existing![3].shared = true;
     assert.equal(existingAccountWorkers(r, new Set(['admin'])), undefined, 'a shared administrator alone sets no limit');
   });

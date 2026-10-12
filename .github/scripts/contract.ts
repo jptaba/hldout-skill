@@ -54,7 +54,9 @@ function accountsLine(r?: AccountRecipe): string | undefined {
   const roles = [...accountRoles(r)].map(([role, n]) => `${n} ${role}`).join(', ');
   const who = createsAccounts(r) ? 'the tests create their own users' : `${r.existing?.length ?? 0} existing account(s)${roles ? ` (${roles})` : ''}`;
   const how = [r.token && 'sign-in over the API', r.signIn && 'sign-in on the web application'].filter(Boolean).join(' and ');
-  return `${who}${how ? `, with ${how} saved in the profile's accounts recipe` : '; how they sign in is found while hardening and saved in the profile for every later story'}`;
+  // The header a signed-in call carries is the recipe's business: named here, so nobody records it as a gap.
+  const header = r.token ? `; a signed-in call sends \`${r.authHeader ?? 'Authorization: Bearer ${token}'}\`` : '';
+  return `${who}${how ? `, with ${how} saved in the profile's accounts recipe${header}` : '; how they sign in is found while hardening and saved in the profile for every later story'}`;
 }
 
 main(async () => {

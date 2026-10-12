@@ -155,6 +155,14 @@ answer is its own outcome of the criterion. Accounts of different kinds (an admi
 mechanics gap for the evaluator: the profile's existing accounts get a role (`accounts --add-existing … --role admin`)
 and tests ask for one with `seed.account('admin', { role: 'admin' })`.
 
+**How a call proves the sign-in**: no gap when the pack's "Project configuration" block shows the header the
+profile's accounts recipe sends (the tests take it from the recipe); a mechanics gap only when the pack shows none
+and no source states it.
+
+**Values the sources name without listing** ("a subject from the list", "one of the available sizes"): a mechanics
+gap when a test only needs one valid value (it is found while hardening); an oracle gap when a criterion checks the
+set itself ("the list offers exactly these").
+
 **HTML entities** (`&lt;brand&gt;`): quote the line as the pack shows it or as it reads (`<brand>`); the checks
 treat both the same.
 

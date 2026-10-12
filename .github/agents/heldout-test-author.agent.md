@@ -72,7 +72,10 @@ this story's folder: `npm run heldout -- journeys KEY` prints it. Another applic
 Read a file the tools wrote for you (the scaffolded spec, `test-data.json`) with your file tool before you write to it.
 A call under test whose endpoint the contract leaves to a mechanics gap (the story names no path or method for it)
 goes through a journey that sends it and returns the raw answer (`sendDeleteCart(api, id)`); the test asserts on that
-answer. Calls the contract declares stay in the spec's `EP` map.
+answer. Calls the contract declares stay in the spec's `EP` map. When the contract declares an endpoint and leaves
+its request or response fields to a mechanics gap, the spec still sends the call; the guessed fields go in the
+domain's file, once each: a journey that builds the request (`questionFields(subject, text)`) and one that reads the
+answer (`readQuestion(body)`), marked `// TODO(harden)`, so the hardener corrects a field in one place.
 
 Step titles: one action or one outcome each. "When …, then …" in one title fails the lint (`no-then`): write the
 `When` step and the `Then` step. A `// from` line sits directly above its test, or above the loop of a table.

@@ -332,8 +332,11 @@ export function duplicateJourneys(journeys: JourneyInfo[]): JourneyInfo[][] {
   const byId = new Map(journeys.map((j) => [j.id, j]));
   const calls = (a: JourneyInfo, seen = new Set<string>([a.id])): string[] => uniq([...(a.endpoints ?? []),
     ...(a.calls ?? []).filter((id) => !seen.has(id) && seen.add(id)).flatMap((id) => (byId.has(id) ? calls(byId.get(id)!, seen) : []))]);
+  // A locator that names nothing (getByRole('row'), locator('tbody tr')) is on many pages: two journeys that share
+  // only such locators, and no route, are not shown to do the same thing.
+  const named = (a: JourneyInfo) => Boolean(a.routes?.length) || (a.locators ?? []).some((l) => /name:|getBy(Label|Text|TestId|Placeholder|Title|AltText)\(|\[data-|#[\w-]/.test(l));
   const sig = (a: JourneyInfo) => (calls(a).length ? `${a.kind}|calls|${calls(a).sort().join(',')}`
-    : a.routes?.length || a.locators?.length ? `${a.kind}|ui|${[...(a.routes ?? [])].sort().join(',')}|${[...(a.locators ?? [])].sort().join(',')}|${(a.acts ?? []).join(',')}` : '');
+    : named(a) ? `${a.kind}|ui|${[...(a.routes ?? [])].sort().join(',')}|${[...(a.locators ?? [])].sort().join(',')}|${(a.acts ?? []).join(',')}` : '');
   const groups = new Map<string, JourneyInfo[]>();
   // A journey that only calls others (a wrapper) adds no calls of its own: it is not a second copy of them.
   const own = (a: JourneyInfo) => Boolean(a.endpoints?.length || a.routes?.length || a.locators?.length);
