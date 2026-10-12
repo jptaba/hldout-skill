@@ -290,6 +290,7 @@ raised as a question for the story's owner, with no false positive. The two deep
 run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
 Round 35 took the skill to a second application, ParaBank, with three stories (PB-1 to PB-3) whose answer keys an
 independent author wrote and nobody changed: 2 of 3 verdicts as keyed, 16 of 17 defects found, and 2 findings the
-keys do not list. What comes next is in [docs/next-steps.md](docs/next-steps.md).
+keys do not list. Both applications can be started on your own machine for a round and thrown away after it:
+[demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md). What comes next is in [docs/next-steps.md](docs/next-steps.md).
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
 commits before this one).

@@ -9,7 +9,7 @@ Recommended after round 34 (2026-10-12) and worked through in order in round 35.
 | 2 | Fresh stories, with answer keys the evaluator's developer does not touch afterwards | TOOL-8 and TOOL-9 had been run three times and both keys were edited after runs | Done. PB-1 to PB-3 and their keys were written by an independent author before the runs and are as that author left them: 2 of 3 verdicts as keyed, 16 of 17 defects, 2 findings the keys do not list |
 | 3 | Put the fast path through a real story | "A guess left in a test is settled by the test's own run" had unit tests only | Done, with a caveat. A second draft of PB-3 left two guesses; one sat in a new journey, so the hardener was called (both guesses were right; about 100,000 tokens). Replayed from the same frozen draft with that journey proven, `advance` settled the guess in the test by its run and went to the evaluation without a hardener |
 | 4 | Write the standing rules into the agent files | Rules known to the main agent only were broken by subagents | Done: files are changed with the file tools only; records that can't be deleted are kept to a minimum and counted in the reply |
-| 5 | Move the rounds off shared live demos | One round left about ninety undeletable records on a public demo | Done for round 35: a local container started for the round and removed after it. Rounds on Toolshop still use the public demo |
+| 5 | Move the rounds off shared live demos | One round left about ninety undeletable records on a public demo | Done for both applications: each can be started locally for a round and thrown away after it ([demo/RUNNING-LOCALLY.md](../demo/RUNNING-LOCALLY.md)). Round 35 ran on a local ParaBank; round 34's project was then pointed at a local Toolshop, a newer build than the public demo, and gave the same two verdicts after one repair of two locators |
 | 6 | Two conveniences that were left out | Neither blocked a run | Done: `triage` writes one chain with every distinct failing call (`confirm/all.chain.json`); the inspector has `request`, `force` and `rewrite` steps (a call in the middle of a walk; a forced submission replayed) |
 
 ## Decided after round 35
@@ -43,6 +43,13 @@ as before.
   fixed: page tests are grouped apart from direct calls, a body is referred to only when it is the same, the matcher
   and the call before a failed read-back are shown, `--any-reading` can name some tests of one call, and an HTML
   answer is shown as text in chain reports and inspector steps too. The renderer has unit tests.
+
+- **A verdict from four tests.** The move to a local Toolshop exposed the worst fault of these weeks. The hardener
+  checked its repair with a run of the four repaired tests; that run was taken for the story's latest evaluation, the
+  repair loop's limit (counted over every evaluation run the story ever had) allowed no further run, and the verdict
+  read PASS on four tests while four confirmed defects sat in the run before. A run of some of the tests is now never
+  an evaluation, whatever its label, and the loop counts repairs in a row. With that, the full re-run gave FAIL with
+  the same four defects as on the public demo.
 
 ## Open after round 35
 
