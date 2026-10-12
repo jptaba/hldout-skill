@@ -170,7 +170,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `init`, `update`, `add-aut`, `doctor`, `status [KEY]` | set up, install or update the skill (what `setup.ps1` / `setup.sh` run from the skill's clone), add an application, check the setup, see where each story is and the next step |
 | `advance KEY [--rerun]` | run a story's next script steps (fetch, evidence pack, freeze, run, automatic triage, verdict, publish, journey registry) up to the next subagent; run it again after each one. When a draft leaves nothing to discover (no guess marked, every journey it calls proven in the registry), it also does the hardening itself: two runs of the tests instead of a hardener subagent |
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
-| `accounts --add-existing … [--role admin]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users) or created by the tests; checked live |
+| `accounts --add-existing … [--role admin] [--shared]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users; `--shared` for an account every parallel worker may use, such as the one administrator) or created by the tests; checked live |
 | `fetch KEY [--aut id]` | the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (never comments or other attachments); binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
 | `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
@@ -272,16 +272,19 @@ signed-in journeys.
 Running a story needs `TS_USER_PASSWORD` in `.env`, the password of the accounts the tests create
 (`npm run heldout -- secret TS_USER_PASSWORD --generate`).
 
-**Stories to try.** [demo/stories/](demo/stories/) holds nine Toolshop stories: catalogue search, sorting and category
+**Stories to try.** [demo/stories/](demo/stories/) holds eleven Toolshop stories: catalogue search, sorting and category
 filter (TOOL-1), customer registration, sign-in and account protection (TOOL-2), a shopping cart for guests (TOOL-3),
 favourites for signed-in customers, with its API defined on a linked Confluence page (TOOL-4), three stories in awkward
 shapes — shop by brand as informal bullets with no AC field (TOOL-5), a category tree whose linked API reference is
 mostly about other things and whose one missing status sits behind a non-Confluence link (TOOL-6), and account and
 invoice access to be validated for every user type and data set (TOOL-7, which needs existing accounts with roles) —
+two loosely written stories that go deep into the application, each needing a chain of dependent data over the web
+shop and the API — stocking a product line as an administrator, from category and brand to a customer's cart (TOOL-8),
+and a customer's question from the contact form through an administrator's answer to its status (TOOL-9) —
 and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2). Each has a machine-readable
 answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/)). `npx tsx demo/score.ts` scores the stories in `output/`
 against them → [demo/SCORECARD.md](demo/SCORECARD.md); `--from <project>` scores a round run in a project of its own.
-The scorecard in the repository is round 32: one onboarding, then all nine stories one at a time in the same project,
+The scorecard in the repository is round 32: one onboarding, then the first nine stories one at a time in the same project,
 unattended. Nine of nine verdicts were as the keys say, 12 of the 13 keyed defects were found and the thirteenth was
 raised as a question for the story's owner, with no false positive.
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the

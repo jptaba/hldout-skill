@@ -100,7 +100,9 @@ those: copied as drafts, each marked `TODO(harden)`, proven by nothing until a s
 - *Created by the tests:* nothing now; the recipe is saved while hardening the first story that needs users (from the
   API probe chain, or from the sign-up page when the app has no API for it: `$H accounts --sign-up-json …`).
 Repeat `--add-existing` for more accounts: each parallel worker needs its own, and runs use no more workers than
-there are accounts. `$H accounts --check` (and `doctor`) signs each one in. Existing accounts are shared with later runs:
+there are accounts (of the scarcest role, when accounts have roles: `--role admin`). An account that only acts on
+other records, such as the one administrator, takes `--shared`: it serves every worker and sets no limit, provided the
+application keeps an earlier sign-in valid when the account signs in again. `$H accounts --check` (and `doctor`) signs each one in. Existing accounts are shared with later runs:
 when tests change them, save the call that restores one while hardening (`$H accounts --reset "METHOD path"`).
 
 Jira: `JIRA_MODE=mock` (default) or `datacenter` (Jira and Confluence Data Center, `JIRA_PAT`); `doctor --jira` finds
