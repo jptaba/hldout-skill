@@ -133,7 +133,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const needsData = f.scenarios.filter((x) => givens(x.steps).some((st) => /\b(exists?|created|signed in|have added|know (the|an) id|registered)\b/i.test(st)));
   // Lookups ("I know the id of …") are satisfied by seed.step; data by seed.create/track; auth by seed.once — in the
   // spec or in the journeys it calls.
-  const seeding = [src, ...journeySrc].some((s) => /\bseed\.(create|track|step|once|until|account)\(/.test(s));
+  const seeding = [src, ...journeySrc].some((s) => /\bseed\.(create|track|step|once|shared|until|account)\(/.test(s));
   if (needsData.length && !seeding) {
     warn('no-seeding', `${needsData.length} test(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but neither the spec nor its journeys use seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
   }

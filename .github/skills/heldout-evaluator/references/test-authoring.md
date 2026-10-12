@@ -325,6 +325,7 @@ Full strategy: [data-and-journeys.md](data-and-journeys.md).
 
 | Helper | Use |
 | --- | --- |
+| `seed.shared(key, label, make, cleanup?)` | Records many tests only look at, or try and must fail to change: made once per worker and removed when it ends. `cleanup(created, api)` gets an API client of its own. For a chain of dependent records that is costly to build; a test that changes or deletes a record makes its own |
 | `seed.once(key, label, make, ttlMs?)` | Auth or other reusable context, once per worker (e.g. a token). Not for the test's own subject |
 | `seed.step(label, run)` | Lookups, discovery, protocol values (ETag/CSRF), state checks. No cleanup |
 | `seed.until(label, probe, ready, { timeoutMs, intervalMs })` | Readiness / eventual consistency. BLOCKED on timeout |

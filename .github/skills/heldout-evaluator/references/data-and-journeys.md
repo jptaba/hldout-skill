@@ -39,7 +39,16 @@ a page, is the same for every story on an application: write it once as a journe
    A shared record is recognised by a short marker at the start of its text: lists cut long texts off (often at 50
    characters) and show a page at a time, so a marker at the end is never seen and an old record drifts off the first
    page. A test about the order or the content of a list makes its own fresh record.
-   A test whose own action creates such a record still creates its own. This keeps a suite of
+   A test whose own action creates such a record still creates its own.
+9. **A long chain of dependent records is built once per worker when tests only look at it.** A category, a
+   sub-category, a brand and a product under them take four calls to make and four to remove. Tests that only read the
+   chain (it is listed, found, shown on its page) or try and must fail to change it (a customer's refused update) share
+   one: `seed.shared('product-line', 'a product line (category, sub-category, brand, product)', () => createLine(api, …),
+   (line, api) => removeLine(api, line))`. It is made the first time a test of the worker asks for it and removed when
+   the worker ends, newest first; the cleanup gets an API client of its own (the test's is gone by then), so it takes
+   what it needs to authenticate from the record it was given. A test that changes or deletes a record of the chain,
+   or needs it in a particular state, makes its own with `seed.create`. Forty tests that each build and remove the whole
+   chain spend most of a run on setup; a failed cleanup is listed by `heldout run` like any other. This keeps a suite of
    many setups (one test per user type) from leaving one record per test behind, and saves its time.
 
 ## 2. Where seed data comes from (preference order)

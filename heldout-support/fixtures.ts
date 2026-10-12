@@ -124,7 +124,7 @@ export const uniqueId = (prefix = DATA_PREFIX): string => unique(prefix).replace
 
 export interface SeedRecord {
   label: string;
-  kind: 'data' | 'pre-step' | 'auth' | 'readiness' | 'scenario-created' | 'account';
+  kind: 'data' | 'pre-step' | 'auth' | 'readiness' | 'scenario-created' | 'account' | 'shared';
   created?: unknown; cleanup?: 'done' | 'skipped' | 'failed' | 'none'; reused?: boolean; error?: string;
 }
 
@@ -146,6 +146,13 @@ export interface Seed {
    * token. Use only for values that are safe to share between tests and are not the subject of the scenario.
    */
   once<T>(key: string, label: string, make: () => Promise<T>, ttlMs?: number): Promise<T>;
+  /**
+   * Data that many tests only look at, or try and must fail to change: made once per worker, the first time a test
+   * asks for it, and removed when the worker ends. For a chain of dependent records that is costly to build (a category,
+   * a brand and a product under them). `cleanup` gets an API client of its own (the test's is gone by then) and runs in
+   * reverse order of creation. A test that changes or deletes such a record makes its own with `create`.
+   */
+  shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: (created: T, api: Api) => Promise<unknown>): Promise<T>;
   /** Readiness / eventual consistency: poll `probe` until `ready(value)` holds or the timeout expires (→ BLOCKED). */
   until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts?: { timeoutMs?: number; intervalMs?: number }): Promise<T>;
   /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). Without a
@@ -239,6 +246,8 @@ export async function signIn(page: Page, account: Account): Promise<void> {
 
 /** Worker-scoped cache for seed.once (one worker runs one test at a time). */
 const onceCache = new Map<string, { value: unknown; at: number }>();
+/** What seed.shared made in this worker, in order: removed by the worker's teardown. */
+const sharedStore = new Map<string, { label: string; value: unknown; cleanup?: (created: unknown, api: Api) => Promise<unknown> }>();
 
 /**
  * A path in a test is relative to the AUT profile's URL, including any path prefix: with baseURL
@@ -326,7 +335,33 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Seconds a 429 asks us to wait (Retry-After header, or a retry_after field some WAFs put in the body). */
 const retryAfter = (header: string | undefined, body = '') => Math.min(Number(header ?? body.match(/retry_after\D{0,5}(\d+)/i)?.[1] ?? 10) || 10, 120);
 
-export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed; pace: void }>({
+export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed; pace: void }, { sharedData: void }>({
+  // What seed.shared made is removed when the worker ends, newest first, with an API client of its own. The outcome
+  // goes to the run folder: `heldout run` lists what could not be removed.
+  sharedData: [async ({}, use, workerInfo) => {
+    await use();
+    if (!sharedStore.size) return;
+    const report: { label: string; cleanup: 'done' | 'failed' | 'none' | 'skipped'; error?: string; created?: unknown }[] = [];
+    const ctx = await pwRequest.newContext({ baseURL: process.env.AUT_API_BASE_URL ?? process.env.AUT_BASE_URL });
+    const api = makeApi(ctx);
+    apiPhase = 'cleanup';
+    for (const entry of [...sharedStore.values()].reverse()) {
+      if (!entry.cleanup) { report.push({ label: entry.label, cleanup: 'none', created: redact(entry.value) }); continue; }
+      if (process.env.HELDOUT_KEEP_DATA === '1') { report.push({ label: entry.label, cleanup: 'skipped' }); continue; }
+      try {
+        const out = await entry.cleanup(entry.value, api) as { status?: unknown } | undefined;
+        const status = typeof out?.status === 'number' ? out.status : undefined;
+        if (status !== undefined && status >= 400 && status !== 404 && status !== 410) throw new Error(`HTTP ${status}`);
+        report.push({ label: entry.label, cleanup: 'done' });
+      } catch (e) { report.push({ label: entry.label, cleanup: 'failed', error: (e as Error).message.split('\n')[0], created: redact(entry.value) }); }
+    }
+    apiPhase = 'test';
+    sharedStore.clear();
+    await ctx.dispose();
+    const dir = process.env.HELDOUT_RUN_DIR;
+    if (dir && fs.existsSync(dir)) fs.writeFileSync(path.join(dir, `shared-data-w${workerInfo.workerIndex}.json`), `${JSON.stringify(report, null, 2)}\n`);
+  }, { scope: 'worker', auto: true }],
+
   // The profile's minTestIntervalMs: tests start at least that far apart, across workers and worker restarts, so a
   // host that bans bursts of traffic (shared sandboxes behind a WAF) never sees one.
   pace: [async ({}, use) => {
@@ -397,6 +432,16 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         }
         const value = await pre({ label, kind: 'auth', cleanup: 'none' }, make);
         onceCache.set(key, { value, at: Date.now() });
+        return value;
+      },
+      async shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: (created: T, api: Api) => Promise<unknown>): Promise<T> {
+        const hit = sharedStore.get(key);
+        if (hit) {
+          ledger.push({ label, kind: 'shared', cleanup: 'none', reused: true, created: '(made earlier in this worker, removed when it ends)' });
+          return hit.value as T;
+        }
+        const value = await pre({ label, kind: 'shared', cleanup: 'none' }, make);
+        sharedStore.set(key, { label, value, cleanup: cleanup as ((created: unknown, api: Api) => Promise<unknown>) | undefined });
         return value;
       },
       until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts: { timeoutMs?: number; intervalMs?: number } = {}): Promise<T> {
@@ -610,6 +655,15 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   },
 
   api: async ({ apiContext }, use, testInfo) => {
+    await use(makeApi(apiContext, (name, body) => testInfo.attach(name, { body, contentType: 'application/json' })));
+  },
+});
+
+/**
+ * The API client over a request context. `attach` records each exchange as evidence of the running test; the client
+ * that removes shared records when a worker ends has no test to attach to.
+ */
+function makeApi(apiContext: APIRequestContext, attach?: (name: string, body: string) => Promise<unknown>): Api {
     let n = 0;
     const call = async <T,>(method: string, urlPath: string, o: ApiCallOptions = {}): Promise<ApiResponse<T>> => {
       const headers = Object.fromEntries(Object.entries({ Accept: 'application/json', ...o.headers })
@@ -667,19 +721,18 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       };
       n++;
       // Name format: "api-exchange NN [seed|cleanup] METHOD /path → status" — triage excludes seed/cleanup from evidence.
-      await testInfo.attach(`api-exchange ${String(n).padStart(2, '0')}${apiPhase === 'test' ? '' : ` [${apiPhase}]`} ${method} ${new URL(res.url()).pathname} → ${res.status()}`,
-        { body: JSON.stringify(exchange, null, 2), contentType: 'application/json' });
+      await attach?.(`api-exchange ${String(n).padStart(2, '0')}${apiPhase === 'test' ? '' : ` [${apiPhase}]`} ${method} ${new URL(res.url()).pathname} → ${res.status()}`,
+        JSON.stringify(exchange, null, 2));
       return { status: res.status(), ok: res.ok(), headers: res.headers(), body: body as T, text, durationMs, url: res.url() };
     };
-    await use({
+    return {
       call,
       get: (p, o) => call('GET', p, o),
       post: (p, o) => call('POST', p, o),
       put: (p, o) => call('PUT', p, o),
       patch: (p, o) => call('PATCH', p, o),
       delete: (p, o) => call('DELETE', p, o),
-    });
-  },
-});
+    };
+}
 
 export { expect };

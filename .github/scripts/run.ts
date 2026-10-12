@@ -216,6 +216,14 @@ main(async () => {
   // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
   const seeded = seedSummary(readJson<unknown>(resultsFile), dataPrefix(cfg.aut));
   const leftovers = seeded.leftovers;
+  // Data made once per worker (seed.shared) is removed when the worker ends: each worker reports what it did.
+  const shared = fs.readdirSync(runDir).filter((f) => /^shared-data-w\d+\.json$/.test(f))
+    .flatMap((f) => readJson<{ label: string; cleanup: string; error?: string; created?: unknown }[]>(path.join(runDir, f)));
+  if (shared.length) {
+    const kept = shared.filter((s) => s.cleanup === 'none' || s.cleanup === 'skipped').length;
+    console.log(`  🧹 shared test data (made once per worker): ${shared.length} — ${shared.filter((s) => s.cleanup === 'done').length} removed when the worker ended${kept ? `, ${kept} kept (no cleanup given, or HELDOUT_KEEP_DATA)` : ''}`);
+    for (const s of shared.filter((x) => x.cleanup === 'failed')) leftovers.push(`shared: ${s.label} — ${s.error ?? 'failed'} (${JSON.stringify(s.created ?? null).slice(0, 100)})`);
+  }
   const acc = seeded.accounts;
   if (acc.used) {
     const reset = acc.reset || acc.notReset.length ? ` — reset after the test ${acc.reset} time(s)${acc.notReset.length ? `, NOT reset ${acc.notReset.length} time(s)` : ''}` : ' (the recipe has no reset: what a test adds to them stays)';
