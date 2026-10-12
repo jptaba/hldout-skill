@@ -325,7 +325,7 @@ Full strategy: [data-and-journeys.md](data-and-journeys.md).
 
 | Helper | Use |
 | --- | --- |
-| `seed.shared(key, label, make, undo?)` | Records many tests only look at, or try and must fail to change: made once per parallel worker, kept through worker restarts, and removed when the run is over. `make` returns plain data; `undo(created)` returns the calls that remove it (`{ method, path, as?: '<role>' }`), sent in that order. For a chain of dependent records that is costly to build; a test that changes or deletes a record makes its own |
+| `seed.shared(key, label, make, undo?)` | Records many tests only look at (a test that sends a change or a delete at a record, even one that must be refused, makes that record its own): made once per parallel worker, kept through worker restarts, and removed when the run is over. `make` returns plain data; `undo(created)` returns the calls that remove it (`{ method, path, as?: '<role>' }`), sent in that order. For a chain of dependent records that is costly to build; a test that changes or deletes a record makes its own |
 | `seed.once(key, label, make, ttlMs?)` | Auth or other reusable context, once per worker (e.g. a token). Not for the test's own subject |
 | `seed.step(label, run)` | Lookups, discovery, protocol values (ETag/CSRF), state checks. No cleanup |
 | `seed.until(label, probe, ready, { timeoutMs, intervalMs })` | Readiness / eventual consistency. BLOCKED on timeout |

@@ -127,7 +127,7 @@ function readSpec(file: string, into: Suite): void {
       const text = lines[l].trim();
       // A table's comments may sit above the loop that declares its tests, or above the rows declared just before it
       // (`const CASES = [ … ];`, at most a dozen lines).
-      if (!loop && !sources.length && /^(for\s*\(|[\w.$[\]()]+\.(forEach|map)\()/.test(text)) { loop = true; continue; }
+      if (!loop && !sources.length && /^for\s*(await\s*)?\(|\.(forEach|map)\(/.test(text)) { loop = true; continue; }
       if (loop && !sources.length && !text.startsWith('//') && table-- > 0 && /^(const\s|[{[\]}]|['"`\w].*,$)|[,;[]$/.test(text)) continue;
       if (!text.startsWith('//')) break;
       const from = text.match(/^\/\/\s*from\s+(.+)$/i);

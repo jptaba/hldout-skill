@@ -42,8 +42,9 @@ a page, is the same for every story on an application: write it once as a journe
    A test whose own action creates such a record still creates its own.
 9. **A long chain of dependent records is built once per worker when tests only look at it.** A category, a
    sub-category, a brand and a product under them take four calls to make and four to remove. Tests that only read the
-   chain (it is listed, found, shown on its page) or try and must fail to change it (a customer's refused update) share
-   one:
+   chain (it is listed, found, shown on its page, a product of their own is made under it) share one. A test that
+   sends a change or a delete at a record makes that record its own, even when the request must be refused: an
+   application that wrongly accepts it would otherwise alter what every later test of the worker relies on.
 
    ```ts
    const line = await seed.shared('product-line', 'a product line (category, sub-category, brand, product)',

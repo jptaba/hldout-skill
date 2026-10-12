@@ -147,7 +147,8 @@ export interface Seed {
    */
   once<T>(key: string, label: string, make: () => Promise<T>, ttlMs?: number): Promise<T>;
   /**
-   * Data that many tests only look at, or try and must fail to change: made once per parallel worker, the first time
+   * Data that many tests only look at (never the target of a change or a delete, even one that must be refused: an
+   * application that wrongly accepts it would alter what later tests rely on): made once per parallel worker, the first time
    * a test asks for it, and removed when the run is over. For a chain of dependent records that is costly to build (a
    * category, a brand and a product under them). What `make` returns is kept as plain data (ids, names: no functions,
    * no signed-in account). `undo` lists the calls that remove it, in the order to send them:

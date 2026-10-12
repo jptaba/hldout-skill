@@ -45,8 +45,9 @@ Do this:
    `seed.account()` / `signIn()` when the profile has an accounts recipe. Never rely on records that happen to exist.
    A record the application can't delete (a placed order) that several tests only read is created once per worker
    with `seed.once` and shared (data-and-journeys.md §1, rule 8), never once per test. A chain of dependent records
-   that many tests only read, or try and must fail to change, is built once per worker with `seed.shared` and the
-   list of calls that undo it (rule 9); a test that changes or deletes a record makes its own.
+   that many tests only read is built once per worker with `seed.shared` and the
+   list of calls that undo it (rule 9); a test that sends a change or a delete at a record makes that record its own,
+   even when the request must be refused.
 5. Keep every expectation in the test: API answers with `expectResponse(res, { status, body }, '[REQ AC-n] …')`, UI
    outcomes with `[REQ AC-n]` assertion messages, values verbatim from the contract in the `@req-constants` block.
 6. Deep-link to the page the AC names. Every guessed locator, route or request field gets `// TODO(harden)`.
