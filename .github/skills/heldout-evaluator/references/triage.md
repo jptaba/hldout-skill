@@ -76,7 +76,12 @@ When something *was* disclosed or changed, the severity follows that, not the st
 1. Read `triage.md`: failing step, expected vs received, API exchanges, screenshot, snapshot, trace
    (`npx playwright show-trace …`).
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json`;
-   replay API requests with `heldout api-probe`. Save the output under `runs/NN/confirm/`. For a leak finding,
+   replay API requests with `heldout api-probe`. Save the output under `runs/NN/confirm/`. Start from
+   `confirm/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
+   once. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is
+   replayed with the inspector's own steps, never with a script of yours: `force` gives a control the value,
+   `rewrite` changes fields of the page's next request, `request` makes a call in the middle of the walk; the report
+   lists the requests it rewrote. For a leak finding,
    a chain step checks it without printing the secret: `"show": ["token|jwt"]` decodes a token, and
    `"notContains": [{"field": "token", "decode": "jwt", "value": "${env:PASSWORD}"}]` reports which part holds it.
    Write the test's leak assertion the same way, as a list, e.g. `expect(partsContaining).toEqual([])`, so the

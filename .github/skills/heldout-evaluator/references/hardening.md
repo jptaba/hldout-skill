@@ -110,6 +110,13 @@ prints the command that paces the tests on that host, e.g.
 `heldout inspect` steps wait for an address with `{ "do": "wait", "target": "url:/search" }`, the same form as an accounts
 recipe's `done`. Hash routes work as `--url "#/login"`, also under Git Bash.
 
+A journey that submits what a page doesn't offer (a value missing from a list, another user's record) is proven with
+the inspector before any run: `{ "do": "force", "target": "<the control>", "value": "2" }` gives a control the value,
+`{ "do": "rewrite", "url": "<part of the address>", "value": "field=value" }` changes those fields of the page's next
+request, and the report lists the requests it rewrote. `{ "do": "request", "url": "POST <path>", "value": "<JSON>" }`
+makes a call in the middle of a walk (a record another user changes while the page is open). A step that changes
+the address says where it landed ("now at /overview").
+
 The Playwright MCP server is one browser per agent session. When several agents evaluate stories in parallel,
 they would drive the same page: use `heldout mcp-probe` (its own server per call) or tier 3 instead.
 
