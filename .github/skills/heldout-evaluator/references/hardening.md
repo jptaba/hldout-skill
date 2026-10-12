@@ -180,6 +180,12 @@ npm run heldout -- inspect --key KEY --steps output/<profile>/KEY/hardening/tier
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 
+**Values the application takes as codes.** When a value the tests name in words (an account type, a status, a
+category) turns out to be sent as a code (0, 1, 2), a test's "unknown" or "not allowed" value must be sent the way
+the valid ones are: a code outside the set, not the word passed through. An application often answers a value of the
+wrong form at once (a 404, a parsing error) and fails only on a value of the right form that it doesn't know. Map
+the test's unknown value to such a code in the journey, and say so in the log.
+
 ## 3. Observed deviations: do NOT "fix" these
 
 If the AUT contradicts the requirement (different text, status code, total, missing control or
