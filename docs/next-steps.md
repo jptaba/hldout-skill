@@ -12,11 +12,18 @@ Recommended after round 34 (2026-10-12) and worked through in order in round 35.
 | 5 | Move the rounds off shared live demos | One round left about ninety undeletable records on a public demo | Done for round 35: a local container started for the round and removed after it. Rounds on Toolshop still use the public demo |
 | 6 | Two conveniences that were left out | Neither blocked a run | Done: `triage` writes one chain with every distinct failing call (`confirm/all.chain.json`); the inspector has `request`, `force` and `rewrite` steps (a call in the middle of a walk; a forced submission replayed) |
 
+## Decided after round 35
+
+A verdict whose only open questions block no criterion stays PASS: the criteria were judged in full, and a warning
+on every loosely written story would make warnings mean nothing. What changed is where the questions are seen: the
+verdict's first line, and the summary posted to the story, now count them and point to the section that lists them.
+A question the criteria can't be judged without is recorded as required and makes the verdict PASS WITH WARNINGS,
+as before.
+
 ## Open after round 35
 
 | What | Why it matters |
 | --- | --- |
-| A verdict that lists questions for the owner is PASS when none of them blocks a criterion | PB-3's key expected PASS WITH WARNINGS. A decision for the skill's owner, not a defect |
 | A guess in a journey that is new to the story always calls the hardener | One new one-line journey cost a hardening pass in step 3. Settling it by the run is possible when every test that calls it passed, but a wrong guess in a journey that returns a yes or no can still pass |
 | Trace archives are not scrubbed | An application that takes a password in an address leaves it readable in Playwright's trace files. They are kept out of git, and the reports and the console are scrubbed |
 | The triage report repeats long error bodies | 115 KB for 57 failures in PB-2 |

@@ -150,12 +150,17 @@ main(() => {
   const contradictedBy = (q: string) => (q.match(/\bG\d+\b/g) ?? []).some((id) => contradicted.some((e) => assumesOf(e.scenario).some((a) => a.startsWith(id))));
   const infoQuestions = feature.openQuestions.filter((q) => informational(q) && !contradictedBy(q));
   const unverifiedNfrs = (contract.nonFunctional ?? []).filter((n) => !feature.scenarios.some((s) => s.nfrs.includes(n.id)));
-  const { verdict, reason } = decideVerdict({
+  const { verdict, reason: decided } = decideVerdict({
     integrity: integrity.status,
     confirmedAppDefects: [...groups.values()].filter((g) => g.some((e) => e.final)).map((g) => ({ refs: [...new Set(g.flatMap((e) => e.requirementRefs))] })),
     failures: failures.length - contradicted.length, contradictedAssumptions: contradicted.length,
     environmentFailures: failures.filter((e) => e.final?.category === 'ENVIRONMENT_ISSUE').length, skipped: tri.summary.skipped, flaky: flaky.length, uncoveredAcs: uncovered.length, clarifications: unsettled.length, openQuestions: blockingQuestions.length, unverifiedRequirements: unverifiedNfrs.length, untestedSetups: untestedSetups.length,
   });
+  // Questions the criteria can be judged without don't change the verdict, but nobody should have to find them at the
+  // end of the report: the first line of the verdict (and of the summary posted to the story) says they are there.
+  const reason = infoQuestions.length
+    ? `${decided} ${infoQuestions.length === 1 ? 'One question for the story\'s owner is' : `${infoQuestions.length} questions for the story's owner are`} listed under "Requirement gaps, assumptions and open questions"; no criterion waits on ${infoQuestions.length === 1 ? 'it' : 'them'}.`
+    : decided;
 
   const acText = (id: string) => feature.acs.find((a) => a.id === id)?.text ?? '';
   const scenarioOf = (id: string) => feature.scenarios.find((x) => x.id === baseScenarioId(id));
