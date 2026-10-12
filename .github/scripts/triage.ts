@@ -8,8 +8,10 @@
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
  *
  *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
- *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."]
+ *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."] [--any-reading]
  *        → records the evaluator's *confirmed* classification after live re-investigation.
+ *        --any-reading: the test is tagged @assumes or @needs-clarification, but the failure holds whichever way the
+ *        open question is answered (the rationale says why): it is reported as a defect, not as a question for the owner.
  *
  * The automatic pass never has the last word on an APPLICATION_DEFECT: policy requires a live
  * reproduction in the AUT (tier 1/2/3 browser, or api-probe.ts for API) before --set confirms it.
@@ -224,7 +226,9 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
     headers: { [header[0]]: header.slice(1).join(': ').replace(/\$\{token\}/g, `\${${tokenVar(sender ?? accounts[0], accounts.indexOf(sender ?? accounts[0]))}}`) },
     ...(body && typeof body === 'object' ? { json: body } : {}),
   });
-  return { note: `Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
+  // Records the run made are gone when it is over: the ids the call names then point at nothing.
+  const namesRecords = /\/(\d+|[0-9A-Za-z-]{16,})(\/|\?|$)/.test(api.request.url) || Boolean(body && typeof body === 'object' && Object.keys(body).some((k) => /(^|_)id$|Id$/.test(k)));
+  return { note: `${namesRecords ? 'The failing call names records by id: the run removed the ones it made, so add a setup step that makes each again (save its id) and put the saved ids in the call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
 
 export function renderTriageMd(r: TriageReport, runDir: string): string {
@@ -286,7 +290,7 @@ main(() => {
     const rationale = flagStr(flags, 'rationale');
     if (!rationale) throw new Error('--rationale is required (explain the evidence).');
     const decision = { category, severity: flagStr(flags, 'severity'), title: flagStr(flags, 'title'), rationale,
-      evidence: flagStr(flags, 'evidence'), action: flagStr(flags, 'action'), confirmedAt: new Date().toISOString() };
+      evidence: flagStr(flags, 'evidence'), action: flagStr(flags, 'action'), ...(flags['any-reading'] ? { anyReading: true } : {}), confirmedAt: new Date().toISOString() };
     for (const e of entries) e.final = { ...decision };
     writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
     writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));

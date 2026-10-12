@@ -10,6 +10,7 @@
  *                                 typed into fields left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
+ *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200)
  *
  * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog, target?, value?, url? }
  *   A "probe" step counts its target's matches at that point of the walk (what is gone by the end of it, such as a
@@ -19,7 +20,8 @@
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address;
- *   without a target, value is a load state (load, networkidle) or a number of milliseconds ("1500").
+ *   without a target, value is a load state (load, networkidle) or a number of milliseconds ("1500"; at most
+ *   60000 in one step).
  *   The report lists the API calls the page made (fetch/XHR on the app's site), on load and after each step: method,
  *   path, what was sent (query parameter names, the body with secrets redacted), status and the answer's shape
  *   and what the page keeps in localStorage / sessionStorage (long values and tokens by length only).
@@ -71,7 +73,7 @@ async function runStep(page: Page, s: Step, baseURL: string): Promise<string | v
     case 'dialog': dialogs.next.push(s.value === 'accept' ? 'accept' : 'dismiss'); break;
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
     // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
-    case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : /^\d+$/.test(s.value ?? '') ? page.waitForTimeout(Math.min(Number(s.value), 15_000)) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
+    case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : /^\d+$/.test(s.value ?? '') ? page.waitForTimeout(Math.min(Number(s.value), 60_000)) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
     default: throw new Error(`Unknown step "${s.do}"`);
   }
 }
@@ -91,6 +93,7 @@ main(async () => {
   const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8'))
     : flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) : [];
 
+  const sentLimit = Number(flagStr(flags, 'body-limit') ?? 200);
   selectors.setTestIdAttribute(testIdAttr);
   const browser = await chromium.launch({ headless: !flags.headed });
   const context = await browser.newContext({ baseURL: cfg.aut.baseURL });
@@ -140,7 +143,7 @@ main(async () => {
       const body = req.postData();
       let sent: unknown;
       try { sent = body ? redact(JSON.parse(body)) : undefined; } catch { sent = body ? `(${body.length} characters, not JSON)` : undefined; }
-      const request = [params.length ? `?${[...new Set(params)].join('&')}` : '', sent !== undefined ? `body \`${JSON.stringify(sent).replace(/\|/g, '\\|').slice(0, 200)}\`` : ''].filter(Boolean).join(' · ') || '-';
+      const request = [params.length ? `?${[...new Set(params)].join('&')}` : '', sent !== undefined ? `body \`${JSON.stringify(sent).replace(/\|/g, '\\|').slice(0, sentLimit)}\`` : ''].filter(Boolean).join(' · ') || '-';
       return `| ${after} | ${req.method()} | \`${host}${u.pathname}\` | ${request} | ${res.status()} | ${shape} |`;
     })());
   });

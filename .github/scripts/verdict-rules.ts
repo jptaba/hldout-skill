@@ -21,6 +21,15 @@ export interface VerdictInputs {
   untestedSetups?: number;
 }
 
+/**
+ * A confirmed failure of a test tagged with an assumption or an open question is a question for the owner, unless it
+ * does not depend on the reading: the application answered with a server error (no reading of a requirement expects a
+ * 5xx), or the triager confirmed that it holds whichever way the question is answered (`triage --set … --any-reading`).
+ */
+export function holdsUnderAnyReading(f: { anyReading?: boolean; apiStatus?: number }): boolean {
+  return Boolean(f.anyReading) || (f.apiStatus ?? 0) >= 500;
+}
+
 export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: string } {
   if (i.integrity === 'VIOLATED') {
     return { verdict: 'INCONCLUSIVE', reason: 'Held-out integrity was violated — requirement assertions changed after the draft was frozen without an audited amendment, so results cannot be trusted.' };

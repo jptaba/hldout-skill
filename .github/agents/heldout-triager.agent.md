@@ -31,7 +31,9 @@ Do this:
    takes, and run it with `heldout api-probe --chain`.
    Failures with one root cause take one call: `--set SCN-008,SCN-009` (a table's base id, `SCN-007`, covers all its
    failing rows).
-   Failures with one root cause share the same `--title`. Genuine ambiguity is NEEDS_INVESTIGATION with a
+   Failures with one root cause share the same `--title`. A failed test tagged `@assumes:G<n>` or
+   `@needs-clarification` whose failure is wrong whichever way the gap is answered takes `--any-reading` (reference:
+   "Tests tagged"); without it the verdict reports the failure as a question for the owner. Genuine ambiguity is NEEDS_INVESTIGATION with a
    clarification note.
 4. Reply with a summary per failure: category, severity, the evidence, and for each SCRIPT_DEFECT what is wrong with
    the mechanics and where (the test, or the journey it calls), so the hardener can repair it.

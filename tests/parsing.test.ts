@@ -10,7 +10,7 @@ import { markdownToStorage } from '../.github/scripts/mock/storage-format';
 import { baseScenarioId, matchEndpoint, normaliseTestType, readSuite } from '../.github/scripts/spec-model';
 import { typeMismatch } from '../.github/scripts/preflight';
 import { curlFor, rerunCommand } from '../.github/scripts/repro';
-import { decideVerdict } from '../.github/scripts/verdict-rules';
+import { decideVerdict, holdsUnderAnyReading } from '../.github/scripts/verdict-rules';
 import type { RequirementContract } from '../.github/scripts/contract-model';
 
 const SPEC = `import { test } from '../../../../heldout-support/fixtures';
@@ -199,6 +199,12 @@ describe('decideVerdict', () => {
   });
   it('warnings → PASS_WITH_WARNINGS', () => assert.equal(decideVerdict({ ...base, openQuestions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
   it('a failure resting only on an assumption → PASS_WITH_WARNINGS, not FAIL', () => assert.equal(decideVerdict({ ...base, contradictedAssumptions: 1 }).verdict, 'PASS_WITH_WARNINGS'));
+  it('a failure on an assumed reading stays a defect when it holds under every reading', () => {
+    assert.equal(holdsUnderAnyReading({ apiStatus: 500 }), true);
+    assert.equal(holdsUnderAnyReading({ anyReading: true, apiStatus: 200 }), true);
+    assert.equal(holdsUnderAnyReading({ apiStatus: 422 }), false);
+    assert.equal(holdsUnderAnyReading({}), false);
+  });
   it('clean → PASS', () => assert.equal(decideVerdict(base).verdict, 'PASS'));
   it('amended integrity still allows PASS', () => assert.equal(decideVerdict({ ...base, integrity: 'AMENDED' }).verdict, 'PASS'));
 });

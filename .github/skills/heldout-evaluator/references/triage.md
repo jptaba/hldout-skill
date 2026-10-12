@@ -58,6 +58,13 @@ reading of an open question, not a settled requirement): triage them like any ot
 behaves differently, confirm it as `APPLICATION_DEFECT`; the verdict then lists it under "Readings the application
 contradicts" (a question for the owner), not as a defect, and asks the owner the question.
 
+Before you record it, ask whether the failure depends on the reading at all. Read the gap the tag names in the
+contract, then the failed assertion: would the application's behaviour be right under *any* answer the owner could
+give? When it would not (the page shows nothing where every reading expects a message, a record is lost, the wrong
+user's data is shown), add `--any-reading` to `triage --set` and say why in the rationale: the verdict then reports
+it as a defect. A server error (5xx) is never a reading of a requirement, so the verdict counts it as a defect by
+itself; no flag is needed.
+
 **A refusal that answers 200.** The story says a request "is refused" or that someone "must not be able to" and names
 no status; the test expects a 4xx; the application answers 200 with an empty body, and the checks that nothing was
 disclosed or changed pass. Confirm it as `APPLICATION_DEFECT` with severity Minor: the protection holds, the answer

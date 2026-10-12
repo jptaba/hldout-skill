@@ -18,7 +18,7 @@ import { comboLabel, oracleDigest, readContract, variantCombinations } from './c
 import { checkIntegrity, type IntegrityResult } from './integrity-check';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, storyJourneys } from './journeys-store';
 import { curlFor, exchangeLine, rerunCommand } from './repro';
-import { decideVerdict, type Verdict } from './verdict-rules';
+import { decideVerdict, holdsUnderAnyReading, type Verdict } from './verdict-rules';
 import type { TriageEntry, TriageReport } from './triage';
 
 const BADGE: Record<Verdict, string> = { PASS: '✅ PASS', PASS_WITH_WARNINGS: '⚠️ PASS WITH WARNINGS', FAIL: '❌ FAIL', INCONCLUSIVE: '❔ INCONCLUSIVE' };
@@ -92,7 +92,9 @@ main(() => {
     const open = contract.gaps.filter((g) => g.kind === 'oracle' && g.resolution === 'open' && g.affects.some((a) => sc.acs.includes(a))).map((g) => g.id);
     return sc.needsClarification ? (open.length ? open.map((g) => `${g} (literal reading)`) : ['literal reading (@needs-clarification)']) : [];
   };
-  const contradicted = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && e.final && assumesOf(e.scenario).length);
+  // …unless the failure does not depend on the reading (a server error, or the triager said so).
+  const whateverTheReading = (e: typeof failures[number]) => holdsUnderAnyReading({ anyReading: e.final?.anyReading, apiStatus: e.evidence.api?.response.status });
+  const contradicted = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && e.final && assumesOf(e.scenario).length && !whateverTheReading(e));
   const appDefects = failures.filter((e) => cat(e) === 'APPLICATION_DEFECT' && !contradicted.includes(e))
     .sort((a, b) => SEVERITY_ORDER.indexOf(a.final?.severity ?? 'Minor') - SEVERITY_ORDER.indexOf(b.final?.severity ?? 'Minor') || a.scenario.localeCompare(b.scenario, undefined, { numeric: true }));
   const confirmedApp = appDefects.filter((e) => e.final);

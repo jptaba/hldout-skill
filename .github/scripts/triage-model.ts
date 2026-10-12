@@ -29,7 +29,8 @@ export interface TriageEntry {
     seed?: { tag: string; records: { label: string; kind?: string; created?: unknown; cleanup?: string; reused?: boolean; error?: string }[] };
   };
   auto?: AutoClassification;
-  final?: { category: Category; severity?: string; title?: string; rationale: string; evidence?: string; action?: string; confirmedAt: string };
+  /** `anyReading`: the failure holds under every reading of the open question or assumption its test is tagged with, so it is a defect, not a question for the owner. */
+  final?: { category: Category; severity?: string; title?: string; rationale: string; evidence?: string; action?: string; anyReading?: boolean; confirmedAt: string };
 }
 
 export interface TriageReport {
