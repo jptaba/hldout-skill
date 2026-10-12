@@ -170,7 +170,9 @@ codes and values come from the requirement, never from the probe. For a large an
 that answers 429 is rate-limiting you: the `api` fixture waits and retries (twice, as `Retry-After` says) and
 the preflight refuses to run while it happens. Page loads answered with 429 are retried the same way. For a host that
 bans bursts, set the profile's `maxWorkers` (e.g. 1) and `minTestIntervalMs` (e.g. 12000: tests start at least that
-far apart), and pace your probes.
+far apart), and pace your probes. When the tests create their users (a sign-up recipe you have just saved), make the
+first hardening run with `--workers 1`: some applications refuse sign-ups sent at the same moment, and a run lost to
+that leaves its records behind all the same. Go to more workers once two sign-ups sent together are shown to work.
 
 ```bash
 # steps in a file (write it with your file tool: shell quoting mangles locators and regexes)

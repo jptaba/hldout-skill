@@ -172,6 +172,9 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    never just "not a success": `expectResponse(res, { status: '4xx' }, '[REQ AC-5] a customer's POST /brands is refused')`
    (`'2xx'` likewise for "is accepted" with no stated status). A 5xx answer is the application failing, not refusing, and that test, untagged, reports
    it as a defect. Which 4xx it is, and what the message must say, stay open questions when the story doesn't say.
+   When the form of the refusal is itself an open question in the contract (an error status, or a message in a
+   successful answer), write two tests: one untagged, of what a refusal leaves behind under every reading (nothing
+   created, nothing changed, and never a 5xx), and one `@needs-clarification`, of the 4xx status.
 6. **Concurrency** (API layer): send the competing requests together (`Promise.all`), 2–5 at a time (respect the
    profile's `maxWorkers` and `minTestIntervalMs`), assert the invariant, never an order, and repeat the burst a few
    rounds inside the test.
@@ -304,6 +307,9 @@ lists them, the ones the story concerns first, with what each calls, what must r
   like typing.
 - **"Not shown" is `toBeHidden()`, not `toHaveCount(0)`.** Pages often keep a message in the markup, hidden until it is
   needed.
+- **"Is shown" needs `toBeVisible()`.** `toHaveText` and `toContainText` pass on a hidden element: a page that keeps
+  its error paragraph in the markup satisfies "a message says why" while it shows a success. Assert that the message
+  is visible, then what it says; a journey that returns a message reads visible elements only (`:visible`).
 
 ## Data seeding and entry points
 

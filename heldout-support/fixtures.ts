@@ -226,9 +226,19 @@ async function fillForm(page: Page, form: UiForm, vars: Record<string, unknown>)
   const done = (form.done ?? '').split(' | ').map((d) => d.trim()).filter(Boolean);
   const urls = done.filter((d) => d.startsWith('url:')).map((d) => d.slice(4).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   const shown = done.filter((d) => !d.startsWith('url:')).map((d) => locate(page, d).first());
-  if (urls.length && !shown.length) await expect(page).toHaveURL(new RegExp(urls.join('|')), { timeout: 15_000 });
-  else if (shown.length && !urls.length) await expect(shown.slice(1).reduce((a, b) => a.or(b), shown[0]).first()).toBeVisible({ timeout: 15_000 });
-  else if (done.length) await Promise.any([expect(page).toHaveURL(new RegExp(urls.join('|')), { timeout: 15_000 }), ...shown.map((l) => expect(l).toBeVisible({ timeout: 15_000 }))]);
+  try {
+    if (urls.length && !shown.length) await expect(page).toHaveURL(new RegExp(urls.join('|')), { timeout: 15_000 });
+    else if (shown.length && !urls.length) await expect(shown.slice(1).reduce((a, b) => a.or(b), shown[0]).first()).toBeVisible({ timeout: 15_000 });
+    else if (done.length) await Promise.any([expect(page).toHaveURL(new RegExp(urls.join('|')), { timeout: 15_000 }), ...shown.map((l) => expect(l).toBeVisible({ timeout: 15_000 }))]);
+  } catch (err) {
+    // The form may run in a browser of its own, which the test's screenshot and trace don't show: say what the page
+    // answered (its visible alert or error, else the start of its text), secrets left out.
+    const said = await page.locator('[role="alert"]:visible, .error:visible, .alert:visible, .invalid-feedback:visible').allInnerTexts().catch(() => [] as string[]);
+    const text = (said.join(' · ').trim() || (await page.locator('body').innerText().catch(() => '')).trim()).replace(/\s+/g, ' ').slice(0, 200);
+    const secrets = Object.values(vars).map(String).filter((v) => v.length >= 6);
+    const clean = secrets.reduce((t, s) => t.split(s).join('***'), text);
+    throw new Error(`the form at ${form.path} did not reach "${form.done}" (the page is at ${new URL(page.url()).pathname}${clean ? ` and says: "${clean}"` : ''}) — ${(err as Error).message.split('\n')[0]}`);
+  }
 }
 
 /**
