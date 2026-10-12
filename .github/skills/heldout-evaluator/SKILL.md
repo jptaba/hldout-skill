@@ -141,7 +141,7 @@ answer or a go-ahead. Whatever is unclear or missing becomes part of the result:
 | What comes up | Where it goes |
 | --- | --- |
 | The requirement doesn't say what is correct (an open oracle gap), or its sources disagree | `// OPEN-QUESTION:` or `@needs-clarification` in the tests; the verdict lists the question for the story's owner |
-| One reasonable reading exists | `assumed`, `// ASSUMPTION:` in the spec; the verdict lists it, and says so when the application contradicts it |
+| One reasonable reading exists | `assumed`, `// ASSUMPTION:` in the spec; the verdict lists it, and says so when the application contradicts it (a failure that is wrong under every reading, a 5xx or one the triager marks `--any-reading`, stays a defect) |
 | The story has no acceptance criteria | `advance` writes an INCONCLUSIVE verdict saying so, and publishes it |
 | An account, role or secret the tests need is missing and the application can't create it | Those tests end BLOCKED; the verdict names what is missing |
 | The application is down or degraded, or a failure stays unexplained after 3 repair cycles | ENVIRONMENT_ISSUE or NEEDS_INVESTIGATION; verdict INCONCLUSIVE |

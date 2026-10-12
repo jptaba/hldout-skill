@@ -286,6 +286,7 @@ answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/)
 against them → [demo/SCORECARD.md](demo/SCORECARD.md); `--from <project>` scores a round run in a project of its own.
 The scorecard in the repository is round 32: one onboarding, then the first nine stories one at a time in the same project,
 unattended. Nine of nine verdicts were as the keys say, 12 of the 13 keyed defects were found and the thirteenth was
-raised as a question for the story's owner, with no false positive.
+raised as a question for the story's owner, with no false positive. The two deep stories (TOOL-8, TOOL-9) were last
+run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
 commits before this one).

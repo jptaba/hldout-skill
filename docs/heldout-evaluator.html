@@ -474,7 +474,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
       <thead><tr><th>What comes up</th><th>Where it goes</th></tr></thead>
       <tbody>
       <tr><td>The story doesn't say what is correct, or its sources disagree</td><td>The tests check what holds under every answer and carry the question (<code>// OPEN-QUESTION:</code>, <code>@needs-clarification</code>). The verdict lists it for the story's owner; anything left untested makes it PASS WITH WARNINGS at best.</td></tr>
-      <tr><td>One reasonable reading exists</td><td>An assumption, written in the spec. The verdict lists it, and says so when the application contradicts it.</td></tr>
+      <tr><td>One reasonable reading exists</td><td>An assumption, written in the spec. The verdict lists it, and says so when the application contradicts it. A failure that is wrong whichever way the question is answered (a server error, or one the triager marks so) stays a defect.</td></tr>
       <tr><td>The story has no acceptance criteria</td><td>No criteria are invented. <code>advance</code> writes an INCONCLUSIVE verdict that says so, and publishes it.</td></tr>
       <tr><td>An account, a role or a secret the tests need is missing</td><td>Those tests end BLOCKED and the rest run. The verdict names what is missing.</td></tr>
       <tr><td>The application is down, or a failure stays unexplained after three repair cycles</td><td>Environment issue or needs investigation: the verdict is INCONCLUSIVE.</td></tr>
@@ -1780,6 +1780,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td>31</td><td>TOOL-6 and a story with no criteria · Toolshop</td><td>unattended, driven by <code>advance</code>: no question asked from the fetch to the published verdict; the missing status reported as an open question, the story without criteria reported as not evaluable</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14, as the key; <span class="badge b-inc">INCONCLUSIVE</span> for the story without criteria</td></tr>
       <tr><td>32</td><td>All nine demo stories · Toolshop and its release-candidate environment</td><td>one onboarding, then the stories one at a time in the same project, unattended; what each story showed was fixed in the skill and applied to the project before the next one started</td><td>9/9 verdicts as the keys, 12 of 13 keyed defects found and 1 raised as an owner question, 0 false positives</td></tr>
       <tr><td>33</td><td>TOOL-8 and TOOL-9 · Toolshop</td><td>fresh setup; two loosely written stories whose checks need a chain of dependent data, four and five levels deep, over the web shop, the admin area and the API</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 5 of 6 defects found and 1 raised as an owner question, 0 false positives</td></tr>
+      <tr><td>34</td><td>TOOL-8 and TOOL-9 · Toolshop</td><td>the same two stories from a fresh setup, after the changes round 33 led to</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 8 of 8 defects found, 0 false positives</td></tr>
     </tbody>
   </table></div>
 
@@ -1842,6 +1843,24 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
     </tbody>
   </table></div>
   <p class="small">Smaller ones from the same review: the evidence pack says when a project already has test users, so a story doesn't raise sign-in as a gap; a source that names only paths states no endpoint; every agent is told to read a file the tools wrote before writing to it, which had cost a round trip in most runs.</p>
+
+  <h3>Round 34: the two deep stories again, from a fresh setup</h3>
+  <p>The changes above were then checked the way a new project would meet them: a fresh setup, one onboarding, TOOL-8 and then TOOL-9, each fixed before the next step went on.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Story</th><th>Verdict</th><th>Tests</th><th>Against the answer key</th></tr></thead>
+    <tbody>
+      <tr><td>TOOL-8</td><td><span class="badge b-fail">FAIL</span></td><td>23 / 41</td><td>4 of 4 after the first change below (2 of 4 before it, the other two raised as questions). The fourth is a loose match: the key describes a brand that is not chosen, the round tested one that was deleted</td></tr>
+      <tr><td>TOOL-9</td><td><span class="badge b-fail">FAIL</span></td><td>27 / 31</td><td>4 of 4. The read that answers 200 with an empty body was part of the first defect in the key; the round reported it as a minor finding of its own, and the key now lists it that way</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="clean">
+    <li><b>A server error is never a reading of a requirement.</b> TOOL-8's author had tagged the "product without an existing brand" tests as resting on an assumption (which of two meanings "without" has). The application answered 500, and the verdict filed that under questions for the owner. A confirmed failure on such a test now stays a defect when it does not depend on the reading: automatically for a 5xx answer, and when the triager says so (<code>triage --set … --any-reading</code>) for the rest.</li>
+    <li><b>A test that takes two users of a kind gets a worker to itself.</b> TOOL-9's tests ask for "a customer" and "another customer"; the project has two. The evaluation run started two workers and six tests were blocked for want of a second account. The run now counts how often a kind of user is asked for under different names and limits the workers by that; the re-run had no blocked test.</li>
+    <li><b>A draft is frozen only when its author says it is finished.</b> An author cut off by a limit in an earlier run had left half a draft that the next step froze. The author's last command now marks the draft, and the mark holds only for the file as it is at that moment.</li>
+    <li><b>A shared record is read-only.</b> A test that sends a change or a delete at a record makes that record its own, even when the request must be refused: an application that wrongly accepts it would otherwise alter what every later test relies on.</li>
+    <li><b>Smaller ones:</b> the evidence pack names the header a signed-in call sends, so no story records it as a gap; values the story names without listing ("a subject from the list") have a stated place among the gaps; two journeys that share only a nameless locator are no longer reported as duplicates; the inspector shows more of a request body on demand and waits up to a minute; a readiness wait is on data the page loaded, not on a form that can be used before its record arrives; the starting chain for a replay says what to do when the run's records are gone.</li>
+  </ul>
+  <p class="small">What worked as written this time: shared test data (2 chains in TOOL-8 despite 54 worker restarts), the "sent as" line in the evidence, and the starting chains, which TOOL-9's triager ran unchanged. Questions sent to the shop can't be deleted: this round left roughly ninety on the shared demo, all beginning with "hldout", until its next data reset.</p>
 
   <h3>The same nine stories, a second time</h3>
   <p>The round was then repeated in the same project, with every journey of the first pass in the registry, to look for what could still be better. The verdicts were the same nine. One finding changed: TOOL-1's empty-search defect was reported as a question for the owner, because that contract had recorded "all products" as an assumption and every test of the criterion carried it. That became the first change below.</p>

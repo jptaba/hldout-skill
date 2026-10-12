@@ -228,7 +228,7 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   });
   // Records the run made are gone when it is over: the ids the call names then point at nothing.
   const namesRecords = /\/(\d+|[0-9A-Za-z-]{16,})(\/|\?|$)/.test(api.request.url) || Boolean(body && typeof body === 'object' && Object.keys(body).some((k) => /(^|_)id$|Id$/.test(k)));
-  return { note: `${namesRecords ? 'The failing call names records by id: the run removed the ones it made, so add a setup step that makes each again (save its id) and put the saved ids in the call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
+  return { note: `${namesRecords ? 'The failing call names records by id, and the run\'s records may be gone: when the call answers "not found", add a setup step that makes each again (save its id) and put the saved ids in the call. Failures that need the same kind of record share one chain: each sign-in once, the record made once, then every failing call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
 
 export function renderTriageMd(r: TriageReport, runDir: string): string {
