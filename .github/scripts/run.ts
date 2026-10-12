@@ -130,8 +130,11 @@ main(async () => {
   // Existing accounts are shared out among workers, so there are never more workers than accounts (of each role) — when
   // the story's tests take accounts at all.
   const specsHere = specFiles(p.tests);
-  const takesAccounts = [...specsHere, ...journeysUsedBy(cfg, cfg.autId, specsHere)].some((f) => /\bseed\.account\(/.test(fs.readFileSync(f, 'utf8')));
-  const pool = takesAccounts ? existingAccountWorkers(cfg.aut.accounts) : undefined;
+  const accountCalls = [...specsHere, ...journeysUsedBy(cfg, cfg.autId, specsHere)].flatMap((f) => fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').match(/\bseed\.account\([^)]*\)/g) ?? []);
+  const takesAccounts = accountCalls.length > 0;
+  // Every call names its role as a literal: only those roles limit the workers. One that doesn't may take any account.
+  const namedRoles = accountCalls.map((c) => c.match(/\brole:\s*['"`]([a-z][a-z0-9-]*)['"`]/)?.[1]);
+  const pool = takesAccounts ? existingAccountWorkers(cfg.aut.accounts, namedRoles.every(Boolean) ? new Set(namedRoles as string[]) : undefined) : undefined;
   const cap = [cfg.aut.maxWorkers, pool].filter((x): x is number => Boolean(x)).reduce<number | undefined>((a, b) => (a === undefined ? b : Math.min(a, b)), undefined);
   const asked = flagStr(flags, 'workers') ? Number(flagStr(flags, 'workers')) : cfg.run.workers;
   const workers = cap ? Math.min(asked ?? cap, cap) : asked;

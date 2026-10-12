@@ -105,7 +105,15 @@ export function accountRoles(r?: AccountRecipe): Map<string, number> {
  * divided by the accounts one test takes (perTest); with roles, also each role's count (a test takes at most one
  * account of a role at a time, unless perTest says more). Undefined when the tests make every account they use.
  */
-export function existingAccountWorkers(r?: AccountRecipe): number | undefined {
+export function existingAccountWorkers(r?: AccountRecipe, onlyRoles?: Set<string>): number | undefined {
+  // When every account a story's tests take names its role, only those roles limit the run: tests that need the
+  // administrator alone are not held back by how many customers there are.
+  if (onlyRoles && r?.existing?.length) {
+    const per = Math.max(1, r.perTest ?? 1);
+    const caps = [...onlyRoles].filter((role) => !r.existing!.some((a) => a.role === role && a.shared))
+      .map((role) => r.existing!.filter((a) => a.role === role).length).filter((n) => n > 0).map((n) => (per > 1 ? Math.floor(n / per) : n));
+    return caps.length ? Math.max(1, Math.min(...caps)) : undefined;
+  }
   const roles = accountRoles(r);
   if (!r?.existing?.length || (createsAccounts(r) && !roles.size)) return undefined;
   const per = Math.max(1, r.perTest ?? 1);

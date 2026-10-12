@@ -132,6 +132,15 @@ describe('accounts with roles', () => {
     onlyAdmin.existing![0].shared = true;
     assert.equal(existingAccountWorkers(onlyAdmin), undefined, 'nothing limits the workers');
   });
+  it('only the roles a story\'s tests take limit its workers', () => {
+    const r = recipe(['customer', 'customer', 'customer', 'admin']);
+    assert.equal(existingAccountWorkers(r), 1);
+    assert.equal(existingAccountWorkers(r, new Set(['customer'])), 3, 'no test takes the administrator');
+    assert.equal(existingAccountWorkers(r, new Set(['customer', 'admin'])), 1);
+    assert.equal(existingAccountWorkers({ ...r, perTest: 2 }, new Set(['customer'])), 1, 'a test takes two customers');
+    r.existing![3].shared = true;
+    assert.equal(existingAccountWorkers(r, new Set(['admin'])), undefined, 'a shared administrator alone sets no limit');
+  });
   it('a role is a lower-case name', () => {
     const cfg = (role: string) => ({ auts: { app: { baseURL: 'https://x.example.com', accounts: { existing: [{ username: 'a', password: '${env:P}', role }] } } } });
     assert.deepEqual(validateConfig(cfg('admin')), []);

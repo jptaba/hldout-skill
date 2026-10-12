@@ -185,6 +185,39 @@ const short = (v: unknown, n = 600) => { const s = typeof v === 'string' ? v : J
 /** The call's address for a replay: its full URL as recorded (right whatever path the API sits under), else without a leading slash, which Git Bash would rewrite. */
 const replayPath = (url: string): string => (/^https?:\/\//.test(url) ? url : url.replace(/^\/+/, ''));
 
+const replaySlug = (scenario: string) => scenario.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const signedIn = (api?: ApiExchange) => Object.keys(api?.request.headers ?? {}).some((h) => /^(authorization|cookie)$/i.test(h));
+
+/**
+ * A chain to start the live replay of a failure whose call was sent signed in: the sign-in of each kind of user the
+ * test took (from the profile's accounts recipe, secrets as references), then the failing call with the first one's
+ * token. The triager adds the control call and, when the test took several users, picks the token the call was sent
+ * with. Nothing when the profile has no API sign-in, or the accounts aren't plain environment references.
+ */
+function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps: Record<string, unknown>[] } | undefined {
+  const api = e.evidence.api; const recipe = cfg.aut.accounts;
+  if (!api || !signedIn(api) || !recipe?.token || !recipe.existing?.length) return undefined;
+  const taken = ((e.evidence.seed as { records?: { kind?: string; label?: string }[] } | undefined)?.records ?? []).filter((r) => r.kind === 'account');
+  const roles = [...new Set(taken.map((r) => r.label?.match(/\(([a-z][a-z0-9-]*)\)$/)?.[1]).filter((r): r is string => Boolean(r)))];
+  const accounts = (roles.length ? roles.map((role) => recipe.existing!.find((a) => a.role === role)) : [recipe.existing[0]]).filter((a): a is NonNullable<typeof a> => Boolean(a));
+  if (!accounts.length || accounts.some((a) => /\$\{vault:/.test(`${a.username}${a.password}`))) return undefined;
+  const fill = (v: unknown, a: { username: string; password: string }): unknown => (typeof v === 'string' ? v.replace(/\$\{username\}/g, a.username).replace(/\$\{password\}/g, a.password)
+    : Array.isArray(v) ? v.map((x) => fill(x, a)) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fill(x, a)])) : v);
+  const tokenVar = (a: { role?: string }, i: number) => `token_${a.role ?? i + 1}`;
+  const header = (recipe.authHeader ?? 'Authorization: Bearer ${token}').split(/:\s*/);
+  const steps: Record<string, unknown>[] = accounts.map((a, i) => ({
+    name: `sign in as ${a.role ?? 'the account'}`, setup: true, method: recipe.token!.method, path: recipe.token!.path,
+    ...(recipe.token!.form ? { form: fill(recipe.token!.form, a) } : { json: fill(recipe.token!.body ?? {}, a) }), save: { [tokenVar(a, i)]: recipe.token!.token },
+  }));
+  const body = api.request.body;
+  steps.push({
+    name: `the failing call of ${e.scenario}`, method: api.request.method, path: api.request.url,
+    headers: { [header[0]]: header.slice(1).join(': ').replace(/\$\{token\}/g, `\${${tokenVar(accounts[0], 0)}}`) },
+    ...(body && typeof body === 'object' ? { json: body } : {}),
+  });
+  return { note: `Starting point written by heldout triage for ${e.scenario}: check which user's token the failing call was sent with${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
+}
+
 export function renderTriageMd(r: TriageReport, runDir: string): string {
   const link = (projRel: string) => path.relative(runDir, path.join(ROOT, projRel)).split(path.sep).join('/');
   const out = [`# Triage — ${r.key} / run ${r.run}`, '', `Generated ${r.generatedAt}`, '', ...(r.environmentNote ? [`> ⚠️ **Environment:** ${r.environmentNote}`, ''] : []),
@@ -202,7 +235,7 @@ export function renderTriageMd(r: TriageReport, runDir: string): string {
         // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
         // are added by hand, or the sequence goes in a chain file).
         ...(e.final ? [] : Object.keys(api.request.headers ?? {}).some((h) => /^(authorization|cookie)$/i.test(h))
-          ? ['  - replay: the test sent this call signed in, so replay it as a chain (`api-probe --chain`): the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator)']
+          ? [`  - replay: the test sent this call signed in, so replay it as a chain: the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator). A starting chain, when the profile has an API sign-in: \`npm run heldout -- api-probe --key ${r.key} --chain ${path.relative(ROOT, path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.chain.json`)).split(path.sep).join('/')} --out …\``]
           : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''} --out ${path.relative(ROOT, path.join(runDir, 'confirm', `${e.scenario.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`)).split(path.sep).join('/')}\``])] : []),
       `- Evidence: ${[e.evidence.screenshot && `[screenshot](${link(e.evidence.screenshot)})`, e.evidence.trace && `trace: \`npx playwright show-trace ${e.evidence.trace}\``, e.evidence.errorContext && `[error-context](${link(e.evidence.errorContext)})`].filter(Boolean).join(' · ') || '-'}`,
       '', `**Auto: ${e.auto!.category} (${e.auto!.confidence})**`, '', ...e.auto!.signals.map((s) => `- ${s}`), '', `Next: ${e.auto!.next}`, '');
@@ -277,6 +310,12 @@ main(() => {
     }
   }
   writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
+  // A starting chain for the live replay of each failure whose call was sent signed in.
+  for (const e of report.entries.filter((x) => x.status !== 'passed' && !x.final)) {
+    const chain = starterChain(cfg, e);
+    const file = path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.chain.json`);
+    if (chain && !fs.existsSync(file)) writeFile(file, `${JSON.stringify(chain, null, 2)}\n`);
+  }
   writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
 
   console.log(`Triage ${key} / ${runName}: ${report.summary.passed}/${report.summary.total} passed, ${report.summary.failed} failed, ${report.summary.flaky} flaky\n`);
