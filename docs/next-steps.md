@@ -37,7 +37,12 @@ as before.
   the same call and status, or the same locator); the first of a group is written out, the others show what differs.
   Of an HTML error page it shows what the page says, not its markup; the tests that passed are one line; a decision
   written out once is named after that. PB-2's report for 57 failures went from 115 KB to about 70 KB before the
-  decisions and from 144 KB to 80 KB with them; TOOL-8's from 47 KB to 27 KB. Not yet read by a triager in a round.
+  decisions and from 144 KB to 80 KB with them; TOOL-8's from 47 KB to 27 KB. A triager then worked PB-2 again from
+  nothing with it: read whole in two reads, 25 groups became 8 root causes (six merges, and two groups by locator that
+  each hid two causes), no trace or screenshot opened, 11 of 11 keyed defects again. What that reading showed was
+  fixed: page tests are grouped apart from direct calls, a body is referred to only when it is the same, the matcher
+  and the call before a failed read-back are shown, `--any-reading` can name some tests of one call, and an HTML
+  answer is shown as text in chain reports and inspector steps too. The renderer has unit tests.
 
 ## Open after round 35
 
