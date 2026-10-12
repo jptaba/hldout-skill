@@ -115,7 +115,13 @@ the inspector before any run: `{ "do": "force", "target": "<the control>", "valu
 `{ "do": "rewrite", "url": "<part of the address>", "value": "field=value" }` changes those fields of the page's next
 request, and the report lists the requests it rewrote. `{ "do": "request", "url": "POST <path>", "value": "<JSON>" }`
 makes a call in the middle of a walk (a record another user changes while the page is open). A step that changes
-the address says where it landed ("now at /overview").
+the address says where it landed ("now at /overview"). A `request` step carries the page's cookies: for an
+application that keeps its token in the browser's storage, the call is sent without it (use `api-probe` with a
+sign-in for those).
+
+A journey that walks through the pages of a list is proven on the last page as well as the first: probe the "next"
+control there and read how the page marks the end (a `disabled` attribute, `aria-disabled`, or only a class on an
+element around it). A link styled as disabled still counts as enabled, and a walk that asks `isEnabled()` never stops.
 
 The Playwright MCP server is one browser per agent session. When several agents evaluate stories in parallel,
 they would drive the same page: use `heldout mcp-probe` (its own server per call) or tier 3 instead.
