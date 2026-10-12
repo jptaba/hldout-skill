@@ -2,6 +2,7 @@
  * Where a story is in the pipeline: each phase, whether it is done, and what comes next. Read from the files of the
  * story's folder alone, so `heldout status` and `heldout advance` agree and a session can pick a story up anywhere.
  */
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { NON_EVAL_RUN, evalPaths, listRuns, readJson, type HeldoutConfig } from './config';
@@ -11,6 +12,28 @@ import { journeysUsedBy } from './journeys-store';
 
 export interface Phase { name: string; done: boolean; detail: string; next?: string }
 const H = 'npm run heldout --';
+
+/** A hash of the story's spec files as they are now. */
+function specsHash(testsDir: string): string {
+  const files = fs.existsSync(testsDir) ? fs.readdirSync(testsDir, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.spec.ts')).sort() : [];
+  const h = crypto.createHash('sha256');
+  for (const f of files) h.update(f).update(fs.readFileSync(path.join(testsDir, f)));
+  return h.digest('hex').slice(0, 16);
+}
+
+const finishedFile = (base: string) => path.join(base, 'draft-finished.json');
+/**
+ * The test author's last act: say the draft is finished (`heldout lint KEY … --draft-finished`, once it lints clean).
+ * A draft whose author was cut off (a session limit, a crash) may lint clean and still be half of what was meant: the
+ * freeze waits for this mark, and it holds only for the spec as it was when it was made.
+ */
+export function markDraftFinished(base: string, testsDir: string): void {
+  fs.writeFileSync(finishedFile(base), `${JSON.stringify({ specs: specsHash(testsDir), at: new Date().toISOString() }, null, 2)}\n`);
+}
+export function draftFinished(base: string, testsDir: string): boolean {
+  if (!fs.existsSync(finishedFile(base))) return false;
+  try { return (JSON.parse(fs.readFileSync(finishedFile(base), 'utf8')) as { specs?: string }).specs === specsHash(testsDir); } catch { return false; }
+}
 
 export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const p = evalPaths(cfg, key);
@@ -42,11 +65,13 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   // The scaffold writes the log's template: it counts once the hardener has filled in the tiers it used.
   const hardened = fs.existsSync(p.hardeningLog) && /^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'));
   const bound = fs.existsSync(p.base) ? cfg.autId : undefined;
+  const frozen = fs.existsSync(p.draft) && fs.readdirSync(p.draft).some((f) => f.endsWith('.spec.ts'));
 
   return [
     { name: 'fetch', done: fs.existsSync(p.storyMd), detail: fs.existsSync(p.storyMd) ? `story + ${fs.existsSync(p.linked) ? fs.readdirSync(p.linked).length : 0} linked file(s)${bound ? ` · AUT ${bound}` : ''}` : 'not fetched', next: `${H} fetch ${key}` },
     { name: 'contract', done: Boolean(contract) && contractErrors === 0, detail: !contract ? 'missing' : contractErrors ? `${contractErrors} error(s) (incl. review)` : `${contract.acceptanceCriteria.length} AC · ${contract.gaps.length} gap(s) · reviewed`, next: contract ? `${H} contract ${key}   (extractor / reviewer subagents until clean)` : `${H} contract ${key} --pack` },
-    { name: 'tests', done: specs.length > 0 && !/TODO\(test\)/.test(src), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}` : 'missing', next: `heldout-test-author subagent (from the contract, with the journeys: tests/*.spec.ts, lint clean with --allow-unhardened)` },
+    // Once the draft is frozen, the author's "finished" mark has done its job (hardening may change the spec's HOW).
+    { name: 'tests', done: specs.length > 0 && !/TODO\(test\)/.test(src) && (frozen || draftFinished(p.base, p.tests)), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}${!frozen && !draftFinished(p.base, p.tests) ? ' · not marked finished by its author' : ''}` : 'missing', next: `heldout-test-author subagent (from the contract, with the journeys: tests/*.spec.ts; its last step marks the draft finished: ${H} lint ${key} --allow-unhardened --no-health --draft-finished)` },
     { name: 'freeze', done: fs.existsSync(p.draft) && fs.readdirSync(p.draft).some((f) => f.endsWith('.spec.ts')), detail: fs.existsSync(p.draft) ? 'draft frozen' : 'not frozen', next: `${H} integrity ${key} --snapshot` },
     { name: 'harden', done: todo === 0 && hardened && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
     { name: 'run', done: Boolean(lastEval), detail: lastEval ? `${lastEval}${meta?.stats ? `: ${meta.stats.expected} passed, ${meta.stats.unexpected} failed, ${meta.stats.flaky} flaky` : ''}` : 'no evaluation run', next: `${H} run ${key}` },

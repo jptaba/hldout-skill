@@ -5,7 +5,7 @@
   "description": "Held-out evaluator agent skill: Jira story -> scenarios -> hardened Playwright UI/API tests -> run -> triage -> verdict -> Jira",
   "type": "module",
   "scripts": {
-    "test:skill": "node --import tsx --test tests/*.test.ts",
+    "test:skill": "node --import tsx --test --test-concurrency=1 tests/*.test.ts",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p tests",
     "heldout": "tsx .github/scripts/heldout.ts"
   },

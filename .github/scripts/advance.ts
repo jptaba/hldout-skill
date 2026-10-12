@@ -19,6 +19,7 @@ import path from 'node:path';
 import { NON_EVAL_RUN, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
+import { guessesNotSettled } from './fast-harden';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, statusOf } from './journeys-store';
 import { phasesOf } from './phases';
 import { readSuite, specFiles } from './spec-model';
@@ -55,23 +56,8 @@ function specGuessesHeld(cfg: HeldoutConfig, key: string, entries: { scenario: s
   const p = evalPaths(cfg, key);
   const marked = specFiles(p.tests).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
   if (!marked.length) return [];
-  const scenarios = readSuite(p.tests, readContract(p.base)).scenarios;
-  const inTests = scenarios.reduce((n, s) => n + (s.code.match(/TODO\(harden\)/g) ?? []).length, 0);
   const inFiles = marked.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(/TODO\(harden\)/g) ?? []).length, 0);
-  if (inTests < inFiles) return 'a guess marked outside any test (a helper of the spec) is not settled by a run';
-  for (const s of scenarios.filter((x) => /TODO\(harden\)/.test(x.code))) {
-    const runs = entries.filter((e) => e.scenario === s.id || e.scenario.replace(/\.\d+$/, '') === s.id);
-    if (!runs.length || runs.some((e) => e.status !== 'passed')) return `${s.id} holds a guess and did not pass every time`;
-    const lines = s.code.split('\n');
-    for (const [i, line] of lines.entries()) {
-      if (!/TODO\(harden\)/.test(line)) continue;
-      // The mark sits on the guessed line, or alone on the line above it.
-      const code = /^\s*\/\//.test(line) ? lines[i + 1] ?? '' : line;
-      if (/\.not\.|toBeHidden|toHaveCount\(\s*0\s*\)|waitFor\(\{\s*state:\s*'(hidden|detached)'/.test(code)) return `${s.id} guesses a locator in a check that something is absent, which passes on a wrong locator too`;
-      if (!/\.(click|fill|press|check|uncheck|selectOption|hover|type)\(|expect(\.soft)?\(|waitFor\(/.test(code)) return `${s.id} holds a guess the run does not exercise on its own line`;
-    }
-  }
-  return marked;
+  return guessesNotSettled(readSuite(p.tests, readContract(p.base)).scenarios, inFiles, entries) ?? marked;
 }
 
 /**
@@ -198,7 +184,13 @@ main(() => {
       return handOver('heldout-contract-extractor', `Fix the reviewer's findings on the requirement contract of ${key} (${H} contract ${key} lists them); it is then reviewed again`, review[0]?.message.slice(0, 160));
     }
 
-    if (next.name === 'tests') return handOver('heldout-test-author', `Write the tests for ${key}`, 'from the reviewed contract, without a browser');
+    if (next.name === 'tests') {
+      // A spec that is there but not marked finished: its author was cut off (a session limit, a crash) before the end.
+      const started = fs.existsSync(p.tests) && specFiles(p.tests).some((f) => !/TODO\(test\)/.test(fs.readFileSync(f, 'utf8')));
+      return started
+        ? handOver('heldout-test-author', `Finish the tests for ${key}: a draft is there but was not marked finished. Check it against the contract, complete it, and end with: ${H} lint ${key} --allow-unhardened --no-health --draft-finished`, 'its author did not reach the end')
+        : handOver('heldout-test-author', `Write the tests for ${key}`, 'from the reviewed contract, without a browser');
+    }
 
     if (next.name === 'freeze') {
       if (heldout('lint', key, '--allow-unhardened', '--no-health') !== 0) return handOver('heldout-test-author', `Fix the lint errors in the tests of ${key} (${H} lint ${key} --allow-unhardened --no-health)`, 'the draft is frozen only when it lints clean');

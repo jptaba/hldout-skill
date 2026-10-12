@@ -52,7 +52,11 @@ Do this:
 6. Deep-link to the page the AC names. Every guessed locator, route or request field gets `// TODO(harden)`.
 7. Run `npm run heldout -- lint KEY --allow-unhardened --no-health` and fix every error and every `journeys/…`
    warning (every journey documented, in `journeys/fixtures/<domain>.ts`).
-8. Reply with a summary: tests per criterion and type, the journeys reused and added, the `TODO(harden)` count, the
+8. When the draft is complete and lints clean, mark it finished as your very last command:
+   `npm run heldout -- lint KEY --allow-unhardened --no-health --draft-finished`. The freeze waits for this mark, and
+   it holds only for the spec as it is at that moment: a draft cut off half-way is never frozen. If your task says a
+   draft is already there, check it against the contract, complete it, then mark it.
+9. Reply with a summary: tests per criterion and type, the journeys reused and added, the `TODO(harden)` count, the
    open questions (open oracle gaps the contract still has: each is in the tests as `// OPEN-QUESTION:` or
    `@needs-clarification`, so the verdict reports it; nobody is asked), and anything in the contract you could not
    express as a test.
