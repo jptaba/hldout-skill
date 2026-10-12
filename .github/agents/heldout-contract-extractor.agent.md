@@ -46,3 +46,6 @@ finding is wrong), run step 3 again, and reply with what you changed per finding
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Read
 `requirement-contract.json` with your file tool before you write to it (the skeleton is already there).
+
+Files: write and change files with your file tools only. Never with a shell redirection, `sed`, or a script written
+to patch a file: such a change shows nobody what was changed.

@@ -30,3 +30,5 @@ On a second review, read the review file that is there with your file tool befor
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself.
+
+Files: write the review with your file tool only, never with a shell redirection or a script.

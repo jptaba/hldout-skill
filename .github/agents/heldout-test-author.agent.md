@@ -80,6 +80,9 @@ answer (`readQuestion(body)`), marked `// TODO(harden)`, so the hardener correct
 Step titles: one action or one outcome each. "When …, then …" in one title fails the lint (`no-then`): write the
 `When` step and the `Then` step. A `// from` line sits directly above its test, or above the loop of a table.
 
+Files: write and change the spec and the journeys with your file tools only. Never with a shell redirection, `sed`,
+or a script written to patch a file: such a change shows nobody what was changed.
+
 A type-check is optional: `npx tsc --noEmit -p .` covers the spec and the journeys and prints nothing when they are clean.
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in

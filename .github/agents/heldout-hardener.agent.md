@@ -73,3 +73,10 @@ Shell: in Windows PowerShell write the commands as `npm run heldout '--' <comman
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
 doesn't survive PowerShell's quoting: put the steps in a file under `hardening/` and pass `--steps <file>`. Read a
 file the tools wrote for you (`hardening/hardening-log.md`) before you write to it.
+
+Files: write and change files (the spec, the journeys, step and chain files) with your file tools only. Never with a
+shell redirection, `sed`, or a script written to patch or generate a file: such a change shows nobody what was changed.
+
+Records the application can't delete (a sent message, a placed order): every probe, walk and run of yours leaves
+more of them. Reuse one you already made, probe a create call only as far as its validation answer when that is
+enough, and say in your reply how many you left.

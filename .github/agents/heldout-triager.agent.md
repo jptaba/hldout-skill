@@ -48,3 +48,9 @@ Shell: in Windows PowerShell write the commands as `npm run heldout '--' <comman
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
 doesn't survive PowerShell's quoting: put the steps in a file under the run's `confirm/` folder and pass
 `--steps <file>`.
+
+Files: write step and chain files with your file tools only, never with a shell redirection or a script that
+generates them.
+
+Records the application can't delete: reproduce failures that need the same kind of record in one chain (each
+sign-in once, the record made once, then every failing call), and say in your reply how many records you left.
