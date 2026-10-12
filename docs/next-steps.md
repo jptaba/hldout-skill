@@ -26,10 +26,16 @@ as before.
   the archive the HTML report carries in its page. All 44 traces of one ParaBank run, and its report, held the test
   users' password before; none does after, and the archives still open.
 
+- **The new triage tools, used by an agent.** PB-1 was run again on a fresh instance and triaged from nothing: all 22
+  failures confirmed as before, with the merged chain as the starting point, a loan account opened by `force`,
+  another customer's money taken by `rewrite`, and eight `request` calls inside the walk; no script of the triager's
+  own. What that use showed was fixed: the chain now lists the call that made a state before the check that read it,
+  carries the headers that shape the answer and says which failures it leaves out; a rewritten request is reported
+  with the value it would have sent and the one that went out.
+
 ## Open after round 35
 
 | What | Why it matters |
 | --- | --- |
 | A guess in a journey that is new to the story always calls the hardener | One new one-line journey cost a hardening pass in step 3. Settling it by the run is possible when every test that calls it passed, but a wrong guess in a journey that returns a yes or no can still pass |
 | The triage report repeats long error bodies | 115 KB for 57 failures in PB-2 |
-| The new inspector steps and the merged chain have not been used by an agent in a round yet | Tried by hand on the local application only |

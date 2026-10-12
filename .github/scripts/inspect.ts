@@ -10,14 +10,17 @@
  *                                 typed into fields left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
- *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200)
+ *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200), and
+ *                          a "request" step that much of its answer
  *
  * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog|force|rewrite|request, target?, value?, url? }
  *   { "do": "force", "target": "<a select or a field>", "value": "2" } gives the control a value it does not offer;
  *   { "do": "rewrite", "url": "createAccount", "value": "fromAccountId=123" } changes those fields of the page's next
  *   request to an address containing `url` (query, JSON or form body): together they replay a forced submission.
  *   { "do": "request", "url": "POST transfer?amount=5", "value": "<JSON body>" } makes a call of the walk's own
- *   against the API, with the page's cookies; the step table shows its status and the start of its answer.
+ *   against the API (the path resolves against the profile's apiBaseURL, not the page), with the page's cookies; the
+ *   step table shows its status and the start of its answer (300 characters, or --body-limit N).
+ *   The report lists each rewritten request with the values it would have sent and the ones that went out.
  *   A "probe" step counts its target's matches at that point of the walk (what is gone by the end of it, such as a
  *   toast after a click): the step table shows the count, whether it is visible and its text.
  *   { "do": "dialog", "value": "accept" | "dismiss" } answers the next browser dialog (alert, confirm, prompt) that way;
@@ -57,6 +60,8 @@ const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 const dialogs = { next: [] as string[], seen: [] as string[] };
 /** The requests a "rewrite" step changed, for the report. */
 const rewritten: string[] = [];
+/** How much of a "request" step's answer the step table shows (--body-limit; at least 300 characters). */
+let answerLimit = 300;
 
 async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseURL): Promise<string | void> {
   const t = () => locate(page, env(s.target ?? ''));
@@ -103,13 +108,17 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
       const part = env(s.url); const fields = new URLSearchParams(env(s.value));
       await page.route((u) => u.href.includes(part), async (route) => {
         const req = route.request(); const u = new URL(req.url());
-        for (const [k, v] of fields) if (u.searchParams.has(k) || !req.postData()) u.searchParams.set(k, v);
+        // What the page meant to send and what went out instead, field by field (secrets masked by their field name).
+        const was = new Map<string, string>();
+        const show = (k: string, v: unknown) => String((redact({ [k]: v }) as Record<string, unknown>)[k] ?? '(not sent)').slice(0, 60);
+        for (const [k, v] of fields) if (u.searchParams.has(k) || !req.postData()) { was.set(k, show(k, u.searchParams.get(k) ?? undefined)); u.searchParams.set(k, v); }
         let postData = req.postData() ?? undefined;
         if (postData) {
-          try { const o = JSON.parse(postData) as Record<string, unknown>; for (const [k, v] of fields) if (k in o) o[k] = v; postData = JSON.stringify(o); }
-          catch { const f = new URLSearchParams(postData); for (const [k, v] of fields) if (f.has(k)) f.set(k, v); postData = f.toString(); }
+          try { const o = JSON.parse(postData) as Record<string, unknown>; for (const [k, v] of fields) if (k in o) { was.set(k, show(k, o[k])); o[k] = v; } postData = JSON.stringify(o); }
+          catch { const f = new URLSearchParams(postData); for (const [k, v] of fields) if (f.has(k)) { was.set(k, show(k, f.get(k))); f.set(k, v); } postData = f.toString(); }
         }
-        rewritten.push(`${req.method()} ${u.pathname.replace(/;jsessionid=[^?#]*/i, '')} sent with ${[...fields.keys()].join(', ')} changed`);
+        const changes = [...fields].map(([k, v]) => (was.has(k) ? `${k}: ${was.get(k)} → ${show(k, v)}` : `${k}: not in the request, left out`));
+        rewritten.push(`${req.method()} ${u.pathname.replace(/;jsessionid=[^?#]*/i, '')} sent with ${changes.join(', ')}`);
         await route.continue({ url: u.toString(), ...(postData ? { postData } : {}) });
       }, { times: 1 });
       return `✔ armed for the next request to …${part}`;
@@ -123,7 +132,7 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
       const text = await res.text();
       let shown: string;
       try { shown = JSON.stringify(redact(JSON.parse(text))); } catch { shown = redactSnapshot(text); }
-      return `${res.status()} · ${shown.replace(/\s+/g, ' ').replace(/\|/g, '/').slice(0, 300)}`;
+      return `${res.status()} · ${shown.replace(/\s+/g, ' ').replace(/\|/g, '/').slice(0, Math.max(300, answerLimit))}`;
     }
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
     // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
@@ -148,6 +157,7 @@ main(async () => {
     : flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) : [];
 
   const sentLimit = Number(flagStr(flags, 'body-limit') ?? 200);
+  answerLimit = sentLimit;
   selectors.setTestIdAttribute(testIdAttr);
   const browser = await chromium.launch({ headless: !flags.headed });
   const context = await browser.newContext({ baseURL: cfg.aut.baseURL });
