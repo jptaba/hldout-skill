@@ -5,7 +5,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, evalPaths, listRuns, readJson, type HeldoutConfig } from './config';
+import { evalPaths, evalRunsOf, listRuns, readJson, type HeldoutConfig } from './config';
 import { checkContract, readContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
 import { journeysUsedBy } from './journeys-store';
@@ -44,7 +44,7 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const profile = cfg.aut;
   const contractErrors = contract && fs.existsSync(p.requirement) ? [...checkContract(contract, p.requirement, { apiBaseURL: profile.apiBaseURL ?? profile.baseURL }), ...checkReview(contract, readReview(p.base), { requireReview: true })].filter((f) => f.level === 'error').length : 0;
   const runs = listRuns(p.runs);
-  const evalRuns = runs.filter((r) => !NON_EVAL_RUN.test(r));
+  const evalRuns = evalRunsOf(p.runs);
   const lastEval = evalRuns.at(-1);
   const meta = lastEval && fs.existsSync(path.join(p.runs, lastEval, 'run-meta.json')) ? readJson<{ stats?: { expected: number; unexpected: number; flaky: number } }>(path.join(p.runs, lastEval, 'run-meta.json')) : undefined;
   const triageFile = lastEval ? path.join(p.runs, lastEval, 'triage.json') : '';

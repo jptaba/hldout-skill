@@ -16,7 +16,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
+import { SCRIPTS_DIR, assertIssueKey, evalPaths, evalRunsOf, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from './fast-harden';
@@ -25,8 +25,22 @@ import { phasesOf } from './phases';
 import { readSuite, specFiles } from './spec-model';
 
 const H = 'npm run heldout --';
-/** The repair loop is bounded: at most three repair → re-run cycles after the first evaluation run. */
-const MAX_EVAL_RUNS = 4;
+/** The repair loop is bounded: at most three repair → re-run cycles in a row. */
+const MAX_REPAIRS = 3;
+/**
+ * How many of the latest evaluation runs, counted back from the last, ended in a confirmed script defect: the repairs
+ * tried in a row. An evaluation run without one (an earlier verdict, a re-run for another reason) starts the count anew.
+ */
+function repairsTried(runsDir: string, evalRuns: string[]): number {
+  let n = 0;
+  for (const r of [...evalRuns].reverse()) {
+    const f = path.join(runsDir, r, 'triage.json');
+    const script = fs.existsSync(f) && readJson<{ entries: { status: string; final?: { category: string } }[] }>(f).entries.some((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT');
+    if (!script) break;
+    n++;
+  }
+  return n;
+}
 
 /** What the tests stand on: which scenarios use which journey, and the journeys that are new with this story. */
 interface Known { use: Map<string, Set<string>>; fresh: Set<string> }
@@ -166,9 +180,10 @@ main(() => {
 
   if (flags.rerun) {
     const cfg = loadConfig({ key, aut });
-    const evalRuns = listRuns(evalPaths(cfg, key).runs).filter((r) => !NON_EVAL_RUN.test(r));
+    const runsDir = evalPaths(cfg, key).runs;
+    const evalRuns = evalRunsOf(runsDir);
     if (!evalRuns.length) throw new Error(`--rerun follows a repair after an evaluation run; ${key} has none yet: ${H} advance ${key}`);
-    if (evalRuns.length >= MAX_EVAL_RUNS) console.log(`• ${evalRuns.length} evaluation runs already: the repair loop is bounded, so no further re-run — going on to the verdict`);
+    if (repairsTried(runsDir, evalRuns) > MAX_REPAIRS) console.log(`• ${MAX_REPAIRS} evaluation runs in a row ended in confirmed script defects: the repair loop is bounded, so no further re-run — going on to the verdict`);
     else { if (heldout('integrity', key) !== 0) stuck('integrity is not preserved after the repair'); heldout('run', key, '--label', 'rerun', '--quiet'); }
   }
 
@@ -244,7 +259,7 @@ main(() => {
     }
 
     if (next.name === 'triage') {
-      const evalRuns = listRuns(p.runs).filter((r) => !NON_EVAL_RUN.test(r));
+      const evalRuns = evalRunsOf(p.runs);
       const lastEval = evalRuns.at(-1)!;
       // The automatic classification first (a re-run takes over the decisions confirmed for identical failures): the
       // triager starts from it.
@@ -254,10 +269,10 @@ main(() => {
 
     if (next.name === 'verdict') {
       // Confirmed script defects are repaired and the suite run again before the verdict, at most three times.
-      const evalRuns = listRuns(p.runs).filter((r) => !NON_EVAL_RUN.test(r));
+      const evalRuns = evalRunsOf(p.runs);
       const triageFile = path.join(p.runs, evalRuns.at(-1) ?? '', 'triage.json');
       const scriptDefects = fs.existsSync(triageFile) ? readJson<{ entries: { scenario: string; status: string; final?: { category: string; rationale?: string } }[] }>(triageFile).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT') : [];
-      if (scriptDefects.length && evalRuns.length < MAX_EVAL_RUNS) {
+      if (scriptDefects.length && repairsTried(p.runs, evalRuns) <= MAX_REPAIRS) {
         console.log(`\n■ Next: the heldout-hardener subagent — ${scriptDefects.length} confirmed script defect(s) in ${evalRuns.at(-1)}`);
         console.log(`  Task: "Repair these script defects for ${key}: ${scriptDefects.map((e) => `${e.scenario} (${(e.final?.rationale ?? '').slice(0, 100)})`).join('; ')}"`);
         console.log(`  Then: ${H} advance ${key} --rerun`);

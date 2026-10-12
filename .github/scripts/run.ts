@@ -269,6 +269,7 @@ main(async () => {
     console.log('  (one worker, test starts at least 10 s apart; the failures above are the environment, not the application)');
   }
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
+  else if (grep) console.log(`\nA run of some of the tests is never the evaluation: the verdict comes from a run of them all (npm run heldout -- advance ${key}${/repair/.test(runName) ? ' --rerun' : ''}).`);
   else if (!NON_EVAL_RUN.test(runName)) console.log(`\nNext: npm run heldout -- verdict ${key}`);
   else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (any mechanics gap still open: contract ${key} --resolve Gn …; hardening/hardening-log.md), then: npm run heldout -- advance ${key}`);
 });

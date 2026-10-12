@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/fast-harden';
+import { evalRunsOf } from '../.github/scripts/config';
 import { draftFinished, markDraftFinished } from '../.github/scripts/phases';
 
 describe('guesses left in tests, settled by the run', () => {
@@ -75,6 +76,20 @@ describe('guesses left in a journey that is new with the story, settled by the r
   });
   it('not a guess in a constant or a helper of the file', () => {
     assert.match(journeyGuessesNotSettled([click], 2, fresh, use)!, /outside any journey/);
+  });
+});
+
+describe('which runs are evaluations', () => {
+  it('never a hardening, reproduction or repair run, and never a run of some of the tests', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'runs-'));
+    const run = (name: string, meta?: object) => { fs.mkdirSync(path.join(dir, name)); if (meta) fs.writeFileSync(path.join(dir, name, 'run-meta.json'), JSON.stringify(meta)); };
+    run('01-harden', { grep: null });
+    run('02-eval', { grep: null });
+    run('03-repair', { grep: 'SCN-010|SCN-014' });
+    run('04-check', { grep: 'SCN-010' });
+    run('05-rerun', {});
+    run('06-repro');
+    assert.deepEqual(evalRunsOf(dir), ['02-eval', '05-rerun']);
   });
 });
 

@@ -129,9 +129,14 @@ workaround or limited scope. **Minor** means wording, contract nuance or cosmeti
 ## Repair loop
 
 1. Fix every confirmed SCRIPT_DEFECT (mechanics only; the `heldout-hardener` subagent repairs what the
-   `heldout-triager` confirmed). Re-probe.
+   `heldout-triager` confirmed). Re-probe; when the triager's reports under `confirm/` already show the new locator
+   with one match and the control working through it, cite them, and make no second walk that leaves more records.
+   Check the repair with a run of the repaired tests only (`heldout run KEY --label repair --grep "SCN-010|SCN-014"`):
+   such a run is never the evaluation, whatever comes of it. A shared journey that was repaired needs nothing done in
+   the registry: it reads "changed since proven" until the harvest of a passing story proves the new code; only a
+   journey that was replaced by another is marked stale.
 2. `heldout integrity KEY` must stay PRESERVED or AMENDED.
 3. Re-run the **full** suite (`heldout run KEY --label rerun`), then `heldout triage KEY --carry-from auto`.
    Decisions carry over only for identical signatures (assertion, expected, received, locator, API
    method+status). Anything new must be investigated.
-4. Stop after 3 cycles. Anything left unexplained stays NEEDS_INVESTIGATION.
+4. Stop after 3 cycles in a row. Anything left unexplained stays NEEDS_INVESTIGATION.

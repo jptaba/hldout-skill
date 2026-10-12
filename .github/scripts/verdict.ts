@@ -11,7 +11,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, ROOT, SCRIPTS_DIR, journeyPaths, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
+import { ROOT, SCRIPTS_DIR, journeyPaths, assertIssueKey, evalPaths, evalRunsOf, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import type { Category } from './classify';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from './spec-model';
 import { comboLabel, oracleDigest, readContract, variantCombinations } from './contract-model';
@@ -56,8 +56,9 @@ main(() => {
   const p = evalPaths(cfg, key);
   const allRuns = listRuns(p.runs).filter((r) => fs.existsSync(path.join(p.runs, r, 'run-meta.json')));
   // Non-evaluation runs (hardening dry-runs, single-test reproductions, robustness probes) never become the final run.
-  const NON_EVAL = NON_EVAL_RUN;
-  const finalRun = flagStr(flags, 'run') ?? allRuns.filter((r) => !NON_EVAL.test(r)).at(-1);
+  // Nor does a run of some of the tests: a verdict needs the whole suite.
+  const evaluations = evalRunsOf(p.runs);
+  const finalRun = flagStr(flags, 'run') ?? allRuns.filter((r) => evaluations.includes(r)).at(-1);
   if (!finalRun) throw new Error(`No evaluation run yet (hardening runs don't count). Run: npm run heldout -- run ${key} --label eval`);
   // The final run is always the latest evaluation run. A run with nothing to triage (everything passed) may never have
   // been triaged: classify it now rather than fall back to an older run.
@@ -416,7 +417,7 @@ main(() => {
     '| Run | Passed | Failed | Flaky |', '| --- | --- | --- | --- |',
     ...allRuns.map((r) => {
       const st = readJson<{ stats?: { expected: number; unexpected: number; flaky: number } }>(path.join(p.runs, r, 'run-meta.json')).stats;
-      const note = r === finalRun ? ' (final)' : /^\d+-harden/.test(r) ? ' (hardening dry-run)' : NON_EVAL.test(r) ? ' (non-evaluation run)' : '';
+      const note = r === finalRun ? ' (final)' : /^\d+-harden/.test(r) ? ' (hardening dry-run)' : !evaluations.includes(r) ? ' (not an evaluation run: a reproduction, a repair check or some of the tests)' : '';
       return `| \`${r}\`${note} | ${st?.expected ?? '-'} | ${st?.unexpected ?? '-'} | ${st?.flaky ?? '-'} |`;
     }), '',
     '## Artifacts', '',

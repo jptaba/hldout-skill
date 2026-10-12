@@ -492,7 +492,20 @@ export const rel = (p: string) => path.relative(ROOT, p).split(path.sep).join('/
 export const timestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
 
 /** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
-export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness)/;
+export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;
+
+/**
+ * A story's evaluation runs, oldest first: every run of the whole suite that is not a hardening, reproduction or
+ * repair run. A run of some of the tests (`--grep`) is never one, whatever it was labelled: a verdict from four tests
+ * that passed would say nothing of the others.
+ */
+export function evalRunsOf(runsDir: string): string[] {
+  return listRuns(runsDir).filter((r) => {
+    if (NON_EVAL_RUN.test(r)) return false;
+    const meta = path.join(runsDir, r, 'run-meta.json');
+    return !(fs.existsSync(meta) && readJson<{ grep?: string | null }>(meta).grep);
+  });
+}
 
 /** Run folders (NN-label), oldest → newest. */
 export function listRuns(runsDir: string): string[] {
