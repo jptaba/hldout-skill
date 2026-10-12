@@ -33,9 +33,14 @@ as before.
   carries the headers that shape the answer and says which failures it leaves out; a rewritten request is reported
   with the value it would have sent and the one that went out.
 
+- **A triage report that is read, not searched.** It opens with the failures that look alike (the same criterion and
+  the same call and status, or the same locator); the first of a group is written out, the others show what differs.
+  Of an HTML error page it shows what the page says, not its markup; the tests that passed are one line; a decision
+  written out once is named after that. PB-2's report for 57 failures went from 115 KB to about 70 KB before the
+  decisions and from 144 KB to 80 KB with them; TOOL-8's from 47 KB to 27 KB. Not yet read by a triager in a round.
+
 ## Open after round 35
 
 | What | Why it matters |
 | --- | --- |
 | A guess in a journey that is new to the story always calls the hardener | One new one-line journey cost a hardening pass in step 3. Settling it by the run is possible when every test that calls it passed, but a wrong guess in a journey that returns a yes or no can still pass |
-| The triage report repeats long error bodies | 115 KB for 57 failures in PB-2 |

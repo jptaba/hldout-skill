@@ -74,7 +74,11 @@ When something *was* disclosed or changed, the severity follows that, not the st
 ## Confirming each failure (mandatory)
 
 1. Read `triage.md`: failing step, expected vs received, API exchanges, screenshot, snapshot, trace
-   (`npx playwright show-trace …`).
+   (`npx playwright show-trace <the trace.zip in the test's evidence folder>`). When a run has many failures the
+   report opens with "Failures that look alike": the same criterion and the same call and status, or the same
+   locator. The first failure of a group is written out in full, the others show what differs from it. Start from
+   those groups, reproduce one failure of each, and decide yourself whether a group is one root cause: two groups
+   often share one (a page and the call behind it), and one group can hide two.
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json`;
    replay API requests with `heldout api-probe`. Save the output under `runs/NN/confirm/`. Start from
    `confirm/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
