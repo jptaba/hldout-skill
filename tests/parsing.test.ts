@@ -434,6 +434,12 @@ describe('run artifact scrubbing', () => {
     assert.equal(after[0].data.toString(), '{"url":"http://app/login/ann/***redacted***","postData":"password=***redacted***&again=***redacted***"}');
     assert.ok(after[1].data.equals(picture), 'a file without the secret is byte for byte the same');
     assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 0, 'idempotent');
+    // The HTML report carries its data as an archive inside the page.
+    const packed = writeZip([{ name: 'report.json', data: Buffer.from('{"title":"GET /login/ann/p%40ss%20W0rd!"}') }]).toString('base64');
+    fs.writeFileSync(path.join(dir, 'index.html'), `<script>window.playwrightReportBase64 = "data:application/zip;base64,${packed}";</script>`);
+    assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 1);
+    const inPage = fs.readFileSync(path.join(dir, 'index.html'), 'utf8').match(/base64,([A-Za-z0-9+/=]+)/)![1];
+    assert.equal(readZip(Buffer.from(inPage, 'base64'))![0].data.toString(), '{"title":"GET /login/ann/***redacted***"}');
     // What isn't a zip this reader handles is left alone.
     fs.writeFileSync(path.join(dir, 'broken.zip'), 'not a zip p@ss W0rd!');
     assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 0);

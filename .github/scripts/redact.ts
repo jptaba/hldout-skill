@@ -76,8 +76,8 @@ export function redactSnapshot(yaml: string, secretValues: string[] = []): strin
 // Playwright writes page snapshots itself (artifacts/**/error-context.md, html/data/*.md), including field values,
 // outside the fixture's control. After every run the run directory's text artifacts are scrubbed of known
 // secret values, and so are the files inside every trace archive (a trace records each request the browser made,
-// passwords in addresses and forms included). html/index.html is a bundle: it stays local (git-ignored) and is
-// never published — the verdict is the only artifact that leaves the machine.
+// passwords in addresses and forms included) and inside the archive the HTML report carries in its page. These
+// stay local all the same (git-ignored): the verdict is the only artifact that leaves the machine.
 
 /**
  * A value is safe to scrub by literal replacement only if it can't be ordinary text. A plain word such as
@@ -138,6 +138,18 @@ export function scrubDir(dir: string, secrets: string[]): { files: number } {
     if (/\.zip$/i.test(file) && secrets.length && fs.statSync(file).isFile()) {
       const scrubbed = scrubZip(fs.readFileSync(file), secrets);
       if (scrubbed?.changed) { fs.writeFileSync(file, scrubbed.zip); files++; }
+      continue;
+    }
+    // The HTML report packs its data as an archive inside the page: the same scrub, on that archive.
+    if (/\.html$/i.test(file) && secrets.length && fs.statSync(file).isFile()) {
+      const page = fs.readFileSync(file, 'utf8'); let changed = false;
+      const clean = page.replace(/(data:application\/zip;base64,)([A-Za-z0-9+/=]+)/g, (whole, head: string, b64: string) => {
+        const scrubbed = scrubZip(Buffer.from(b64, 'base64'), secrets);
+        if (!scrubbed?.changed) return whole;
+        changed = true;
+        return head + scrubbed.zip.toString('base64');
+      });
+      if (changed) { fs.writeFileSync(file, clean); files++; }
       continue;
     }
     if (!TEXT_ARTIFACT.test(file) || !fs.statSync(file).isFile()) continue;
