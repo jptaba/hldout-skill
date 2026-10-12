@@ -43,4 +43,4 @@ as before.
 
 | What | Why it matters |
 | --- | --- |
-| A guess in a journey that is new to the story always calls the hardener | One new one-line journey cost a hardening pass in step 3. Settling it by the run is possible when every test that calls it passed, but a wrong guess in a journey that returns a yes or no can still pass |
+| Most guesses in a new journey still call the hardener | The run now settles the narrow case: a few journeys new with the story beside proven ones, each guess on a statement of the journey itself that clicks, fills or waits for what it locates, every test that uses the journey passing both times. A path or field of an API call, a value a journey returns (the yes-or-no journey of step 3 among them), a guess in a branch, a helper or a constant are still the hardener's, because a wrong guess there can pass. Unit tests only so far for the new case |

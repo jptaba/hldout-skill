@@ -16,11 +16,11 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NON_EVAL_RUN, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
+import { NON_EVAL_RUN, SCRIPTS_DIR, assertIssueKey, evalPaths, flagStr, journeyPaths, listRuns, loadConfig, main, parseArgs, readJson, rel, writeFile, type HeldoutConfig } from './config';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from './contract-model';
 import { checkReview, readReview } from './evidence';
-import { guessesNotSettled } from './fast-harden';
-import { allJourneys, journeyUse, journeysUsedBy, readRegistry, statusOf } from './journeys-store';
+import { guessesNotSettled, journeyGuessesNotSettled } from './fast-harden';
+import { allJourneys, journeyUse, journeysUsedBy, ownCodeOf, readRegistry, statusOf } from './journeys-store';
 import { phasesOf } from './phases';
 import { readSuite, specFiles } from './spec-model';
 
@@ -28,22 +28,39 @@ const H = 'npm run heldout --';
 /** The repair loop is bounded: at most three repair → re-run cycles after the first evaluation run. */
 const MAX_EVAL_RUNS = 4;
 
+/** What the tests stand on: which scenarios use which journey, and the journeys that are new with this story. */
+interface Known { use: Map<string, Set<string>>; fresh: Set<string> }
+
+/** The story's journey files that hold a guess, and what a run can say about those guesses (see journeyGuessesNotSettled). */
+function journeyGuesses(cfg: HeldoutConfig, key: string, k: Known, results?: { scenario: string; status: string }[]): { files: string[]; why?: string } {
+  const p = evalPaths(cfg, key);
+  const files = journeysUsedBy(cfg, cfg.autId, specFiles(p.tests)).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
+  if (!files.length) return { files };
+  const journeys = allJourneys(cfg, cfg.autId); const base = journeyPaths(cfg, cfg.autId).base;
+  const own = files.flatMap((f) => [...ownCodeOf(f, journeys, base)].map(([id, code]) => ({ id, code })));
+  const marks = files.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(/TODO\(harden\)/g) ?? []).length, 0);
+  return { files, why: journeyGuessesNotSettled(own, marks, k.fresh, k.use, results) };
+}
+
 /**
- * Nothing left to discover: the draft marks no guess (no TODO(harden) in the spec or the journeys it uses) and every
- * journey its tests call is in the registry as proven, unchanged since. Returns which scenarios use which journey.
+ * Nothing left to discover that a run can't settle: every journey the tests call is in the registry as proven,
+ * unchanged since, or is new with this story (never proven, never changed after a proof); and a guess the draft left
+ * in a journey sits where a run settles it (a new journey's own statement that acts on what it locates). A guess left
+ * in a test is settled by that test's run (see specGuessesHeld). Returns which scenarios use which journey.
  */
-function knownMechanics(cfg: HeldoutConfig, key: string): Map<string, Set<string>> | undefined {
+function knownMechanics(cfg: HeldoutConfig, key: string): Known | undefined {
   const p = evalPaths(cfg, key);
   const specs = specFiles(p.tests);
-  // A guess left in a journey is the hardener's: a journey has branches a run may never take. A guess left in a test
-  // is settled by that test's own run (see specGuessesHeld).
-  if (journeysUsedBy(cfg, cfg.autId, specs).some((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')))) return undefined;
   const journeys = allJourneys(cfg, cfg.autId);
   const use = journeyUse(journeys, specs, readSuite(p.tests, readContract(p.base)).scenarios);
   const registry = readRegistry(cfg, cfg.autId).journeys;
   const hashOf = new Map(journeys.map((j) => [j.id, j.hash]));
-  if (!use.size || ![...use.keys()].every((id) => registry[id] && statusOf(registry[id], hashOf.get(id)) === 'proven')) return undefined;
-  return use;
+  const status = (id: string) => (registry[id] ? statusOf(registry[id], hashOf.get(id)) : 'unproven');
+  if (!use.size || [...use.keys()].some((id) => status(id) !== 'proven' && status(id) !== 'unproven')) return undefined;
+  const fresh = new Set([...use.keys()].filter((id) => status(id) === 'unproven'));
+  // A story on new ground is the hardener's: the run settles a few new journeys beside proven ones, not a whole draft.
+  if (fresh.size && fresh.size * 2 > use.size) return undefined;
+  return journeyGuesses(cfg, key, { use, fresh }).why ? undefined : { use, fresh };
 }
 
 /**
@@ -65,7 +82,8 @@ function specGuessesHeld(cfg: HeldoutConfig, key: string, entries: { scenario: s
  * pass or fail on a requirement assertion alone; anything else (a locator, a precondition, a flaky test) means a
  * proven journey no longer holds, and the hardener takes over. Returns false in that case.
  */
-function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Set<string>>, heldout: (...a: string[]) => number): string | true {
+function hardenFromRegistry(cfg: HeldoutConfig, key: string, known: Known, heldout: (...a: string[]) => number): string | true {
+  const { use, fresh } = known;
   const p = evalPaths(cfg, key);
   const before = new Set(listRuns(p.runs));
   heldout('run', key, '--label', 'harden', '--repeat-each', '2', '--workers', '2', '--quiet');
@@ -77,8 +95,15 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Se
   const entries = readJson<{ entries: { scenario: string; status: string; auto?: { category: string } }[] }>(triageFile).entries;
   const bad = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped' && e.auto?.category !== 'APPLICATION_DEFECT');
   if (bad.length) return `the proven journeys did not hold in ${run}: ${bad.slice(0, 6).map((e) => `${e.scenario} (${e.auto?.category ?? e.status})`).join(', ')}`;
-  const guesses = specGuessesHeld(cfg, key, entries);
-  if (typeof guesses === 'string') return `${guesses} (run ${run})`;
+  // A journey that is new with this story has no proof but this run: every test that uses it passed each time.
+  const passedAll = (s: string) => { const runs = entries.filter((e) => e.scenario === s || e.scenario.replace(/\.\d+$/, '') === s); return runs.length > 0 && runs.every((e) => e.status === 'passed'); };
+  const unproved = [...fresh].find((id) => ![...(use.get(id) ?? [])].every(passedAll));
+  if (unproved) return `${unproved} is new with this story and a test that uses it did not pass every time (run ${run})`;
+  const inJourneys = journeyGuesses(cfg, key, known, entries);
+  if (inJourneys.why) return `${inJourneys.why} (run ${run})`;
+  const inSpec = specGuessesHeld(cfg, key, entries);
+  if (typeof inSpec === 'string') return `${inSpec} (run ${run})`;
+  const guesses = [...inSpec, ...inJourneys.files];
   for (const f of guesses) if (heldout('confirm', key, '--file', rel(f), '--evidence', `run ${run}: the tests that use these guesses passed each time, on lines that act on or expect what they locate`) !== 0) return 'the confirmed guesses could not be recorded';
 
   // The open mechanics gaps are answered by the journeys the tests of their criteria call.
@@ -90,7 +115,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Se
     const tests = new Set(scenarios.filter((s) => g.affects.includes('*') || s.acs.some((a) => g.affects.includes(a))).map((s) => s.id));
     const ids = [...use].filter(([, by]) => [...by].some((s) => tests.has(s))).map(([id]) => id).sort();
     const journeys = ids.length ? ids : [...use.keys()].sort();
-    return { id: g.id, value: `as the proven journeys the tests call do it: ${journeys.join(', ')}`, evidence: `journeys/registry.yml (proven by ${proofOf(journeys) || 'earlier stories'}); run ${run}` };
+    return { id: g.id, value: `as the journeys the tests call do it: ${journeys.join(', ')}`, evidence: `journeys/registry.yml (proven by ${proofOf(journeys) || 'earlier stories'}${journeys.some((id) => fresh.has(id)) ? '; the ones new with this story by the run' : ''}); run ${run}` };
   });
   if (answers.length) {
     const file = path.join(p.hardening, 'gaps-from-registry.json');
@@ -98,9 +123,10 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Se
     if (heldout('contract', key, '--resolve-from', file) !== 0) return 'the mechanics gaps could not be recorded';
   }
   const failed = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped').map((e) => e.scenario);
-  const tiers = `**Tiers used:** none — nothing was left to discover: ${guesses.length ? 'the guesses the draft left in its tests were settled by the run (each in a test that passed every time, on a line that acts on or expects what it locates), ' : 'the draft marks no guess '}and the ${use.size} journey(s) its tests call are proven in the registry as they are (by ${proofOf([...use.keys()]) || 'earlier stories'}). Stability: run ${run}, each test twice; ${failed.length ? `${failed.join(', ')} failed on a requirement assertion each time (left for triage), the others passed` : 'every test passed'}. Written by \`heldout advance\`, no hardener.`;
+  const proven = [...use.keys()].filter((id) => !fresh.has(id));
+  const tiers = `**Tiers used:** none — nothing was left to discover: ${guesses.length ? `the guesses the draft left in its tests${inJourneys.files.length ? ' and in its new journeys' : ''} were settled by the run (each in a test that passed every time, on a line that acts on or expects what it locates), ` : 'the draft marks no guess '}and the ${proven.length} journey(s) its tests call are proven in the registry as they are (by ${proofOf(proven) || 'earlier stories'})${fresh.size ? `; ${fresh.size} journey(s) are new with this story, and every test that uses one passed each time (${[...fresh].sort().join(', ')})` : ''}. Stability: run ${run}, each test twice; ${failed.length ? `${failed.join(', ')} failed on a requirement assertion each time (left for triage), the others passed` : 'every test passed'}. Written by \`heldout advance\`, no hardener.`;
   const log = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8') : `# Hardening log — ${key}\n**Tiers used:** \n`;
-  writeFile(p.hardeningLog, `${log.replace(/^\*\*Tiers? used:\*\*.*$/m, tiers).replace(/\s+$/, '')}\n\n## Journeys reused as proven (nothing fixed, nothing added)\n${[...use.keys()].sort().map((id) => `- ${id} — proven by ${registry[id]?.proven?.by?.join(', ') ?? '-'}`).join('\n')}\n`);
+  writeFile(p.hardeningLog, `${log.replace(/^\*\*Tiers? used:\*\*.*$/m, tiers).replace(/\s+$/, '')}\n\n## Journeys reused as proven (nothing fixed)\n${proven.sort().map((id) => `- ${id} — proven by ${registry[id]?.proven?.by?.join(', ') ?? '-'}`).join('\n')}\n${fresh.size ? `\n## Journeys new with this story (as drafted; proven by run ${run})\n${[...fresh].sort().map((id) => `- ${id} — used by ${[...(use.get(id) ?? [])].sort().join(', ')}`).join('\n')}\n` : ''}`);
   return heldout('integrity', key) === 0 ? true : 'integrity is not preserved';
 }
 
@@ -200,10 +226,10 @@ main(() => {
 
     if (next.name === 'harden') {
       // Nothing to discover and no harden run yet: the stability run is the hardening, no subagent needed.
-      const use = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
-      if (use) {
-        console.log(`\n• nothing left to discover: the ${use.size} journey(s) the tests call are proven as they are and hold no guess — proving stability without the hardener (a guess left in a test is settled by that test's own run)`);
-        const done = hardenFromRegistry(cfg, key, use, heldout);
+      const known = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
+      if (known) {
+        console.log(`\n• nothing left to discover that a run can't settle: ${known.use.size - known.fresh.size} journey(s) the tests call are proven as they are${known.fresh.size ? `, ${known.fresh.size} are new with this story` : ''} — proving stability without the hardener (a guess left in a test, or in a new journey's own acting statement, is settled by the run)`);
+        const done = hardenFromRegistry(cfg, key, known, heldout);
         if (done === true && moved()) continue;
         return handOver('heldout-hardener', `Harden the tests for ${key}`, done === true ? next.detail : done);
       }

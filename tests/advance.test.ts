@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { guessesNotSettled } from '../.github/scripts/fast-harden';
+import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/fast-harden';
 import { draftFinished, markDraftFinished } from '../.github/scripts/phases';
 
 describe('guesses left in tests, settled by the run', () => {
@@ -40,6 +40,41 @@ describe('guesses left in tests, settled by the run', () => {
   });
   it('nothing marked: nothing to settle', () => {
     assert.equal(guessesNotSettled([{ id: 'SCN-001', code: "test('SCN-001: …', async () => {});" }], 0, passed('SCN-001')), undefined);
+  });
+});
+
+describe('guesses left in a journey that is new with the story, settled by the run', () => {
+  const passed = (...ids: string[]) => ids.map((scenario) => ({ scenario, status: 'passed' }));
+  const click = { id: 'ui.cart.empty-cart', code: "export async function emptyCart(page: Page) {\n  await gotoPage(page, 'cart');\n  await page.getByRole('button', { name: 'Empty cart' }).click(); // TODO(harden)\n}" };
+  const fresh = new Set(['ui.cart.empty-cart']);
+  const use = new Map([['ui.cart.empty-cart', new Set(['SCN-003', 'SCN-004'])]]);
+
+  it('a locator the journey clicks, with every test that uses it passing, is settled', () => {
+    assert.equal(journeyGuessesNotSettled([click], 1, fresh, use), undefined, 'the code alone, before the run');
+    assert.equal(journeyGuessesNotSettled([click], 1, fresh, use, passed('SCN-003', 'SCN-003', 'SCN-004.1', 'SCN-004.2')), undefined);
+  });
+  it('not when a test that uses the journey failed, or none uses it', () => {
+    assert.match(journeyGuessesNotSettled([click], 1, fresh, use, [...passed('SCN-003'), { scenario: 'SCN-004', status: 'failed' }])!, /SCN-004, which uses it, did not pass every time/);
+    assert.match(journeyGuessesNotSettled([click], 1, fresh, use, passed('SCN-003'))!, /SCN-004/, 'a test that did not run proves nothing');
+    assert.match(journeyGuessesNotSettled([click], 1, fresh, new Map())!, /no test of the story uses it/);
+  });
+  it('not in a journey other stories already rely on', () => {
+    assert.match(journeyGuessesNotSettled([click], 1, new Set(), use)!, /not new with this story/);
+  });
+  it('not in a branch, which a run may never take', () => {
+    const branch = { id: 'ui.cart.empty-cart', code: "export async function emptyCart(page: Page) {\n  if (await page.getByText('Your cart').isVisible()) {\n    await page.getByRole('button', { name: 'Empty cart' }).click(); // TODO(harden)\n  }\n}" };
+    assert.match(journeyGuessesNotSettled([branch], 1, fresh, use)!, /in a branch/);
+  });
+  it('not a path, a field or a value the journey returns', () => {
+    const call = { id: 'ui.cart.empty-cart', code: "export function sendEmptyCart(api: Api, id: string) {\n  return api.delete(`/carts/${id}`); // TODO(harden)\n}" };
+    assert.match(journeyGuessesNotSettled([call], 1, fresh, use)!, /does not exercise on its own line/);
+    const yesNo = { id: 'ui.cart.empty-cart', code: "export async function onCartPage(page: Page) {\n  // TODO(harden) the address\n  return page.url().includes('/cart');\n}" };
+    assert.match(journeyGuessesNotSettled([yesNo], 1, fresh, use)!, /does not exercise on its own line/);
+    const absent = { id: 'ui.cart.empty-cart', code: "export async function waitUntilEmptied(page: Page) {\n  await page.getByRole('row').first().waitFor({ state: 'hidden' }); // TODO(harden)\n}" };
+    assert.match(journeyGuessesNotSettled([absent], 1, fresh, use)!, /absent/);
+  });
+  it('not a guess in a constant or a helper of the file', () => {
+    assert.match(journeyGuessesNotSettled([click], 2, fresh, use)!, /outside any journey/);
   });
 });
 

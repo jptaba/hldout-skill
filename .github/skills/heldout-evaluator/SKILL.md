@@ -128,8 +128,12 @@ When a draft leaves nothing to discover (every journey its tests call is proven 
 `TODO(harden)`), `advance` does the hardening itself: it runs the tests twice, and when each one passes or fails on a
 requirement assertion alone, it records the mechanics gaps as answered by those journeys, writes the hardening log and
 goes on to the evaluation run. A guess left in a test (a locator built from a text the requirement gives) is settled
-by that run: its test passed both times, on a line that acts on or expects what it locates. Anything else in that run (a locator that no longer matches, a
-failed precondition, a flaky test) hands the story to the hardener as usual.
+by that run: its test passed both times, on a line that acts on or expects what it locates. So is a journey that is
+new with the story, when the new ones are fewer than the proven ones and every test that uses one passed both times;
+a guess in it counts only on a statement of the journey itself that clicks, fills or waits for what it locates. A
+guess in a branch, a path or field of an API call, a value a journey returns, a constant or a helper of the file all
+go to the hardener, and so does anything else in that run (a locator that no longer matches, a failed precondition,
+a flaky test).
 
 Run that subagent with that task, then the `Then:` command, until it prints `✔ KEY is complete`. It reads where the
 story is from the files on disk, so a new session picks a story up with the same command. The table below is what it

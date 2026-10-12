@@ -164,6 +164,14 @@ export function journeysIn(file: string, base: string): JourneyCode[] {
   });
 }
 
+/** Each exported journey of a domain file with its own code only (no helper of the file): journey id → code. */
+export function ownCodeOf(file: string, journeys: JourneyCode[], base: string): Map<string, string> {
+  const src = fs.readFileSync(file, 'utf8');
+  const relFile = path.relative(base, file).split(path.sep).join('/');
+  const idOf = new Map(journeys.filter((j) => j.file === relFile).map((j) => [j.name, j.id]));
+  return new Map([...src.matchAll(EXPORTED_FUNCTION)].map((m) => [idOf.get(m[1] ?? m[3]) ?? '', topLevelBlock(src, m.index ?? 0)] as const).filter(([id]) => id));
+}
+
 /** Every journey of an application, with the journeys each calls. */
 export function allJourneys(cfg: Dirs, profile: string): JourneyCode[] {
   const base = journeyPaths(cfg, profile).base;
