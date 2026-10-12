@@ -63,7 +63,9 @@ contract, then the failed assertion: would the application's behaviour be right 
 give? When it would not (the page shows nothing where every reading expects a message, a record is lost, the wrong
 user's data is shown), add `--any-reading` to `triage --set` and say why in the rationale: the verdict then reports
 it as a defect. A server error (5xx) is never a reading of a requirement, so the verdict counts it as a defect by
-itself; no flag is needed.
+itself; no flag is needed. When the tests of one root cause differ in this (a negative payment is wrong under every
+reading, a payment of zero depends on the answer), keep the one call and name the tests the flag is for:
+`--set SCN-008,SCN-010,SCN-011 --any-reading SCN-008.4,SCN-010.4,SCN-011`.
 
 **A refusal that answers 200.** The story says a request "is refused" or that someone "must not be able to" and names
 no status; the test expects a 4xx; the application answers 200 with an empty body, and the checks that nothing was

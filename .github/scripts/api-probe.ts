@@ -21,7 +21,7 @@
  */
 import fs from 'node:fs';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl, writeFile } from './config';
-import { literalsOf, redact, redactHeaders, shapeOf } from './redact';
+import { literalsOf, pageText, redact, redactHeaders, shapeOf } from './redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
@@ -160,7 +160,8 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
     // The step's own literal values stay readable (a deliberately short test password is the point of the call).
     const literals = literalsOf(s.json ?? s.form);
     try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body)), { keep: literals }) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''), { keep: literals })); } catch { /* raw */ }
-    const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : r.text;
+    // An HTML error page on one line of a chain's report: what it says, not its markup.
+    const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : pageText(r.text);
     lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''}${copies > 1 ? ` ×${copies} at once` : ''} → **${copies > 1 ? all.map((x) => x.status).join(', ') : r.status}**${exp ? (!statusOk ? ` ✖ expected ${exp.join('/')}` : ok ? ' ✔' : ' ✔ status (✖ below)') : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.
     // A redirect is its Location header: always show it (or its absence). "header:<name>" in show reads any header.

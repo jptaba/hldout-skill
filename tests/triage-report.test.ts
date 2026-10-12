@@ -84,6 +84,28 @@ describe('the triage report', () => {
     assert.doesNotMatch(md, /replay:/, 'a confirmed failure needs no replay hint');
   });
 
+  it('reads a page test apart from a direct call, and repeats a body only when it is the same', () => {
+    const call = failure('SCN-001', { url: 'https://shop.test/api/accounts/12345/history', body: [{ account: 12345 }] });
+    const other = failure('SCN-002', { url: 'https://shop.test/api/accounts/67890/history', body: [{ account: 67890 }] });
+    const page = { ...failure('SCN-003', { url: 'https://shop.test/api/accounts/12345/history', body: [{ account: 12345 }] }), layer: 'ui' };
+    assert.notEqual(likeness(call), likeness(page));
+    const md = renderTriageMd(report([call, other, page]), RUN, ROOT);
+    assert.match(md, /2 groups/);
+    assert.doesNotMatch(md, /response body: as SCN-001/, 'a body that names another record is shown, not referred to');
+    assert.match(md, /response body: `\[\{"account":67890\}\]`/);
+  });
+
+  it('names the matcher, and the call that made the state a failed read-back looked at', () => {
+    const e = failure('SCN-001', { url: 'https://shop.test/api/accounts/12345' });
+    e.error!.matcher = 'toContain';
+    const post = { request: { method: 'POST', url: 'https://shop.test/api/transfer?amount=1.005' }, response: { status: 200 } };
+    const get = { request: { method: 'GET', url: 'https://shop.test/api/accounts/12345' }, response: { status: 500, body: 'boom' } };
+    e.evidence.api = get; e.evidence.apiSequence = [post, get]; e.evidence.apiRelevantIndex = 1;
+    const md = renderTriageMd(report([e]), RUN, ROOT);
+    assert.match(md, /- Expected \(toContain\): `"4xx"`/);
+    assert.match(md, /the call before it: `POST https:\/\/shop\.test\/api\/transfer\?amount=1\.005` → \*\*200\*\*/);
+  });
+
   it('has no group table when every failure stands alone', () => {
     const md = renderTriageMd(report([failure('SCN-001', { url: 'https://shop.test/api/a' }), failure('SCN-002', { url: 'https://shop.test/api/b' })]), RUN, ROOT);
     assert.doesNotMatch(md, /look alike/);

@@ -39,7 +39,7 @@ import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, loadConfig, main, parseArgs, resolveUrl as autUrl, writeFile } from './config';
 import { generatedId, siteOf } from './detect';
 import { closeOverlays, locateOn } from './page';
-import { redact, redactSnapshot, shapeOf } from './redact';
+import { pageText, redact, redactSnapshot, shapeOf } from './redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from './secrets';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
@@ -53,6 +53,9 @@ interface Candidate {
 const vars: Record<string, string> = {};
 /** ${env:NAME} (.env or the environment) and ${vault:path#field} (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
 const env = (s = '') => expandSecrets(s).replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+
+/** A step's target as the step table shows it: per-run values filled in, secret references left as references. */
+const labelOf = (s: Step) => (s.target ?? s.url ?? '').replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
 
 const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 
@@ -117,7 +120,8 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
           try { const o = JSON.parse(postData) as Record<string, unknown>; for (const [k, v] of fields) if (k in o) { was.set(k, show(k, o[k])); o[k] = v; } postData = JSON.stringify(o); }
           catch { const f = new URLSearchParams(postData); for (const [k, v] of fields) if (f.has(k)) { was.set(k, show(k, f.get(k))); f.set(k, v); } postData = f.toString(); }
         }
-        const changes = [...fields].map(([k, v]) => (was.has(k) ? `${k}: ${was.get(k)} → ${show(k, v)}` : `${k}: not in the request, left out`));
+        const changes = [...fields].map(([k, v]) => (!was.has(k) ? `${k}: not in the request, left out`
+          : was.get(k) === show(k, v) ? `${k}: ${show(k, v)} (the page sent this value itself: nothing to change)` : `${k}: ${was.get(k)} → ${show(k, v)}`));
         rewritten.push(`${req.method()} ${u.pathname.replace(/;jsessionid=[^?#]*/i, '')} sent with ${changes.join(', ')}`);
         await route.continue({ url: u.toString(), ...(postData ? { postData } : {}) });
       }, { times: 1 });
@@ -131,7 +135,7 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
       const res = await page.request.fetch(autUrl(apiBaseURL, rest.join(' ')), { method, headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { data: body } : {}) });
       const text = await res.text();
       let shown: string;
-      try { shown = JSON.stringify(redact(JSON.parse(text))); } catch { shown = redactSnapshot(text); }
+      try { shown = JSON.stringify(redact(JSON.parse(text))); } catch { shown = redactSnapshot(pageText(text)); }
       return `${res.status()} · ${shown.replace(/\s+/g, ' ').replace(/\|/g, '/').slice(0, Math.max(300, answerLimit))}`;
     }
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
@@ -240,10 +244,10 @@ main(async () => {
         fresh.forEach((t) => heard.add(t));
         // Where an action landed (a click that signs out, a form that leads on): shown when the address changed.
         const at = s.do !== 'goto' && page.url() !== before ? ` · now at ${(() => { const u = new URL(page.url()); return (u.pathname + u.search).replace(/;jsessionid=[^?#]*/i, '').replace(/\|/g, '/'); })()}` : '';
-        stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ${seen ?? '✔'}${at}${fresh.length ? ` · the page announced: ${fresh.slice(0, 3).map((t) => `"${t.replace(/\|/g, '/')}"`).join(', ')}` : ''} |`);
+        stepLog.push(`| ${i + 1} | ${s.do} | \`${labelOf(s)}\` | ${seen ?? '✔'}${at}${fresh.length ? ` · the page announced: ${fresh.slice(0, 3).map((t) => `"${t.replace(/\|/g, '/')}"`).join(', ')}` : ''} |`);
       }
       catch (e) {
-        stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
+        stepLog.push(`| ${i + 1} | ${s.do} | \`${labelOf(s)}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
         break;
       }
     }

@@ -72,6 +72,15 @@ export function redactSnapshot(yaml: string, secretValues: string[] = []): strin
   return out.replace(/^(\s*- textbox "[^"]*(?:pass(?:word|code)?|pin|secret|token)[^"]*"[^:\n]*):\s*\S.*$/gim, '$1: ***redacted***');
 }
 
+/**
+ * An answer that is an HTML page (an application's error page behind an API call), as what the page says: its text,
+ * marked as a page, without the markup, the scripts and the head. Anything else comes back as it is.
+ */
+export function pageText(body: string): string {
+  if (!/<html[\s>]|<!doctype html/i.test(body)) return body;
+  return `(an HTML page) ${body.replace(/<!--[\s\S]*?-->|<(script|style|head)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}`;
+}
+
 // ---- run-level scrubbing --------------------------------------------------------------------------
 // Playwright writes page snapshots itself (artifacts/**/error-context.md, html/data/*.md), including field values,
 // outside the fixture's control. After every run the run directory's text artifacts are scrubbed of known

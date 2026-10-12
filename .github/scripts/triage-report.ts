@@ -5,14 +5,14 @@
 import path from 'node:path';
 import type { ApiExchange } from './classify';
 import { ROOT } from './config';
+import { pageText } from './redact';
 import { maskVolatile, type TriageEntry, type TriageReport } from './triage-model';
 
 /** A body for the report, on one line: of an HTML page what it says (its text), not its markup; long ones cut. */
 export const short = (v: unknown, n = 600) => {
   let s = typeof v === 'string' ? v : JSON.stringify(v);
   if (!s) return '';
-  if (/<html[\s>]|<!doctype html/i.test(s)) s = `(an HTML page) ${s.replace(/<!--[\s\S]*?-->|<(script|style|head)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ')}`;
-  s = s.replace(/\s+/g, ' ').trim();
+  s = pageText(s).replace(/\s+/g, ' ').trim();
   return s.length > n ? `${s.slice(0, n)}…` : s;
 };
 
@@ -29,7 +29,15 @@ export const signedIn = (api?: ApiExchange) => Object.keys(api?.request.headers 
 export function likeness(e: TriageEntry): string {
   const api = e.evidence.api;
   const what = api ? `${api.request.method} ${maskVolatile(new URL(api.request.url, 'http://x').pathname)} → ${api.response.status}` : maskVolatile(e.error?.locator) ?? maskVolatile(e.error?.headline) ?? '';
-  return `${e.requirementRefs.join(', ') || '-'} · ${what}`;
+  // A page's test and a direct call are read apart even when the same call is behind both: what they failed on differs.
+  return `${e.requirementRefs.join(', ') || '-'} · ${e.layer === 'api' || !e.layer ? '' : `${e.layer}: `}${what}`;
+}
+
+/** The call that made the state a failed read-back looked at: the last call before it that changed something. */
+function callBefore(e: TriageEntry): ApiExchange | undefined {
+  const api = e.evidence.api; const seq = e.evidence.apiSequence ?? [];
+  if (!api || api.request.method !== 'GET') return undefined;
+  return seq.slice(0, e.evidence.apiRelevantIndex ?? seq.length).reverse().find((x) => x.request.method !== 'GET');
 }
 
 /**
@@ -59,7 +67,10 @@ export function renderTriageMd(r: TriageReport, runDir: string, root = ROOT): st
     if (files.some((f) => path.posix.dirname(f) !== dir)) return `- Evidence: ${files.map((f) => `[${path.posix.basename(f)}](${link(f)})`).join(' · ')}`;
     return `- Evidence: ${files.map((f) => path.posix.basename(f)).join(', ')} in [this folder](${link(dir)}/)`;
   };
-  const bodyOf = (v: unknown) => maskVolatile(typeof v === 'string' ? v : JSON.stringify(v ?? '')) ?? '';
+  const bodyOf = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v ?? ''));
+  // "toContain", "toHaveText": which of the two values is the one looked for, and in what.
+  const matcher = (e: TriageEntry) => (e.error?.matcher ? ` (${e.error.matcher})` : '');
+  const before = (e: TriageEntry) => { const c = callBefore(e); return c ? [`  - the call before it: \`${c.request.method} ${c.request.url}\` → **${c.response.status}**${c.request.body ? ` · body \`${short(c.request.body, 200)}\`` : ''}`] : []; };
   const told = new Map<string, string>();
   for (const [n, g] of [...groups.values()].entries()) for (const e of g) {
     const api = e.evidence.api; const first = g[0]; const firstApi = first.evidence.api;
@@ -74,8 +85,9 @@ export function renderTriageMd(r: TriageReport, runDir: string, root = ROOT): st
       out.push(`## ${e.title}`, '', `- Like ${first.scenario} (group ${n + 1}); type: ${e.testType ?? '-'} · layer: ${e.layer ?? '-'}${e.failingStep !== first.failingStep ? ` · failing step: ${e.failingStep ?? '-'}` : ''}`,
         ...(e.evidence.repeats ? [`- Repeats: failed **${e.evidence.repeats.failed} of ${e.evidence.repeats.runs}**`] : []),
         `- Error: \`${e.error!.headline}\``,
-        ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\` · received: \`${e.error!.received ?? '-'}\``] : []),
+        ...(e.error!.expected !== undefined ? [`- Expected${matcher(e)}: \`${e.error!.expected}\` · received: \`${e.error!.received ?? '-'}\``] : []),
         ...(api ? [`- Call: \`${api.request.method} ${api.request.url}\` → **${api.response.status}**${api.request.as ? ` · sent as: ${api.request.as}` : signedIn(api) ? '' : ' · sent as: a visitor (no token)'}`,
+          ...before(e),
           ...(api.request.body && short(api.request.body) !== short(firstApi?.request.body) ? [`  - request body: \`${short(api.request.body, 300)}\``] : []),
           `  - response body: ${sameAnswer ? `as ${first.scenario}` : `\`${short(api.response.body, 300)}\``}`] : []),
         evidenceLine(e),
@@ -86,9 +98,10 @@ export function renderTriageMd(r: TriageReport, runDir: string, root = ROOT): st
     out.push(`## ${e.title}`, '', `- Requirement refs: ${e.requirementRefs.join(', ') || '-'} · type: ${e.testType ?? '-'} · layer: ${e.layer ?? '-'}`, `- Failing step: ${e.failingStep ?? '-'}`,
       ...(e.evidence.repeats ? [`- Repeats: failed **${e.evidence.repeats.failed} of ${e.evidence.repeats.runs}**`] : []),
       `- Error: \`${e.error!.headline}\``, ...(e.error!.locator ? [`- Locator: \`${e.error!.locator}\``] : []),
-      ...(e.error!.expected !== undefined ? [`- Expected: \`${e.error!.expected}\``] : []), ...(e.error!.received !== undefined ? [`- Received: \`${e.error!.received}\``] : []),
+      ...(e.error!.expected !== undefined ? [`- Expected${matcher(e)}: \`${e.error!.expected}\``] : []), ...(e.error!.received !== undefined ? [`- Received: \`${e.error!.received}\``] : []),
       ...(api ? [`- Relevant API exchange (${e.evidence.apiCalls ? '' : 'precondition '}#${(e.evidence.apiRelevantIndex ?? 0) + 1} of ${e.evidence.apiCalls ?? e.evidence.preSequence?.length ?? 1}): \`${api.request.method} ${api.request.url}\` → **${api.response.status}**`,
         ...(api.request.as ? [`  - sent as: ${api.request.as}`] : signedIn(api) ? [] : ['  - sent as: a visitor (no token)']),
+        ...before(e),
         `  - request body: \`${short(api.request.body)}\``, `  - response body: \`${short(api.response.body)}\``,
         // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
         // are added by hand, or the sequence goes in a chain file).

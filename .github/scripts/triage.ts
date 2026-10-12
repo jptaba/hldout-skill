@@ -8,10 +8,11 @@
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
  *
  *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
- *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."] [--any-reading]
+ *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."] [--any-reading [SCN-a,SCN-b]]
  *        → records the evaluator's *confirmed* classification after live re-investigation.
  *        --any-reading: the test is tagged @assumes or @needs-clarification, but the failure holds whichever way the
  *        open question is answered (the rationale says why): it is reported as a defect, not as a question for the owner.
+ *        With ids, only those tests of the call are marked (the others stay questions for the owner).
  *
  * The automatic pass never has the last word on an APPLICATION_DEFECT: policy requires a live
  * reproduction in the AUT (tier 1/2/3 browser, or api-probe.ts for API) before --set confirms it.
@@ -256,8 +257,14 @@ main(() => {
     const rationale = flagStr(flags, 'rationale');
     if (!rationale) throw new Error('--rationale is required (explain the evidence).');
     const decision = { category, severity: flagStr(flags, 'severity'), title: flagStr(flags, 'title'), rationale,
-      evidence: flagStr(flags, 'evidence'), action: flagStr(flags, 'action'), ...(flags['any-reading'] ? { anyReading: true } : {}), confirmedAt: new Date().toISOString() };
-    for (const e of entries) e.final = { ...decision };
+      evidence: flagStr(flags, 'evidence'), action: flagStr(flags, 'action'), confirmedAt: new Date().toISOString() };
+    // --any-reading alone marks every test of the call; with ids, those tests only (one root cause, one call, although
+    // its tagged tests differ in what their open question decides).
+    const anyReading = flags['any-reading'];
+    const marked = typeof anyReading === 'string' ? anyReading.split(',').map((x) => x.trim()).filter(Boolean) : [];
+    const stray = marked.filter((id) => !entries.some((e) => e.scenario === id || baseScenarioId(e.scenario) === id));
+    if (stray.length) throw new Error(`--any-reading names ${stray.join(', ')}, which --set does not: name tests of this call, or give the flag alone for all of them`);
+    for (const e of entries) e.final = { ...decision, ...(anyReading && (!marked.length || marked.includes(e.scenario) || marked.includes(baseScenarioId(e.scenario))) ? { anyReading: true } : {}) };
     writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
     writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
     console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(triageJson)}`);
