@@ -152,7 +152,7 @@ export interface Seed {
    * a brand and a product under them). `cleanup` gets an API client of its own (the test's is gone by then) and runs in
    * reverse order of creation. A test that changes or deletes such a record makes its own with `create`.
    */
-  shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: (created: T, api: Api) => Promise<unknown>): Promise<T>;
+  shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: SharedCleanup<T>): Promise<T>;
   /** Readiness / eventual consistency: poll `probe` until `ready(value)` holds or the timeout expires (→ BLOCKED). */
   until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts?: { timeoutMs?: number; intervalMs?: number }): Promise<T>;
   /** Register cleanup for data the scenario itself created in a When-step (e.g. the record under test). Without a
@@ -244,10 +244,40 @@ export async function signIn(page: Page, account: Account): Promise<void> {
   });
 }
 
+/** Who a shared record's cleanup may act as: an existing account of the profile, signed in afresh over the API. */
+export interface SignedIn { username: string; token: string; headers: Record<string, string> }
+/**
+ * Removes what seed.shared made, when the worker ends. It gets an API client of its own and, for calls that need a
+ * signed-in user, `signIn(role)`: an existing account of that role, signed in then (a token taken when the record was
+ * made may have expired): `async (line, api, signIn) => removeLine(api, (await signIn('admin')).headers, line)`.
+ */
+export type SharedCleanup<T> = (created: T, api: Api, signIn: (role?: string) => Promise<SignedIn>) => Promise<unknown>;
+
+/**
+ * Sign an existing account of the profile in over the API (the recipe's token call), outside any test: the cleanup of
+ * a shared record runs when its worker ends, when a token taken earlier may have expired.
+ */
+async function signInExisting(api: Api, role?: string): Promise<SignedIn> {
+  const r = accountRecipe();
+  const a = (r?.existing ?? []).find((x) => !role || x.role === role);
+  if (!r?.token || !a) throw new Error(`no existing account${role ? ` with the role "${role}"` : ''} to sign in over the API (the profile's accounts recipe needs existing accounts and a token call)`);
+  const vars: Record<string, unknown> = { username: String(resolveEnv(a.username)), password: String(resolveEnv(a.password)) };
+  const send = (c: RecipeCall) => api.call(c.method, String(fillRecipe(c.path, vars)), {
+    ...(c.body !== undefined ? { data: fillRecipe(c.body, vars) } : {}), ...(c.form ? { form: fillRecipe(c.form, vars) as Record<string, string> } : {}) });
+  for (const b of r.before ?? []) {
+    const res = await send(b);
+    for (const [n, dotted] of Object.entries(b.save)) vars[n] = dig(res.body, dotted);
+  }
+  const t = await send(r.token);
+  const token = dig(t.body, r.token.token);
+  if (typeof token !== 'string' || !token) throw new Error(`${r.token.method} ${r.token.path} → ${t.status}, but the response has no "${r.token.token}"`);
+  return { username: String(vars.username), token, headers: authHeader(r, token) };
+}
+
 /** Worker-scoped cache for seed.once (one worker runs one test at a time). */
 const onceCache = new Map<string, { value: unknown; at: number }>();
 /** What seed.shared made in this worker, in order: removed by the worker's teardown. */
-const sharedStore = new Map<string, { label: string; value: unknown; cleanup?: (created: unknown, api: Api) => Promise<unknown> }>();
+const sharedStore = new Map<string, { label: string; value: unknown; cleanup?: SharedCleanup<unknown> }>();
 
 /**
  * A path in a test is relative to the AUT profile's URL, including any path prefix: with baseURL
@@ -349,7 +379,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       if (!entry.cleanup) { report.push({ label: entry.label, cleanup: 'none', created: redact(entry.value) }); continue; }
       if (process.env.HELDOUT_KEEP_DATA === '1') { report.push({ label: entry.label, cleanup: 'skipped' }); continue; }
       try {
-        const out = await entry.cleanup(entry.value, api) as { status?: unknown } | undefined;
+        const out = await entry.cleanup(entry.value, api, (role) => signInExisting(api, role)) as { status?: unknown } | undefined;
         const status = typeof out?.status === 'number' ? out.status : undefined;
         if (status !== undefined && status >= 400 && status !== 404 && status !== 410) throw new Error(`HTTP ${status}`);
         report.push({ label: entry.label, cleanup: 'done' });
@@ -434,14 +464,14 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
         onceCache.set(key, { value, at: Date.now() });
         return value;
       },
-      async shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: (created: T, api: Api) => Promise<unknown>): Promise<T> {
+      async shared<T>(key: string, label: string, make: () => Promise<T>, cleanup?: SharedCleanup<T>): Promise<T> {
         const hit = sharedStore.get(key);
         if (hit) {
           ledger.push({ label, kind: 'shared', cleanup: 'none', reused: true, created: '(made earlier in this worker, removed when it ends)' });
           return hit.value as T;
         }
         const value = await pre({ label, kind: 'shared', cleanup: 'none' }, make);
-        sharedStore.set(key, { label, value, cleanup: cleanup as ((created: unknown, api: Api) => Promise<unknown>) | undefined });
+        sharedStore.set(key, { label, value, cleanup: cleanup as SharedCleanup<unknown> | undefined });
         return value;
       },
       until<T>(label: string, probe: () => Promise<T>, ready: (value: T) => boolean, opts: { timeoutMs?: number; intervalMs?: number } = {}): Promise<T> {

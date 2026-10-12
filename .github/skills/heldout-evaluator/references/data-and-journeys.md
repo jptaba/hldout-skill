@@ -44,9 +44,10 @@ a page, is the same for every story on an application: write it once as a journe
    sub-category, a brand and a product under them take four calls to make and four to remove. Tests that only read the
    chain (it is listed, found, shown on its page) or try and must fail to change it (a customer's refused update) share
    one: `seed.shared('product-line', 'a product line (category, sub-category, brand, product)', () => createLine(api, …),
-   (line, api) => removeLine(api, line))`. It is made the first time a test of the worker asks for it and removed when
-   the worker ends, newest first; the cleanup gets an API client of its own (the test's is gone by then), so it takes
-   what it needs to authenticate from the record it was given. A test that changes or deletes a record of the chain,
+   async (line, api, signIn) => removeLine(api, (await signIn('admin')).headers, line))`. It is made the first time a
+   test of the worker asks for it and removed when the worker ends, newest first. The cleanup gets an API client of its
+   own (the test's is gone by then) and `signIn(role)`, which signs an existing account of that role in at that moment:
+   a token taken when the record was made may have expired by the end of a long run. A test that changes or deletes a record of the chain,
    or needs it in a particular state, makes its own with `seed.create`. Forty tests that each build and remove the whole
    chain spend most of a run on setup; a failed cleanup is listed by `heldout run` like any other. This keeps a suite of
    many setups (one test per user type) from leaving one record per test behind, and saves its time.
