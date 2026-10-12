@@ -53,6 +53,12 @@ describe('classify — UI', () => {
     const e = parseError(pw(['TimeoutError: locator.click: Timeout 10000ms exceeded.', "  - waiting for getByRole('button', { name: 'Pay' })"]));
     assert.equal(classify(e, { snapshot: '- heading "Cart"' }).category, 'NEEDS_INVESTIGATION');
   });
+  it('a word in a link\'s address is not a text the page shows', () => {
+    const e = parseError(pw(['TimeoutError: locator.click: Timeout 10000ms exceeded.', "  - waiting for getByRole('button', { name: 'Pay' })"]));
+    const r = classify(e, { snapshot: '- link "Invoices":\n  - /url: /account/pay\n- heading "Cart"' });
+    assert.equal(r.category, 'NEEDS_INVESTIGATION');
+    assert.ok(!r.signals.some((s) => /DOES contain/.test(s)));
+  });
   it('strict REQ assertion whose element is missing → APPLICATION_DEFECT (the locator is the requirement)', () => {
     const e = parseError(pw(['Error: [REQ AC-1 strict] Message field has an accessible label', 'expect(locator).toBeVisible() failed',
       "Locator: getByRole('textbox', { name: 'Message', exact: true })", 'Expected: visible', 'Received: <element(s) not found>']));

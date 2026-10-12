@@ -147,8 +147,9 @@ export function locatorNeedles(locator = ''): { role?: string; texts: string[] }
 
 function snapshotLinesFor(snapshot: string, text: string): string[] {
   const t = text.toLowerCase();
-  // Skip '# url: …' / '# step: …' header lines the fixture prepends — they echo the step text, not the page.
-  return snapshot.split('\n').filter((l) => !l.trimStart().startsWith('#') && l.toLowerCase().includes(t)).map((l) => l.trim()).slice(0, 5);
+  // Skip '# url: …' / '# step: …' header lines the fixture prepends — they echo the step text, not the page — and a
+  // link's address ('- /url: /account/messages'): a word in an address is not a text the page shows.
+  return snapshot.split('\n').filter((l) => !l.trimStart().startsWith('#') && !/^\s*-?\s*\/url:/.test(l) && l.toLowerCase().includes(t)).map((l) => l.trim()).slice(0, 5);
 }
 
 /** Order matters: most specific / most certain first. */
