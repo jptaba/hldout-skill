@@ -284,7 +284,7 @@ and a customer's question from the contact form through an administrator's answe
 and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2). Each has a machine-readable
 answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/)). `npx tsx demo/score.ts` scores the stories in `output/`
 against them → [demo/SCORECARD.md](demo/SCORECARD.md); `--from <project>` scores a round run in a project of its own.
-The scorecard in the repository is round 32: one onboarding, then the first nine stories one at a time in the same project,
+The scorecard in the repository opens with round 32 (rounds 34 and 35 follow at its end): one onboarding, then the first nine stories one at a time in the same project,
 unattended. Nine of nine verdicts were as the keys say, 12 of the 13 keyed defects were found and the thirteenth was
 raised as a question for the story's owner, with no false positive. The two deep stories (TOOL-8, TOOL-9) were last
 run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
