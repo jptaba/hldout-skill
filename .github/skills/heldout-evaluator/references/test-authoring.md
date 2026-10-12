@@ -154,6 +154,10 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    implies it: an unstated expectation is a gap.
 2. **Quote the requirement.** Expected texts, numbers, formulas and codes are copied verbatim from the contract (its
    quotes, outcomes, error model and answered gaps). Never "improve" them: a mismatch is what the evaluation finds.
+   When the requirement gives a message's meaning and not its wording ("is told the passwords did not match"), the
+   expected value is a pattern of the requirement's own words in `@req-constants`
+   (`const DID_NOT_MATCH = /did not match/i`), with one `// ASSUMPTION:` line saying messages are matched on the
+   story's words; never a wording you invented.
 3. **Black-box journeys.** Step titles describe what a user or client sees and does (`Given …`, `When …`, `Then …`),
    one observable action or outcome each. Locators are decided later.
 4. **One root cause, one failure.** Don't assert the same rule in many tests (boundary rows assert "accepted", and one

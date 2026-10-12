@@ -478,7 +478,7 @@ export function checkSuiteAgainstContract(c: RequirementContract, suite: {
   for (const g of (c.gaps ?? []).filter((x) => x.resolution === 'assumed' && x.kind === 'oracle')) {
     if (!suite.assumptions.some((a) => a.includes(g.id))) out.push({ level: 'error', code: 'assumption-not-surfaced', message: `${g.id} is an assumed oracle value but no // ASSUMPTION: in the spec mentions ${g.id}` });
     // An assumption that only drops an assertion ("no status asserted") has no expectation to tag: "(not asserted)".
-    const notAsserted = suite.assumptions.some((a) => a.includes(g.id) && /\(not asserted\)/i.test(a));
+    const notAsserted = suite.assumptions.some((a) => a.includes(g.id) && /\(not asserted\b[^)]*\)/i.test(a));
     if (g.affects.length && !notAsserted && !suite.scenarios.some((s) => s.assumes?.includes(g.id))) out.push({ level: 'warn', code: 'assumption-not-tagged', message: `tag the tests whose expectation rests on ${g.id} with @assumes:${g.id}, so a failure there reads as a question for the owner, not a defect` });
   }
   return out;
