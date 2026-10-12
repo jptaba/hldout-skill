@@ -288,5 +288,8 @@ The scorecard in the repository is round 32: one onboarding, then the first nine
 unattended. Nine of nine verdicts were as the keys say, 12 of the 13 keyed defects were found and the thirteenth was
 raised as a question for the story's owner, with no false positive. The two deep stories (TOOL-8, TOOL-9) were last
 run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
+Round 35 took the skill to a second application, ParaBank, with three stories (PB-1 to PB-3) whose answer keys an
+independent author wrote and nobody changed: 2 of 3 verdicts as keyed, 16 of 17 defects found, and 2 findings the
+keys do not list. What comes next is in [docs/next-steps.md](docs/next-steps.md).
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
 commits before this one).

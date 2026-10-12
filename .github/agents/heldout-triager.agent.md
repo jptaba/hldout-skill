@@ -27,7 +27,9 @@ Do this:
 3. Decide with the reference's decision tree and record it:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.
    For a failure whose call was sent signed in, `triage` wrote a starting chain beside the evidence
-   (`confirm/<scn>.chain.json`: the sign-ins, then the failing call): add the control call, check whose token the call
+   (`confirm/<scn>.chain.json`: the sign-ins, then the failing call), and one chain with every distinct failing call
+   of the run (`confirm/all.chain.json`, signed in or not: the one to start from when failures share records, or
+   when the application can't delete what a replay makes): add the control call, check whose token the call
    takes, and run it with `heldout api-probe --chain`.
    Failures with one root cause take one call: `--set SCN-008,SCN-009` (a table's base id, `SCN-007`, covers all its
    failing rows).

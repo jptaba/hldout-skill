@@ -12,7 +12,12 @@
  *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
  *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200)
  *
- * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog, target?, value?, url? }
+ * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog|force|rewrite|request, target?, value?, url? }
+ *   { "do": "force", "target": "<a select or a field>", "value": "2" } gives the control a value it does not offer;
+ *   { "do": "rewrite", "url": "createAccount", "value": "fromAccountId=123" } changes those fields of the page's next
+ *   request to an address containing `url` (query, JSON or form body): together they replay a forced submission.
+ *   { "do": "request", "url": "POST transfer?amount=5", "value": "<JSON body>" } makes a call of the walk's own
+ *   against the API, with the page's cookies; the step table shows its status and the start of its answer.
  *   A "probe" step counts its target's matches at that point of the walk (what is gone by the end of it, such as a
  *   toast after a click): the step table shows the count, whether it is visible and its text.
  *   { "do": "dialog", "value": "accept" | "dismiss" } answers the next browser dialog (alert, confirm, prompt) that way;
@@ -50,8 +55,10 @@ const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 
 /** How to answer the next browser dialog (a "dialog" step), and every dialog seen, for the report. */
 const dialogs = { next: [] as string[], seen: [] as string[] };
+/** The requests a "rewrite" step changed, for the report. */
+const rewritten: string[] = [];
 
-async function runStep(page: Page, s: Step, baseURL: string): Promise<string | void> {
+async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseURL): Promise<string | void> {
   const t = () => locate(page, env(s.target ?? ''));
   switch (s.do) {
     // A probe at this point of the walk, for what is gone by the end of it (a toast): waits up to 5 s for a match.
@@ -71,6 +78,53 @@ async function runStep(page: Page, s: Step, baseURL: string): Promise<string | v
     case 'uncheck': await t().uncheck(); break;
     case 'hover': await t().hover(); break;
     case 'dialog': dialogs.next.push(s.value === 'accept' ? 'accept' : 'dismiss'); break;
+    // A value the control does not offer (a third account type in a list of two, another customer's account): the
+    // control is given it the way a tampering user would, and the page's own script then sends it.
+    case 'force': {
+      const value = env(s.value);
+      const how = await t().first().evaluate((el, v) => {
+        if (el instanceof HTMLSelectElement) {
+          const offered = [...el.options].some((o) => o.value === v);
+          if (!offered) el.add(new Option(v, v));
+          el.value = v;
+          el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
+          return offered ? 'the list offers this value' : 'added to the list and chosen';
+        }
+        (el as HTMLInputElement).removeAttribute('readonly'); (el as HTMLInputElement).removeAttribute('disabled');
+        (el as HTMLInputElement).value = v;
+        el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
+        return 'value set';
+      }, value);
+      return `✔ ${how}`;
+    }
+    // The page's next request whose address contains `url` is sent with these fields changed ("a=1&b=2": in its
+    // query, and in its JSON or form body when it has them): what a page's script won't send, sent as the page.
+    case 'rewrite': {
+      const part = env(s.url); const fields = new URLSearchParams(env(s.value));
+      await page.route((u) => u.href.includes(part), async (route) => {
+        const req = route.request(); const u = new URL(req.url());
+        for (const [k, v] of fields) if (u.searchParams.has(k) || !req.postData()) u.searchParams.set(k, v);
+        let postData = req.postData() ?? undefined;
+        if (postData) {
+          try { const o = JSON.parse(postData) as Record<string, unknown>; for (const [k, v] of fields) if (k in o) o[k] = v; postData = JSON.stringify(o); }
+          catch { const f = new URLSearchParams(postData); for (const [k, v] of fields) if (f.has(k)) f.set(k, v); postData = f.toString(); }
+        }
+        rewritten.push(`${req.method()} ${u.pathname.replace(/;jsessionid=[^?#]*/i, '')} sent with ${[...fields.keys()].join(', ')} changed`);
+        await route.continue({ url: u.toString(), ...(postData ? { postData } : {}) });
+      }, { times: 1 });
+      return `✔ armed for the next request to …${part}`;
+    }
+    // A call of the walk's own, with the page's cookies ("POST transfer?amount=5", value = a JSON body): data another
+    // user changes in the middle of a walk, a record made before the page is opened.
+    case 'request': {
+      const [method, ...rest] = env(s.url).trim().split(/\s+/);
+      const body = s.value ? env(s.value) : undefined;
+      const res = await page.request.fetch(autUrl(apiBaseURL, rest.join(' ')), { method, headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { data: body } : {}) });
+      const text = await res.text();
+      let shown: string;
+      try { shown = JSON.stringify(redact(JSON.parse(text))); } catch { shown = redactSnapshot(text); }
+      return `${res.status()} · ${shown.replace(/\s+/g, ' ').replace(/\|/g, '/').slice(0, 300)}`;
+    }
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
     // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
     case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : /^\d+$/.test(s.value ?? '') ? page.waitForTimeout(Math.min(Number(s.value), 60_000)) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
@@ -165,7 +219,8 @@ main(async () => {
     for (const [i, s] of steps.entries()) {
       phase = `step ${i + 1}`;
       try {
-        const seen = await runStep(page, s, cfg.aut.baseURL);
+        const before = page.url();
+        const seen = await runStep(page, s, cfg.aut.baseURL, cfg.aut.apiBaseURL);
         let fresh: string[] = [];
         // An action's message may take a moment (it follows the call the action makes): look for up to 1.5 s.
         for (let tries = /^(click|press|select|check|uncheck)$/.test(s.do) ? 4 : 1; tries > 0 && !fresh.length; tries--) {
@@ -173,7 +228,9 @@ main(async () => {
           if (!fresh.length && tries > 1) await page.waitForTimeout(500);
         }
         fresh.forEach((t) => heard.add(t));
-        stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ${seen ?? '✔'}${fresh.length ? ` · the page announced: ${fresh.slice(0, 3).map((t) => `"${t.replace(/\|/g, '/')}"`).join(', ')}` : ''} |`);
+        // Where an action landed (a click that signs out, a form that leads on): shown when the address changed.
+        const at = s.do !== 'goto' && page.url() !== before ? ` · now at ${(() => { const u = new URL(page.url()); return (u.pathname + u.search).replace(/;jsessionid=[^?#]*/i, '').replace(/\|/g, '/'); })()}` : '';
+        stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ${seen ?? '✔'}${at}${fresh.length ? ` · the page announced: ${fresh.slice(0, 3).map((t) => `"${t.replace(/\|/g, '/')}"`).join(', ')}` : ''} |`);
       }
       catch (e) {
         stepLog.push(`| ${i + 1} | ${s.do} | \`${s.target ?? s.url ?? ''}\` | ✖ ${(e as Error).message.split('\n')[0]} |`);
@@ -193,6 +250,7 @@ main(async () => {
       `- testIdAttribute: \`${testIdAttr}\``, '');
     if (steps.length) out.push('## Setup steps', '', '| # | action | target | result |', '| --- | --- | --- | --- |', ...stepLog, '');
     if (dialogs.seen.length) out.push('## Browser dialogs', '', ...dialogs.seen.map((x) => `- ${x}`), '');
+    if (steps.some((s) => s.do === 'rewrite')) out.push('## Requests the walk rewrote', '', ...(rewritten.length ? rewritten.map((x) => `- ${x}`) : ['- none: no request matched a "rewrite" step']), '');
     // The same call answered the same way several times (a config the page reloads) is one row: "×N".
     const counts = new Map<string, number>();
     for (const row of await Promise.all(calls)) counts.set(row, (counts.get(row) ?? 0) + 1);

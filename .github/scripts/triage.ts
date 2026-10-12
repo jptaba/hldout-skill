@@ -330,6 +330,25 @@ main(() => {
     const file = path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.chain.json`);
     if (chain && !fs.existsSync(file)) writeFile(file, `${JSON.stringify(chain, null, 2)}\n`);
   }
+  // And one chain for all of them: each sign-in once, then every distinct failing call (signed in or not). Failures
+  // that need the same kind of record are replayed against one record, so the application is left with fewer.
+  const pendingCalls = report.entries.filter((x) => x.status !== 'passed' && !x.final && x.evidence.api);
+  const allFile = path.join(runDir, 'confirm', 'all.chain.json');
+  if (pendingCalls.length > 1 && !fs.existsSync(allFile)) {
+    const seen = new Set<string>(); const signIns: Record<string, unknown>[] = []; const calls: Record<string, unknown>[] = [];
+    for (const e of pendingCalls) {
+      const api = e.evidence.api!; const body = api.request.body;
+      const steps = starterChain(cfg, e)?.steps ?? [{ name: `the failing call of ${e.scenario}`, method: api.request.method, path: api.request.url, ...(body && typeof body === 'object' ? { json: body } : {}) }];
+      for (const s of steps) {
+        // Two calls that differ only in the ids of the records they name are one call to replay.
+        const { name: _name, ...what } = s; const k = JSON.stringify(what).replace(/\b\d{4,}\b|\b[0-9A-Za-z]{20,}\b/g, '#');
+        if (seen.has(k)) continue;
+        seen.add(k);
+        (s.setup ? signIns : calls).push(s);
+      }
+    }
+    if (calls.length <= 40) writeFile(allFile, `${JSON.stringify({ note: `Starting point written by heldout triage: every distinct failing call of this run in one chain (${calls.length} of ${pendingCalls.length} failures' calls; identical calls are listed once, under the first test that made them). The run's records may be gone: add setup steps that make each record once (save its id), put the saved ids in the calls, add a control call per root cause, and delete the calls you don't need.`, steps: [...signIns, ...calls] }, null, 2)}\n`);
+  }
   writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
 
   console.log(`Triage ${key} / ${runName}: ${report.summary.passed}/${report.summary.total} passed, ${report.summary.failed} failed, ${report.summary.flaky} flaky\n`);
