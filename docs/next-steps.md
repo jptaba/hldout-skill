@@ -25,6 +25,6 @@ as before.
 | What | Why it matters |
 | --- | --- |
 | A guess in a journey that is new to the story always calls the hardener | One new one-line journey cost a hardening pass in step 3. Settling it by the run is possible when every test that calls it passed, but a wrong guess in a journey that returns a yes or no can still pass |
-| Trace archives are not scrubbed | An application that takes a password in an address leaves it readable in Playwright's trace files. They are kept out of git, and the reports and the console are scrubbed |
+| The HTML report's own bundle is not scrubbed | Trace archives now are: after a run, known secrets are taken out of the files inside each one (all 44 traces of one ParaBank run held the test password before). The report's `index.html` packs its data in a form the scrub does not open; it is kept out of git |
 | The triage report repeats long error bodies | 115 KB for 57 failures in PB-2 |
 | The new inspector steps and the merged chain have not been used by an agent in a round yet | Tried by hand on the local application only |

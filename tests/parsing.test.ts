@@ -420,6 +420,24 @@ describe('run artifact scrubbing', () => {
     fs.writeFileSync(path.join(dir, 'notes.md'), 'The wrong password error is shown.');
     assert.equal(scrubDir(dir, secrets).files, 0, 'ordinary words are never touched');
   });
+  it('takes secrets out of the files inside a trace archive and leaves the rest readable', async () => {
+    const { scrubDir } = await import('../.github/scripts/redact');
+    const { readZip, writeZip } = await import('../.github/scripts/zip');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scrub-zip-'));
+    const picture = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 255, 254, 1, 2, 3]);
+    const network = '{"url":"http://app/login/ann/p%40ss%20W0rd!","postData":"password=p@ss W0rd!&again=p@ss W0rd!"}';
+    fs.writeFileSync(path.join(dir, 'trace.zip'), writeZip([
+      { name: 'trace.network', data: Buffer.from(network) }, { name: 'resources/page.png', data: picture }, { name: 'empty.txt', data: Buffer.alloc(0) }]));
+    assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 1);
+    const after = readZip(fs.readFileSync(path.join(dir, 'trace.zip')))!;
+    assert.deepEqual(after.map((e) => e.name), ['trace.network', 'resources/page.png', 'empty.txt']);
+    assert.equal(after[0].data.toString(), '{"url":"http://app/login/ann/***redacted***","postData":"password=***redacted***&again=***redacted***"}');
+    assert.ok(after[1].data.equals(picture), 'a file without the secret is byte for byte the same');
+    assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 0, 'idempotent');
+    // What isn't a zip this reader handles is left alone.
+    fs.writeFileSync(path.join(dir, 'broken.zip'), 'not a zip p@ss W0rd!');
+    assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 0);
+  });
 });
 
 describe('form-encoded reproductions', () => {

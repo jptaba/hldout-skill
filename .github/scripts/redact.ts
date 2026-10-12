@@ -5,6 +5,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { scrubZip } from './zip';
 const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|session/i;
 // Header NAMES that carry credentials (incl. misspellings like "Authorisation") and VALUES that look like credentials.
 const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
@@ -74,7 +75,8 @@ export function redactSnapshot(yaml: string, secretValues: string[] = []): strin
 // ---- run-level scrubbing --------------------------------------------------------------------------
 // Playwright writes page snapshots itself (artifacts/**/error-context.md, html/data/*.md), including field values,
 // outside the fixture's control. After every run the run directory's text artifacts are scrubbed of known
-// secret values. trace.zip and html/index.html are binary/bundled: they stay local (git-ignored) and are
+// secret values, and so are the files inside every trace archive (a trace records each request the browser made,
+// passwords in addresses and forms included). html/index.html is a bundle: it stays local (git-ignored) and is
 // never published — the verdict is the only artifact that leaves the machine.
 
 /**
@@ -131,6 +133,13 @@ export function scrubDir(dir: string, secrets: string[]): { files: number } {
   if (!fs.existsSync(dir)) return { files };
   for (const rel of fs.readdirSync(dir, { recursive: true, encoding: 'utf8' })) {
     const file = path.join(dir, rel);
+    // A trace archive records every request the browser made: a password an application takes in an address or a
+    // form is in it. Its files are scrubbed in place; an archive that can't be read is left as it is.
+    if (/\.zip$/i.test(file) && secrets.length && fs.statSync(file).isFile()) {
+      const scrubbed = scrubZip(fs.readFileSync(file), secrets);
+      if (scrubbed?.changed) { fs.writeFileSync(file, scrubbed.zip); files++; }
+      continue;
+    }
     if (!TEXT_ARTIFACT.test(file) || !fs.statSync(file).isFile()) continue;
     const before = fs.readFileSync(file, 'utf8');
     let after = scrubText(before, secrets);
