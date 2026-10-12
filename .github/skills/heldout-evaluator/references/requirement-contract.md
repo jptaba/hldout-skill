@@ -136,6 +136,11 @@ like any other. Its paths, methods, request fields and auth are stated mechanics
 bodies are expected values for the endpoints it describes. Cover its lines like any others (a long schema block can be
 one `endpoint` or `context` entry per operation). Nothing it doesn't contain may be added from elsewhere.
 
+**"A required detail", "one of the fields", beside a list of them** ("sign-up is refused when a required detail is
+left empty", and a rule lists the required details): the criterion holds for each listed value. That is what the
+words say, not an assumption: record no gap, and note in the criterion that it is checked once per listed value (the
+tests use a table of cases). A gap is due only when no source lists the values.
+
 **A story that says an API description exists without giving it** ("the API is described on the site", a link that
 is not a linked requirement page): the description is not a source. Record the calls as one open mechanics gap and
 leave `endpoints[]` empty. While hardening, the description may be read like any other page of the application, for

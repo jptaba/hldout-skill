@@ -7,7 +7,8 @@
  *       { "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "token": "data.token" },
  *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt", "data.*.price"],
  *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true, "parallel"?: 3 } ] }
- *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (redacted in the report);
+ *       ${token} reads a saved value, ${uid} is unique per chain, ${env:NAME} a secret (in a path, a header or a
+ *       value: always write the reference, never the secret itself; the report shows ***);
  *       "save" paths are relative to the answer's body ("id", "data.0.id", "data.token")
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
@@ -37,7 +38,10 @@ const maskEnv = (s: string) => s.replace(/\$\{(?:env|vault):[^}]+\}/g, '***');
 /** Last line of defence: the value of every secret reference the input mentions never reaches a report, raw or encoded. */
 function scrubEnv(report: string, input: string): string {
   const values = [...new Set([...[...input.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
-    ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
+    ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3)),
+    // A secret typed into the command as its value (a password an application takes in the path) is caught by what
+    // the environment holds under a secret's name.
+    ...Object.entries(process.env).filter(([name, v]) => /PASS|SECRET|TOKEN|KEY/i.test(name) && v && v.length >= 6).map(([, v]) => v!)];
   return values.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), report);
 }
 
@@ -255,5 +259,5 @@ main(async () => {
     ...(r.json !== undefined ? ['## Shape (types only)', '', '```json', JSON.stringify(shapeOf(r.json), null, 2), '```', ''] : []),
   ].join('\n'), input);
   const file = flagStr(flags, 'out');
-  if (file) { writeFile(file, out); console.log(`✔ ${method} ${shownUrl} → ${r.status} (${r.ms} ms) — written to ${file}`); } else console.log(out);
+  if (file) { writeFile(file, out); console.log(scrubEnv(`✔ ${method} ${shownUrl} → ${r.status} (${r.ms} ms) — written to ${file}`, pathArg)); } else console.log(out);
 });

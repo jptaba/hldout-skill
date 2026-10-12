@@ -111,7 +111,7 @@ describe('helpers', () => {
     const eps = [{ method: 'GET', path: '/api/room/{id}' }];
     assert.ok(matchEndpoint(eps, 'GET', '/api/room/7'));
     assert.equal(matchEndpoint(eps, 'GET', '/api/rooms/7'), undefined);
-    const tail = [{ method: 'GET', path: '{}/amount/{}', source: 'journey' }] as Parameters<typeof matchEndpoint>[0];
+    const tail = [{ method: 'GET', path: '{}/amount/{}' }];
     assert.ok(matchEndpoint(tail, 'GET', '/bank/accounts/12/transactions/amount/11.11'), 'a leading placeholder stands for the path before');
     assert.equal(matchEndpoint(tail, 'GET', '/bank/accounts/12/transactions/month/All'), undefined);
     assert.equal(matchEndpoint(eps, 'POST', '/api/room/7'), undefined);
