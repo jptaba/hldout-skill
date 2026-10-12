@@ -215,7 +215,7 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   const tokenVar = (a: { role?: string }, i: number) => { const same = accounts.filter((x) => x.role === a.role); return `token_${a.role ?? 'account'}${same.length > 1 ? same.indexOf(a as typeof accounts[number]) + 1 : a.role ? '' : i + 1}`; };
   const header = (recipe.authHeader ?? 'Authorization: Bearer ${token}').split(/:\s*/);
   const steps: Record<string, unknown>[] = accounts.map((a, i) => ({
-    name: `sign in as ${a.role ?? 'the account'}`, setup: true, method: recipe.token!.method, path: recipe.token!.path,
+    name: `sign in as ${a.role ?? 'the account'}${accounts.filter((x) => x.role === a.role).length > 1 ? ` (${username(a) || `#${i + 1}`})` : ''}`, setup: true, method: recipe.token!.method, path: recipe.token!.path,
     ...(recipe.token!.form ? { form: fill(recipe.token!.form, a) } : { json: fill(recipe.token!.body ?? {}, a) }), save: { [tokenVar(a, i)]: recipe.token!.token },
   }));
   const body = api.request.body;

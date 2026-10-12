@@ -1588,6 +1588,7 @@ $ npm run heldout -- journeys --resolve
       <tr><td><code>seed.create(label, make, cleanup)</code></td><td>data the test needs, removed afterwards</td><td>a contact, a booking, a cart line</td></tr>
       <tr><td><code>seed.track(label, value, cleanup)</code></td><td>data the action under test created</td><td>the favourite the POST just added</td></tr>
       <tr><td><code>seed.once(key, label, fn)</code></td><td>a shared pre-step, once per worker</td><td>a staff token</td></tr>
+      <tr><td><code>seed.shared(key, label, make, undo)</code></td><td>records many tests only look at: made once per parallel worker, kept through worker restarts, removed when the run is over by the calls <code>undo</code> lists</td><td>a category, a brand and a product under them</td></tr>
       <tr><td><code>seed.step(label, fn)</code></td><td>a lookup that must succeed</td><td>find the id of the seeded record</td></tr>
       <tr><td><code>seed.until(label, probe, ok)</code></td><td>waiting for eventual consistency</td><td>until the record is listed</td></tr>
     </tbody>
@@ -1826,6 +1827,21 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
     <li><b>Guidance learned the hard way:</b> a journey that finds records through the application's own search is proven with a name shaped like the tests' names; a shared record is recognised by a short marker at the start of its text, because lists cut texts off and page; with records that can't be deleted, a hardening run makes no retries; and a refusal that answers 200 with nothing disclosed is confirmed as a minor defect.</li>
   </ul>
   <p class="small">These were the most expensive evaluations so far: the hardener had 81 guessed mechanics to settle for TOOL-8 (59 of them right as drafted) and took 45 minutes. The next story on the same pages starts from 49 proven journeys.</p>
+
+  <h3>What the runs asked for next</h3>
+  <p>After round 33, the cost of every agent across rounds 32 and 33 was laid beside what it had spent its time on. Six changes followed; TOOL-8 was then evaluated a second time to check them, and found a fourth defect on the way (the admin form says nothing when the brand or the category is not chosen).</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>What the runs showed</th><th>What changed</th><th>Checked by</th></tr></thead>
+    <tbody>
+      <tr><td>Each of 48 tests built and removed its own chain of four dependent records: 179 records a run</td><td><code>seed.shared</code>: a chain that tests only look at is made once per parallel worker and removed when the run is over. Its undo is a list of calls, so the record survives the worker restart that follows every failed test</td><td>TOOL-8 again: 2 shared chains where the first version of the feature made 24, and 55 tests in 204 seconds</td></tr>
+      <tr><td>A story whose tests need only the administrator was held to the number of customer accounts, and the reverse</td><td>Only the roles a story's tests take limit its workers</td><td>unit tests</td></tr>
+      <tr><td>In seven of nine re-evaluated stories the hardener was called for one to three marks, all on locators built from a text the requirement gives</td><td>A guess left in a test is settled by the test's own run: it passed each time, on a line that acts on or expects what it locates. Guesses in journeys, in failing tests or in "is not shown" checks still go to the hardener</td><td>not yet: no story has gone through it</td></tr>
+      <tr><td>Retries in a hardening run sent every failing test's requests twice and hid what the repeats are there to show</td><td>Hardening runs make no retries</td><td>TOOL-8 again</td></tr>
+      <tr><td>Triagers rebuilt each signed-in failure by hand, and the evidence named the read-back call, not the one that should have been refused</td><td>The evidence records which test user sent each call; a failed "refused" check points to the call that changed something; triage writes a starting chain with that user's sign-in</td><td>TOOL-8 again: the chain for a customer's accepted change carries the second customer's token</td></tr>
+      <tr><td>A defect was lost because "is refused" was asserted as "not a success" (round 33)</td><td>Already in place: a refusal with no stated status is a client error</td><td>TOOL-8 again: the 500 is now reported as a defect, 4 of 4 found</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Smaller ones from the same review: the evidence pack says when a project already has test users, so a story doesn't raise sign-in as a gap; a source that names only paths states no endpoint; every agent is told to read a file the tools wrote before writing to it, which had cost a round trip in most runs.</p>
 
   <h3>The same nine stories, a second time</h3>
   <p>The round was then repeated in the same project, with every journey of the first pass in the registry, to look for what could still be better. The verdicts were the same nine. One finding changed: TOOL-1's empty-search defect was reported as a question for the owner, because that contract had recorded "all products" as an assumption and every test of the criterion carried it. That became the first change below.</p>
