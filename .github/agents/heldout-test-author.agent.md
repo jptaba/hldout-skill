@@ -64,6 +64,11 @@ every existing call as it was, or add a new journey.
 A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
 this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.
 
+Read a file the tools wrote for you (the scaffolded spec, `test-data.json`) with your file tool before you write to it.
+A call under test whose endpoint the contract leaves to a mechanics gap (the story names no path or method for it)
+goes through a journey that sends it and returns the raw answer (`sendDeleteCart(api, id)`); the test asserts on that
+answer. Calls the contract declares stay in the spec's `EP` map.
+
 Step titles: one action or one outcome each. "When …, then …" in one title fails the lint (`no-then`): write the
 `When` step and the `Then` step. A `// from` line sits directly above its test, or above the loop of a table.
 

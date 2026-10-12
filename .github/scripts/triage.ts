@@ -198,12 +198,16 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   const api = e.evidence.api; const recipe = cfg.aut.accounts;
   if (!api || !signedIn(api) || !recipe?.token || !recipe.existing?.length) return undefined;
   const taken = ((e.evidence.seed as { records?: { kind?: string; label?: string }[] } | undefined)?.records ?? []).filter((r) => r.kind === 'account');
-  const roles = [...new Set(taken.map((r) => r.label?.match(/\(([a-z][a-z0-9-]*)\)$/)?.[1]).filter((r): r is string => Boolean(r)))];
-  const accounts = (roles.length ? roles.map((role) => recipe.existing!.find((a) => a.role === role)) : [recipe.existing[0]]).filter((a): a is NonNullable<typeof a> => Boolean(a));
+  // The test took its accounts in this order: the nth one of a role is the nth existing account of that role (as
+  // handed out on one worker; with several workers the triager checks which one it was).
+  const roles = taken.map((r) => r.label?.match(/\(([a-z][a-z0-9-]*)\)$/)?.[1]).filter((r): r is string => Boolean(r));
+  const nth = new Map<string, number>();
+  const accounts = [...new Set(roles.length ? roles.map((role) => { const n = nth.get(role) ?? 0; nth.set(role, n + 1); return recipe.existing!.filter((a) => a.role === role)[n]; }) : [recipe.existing[0]])]
+    .filter((a): a is NonNullable<typeof a> => Boolean(a));
   if (!accounts.length || accounts.some((a) => /\$\{vault:/.test(`${a.username}${a.password}`))) return undefined;
   const fill = (v: unknown, a: { username: string; password: string }): unknown => (typeof v === 'string' ? v.replace(/\$\{username\}/g, a.username).replace(/\$\{password\}/g, a.password)
     : Array.isArray(v) ? v.map((x) => fill(x, a)) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fill(x, a)])) : v);
-  const tokenVar = (a: { role?: string }, i: number) => `token_${a.role ?? i + 1}`;
+  const tokenVar = (a: { role?: string }, i: number) => { const same = accounts.filter((x) => x.role === a.role); return `token_${a.role ?? 'account'}${same.length > 1 ? same.indexOf(a as typeof accounts[number]) + 1 : a.role ? '' : i + 1}`; };
   const header = (recipe.authHeader ?? 'Authorization: Bearer ${token}').split(/:\s*/);
   const steps: Record<string, unknown>[] = accounts.map((a, i) => ({
     name: `sign in as ${a.role ?? 'the account'}`, setup: true, method: recipe.token!.method, path: recipe.token!.path,

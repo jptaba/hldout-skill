@@ -50,11 +50,11 @@ function render(c: RequirementContract, review: ContractReview | undefined, revi
 
 /** What the profile's accounts recipe already provides, for the evidence pack (no user names, no secrets). */
 function accountsLine(r?: AccountRecipe): string | undefined {
-  if (!r || !(r.token || r.signIn || createsAccounts(r))) return undefined;
+  if (!r || !(r.existing?.length || r.token || r.signIn || createsAccounts(r))) return undefined;
   const roles = [...accountRoles(r)].map(([role, n]) => `${n} ${role}`).join(', ');
   const who = createsAccounts(r) ? 'the tests create their own users' : `${r.existing?.length ?? 0} existing account(s)${roles ? ` (${roles})` : ''}`;
   const how = [r.token && 'sign-in over the API', r.signIn && 'sign-in on the web application'].filter(Boolean).join(' and ');
-  return `${who}${how ? `, with ${how} saved in the profile's accounts recipe` : ''}`;
+  return `${who}${how ? `, with ${how} saved in the profile's accounts recipe` : '; how they sign in is found while hardening and saved in the profile for every later story'}`;
 }
 
 main(async () => {

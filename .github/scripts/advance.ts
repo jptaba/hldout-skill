@@ -34,14 +34,44 @@ const MAX_EVAL_RUNS = 4;
 function knownMechanics(cfg: HeldoutConfig, key: string): Map<string, Set<string>> | undefined {
   const p = evalPaths(cfg, key);
   const specs = specFiles(p.tests);
-  const files = [...specs, ...journeysUsedBy(cfg, cfg.autId, specs)];
-  if (files.some((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')))) return undefined;
+  // A guess left in a journey is the hardener's: a journey has branches a run may never take. A guess left in a test
+  // is settled by that test's own run (see specGuessesHeld).
+  if (journeysUsedBy(cfg, cfg.autId, specs).some((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')))) return undefined;
   const journeys = allJourneys(cfg, cfg.autId);
   const use = journeyUse(journeys, specs, readSuite(p.tests, readContract(p.base)).scenarios);
   const registry = readRegistry(cfg, cfg.autId).journeys;
   const hashOf = new Map(journeys.map((j) => [j.id, j.hash]));
   if (!use.size || ![...use.keys()].every((id) => registry[id] && statusOf(registry[id], hashOf.get(id)) === 'proven')) return undefined;
   return use;
+}
+
+/**
+ * The guesses the draft left in its tests (a locator built from a text the requirement gives), judged by the run: each
+ * sits in a test that passed every time, on a line that acts on or positively expects what it locates. A locator
+ * that matched nothing would have failed that line. A guess in a failing test, in a negative check ("is not shown")
+ * or outside any test is not settled by a run. Returns why not, or the spec files whose marks may go.
+ */
+function specGuessesHeld(cfg: HeldoutConfig, key: string, entries: { scenario: string; status: string }[]): string | string[] {
+  const p = evalPaths(cfg, key);
+  const marked = specFiles(p.tests).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
+  if (!marked.length) return [];
+  const scenarios = readSuite(p.tests, readContract(p.base)).scenarios;
+  const inTests = scenarios.reduce((n, s) => n + (s.code.match(/TODO\(harden\)/g) ?? []).length, 0);
+  const inFiles = marked.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(/TODO\(harden\)/g) ?? []).length, 0);
+  if (inTests < inFiles) return 'a guess marked outside any test (a helper of the spec) is not settled by a run';
+  for (const s of scenarios.filter((x) => /TODO\(harden\)/.test(x.code))) {
+    const runs = entries.filter((e) => e.scenario === s.id || e.scenario.replace(/\.\d+$/, '') === s.id);
+    if (!runs.length || runs.some((e) => e.status !== 'passed')) return `${s.id} holds a guess and did not pass every time`;
+    const lines = s.code.split('\n');
+    for (const [i, line] of lines.entries()) {
+      if (!/TODO\(harden\)/.test(line)) continue;
+      // The mark sits on the guessed line, or alone on the line above it.
+      const code = /^\s*\/\//.test(line) ? lines[i + 1] ?? '' : line;
+      if (/\.not\.|toBeHidden|toHaveCount\(\s*0\s*\)|waitFor\(\{\s*state:\s*'(hidden|detached)'/.test(code)) return `${s.id} guesses a locator in a check that something is absent, which passes on a wrong locator too`;
+      if (!/\.(click|fill|press|check|uncheck|selectOption|hover|type)\(|expect(\.soft)?\(|waitFor\(/.test(code)) return `${s.id} holds a guess the run does not exercise on its own line`;
+    }
+  }
+  return marked;
 }
 
 /**
@@ -61,6 +91,9 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Se
   const entries = readJson<{ entries: { scenario: string; status: string; auto?: { category: string } }[] }>(triageFile).entries;
   const bad = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped' && e.auto?.category !== 'APPLICATION_DEFECT');
   if (bad.length) return `the proven journeys did not hold in ${run}: ${bad.slice(0, 6).map((e) => `${e.scenario} (${e.auto?.category ?? e.status})`).join(', ')}`;
+  const guesses = specGuessesHeld(cfg, key, entries);
+  if (typeof guesses === 'string') return `${guesses} (run ${run})`;
+  for (const f of guesses) if (heldout('confirm', key, '--file', rel(f), '--evidence', `run ${run}: the tests that use these guesses passed each time, on lines that act on or expect what they locate`) !== 0) return 'the confirmed guesses could not be recorded';
 
   // The open mechanics gaps are answered by the journeys the tests of their criteria call.
   const contract = readContract(p.base)!;
@@ -79,7 +112,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, use: Map<string, Se
     if (heldout('contract', key, '--resolve-from', file) !== 0) return 'the mechanics gaps could not be recorded';
   }
   const failed = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped').map((e) => e.scenario);
-  const tiers = `**Tiers used:** none — nothing was left to discover: the draft marks no guess and the ${use.size} journey(s) its tests call are proven in the registry as they are (by ${proofOf([...use.keys()]) || 'earlier stories'}). Stability: run ${run}, each test twice; ${failed.length ? `${failed.join(', ')} failed on a requirement assertion each time (left for triage), the others passed` : 'every test passed'}. Written by \`heldout advance\`, no hardener.`;
+  const tiers = `**Tiers used:** none — nothing was left to discover: ${guesses.length ? 'the guesses the draft left in its tests were settled by the run (each in a test that passed every time, on a line that acts on or expects what it locates), ' : 'the draft marks no guess '}and the ${use.size} journey(s) its tests call are proven in the registry as they are (by ${proofOf([...use.keys()]) || 'earlier stories'}). Stability: run ${run}, each test twice; ${failed.length ? `${failed.join(', ')} failed on a requirement assertion each time (left for triage), the others passed` : 'every test passed'}. Written by \`heldout advance\`, no hardener.`;
   const log = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8') : `# Hardening log — ${key}\n**Tiers used:** \n`;
   writeFile(p.hardeningLog, `${log.replace(/^\*\*Tiers? used:\*\*.*$/m, tiers).replace(/\s+$/, '')}\n\n## Journeys reused as proven (nothing fixed, nothing added)\n${[...use.keys()].sort().map((id) => `- ${id} — proven by ${registry[id]?.proven?.by?.join(', ') ?? '-'}`).join('\n')}\n`);
   return heldout('integrity', key) === 0 ? true : 'integrity is not preserved';
@@ -177,7 +210,7 @@ main(() => {
       // Nothing to discover and no harden run yet: the stability run is the hardening, no subagent needed.
       const use = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
       if (use) {
-        console.log(`\n• nothing left to discover: no TODO(harden), and the ${use.size} journey(s) the tests call are proven as they are — proving stability without the hardener`);
+        console.log(`\n• nothing left to discover: the ${use.size} journey(s) the tests call are proven as they are and hold no guess — proving stability without the hardener (a guess left in a test is settled by that test's own run)`);
         const done = hardenFromRegistry(cfg, key, use, heldout);
         if (done === true && moved()) continue;
         return handOver('heldout-hardener', `Harden the tests for ${key}`, done === true ? next.detail : done);
