@@ -1,7 +1,8 @@
 # Refactoring plan: a smaller record that is easy to follow, no scripts of the agents' own, scripts in areas
 
-Written 2026-10-17, after round 36. This is the third version. The second added the scripts layout and a critique of
-the first draft (section 11). The third adds the layout of a story's folder (section 3).
+Written 2026-10-17, after round 36. Fourth version: the second added the scripts layout, the third the layout of a
+story's folder (section 3), the fourth a last critique (section 11), a definition of done and a progress table
+(section 8). The plan is updated after each work package; the progress table says where the work is.
 
 Greenfield: everything below is the target layout and the target commands. Old layouts are not read, nothing is
 migrated, and no command, flag, path or import keeps an alias for what it replaces. A round project made before this
@@ -121,9 +122,10 @@ of what makes that hard to work in:
      triage report). Written to the scratch area or printed, never committed.
    - **Scratch**: raw tool output (Playwright's JSON, traces, the HTML report, console output) and agents' working
      inputs (step files, chain files). Git-ignored, under one folder, removed when the story is complete.
-2. **One folder per phase, in pipeline order.** A file lives in the folder of the phase that writes it. The folders
-   are numbered so any file browser lists them in the order of the work, and the scratch area uses the same folder
-   names, so the working files of a phase are always found under the same name.
+2. **One folder per question, in pipeline order.** A file lives in the folder of the question it answers (what was
+   asked, what it means, how it is tested, what was seen, what ran, what we recommend), whichever command writes it:
+   a screenshot the verdict copies is evidence, so it goes in `4-evidence/`. The folders are numbered so any file
+   browser lists them in the order of the work, and the scratch area uses the same folder names.
 3. **One file per kind of thing, not per event.** Events go into one append-only history, the frozen draft and its
    amendments into one file, every probe into one log.
 4. **Evidence by reference, kept when cited.** A probe is `P7` and a failure is `04-rerun/SCN-012`. Decisions and logs
@@ -144,10 +146,10 @@ of what makes that hard to work in:
 output/<profile>/KEY/                         ← the record (committed)
   1-requirement/   story.md  linked/  transcripts/          what the story says (+ history/, CHANGES.md after a revision)
   2-contract/      contract.json  review.json               what the requirement means, and its independent review
-  3-tests/         <key>.spec.ts  test-data.json  freeze.json   the tests, their data, the frozen draft and its amendments
+  3-tests/         <key>.spec.ts  test-data.json  freeze.json  hardening.md   the tests, their data, the frozen draft, how they were made to work
   4-evidence/      probes.jsonl  P7.md  05-eval-SCN-012.png  everything observed live: every probe; cited reports and screenshots
   5-runs/          01-harden.json  02-eval.json  02-eval.triage.json   one record per run; the triage beside its run
-  6-verdict/       verdict.md  verdict.json  hardening.md   the recommendation, and the hardener's account it cites
+  6-verdict/       verdict.md  verdict.json                 the recommendation
   history.jsonl                                              every step that changed the story, in order
 
 .heldout/<profile>/KEY/                       ← scratch and views (git-ignored), the same folder names
@@ -174,15 +176,15 @@ output/<profile>/KEY/                         ← the record (committed)
   observations of the application. One log and one folder hold them, numbered in the order they were made, whoever
   made them. Probes come before the runs (`4-` before `5-`) because most of them are made while hardening, before the
   evaluation runs. The few made while triaging are still listed there, with their phase in the log.
-- **The hardener's account belongs to the verdict.** `hardening.md` explains what changed in the tests' mechanics and
-  why, and the verdict cites it next to integrity and amendments. A reader of the verdict finds it in the same folder.
-- **The frozen draft sits next to the spec it freezes.** `freeze.json` is in `3-tests/` with the spec and its data,
-  so whatever integrity compares is in one folder.
+- **The tests' whole story is in `3-tests/`.** The spec, its data, the frozen draft it is compared with
+  (`freeze.json`, with re-freezes and amendments) and the hardener's account of what changed in its mechanics and why
+  (`hardening.md`, citing probes by id). Whatever integrity compares, and why it changed, is in one folder.
 - **No prefixes inside a folder.** The folder already says what a file is: `2-contract/review.json`, not
   `requirement-contract.review.json`. The exceptions are `<key>.spec.ts` (Playwright needs the suffix) and
   `verdict.md`, which keeps its name because it is published.
-- **Runs are files, not folders.** `05-eval.json` and `05-eval.triage.json` sort together, and runs stay in
-  order, never renamed or deleted (runs are history).
+- **Runs are files, not folders.** `05-eval.json` and `05-eval.triage.json` sort together. The rule "runs are
+  history" applies to these records: they are never renamed, renumbered or deleted. Only a run's raw output in the
+  scratch is rotated away.
 - **The scratch mirrors the record.** The evidence pack is in `.heldout/…/2-contract/`, the raw output of run 05 in
   `.heldout/…/5-runs/05-eval/`, the full report of probe 7 in `.heldout/…/4-evidence/probes/P7.md`. The folder name of
   a phase finds a file in either place.
@@ -202,12 +204,15 @@ output/<profile>/KEY/                         ← the record (committed)
 ```
 
 Citations keep working without change. The contract cites `story.md#L34`, relative to `1-requirement/`. The verdict
-links `../4-evidence/P7.md` and `../5-runs/05-eval.triage.json`. Playwright finds the tests by `**/3-tests/*.spec.ts`.
+links `../4-evidence/P7.md` and `../5-runs/05-eval.triage.json`; the copy published to Jira keeps them as text, as
+today. Playwright finds the tests by `**/3-tests/*.spec.ts`.
 
 What is kept: about 10 files, plus the linked pages and transcripts, one or two files per run, and the evidence
 that is cited. For PB-2 that is roughly 10 + 4 runs + 2 triage files + about 10 cited items, so about 30 files and a
 few MB, instead of 1,971 files and 375 MB. `.gitattributes` (written by `init`) merges `*.jsonl` under `output/` with
-the union driver, so two branches that each appended to a story's history or probe log merge without a conflict.
+the union driver, so two branches that each appended to a story's history or probe log merge without a conflict. If
+both branches made a probe of the same number, `lint` reports the duplicate id (`probe-id-twice`) and `advance`
+renumbers the later one, rewriting its citations.
 
 ### What happens to every current file
 
@@ -236,7 +241,7 @@ the union driver, so two branches that each appended to a story's history or pro
 | `runs/NN/junit.xml`, `html/` | scratch `5-runs/NN-label/`, only with `--junit` / `--html` | Scratch |
 | `runs/NN/verdict.md` | not written | — |
 | `verdict.md`, `verdict.json` | `6-verdict/` | Record |
-| `hardening/hardening-log.md` | `6-verdict/hardening.md` | Record |
+| `hardening/hardening-log.md` | `3-tests/hardening.md` | Record |
 | `publish-log.json` | `published` event | Record |
 | `hardening/journeys-harvest.json` | `harvested` event | Record |
 | `hardening/journeys-staged.json` (the harvest's preview) | scratch `6-verdict/journeys-staged.json` | Scratch |
@@ -289,7 +294,7 @@ references). The events:
 | `fetched`, `revised` | 1-requirement | profile, revision hash, sources |
 | `contract-checked`, `review-bound` | 2-contract | errors, warnings, ACs, gaps by kind and resolution; review round and findings |
 | `draft-finished`, `frozen`, `refrozen`, `amended`, `integrity` | 3-tests | specs hash, tests, TODO marks, journeys new and reused; reasons; integrity status |
-| `hardened` | 4-evidence | fast path or hardener; tiers, gaps resolved, guesses confirmed and corrected, journeys fixed |
+| `hardened` | 3-tests | fast path or hardener; tiers, gaps resolved, guesses confirmed and corrected, journeys fixed, probes made |
 | `run`, `triaged`, `decided` | 5-runs | label, stats, duration; automatic counts by class; test, class, carried or confirmed, `--any-reading`, evidence ids |
 | `verdict`, `published`, `harvested` | 6-verdict | the outcome of each |
 | `note`, `stray-moved`, `pruned` | any | a tool gap or remark an agent recorded; the files concerned |
@@ -430,18 +435,27 @@ knows the story layout of section 3. Every other file asks it for a phase folder
 
 ## 8. Work packages
 
-In this order. Each one updates the code, the self-tests and every document it affects (the agent files, `SKILL.md`
-and the references; the guide and README come last), and is committed and pushed once typecheck and
-`npm run test:skill` are green. No round project is updated while a package is half done.
+In this order. No round project is updated while a package is half done.
+
+**Definition of done, for every package:**
+1. The code, the self-tests and every document the package affects are changed together: the agent files,
+   `SKILL.md` and the references. The guide and the README wait for package 11.
+2. `npm run typecheck` and `npm run test:skill` are green.
+3. The dispatcher smoke test passes: `heldout help`, and `--help` on every command.
+4. The repository holds no machine path (a grep for drive letters and user folders finds none).
+5. The progress table below is updated with what was done, what was learned and anything that moved to a later
+   package.
+6. Committed and pushed.
 
 | # | Package | Main files | Tests |
 | --- | --- | --- | --- |
-| 1 | **Areas and the command contract.** Move the scripts into the tree (`git mv`, so history follows); split `config.ts`; break the cycle and the command-to-command import; the `spec`/`run` contract and a dispatcher built on it; tests into area folders. Nothing else changes, so the self-tests prove the move | all of `.github/scripts/`, `heldout-support/fixtures.ts`, `package.json` | all existing tests, moved; new `layout.test.ts` |
+| 1a | **Areas.** Move the scripts into the tree (`git mv`, so history follows); split `config.ts`; break the `contract-model` ⇄ `evidence` cycle and the command-to-command import; tests into area folders; fixtures' imports. Behaviour unchanged, so the existing self-tests prove the move | all of `.github/scripts/`, `heldout-support/fixtures.ts`, `package.json`, `tests/` | all existing tests, moved; new `layout.test.ts` (rules 1, 2, 6) |
+| 1b | **The command contract.** `spec`/`run` in every command module; the dispatcher built on the specs; `knownFlags` and leading-comment help removed | every command module, `heldout.ts`, `core/cli.ts` | new `dispatcher.test.ts` (the smoke test); `layout.test.ts` (rule 3) |
 | 2 | **Story folders, history and scratch.** `core/paths.ts` defines the whole layout of section 3 at once, record and scratch, so every later package writes straight into its final place; every reader and writer of a story path goes through it; `testMatch` becomes `**/3-tests/*.spec.ts`; `core/history.ts`; `init`/`update` add `.heldout/` to `.gitignore` and the union merge to `.gitattributes`; `fetch` stops writing `raw-issue.json` and `evaluation.json`; `draft-finished`, `published` and `harvested` become events; `phases` and `status` read them and print the phase folders; the mock outbox becomes one file per story | `core/*`, `playwright.config.ts`, `requirement/fetch.ts`, `flow/phases.ts`, `flow/status.ts`, `report/publish.ts`, `authoring/journeys/*`, `setup/init.ts`, `setup/update.ts` | new `paths.test.ts`, `history.test.ts`; `advance.test.ts` |
 | 3 | **Freeze in one file.** `3-tests/freeze.json` replaces `draft/`, `integrity.json`, `amendments.json`, `refreeze-log.json` and `draft-history/` | `authoring/integrity.ts`, `authoring/freeze.ts`, `report/verdict*`, `run/fast-harden.ts`, `flow/advance.ts` | `integrity.test.ts` |
 | 4 | **Run record.** First, the inventory of every read of run output; then Playwright output to scratch, `run-record.ts`, `--junit` and `--html`, last attempt only, raw-output rotation, the fixtures attaching exchanges on failure only; every reader moved to the record; CI templates | `playwright.config.ts`, `heldout-support/fixtures.ts`, `run/*`, `triage/classify.ts`, `triage/triage-model.ts`, `flow/phases.ts`, `.gitlab/`, `.github/workflows/` | new `run-record.test.ts` from a recorded raw JSON; `classify.test.ts` |
 | 5 | **Triage and verdict.** `5-runs/NN-label.triage.json` with evidence by reference; the triage report and the confirm chains to scratch; cited screenshots to `4-evidence/`; no copy of the verdict per run | `triage/*`, `report/verdict*` | `triage-report.test.ts` |
-| 6 | **Probe log.** `Pn` ids and `4-evidence/probes.jsonl`; `--out` removed; `--evidence Pn` checked and its report kept; the hardening log at `6-verdict/hardening.md`; views to scratch | `probe/*`, `requirement/contract.ts`, `authoring/confirm.ts`, `triage/triage.ts`, `authoring/scaffold.ts`, `setup/accounts.ts` | new `probe-log.test.ts` |
+| 6 | **Probe log.** `Pn` ids and `4-evidence/probes.jsonl`; `--out` removed; `--evidence Pn` checked and its report kept; the hardening log at `3-tests/hardening.md`; views to scratch | `probe/*`, `requirement/contract.ts`, `authoring/confirm.ts`, `triage/triage.ts`, `authoring/scaffold.ts`, `setup/accounts.ts` | new `probe-log.test.ts` |
 | 7 | **Read commands.** `show`, `trace`, `note`, `prune`, `contract --review-bind`, `scrub --check` | `flow/*`, `probe/trace.ts`, `requirement/contract.ts`, `report/scrub.ts` | new `show.test.ts`; `secrets.test.ts` |
 | 8 | **Probe composition.** `--sign-in`, `--from`, several `--steps`, `--then`, `--set`, `--pages`, `--pick`, `--where`, `--count`, `${text:N}`, `${now}` | `probe/*`, `setup/accounts-recipe.ts` | `parsing.test.ts` |
 | 9 | **Rules and checks.** The no-scripts rule and `Tool gap:` in the five agent files and their bridges; agents told folders, not paths; stray files moved by `advance`; `scrub --check` before publishing; `SKILL.md` "Output layout" and the references rewritten for the layout and the commands | `.github/agents/*`, `.claude/agents/*`, `SKILL.md`, `references/*`, `authoring/preflight.ts`, `flow/advance.ts` | `agent-files.test.ts` |
@@ -451,6 +465,24 @@ and the references; the guide and README come last), and is committed and pushed
 **A check before any live round.** In packages 4 and 5, the new `triage` and `verdict` run on raw results kept from
 rounds 35 and 36 (PB-2, TOOL-8), on this machine and not committed. The automatic classes and the verdict must match
 what those rounds produced, links and file names aside. It is cheaper to find a lost field there than in a live round.
+
+### Progress
+
+| # | State | Commit | Notes |
+| --- | --- | --- | --- |
+| 1a | to do | | |
+| 1b | to do | | |
+| 2 | to do | | |
+| 3 | to do | | |
+| 4 | to do | | |
+| 5 | to do | | |
+| 6 | to do | | |
+| 7 | to do | | |
+| 8 | to do | | |
+| 9 | to do | | |
+| 10 | to do | | |
+| 11 | to do | | |
+| Round 37 | to do | | |
 
 ## 9. Proof: round 37
 
@@ -482,7 +514,23 @@ That is why the numbers are written here.
 | A run record that misses a field a reader needs | Inventory first; replay on kept rounds before any live round |
 | A half-moved skill in a round project | No round project is updated while a package is half done |
 
-## 11. What the first draft got wrong
+## 11. Critique log
+
+What each critique of this plan found, and what changed. The latest round comes first.
+
+**Fourth version**
+
+| Flaw | Consequence | Now |
+| --- | --- | --- |
+| The hardener's account sat in `6-verdict/` | It is written in phase 3, before any verdict exists, in a folder named after a later phase | `3-tests/hardening.md`, next to the spec and the freeze it explains |
+| "A file lives in the folder of the phase that writes it" contradicted the layout | The verdict writes screenshots into `4-evidence/`; the rule and the tree disagreed | The rule is "the folder of the question the file answers" |
+| "Runs are history" read against raw-output rotation | It looked like the plan deleted runs | The rule covers the run records; only scratch is rotated |
+| Probe ids from two branches could collide after a union merge | Two different `P7`s, citations pointing at the wrong one | `lint` reports `probe-id-twice`; `advance` renumbers the later one |
+| Package 1 was the biggest change in one step | A failure would be hard to locate between "moved" and "rewired" | Split: 1a moves files with behaviour unchanged; 1b changes the command contract |
+| No definition of done, no place for progress | Packages could land half-documented, and a resumed session couldn't tell where the work stood | Definition of done and a progress table in section 8 |
+| No check that every command still starts | A broken import in a command no test loads shows up only in a round | Dispatcher smoke test: `help` and `--help` on every command |
+
+**Second and third versions**
 
 | Flaw | Consequence | Now |
 | --- | --- | --- |
