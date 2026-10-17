@@ -66,7 +66,7 @@ the evidence and decides. Later fetches read neither the comment nor the attachm
 attachments are never requirement input.
 
 In mock mode the result is in `mock-jira/issues/KEY/ISSUE_VIEW.md` (rendered like the issue page),
-`issue.json`, and `mock-jira/outbox/*.http` (the exact REST requests Jira Data Center would have
+`issue.json`, and `mock-jira/outbox/KEY.http` (the exact REST requests Jira Data Center would have
 received). Publishing is the evaluation's last outward step and needs no confirmation: `heldout advance` runs it
 after the verdict. A project that wants a person to look first sets `"publish": "manual"` under `jira` in
 `heldout.config.json`; `advance` then finishes without publishing and prints the command (`heldout publish KEY`).

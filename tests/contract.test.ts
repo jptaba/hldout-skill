@@ -7,7 +7,7 @@ import {
   checkContract, checkSuiteAgainstContract, locateQuote, normaliseText, notEvaluable, openQuestions, oracleDigest,
   requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
 } from '../.github/scripts/requirement/contract-model';
-import { checkIntegrity, snapshotDraft } from '../.github/scripts/authoring/integrity-check';
+import { checkIntegrity, draftOf } from '../.github/scripts/authoring/integrity-check';
 
 const STORY = `---
 key: ABC-9
@@ -176,13 +176,13 @@ describe('requirement contract', () => {
     fs.mkdirSync(path.join(dir, 'tests'));
     fs.writeFileSync(path.join(dir, 'tests', 'a.spec.ts'), "expect(r.status, '[REQ AC-1] created').toBe(201);\n");
     const c = goodContract(fixture());
-    snapshotDraft(path.join(dir, 'tests'), path.join(dir, 'draft'), oracleDigest(c));
+    const freeze = { ...draftOf(path.join(dir, 'tests'), oracleDigest(c)), refreezes: [], amendments: [] };
     const mech = structuredClone(c);
     mech.testData = { strategy: 'changed' }; mech.acceptanceCriteria[0].entryPoint = '/x'; mech.endpoints[0].requestFields = ['name'];
-    assert.equal(checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'draft'), undefined, oracleDigest(mech)).status, 'PRESERVED');
+    assert.equal(checkIntegrity(path.join(dir, 'tests'), freeze, oracleDigest(mech)).status, 'PRESERVED');
     const oracle = structuredClone(c);
     oracle.acceptanceCriteria[0].outcomes = ['200'];
-    const r = checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'draft'), undefined, oracleDigest(oracle));
+    const r = checkIntegrity(path.join(dir, 'tests'), freeze, oracleDigest(oracle));
     assert.equal(r.status, 'VIOLATED');
     assert.equal(r.contractChanged, true);
   });

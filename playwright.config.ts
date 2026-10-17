@@ -20,9 +20,9 @@ process.env.AUT_BASE_URL ??= profile.baseURL;
 process.env.AUT_API_BASE_URL ??= profile.apiBaseURL ?? profile.baseURL;
 
 export default defineConfig({
-  // Each story's tests: output/<profile>/<KEY>/tests/ (the journeys they import are not tests).
+  // Each story's tests: output/<profile>/<KEY>/3-tests/ (the journeys they import are not tests).
   testDir: cfg.outputDir ?? 'output',
-  testMatch: '**/tests/**/*.spec.ts',
+  testMatch: '**/3-tests/**/*.spec.ts',
   outputDir: path.join(runDir, 'artifacts'),
   fullyParallel: true,
   // Records the tests share through seed.shared are removed once, when the run is over.

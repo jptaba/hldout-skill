@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { main, parseArgs, type CommandModule } from './core/cli';
+import { setCommandLine } from './core/history';
 
 /** Every command and its module, in the order `help` lists them. Each module exports its spec and its run. */
 export const COMMANDS: Record<string, string> = {
@@ -86,6 +87,7 @@ async function dispatch(cmd: string | undefined, rest: string[]): Promise<void> 
     throw new Error(`${cmd} does not take ${unknown.map((f) => `--${f}`).join(', ')}. It takes: ${[...known].sort().map((f) => `--${f}`).join(' ')}\n`
       + `  usage: heldout ${cmd} ${command.spec.usage}`);
   }
+  setCommandLine(cmd, rest);
   await command.run({ ...parseArgs(rest), argv: rest });
 }
 

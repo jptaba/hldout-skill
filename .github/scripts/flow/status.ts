@@ -2,7 +2,7 @@
  * Where is each story in the pipeline, and what is the next command?
  *
  *   heldout status          every story under output/<profile>/ (one line each)
- *   heldout status KEY      one story, phase by phase
+ *   heldout status KEY      one story, phase by phase, beside the folder each phase fills
  *
  * `heldout advance KEY` runs the next steps itself, up to the next subagent.
  */
@@ -10,8 +10,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Args, CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { ROOT } from '../core/files';
-import { listStories } from '../core/paths';
+import { ROOT, rel } from '../core/files';
+import { evalPaths, listStories } from '../core/paths';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -36,8 +36,13 @@ export function run({ _ }: Args): void {
   if (_[0]) {
     const cfg = loadConfig({ key: _[0] });
     const phases = phasesOf(cfg, _[0]);
-    console.log(`${_[0]} (${cfg.outputDir}/${cfg.autId}/${_[0]})`);
-    for (const ph of phases) console.log(`  ${ph.done ? '✔' : '·'} ${ph.name.padEnd(9)} ${ph.detail}`);
+    const p = evalPaths(cfg, _[0]);
+    console.log(`${_[0]}   record: ${rel(p.base)}/   scratch: ${rel(p.work.base)}/`);
+    let folder = '';
+    for (const ph of phases) {
+      console.log(`  ${(ph.folder === folder ? '' : ph.folder).padEnd(14)} ${ph.done ? '✔' : '·'} ${ph.name.padEnd(9)} ${ph.detail}`);
+      folder = ph.folder;
+    }
     const next = phases.find((ph) => !ph.done);
     console.log(next ? `\nNext: ${next.next}\n      (or ${H} advance ${_[0]}: it runs the script steps up to the next subagent)` : '\n✔ Complete.');
     return;

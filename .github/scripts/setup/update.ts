@@ -26,7 +26,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { flagStr, type Args, type CommandSpec, type Flags } from '../core/cli';
-import { AGENT_FILES, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitignore } from '../core/config';
+import { AGENT_FILES, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitattributes, ensureGitignore } from '../core/config';
 import { ROOT, fileHash, rel } from '../core/files';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
@@ -214,7 +214,7 @@ export function run({ flags }: Args): void {
   writeSource({ ...info, mcpServers: Object.keys(servers) });
   if (flags.ci) ensureCi(flags);
   // A set-up project gains the .gitignore entries a newer version needs (init adds them for a new one).
-  if (fs.existsSync(path.join(ROOT, 'heldout.config.json'))) ensureGitignore(say);
+  if (fs.existsSync(path.join(ROOT, 'heldout.config.json'))) { ensureGitignore(say); ensureGitattributes(say); }
   sayUnchanged();
   // init runs update first and prints its own next steps; setup runs doctor itself.
   if (!process.env.HELDOUT_INIT && !process.env.HELDOUT_SETUP) {

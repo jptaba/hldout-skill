@@ -14,7 +14,7 @@ you must not look at it, its code, or anything outside the files below.
 
 The sources are the story's title, description and acceptance criteria, the Confluence pages they link
 (`linked/confluence-*.md`) and the images they show, which appear in the pack as transcripts (`transcripts/<file>.md`).
-Open each transcript's original image (`requirement/linked/<file>`) and compare the transcript with it. Comments and
+Open each transcript's original image (`1-requirement/linked/<file>` in the story's folder) and compare the transcript with it. Comments and
 other attachments are not sources, and there is no API document unless the pack contains one.
 
 ## What to check

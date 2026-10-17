@@ -4,7 +4,7 @@
  * as it is) and notes it in the hardening log, instead of one edit per mark. A guess that was wrong is edited by hand
  * first: what is left when this runs is what the evidence confirmed.
  *
- *   heldout confirm KEY --file journeys/fixtures/cart.ts [--file …] --evidence "hardening/tier3/cart-page.md"
+ *   heldout confirm KEY --file journeys/fixtures/cart.ts [--file …] --evidence "<probe report>"
  */
 import fs from 'node:fs';
 import path from 'node:path';

@@ -8,21 +8,21 @@
  * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden*)
  * and an AUT healthcheck (3 samples per URL) — an unreachable or degraded (slow) AUT aborts before any test runs.
  *
- * Each invocation gets its own folder: output/<profile>/<KEY>/runs/<NN>-<label>/
+ * Each invocation gets its own folder: output/<profile>/<KEY>/5-runs/<NN>-<label>/, and a line in the story's history
  *   results.json (Playwright JSON), junit.xml, html/, artifacts/ (screenshots, traces, error-context),
  *   snapshots/ (ARIA snapshots per step when --capture), run-meta.json
  * Exit code is 0 whenever a results.json was produced — failing tests are data for triage, not a crash.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { journeysUsedBy } from '../authoring/journeys/registry';
 import { healthcheck, lintEvaluation, printFindings } from '../authoring/preflight';
 import { specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
-import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
+import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
+import { recordEvent, skillFingerprint } from '../core/history';
 import { NON_EVAL_RUN, evalPaths, listRuns } from '../core/paths';
 import { accountRoles, autEnv, dataPrefix, existingAccountWorkers } from '../core/profile';
 import { relativizePaths, scrubDir, secretValuesFor } from '../core/redact';
@@ -72,16 +72,6 @@ function seedSummary(results: unknown, prefix: string): { created: number; clean
   };
   walk(results, '');
   return sum;
-}
-
-/** Hash of the skill's scripts and the test support code, so two runs can be told apart if the skill changed between them. */
-function skillFingerprint(): string {
-  const files = fs.readdirSync(SCRIPTS_DIR, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.ts')).sort()
-    .map((f) => path.join(SCRIPTS_DIR, f));
-  const support = path.resolve('heldout-support', 'fixtures.ts');
-  const h = createHash('sha256');
-  for (const f of [...files, ...(fs.existsSync(support) ? [support] : [])]) h.update(fs.readFileSync(f, 'utf8').replace(/\r\n/g, '\n'));
-  return h.digest('hex').slice(0, 16);
 }
 
 export const spec: CommandSpec = {
@@ -219,6 +209,10 @@ export async function run({ _, flags }: Args): Promise<void> {
     exitCode: res.status, stats,
   };
   writeFile(path.join(runDir, 'run-meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
+  recordEvent(p.history, 'run', {
+    run: runName, label, ...(grep ? { grep } : {}), ...(repeatEach ? { repeatEach: Number(repeatEach) } : {}), workers: workers ?? null,
+    exitCode: res.status, stats: stats ? { passed: stats.expected, failed: stats.unexpected, flaky: stats.flaky, skipped: stats.skipped, seconds: Math.round(stats.duration / 1000) } : null,
+  });
 
   if (!produced) throw new Error(`Playwright produced no results.json (exit ${res.status}). Check config / environment.`);
   console.log(`\n■ ${runName}: passed ${stats!.expected}, failed ${stats!.unexpected}, flaky ${stats!.flaky}, skipped ${stats!.skipped} (${Math.round(stats!.duration / 1000)} s)`);
@@ -280,5 +274,5 @@ export async function run({ _, flags }: Args): Promise<void> {
   if (stats!.unexpected || stats!.flaky) console.log(`\nNext: npm run heldout -- triage ${key}`);
   else if (grep) console.log(`\nA run of some of the tests is never the evaluation: the verdict comes from a run of them all (npm run heldout -- advance ${key}${/repair/.test(runName) ? ' --rerun' : ''}).`);
   else if (!NON_EVAL_RUN.test(runName)) console.log(`\nNext: npm run heldout -- verdict ${key}`);
-  else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (any mechanics gap still open: contract ${key} --resolve Gn …; hardening/hardening-log.md), then: npm run heldout -- advance ${key}`);
+  else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (any mechanics gap still open: contract ${key} --resolve Gn …; ${rel(p.hardeningLog)}), then: npm run heldout -- advance ${key}`);
 }

@@ -1,7 +1,7 @@
 # Triage: script defect or application defect? (phase 5)
 
 ```bash
-npm run heldout -- triage KEY                     # auto-classify the latest run → runs/NN/triage.json + triage.md
+npm run heldout -- triage KEY                     # auto-classify the latest run → 5-runs/NN-label/triage.json + triage.md
 npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisions for identical failure signatures
 ```
 
@@ -82,8 +82,8 @@ When something *was* disclosed or changed, the severity follows that, not the st
    those groups, reproduce one failure of each, and decide yourself whether a group is one root cause: two groups
    often share one (a page and the call behind it), and one group can hide two.
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json`;
-   replay API requests with `heldout api-probe`. Save the output under `runs/NN/confirm/`. Start from
-   `confirm/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
+   replay API requests with `heldout api-probe`. Save the reports in the story's `4-evidence/` (`--out`). Start from
+   `5-runs/NN-label/confirm/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
    once. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is
    replayed with the inspector's own steps, never with a script of yours: `force` gives a control the value,
    `rewrite` changes fields of the page's next request, `request` makes a call in the middle of the walk; the report

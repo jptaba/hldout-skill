@@ -5,7 +5,7 @@
  * Given/When/Then, numbered lists, tables, screenshots embedded in the description or the criteria, a linked
  * Confluence page with the rules or an API definition…).
  * A MODEL reads them (the heldout-contract-extractor subagent) and writes ONE shape,
- * `output/<profile>/<KEY>/requirement-contract.json`; an independent reviewer subagent checks it. This module only
+ * `output/<profile>/<KEY>/2-contract/contract.json`; an independent reviewer subagent checks it. This module only
  * validates, mechanically:
  *
  *  - Every AC is **quoted verbatim** from a cited source file, and the quote is verified, so an acceptance
@@ -24,7 +24,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { checkCoverage, checkLiterals, decodeEntities, parseRange, type CoverageEntry } from './evidence';
 
-export const CONTRACT_FILE = 'requirement-contract.json';
 export type Layer = 'ui' | 'api' | 'e2e';
 export type GapResolution = 'found-in-requirement' | 'found-in-config' | 'discovered-in-aut' | 'provided-by-user' | 'assumed' | 'open';
 /** story = title, description and acceptance criteria; linked = the screenshots they embed and the pages they link. */
@@ -36,7 +35,7 @@ export interface ContractAC {
   text: string;
   /** Verbatim excerpt from the source that states this criterion (verified against the file). */
   quote: string;
-  /** Source file relative to requirement/, optionally with a line: "story.md#L19", "linked/confluence-123-cart-api.md#L4". */
+  /** Source file relative to the story's 1-requirement/ folder, optionally with a line: "story.md#L19", "linked/confluence-123-cart-api.md#L4". */
   source: string;
   layer: Layer;
   /** Observable outcomes that decide pass/fail (status codes, messages, visible state). */
@@ -162,7 +161,7 @@ export function parseSource(ref: string): { file: string; line?: number } {
 export function locateQuote(reqDir: string, ref: string, quote: string): { found: boolean; near?: boolean; reason?: string } {
   const { file, line } = parseSource(ref);
   const full = path.join(reqDir, file);
-  if (!fs.existsSync(full)) return { found: false, reason: `source ${file} does not exist under requirement/` };
+  if (!fs.existsSync(full)) return { found: false, reason: `source ${file} does not exist in the story's requirement folder` };
   const q = normaliseText(quote);
   if (q.length < 8) return { found: false, reason: 'quote is too short to anchor (< 8 characters)' };
   const lines = fs.readFileSync(full, 'utf8').split(/\r?\n/);
@@ -264,7 +263,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
     if (ids.has(ac.id)) err('ac-duplicate', `${ac.id} appears twice`);
     ids.add(ac.id);
     // A screenshot can't be quoted directly: the evaluator transcribes it into
-    // requirement/transcripts/<file>.md whose first line is "transcribedFrom: linked/<file>".
+    // 1-requirement/transcripts/<file>.md whose first line is "transcribedFrom: linked/<file>".
     const srcFile = parseSource(ac.source ?? '').file;
     if (/\.(png|jpe?g|gif|webp|bmp|pdf|docx?|xlsx?|pptx?)$/i.test(srcFile)) {
       err('quote-from-binary', `${ac.id} cites ${srcFile} directly — transcribe it to transcripts/${path.basename(srcFile)}.md ("transcribedFrom: ${srcFile}" on the first line) and cite the transcript`);
@@ -321,7 +320,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
       if (allowGap && gapIds.has(part)) continue;
       const r = parseRange(part);
       if (!r) warn('citation-format', `${where} cites "${part}" — use <file>#L<n> or <file>#L<n>-L<m>, several separated by commas`);
-      else if (!fs.existsSync(path.join(reqDir, r.file))) err('citation-file', `${where} cites ${r.file}, which does not exist under requirement/`);
+      else if (!fs.existsSync(path.join(reqDir, r.file))) err('citation-file', `${where} cites ${r.file}, which does not exist in the story's requirement folder`);
     }
   };
   for (const r of c.rules ?? []) cites(r.id, r.source);
@@ -460,8 +459,8 @@ export function requestContracts(c?: RequirementContract): { method: string; pat
     .filter((e) => e.envelope || e.fields?.length);
 }
 
-export function readContract(evalDir: string): RequirementContract | undefined {
-  const file = path.join(evalDir, CONTRACT_FILE);
+/** The story's contract (its paths' `contract`), if there is one. */
+export function readContract(file: string): RequirementContract | undefined {
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as RequirementContract) : undefined;
 }
 

@@ -22,7 +22,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
-import { AGENT_FILES, CONFIG_SCHEMA, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitignore } from '../core/config';
+import { AGENT_FILES, CONFIG_SCHEMA, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitattributes, ensureGitignore } from '../core/config';
 import { ROOT, rel } from '../core/files';
 import { JIRA_MODES } from '../core/profile';
 import { profileIdFor } from '../probe/detect';
@@ -118,6 +118,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   }
   const needInstall = ensurePackageJson();
   ensureGitignore(say);
+  ensureGitattributes(say);
   for (const d of ['mock-jira/issues', 'mock-jira/outbox', 'output', 'journeys/fixtures']) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
   // Claude Code reads MCP servers only from the root .mcp.json: give it the skill's servers from .vscode/mcp.json (those
   // update recorded; the project's own VS Code servers stay VS Code's). Update already reported the file: say only a change.

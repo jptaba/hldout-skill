@@ -1,7 +1,7 @@
 # Writing the held-out tests (phase 2)
 
-Write `output/<profile>/<KEY>/tests/<key-lowercase>.spec.ts` straight from the reviewed requirement contract
-(`requirement-contract.json`), **before** anyone looks at the AUT. The draft encodes the oracle; hardening (phase 3)
+Write `output/<profile>/<KEY>/3-tests/<key-lowercase>.spec.ts` straight from the reviewed requirement contract
+(`2-contract/contract.json`), **before** anyone looks at the AUT. The draft encodes the oracle; hardening (phase 3)
 only fixes the mechanics. Each test is one user journey, tied to the criteria it proves, its test type (one: what it
 truly proves) and the requirement source it comes from. Its steps call the application's shared **journeys**
 ([journeys.md](journeys.md)); every expectation stays in the test.

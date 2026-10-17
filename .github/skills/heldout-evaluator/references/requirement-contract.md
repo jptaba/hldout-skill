@@ -14,7 +14,7 @@ exists, and never go looking for one on the application. The sources come in any
 - a linked page with the rules, or with an API definition in a code block
 
 **The model reads them; no parser does.** Everything after intake works from one shape,
-`output/<profile>/<KEY>/requirement-contract.json`. Scripts only check, mechanically, that what the model wrote is
+`output/<profile>/<KEY>/2-contract/contract.json`. Scripts only check, mechanically, that what the model wrote is
 grounded in the sources:
 
 | Guard | Catches | How (no language understanding needed) |
@@ -30,7 +30,7 @@ grounded in the sources:
 heldout contract KEY --pack               # evidence pack (numbered lines) + empty contract bound to this revision
 # → build: heldout-contract-extractor subagent (or yourself, following this page)
 heldout contract KEY --allow-unreviewed   # anchoring + coverage + literals; the builder fixes until there is no ✖
-# → review: heldout-contract-reviewer subagent, fresh context → requirement-contract.review.json
+# → review: heldout-contract-reviewer subagent, fresh context → 2-contract/review.json
 heldout contract KEY                      # clean, including the review
 ```
 
@@ -59,9 +59,9 @@ must have (a status, a message, a count, whether an error is an HTTP status or a
 sources themselves disagree (the description and a linked page give different statuses), that is an oracle gap: see
 "Conflicting sources" below.
 
-Images (`requirement/linked/*.png` and the like: screenshots the story or a linked page shows): open each and transcribe
+Images (`1-requirement/linked/*.png` and the like: screenshots the story or a linked page shows): open each and transcribe
 all the text it shows (labels, messages, field names, values, table cells), and what it shows without words, into
-`requirement/transcripts/<file>.md`. The first line is `transcribedFrom: linked/<file>`, followed by a faithful
+`1-requirement/transcripts/<file>.md`. The first line is `transcribedFrom: linked/<file>`, followed by a faithful
 transcription only. Re-run `--pack` and cite the transcript. The reviewer compares transcript and original.
 
 ## Contract shape
@@ -243,7 +243,7 @@ Built from the story:
   "tried": [{ "where": "story", "result": "L21 names no method or path" }], "resolution": "open" }
 ```
 Completed during hardening: G2 gets `{ "where": "aut", "result": "the cart page's Remove button calls DELETE /carts/{cartId}" }` in `tried`,
-`"resolution": "discovered-in-aut"`, `"value": "DELETE /carts/{id}"`, `"evidence": "hardening/inspect-cart.md"`; AC-7 gets
+`"resolution": "discovered-in-aut"`, `"value": "DELETE /carts/{id}"`, `"evidence": "4-evidence/inspect-cart.md"`; AC-7 gets
 `"endpoints": ["DELETE /carts/{id}"]`; and `endpoints[]` gets `{ "method": "DELETE", "path": "/carts/{id}", "source": "G2" }`.
 
 ### 4. Custom field plus an API definition on a linked page

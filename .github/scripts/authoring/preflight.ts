@@ -41,8 +41,8 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const warn = (code: string, message: string) => out.push({ level: 'warn', code, message });
 
   // Requirement contract (phase 1b): the tests are written from it, and its criteria drive coverage.
-  const contract = readContract(p.base);
-  if (!contract) { err('no-contract', 'No requirement-contract.json — phase 1b comes first: heldout contract KEY --pack, then the extractor and reviewer subagents'); return out; }
+  const contract = readContract(p.contract);
+  if (!contract) { err('no-contract', `No requirement contract (${rel(p.contract)}) — phase 1b comes first: heldout contract KEY --pack, then the extractor and reviewer subagents`); return out; }
   const specs = specFiles(p.tests);
   if (!specs.length) { err('no-tests', 'No *.spec.ts under tests/ — the heldout-test-author subagent writes them from the contract'); return out; }
   const f = readSuite(p.tests, contract);
@@ -82,7 +82,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   }
   // Independent review: required, current (hash-bound) and without findings.
   // Reviewer observations are notes for the contract's builder (shown by `heldout contract`), not test-suite problems.
-  for (const x of checkReview(contract, readReview(p.base), { requireReview: true }).filter((r) => r.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
+  for (const x of checkReview(contract, readReview(p.review), { requireReview: true }).filter((r) => r.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
   out.push(...checkSuiteAgainstContract(contract, f));
   out.push(...checkVariantCoverage(contract, f));
   // A non-functional requirement the story states is verified by a test tagged @NFR-n, or reported as not verified.

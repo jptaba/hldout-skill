@@ -1,10 +1,10 @@
 /**
  * Held-out integrity: hardening/repair may change HOW a test drives the AUT (locators, waits, navigation),
  * never WHAT it expects. We compare every `[REQ …]` assertion and the `@req-constants` block between the
- * pre-hardening draft snapshot and the current spec.
+ * pre-hardening draft frozen in the story's freeze.json and the current spec.
  *
  * Amendments: an assertion whose *implementation* was wrong (e.g. an over-strict regex) may be fixed
- * only through an audited amendment (hardening/amendments.json, written by `integrity.ts --amend`),
+ * only through an audited amendment (recorded in freeze.json by `heldout integrity --amend`),
  * which records draft → current text and a reason. Amendments are listed in the verdict. Any other
  * change is a violation.
  */
@@ -36,8 +36,35 @@ export interface IntegrityResult {
 
 export interface Amendment { assertion: string; draft: string; current: string; reason: string; approvedAt: string }
 
-export function readAmendments(file: string): Amendment[] {
-  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Amendment[]) : [];
+/** One frozen draft: the specs as the author left them, the contract's oracle and the journeys they used. */
+export interface FrozenDraft {
+  frozenAt: string;
+  /** Each spec file (relative to the tests folder) and its source. */
+  specs: Record<string, string>;
+  /** The requirement contract's oracle at the freeze (contract-model oracleDigest). */
+  contractOracle: string;
+  /** The hash of each journey the draft used, at the freeze. */
+  journeys: Record<string, string>;
+}
+
+/** A re-freeze after a requirement revision: why, what it absorbed, and the draft it replaced. */
+export interface Refreeze {
+  at: string;
+  reason: string;
+  absorbed: { changed: string[]; removed: string[]; constantsChanged: string[]; added: string[]; contractOracleChanged?: boolean };
+  previous: FrozenDraft;
+}
+
+/** The story's freeze.json: the frozen draft, its re-freezes and the audited amendments. */
+export interface Freeze extends FrozenDraft { refreezes: Refreeze[]; amendments: Amendment[] }
+
+export function readFreeze(file: string): Freeze | undefined {
+  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Freeze) : undefined;
+}
+
+export function writeFreeze(file: string, freeze: Freeze): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(freeze, null, 2)}\n`);
 }
 
 const squash = (s: string) => s.replace(/\s+/g, ' ').trim();
@@ -86,29 +113,15 @@ export function reqConstants(source: string): string {
   return squash(source.match(/@req-constants-start([\s\S]*?)@req-constants-end/)?.[1] ?? '');
 }
 
-/** Frozen alongside the draft specs (see contract-model.ts oracleDigest). */
-export const CONTRACT_ORACLE_FILE = 'contract-oracle.json';
-/** The hashes of the journeys the draft used, at the freeze. */
-export const JOURNEYS_FILE = 'journeys.json';
-
-/** Freeze the draft specs together with the requirement contract's oracle and the hashes of the journeys they use. */
-export function snapshotDraft(testsDir: string, draftDir: string, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): string[] {
-  const copied: string[] = [];
-  fs.mkdirSync(draftDir, { recursive: true });
-  fs.writeFileSync(path.join(draftDir, CONTRACT_ORACLE_FILE), contractOracle);
-  fs.writeFileSync(path.join(draftDir, JOURNEYS_FILE), `${JSON.stringify(journeys.hashes, null, 2)}\n`);
-  for (const file of specFiles(testsDir)) {
-    const dest = path.join(draftDir, path.relative(testsDir, file));
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-    fs.copyFileSync(file, dest);
-    copied.push(dest);
-  }
-  return copied;
+/** The draft as it is now: the specs with the requirement contract's oracle and the hashes of the journeys they use. */
+export function draftOf(testsDir: string, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): FrozenDraft {
+  const specs = Object.fromEntries(specFiles(testsDir).map((f) => [path.relative(testsDir, f).split(path.sep).join('/'), fs.readFileSync(f, 'utf8')]));
+  return { frozenAt: new Date().toISOString(), specs, contractOracle, journeys: journeys.hashes };
 }
 
-export function checkIntegrity(testsDir: string, draftDir: string, amendmentsFile: string | undefined, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): IntegrityResult {
+export function checkIntegrity(testsDir: string, freeze: Freeze | undefined, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): IntegrityResult {
   const result: IntegrityResult = { status: 'PRESERVED', checkedAt: new Date().toISOString(), files: [], removed: [], changed: [], amended: [], added: [], constantsChanged: [], unhardenedMarkers: [] };
-  const amendments = amendmentsFile ? readAmendments(amendmentsFile) : [];
+  const amendments = freeze?.amendments ?? [];
   const current = specFiles(testsDir);
   for (const file of current) {
     const src = fs.readFileSync(file, 'utf8');
@@ -116,12 +129,9 @@ export function checkIntegrity(testsDir: string, draftDir: string, amendmentsFil
       if (/TODO\(harden\)/.test(text)) result.unhardenedMarkers.push({ file: path.relative(testsDir, file), line: i + 1, text: text.trim() });
     });
   }
-  const drafts = specFiles(draftDir);
-  if (!drafts.length) return { ...result, status: 'NO_DRAFT' };
-  for (const draftFile of drafts) {
-    const relName = path.relative(draftDir, draftFile);
+  if (!freeze || !Object.keys(freeze.specs).length) return { ...result, status: 'NO_DRAFT' };
+  for (const [relName, draftSrc] of Object.entries(freeze.specs)) {
     const curFile = path.join(testsDir, relName);
-    const draftSrc = fs.readFileSync(draftFile, 'utf8');
     const curSrc = fs.existsSync(curFile) ? fs.readFileSync(curFile, 'utf8') : '';
     const d = reqAssertions(draftSrc);
     const c = reqAssertions(curSrc);
@@ -138,12 +148,10 @@ export function checkIntegrity(testsDir: string, draftDir: string, amendmentsFil
     for (const k of c.keys()) if (!d.has(k)) result.added.push(`${relName}: ${k}`);
     if (reqConstants(draftSrc) !== reqConstants(curSrc)) result.constantsChanged.push(relName);
   }
-  const frozenOracle = path.join(draftDir, CONTRACT_ORACLE_FILE);
   // A draft frozen without the contract oracle, or with a different one, no longer proves what was expected.
-  if (!fs.existsSync(frozenOracle) || fs.readFileSync(frozenOracle, 'utf8') !== contractOracle) result.contractChanged = true;
+  if (freeze.contractOracle !== contractOracle) result.contractChanged = true;
   // Journeys are HOW and may change after the freeze (listed); an expectation hidden in one escapes the freeze.
-  const frozenJourneys = path.join(draftDir, JOURNEYS_FILE);
-  const before: Record<string, string> = fs.existsSync(frozenJourneys) ? JSON.parse(fs.readFileSync(frozenJourneys, 'utf8')) : {};
+  const before = freeze.journeys ?? {};
   result.journeysChanged = Object.keys(journeys.hashes).filter((id) => before[id] !== journeys.hashes[id]);
   result.journeyAssertions = journeys.files.flatMap((f) => [...reqAssertions(fs.readFileSync(f, 'utf8')).keys()].map((k) => `${path.basename(f)}: ${k}`));
   if (result.removed.length || result.changed.length || result.constantsChanged.length || result.contractChanged || result.journeyAssertions.length) result.status = 'VIOLATED';

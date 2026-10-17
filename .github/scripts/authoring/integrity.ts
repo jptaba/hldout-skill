@@ -13,15 +13,14 @@
  */
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
-import { rel, writeFile } from '../core/files';
+import { rel } from '../core/files';
+import { recordChange, recordEvent } from '../core/history';
 import { evalPaths } from '../core/paths';
 import { oracleDigest, readContract } from '../requirement/contract-model';
-import { checkIntegrity as checkWith, readAmendments, snapshotDraft } from './integrity-check';
+import { checkIntegrity as checkWith, draftOf, readFreeze, writeFreeze, type Freeze } from './integrity-check';
 import { storyJourneys } from './journeys/registry';
 import { typeErrors } from './preflight';
 import { specFiles } from './spec-model';
-import fs from 'node:fs';
-import path from 'node:path';
 
 export const spec: CommandSpec = {
   name: 'integrity', group: 'Tests', usage: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]',
@@ -33,62 +32,62 @@ export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
-  const amendmentsFile = path.join(p.hardening, 'amendments.json');
-  const contract = readContract(p.base);
+  const contract = readContract(p.contract);
   if (!contract) throw new Error(`No requirement contract for ${key} — phase 1b first: heldout contract ${key} --pack`);
   const oracle = oracleDigest(contract);
   const journeys = () => storyJourneys(cfg, cfg.autId, specFiles(p.tests));
-  const checkIntegrity = (tests: string, draft: string, amendments: string, o: string) => checkWith(tests, draft, amendments, o, journeys());
+  const freeze = readFreeze(p.freeze);
+  const checkIntegrity = () => checkWith(p.tests, freeze, oracle, journeys());
 
   if (flags.snapshot) {
     // What gets frozen must compile: a broken draft would be frozen and then "repaired" outside the audit.
     const broken = typeErrors(p.tests);
     if (broken.length) throw new Error(`The draft doesn't compile — fix it before freezing:\n  ${broken.join('\n  ')}`);
-    const refreezeLog = path.join(p.hardening, 'refreeze-log.json');
-    if (fs.existsSync(p.draft) && fs.readdirSync(p.draft).length) {
+    const draft = draftOf(p.tests, oracle, journeys());
+    if (!Object.keys(draft.specs).length) throw new Error(`No *.spec.ts under ${rel(p.tests)}`);
+    let next: Freeze = { ...draft, refreezes: [], amendments: [] };
+    if (freeze) {
       // Re-freeze (e.g. requirement revision added scenarios): audited, never silent.
       const reason = flagStr(flags, 'reason');
       if (!reason || reason.length < 20) throw new Error('A draft already exists. Re-freezing needs --reason "<requirement revision / why>" (it is logged and shown in the verdict).');
-      const before = checkIntegrity(p.tests, p.draft, amendmentsFile, oracle);
-      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const archive = path.join(p.hardening, 'draft-history', stamp);
-      fs.cpSync(p.draft, archive, { recursive: true });
-      const log = fs.existsSync(refreezeLog) ? JSON.parse(fs.readFileSync(refreezeLog, 'utf8')) : [];
-      log.push({ at: new Date().toISOString(), reason, previousDraft: rel(archive), absorbed: {
+      const before = checkIntegrity();
+      const { refreezes, amendments, ...previous } = freeze;
+      next = { ...draft, amendments, refreezes: [...refreezes, { at: draft.frozenAt, reason, previous, absorbed: {
         changed: before.changed.map((c) => c.assertion), removed: before.removed, constantsChanged: before.constantsChanged, added: before.added,
-        ...(before.contractChanged ? { contractOracleChanged: true } : {}) } });
-      writeFile(refreezeLog, `${JSON.stringify(log, null, 2)}\n`);
+        ...(before.contractChanged ? { contractOracleChanged: true } : {}) } }] };
       if (before.changed.length || before.removed.length) console.log(`⚠ re-freeze absorbs ${before.changed.length} changed / ${before.removed.length} removed REQ assertion(s) — logged for the verdict.`);
-      console.log(`  previous draft archived → ${rel(archive)}`);
     }
-    const used = journeys();
-    const files = snapshotDraft(p.tests, p.draft, oracle, used);
-    if (!files.length) throw new Error(`No *.spec.ts under ${rel(p.tests)}`);
-    const n = Object.keys(used.hashes).length;
-    console.log(`✔ Draft frozen (${files.length} spec file(s) + requirement-contract oracle${n ? ` + the hashes of ${n} journey(s)` : ''}) → ${rel(p.draft)}/`);
+    writeFreeze(p.freeze, next);
+    recordEvent(p.history, freeze ? 'refrozen' : 'frozen', { specs: Object.keys(draft.specs), journeys: Object.keys(draft.journeys).length, ...(freeze ? { reason: flagStr(flags, 'reason') } : {}) });
+    const n = Object.keys(draft.journeys).length;
+    console.log(`✔ Draft frozen (${Object.keys(draft.specs).length} spec file(s) + the requirement contract's oracle${n ? ` + the hashes of ${n} journey(s)` : ''}${freeze ? '; the previous draft is kept in it as a re-freeze' : ''}) → ${rel(p.freeze)}`);
     return;
   }
+  if (!freeze) throw new Error(`${key} has no frozen draft yet — freeze it first: heldout integrity ${key} --snapshot`);
 
   const amend = flagStr(flags, 'amend');
   if (amend) {
     const reason = flagStr(flags, 'reason');
     if (!reason || reason.length < 20) throw new Error('--reason is required: explain why the assertion implementation was wrong and why the requirement is unchanged.');
     // The key is "<spec file>: <assertion message>"; the message alone is enough when only one spec has it.
-    const changed = checkIntegrity(p.tests, p.draft, amendmentsFile, oracle).changed;
+    const changed = checkIntegrity().changed;
     const exact = changed.filter((c) => c.assertion === amend);
     const matches = exact.length ? exact : changed.filter((c) => c.assertion.endsWith(`: ${amend}`));
     if (matches.length > 1) throw new Error(`"${amend}" is changed in ${matches.length} spec files — give the full key:\n${matches.map((c) => `  ${c.assertion}`).join('\n')}`);
     const pending = matches[0];
     if (!pending) throw new Error(`"${amend}" is not a changed assertion. Run: heldout integrity ${key} to list changed keys.`);
-    const all = readAmendments(amendmentsFile).filter((a) => a.assertion !== pending.assertion);
-    all.push({ ...pending, reason, approvedAt: new Date().toISOString() });
-    writeFile(amendmentsFile, `${JSON.stringify(all, null, 2)}\n`);
-    console.log(`✔ Amendment recorded for ${pending.assertion}\n  draft:   ${pending.draft}\n  current: ${pending.current}\n  → ${rel(amendmentsFile)}`);
+    const amendment = { ...pending, reason, approvedAt: new Date().toISOString() };
+    writeFreeze(p.freeze, { ...freeze, amendments: [...freeze.amendments.filter((a) => a.assertion !== pending.assertion), amendment] });
+    recordEvent(p.history, 'amended', { assertion: pending.assertion, reason });
+    console.log(`✔ Amendment recorded for ${pending.assertion}\n  draft:   ${pending.draft}\n  current: ${pending.current}\n  → ${rel(p.freeze)}`);
     return;
   }
 
-  const r = checkIntegrity(p.tests, p.draft, amendmentsFile, oracle);
-  writeFile(p.integrity, `${JSON.stringify(r, null, 2)}\n`);
+  const r = checkIntegrity();
+  recordChange(p.history, 'integrity', {
+    status: r.status, changed: r.changed.map((c) => c.assertion), removed: r.removed, constantsChanged: r.constantsChanged,
+    contractChanged: Boolean(r.contractChanged), amended: r.amended.length, journeysChanged: r.journeysChanged ?? [], unhardened: r.unhardenedMarkers.length,
+  });
   console.log(`Held-out integrity: ${r.status}`);
   for (const f of r.files) console.log(`  ${f.file}: ${f.draftAssertions} REQ assertions in draft → ${f.currentAssertions} now`);
   for (const x of r.removed) console.log(`  ✖ removed:  ${x}`);
@@ -100,6 +99,5 @@ export function run({ _, flags }: Args): void {
   for (const x of r.journeyAssertions ?? []) console.log(`  ✖ requirement assertion in a journey file (outside the freeze): ${x} — move it into the test`);
   for (const x of r.journeysChanged ?? []) console.log(`  • journey changed since the freeze (HOW; listed in the verdict): ${x}`);
   for (const m of r.unhardenedMarkers) console.log(`  ⚠ unhardened: ${m.file}:${m.line} ${m.text}`);
-  console.log(`  → ${rel(p.integrity)}`);
   if (r.status === 'VIOLATED' || r.unhardenedMarkers.length) process.exit(2);
 }

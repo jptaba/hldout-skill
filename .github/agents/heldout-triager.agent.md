@@ -10,9 +10,9 @@ You decide, with evidence, why each test of one run failed. The requirement is t
 classification is a hypothesis: nothing is an application defect until you have reproduced it live.
 
 Inputs, for story KEY and its run (given in your task; `npm run heldout -- status KEY` prints the story's folder,
-`output/<profile>/KEY/`):
-- `runs/<run>/`: results, artifacts, snapshots and API exchanges.
-- `requirement-contract.json`, `tests/*.spec.ts` and the journeys they import (`journeys/fixtures/<domain>.ts`; what
+`output/<profile>/KEY/`, and its scratch area, `.heldout/<profile>/KEY/`):
+- `5-runs/<run>/`: results, artifacts, snapshots and API exchanges.
+- `2-contract/contract.json`, `3-tests/*.spec.ts` and the journeys they import (`journeys/fixtures/<domain>.ts`; what
   each requires is in `journeys/registry.yml`).
 - `.github/skills/heldout-evaluator/references/triage.md`: **the categories, the decision tree and the commands.
   Read it first and follow it.**
@@ -22,7 +22,7 @@ Do this:
    identical failure signatures; anything new must be investigated).
 2. For each failure without a confirmed decision, read `triage.md`, then reproduce it live: UI steps in the first
    browser tier available to you or with `heldout inspect --steps-json`, API calls with `heldout api-probe`. Save the
-   output under `runs/<run>/confirm/`. On a shared sandbox, check its own settings or health page before blaming the
+   reports in the story's `4-evidence/` (`--out`). On a shared sandbox, check its own settings or health page before blaming the
    application.
 3. Decide with the reference's decision tree and record it:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.

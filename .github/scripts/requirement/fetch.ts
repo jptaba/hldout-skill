@@ -6,13 +6,13 @@
  *
  *   heldout fetch <KEY> [--aut <profile>]
  *
- * Output (output/<profile>/<KEY>/requirement/):
+ * Output (output/<profile>/<KEY>/1-requirement/):
  *   story.md                      title + description + AC field (as Jira holds them: wiki markup on Data Center),
  *                                 then an index of the linked pages and the screenshots
- *   raw-issue.json                untouched API payload
  *   linked/<file>                 each screenshot the description or AC embed
  *   linked/confluence-<id>-*.md   each Confluence page they link, as Markdown; its images beside it
- *   CHANGES.md                    appended when a re-fetch finds the requirement changed (previous revision → history/)
+ *   CHANGES.md                    appended when a re-fetch finds the requirement changed (previous revision → revisions/)
+ * The story's history records the fetch (its profile) and each revision.
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -20,6 +20,7 @@ import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, boundProfile, loadConfig } from '../core/config';
 import { rel, timestamp, writeFile } from '../core/files';
+import { readHistory, recordEvent } from '../core/history';
 import { evalPaths } from '../core/paths';
 import { createTracker, createWiki, embeddedAttachments } from './jira/client';
 import { confluenceLinks } from './jira/confluence';
@@ -48,8 +49,8 @@ export async function run({ _, flags }: Args): Promise<void> {
   const bindingNote = (() => {
     const existing = boundProfile(cfg, key);
     if (existing && existing !== cfg.autId) throw new Error(`${key} is already in ${cfg.outputDir}/${existing}/${key}; it is evaluated against "${existing}". Move that folder to evaluate it against "${cfg.autId}" instead.`);
-    if (fs.existsSync(p.evaluationMeta)) return `AUT "${cfg.autId}" (${rel(p.base)})`;
-    writeFile(p.evaluationMeta, `${JSON.stringify({ key, aut: cfg.autId, createdAt: new Date().toISOString().slice(0, 10) }, null, 2)}\n`);
+    if (readHistory(p.history).some((e) => e.event === 'fetched')) return `AUT "${cfg.autId}" (${rel(p.base)})`;
+    recordEvent(p.history, 'fetched', { profile: cfg.autId, jira: cfg.jira.mode });
     return `AUT "${cfg.autId}" (${cfg.aut.name}) → ${rel(p.base)}/${Object.keys(cfg.auts).length > 1 && !flagStr(flags, 'aut') ? ' — the default profile; pass --aut <id> to pick another' : ''}`;
   })();
 
@@ -57,14 +58,13 @@ export async function run({ _, flags }: Args): Promise<void> {
   const previousLinked = hashDir(p.linked);
   const stamp = timestamp();
   if (previousStory) { // keep the old revision until we know whether it changed
-    const hist = path.join(p.requirement, 'history', stamp);
+    const hist = path.join(p.revisions, stamp);
     fs.mkdirSync(path.join(hist, 'linked'), { recursive: true });
     fs.writeFileSync(path.join(hist, 'story.md'), previousStory);
     for (const f of previousLinked.keys()) fs.copyFileSync(path.join(p.linked, f), path.join(hist, 'linked', f));
   }
 
   const issue = await tracker.getIssue(key);
-  writeFile(p.rawIssue, `${JSON.stringify(issue, null, 2)}\n`);
 
   const f = issue.fields;
   const acField = cfg.jira.acceptanceCriteriaField;
@@ -72,7 +72,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   const description = (f.description ?? '').trim();
   const criteria = typeof acRaw === 'string' ? acRaw.trim() : '';
 
-  // Fresh each fetch: a file the story stops embedding or linking is no longer requirement (history/ keeps the old revision).
+  // Fresh each fetch: a file the story stops embedding or linking is no longer requirement (revisions/ keeps the old one).
   fs.rmSync(p.linked, { recursive: true, force: true });
   fs.mkdirSync(p.linked, { recursive: true });
   const shots: string[] = [];
@@ -149,7 +149,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   if (unread) console.log(`  ⚠ a linked page could not be read: the contract records it as an open question (or fix access and fetch again)`);
 
   // ---- revision detection ----
-  const hist = path.join(p.requirement, 'history', stamp);
+  const hist = path.join(p.revisions, stamp);
   if (!previousStory) { console.log(`\nNext (phase 1b): heldout contract ${key} --pack, then the heldout-contract-extractor and heldout-contract-reviewer subagents.`); return; }
   const now = hashDir(p.linked);
   const attChanges = [
@@ -170,17 +170,18 @@ export async function run({ _, flags }: Args): Promise<void> {
   const removed = [...oldLines].filter((l) => l.trim() && !newLines.has(l));
   const entry = [
     `## Revision detected ${new Date().toISOString()}`, '',
-    `Previous revision archived at \`requirement/history/${stamp}/\`.`, '',
+    `Previous revision archived at \`${rel(hist)}/\`.`, '',
     ...(attChanges.length ? ['**Screenshots and linked pages:** ' + attChanges.join(', '), ''] : []),
     ...(added.length ? ['**Added lines:**', '', ...added.map((l) => `+ ${l}`), ''] : []),
     ...(removed.length ? ['**Removed lines:**', '', ...removed.map((l) => `- ${l}`), ''] : []),
-    '**Action:** rebuild requirement-contract.json (it is now stale) and have it reviewed again, then update the tests. New/changed tests need a re-freeze (`heldout integrity KEY --snapshot --reason …`) before hardening.', '',
+    `**Action:** rebuild ${rel(p.contract)} (it is now stale) and have it reviewed again, then update the tests. New/changed tests need a re-freeze (\`heldout integrity KEY --snapshot --reason …\`) before hardening.`, '',
   ].join('\n');
-  const changesFile = path.join(p.requirement, 'CHANGES.md');
+  const changesFile = p.changes;
   writeFile(changesFile, `${fs.existsSync(changesFile) ? fs.readFileSync(changesFile, 'utf8') + '\n' : '# Requirement changes\n\n'}${entry}`);
+  recordEvent(p.history, 'revised', { revision: stamp, linesAdded: added.length, linesRemoved: removed.length, linked: attChanges });
   console.log(`\n⚠ REQUIREMENT CHANGED since the last fetch: +${added.length}/-${removed.length} lines${attChanges.length ? `; screenshots and linked pages: ${attChanges.join(', ')}` : ''}`);
   for (const l of added.slice(0, 8)) console.log(`    + ${l.slice(0, 140)}`);
   for (const l of removed.slice(0, 8)) console.log(`    - ${l.slice(0, 140)}`);
-  console.log(`  → ${rel(changesFile)} (previous revision in requirement/history/${stamp}/)`);
+  console.log(`  → ${rel(changesFile)} (previous revision in ${rel(hist)}/)`);
   if (fs.existsSync(p.tests)) console.log('  The tests were written against the previous revision — re-review them before the next run.');
 }

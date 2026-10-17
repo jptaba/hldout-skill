@@ -36,7 +36,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   if (findings.some((f) => f.level === 'error') || !healthy) process.exit(1);
   if (flags['draft-finished']) {
     const p = evalPaths(cfg, key);
-    markDraftFinished(p.base, p.tests);
+    markDraftFinished(p);
     console.log(`✔ the draft of ${key} is marked finished (${rel(p.tests)} as it is now): it can be frozen`);
   }
 }

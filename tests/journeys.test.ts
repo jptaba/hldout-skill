@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import type { RequirementContract } from '../.github/scripts/requirement/contract-model';
-import { checkIntegrity, snapshotDraft } from '../.github/scripts/authoring/integrity-check';
+import { checkIntegrity, draftOf } from '../.github/scripts/authoring/integrity-check';
 import {
   allJourneys, allRequires, conflictSides, directRequires, duplicateJourneys, emptyRegistry, journeyUse, journeysIn, journeysUsedBy, kebab, lintJourneys, mergeRegistries,
   observedRequires, oracleLiterals, parseRegistry, relevantJourney, renderRegistry, statusOf, storyJourneys, syncRegistry, type Registry,
@@ -187,17 +187,16 @@ describe('journeys: which tests use them, and what runs before them', () => {
     assert.deepEqual(req.get('ui.product.open-product'), ['support.account', 'support.sign-in'], 'called inside favouriteFromPage it is not the test\'s own call');
   });
   it('the freeze records a hash per journey the story uses; a changed journey is listed, an assertion in one is a violation', () => {
-    const draft = path.join(root, 'draft');
     const used = storyJourneys(cfg, 'shop', [spec]);
     assert.equal(Object.keys(used.hashes).length, 5);
-    snapshotDraft(tests, draft, 'oracle', used);
-    assert.deepEqual(checkIntegrity(tests, draft, undefined, 'oracle', storyJourneys(cfg, 'shop', [spec])).journeysChanged, []);
+    const freeze = { ...draftOf(tests, 'oracle', used), refreezes: [], amendments: [] };
+    assert.deepEqual(checkIntegrity(tests, freeze, 'oracle', storyJourneys(cfg, 'shop', [spec])).journeysChanged, []);
     const file = path.join(root, 'journeys', 'fixtures', 'product.ts');
     const src = fs.readFileSync(file, 'utf8');
     fs.writeFileSync(file, src.replace("getByTestId('add-to-favorites')", "getByRole('button', { name: 'Favourite' })"));
-    assert.deepEqual(checkIntegrity(tests, draft, undefined, 'oracle', storyJourneys(cfg, 'shop', [spec])).journeysChanged, ['ui.product.click-favourite']);
+    assert.deepEqual(checkIntegrity(tests, freeze, 'oracle', storyJourneys(cfg, 'shop', [spec])).journeysChanged, ['ui.product.click-favourite']);
     fs.writeFileSync(file, `${src}\nexport async function seen(page) { await expect(page.getByText('x'), '[REQ AC-1] x').toBeVisible(); }\n`);
-    assert.equal(checkIntegrity(tests, draft, undefined, 'oracle', storyJourneys(cfg, 'shop', [spec])).status, 'VIOLATED');
+    assert.equal(checkIntegrity(tests, freeze, 'oracle', storyJourneys(cfg, 'shop', [spec])).status, 'VIOLATED');
     fs.writeFileSync(file, src);
   });
 });

@@ -6,6 +6,7 @@ import { describe, it } from 'node:test';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/run/fast-harden';
 import { evalRunsOf } from '../.github/scripts/core/paths';
 import { draftFinished, markDraftFinished } from '../.github/scripts/authoring/draft';
+import { readHistory } from '../.github/scripts/core/history';
 
 describe('guesses left in tests, settled by the run', () => {
   const passed = (...ids: string[]) => ids.map((scenario) => ({ scenario, status: 'passed' }));
@@ -96,21 +97,21 @@ describe('which runs are evaluations', () => {
 describe('the test author marks the draft finished', () => {
   const story = () => {
     const base = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-draft-'));
-    fs.mkdirSync(path.join(base, 'tests'));
-    fs.writeFileSync(path.join(base, 'tests', 'x.spec.ts'), "test('SCN-001: …', async () => {});\n");
-    return { base, tests: path.join(base, 'tests') };
+    fs.mkdirSync(path.join(base, '3-tests'));
+    fs.writeFileSync(path.join(base, '3-tests', 'x.spec.ts'), "test('SCN-001: …', async () => {});\n");
+    return { history: path.join(base, 'history.jsonl'), tests: path.join(base, '3-tests') };
   };
   it('a draft without the mark is not finished (its author was cut off)', () => {
-    const s = story();
-    assert.equal(draftFinished(s.base, s.tests), false);
+    assert.equal(draftFinished(story()), false);
   });
-  it('the mark holds for the spec as it was when it was made', () => {
+  it('the mark holds for the spec as it was when it was made, and is kept in the history', () => {
     const s = story();
-    markDraftFinished(s.base, s.tests);
-    assert.equal(draftFinished(s.base, s.tests), true);
+    markDraftFinished(s);
+    assert.equal(draftFinished(s), true);
     fs.appendFileSync(path.join(s.tests, 'x.spec.ts'), "test('SCN-002: …', async () => {});\n");
-    assert.equal(draftFinished(s.base, s.tests), false, 'the spec changed after the mark');
-    markDraftFinished(s.base, s.tests);
-    assert.equal(draftFinished(s.base, s.tests), true);
+    assert.equal(draftFinished(s), false, 'the spec changed after the mark');
+    markDraftFinished(s);
+    assert.equal(draftFinished(s), true);
+    assert.deepEqual(readHistory(s.history).map((e) => e.event), ['draft-finished', 'draft-finished']);
   });
 });

@@ -70,7 +70,7 @@ function knownMechanics(cfg: HeldoutConfig, key: string): Known | undefined {
   const p = evalPaths(cfg, key);
   const specs = specFiles(p.tests);
   const journeys = allJourneys(cfg, cfg.autId);
-  const use = journeyUse(journeys, specs, readSuite(p.tests, readContract(p.base)).scenarios);
+  const use = journeyUse(journeys, specs, readSuite(p.tests, readContract(p.contract)).scenarios);
   const registry = readRegistry(cfg, cfg.autId).journeys;
   const hashOf = new Map(journeys.map((j) => [j.id, j.hash]));
   const status = (id: string) => (registry[id] ? statusOf(registry[id], hashOf.get(id)) : 'unproven');
@@ -92,7 +92,7 @@ function specGuessesHeld(cfg: HeldoutConfig, key: string, entries: { scenario: s
   const marked = specFiles(p.tests).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
   if (!marked.length) return [];
   const inFiles = marked.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(/TODO\(harden\)/g) ?? []).length, 0);
-  return guessesNotSettled(readSuite(p.tests, readContract(p.base)).scenarios, inFiles, entries) ?? marked;
+  return guessesNotSettled(readSuite(p.tests, readContract(p.contract)).scenarios, inFiles, entries) ?? marked;
 }
 
 /**
@@ -125,7 +125,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, known: Known, heldo
   for (const f of guesses) if (heldout('confirm', key, '--file', rel(f), '--evidence', `run ${run}: the tests that use these guesses passed each time, on lines that act on or expect what they locate`) !== 0) return 'the confirmed guesses could not be recorded';
 
   // The open mechanics gaps are answered by the journeys the tests of their criteria call.
-  const contract = readContract(p.base)!;
+  const contract = readContract(p.contract)!;
   const registry = readRegistry(cfg, cfg.autId).journeys;
   const scenarios = readSuite(p.tests, contract).scenarios;
   const proofOf = (ids: string[]) => [...new Set(ids.flatMap((id) => registry[id]?.proven?.by ?? []))].join(', ');
@@ -136,7 +136,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, known: Known, heldo
     return { id: g.id, value: `as the journeys the tests call do it: ${journeys.join(', ')}`, evidence: `journeys/registry.yml (proven by ${proofOf(journeys) || 'earlier stories'}${journeys.some((id) => fresh.has(id)) ? '; the ones new with this story by the run' : ''}); run ${run}` };
   });
   if (answers.length) {
-    const file = path.join(p.hardening, 'gaps-from-registry.json');
+    const file = path.join(p.work.evidence, 'gaps-from-registry.json');
     writeFile(file, `${JSON.stringify(answers, null, 2)}\n`);
     if (heldout('contract', key, '--resolve-from', file) !== 0) return 'the mechanics gaps could not be recorded';
   }
@@ -213,11 +213,10 @@ export function run({ _, flags }: Args): void {
     if (next.name === 'fetch') { if (heldout('fetch', key, ...(aut ? ['--aut', aut] : [])) !== 0 || !moved()) stuck('the story could not be fetched'); continue; }
 
     if (next.name === 'contract') {
-      const contract = readContract(p.base);
-      if (!contract || !fs.existsSync(path.join(p.requirement, 'evidence-pack.md'))) {
-        if (heldout('contract', key, '--pack') !== 0) stuck('the evidence pack could not be built');
-        return handOver('heldout-contract-extractor', `Build the requirement contract for ${key}`);
-      }
+      const contract = readContract(p.contract);
+      // The evidence pack is a view in the scratch area: built again whenever it is missing (it never touches the contract).
+      if (!fs.existsSync(p.work.evidencePack) && heldout('contract', key, '--pack') !== 0) stuck('the evidence pack could not be built');
+      if (!contract) return handOver('heldout-contract-extractor', `Build the requirement contract for ${key}`);
       if (notEvaluable(contract)) {
         if (fs.existsSync(p.verdictJson) && readJson<{ notEvaluable?: boolean }>(p.verdictJson).notEvaluable) { console.log(`\n■ ${key} is not evaluable (no acceptance criteria), as its verdict says: ${rel(p.verdictMd)}`); return; }
         writeNotEvaluable(cfg, key, contract);
@@ -229,7 +228,7 @@ export function run({ _, flags }: Args): void {
       const built = checkContract(contract, p.requirement, { apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL }).filter((f) => f.level === 'error');
       if (!contract.acceptanceCriteria.length) return handOver('heldout-contract-extractor', `Build the requirement contract for ${key}`);
       if (built.length) return handOver('heldout-contract-extractor', `Fix the requirement contract of ${key}: ${H} contract ${key} --allow-unreviewed lists ${built.length} error(s)`, built[0].message.slice(0, 160));
-      const review = checkReview(contract, readReview(p.base), { requireReview: true }).filter((f) => f.level === 'error');
+      const review = checkReview(contract, readReview(p.review), { requireReview: true }).filter((f) => f.level === 'error');
       if (review.some((f) => f.code === 'not-reviewed' || f.code === 'review-stale')) return handOver('heldout-contract-reviewer', `Review the requirement contract of ${key}`, 'in a fresh context, from the evidence only');
       return handOver('heldout-contract-extractor', `Fix the reviewer's findings on the requirement contract of ${key} (${H} contract ${key} lists them); it is then reviewed again`, review[0]?.message.slice(0, 160));
     }

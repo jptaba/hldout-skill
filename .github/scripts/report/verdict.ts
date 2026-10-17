@@ -11,12 +11,13 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkIntegrity, type IntegrityResult } from '../authoring/integrity-check';
+import { checkIntegrity, readFreeze, type IntegrityResult } from '../authoring/integrity-check';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, storyJourneys } from '../authoring/journeys/registry';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
+import { recordEvent } from '../core/history';
 import { evalPaths, evalRunsOf, journeyPaths, listRuns } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { comboLabel, oracleDigest, readContract, variantCombinations } from '../requirement/contract-model';
@@ -79,18 +80,19 @@ export function run({ _, flags }: Args): void {
   // Runs are numbered 01, 02…; a missing number means a run was deleted, and its result with it.
   const numbers = listRuns(p.runs).map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
   const missingRuns = numbers.length ? Array.from({ length: Math.max(...numbers) }, (_, i) => i + 1).filter((n) => !numbers.includes(n)) : [];
-  if (missingRuns.length) console.log(`⚠ run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} are missing from runs/: the verdict says so`);
+  if (missingRuns.length) console.log(`⚠ run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} are missing from ${rel(p.runs)}/: the verdict says so`);
 
   const tri = readJson<TriageReport>(path.join(p.runs, finalRun, 'triage.json'));
   const meta = readJson<{ startedAt: string; finishedAt: string; autId?: string; stats?: { duration: number }; preflight?: unknown }>(path.join(p.runs, finalRun, 'run-meta.json'));
   const story = frontMatter(p.storyMd);
-  const amendmentsFile = path.join(p.hardening, 'amendments.json');
-  const contract = readContract(p.base);
+  const contract = readContract(p.contract);
   if (!contract) throw new Error(`No requirement contract for ${key} — phase 1b first: heldout contract ${key} --pack`);
   const feature = readSuite(p.tests, contract);
-  const integrity = checkIntegrity(p.tests, p.draft, amendmentsFile, oracleDigest(contract), storyJourneys(cfg, cfg.autId, specFiles(p.tests)));
+  const freeze = readFreeze(p.freeze);
+  const integrity = checkIntegrity(p.tests, freeze, oracleDigest(contract), storyJourneys(cfg, cfg.autId, specFiles(p.tests)));
   const journeys = journeysLine(cfg, p, feature.scenarios, integrity);
-  const link = (projRel?: string) => (projRel ? path.relative(p.base, path.join(ROOT, projRel)).split(path.sep).join('/') : '');
+  // Links in verdict.md are relative to its own folder.
+  const link = (projRel?: string) => (projRel ? path.relative(path.dirname(p.verdictMd), path.join(ROOT, projRel)).split(path.sep).join('/') : '');
 
   const failures = tri.entries.filter((e) => e.status === 'failed');
   // A confirmed failure whose expectation rests on an unsettled reading is a question for the owner, not a defect: an
@@ -296,13 +298,11 @@ export function run({ _, flags }: Args): void {
       ...integrity.amended.map((a) => `| ${esc(a.assertion)} | \`${esc(a.draft)}\` | \`${esc(a.current)}\` | ${esc(a.reason)} |`), '');
   }
 
-  const refreezeFile = path.join(p.hardening, 'refreeze-log.json');
-  const refreezes: { at: string; reason: string; previousDraft: string; absorbed: { changed: string[]; removed: string[]; constantsChanged: string[]; added: string[] } }[] =
-    fs.existsSync(refreezeFile) ? readJson(refreezeFile) : [];
+  const refreezes = freeze?.refreezes ?? [];
   if (refreezes.length) {
-    md.push('## Draft re-freezes (audited)', '', 'The frozen draft was re-created after its first freeze, for example after a requirement revision. Each re-freeze has a logged reason; the previous draft is archived.', '',
-      '| When | Reason | REQ changes absorbed | Previous draft |', '| --- | --- | --- | --- |',
-      ...refreezes.map((r) => `| ${r.at} | ${esc(r.reason)} | ${[r.absorbed.added.length && `${r.absorbed.added.length} added`, r.absorbed.changed.length && `${r.absorbed.changed.length} changed`, r.absorbed.removed.length && `${r.absorbed.removed.length} removed`, r.absorbed.constantsChanged.length && 'constants block changed'].filter(Boolean).join(', ') || 'none'} | ${link(r.previousDraft)} |`), '');
+    md.push('## Draft re-freezes (audited)', '', `The frozen draft was re-created after its first freeze, for example after a requirement revision. Each re-freeze has a logged reason; the draft it replaced is kept in [freeze.json](${link(rel(p.freeze))}).`, '',
+      '| When | Reason | REQ changes absorbed | Draft it replaced |', '| --- | --- | --- | --- |',
+      ...refreezes.map((r) => `| ${r.at} | ${esc(r.reason)} | ${[r.absorbed.added.length && `${r.absorbed.added.length} added`, r.absorbed.changed.length && `${r.absorbed.changed.length} changed`, r.absorbed.removed.length && `${r.absorbed.removed.length} removed`, r.absorbed.constantsChanged.length && 'constants block changed'].filter(Boolean).join(', ') || 'none'} | frozen ${r.previous.frozenAt} |`), '');
   }
 
   if (other.length || flaky.length) {
@@ -388,7 +388,7 @@ export function run({ _, flags }: Args): void {
     md.push('## Requirement gaps, assumptions and open questions', '');
     if (contractGaps.length) {
       const how: Record<string, string> = { 'found-in-requirement': 'found elsewhere in the requirement', 'found-in-config': 'project configuration', 'discovered-in-aut': 'discovered from the AUT (mechanics only)', 'provided-by-user': 'answered by the story\'s owner', assumed: 'assumed', open: '❓ open' };
-      md.push('**Elements the story did not state, and how they were filled** ([requirement-contract.md](requirement-contract.md)):', '',
+      md.push(`**Elements the story did not state, and how they were filled** ([contract.json](${link(rel(p.contract))})):`, '',
         '| Gap | Missing element | Kind | Affects | Resolution |', '| --- | --- | --- | --- | --- |',
         ...contractGaps.map((g) => `| ${g.id} | ${esc(g.element)} | ${g.kind === 'oracle' ? 'expected behaviour' : 'how to exercise'} | ${g.affects.join(', ')} | ${how[g.resolution] ?? g.resolution}${g.value ? `: ${esc(g.value)}` : ''} |`), '');
     }
@@ -418,7 +418,7 @@ export function run({ _, flags }: Args): void {
   }
 
   md.push('## How this verdict was produced', '',
-    '1. The requirement (the story\'s title, description and acceptance criteria, the images they show and the Confluence pages they link) was fetched from Jira and turned into a requirement contract ([requirement-contract.md](requirement-contract.md)): every criterion quoted from its source, the endpoints, error cases and gaps, checked by an independent reviewer.',
+    `1. The requirement (the story's title, description and acceptance criteria, the images they show and the Confluence pages they link) was fetched from Jira and turned into a requirement contract ([contract.json](${link(rel(p.contract))})): every criterion quoted from its source, the endpoints, error cases and gaps, checked by an independent reviewer.`,
     '2. Playwright TypeScript tests (UI and API) were written from the contract **only**, with no access to the AUT source or developer tests. Each test is tagged with the criteria it proves, its test type and the requirement source it comes from; expected values were copied verbatim from the requirement. Their steps call the shared actions of the application (how to reach pages and call endpoints, never what the application answers).',
     '3. The draft was frozen, then hardened against the live AUT: locators, waits, navigation and API plumbing only, in the tests and in the journeys they call. Expected outcomes were never aligned with AUT behaviour (integrity check above).',
     '4. Preflight gates (traceability lint and an AUT healthcheck) passed before the run. Every failure was triaged automatically, then re-investigated live before being classified as an application defect.',
@@ -430,16 +430,15 @@ export function run({ _, flags }: Args): void {
       return `| \`${r}\`${note} | ${st?.expected ?? '-'} | ${st?.unexpected ?? '-'} | ${st?.flaky ?? '-'} |`;
     }), '',
     '## Artifacts', '',
-    '- Requirement: [requirement/story.md](requirement/story.md) · contract: [requirement-contract.md](requirement-contract.md)',
-    '- Tests: [tests/](tests/) · frozen draft: [draft/](draft/)',
+    `- Requirement: [story.md](${link(rel(p.storyMd))}) · contract: [contract.json](${link(rel(p.contract))}) · review: [review.json](${link(rel(p.review))})`,
+    `- Tests: [${rel(p.tests)}/](${link(rel(p.tests))}/) · frozen draft: [freeze.json](${link(rel(p.freeze))}) · hardening: [hardening.md](${link(rel(p.hardeningLog))})`,
     `- Journeys: ${rel(journeyPaths(cfg, cfg.autId).fixtures)}/ · registry: ${rel(journeyPaths(cfg, cfg.autId).registry)}`,
-    '- Hardening log: [hardening/hardening-log.md](hardening/hardening-log.md)',
-    `- Triage: [runs/${finalRun}/triage.md](runs/${finalRun}/triage.md) · JUnit: runs/${finalRun}/junit.xml`,
+    `- Triage: [${finalRun}/triage.md](${link(rel(path.join(p.runs, finalRun, 'triage.md')))}) · JUnit: ${rel(path.join(p.runs, finalRun, 'junit.xml'))}`,
+    `- History of the evaluation: [history.jsonl](${link(rel(p.history))})`,
     `- HTML report: \`npx playwright show-report ${rel(path.join(p.runs, finalRun, 'html'))}\``, '');
 
   const out = md.join('\n');
   writeFile(p.verdictMd, out);
-  writeFile(path.join(p.runs, finalRun, 'verdict.md'), out.replace(/\]\((?!https?:|#)([^)]+)\)/g, (_m, l: string) => `](${path.posix.join('../..', l)})`));
   const json = {
     key, verdict, reason, finalRun, generatedAt: new Date().toISOString(), autId: cfg.autId, aut: cfg.aut, summary: s,
     integrity: integrity.status, amendments: integrity.amended.length, journeys,
@@ -466,6 +465,10 @@ export function run({ _, flags }: Args): void {
     verdictFile: rel(p.verdictMd),
   };
   writeFile(p.verdictJson, `${JSON.stringify(json, null, 2)}\n`);
+  recordEvent(p.history, 'verdict', {
+    verdict, finalRun, integrity: integrity.status, summary: s, applicationDefects: json.applicationDefects.length,
+    scriptDefectsRepaired: repaired.length, openQuestions: feature.openQuestions.length, uncoveredCriteria: json.uncoveredCriteria,
+  });
   console.log(`Verdict for ${key}: ${BADGE[verdict]}\n  ${reason}\n  → ${rel(p.verdictMd)}\n  → ${rel(p.verdictJson)}`);
   if (flags['exit-code']) process.exit({ PASS: 0, PASS_WITH_WARNINGS: 0, FAIL: 1, INCONCLUSIVE: 2 }[verdict]);
 }

@@ -12,8 +12,8 @@ guess sensibly and mark it; the hardener discovers it after the freeze.
 
 Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` prints the story's folder,
 `output/<profile>/KEY/`):
-- `requirement-contract.json` (reviewed): your only source of WHAT is expected — criteria, outcomes, rules, error model,
-  endpoints, gaps and how each was resolved. `requirement/` holds the sources it quotes.
+- `2-contract/contract.json` (reviewed): your only source of WHAT is expected — criteria, outcomes, rules, error model,
+  endpoints, gaps and how each was resolved. `1-requirement/` holds the sources it quotes. You write in `3-tests/`.
 - The application's journeys, `journeys/fixtures/<domain>.ts`: the reusable HOW, one file per area of the application.
   They hold no expected value. `npm run heldout -- journeys KEY` lists them, with what each requires (from
   `journeys/registry.yml`).
@@ -69,7 +69,7 @@ every existing call as it was, or add a new journey.
 A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
 this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.
 
-Read a file the tools wrote for you (the scaffolded spec, `test-data.json`) with your file tool before you write to it.
+Read a file the tools wrote for you (the scaffolded spec, `3-tests/test-data.json`) with your file tool before you write to it.
 A call under test whose endpoint the contract leaves to a mechanics gap (the story names no path or method for it)
 goes through a journey that sends it and returns the raw answer (`sendDeleteCart(api, id)`); the test asserts on that
 answer. Calls the contract declares stay in the spec's `EP` map. When the contract declares an endpoint and leaves

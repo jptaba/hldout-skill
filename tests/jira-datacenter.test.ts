@@ -134,7 +134,8 @@ describe('JiraDataCenterClient against a fake Jira Data Center', () => {
       child.on('close', (status) => resolve({ status, stderr }));
     });
     assert.equal(r.status, 0, r.stderr);
-    const req = path.join(dir, 'output', 'app', 'DC-7', 'requirement');
+    const req = path.join(dir, 'output', 'app', 'DC-7', '1-requirement');
+    assert.deepEqual(fs.readdirSync(path.join(dir, 'output', 'app', 'DC-7')).sort(), ['1-requirement', 'history.jsonl'], 'the fetch writes the requirement and its history, nothing else');
     const story = fs.readFileSync(path.join(req, 'story.md'), 'utf8');
     assert.match(story, /source: jira-datacenter/);
     assert.match(story, /!cart\.png\|thumbnail!/);

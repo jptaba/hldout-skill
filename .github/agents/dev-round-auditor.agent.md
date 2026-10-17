@@ -16,8 +16,11 @@ its own, outside this repository, or this repository for its samples). The skill
 the commands below from its root.
 - `demo/answer-keys/KEY.json`: the expected verdict, the defects, the traps of the application and the expected outcome
   per criterion, written before the evaluation. The evaluator never saw it.
-- `<project>/output/<profile>/KEY/`: everything the round produced (contract and review, tests and `draft/`,
-  `hardening/`, every `runs/NN-label/` with `triage.json`, `verdict.json`, `verdict.md`).
+- `<project>/output/<profile>/KEY/`: everything the round produced, one folder per phase in the order to read them:
+  `1-requirement/`, `2-contract/` (contract and review), `3-tests/` (the specs, the frozen draft in `freeze.json`, the
+  hardener's `hardening.md`), `4-evidence/` (probe reports), `5-runs/` (every `NN-label/` with `triage.json`),
+  `6-verdict/` (`verdict.json`, `verdict.md`), and `history.jsonl`: every run, check, freeze, amendment, decision and
+  publication, in order — start there.
 - `<project>/journeys/`: the journeys the tests called (`fixtures/<domain>.ts`) and the registry the harvest wrote
   (`registry.yml`). A journey holding an expected value of the story is a held-out leak.
 - `.github/skills/heldout-evaluator/` and `.github/agents/`: what the skill told the evaluator to do.

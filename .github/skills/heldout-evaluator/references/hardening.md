@@ -6,7 +6,7 @@ journeys they call, **without changing what the test expects**.
 ## 0. Freeze
 
 ```bash
-npm run heldout -- integrity KEY --snapshot     # copies tests/*.spec.ts → draft/, records a hash of each journey they use
+npm run heldout -- integrity KEY --snapshot     # freezes 3-tests/*.spec.ts in 3-tests/freeze.json, with a hash of each journey they use
 ```
 
 ## 0b. The journeys the tests call
@@ -48,7 +48,7 @@ it makes), then record it. Don't go looking for an API document on the applicati
 evaluation knows is one the requirement contains (e.g. an excerpt on a linked Confluence page).
 
 ```bash
-npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence hardening/api-user.md
+npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence output/<profile>/KEY/4-evidence/api-user.md
 ```
 
 This sets `"resolution": "discovered-in-aut"`, `value` and `evidence`, and adds `{ "where": "aut" }` to `tried`.
@@ -142,12 +142,12 @@ MSYS rewrites `/…` arguments into Windows paths.
   same holds for an `inspect` walk and for the journey you write.
   Before a step that clicks by role and name, wait for that text (the button's label). The server saves its snapshots wherever the
   app started it, not in the story's folder: the walk is not evidence until you replay the steps that matter with
-  `mcp-probe … --out output/<profile>/KEY/hardening/tier2/<walk>.md` (below) or prove them with `heldout inspect`.
+  `mcp-probe … --out output/<profile>/KEY/4-evidence/<walk>.md` (below) or prove them with `heldout inspect`.
 - **Not loaded** (pending approval, CI, other hosts): drive the same server through the bundled stdio client.
   Same tools, same snapshots, recorded as evidence:
 
   ```bash
-  npm run heldout -- mcp-probe --key KEY --steps output/<profile>/KEY/hardening/tier2/<walk>.steps.json --out output/<profile>/KEY/hardening/tier2/<walk>.md
+  npm run heldout -- mcp-probe --key KEY --steps .heldout/<profile>/KEY/4-evidence/<walk>.steps.json --out output/<profile>/KEY/4-evidence/<walk>.md
   ```
 
   Steps resolve elements by **role + accessible name** from the live MCP snapshot (`{"find": {"role": "button", "name": "Login"}}`),
@@ -189,7 +189,7 @@ that leaves its records behind all the same. Go to more workers once two sign-up
 
 ```bash
 # steps in a file (write it with your file tool: shell quoting mangles locators and regexes)
-npm run heldout -- inspect --key KEY --steps output/<profile>/KEY/hardening/tier3/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })" --out output/<profile>/KEY/hardening/tier3/login.md
+npm run heldout -- inspect --key KEY --steps .heldout/<profile>/KEY/4-evidence/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })" --out output/<profile>/KEY/4-evidence/login.md
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 
@@ -253,15 +253,14 @@ When `jira-fetch` reports a revision, rebuild and re-review the contract, draft 
 npm run heldout -- integrity KEY --snapshot --reason "Requirement revision N: <what changed>"
 ```
 
-The old draft is archived under `hardening/draft-history/`, and the absorbed changes are logged in
-`refreeze-log.json` and shown in the verdict.
+The draft it replaces and the changes it absorbed are kept in `3-tests/freeze.json` and shown in the verdict.
 
-## 5. Hardening log — `hardening/hardening-log.md`
+## 5. Hardening log — `3-tests/hardening.md`
 
 ```markdown
 # Hardening log — KEY
 **Tiers used:** <one sentence: the tiers actually used (the verdict shows it)>. <then why others were not>
-**AUT profile:** <id> — <urls> · **Date:** <iso> · **Draft frozen:** draft/<file>
+**AUT profile:** <id> — <urls> · **Date:** <iso> · **Draft frozen:** 3-tests/freeze.json
 
 ## UI locators
 | Test(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |

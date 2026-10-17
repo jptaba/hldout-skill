@@ -144,7 +144,7 @@ of what makes that hard to work in:
 
 ```
 output/<profile>/KEY/                         ← the record (committed)
-  1-requirement/   story.md  linked/  transcripts/          what the story says (+ history/, CHANGES.md after a revision)
+  1-requirement/   story.md  linked/  transcripts/          what the story says (+ revisions/, CHANGES.md after a revision)
   2-contract/      contract.json  review.json               what the requirement means, and its independent review
   3-tests/         <key>.spec.ts  test-data.json  freeze.json  hardening.md   the tests, their data, the frozen draft, how they were made to work
   4-evidence/      probes.jsonl  P7.md  05-eval-SCN-012.png  everything observed live: every probe; cited reports and screenshots
@@ -218,7 +218,7 @@ renumbers the later one, rewriting its citations.
 
 | Today | Target | Kind |
 | --- | --- | --- |
-| `requirement/story.md`, `linked/`, `transcripts/`, `history/`, `CHANGES.md` | `1-requirement/` (same names) | Record |
+| `requirement/story.md`, `linked/`, `transcripts/`, `history/`, `CHANGES.md` | `1-requirement/` (same names, except `history/` → `revisions/`, so it can't be mistaken for `history.jsonl`) | Record |
 | `requirement/raw-issue.json` | not written | — |
 | `evaluation.json` | `fetched` event in `history.jsonl` (profile, date, revision hash) | Record |
 | `requirement/evidence-pack.md` | scratch `2-contract/evidence-pack.md`, written by `contract --pack` | View |
@@ -489,9 +489,8 @@ what those rounds produced, links and file names aside. It is cheaper to find a 
 | # | State | Commit | Notes |
 | --- | --- | --- | --- |
 | 1a | done | d7747cd | 51 scripts in 9 areas, only `heldout.ts` at the top; 235 self-tests green (230 + 5 layout). Found on the way: the typecheck was already red at the start (a test fixture missing `attempts`, fixed first); the `contract-model` ⇄ `evidence` "cycle" was type-only; `detect` and `accounts-recipe` belong to `probe/`; two functions moved to break upward imports (section 5). Tests stay in one folder (rule 6) |
-| 1b | done | (this commit) | 24 commands on the contract; 239 self-tests green. `add-aut` became its own module (`setup/add-aut.ts`), with `init` and it sharing `setup/profile-setup.ts`, instead of `init` reading a `--add-aut` flag the dispatcher slipped in. `init` started from the skill's clone runs `update` and the project's `init` through the dispatcher, not by script path; `add-aut` runs in a set-up project only. Flags are declared by name: their help stays in the module's leading comment (rule 3). Checked live: `init` from a clone into an empty project, `add-aut`, `status`, `lint` |
-| 2 | to do | | |
-| 3 | to do | | |
+| 1b | done | a0758d2 | 24 commands on the contract; 239 self-tests green. `add-aut` became its own module (`setup/add-aut.ts`), with `init` and it sharing `setup/profile-setup.ts`, instead of `init` reading a `--add-aut` flag the dispatcher slipped in. `init` started from the skill's clone runs `update` and the project's `init` through the dispatcher, not by script path; `add-aut` runs in a set-up project only. Flags are declared by name: their help stays in the module's leading comment (rule 3). Checked live: `init` from a clone into an empty project, `add-aut`, `status`, `lint` |
+| 2 + 3 | done | (this commit) | Done as one package: in `3-tests/`, the old `draft/` folder of spec files would have sat inside the tests folder, where spec discovery is recursive, so the freeze had to become `freeze.json` in the same step. Built: `core/paths.ts` with the six phase folders and the scratch area (`PHASE_FOLDERS`, `SCRATCH_DIR`); `core/history.ts` (`recordEvent`, `recordChange` (only when the outcome changed), `lastEvent`, the skill fingerprint moved here from `run`); events written by `fetch` (fetched, revised), `contract` (contract-checked), `lint --draft-finished`, `integrity` (frozen, refrozen, amended, integrity), `run`, `triage` (triaged, decided), `verdict`, `publish`, the harvest; `phases`/`status` read them and print each phase beside its folder; `readContract`/`readReview` take the file; the evidence pack and the readable contract go to the scratch area (and `advance` rebuilds a missing pack without handing the story back to the extractor); `raw-issue.json`, `evaluation.json`, `draft-finished.json`, `publish-log.json`, `journeys-harvest.json`, `integrity.json`, `amendments.json`, `refreeze-log.json`, `draft-history/` and the per-run verdict copy are gone; the mock outbox is one `.http` file per story; `init`/`update` add `.heldout/` and the union merge; verdict links are relative to `6-verdict/`; a `doctor` check that still looked for `test-data.json` at the story's root fixed. Probe reports go to `4-evidence/` (record) and working files to the scratch `4-evidence/` until package 6 brings probe ids. Tests: `history.test.ts`, layout rule 4 (no phase-folder name outside `core/paths.ts`), integrity tests on `freeze.json`; 246 green. Checked live: `init`, `new`, `fetch`, `contract --pack`, `status` in an empty project |
 | 4 | to do | | |
 | 5 | to do | | |
 | 6 | to do | | |

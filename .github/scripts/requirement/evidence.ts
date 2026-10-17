@@ -15,7 +15,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ContractFinding, RequirementContract } from './contract-model';
 
-export const REVIEW_FILE = 'requirement-contract.review.json';
 const TEXT_SOURCE = /\.(md|txt|csv|tsv|json|feature|ya?ml|xml|html?)$/i;
 
 export interface SourceLine { file: string; line: number; text: string; accountable: boolean }
@@ -323,8 +322,8 @@ export function changedSinceReview(c: RequirementContract, review: ContractRevie
     ...Object.keys(review.itemHashes).filter((ref) => !(ref in now)).map((ref) => `${ref} (removed)`)];
 }
 
-export function readReview(evalDir: string): ContractReview | undefined {
-  const f = path.join(evalDir, REVIEW_FILE);
+/** The contract's independent review (its paths' `review`), if there is one. */
+export function readReview(f: string): ContractReview | undefined {
   return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')) as ContractReview) : undefined;
 }
 

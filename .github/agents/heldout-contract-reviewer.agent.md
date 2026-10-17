@@ -1,6 +1,6 @@
 ---
 name: heldout-contract-reviewer
-description: Independent, evidence-only review of a held-out evaluation's requirement contract — checks every acceptance criterion, rule, error, oracle gap and endpoint against the numbered evidence pack, lists anything missed, and writes requirement-contract.review.json bound to the contract hash. Use after the contract is built (heldout-evaluator phase 1b), always in a fresh context separate from the agent that built the contract.
+description: Independent, evidence-only review of a held-out evaluation's requirement contract — checks every acceptance criterion, rule, error, oracle gap and endpoint against the numbered evidence pack, lists anything missed, and writes 2-contract/review.json bound to the contract hash. Use after the contract is built (heldout-evaluator phase 1b), always in a fresh context separate from the agent that built the contract.
 tools: ['read', 'search', 'edit', 'execute']
 model: ['Claude Sonnet 5.5 (copilot)', 'Claude Sonnet 5 (copilot)', 'Claude Opus 5.5 (copilot)', 'GPT-6.1 Sol (copilot)']
 user-invocable: false
@@ -23,7 +23,7 @@ with the errors it printed: the builder must fix them first. Otherwise follow th
   Then run `npm run heldout -- contract KEY`. It accepts the review when there is no `review-stale` or
   `review-unanswered` (a verdict for every item, on this contract's hash); your findings (`review-misread`,
   `review-unsupported`, `review-incomplete`, `review-missed`) then block the contract until the builder fixes it,
-  which is the expected outcome of a review that found something. It also brings `requirement-contract.md` up to date.
+  which is the expected outcome of a review that found something. It also renders the contract for people again (`2-contract/contract.md` in the scratch area).
 - End with the one-line tally the instructions ask for.
 
 On a second review, read the review file that is there with your file tool before you write the new one.

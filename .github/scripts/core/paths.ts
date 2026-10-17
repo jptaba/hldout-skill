@@ -6,25 +6,62 @@ import path from 'node:path';
 import { ROOT, readJson } from './files';
 import type { HeldoutConfig } from './profile';
 
-export function evalPaths(cfg: HeldoutConfig, key: string) {
+/**
+ * The phase folders of a story, in the order a reviewer reads them (docs/refactor-plan.md, section 3). The kept record
+ * (output/<profile>/<KEY>/) and the scratch area (.heldout/<profile>/<KEY>/) use the same names.
+ */
+export const PHASE_FOLDERS = ['1-requirement', '2-contract', '3-tests', '4-evidence', '5-runs', '6-verdict'] as const;
+const [REQUIREMENT, CONTRACT, TESTS, EVIDENCE, RUNS, VERDICT] = PHASE_FOLDERS;
+/** The scratch area: raw tool output, views and working files, git-ignored, removed when a story is complete. */
+export const SCRATCH_DIR = '.heldout';
+/** The files at the top of a story's folder besides the phase folders. */
+export const STORY_ROOT_FILES = ['history.jsonl'] as const;
+
+export type StoryPaths = ReturnType<typeof evalPaths>;
+
+/** Every place of one story: its kept record, and its scratch area under the same phase folder names. */
+export function evalPaths(cfg: Pick<HeldoutConfig, 'outputDir' | 'autId'>, key: string) {
   const base = path.resolve(ROOT, cfg.outputDir, cfg.autId, key);
+  const scratch = path.resolve(ROOT, SCRATCH_DIR, cfg.autId, key);
   return {
     base,
-    requirement: path.join(base, 'requirement'),
-    storyMd: path.join(base, 'requirement', 'story.md'),
-    rawIssue: path.join(base, 'requirement', 'raw-issue.json'),
+    /** Every step that changed the story, one JSON line each (core/history.ts). */
+    history: path.join(base, 'history.jsonl'),
+    // 1 — what was asked
+    requirement: path.join(base, REQUIREMENT),
+    storyMd: path.join(base, REQUIREMENT, 'story.md'),
     /** What the description and acceptance criteria embed (screenshots) and link (Confluence pages, with their images). */
-    linked: path.join(base, 'requirement', 'linked'),
-    evaluationMeta: path.join(base, 'evaluation.json'),
-    testData: path.join(base, 'test-data.json'),
-    tests: path.join(base, 'tests'),
-    draft: path.join(base, 'draft'),
-    hardening: path.join(base, 'hardening'),
-    hardeningLog: path.join(base, 'hardening', 'hardening-log.md'),
-    integrity: path.join(base, 'hardening', 'integrity.json'),
-    runs: path.join(base, 'runs'),
-    verdictMd: path.join(base, 'verdict.md'),
-    verdictJson: path.join(base, 'verdict.json'),
+    linked: path.join(base, REQUIREMENT, 'linked'),
+    /** Earlier revisions of the requirement, one folder each, and what changed between them. */
+    revisions: path.join(base, REQUIREMENT, 'revisions'),
+    changes: path.join(base, REQUIREMENT, 'CHANGES.md'),
+    // 2 — what it means
+    contractDir: path.join(base, CONTRACT),
+    contract: path.join(base, CONTRACT, 'contract.json'),
+    review: path.join(base, CONTRACT, 'review.json'),
+    // 3 — how it is tested, and how the tests were made to work
+    tests: path.join(base, TESTS),
+    testData: path.join(base, TESTS, 'test-data.json'),
+    /** The frozen draft, its re-freezes and the audited amendments (authoring/integrity-check.ts). */
+    freeze: path.join(base, TESTS, 'freeze.json'),
+    hardeningLog: path.join(base, TESTS, 'hardening.md'),
+    // 4 — what was seen in the application
+    evidence: path.join(base, EVIDENCE),
+    // 5 — what ran
+    runs: path.join(base, RUNS),
+    // 6 — what we recommend
+    verdictMd: path.join(base, VERDICT, 'verdict.md'),
+    verdictJson: path.join(base, VERDICT, 'verdict.json'),
+    /** Views and working files: never committed, rendered again or written again when needed. */
+    work: {
+      base: scratch,
+      evidencePack: path.join(scratch, CONTRACT, 'evidence-pack.md'),
+      contractMd: path.join(scratch, CONTRACT, 'contract.md'),
+      evidence: path.join(scratch, EVIDENCE),
+      runs: path.join(scratch, RUNS),
+      journeysStaged: path.join(scratch, VERDICT, 'journeys-staged.json'),
+      stray: path.join(scratch, 'stray'),
+    },
   };
 }
 

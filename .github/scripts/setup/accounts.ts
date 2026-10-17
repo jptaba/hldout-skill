@@ -13,7 +13,7 @@
  *       run when a test takes the account and again after it
  *
  * Accounts the tests create (with or without a way to delete them), from the api-probe chain hardening already ran:
- *   heldout accounts --key KEY --from-chain hardening/chain.json
+ *   heldout accounts --key KEY --from-chain <chain.json>
  *       [--sign-in-steps signin.json | --sign-in-json '<inspect steps>'] --sign-in-path /login --sign-in-done "url:/profile"
  *   A chain that only signs in (a step saving "token") as an existing account adds that account to the list instead.
  *   heldout accounts --aut <profile> --sign-in-json '<inspect steps>' --sign-in-path /login --sign-in-done "url:/home"   the UI sign-in alone

@@ -11,10 +11,10 @@ never creates or transitions issues. `jira.mode` in `heldout.config.json` (or `J
 - the **title**, the **description** and the **acceptance criteria** (the description, or the custom field
   `jira.acceptanceCriteriaField`, e.g. `customfield_10035`), kept as Jira holds them: wiki markup;
 - the **images they show**: a screenshot embedded as `!shot.png!` (or `!shot.png|thumbnail!`) is downloaded to
-  `requirement/linked/` so its text can be read (the evaluator transcribes it);
+  `1-requirement/linked/` so its text can be read (the evaluator transcribes it);
 - the **Confluence pages they link**, in any form Confluence uses (`…/pages/viewpage.action?pageId=123`,
   `…/display/SPACE/Page+Title`, `…/spaces/SPACE/pages/123/…`, a `…/x/AbCd` short link). Each page becomes
-  `requirement/linked/confluence-<id>-<title>.md` (its storage format turned into Markdown: headings, lists, tables, code
+  `1-requirement/linked/confluence-<id>-<title>.md` (its storage format turned into Markdown: headings, lists, tables, code
   blocks with their language, so an OpenAPI or YAML excerpt stays verbatim), and each image the page shows is saved
   beside it as `confluence-<id>-<file>`.
 
@@ -60,7 +60,7 @@ mock-jira/
   confluence/<id>/content.json               GET /rest/api/content/<id>?expand=body.storage
   confluence/<id>/attachments.json           GET /rest/api/content/<id>/child/attachment
   confluence/<id>/files/<file>               the files behind its download links
-  outbox/<ts>__<KEY>__<op>.http              every write, as the REST call Jira Data Center would receive
+  outbox/<KEY>.http                          every write, appended as the REST call Jira Data Center would receive
 ```
 
 ### Authoring a story
@@ -77,4 +77,4 @@ npm run heldout -- new ABC-7 --from story.md [--ac-from ac.md] [--page SHOP:8800
   Link it from the story as `https://<confluence>/pages/viewpage.action?pageId=<id>` or `…/display/<SPACE>/<Title>`.
 - Each image the story, the criteria or a page shows is taken from beside its file.
 - `--force` replaces the story, e.g. to publish a new **revision**. The next `fetch` detects it, diffs it into
-  `requirement/CHANGES.md` and archives the previous version under `requirement/history/`.
+  `1-requirement/CHANGES.md` and archives the previous version under `1-requirement/revisions/`.

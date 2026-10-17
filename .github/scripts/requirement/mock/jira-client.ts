@@ -42,11 +42,14 @@ export class MockJiraClient implements IssueTracker {
     writeFile(path.join(this.issueDir(issue.key), 'ISSUE_VIEW.md'), renderIssueView(issue, this.browseUrl(issue.key)));
   }
 
-  /** Log the request a real Jira Data Center would receive, so the simulation is auditable. */
+  /**
+   * Log the request a real Jira Data Center would receive, so the simulation is auditable: appended to one file per
+   * story (outbox/<KEY>.http), one `###` request after another, the form REST clients read.
+   */
   private outbox(key: string, op: string, method: string, urlPath: string, headers: Record<string, string>, body: string): string {
-    const file = path.join(this.root, 'outbox', `${timestamp()}__${key}__${op}.http`);
+    const file = path.join(this.root, 'outbox', `${key}.http`);
     const lines = [
-      `### ${op} (simulated — no Jira; this request was NOT sent)`,
+      `### ${op} ${new Date().toISOString()} (simulated — no Jira; this request was NOT sent)`,
       `${method} ${this.baseUrl}${urlPath}`,
       'Authorization: Bearer <JIRA_PAT>',
       ...Object.entries(headers).map(([k, v]) => `${k}: ${v}`),
@@ -54,7 +57,8 @@ export class MockJiraClient implements IssueTracker {
       body,
       '',
     ];
-    writeFile(file, lines.join('\n'));
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.appendFileSync(file, `${lines.join('\n')}\n`);
     return file;
   }
 

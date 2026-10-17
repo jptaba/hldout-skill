@@ -1,15 +1,15 @@
 /**
- * Phase 2 head start — a spec skeleton and the test data from requirement-contract.json.
+ * Phase 2 head start — a spec skeleton and the test data from the story's contract (2-contract/contract.json).
  *
  *   heldout scaffold KEY [--force]
  *
- * What it writes (never overwrites unless forced):
- *   tests/<key>.spec.ts imports (the shared fixtures and where the journeys are), the ASSUMPTION / OPEN-QUESTION
+ * What it writes in 3-tests/ (never overwrites unless forced):
+ *   <key>.spec.ts       imports (the shared fixtures and where the journeys are), the ASSUMPTION / OPEN-QUESTION
  *                       lines of the contract's gaps, an empty @req-constants block, typed endpoint helpers, and one
  *                       test stub per criterion with its "// from" source and tags. Stubs are TODO(test): the lint
  *                       refuses them until implemented, and a criterion may need several tests (one @type each).
  *   test-data.json      the values the specs read via `data`; the contract's test-user secret as ${env:NAME}
- *   hardening/hardening-log.md  a template the hardener fills in
+ *   hardening.md        a template the hardener fills in
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -51,8 +51,8 @@ export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
-  const c = readContract(p.base);
-  if (!c) throw new Error(`No requirement-contract.json for ${key} — run: heldout contract ${key} --pack, then the extractor and reviewer subagents`);
+  const c = readContract(p.contract);
+  if (!c) throw new Error(`No requirement contract for ${key} (${rel(p.contract)}) — run: heldout contract ${key} --pack, then the extractor and reviewer subagents`);
 
   // Test data the specs read through the `data` fixture; secrets as ${env:NAME}, never literal.
   if (!fs.existsSync(p.testData)) {
@@ -66,7 +66,7 @@ export function run({ _, flags }: Args): void {
   if (!fs.existsSync(p.hardeningLog)) {
     // The layout of references/hardening.md §5, so the hardener fills it in rather than rewriting it.
     writeFile(p.hardeningLog, [
-      `# Hardening log — ${key}`, '**Tiers used:** ', `**AUT profile:** ${cfg.autId} — ${cfg.aut.baseURL}${cfg.aut.apiBaseURL && cfg.aut.apiBaseURL !== cfg.aut.baseURL ? ` · ${cfg.aut.apiBaseURL}` : ''} · **Date:**  · **Draft frozen:** draft/`, '',
+      `# Hardening log — ${key}`, '**Tiers used:** ', `**AUT profile:** ${cfg.autId} — ${cfg.aut.baseURL}${cfg.aut.apiBaseURL && cfg.aut.apiBaseURL !== cfg.aut.baseURL ? ` · ${cfg.aut.apiBaseURL}` : ''} · **Date:**  · **Draft frozen:** ${rel(p.freeze)}`, '',
       '## UI locators', '| Test(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |', '| --- | --- | --- | --- | --- | --- |',
       '## API mechanics', '| Item | Verified | Evidence |', '| --- | --- | --- |',
       '## Journeys (reused, fixed, added)', '| Journey | Change | Why | Evidence |', '| --- | --- | --- | --- |',
@@ -114,7 +114,7 @@ export function run({ _, flags }: Args): void {
   const spec = [
     '/**',
     ` * Held-out acceptance tests for ${key} — "${c.title}".`,
-    ' * Written from requirement-contract.json (the requirement only; never from the AUT\'s code). The steps call the',
+    ' * Written from the requirement contract (the requirement only; never from the AUT\'s code). The steps call the',
     ` * journeys in ${rel(journeyPaths(cfg, cfg.autId).fixtures)}/ (npm run heldout -- journeys ${key}); every expectation stays here.`,
     ' */',
     `import { test, expect${c.endpoints.length ? ', expectResponse' : ''}${hasUi ? ', gotoPage' : ''}${accounts && hasUi ? ', signIn' : ''}, checkShape, type Api, type ApiResponse, type Seed, type TestData${accounts ? ', type Account' : ''} } from '${fixtures.startsWith('.') ? fixtures : `./${fixtures}`}';`,

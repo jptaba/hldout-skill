@@ -11,14 +11,15 @@
  * It deliberately raises nothing else (no Bugs, no transitions): deciding what is a defect is the
  * reviewer's call, based on the evidence in the report.
  *
- * JIRA_MODE=mock → writes into mock-jira/ (issue.json, ISSUE_VIEW.md) and logs the would-be REST calls to mock-jira/outbox/.
+ * JIRA_MODE=mock → writes into mock-jira/ (issue.json, ISSUE_VIEW.md) and appends the would-be REST calls to
+ * mock-jira/outbox/<KEY>.http.
  * JIRA_MODE=datacenter → your Jira Data Center, REST v2. `heldout advance` runs this itself unless jira.publish is "manual".
  */
 import fs from 'node:fs';
-import path from 'node:path';
 import type { Args, CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
-import { readJson, rel, writeFile } from '../core/files';
+import { readJson, rel } from '../core/files';
+import { recordEvent } from '../core/history';
 import { evalPaths } from '../core/paths';
 import { doc, h, p, panel, table, txt, ul } from '../requirement/jira/adf';
 import { createTracker } from '../requirement/jira/client';
@@ -88,11 +89,8 @@ export async function run({ _, flags }: Args): Promise<void> {
   const att = await tracker.addAttachment(key, pth.verdictMd, uploadName);
   const comment = await tracker.addComment(key, body);
   const labels = await tracker.setLabels(key, [label], cfg.jira.verdictLabelPrefix);
-  // Local record of what was published (status.ts and audits read it).
-  const logFile = path.join(pth.base, 'publish-log.json');
-  const log = fs.existsSync(logFile) ? readJson<unknown[]>(logFile) : [];
-  log.push({ at: new Date().toISOString(), mode: tracker.mode, verdict: v.verdict, attachment: att.filename, commentId: comment.id, labels });
-  writeFile(logFile, `${JSON.stringify(log, null, 2)}\n`);
+  // What was published, in the story's history (status and audits read it).
+  recordEvent(pth.history, 'published', { mode: tracker.mode, verdict: v.verdict, finalRun: v.finalRun, attachment: att.filename, commentId: comment.id, labels });
 
   console.log(`✔ Published ${key} verdict to ${tracker.mode === 'mock' ? 'mock Jira (simulated upload)' : 'Jira Data Center'}`);
   console.log(`  attachment: ${att.filename} (id ${att.id}, ${att.size} B)`);
@@ -101,6 +99,6 @@ export async function run({ _, flags }: Args): Promise<void> {
   console.log(`  issue:      ${tracker.browseUrl(key)}`);
   if (tracker.mode === 'mock') {
     console.log(`  view:       ${cfg.jira.mockRoot}/issues/${key}/ISSUE_VIEW.md`);
-    console.log(`  REST log:   ${cfg.jira.mockRoot}/outbox/ (requests a real Jira would have received)`);
+    console.log(`  REST log:   ${cfg.jira.mockRoot}/outbox/${key}.http (requests a real Jira would have received)`);
   }
 }

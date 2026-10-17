@@ -26,6 +26,7 @@ import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../../core/cli';
 import { assertIssueKey, loadConfig } from '../../core/config';
 import { readJson, rel, writeFile } from '../../core/files';
+import { lastEvent, recordEvent } from '../../core/history';
 import { evalPaths, journeyPaths } from '../../core/paths';
 import type { HeldoutConfig } from '../../core/profile';
 import { readContract, type RequirementContract } from '../../requirement/contract-model';
@@ -39,7 +40,8 @@ import { readSuite, specFiles } from '../spec-model';
 const H = 'npm run heldout --';
 interface Staged { stale: { id: string; evidence: string; at: string }[] }
 /** `finalRun`: the run the harvest kept what passed in (a re-rendered verdict of the same run needs no new harvest). */
-export interface HarvestLog { at: string; finalRun: string; registry: string; proven: string[]; stale: string[]; dropped: { id: string; why: string }[] }
+/** What a harvest recorded (the story's `harvested` history event). */
+export interface HarvestLog { finalRun: string; registry: string; proven: string[]; stale: string[]; dropped: { id: string; why: string }[] }
 
 export const spec: CommandSpec = {
   name: 'journeys', group: 'Tests', usage: 'KEY [--all | --stale <id> --evidence … | --harvest [--apply]]  |  [--aut id] [--check | --sync | --resolve | --copy-from <profile>]',
@@ -84,8 +86,8 @@ export function run({ _, flags }: Args): void {
   }
 
   const p = evalPaths(cfg, key);
-  const contract = readContract(p.base);
-  const stagedFile = path.join(p.hardening, 'journeys-staged.json');
+  const contract = readContract(p.contract);
+  const stagedFile = p.work.journeysStaged;
   const staged: Staged = fs.existsSync(stagedFile) ? readJson<Staged>(stagedFile) : { stale: [] };
 
   if (flags.harvest) return harvest(cfg, key, profile, p, contract, staged, journeys, Boolean(flags.apply));
@@ -207,8 +209,7 @@ function harvest(cfg: HeldoutConfig, key: string, profile: string, p: ReturnType
   const verdict = readJson<{ finalRun: string; traceability: { scenarios: { id: string; tests: { status: string }[] }[] }[] }>(p.verdictJson);
   const passed = new Set<string>();
   for (const t of verdict.traceability ?? []) for (const s of t.scenarios) if (s.tests.some((x) => x.status === 'passed')) passed.add(s.id);
-  const logFile = path.join(p.hardening, 'journeys-harvest.json');
-  const last = fs.existsSync(logFile) ? readJson<HarvestLog>(logFile) : undefined;
+  const last = lastEvent<HarvestLog>(p.history, 'harvested');
   if (last?.finalRun === verdict.finalRun && apply) throw new Error(`Already harvested for ${verdict.finalRun} → ${last.registry}`);
 
   const jp = journeyPaths(cfg, profile);
@@ -263,7 +264,7 @@ function harvest(cfg: HeldoutConfig, key: string, profile: string, p: ReturnType
   for (const d of dropped) console.log(`  left out ${d.id} — ${d.why}`);
   if (!apply) { console.log(`\nPreview only. Write it: ${H} journeys ${key} --harvest --apply`); return; }
   const file = writeRegistry(cfg, profile, registry);
-  const log: HarvestLog = { at, finalRun: verdict.finalRun, registry: rel(file), proven, stale, dropped };
-  writeFile(logFile, `${JSON.stringify(log, null, 2)}\n`);
+  const log: HarvestLog = { finalRun: verdict.finalRun, registry: rel(file), proven, stale, dropped };
+  recordEvent(p.history, 'harvested', { ...log });
   console.log(`\n✔ ${rel(file)} — commit it with the journey files and the story's output`);
 }

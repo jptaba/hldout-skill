@@ -1,5 +1,5 @@
 /**
- * Reads the traceability of a story's held-out specs (tests/*.spec.ts). The tests are written straight from the
+ * Reads the traceability of a story's held-out specs (3-tests/*.spec.ts). The tests are written straight from the
  * reviewed requirement contract, so the specs carry everything a scenario file would:
  *   test('SCN-003: <title>', { tag: ['@AC-3', '@type:negative', '@layer:api'] }, …)   one scenario per test
  *   test(`SCN-004.${i + 1}: …`, …) in a loop                                           a table of cases (SCN-004.1 … .n)

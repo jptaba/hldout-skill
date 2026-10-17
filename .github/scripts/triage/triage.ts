@@ -2,7 +2,7 @@
  * Phase 5 — Triage failures: SCRIPT defect vs APPLICATION defect (vs environment / flaky / unknown).
  *
  *   heldout triage <KEY> [--run 02-eval]
- *        → writes runs/<run>/triage.json + triage.md with an evidence-based *automatic* classification.
+ *        → writes 5-runs/<run>/triage.json + triage.md with an evidence-based *automatic* classification.
  *
  *   heldout triage <KEY> --carry-from <run|auto>
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
@@ -24,6 +24,7 @@ import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
+import { recordEvent } from '../core/history';
 import { evalPaths, journeyPaths, listRuns } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { readContract, requestContracts } from '../requirement/contract-model';
@@ -71,7 +72,7 @@ function journeyEndpoints(cfg: HeldoutConfig, specs: string[]): Endpoint[] {
 function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFile: string, apiBasePath: string): TriageReport {
   const p = evalPaths(cfg, key);
   const results = readJson<{ suites: PwSuite[] }>(resultsFile);
-  const contract = readContract(p.base);
+  const contract = readContract(p.contract);
   const feature = readSuite(p.tests, contract);
   const plumbing = [...feature.seedEndpoints, ...journeyEndpoints(cfg, specFiles(p.tests))];
   const requests = requestContracts(contract);
@@ -276,6 +277,10 @@ export function run({ _, flags }: Args): void {
     for (const e of entries) e.final = { ...decision, ...(anyReading && (!marked.length || marked.includes(e.scenario) || marked.includes(baseScenarioId(e.scenario))) ? { anyReading: true } : {}) };
     writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
     writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
+    recordEvent(p.history, 'decided', {
+      run: runName, tests: entries.map((e) => e.scenario), category, ...(decision.severity ? { severity: decision.severity } : {}),
+      ...(anyReading ? { anyReading: marked.length ? marked : true } : {}), ...(decision.evidence ? { evidence: decision.evidence } : {}),
+    });
     console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(triageJson)}`);
     return;
   }
@@ -306,6 +311,12 @@ export function run({ _, flags }: Args): void {
     }
   }
   writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
+  const triaged = report.entries.filter((e) => e.auto);
+  recordEvent(p.history, 'triaged', {
+    run: runName, ...report.summary,
+    automatic: triaged.reduce<Record<string, number>>((n, e) => ({ ...n, [e.auto!.category]: (n[e.auto!.category] ?? 0) + 1 }), {}),
+    confirmed: triaged.filter((e) => e.final).length, ...(carryFrom ? { carriedFrom: carryFrom } : {}),
+  });
   // A starting chain for the live replay of each failure whose call was sent signed in.
   for (const e of report.entries.filter((x) => x.status !== 'passed' && !x.final)) {
     const chain = starterChain(cfg, e);

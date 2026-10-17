@@ -3,10 +3,10 @@
  * prepares the evidence and checks, mechanically, that what the model wrote is grounded in it.
  *
  *   heldout contract KEY --pack           evidence pack (every source line numbered) + empty contract bound to this revision
- *   heldout contract KEY                  check: anchoring, coverage ledger, literal grounding, review status → requirement-contract.md
+ *   heldout contract KEY                  check: anchoring, coverage ledger, literal grounding, review status (+ a copy to read, in the scratch area)
  *   heldout contract KEY --review-prompt  the independent reviewer's instructions (for the heldout-contract-reviewer subagent)
  *   heldout contract KEY --questions      open oracle gaps: the questions the verdict puts to the story's owner (JSON)
- *   heldout contract KEY --resolve G1 --value "…" --evidence "hardening/api-x.md"   a mechanics gap found in the application
+ *   heldout contract KEY --resolve G1 --value "…" --evidence "<probe report>"   a mechanics gap found in the application
  *   heldout contract KEY --resolve-from gaps.json    several of them at once: [{ "id", "value", "evidence" }, …]
  *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the owner's answer to a verdict's open question, before the next evaluation (re-review)
  *   … --allow-unreviewed  accept a contract without an independent review (warning instead of error)
@@ -18,10 +18,11 @@ import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SKILL_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
+import { recordChange } from '../core/history';
 import { evalPaths } from '../core/paths';
 import { accountRoles, createsAccounts, type AccountRecipe } from '../core/profile';
-import { CONTRACT_FILE, checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
-import { REVIEW_FILE, changedSinceReview, checkReview, contractHash, evidencePack, readReview, reviewItemHashes, reviewRefs, type ContractReview } from './evidence';
+import { checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
+import { changedSinceReview, checkReview, contractHash, evidencePack, readReview, reviewItemHashes, reviewRefs, type ContractReview } from './evidence';
 
 const BINARY = /\.(png|jpe?g|gif|webp|bmp|pdf|docx?|xlsx?|pptx?)$/i;
 
@@ -74,8 +75,8 @@ export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
-  const file = path.join(p.base, CONTRACT_FILE);
-  const packFile = path.join(p.requirement, 'evidence-pack.md');
+  const file = p.contract;
+  const packFile = p.work.evidencePack;
   if (!fs.existsSync(p.storyMd)) throw new Error(`No ${rel(p.storyMd)} — run: heldout fetch ${key}`);
 
   if (flags.pack) {
@@ -94,11 +95,11 @@ export async function run({ _, flags }: Args): Promise<void> {
     }
     console.log(`  1. Build the contract from the evidence pack — delegate to the heldout-contract-extractor subagent, or follow ${rel(path.join(SKILL_DIR, 'references', 'requirement-contract.md'))}`);
     console.log(`  2. heldout contract ${key} --allow-unreviewed   (the builder's check: anchoring, coverage, grounded literals)`);
-    console.log(`  3. Independent review — the heldout-contract-reviewer subagent writes ${REVIEW_FILE}; then: heldout contract ${key}   (clean, including the review)`);
+    console.log(`  3. Independent review — the heldout-contract-reviewer subagent writes ${rel(p.review)}; then: heldout contract ${key}   (clean, including the review)`);
     return;
   }
 
-  const c = readContract(p.base);
+  const c = readContract(p.contract);
   if (!c) throw new Error(`No ${rel(file)} — run: heldout contract ${key} --pack`);
 
   if (flags.questions) {
@@ -160,26 +161,33 @@ export async function run({ _, flags }: Args): Promise<void> {
     }
     const tpl = fs.readFileSync(path.join(SKILL_DIR, 'references', 'contract-review-prompt.md'), 'utf8');
     // A re-review: name what changed since the last matching review. Every item is still checked and given a verdict.
-    const earlier = readReview(p.base);
+    const earlier = readReview(p.review);
     const changed = earlier && earlier.contractHash !== contractHash(c) ? changedSinceReview(c, earlier) : undefined;
     const changedNote = changed?.length
       ? `\nThis is a re-review. Changed since the last review (${earlier?.reviewedAt}): ${changed.map((r) => `\`${r}\``).join(', ')}. Check these in full against the pack, and read the pack once more for anything the change now misses; every other item is unchanged since that review, so its verdict there carries over.\n`
       : '';
     console.log(tpl.replaceAll('{{CHANGED}}', changedNote).replaceAll('{{KEY}}', key).replaceAll('{{EVAL_DIR}}', rel(p.base)).replaceAll('{{PACK}}', rel(packFile))
-      .replaceAll('{{CONTRACT}}', rel(file)).replaceAll('{{REVIEW}}', rel(path.join(p.base, REVIEW_FILE)))
+      .replaceAll('{{CONTRACT}}', rel(file)).replaceAll('{{REVIEW}}', rel(p.review))
       .replaceAll('{{HASH}}', contractHash(c)).replaceAll('{{REFS}}', reviewRefs(c).map((r) => `\`${r}\``).join(', ')));
     return;
   }
 
-  const review = readReview(p.base);
+  const review = readReview(p.review);
   // A review that matches the contract gets a hash per item, so a later change names the items to re-check.
   if (review && review.contractHash === contractHash(c) && !review.itemHashes) {
     review.itemHashes = reviewItemHashes(c);
-    writeFile(path.join(p.base, REVIEW_FILE), `${JSON.stringify(review, null, 2)}\n`);
+    writeFile(p.review, `${JSON.stringify(review, null, 2)}\n`);
   }
   const reviewFindings = checkReview(c, review, { requireReview: !flags['allow-unreviewed'] });
   const listed = new Set(['oracle-gap-open', 'mechanics-to-discover']); // shown as the two lists below
   const all = [...findings, ...reviewFindings];
+  const count = <T>(xs: T[], by: (x: T) => string) => xs.reduce<Record<string, number>>((n, x) => ({ ...n, [by(x)]: (n[by(x)] ?? 0) + 1 }), {});
+  // One line per change of outcome: a check run again on the same contract with the same result adds nothing.
+  recordChange(p.history, 'contract-checked', {
+    hash: contractHash(c), errors: all.filter((f) => f.level === 'error').map((f) => f.code), warnings: all.filter((f) => f.level !== 'error').length,
+    acceptanceCriteria: c.acceptanceCriteria.length, gaps: count(c.gaps, (g) => `${g.kind}:${g.resolution}`),
+    reviewed: Boolean(review && review.contractHash === contractHash(c)),
+  });
   console.log(`Requirement contract ${key}: ${c.acceptanceCriteria.length} AC(s), ${c.endpoints.length} endpoint(s), ${c.rules.length} rule(s), ${c.errorModel.length} error case(s), ${c.gaps.length} gap(s), ${c.coverage.length} coverage entr(ies) · hash ${contractHash(c)}`);
   for (const f of all.filter((x) => !listed.has(x.code))) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
   if (!all.some((f) => f.level === 'error')) console.log(`  ✔ anchored (${c.acceptanceCriteria.length} quote(s) found at their cited lines), fully covered (every numbered line, in ${c.coverage.length} coverage entr${c.coverage.length === 1 ? 'y' : 'ies'}), grounded (every expected status, number, message and path found in the sources)${review && review.contractHash === contractHash(c) ? ' and independently reviewed' : '; the independent review is next (heldout-contract-reviewer subagent)'}`);
@@ -188,7 +196,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   // After recording one gap, the lists would repeat themselves: say what is left in a line.
   if (gapFlag && !all.some((f) => f.level === 'error')) {
     console.log(`  still to discover: ${discover.map((g) => g.id).join(', ') || 'nothing'} · open questions: ${questions.map((g) => g.id).join(', ') || 'none'}   (heldout contract ${key} lists them)`);
-    writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
+    writeFile(p.work.contractMd, render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
     return;
   }
   if (questions.length) {
@@ -200,7 +208,7 @@ export async function run({ _, flags }: Args): Promise<void> {
     for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ') || 'no criterion'}`);
   }
   if (!review && !findings.some((f) => f.level === 'error')) console.log(`\nNext: independent review — heldout-contract-reviewer subagent (instructions: heldout contract ${key} --review-prompt)`);
-  writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
-  console.log(`  → ${rel(path.join(p.base, 'requirement-contract.md'))} (the contract for people to read)`);
+  writeFile(p.work.contractMd, render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
+  console.log(`  → ${rel(p.work.contractMd)} (the contract for people to read; rendered again by every check)`);
   if (all.some((f) => f.level === 'error')) process.exit(1);
 }

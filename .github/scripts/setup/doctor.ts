@@ -16,7 +16,7 @@ import { allJourneys, duplicateJourneys, journeyFiles, lintJourneys, readRegistr
 import { resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { AGENT_FILES, SKILL_DIR, UPDATE_HINT, loadConfig, loadEnv, validateConfig } from '../core/config';
 import { ROOT, fileHash, rel } from '../core/files';
-import { journeyPaths, listStories } from '../core/paths';
+import { PHASE_FOLDERS, evalPaths, journeyPaths, listStories } from '../core/paths';
 import { accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, type HeldoutConfig } from '../core/profile';
 import { safeToScrub } from '../core/redact';
 import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
@@ -119,7 +119,7 @@ export async function run({ flags }: Args): Promise<void> {
 
   /**
    * Secret values from .env that appear in files git would commit (tracked, or untracked and not ignored). Values a
-   * story itself publishes (a sandbox's documented demo password, found under output/<profile>/<KEY>/requirement/) are
+   * story itself publishes (a sandbox's documented demo password, found under output/<profile>/<KEY>/1-requirement/) are
    * not secrets and are skipped, as are weak values (plain words) that can't be told apart from ordinary text.
    */
   function committableLeaks(outDir: string): Map<string, string[]> {
@@ -127,7 +127,7 @@ export async function run({ flags }: Args): Promise<void> {
     if (git.status !== 0) return new Map();
     const files = git.stdout.split('\0').filter(Boolean);
     const read = (f: string) => { try { return fs.statSync(path.join(ROOT, f)).size < 5_000_000 ? fs.readFileSync(path.join(ROOT, f), 'utf8') : ''; } catch { return ''; } };
-    const published = files.filter((f) => f.startsWith(`${rel(outDir)}/`) && f.split('/')[3] === 'requirement').map(read).join('\n');
+    const published = files.filter((f) => f.startsWith(`${rel(outDir)}/`) && f.split('/')[3] === PHASE_FOLDERS[0]).map(read).join('\n');
     const secrets = [...Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safeToScrub(v) && !published.includes(v)) as [string, string][],
       ...Object.entries(loadedVaultSecrets()).filter(([, v]) => safeToScrub(v) && !published.includes(v)).map(([ref, v]) => [`${'$'}{vault:${ref}}`, v] as [string, string])];
     const leaks = new Map<string, string[]>();
@@ -142,7 +142,7 @@ export async function run({ flags }: Args): Promise<void> {
   // ---- secrets referenced by the stories ----------------------------------------------------------
   if (cfg) {
     const outDir = path.resolve(ROOT, cfg.outputDir);
-    const testDataFiles = listStories(cfg).map((s) => ({ key: s.key, file: path.join(s.dir, 'test-data.json') })).filter((s) => fs.existsSync(s.file));
+    const testDataFiles = listStories(cfg).map((s) => ({ key: s.key, file: evalPaths({ outputDir: cfg.outputDir, autId: s.profile }, s.key).testData })).filter((s) => fs.existsSync(s.file));
     const missing = new Map<string, string[]>();
     for (const { key, file } of testDataFiles) {
       for (const m of fs.readFileSync(file, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)) if (!process.env[m[1]]) missing.set(m[1], [...(missing.get(m[1]) ?? []), key]);

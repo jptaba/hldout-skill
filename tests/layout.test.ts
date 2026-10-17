@@ -62,6 +62,14 @@ describe('the scripts layout', () => {
     assert.deepEqual(cycles, []);
   });
 
+  it('names the story folders in core/paths.ts only', () => {
+    // A phase folder's name in a string, outside comments: everything else asks core/paths.ts for the folder.
+    const named = files.filter((f) => f !== 'core/paths.ts').flatMap((f) => fs.readFileSync(path.join(DIR, f), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').split('\n')
+      .flatMap((line, i) => (/['"`][^'"`\n]*\b[1-6]-(?:requirement|contract|tests|evidence|runs|verdict)\b/.test(line) ? [`${f}:${i + 1}`] : [])));
+    assert.deepEqual(named, []);
+  });
+
   it('has commands that never import another command', () => {
     assert.ok(commands.length > 10, 'commands found in heldout.ts');
     const crossed = commands.flatMap((c) => runtimeImports(c).filter((i) => commands.includes(i) && i !== c).map((i) => `${c} → ${i}`));

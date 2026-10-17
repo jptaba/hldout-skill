@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, rel } from './files';
-import { evalPaths } from './paths';
+import { PHASE_FOLDERS, SCRATCH_DIR } from './paths';
 import { JIRA_MODES, type HeldoutConfig, type JiraMode } from './profile';
 
 /** The skill's scripts (.github/scripts) and the skill itself (.github/skills/heldout-evaluator: SKILL.md, references). */
@@ -29,19 +29,23 @@ export const AGENT_FILES: string[] = [
   '.claude/skills/heldout-evaluator/SKILL.md',
 ];
 
-/** What a project keeps out of git: secrets and bulky local run artifacts (verdicts and evidence summaries stay tracked). */
-export const GITIGNORE = ['.env', 'node_modules/', 'test-results/', 'playwright-report/', 'output/*/*/runs/*/html/', 'output/*/*/runs/*/artifacts/', '*.trace.zip', '.playwright-mcp/', '.claude/settings.local.json'];
+/** What a project keeps out of git: secrets, the scratch area and bulky local run artifacts (the record stays tracked). */
+export const GITIGNORE = ['.env', 'node_modules/', 'test-results/', 'playwright-report/', `${SCRATCH_DIR}/`, `output/*/*/${PHASE_FOLDERS[4]}/*/html/`, `output/*/*/${PHASE_FOLDERS[4]}/*/artifacts/`, '*.trace.zip', '.playwright-mcp/', '.claude/settings.local.json'];
+/** How git merges a story's append-only logs (history, probes): two branches that each added lines keep both. */
+export const GITATTRIBUTES = ['output/**/*.jsonl merge=union'];
 
-/** Add the GITIGNORE entries the project's .gitignore doesn't have yet (init, and update when a version adds one). */
-export function ensureGitignore(say: (mark: string, msg: string) => void): void {
-  const file = path.join(ROOT, '.gitignore');
+/** Add the lines a project's dot-file doesn't have yet (init, and update when a version adds one). */
+function ensureLines(name: string, wanted: string[], why: string, say: (mark: string, msg: string) => void): void {
+  const file = path.join(ROOT, name);
   const have = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
   const lines = new Set(have.split(/\r?\n/).map((l) => l.trim()));
-  const add = GITIGNORE.filter((l) => !lines.has(l) && !lines.has(l.replace(/\/$/, '')));
-  if (!add.length) { say('•', 'keep    .gitignore'); return; }
-  fs.writeFileSync(file, `${have}${have && !have.endsWith('\n') ? '\n' : ''}\n# held-out evaluator (secrets and bulky local artifacts; verdicts and evidence summaries stay tracked)\n${add.join('\n')}\n`);
-  say('✔', `${have ? 'updated' : 'created'} .gitignore (+ ${add.length} entries)`);
+  const add = wanted.filter((l) => !lines.has(l) && !lines.has(l.replace(/\/$/, '')));
+  if (!add.length) { say('•', `keep    ${name}`); return; }
+  fs.writeFileSync(file, `${have}${have && !have.endsWith('\n') ? '\n' : ''}\n# held-out evaluator (${why})\n${add.join('\n')}\n`);
+  say('✔', `${have ? 'updated' : 'created'} ${name} (+ ${add.length} entries)`);
 }
+export const ensureGitignore = (say: (mark: string, msg: string) => void) => ensureLines('.gitignore', GITIGNORE, 'secrets, scratch and bulky local artifacts; the record stays tracked', say);
+export const ensureGitattributes = (say: (mark: string, msg: string) => void) => ensureLines('.gitattributes', GITATTRIBUTES, 'append-only story logs merge by keeping both sides', say);
 
 /** Minimal .env loader (no dependency). Existing process.env values win. */
 export function loadEnv(file = path.join(ROOT, '.env')): void {
@@ -179,8 +183,6 @@ export function validateConfig(raw: unknown): string[] {
   return out;
 }
 
-export interface EvaluationMeta { key: string; aut?: string; createdAt?: string; notes?: string }
-
 /**
  * The profile whose output folder already holds the story (output/<profile>/<KEY>/), so later commands need no --aut.
  * A story fetched for two applications needs --aut to say which one.
@@ -193,12 +195,6 @@ export function boundProfile(cfg: Pick<HeldoutConfig, 'outputDir' | 'auts'>, key
     .map((d) => d.name);
   if (found.length > 1) throw new Error(`${key} is in more than one profile folder (${found.map((p) => `${cfg.outputDir}/${p}/${key}`).join(', ')}) — say which with --aut <profile>`);
   return found[0];
-}
-
-/** output/<profile>/<KEY>/evaluation.json — when and for which profile the story was fetched. */
-export function readEvaluationMeta(cfg: HeldoutConfig, key: string): EvaluationMeta {
-  const file = evalPaths(cfg, key).evaluationMeta;
-  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as EvaluationMeta) : { key };
 }
 
 export function assertIssueKey(key: string | undefined): string {
