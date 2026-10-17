@@ -14,6 +14,7 @@ function failure(scenario: string, o: { ac?: string; url?: string; status?: numb
     failingStep: 'Then the request is refused', otherFailures: [],
     error: { headline: o.headline ?? `[REQ ${o.ac ?? 'AC-1'}] the request is refused`, expected: '"4xx"', received: '200', locator: o.locator, message: '' },
     evidence: {
+      attempts: 1,
       screenshot: `${ART}/${scenario}/test-failed-1.png`, trace: `${ART}/${scenario}/trace.zip`, errorContext: `${ART}/${scenario}/error-context.md`,
       ...(o.url ? { api: { request: { method: 'POST', url: o.url }, response: { status: o.status ?? 200, body: o.body ?? { ok: true } } }, apiCalls: 1 } : {}),
     },
@@ -21,7 +22,7 @@ function failure(scenario: string, o: { ac?: string; url?: string; status?: numb
     ...(o.final ? { final: o.final } : {}),
   } as TriageEntry;
 }
-const passed = (scenario: string): TriageEntry => ({ scenario, title: scenario, file: 'abc-1.spec.ts', status: 'passed', tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: {} } as TriageEntry);
+const passed = (scenario: string): TriageEntry => ({ scenario, title: scenario, file: 'abc-1.spec.ts', status: 'passed', tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: { attempts: 1 } } as TriageEntry);
 const report = (entries: TriageEntry[]): TriageReport => ({
   key: 'ABC-1', run: '02-eval', generatedAt: '2026-01-01T00:00:00.000Z', entries,
   summary: { total: entries.length, passed: entries.filter((e) => e.status === 'passed').length, failed: entries.filter((e) => e.status === 'failed').length, flaky: 0, skipped: 0 },
