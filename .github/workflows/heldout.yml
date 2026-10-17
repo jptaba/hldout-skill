@@ -35,7 +35,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Run held-out suite (preflight lint + healthcheck included)
-        run: npm run heldout -- run "$KEY" --label ci
+        run: npm run heldout -- run "$KEY" --label ci --junit
       - name: Triage (carry confirmed decisions with identical signatures)
         run: npm run heldout -- triage "$KEY" --carry-from auto
       - name: Verdict
@@ -43,13 +43,14 @@ jobs:
         run: npm run heldout -- verdict "$KEY" --exit-code
       - name: Job summary
         if: always()
-        run: cat output/*/"$KEY"/verdict.md >> "$GITHUB_STEP_SUMMARY" || true
+        run: cat output/*/"$KEY"/6-verdict/verdict.md >> "$GITHUB_STEP_SUMMARY" || true
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: heldout-${{ inputs.issue_key }}
+          include-hidden-files: true
+          # The story's record (its runs, the verdict, the history) and the raw output of the runs (traces, JUnit).
           path: |
-            output/*/${{ inputs.issue_key }}/verdict.md
-            output/*/${{ inputs.issue_key }}/verdict.json
-            output/*/${{ inputs.issue_key }}/runs/
+            output/*/${{ inputs.issue_key }}/
+            .heldout/*/${{ inputs.issue_key }}/5-runs/

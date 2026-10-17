@@ -9,11 +9,12 @@ import { draftFinished } from '../authoring/draft';
 import { readFreeze } from '../authoring/integrity-check';
 import { journeysUsedBy } from '../authoring/journeys/registry';
 import { readJson, rel } from '../core/files';
-import { lastEvent } from '../core/history';
-import { PHASE_FOLDERS, evalPaths, evalRunsOf } from '../core/paths';
+import { lastEvent, readHistory } from '../core/history';
+import { PHASE_FOLDERS, evalPaths, evalRunsOf, runFile } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, readContract } from '../requirement/contract-model';
 import { checkReview, readReview } from '../requirement/evidence';
+import { pendingOf, readRunRecord } from '../triage/triage-model';
 
 export interface Phase { name: string; folder: string; done: boolean; detail: string; next?: string }
 const H = 'npm run heldout --';
@@ -29,11 +30,12 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const contractErrors = contract && fs.existsSync(p.requirement) ? [...checkContract(contract, p.requirement, { apiBaseURL: profile.apiBaseURL ?? profile.baseURL }), ...checkReview(contract, readReview(p.review), { requireReview: true })].filter((f) => f.level === 'error').length : 0;
   const evalRuns = evalRunsOf(p.runs);
   const lastEval = evalRuns.at(-1);
-  const meta = lastEval && fs.existsSync(path.join(p.runs, lastEval, 'run-meta.json')) ? readJson<{ stats?: { expected: number; unexpected: number; flaky: number } }>(path.join(p.runs, lastEval, 'run-meta.json')) : undefined;
-  const triageFile = lastEval ? path.join(p.runs, lastEval, 'triage.json') : '';
-  const triage = triageFile && fs.existsSync(triageFile) ? readJson<{ entries: { status: string; final?: unknown }[] }>(triageFile) : undefined;
+  const record = lastEval ? readRunRecord(runFile(p, lastEval)) : undefined;
+  const meta = record?.meta;
+  // Triaged: the triage command went over the run (it carries earlier decisions and writes the replay chains).
+  const triage = Boolean(lastEval) && readHistory(p.history).some((e) => e.event === 'triaged' && e.run === lastEval);
   const failures = meta?.stats ? meta.stats.unexpected + meta.stats.flaky : 0;
-  const pending = triage ? triage.entries.filter((e) => e.status !== 'passed' && !e.final).length : failures;
+  const pending = record ? pendingOf(record).length : failures;
   const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string; generatedAt?: string }>(p.verdictJson) : undefined;
   const harvested = lastEvent<{ finalRun: string; proven: string[] }>(p.history, 'harvested');
   // Stale when a later evaluation run exists than the one the verdict judged (by run name: file times change with a

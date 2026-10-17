@@ -25,15 +25,15 @@ heldout:
   script:
     - npm ci
     - npx playwright install --with-deps chromium
-    - npm run heldout -- run "$HELDOUT_KEY" --label ci
+    - npm run heldout -- run "$HELDOUT_KEY" --label ci --junit
     - npm run heldout -- triage "$HELDOUT_KEY" --carry-from auto
     - npm run heldout -- verdict "$HELDOUT_KEY" --exit-code
   artifacts:
     when: always
     expire_in: 30 days
+    # The story's record (its runs, the verdict, the history) and the raw output of the runs (traces, JUnit).
     paths:
-      - output/*/$HELDOUT_KEY/verdict.md
-      - output/*/$HELDOUT_KEY/verdict.json
-      - output/*/$HELDOUT_KEY/runs/
+      - output/*/$HELDOUT_KEY/
+      - .heldout/*/$HELDOUT_KEY/5-runs/
     reports:
-      junit: output/*/$HELDOUT_KEY/runs/*/junit.xml
+      junit: .heldout/*/$HELDOUT_KEY/5-runs/*/junit.xml

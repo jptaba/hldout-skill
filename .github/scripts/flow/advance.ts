@@ -21,11 +21,13 @@ import { readSuite, specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel, writeFile } from '../core/files';
-import { evalPaths, evalRunsOf, journeyPaths, listRuns } from '../core/paths';
+import { readHistory } from '../core/history';
+import { evalPaths, evalRunsOf, journeyPaths, listRuns, runFile } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../requirement/contract-model';
 import { checkReview, readReview } from '../requirement/evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../run/fast-harden';
+import { readRunRecord } from '../triage/triage-model';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -38,8 +40,7 @@ const MAX_REPAIRS = 3;
 function repairsTried(runsDir: string, evalRuns: string[]): number {
   let n = 0;
   for (const r of [...evalRuns].reverse()) {
-    const f = path.join(runsDir, r, 'triage.json');
-    const script = fs.existsSync(f) && readJson<{ entries: { status: string; final?: { category: string } }[] }>(f).entries.some((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT');
+    const script = readRunRecord(runFile({ runs: runsDir }, r)).entries.some((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT');
     if (!script) break;
     n++;
   }
@@ -107,10 +108,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, known: Known, heldo
   heldout('run', key, '--label', 'harden', '--repeat-each', '2', '--workers', '2', '--quiet');
   const run = listRuns(p.runs).find((r) => !before.has(r));
   if (!run) return 'the stability run did not start (preflight)';
-  heldout('triage', key, '--run', run);
-  const triageFile = path.join(p.runs, run, 'triage.json');
-  if (!fs.existsSync(triageFile)) return `${run} could not be classified`;
-  const entries = readJson<{ entries: { scenario: string; status: string; auto?: { category: string } }[] }>(triageFile).entries;
+  const entries = readRunRecord(runFile(p, run)).entries;
   const bad = entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped' && e.auto?.category !== 'APPLICATION_DEFECT');
   if (bad.length) return `the proven journeys did not hold in ${run}: ${bad.slice(0, 6).map((e) => `${e.scenario} (${e.auto?.category ?? e.status})`).join(', ')}`;
   // A journey that is new with this story has no proof but this run: every test that uses it passed each time.
@@ -271,15 +269,14 @@ export function run({ _, flags }: Args): void {
       const lastEval = evalRuns.at(-1)!;
       // The automatic classification first (a re-run takes over the decisions confirmed for identical failures): the
       // triager starts from it.
-      if (!fs.existsSync(path.join(p.runs, lastEval, 'triage.json'))) { heldout('triage', key, '--run', lastEval, ...(evalRuns.length > 1 ? ['--carry-from', 'auto'] : [])); if (!moved()) return handOver('heldout-triager', `Triage run ${lastEval} of ${key}`); continue; }
+      if (!readHistory(p.history).some((e) => e.event === 'triaged' && e.run === lastEval)) { heldout('triage', key, '--run', lastEval, ...(evalRuns.length > 1 ? ['--carry-from', 'auto'] : [])); if (!moved()) return handOver('heldout-triager', `Triage run ${lastEval} of ${key}`); continue; }
       return handOver('heldout-triager', `Triage run ${lastEval} of ${key}`, 'each failure reproduced live before it is called a defect');
     }
 
     if (next.name === 'verdict') {
       // Confirmed script defects are repaired and the suite run again before the verdict, at most three times.
       const evalRuns = evalRunsOf(p.runs);
-      const triageFile = path.join(p.runs, evalRuns.at(-1) ?? '', 'triage.json');
-      const scriptDefects = fs.existsSync(triageFile) ? readJson<{ entries: { scenario: string; status: string; final?: { category: string; rationale?: string } }[] }>(triageFile).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT') : [];
+      const scriptDefects = evalRuns.length ? readRunRecord(runFile(p, evalRuns.at(-1)!)).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT') : [];
       if (scriptDefects.length && repairsTried(p.runs, evalRuns) <= MAX_REPAIRS) {
         console.log(`\n■ Next: the heldout-hardener subagent — ${scriptDefects.length} confirmed script defect(s) in ${evalRuns.at(-1)}`);
         console.log(`  Task: "Repair these script defects for ${key}: ${scriptDefects.map((e) => `${e.scenario} (${(e.final?.rationale ?? '').slice(0, 100)})`).join('; ')}"`);

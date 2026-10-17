@@ -8,7 +8,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, timestamp, writeFile } from '../../core/files';
+import { ROOT, writeFile } from '../../core/files';
 import { adfToWiki } from '../jira/adf';
 import type { AdfNode, IssueTracker, JiraAttachmentMeta, JiraIssue } from '../jira/types';
 

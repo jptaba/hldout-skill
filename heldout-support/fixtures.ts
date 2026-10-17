@@ -750,7 +750,11 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   },
 
   api: async ({ apiContext }, use, testInfo) => {
-    await use(makeApi(apiContext, (name, body) => testInfo.attach(name, { body, contentType: 'application/json' })));
+    // Every exchange is kept while the test runs, and attached only if the test failed: a passing test's calls are
+    // evidence of nothing, and they made most of a run's results file.
+    const exchanges: { name: string; body: string }[] = [];
+    await use(makeApi(apiContext, async (name, body) => { exchanges.push({ name, body }); }));
+    if (testInfo.status !== testInfo.expectedStatus) for (const x of exchanges) await testInfo.attach(x.name, { body: x.body, contentType: 'application/json' });
   },
 });
 

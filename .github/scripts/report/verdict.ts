@@ -8,22 +8,21 @@
  * application defects → INCONCLUSIVE on unexplained failures → PASS_WITH_WARNINGS → PASS).
  * Application defects that share a root-cause title (the title given when confirming them in triage) are grouped.
  */
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { checkIntegrity, readFreeze, type IntegrityResult } from '../authoring/integrity-check';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, storyJourneys } from '../authoring/journeys/registry';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
-import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
-import { ROOT, readJson, rel, writeFile } from '../core/files';
+import { assertIssueKey, loadConfig } from '../core/config';
+import { ROOT, rel, writeFile } from '../core/files';
 import { recordEvent } from '../core/history';
-import { evalPaths, evalRunsOf, journeyPaths, listRuns } from '../core/paths';
+import { evalPaths, evalRunsOf, journeyPaths, listRuns, runFile, runRaw } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { comboLabel, oracleDigest, readContract, variantCombinations } from '../requirement/contract-model';
 import type { Category } from '../triage/classify';
 import { curlFor, exchangeLine, rerunCommand } from '../triage/repro';
-import type { TriageEntry, TriageReport } from '../triage/triage-model';
+import { readRunRecord, type TriageEntry } from '../triage/triage-model';
 import { decideVerdict, holdsUnderAnyReading, type Verdict } from './verdict-rules';
 
 const BADGE: Record<Verdict, string> = { PASS: '✅ PASS', PASS_WITH_WARNINGS: '⚠️ PASS WITH WARNINGS', FAIL: '❌ FAIL', INCONCLUSIVE: '❔ INCONCLUSIVE' };
@@ -64,26 +63,32 @@ export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
-  const allRuns = listRuns(p.runs).filter((r) => fs.existsSync(path.join(p.runs, r, 'run-meta.json')));
+  // Every run's record holds its tests and their classification; the triage only confirms decisions in it.
+  const allRuns = listRuns(p.runs);
+  const records = new Map(allRuns.map((r) => [r, readRunRecord(runFile(p, r))]));
   // Non-evaluation runs (hardening dry-runs, single-test reproductions, robustness probes) never become the final run.
   // Nor does a run of some of the tests: a verdict needs the whole suite.
   const evaluations = evalRunsOf(p.runs);
   const finalRun = flagStr(flags, 'run') ?? allRuns.filter((r) => evaluations.includes(r)).at(-1);
-  if (!finalRun) throw new Error(`No evaluation run yet (hardening runs don't count). Run: npm run heldout -- run ${key} --label eval`);
-  // The final run is always the latest evaluation run. A run with nothing to triage (everything passed) may never have
-  // been triaged: classify it now rather than fall back to an older run.
-  if (!fs.existsSync(path.join(p.runs, finalRun, 'triage.json'))) {
-    const again = spawnSync(process.execPath, [...process.execArgv, path.join(SCRIPTS_DIR, 'heldout.ts'), 'triage', key, '--run', finalRun], { stdio: 'inherit', cwd: ROOT });
-    if (again.status !== 0 || !fs.existsSync(path.join(p.runs, finalRun, 'triage.json'))) throw new Error(`${finalRun} has not been triaged: npm run heldout -- triage ${key}`);
-  }
-  const runs = allRuns.filter((r) => fs.existsSync(path.join(p.runs, r, 'triage.json')));
+  if (!finalRun || !records.has(finalRun)) throw new Error(`No evaluation run yet (hardening runs don't count). Run: npm run heldout -- run ${key} --label eval`);
+  const runs = allRuns;
   // Runs are numbered 01, 02…; a missing number means a run was deleted, and its result with it.
-  const numbers = listRuns(p.runs).map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
+  const numbers = allRuns.map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
   const missingRuns = numbers.length ? Array.from({ length: Math.max(...numbers) }, (_, i) => i + 1).filter((n) => !numbers.includes(n)) : [];
   if (missingRuns.length) console.log(`⚠ run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} are missing from ${rel(p.runs)}/: the verdict says so`);
 
-  const tri = readJson<TriageReport>(path.join(p.runs, finalRun, 'triage.json'));
-  const meta = readJson<{ startedAt: string; finishedAt: string; autId?: string; stats?: { duration: number }; preflight?: unknown }>(path.join(p.runs, finalRun, 'run-meta.json'));
+  const tri = records.get(finalRun)!;
+  const meta = tri.meta;
+  // The screenshot a finding shows is kept with the story's evidence: the run's raw output is scratch.
+  const kept = new Map<TriageEntry, string>();
+  const keptScreenshot = (e: TriageEntry): string => {
+    if (kept.has(e)) return kept.get(e)!;
+    const src = e.evidence.screenshot && path.join(ROOT, e.evidence.screenshot);
+    const dest = path.join(p.evidence, `${finalRun}-${e.scenario}.png`);
+    if (src && fs.existsSync(src)) { fs.mkdirSync(p.evidence, { recursive: true }); fs.copyFileSync(src, dest); }
+    kept.set(e, fs.existsSync(dest) ? rel(dest) : '');
+    return kept.get(e)!;
+  };
   const story = frontMatter(p.storyMd);
   const contract = readContract(p.contract);
   if (!contract) throw new Error(`No requirement contract for ${key} — phase 1b first: heldout contract ${key} --pack`);
@@ -137,7 +142,7 @@ export function run({ _, flags }: Args): void {
   [...groups.values()].forEach((g, i) => g.forEach((e) => appIds.set(e, `APP-${i + 1}`)));
 
   // Script defects confirmed in any earlier run, hardening included (evidence the triage loop worked).
-  const repaired = runs.filter((r) => r < finalRun).flatMap((r) => readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries
+  const repaired = runs.filter((r) => r < finalRun).flatMap((r) => records.get(r)!.entries
     .filter((e) => e.final?.category === 'SCRIPT_DEFECT').map((e) => ({ run: r, e, now: tri.entries.find((x) => x.scenario === e.scenario)?.status ?? 'n/a' })));
 
   // An open question about a non-required oracle gap is for the owner's information: "not required" means the criteria
@@ -277,9 +282,9 @@ export function run({ _, flags }: Args): void {
       ...g.flatMap((x) => apiReproduction(x)),
       '**Automated re-run of the failing test(s):**', '', '```bash', ...g.map((x) => rerunCommand(key, x.scenario)), '```', '',
       '#### Evidence', '',
-      ...(e.evidence.screenshot && !api ? [`![${e.scenario} at the moment of failure](${link(e.evidence.screenshot)})`, ''] : []),
-      ...[e.evidence.errorContext && `- [Page/test context at failure](${link(e.evidence.errorContext)})`,
-        e.evidence.trace && `- Step-by-step trace: \`npx playwright show-trace ${e.evidence.trace}\``,
+      ...(!api && keptScreenshot(e) ? [`![${e.scenario} at the moment of failure](${link(keptScreenshot(e))})`, ''] : []),
+      ...[e.evidence.snapshotExcerpt && `- The page at the failure (its accessibility tree) is in the run's record: ${rel(runFile(p, finalRun))}, test ${e.scenario}`,
+        e.evidence.trace && fs.existsSync(path.join(ROOT, e.evidence.trace)) && `- Step-by-step trace, while the run's raw output is kept: \`npx playwright show-trace ${e.evidence.trace}\``,
         f?.evidence && `- Live re-check by the evaluator: ${esc(f.evidence)}`].filter(Boolean) as string[], '',
       `**Evaluator's analysis:** ${esc(f?.rationale ?? e.auto?.signals.join(' ') ?? '')}`, '',
       '**Reviewer decision:** ☐ Confirm as defect · ☐ Not a defect (explain) · ☐ Requirement needs clarification', '');
@@ -425,7 +430,7 @@ export function run({ _, flags }: Args): void {
     ...(repaired.length ? ['5. Script defects were repaired (mechanics only) and the full suite re-run. This verdict reflects the final run.', ''] : ['5. No script defect needed repairing after hardening. This verdict reflects the final run.', '']),
     '| Run | Passed | Failed | Flaky |', '| --- | --- | --- | --- |',
     ...allRuns.map((r) => {
-      const st = readJson<{ stats?: { expected: number; unexpected: number; flaky: number } }>(path.join(p.runs, r, 'run-meta.json')).stats;
+      const st = records.get(r)!.meta.stats;
       const note = r === finalRun ? ' (final)' : /^\d+-harden/.test(r) ? ' (hardening dry-run)' : !evaluations.includes(r) ? ' (not an evaluation run: a reproduction, a repair check or some of the tests)' : '';
       return `| \`${r}\`${note} | ${st?.expected ?? '-'} | ${st?.unexpected ?? '-'} | ${st?.flaky ?? '-'} |`;
     }), '',
@@ -433,9 +438,9 @@ export function run({ _, flags }: Args): void {
     `- Requirement: [story.md](${link(rel(p.storyMd))}) · contract: [contract.json](${link(rel(p.contract))}) · review: [review.json](${link(rel(p.review))})`,
     `- Tests: [${rel(p.tests)}/](${link(rel(p.tests))}/) · frozen draft: [freeze.json](${link(rel(p.freeze))}) · hardening: [hardening.md](${link(rel(p.hardeningLog))})`,
     `- Journeys: ${rel(journeyPaths(cfg, cfg.autId).fixtures)}/ · registry: ${rel(journeyPaths(cfg, cfg.autId).registry)}`,
-    `- Triage: [${finalRun}/triage.md](${link(rel(path.join(p.runs, finalRun, 'triage.md')))}) · JUnit: ${rel(path.join(p.runs, finalRun, 'junit.xml'))}`,
+    `- Runs: ${allRuns.map((r) => `[${r}.json](${link(rel(runFile(p, r)))})`).join(' · ')} (each run's tests, the evidence of its failures and the decisions)`,
     `- History of the evaluation: [history.jsonl](${link(rel(p.history))})`,
-    `- HTML report: \`npx playwright show-report ${rel(path.join(p.runs, finalRun, 'html'))}\``, '');
+    ...(fs.existsSync(path.join(runRaw(p, finalRun), 'html')) ? [`- HTML report, while the run's raw output is kept: \`npx playwright show-report ${rel(path.join(runRaw(p, finalRun), 'html'))}\``] : []), '');
 
   const out = md.join('\n');
   writeFile(p.verdictMd, out);
@@ -448,7 +453,7 @@ export function run({ _, flags }: Args): void {
       expected: g[0].error?.expected ?? null, actual: actualOf(g[0]),
       rationale: g[0].final?.rationale ?? null, liveCheck: g[0].final?.evidence ?? null,
       steps: stepsOf(g[0].scenario), api: g[0].evidence.api ?? null,
-      screenshot: g[0].evidence.screenshot ?? null, apiSequence: g[0].evidence.apiSequence ?? null,
+      screenshot: keptScreenshot(g[0]) || null, apiSequence: g[0].evidence.apiSequence ?? null,
       reproduce: g.map((x) => rerunCommand(key, x.scenario)),
     })),
     // Confirmed failures whose expectation rests on an unsettled reading: questions for the owner, not defects.

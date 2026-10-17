@@ -3,15 +3,21 @@
  *
  *   heldout run <KEY> [--label eval] [--grep SCN-003] [--capture]
  *       [--retries N] [--workers N] [--repeat-each N] [--headed] [--aut <profile>] [--skip-preflight] [--allow-degraded] [--wait-healthy <seconds>] [--quiet | --verbose]
+ *       [--junit] [--html]
  *   --repeat-each N: stability check during hardening (exposes races that a single green run hides)
+ *   --junit, --html: Playwright's JUnit file (for a CI server) and HTML report (for a person debugging), in the raw output
  *
  * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden*)
  * and an AUT healthcheck (3 samples per URL) — an unreachable or degraded (slow) AUT aborts before any test runs.
  *
- * Each invocation gets its own folder: output/<profile>/<KEY>/5-runs/<NN>-<label>/, and a line in the story's history
- *   results.json (Playwright JSON), junit.xml, html/, artifacts/ (screenshots, traces, error-context),
- *   snapshots/ (ARIA snapshots per step when --capture), run-meta.json
- * Exit code is 0 whenever a results.json was produced — failing tests are data for triage, not a crash.
+ * Each run is numbered and named NN-label, and leaves:
+ *   output/<profile>/<KEY>/5-runs/NN-label.json   its record: how it ran, its seeding, every test (one line for a test
+ *                                                 that passed; for a failure, its evidence and an automatic class)
+ *   .heldout/<profile>/<KEY>/5-runs/NN-label/     the raw output (Playwright's JSON, the failures' traces, screenshots
+ *                                                 and page snapshots, console.log, snapshots/ with --capture); only
+ *                                                 the last two runs' raw output is kept, and any run still in triage
+ *   a line in the story's history
+ * Exit code is 0 whenever Playwright produced results — failing tests are data for triage, not a crash.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -23,17 +29,48 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
 import { recordEvent, skillFingerprint } from '../core/history';
-import { NON_EVAL_RUN, evalPaths, listRuns } from '../core/paths';
+import { NON_EVAL_RUN, evalPaths, listRuns, runFile, runRaw, type StoryPaths } from '../core/paths';
 import { accountRoles, autEnv, dataPrefix, existingAccountWorkers } from '../core/profile';
 import { relativizePaths, scrubDir, secretValuesFor } from '../core/redact';
 import { loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { envNamesIn } from '../probe/accounts-recipe';
+import { digestRun } from '../triage/record';
+import { pendingOf, readRunRecord, writeRunRecord, type RunMeta, type RunRecord, type SeedSummary } from '../triage/triage-model';
 import { failedTests } from './results';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }
 
+/**
+ * Keep a story's raw run output bounded: the last two runs', and that of any evaluation run whose failures are not
+ * all decided yet (the triager still needs its traces). The records stay: runs are history.
+ */
+function rotateRaw(p: StoryPaths, runs: string[]): void {
+  if (!fs.existsSync(p.work.runs)) return;
+  const keep = new Set(runs.slice(-2));
+  for (const r of runs) {
+    if (!NON_EVAL_RUN.test(r) && fs.existsSync(runFile(p, r)) && pendingOf(readRunRecord(runFile(p, r))).length) keep.add(r);
+  }
+  for (const d of fs.readdirSync(p.work.runs, { withFileTypes: true })) {
+    if (d.isDirectory() && /^\d{2,}-/.test(d.name) && !keep.has(d.name)) fs.rmSync(path.join(p.work.runs, d.name), { recursive: true, force: true });
+  }
+}
+
+/**
+ * Of a run's artifacts, keep the folders its record points at: the failing attempt of each test. Earlier attempts of a
+ * retried test hold the same failure again.
+ */
+function keepEvidenceOnly(runDir: string, record: RunRecord): void {
+  const artifacts = path.join(runDir, 'artifacts');
+  if (!fs.existsSync(artifacts)) return;
+  const used = new Set(record.entries.flatMap((e) => [e.evidence.screenshot, e.evidence.trace, e.evidence.errorContext])
+    .filter((f): f is string => Boolean(f)).map((f) => path.relative(artifacts, path.join(ROOT, f)).split(path.sep)[0]));
+  for (const d of fs.readdirSync(artifacts, { withFileTypes: true })) {
+    if (d.isDirectory() && !used.has(d.name)) fs.rmSync(path.join(artifacts, d.name), { recursive: true, force: true });
+  }
+}
+
 /** What the tests' seeding did, from the seed-ledger attachments: data created, cleaned, already gone, kept, and left behind. */
-function seedSummary(results: unknown, prefix: string): { created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[]; accounts: { used: number; reset: number; notReset: string[] } } {
+function seedSummary(results: unknown, prefix: string): SeedSummary {
   const sum = { created: 0, cleaned: 0, alreadyGone: 0, kept: 0, keptBy: {} as Record<string, number>, leftovers: [] as string[], accounts: { used: 0, reset: 0, notReset: [] as string[] } };
   const keptSeen = new Set<string>();
   const walk = (v: unknown, title: string): void => {
@@ -77,7 +114,7 @@ function seedSummary(results: unknown, prefix: string): { created: number; clean
 export const spec: CommandSpec = {
   name: 'run', group: 'Run', usage: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]',
   about: 'preflight + run the held-out suite',
-  flags: ['allow-degraded', 'aut', 'capture', 'grep', 'headed', 'label', 'quiet', 'repeat-each', 'retries', 'skip-preflight', 'verbose', 'wait-healthy', 'workers'],
+  flags: ['allow-degraded', 'aut', 'capture', 'grep', 'headed', 'html', 'junit', 'label', 'quiet', 'repeat-each', 'retries', 'skip-preflight', 'verbose', 'wait-healthy', 'workers'],
 };
 
 export async function run({ _, flags }: Args): Promise<void> {
@@ -118,7 +155,10 @@ export async function run({ _, flags }: Args): Promise<void> {
   const runs = listRuns(p.runs);
   const next = runs.length ? Number(runs.at(-1)!.split('-')[0]) + 1 : 1;
   const runName = `${String(next).padStart(2, '0')}-${label}`;
-  const runDir = path.join(p.runs, runName);
+  rotateRaw(p, runs);
+  // Playwright's raw output goes to the scratch area; the run's record (5-runs/NN-label.json) is written from it.
+  const runDir = runRaw(p, runName);
+  fs.rmSync(runDir, { recursive: true, force: true });
   fs.mkdirSync(runDir, { recursive: true });
 
   const args = ['playwright', 'test', rel(p.tests) + '/'];
@@ -163,6 +203,9 @@ export async function run({ _, flags }: Args): Promise<void> {
     // test's requests (and the records it leaves) a second time. Evaluation runs keep the profile's retries.
     ...(flagStr(flags, 'retries') !== undefined ? { HELDOUT_RETRIES: flagStr(flags, 'retries') } : NON_EVAL_RUN.test(runName) ? { HELDOUT_RETRIES: '0' } : {}),
     ...(repeatEach ? { HELDOUT_REPEAT_EACH: repeatEach } : {}),
+    // Two more reports, on request: JUnit for a CI server, Playwright's HTML report for a person debugging.
+    ...(flags.junit ? { HELDOUT_JUNIT: '1' } : {}),
+    ...(flags.html ? { HELDOUT_HTML: '1' } : {}),
   };
 
   const startedAt = new Date().toISOString();
@@ -199,22 +242,37 @@ export async function run({ _, flags }: Args): Promise<void> {
   const resultsFile = path.join(runDir, 'results.json');
   const produced = fs.existsSync(resultsFile);
   const stats = produced ? readJson<{ stats: Stats }>(resultsFile).stats : undefined;
-  const meta = {
-    key, run: runName, label, startedAt, finishedAt: new Date().toISOString(),
+  const meta: RunMeta = {
+    label, startedAt, finishedAt: new Date().toISOString(),
     autId: cfg.autId, aut: { name: cfg.aut.name, baseURL: cfg.aut.baseURL, apiBaseURL: cfg.aut.apiBaseURL },
-    command: `npx ${args.join(' ')}`, repeatEach: repeatEach ? Number(repeatEach) : null, grep: grep ?? null, capture: Boolean(flags.capture),
+    command: `npx ${args.join(' ')}`, workers: workers ?? null, repeatEach: repeatEach ? Number(repeatEach) : null, grep: grep ?? null, capture: Boolean(flags.capture),
     preflight: flags['skip-preflight'] ? 'skipped' : { health },
     postflight: { health: postHealth },
     skill: skillFingerprint(),
-    exitCode: res.status, stats,
+    exitCode: res.status, stats, raw: rel(runDir),
+    ...(produced ? {} : { error: `Playwright produced no results (exit ${res.status})` }),
   };
-  writeFile(path.join(runDir, 'run-meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
+  // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
+  const seeded = produced ? seedSummary(readJson<unknown>(resultsFile), dataPrefix(cfg.aut)) : undefined;
+  // Data made once per worker (seed.shared) is removed when the run is over: the teardown reports what it did.
+  const sharedFile = path.join(runDir, 'shared-data.json');
+  const shared = fs.existsSync(sharedFile) ? readJson<{ label: string; cleanup: string; error?: string; created?: unknown }[]>(sharedFile) : [];
+  for (const s of shared.filter((x) => x.cleanup === 'failed')) seeded?.leftovers.push(`shared: ${s.label} — ${s.error ?? 'failed'} (${JSON.stringify(s.created ?? null).slice(0, 100)})`);
+  // The record of the run: kept, committed, and what triage, the verdict and every later review read. A run that
+  // produced nothing is recorded all the same: runs are history.
+  const digest = produced ? digestRun(cfg, key, runName, resultsFile, [...(Array.isArray(health) ? health : []), ...postHealth])
+    : { key, run: runName, generatedAt: new Date().toISOString(), summary: { total: 0, passed: 0, failed: 0, flaky: 0, skipped: 0 }, entries: [] };
+  const record: RunRecord = { ...digest, meta, ...(seeded ? { seed: seeded } : {}) };
+  const recordFile = runFile(p, runName);
+  writeRunRecord(recordFile, record);
+  scrubDir(p.runs, secrets.values);
+  keepEvidenceOnly(runDir, record);
   recordEvent(p.history, 'run', {
     run: runName, label, ...(grep ? { grep } : {}), ...(repeatEach ? { repeatEach: Number(repeatEach) } : {}), workers: workers ?? null,
     exitCode: res.status, stats: stats ? { passed: stats.expected, failed: stats.unexpected, flaky: stats.flaky, skipped: stats.skipped, seconds: Math.round(stats.duration / 1000) } : null,
   });
 
-  if (!produced) throw new Error(`Playwright produced no results.json (exit ${res.status}). Check config / environment.`);
+  if (!produced) throw new Error(`Playwright produced no results (exit ${res.status}). Check config / environment. The run is recorded in ${rel(recordFile)}.`);
   console.log(`\n■ ${runName}: passed ${stats!.expected}, failed ${stats!.unexpected}, flaky ${stats!.flaky}, skipped ${stats!.skipped} (${Math.round(stats!.duration / 1000)} s)`);
   if (quiet) {
     // Repeats of one test with the same error are one line with a count.
@@ -226,26 +284,22 @@ export async function run({ _, flags }: Args): Promise<void> {
     for (const [line, n] of lines) console.log(n > 1 ? line.replace('\n', ` (×${n})\n`) : line);
     console.log(`  full output: ${rel(path.join(runDir, 'console.log'))}`);
   }
-  console.log(`  run dir: ${rel(runDir)}`);
-  console.log(`  html:    npx playwright show-report ${rel(path.join(runDir, 'html'))}`);
-  // Seed data whose cleanup failed is left behind in a shared AUT: name it so it can be removed.
-  const seeded = seedSummary(readJson<unknown>(resultsFile), dataPrefix(cfg.aut));
-  const leftovers = seeded.leftovers;
-  // Data made once per worker (seed.shared) is removed when the run is over: the teardown reports what it did.
-  const sharedFile = path.join(runDir, 'shared-data.json');
-  const shared = fs.existsSync(sharedFile) ? readJson<{ label: string; cleanup: string; error?: string; created?: unknown }[]>(sharedFile) : [];
+  console.log(`  record:  ${rel(recordFile)}`);
+  console.log(`  raw:     ${rel(runDir)}/ (traces and screenshots of the failures; scratch, removed when the story is complete)`);
+  if (flags.html) console.log(`  html:    npx playwright show-report ${rel(path.join(runDir, 'html'))}`);
   if (shared.length) {
     const kept = shared.filter((s) => s.cleanup === 'none' || s.cleanup === 'skipped').length;
     console.log(`  🧹 shared test data (made once per worker): ${shared.length} — ${shared.filter((s) => s.cleanup === 'done').length} removed when the run ended${kept ? `, ${kept} kept (no undo given, or HELDOUT_KEEP_DATA)` : ''}`);
-    for (const s of shared.filter((x) => x.cleanup === 'failed')) leftovers.push(`shared: ${s.label} — ${s.error ?? 'failed'} (${JSON.stringify(s.created ?? null).slice(0, 100)})`);
   }
-  const acc = seeded.accounts;
+  const seed = seeded!;
+  const leftovers = seed.leftovers;
+  const acc = seed.accounts;
   if (acc.used) {
     const reset = acc.reset || acc.notReset.length ? ` — reset after the test ${acc.reset} time(s)${acc.notReset.length ? `, NOT reset ${acc.notReset.length} time(s)` : ''}` : ' (the recipe has no reset: what a test adds to them stays)';
     console.log(`  👤 existing accounts: taken ${acc.used} time(s)${reset}`);
     for (const x of acc.notReset) console.log(`     ${x}`);
   }
-  if (seeded.created) console.log(`  🧹 test data: ${seeded.created} created — ${seeded.cleaned} cleaned up${seeded.alreadyGone ? `, ${seeded.alreadyGone} already gone (the test deleted it)` : ''}${seeded.kept ? `, ${seeded.kept} kept by design (${Object.entries(seeded.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: the application offers no delete, or HELDOUT_KEEP_DATA; their names start with "${dataPrefix(cfg.aut)}")` : ''}, ${leftovers.length} left behind`);
+  if (seed.created) console.log(`  🧹 test data: ${seed.created} created — ${seed.cleaned} cleaned up${seed.alreadyGone ? `, ${seed.alreadyGone} already gone (the test deleted it)` : ''}${seed.kept ? `, ${seed.kept} kept by design (${Object.entries(seed.keptBy).map(([l, n]) => `${l} ×${n}`).join(', ')}: the application offers no delete, or HELDOUT_KEEP_DATA; their names start with "${dataPrefix(cfg.aut)}")` : ''}, ${leftovers.length} left behind`);
   if (leftovers.length) {
     console.log(`\n⚠ ${leftovers.length} seed cleanup(s) failed — this data is still in the AUT:`);
     for (const l of leftovers.slice(0, 20)) console.log(`  - ${l}`);

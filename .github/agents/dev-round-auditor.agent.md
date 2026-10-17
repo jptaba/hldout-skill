@@ -18,7 +18,7 @@ the commands below from its root.
   per criterion, written before the evaluation. The evaluator never saw it.
 - `<project>/output/<profile>/KEY/`: everything the round produced, one folder per phase in the order to read them:
   `1-requirement/`, `2-contract/` (contract and review), `3-tests/` (the specs, the frozen draft in `freeze.json`, the
-  hardener's `hardening.md`), `4-evidence/` (probe reports), `5-runs/` (every `NN-label/` with `triage.json`),
+  hardener's `hardening.md`), `4-evidence/` (probe reports), `5-runs/` (every run's record `NN-label.json`: its tests, evidence and decisions),
   `6-verdict/` (`verdict.json`, `verdict.md`), and `history.jsonl`: every run, check, freeze, amendment, decision and
   publication, in order — start there.
 - `<project>/journeys/`: the journeys the tests called (`fixtures/<domain>.ts`) and the registry the harvest wrote

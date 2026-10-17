@@ -11,7 +11,7 @@ import { COMMANDS } from '../.github/scripts/heldout';
 
 const DIR = path.join(import.meta.dirname, '..', '.github', 'scripts');
 /** Lowest first: an area may import its own files and those of the areas before it. */
-const AREAS = ['core', 'requirement', 'authoring', 'probe', 'run', 'triage', 'report', 'flow', 'setup'];
+const AREAS = ['core', 'requirement', 'authoring', 'probe', 'triage', 'run', 'report', 'flow', 'setup'];
 const rank = (area: string) => (area === 'setup' ? AREAS.indexOf('flow') : AREAS.indexOf(area));
 
 const files = fs.readdirSync(DIR, { recursive: true, encoding: 'utf8' }).map((f) => f.split(path.sep).join('/')).filter((f) => f.endsWith('.ts'));

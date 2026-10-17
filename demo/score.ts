@@ -17,6 +17,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
 
 interface Key {
   key: string; aut: string; expectedVerdict: string;
@@ -57,7 +58,8 @@ let totals = { expected: 0, tp: 0, asked: 0, fp: 0, autoN: 0, autoAgree: 0, auto
 
 for (const k of keys) {
   const base = storyDir(k.key) ?? path.join(ROOT, 'output', k.aut, k.key);
-  const vFile = path.join(base, 'verdict.json');
+  const [, , , , RUNS, VERDICT] = PHASE_FOLDERS;
+  const vFile = path.join(base, VERDICT, 'verdict.json');
   if (!fs.existsSync(vFile)) { rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | _not evaluated_ | | | |`); continue; }
   const v = JSON.parse(fs.readFileSync(vFile, 'utf8')) as Verdict;
   const confirmed = v.applicationDefects.filter((f) => f.confirmed);
@@ -78,9 +80,10 @@ for (const k of keys) {
 
   // runs: auto-triage agreement. (An answer key's seededScriptDefects belong to drafts planted by hand; the test author
   // writes its own draft, so there is nothing seeded to detect.)
-  const runsDir = path.join(base, 'runs');
-  const runs = fs.existsSync(runsDir) ? fs.readdirSync(runsDir).filter((r) => fs.existsSync(path.join(runsDir, r, 'triage.json')) && !/^\d+-(harden|repro|probe|robustness)/.test(r)).sort() : [];
-  const entries: (Entry & { run: string })[] = runs.flatMap((r) => (JSON.parse(fs.readFileSync(path.join(runsDir, r, 'triage.json'), 'utf8')).entries as Entry[]).map((e) => ({ ...e, run: r })));
+  // Each run's record (5-runs/NN-label.json) holds its tests, their automatic class and the confirmed decisions.
+  const runsDir = path.join(base, RUNS);
+  const runs = fs.existsSync(runsDir) ? fs.readdirSync(runsDir).filter((r) => /^\d+-[\w-]+\.json$/.test(r) && !/^\d+-(harden|repro|probe|robustness)/.test(r)).sort() : [];
+  const entries: (Entry & { run: string })[] = runs.flatMap((r) => (JSON.parse(fs.readFileSync(path.join(runsDir, r), 'utf8')).entries as Entry[]).map((e) => ({ ...e, run: r.replace(/\.json$/, '') })));
   // agreement: first occurrence of each (scenario, final) pair, so carried-over repeats don't inflate the score
   const seen = new Set<string>();
   const judged = entries.filter((e) => e.final && e.auto && e.status !== 'passed').filter((e) => { const id = `${e.scenario}|${e.final!.category}|${e.error?.headline}`; if (seen.has(id)) return false; seen.add(id); return true; });

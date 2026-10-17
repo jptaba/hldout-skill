@@ -83,13 +83,15 @@ describe('guesses left in a journey that is new with the story, settled by the r
 describe('which runs are evaluations', () => {
   it('never a hardening, reproduction or repair run, and never a run of some of the tests', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'runs-'));
-    const run = (name: string, meta?: object) => { fs.mkdirSync(path.join(dir, name)); if (meta) fs.writeFileSync(path.join(dir, name, 'run-meta.json'), JSON.stringify(meta)); };
+    // A run is its record, 5-runs/NN-label.json, which says how it was made.
+    const run = (name: string, meta: object = {}) => fs.writeFileSync(path.join(dir, `${name}.json`), JSON.stringify({ meta }));
     run('01-harden', { grep: null });
     run('02-eval', { grep: null });
     run('03-repair', { grep: 'SCN-010|SCN-014' });
     run('04-check', { grep: 'SCN-010' });
     run('05-rerun', {});
     run('06-repro');
+    fs.mkdirSync(path.join(dir, '07-eval')); // a folder is not a run
     assert.deepEqual(evalRunsOf(dir), ['02-eval', '05-rerun']);
   });
 });

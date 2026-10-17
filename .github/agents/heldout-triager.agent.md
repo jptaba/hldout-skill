@@ -11,7 +11,9 @@ classification is a hypothesis: nothing is an application defect until you have 
 
 Inputs, for story KEY and its run (given in your task; `npm run heldout -- status KEY` prints the story's folder,
 `output/<profile>/KEY/`, and its scratch area, `.heldout/<profile>/KEY/`):
-- `5-runs/<run>/`: results, artifacts, snapshots and API exchanges.
+- `5-runs/<run>.json`: the run's record — every test, and for each failure its error, failing step, page snapshot,
+  API exchanges, seed ledger and automatic class; your decisions are written into it. The raw output (traces,
+  screenshots) is in the scratch area's `5-runs/<run>/` while it is kept.
 - `2-contract/contract.json`, `3-tests/*.spec.ts` and the journeys they import (`journeys/fixtures/<domain>.ts`; what
   each requires is in `journeys/registry.yml`).
 - `.github/skills/heldout-evaluator/references/triage.md`: **the categories, the decision tree and the commands.
@@ -20,15 +22,16 @@ Inputs, for story KEY and its run (given in your task; `npm run heldout -- statu
 Do this:
 1. `npm run heldout -- triage KEY --run <run>`; for a re-run add `--carry-from auto` (decisions carry over only for
    identical failure signatures; anything new must be investigated).
-2. For each failure without a confirmed decision, read `triage.md`, then reproduce it live: UI steps in the first
+2. For each failure without a confirmed decision, read the triage report (`triage` prints where: the scratch area's
+   `5-runs/triage-<run>.md`), then reproduce it live: UI steps in the first
    browser tier available to you or with `heldout inspect --steps-json`, API calls with `heldout api-probe`. Save the
    reports in the story's `4-evidence/` (`--out`). On a shared sandbox, check its own settings or health page before blaming the
    application.
 3. Decide with the reference's decision tree and record it:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.
-   For a failure whose call was sent signed in, `triage` wrote a starting chain beside the evidence
-   (`confirm/<scn>.chain.json`: the sign-ins, then the failing call), and one chain with every distinct failing call
-   of the run (`confirm/all.chain.json`, signed in or not: the one to start from when failures share records, or
+   For a failure whose call was sent signed in, `triage` wrote a starting chain in the scratch area
+   (`4-evidence/chains/<run>/<scn>.chain.json`: the sign-ins, then the failing call), and one chain with every distinct
+   failing call of the run (`all.chain.json` beside them, signed in or not: the one to start from when failures share records, or
    when the application can't delete what a replay makes): add the control call, check whose token the call
    takes, and run it with `heldout api-probe --chain`.
    Failures with one root cause take one call: `--set SCN-008,SCN-009` (a table's base id, `SCN-007`, covers all its
@@ -48,7 +51,7 @@ prints this story's. Write the files you need (probe steps, chains) with your fi
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Inline JSON (`--steps-json`)
-doesn't survive PowerShell's quoting: put the steps in a file under the run's `confirm/` folder and pass
+doesn't survive PowerShell's quoting: put the steps in a file in the scratch area's `4-evidence/` and pass
 `--steps <file>`.
 
 Files: write step and chain files with your file tools only, never with a shell redirection or a script that

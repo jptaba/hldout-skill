@@ -40,12 +40,20 @@ function callBefore(e: TriageEntry): ApiExchange | undefined {
   return seq.slice(0, e.evidence.apiRelevantIndex ?? seq.length).reverse().find((x) => x.request.method !== 'GET');
 }
 
-/**
- * @param runDir absolute run folder — evidence links are written relative to it (triage.md lives there).
- * @param root the project's folder, which the paths in the report's evidence are relative to.
- */
-export function renderTriageMd(r: TriageReport, runDir: string, root = ROOT): string {
-  const link = (projRel: string) => path.relative(runDir, path.join(root, projRel)).split(path.sep).join('/');
+/** Where the triage report is written, and where its replay commands put their files. */
+export interface TriageReportPlaces {
+  /** The folder the report is written to: its evidence links are relative to it. */
+  dir: string;
+  /** The starting chains `triage` writes for the failures (scratch). */
+  chains: string;
+  /** Where the replay reports go (the story's evidence). */
+  evidence: string;
+}
+
+/** @param root the project's folder, which the paths in the report's evidence are relative to. */
+export function renderTriageMd(r: TriageReport, places: TriageReportPlaces, root = ROOT): string {
+  const link = (projRel: string) => path.relative(places.dir, path.join(root, projRel)).split(path.sep).join('/');
+  const fromRoot = (dir: string, file: string) => path.relative(root, path.join(dir, file)).split(path.sep).join('/');
   const out = [`# Triage — ${r.key} / run ${r.run}`, '', `Generated ${r.generatedAt}`, '', ...(r.environmentNote ? [`> ⚠️ **Environment:** ${r.environmentNote}`, ''] : []),
     `**${r.summary.passed}/${r.summary.total} passed**, ${r.summary.failed} failed, ${r.summary.flaky} flaky, ${r.summary.skipped} skipped.`, '',
     '| Test | Type | Criteria | Status | Auto classification | Confidence | Confirmed |', '| --- | --- | --- | --- | --- | --- | --- |',
@@ -106,8 +114,8 @@ export function renderTriageMd(r: TriageReport, runDir: string, root = ROOT): st
         // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
         // are added by hand, or the sequence goes in a chain file).
         ...(e.final ? [] : signedIn(api)
-          ? [`  - replay: the test sent this call signed in, so replay it as a chain: the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator). A starting chain, when the profile has an API sign-in: \`npm run heldout -- api-probe --key ${r.key} --chain ${path.relative(root, path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.chain.json`)).split(path.sep).join('/')} --out …\``]
-          : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''} --out ${path.relative(root, path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.md`)).split(path.sep).join('/')}\``])] : []),
+          ? [`  - replay: the test sent this call signed in, so replay it as a chain: the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator). A starting chain, when the profile has an API sign-in: \`npm run heldout -- api-probe --key ${r.key} --chain ${fromRoot(places.chains, `${replaySlug(e.scenario)}.chain.json`)} --out ${fromRoot(places.evidence, `${r.run}-${replaySlug(e.scenario)}.md`)}\``]
+          : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''} --out ${fromRoot(places.evidence, `${r.run}-${replaySlug(e.scenario)}.md`)}\``])] : []),
       evidenceLine(e),
       // The expected and received values are above: the signals say only what the classification adds.
       '', `**Auto: ${e.auto!.category} (${e.auto!.confidence})**`, '', ...e.auto!.signals.filter((s) => !/^(Expected|Received):/.test(s)).map((s) => `- ${s}`), '', `Next: ${e.auto!.next}`, '', ...confirmed);

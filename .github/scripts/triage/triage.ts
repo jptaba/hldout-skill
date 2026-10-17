@@ -1,193 +1,36 @@
 /**
- * Phase 5 — Triage failures: SCRIPT defect vs APPLICATION defect (vs environment / flaky / unknown).
+ * Phase 5 — Triage failures: SCRIPT defect vs APPLICATION defect (vs environment / flaky / unknown). Every run's record
+ * (5-runs/NN-label.json, written by `heldout run`) already holds each failure's evidence and an automatic
+ * classification; triage is where the decisions are confirmed.
  *
  *   heldout triage <KEY> [--run 02-eval]
- *        → writes 5-runs/<run>/triage.json + triage.md with an evidence-based *automatic* classification.
+ *        → the triage report of the run (in the scratch area) and a starting chain for each failure to replay.
  *
  *   heldout triage <KEY> --carry-from <run|auto>
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
  *
  *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
  *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."] [--any-reading [SCN-a,SCN-b]]
- *        → records the evaluator's *confirmed* classification after live re-investigation.
+ *        → records the evaluator's *confirmed* classification after live re-investigation, in the run's record.
  *        --any-reading: the test is tagged @assumes or @needs-clarification, but the failure holds whichever way the
  *        open question is answered (the rationale says why): it is reported as a defect, not as a question for the owner.
  *        With ids, only those tests of the call are marked (the others stay questions for the owner).
  *
  * The automatic pass never has the last word on an APPLICATION_DEFECT: policy requires a live
- * reproduction in the AUT (tier 1/2/3 browser, or api-probe.ts for API) before --set confirms it.
+ * reproduction in the AUT (tier 1/2/3 browser, or heldout api-probe for an API) before --set confirms it.
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { allJourneys, journeysOfFiles, journeysUsedBy } from '../authoring/journeys/registry';
-import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles, type Endpoint } from '../authoring/spec-model';
+import { baseScenarioId } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
-import { ROOT, readJson, rel, writeFile } from '../core/files';
+import { rel, writeFile } from '../core/files';
 import { recordEvent } from '../core/history';
-import { evalPaths, journeyPaths, listRuns } from '../core/paths';
+import { evalPaths, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
-import { readContract, requestContracts } from '../requirement/contract-model';
-import { CATEGORIES, classify, parseError, relevantExchange, type ApiExchange, type AutoClassification, type Category, type ParsedError } from './classify';
+import { CATEGORIES, type ApiExchange, type Category } from './classify';
 import { renderTriageMd, replaySlug, signedIn } from './triage-report';
-import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, signature, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
-
-export type { TriageEntry, TriageReport };
-
-export type { Category };
-
-// ---- Playwright JSON reporter shapes (subset) ----
-interface PwError { message?: string; stack?: string }
-interface PwStep { title: string; error?: PwError; steps?: PwStep[] }
-interface PwAttachment { name: string; path?: string; body?: string; contentType: string }
-interface PwResult { status: string; retry: number; errors?: PwError[]; error?: PwError; steps?: PwStep[]; attachments?: PwAttachment[] }
-interface PwTest { status: 'expected' | 'unexpected' | 'flaky' | 'skipped'; results: PwResult[] }
-interface PwSpec { title: string; file: string; tags?: string[]; tests: PwTest[] }
-interface PwSuite { title: string; file?: string; specs?: PwSpec[]; suites?: PwSuite[] }
-
-function* specsOf(suites: PwSuite[] = []): Generator<PwSpec> {
-  for (const s of suites) { yield* s.specs ?? []; yield* specsOf(s.suites); }
-}
-
-function deepestFailingStep(steps: PwStep[] = []): string | undefined {
-  for (const s of steps) {
-    if (!s.error) continue;
-    return deepestFailingStep(s.steps) ?? s.title;
-  }
-  return undefined;
-}
-
-const attachmentText = (a?: PwAttachment) => (!a ? '' : a.body ? Buffer.from(a.body, 'base64').toString('utf8')
-  : a.path && fs.existsSync(a.path) ? fs.readFileSync(a.path, 'utf8') : '');
-
-/** The calls the story's journeys (with their files' helpers) make: plumbing, like the spec's SEED-ENDPOINT lines. */
-function journeyEndpoints(cfg: HeldoutConfig, specs: string[]): Endpoint[] {
-  const used = journeysUsedBy(cfg, cfg.autId, specs);
-  return journeysOfFiles(allJourneys(cfg, cfg.autId), used, journeyPaths(cfg, cfg.autId).base).flatMap((j) => (j.endpoints ?? []).map((e) => {
-    const [method, p] = e.split(' ');
-    return { method, path: p, note: `journey ${j.id}` };
-  }));
-}
-
-function buildReport(cfg: HeldoutConfig, key: string, runName: string, resultsFile: string, apiBasePath: string): TriageReport {
-  const p = evalPaths(cfg, key);
-  const results = readJson<{ suites: PwSuite[] }>(resultsFile);
-  const contract = readContract(p.contract);
-  const feature = readSuite(p.tests, contract);
-  const plumbing = [...feature.seedEndpoints, ...journeyEndpoints(cfg, specFiles(p.tests))];
-  const requests = requestContracts(contract);
-  const entries: TriageEntry[] = [];
-  for (const spec of specsOf(results.suites)) {
-    for (const t of spec.tests) {
-      const last = t.results.at(-1);
-      const failedAttempt = [...t.results].reverse().find((r) => r.status !== 'passed' && r.status !== 'skipped');
-      const scenario = spec.title.match(SCENARIO_ID_RE)?.[1] ?? spec.title;
-      const tags = (spec.tags ?? []).map((x) => (x.startsWith('@') ? x : `@${x}`));
-      const scn = feature.scenarios.find((s) => s.id === baseScenarioId(scenario));
-      const testType = normaliseTestType(tags.find((x) => x.startsWith('@type:'))?.slice(6)) ?? scn?.testType;
-      const race = isRace(t.status, testType, (failedAttempt?.errors?.length ? failedAttempt.errors : [failedAttempt?.error ?? {}]).map((x) => x.message ?? ''));
-      const status = t.status === 'expected' ? 'passed' : t.status === 'unexpected' || race ? 'failed' : t.status;
-      const entry: TriageEntry = {
-        scenario, title: spec.title, file: spec.file, status,
-        tags, requirementRefs: [...new Set([...tags.filter((x) => /^@AC-\d+$/.test(x)).map((x) => x.slice(1)), ...(scn?.acs ?? [])])],
-        testType,
-        layer: tags.find((x) => x.startsWith('@layer:'))?.slice(7) ?? scn?.layer,
-        evidence: { attempts: t.results.length },
-        otherFailures: [],
-      };
-      if ((status === 'failed' || status === 'flaky') && failedAttempt) {
-        const messages = (failedAttempt.errors?.length ? failedAttempt.errors : [failedAttempt.error ?? {}]).map((x) => x.message ?? '').filter(Boolean);
-        const parsed = messages.map(parseError);
-        entry.error = parsed[0] ?? parseError('');
-        entry.otherFailures = parsed.slice(1).map((x) => ({ headline: x.headline, reqTag: x.reqTag, expected: x.expected, received: x.received }));
-        // A test of several criteria (a composition) fails the criteria whose [REQ AC-n] assertions failed, not all it is tagged with.
-        const failedAcs = [...new Set(parsed.flatMap((x) => x.reqTag?.match(/\bAC-\d+\b/g) ?? []))];
-        if (failedAcs.length) entry.requirementRefs = failedAcs;
-        entry.failingStep = deepestFailingStep(failedAttempt.steps);
-        const att = (name: RegExp) => failedAttempt.attachments?.find((a) => name.test(a.name) && a.path)?.path;
-        entry.evidence.screenshot = att(/^screenshot$/) && rel(att(/^screenshot$/)!);
-        entry.evidence.trace = att(/^trace$/) && rel(att(/^trace$/)!);
-        const ctx = att(/^error-context$/);
-        entry.evidence.errorContext = ctx && rel(ctx);
-        // Only the page's ARIA tree is evidence — error-context.md also carries test source and call logs.
-        const ctxText = ctx && fs.existsSync(ctx) ? fs.readFileSync(ctx, 'utf8') : '';
-        let snapshot = ctxText.match(/# Page snapshot\s*```(?:yaml)?\r?\n([\s\S]*?)```/)?.[1] ?? '';
-        if (!snapshot) snapshot = attachmentText(failedAttempt.attachments?.filter((a) => /^aria-snapshot .*failed/i.test(a.name)).at(-1));
-        entry.evidence.snapshotExcerpt = snapshot ? snapshot.split('\n').slice(0, 60).join('\n') : undefined;
-        const seedText = attachmentText(failedAttempt.attachments?.find((a) => a.name === 'seed-ledger'));
-        if (seedText) { try { entry.evidence.seed = JSON.parse(seedText); } catch { /* ignore */ } }
-        // Evidence = exchanges of the scenario itself; seed/cleanup plumbing ("[seed]"/"[cleanup]") is excluded.
-        const apiAtts = failedAttempt.attachments?.filter((a) => a.name.startsWith('api-exchange ') && !/\[(seed|cleanup)\]/.test(a.name)) ?? [];
-        entry.evidence.apiCalls = apiAtts.length || undefined;
-        // Full request sequence (already redacted by the fixture) — lets a reviewer replay the finding step by step.
-        const sequence = apiAtts.map((a) => { try { return JSON.parse(attachmentText(a)) as ApiExchange; } catch { return undefined; } })
-          .filter((x): x is ApiExchange => Boolean(x));
-        if (sequence.length) {
-          entry.evidence.apiSequence = sequence;
-          // A failing assertion on a page element is about the page: the API calls are context, none of them
-          // "the one that contradicts the requirement" (unless the assertion names its call).
-          const onPage = Boolean(entry.error.locator) && !/\b(GET|POST|PUT|PATCH|DELETE)\s+\//.test(entry.error.headline);
-          if (!onPage) {
-            const idx = relevantExchange(sequence, entry.error);
-            entry.evidence.apiRelevantIndex = idx;
-            entry.evidence.api = sequence[idx];
-          }
-        }
-        // Precondition calls (API pre-steps) — kept separately so the verdict can show them as "run these first".
-        const preSeq = (failedAttempt.attachments ?? []).filter((a) => a.name.startsWith('api-exchange ') && /\[seed\]/.test(a.name))
-          .map((a) => { try { return JSON.parse(attachmentText(a)) as ApiExchange; } catch { return undefined; } })
-          .filter((x): x is ApiExchange => Boolean(x));
-        if (preSeq.length) entry.evidence.preSequence = preSeq;
-        // A BLOCKED precondition that went through the API: the relevant exchange is the last seed call.
-        // A transport error (no answer at all) has no exchange: the last seed call that did answer is not the culprit.
-        const noAnswer = /socket hang up|ECONNRESET|ETIMEDOUT|ECONNREFUSED|EPIPE|ENOTFOUND|fetch failed/i.test(entry.error.message);
-        if (!entry.evidence.api && preSeq.length && /\[SEED\]/.test(entry.error.message) && !noAnswer) {
-          entry.evidence.api = preSeq.at(-1);
-          entry.evidence.apiRelevantIndex = preSeq.length - 1;
-        }
-        entry.auto = classify(entry.error, { snapshot, flaky: status === 'flaky', api: entry.evidence.api, endpoints: [...feature.endpoints, ...plumbing], requestContracts: requests, apiBasePath });
-        if (entry.auto.category === 'APPLICATION_DEFECT' && (scn?.needsClarification || scn?.assumes.length)) {
-          entry.auto.signals.push(`${scn.id} rests on an unsettled reading (${scn.assumes.length ? `assumed ${scn.assumes.join(', ')}` : '@needs-clarification: the literal reading of an open question'}). Confirm what the application does as usual; the verdict then lists it as a question for the owner, not as a defect.`);
-        }
-        if (race) entry.auto.signals.unshift(`Concurrency: the invariant broke on attempt ${t.results.indexOf(failedAttempt) + 1} of ${t.results.length} and held on a retry. Intermittent is how a race shows; reproduce the burst live before confirming.`);
-        for (const o of entry.otherFailures) {
-          entry.auto.signals.push(`Also failed: ${o.headline}${o.expected !== undefined ? ` — expected ${o.expected}, received ${o.received}` : ''}`);
-        }
-      }
-      if (last?.status === 'skipped') entry.status = 'skipped';
-      entries.push(entry);
-    }
-  }
-  const merged = mergeRepeats(entries);
-  entries.length = 0;
-  entries.push(...merged);
-  // Scenario dependencies (@depends:SCN-x): attach the dependency's status; a BLOCKED/failed dependant names its cause.
-  for (const e of entries) {
-    const deps = feature.scenarios.find((s) => s.id === baseScenarioId(e.scenario))?.depends ?? [];
-    if (!deps.length) continue;
-    e.evidence.dependsOn = deps.map((d) => ({ scenario: d, status: entries.filter((x) => baseScenarioId(x.scenario) === d).map((x) => x.status).find((st) => st !== 'passed') ?? (entries.some((x) => baseScenarioId(x.scenario) === d) ? 'passed' : 'not run') }));
-    const broken = e.evidence.dependsOn.filter((d) => d.status !== 'passed');
-    if (e.auto && broken.length) {
-      e.auto.signals.unshift(e.auto.category === 'BLOCKED'
-        ? `Blocked: depends on ${broken.map((d) => `${d.scenario} (${d.status})`).join(', ')} — resolve that scenario first; this one was not evaluated.`
-        : `Note: depends on ${broken.map((d) => `${d.scenario} (${d.status})`).join(', ')}, but this scenario's preconditions succeeded and its own action ran — its failure stands on its own.`);
-    }
-  }
-  entries.sort((a, b) => a.scenario.localeCompare(b.scenario, undefined, { numeric: true }));
-  // Run-level environment correlation (pre/post healthchecks recorded by run.ts).
-  const metaFile = path.join(path.dirname(resultsFile), 'run-meta.json');
-  const meta = fs.existsSync(metaFile) ? readJson<{ preflight?: { health?: HealthSample[] } | string; postflight?: { health?: HealthSample[] } }>(metaFile) : {};
-  const health = [...(typeof meta.preflight === 'object' ? meta.preflight.health ?? [] : []), ...(meta.postflight?.health ?? [])];
-  const environmentNote = [correlateDegradedEnvironment(entries, health), correlateAuthPrecondition(entries)].filter(Boolean).join(' ') || undefined;
-  const count = (s: TriageEntry['status']) => entries.filter((e) => e.status === s).length;
-  return {
-    key, run: runName, generatedAt: new Date().toISOString(),
-    summary: { total: entries.length, passed: count('passed'), failed: count('failed'), flaky: count('flaky'), skipped: count('skipped') },
-    ...(environmentNote ? { environmentNote } : {}),
-    entries,
-  };
-}
-
+import { pendingOf, readRunRecord, signature, writeRunRecord, type RunRecord, type TriageEntry } from './triage-model';
 
 /**
  * A chain to start the live replay of a failure whose call was sent signed in: the sign-in of each kind of user the
@@ -230,7 +73,19 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   return { note: `${namesRecords ? 'The failing call names records by id, and the run\'s records may be gone: when the call answers "not found", add a setup step that makes each again (save its id) and put the saved ids in the call. Failures that need the same kind of record share one chain: each sign-in once, the record made once, then every failing call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
 
-export { renderTriageMd, signature };
+/** Where a run's triage report and its starting chains go: views and working files, in the scratch area. */
+const placesOf = (p: StoryPaths, run: string) => ({
+  report: path.join(p.work.runs, `triage-${run}.md`),
+  chains: path.join(p.work.evidence, 'chains', run),
+  evidence: p.evidence,
+});
+
+/** Write the run's triage report (a view: rendered again whenever a decision is recorded). */
+function writeReport(p: StoryPaths, record: RunRecord): string {
+  const places = placesOf(p, record.run);
+  writeFile(places.report, renderTriageMd(record, { dir: path.dirname(places.report), chains: places.chains, evidence: places.evidence }));
+  return places.report;
+}
 
 export const spec: CommandSpec = {
   name: 'triage', group: 'Run', usage: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]',
@@ -245,21 +100,16 @@ export function run({ _, flags }: Args): void {
   const runs = listRuns(p.runs);
   const runName = flagStr(flags, 'run') ?? runs.at(-1);
   if (!runName) throw new Error(`No runs under ${rel(p.runs)}`);
-  const runDir = path.join(p.runs, runName);
-  const triageJson = path.join(runDir, 'triage.json');
+  const file = runFile(p, runName);
+  if (!fs.existsSync(file)) throw new Error(`No run ${runName} under ${rel(p.runs)} (runs: ${runs.join(', ') || 'none'})`);
+  const record = readRunRecord(file);
 
   const setId = flagStr(flags, 'set');
   if (setId) {
-    // Confirming straight after a run: build the automatic triage first, as `heldout triage KEY` would.
-    if (!fs.existsSync(triageJson)) {
-      const auto = buildReport(cfg, key, runName, path.join(runDir, 'results.json'), new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
-      writeFile(triageJson, `${JSON.stringify(auto, null, 2)}\n`);
-    }
-    const report = readJson<TriageReport>(triageJson);
     // One decision per root cause: "SCN-007.1,SCN-007.2", or an outline's base id "SCN-007" for all its failing rows.
     const entries = setId.split(',').map((x) => x.trim()).flatMap((id) => {
-      const hit = report.entries.filter((e) => e.scenario === id || (e.error && baseScenarioId(e.scenario) === id));
-      if (!hit.length) throw new Error(`${id} not in ${rel(triageJson)} (have: ${report.entries.filter((e) => e.error).map((e) => e.scenario).join(', ')})`);
+      const hit = record.entries.filter((e) => e.scenario === id || (e.error && baseScenarioId(e.scenario) === id));
+      if (!hit.length) throw new Error(`${id} not in ${rel(file)} (have: ${record.entries.filter((e) => e.error).map((e) => e.scenario).join(', ')})`);
       return hit;
     });
     const category = flagStr(flags, 'category') as Category;
@@ -275,34 +125,26 @@ export function run({ _, flags }: Args): void {
     const stray = marked.filter((id) => !entries.some((e) => e.scenario === id || baseScenarioId(e.scenario) === id));
     if (stray.length) throw new Error(`--any-reading names ${stray.join(', ')}, which --set does not: name tests of this call, or give the flag alone for all of them`);
     for (const e of entries) e.final = { ...decision, ...(anyReading && (!marked.length || marked.includes(e.scenario) || marked.includes(baseScenarioId(e.scenario))) ? { anyReading: true } : {}) };
-    writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
-    writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
+    writeRunRecord(file, record);
+    writeReport(p, record);
     recordEvent(p.history, 'decided', {
       run: runName, tests: entries.map((e) => e.scenario), category, ...(decision.severity ? { severity: decision.severity } : {}),
       ...(anyReading ? { anyReading: marked.length ? marked : true } : {}), ...(decision.evidence ? { evidence: decision.evidence } : {}),
     });
-    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(triageJson)}`);
+    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(file)}`);
     return;
   }
 
-  const report = buildReport(cfg, key, runName, path.join(runDir, 'results.json'), new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname);
-  if (fs.existsSync(triageJson)) { // keep previously confirmed decisions for unchanged failures
-    const prev = readJson<TriageReport>(triageJson);
-    for (const e of report.entries) {
-      const old = prev.entries.find((x) => x.scenario === e.scenario && x.status === e.status);
-      if (old?.final && (e.status !== 'failed' || signature(old) === signature(e))) e.final = old.final;
-    }
-  }
   // --carry-from <run|auto>: reuse confirmed decisions from an earlier run, only for identical failure signatures.
+  const withDecisions = (r: string) => readRunRecord(runFile(p, r)).entries.some((x) => x.final);
   let carryFrom = flagStr(flags, 'carry-from');
   if (carryFrom === 'auto') {
-    carryFrom = runs.filter((r) => r < runName && fs.existsSync(path.join(p.runs, r, 'triage.json'))
-      && readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries.some((x) => x.final)).at(-1);
+    carryFrom = runs.filter((r) => r < runName && withDecisions(r)).at(-1);
     if (!carryFrom) console.log('  (no earlier run with confirmed decisions — nothing to carry)');
   }
   if (carryFrom) {
-    const prev = readJson<TriageReport>(path.join(p.runs, carryFrom, 'triage.json'));
-    for (const e of report.entries.filter((x) => x.status === 'failed' && !x.final)) {
+    const prev = readRunRecord(runFile(p, carryFrom));
+    for (const e of record.entries.filter((x) => x.status === 'failed' && !x.final)) {
       const old = prev.entries.find((x) => x.scenario === e.scenario && x.final && signature(x) === signature(e));
       if (old?.final) {
         e.final = { ...old.final, rationale: `${old.final.rationale.replace(/ \(Confirmed in run .*\)$/, '')} (Confirmed in run ${carryFrom}; identical failure signature in ${runName}.)` };
@@ -310,23 +152,25 @@ export function run({ _, flags }: Args): void {
       }
     }
   }
-  writeFile(triageJson, `${JSON.stringify(report, null, 2)}\n`);
-  const triaged = report.entries.filter((e) => e.auto);
+  writeRunRecord(file, record);
+  const triaged = record.entries.filter((e) => e.auto);
   recordEvent(p.history, 'triaged', {
-    run: runName, ...report.summary,
+    run: runName, ...record.summary,
     automatic: triaged.reduce<Record<string, number>>((n, e) => ({ ...n, [e.auto!.category]: (n[e.auto!.category] ?? 0) + 1 }), {}),
     confirmed: triaged.filter((e) => e.final).length, ...(carryFrom ? { carriedFrom: carryFrom } : {}),
   });
   // A starting chain for the live replay of each failure whose call was sent signed in.
-  for (const e of report.entries.filter((x) => x.status !== 'passed' && !x.final)) {
+  const { chains } = placesOf(p, runName);
+  const pendingEntries = pendingOf(record);
+  for (const e of pendingEntries) {
     const chain = starterChain(cfg, e);
-    const file = path.join(runDir, 'confirm', `${replaySlug(e.scenario)}.chain.json`);
-    if (chain && !fs.existsSync(file)) writeFile(file, `${JSON.stringify(chain, null, 2)}\n`);
+    const chainFile = path.join(chains, `${replaySlug(e.scenario)}.chain.json`);
+    if (chain && !fs.existsSync(chainFile)) writeFile(chainFile, `${JSON.stringify(chain, null, 2)}\n`);
   }
   // And one chain for all of them: each sign-in once, then every distinct failing call (signed in or not). Failures
   // that need the same kind of record are replayed against one record, so the application is left with fewer.
-  const pendingCalls = report.entries.filter((x) => x.status !== 'passed' && !x.final && x.evidence.api);
-  const allFile = path.join(runDir, 'confirm', 'all.chain.json');
+  const pendingCalls = pendingEntries.filter((x) => x.evidence.api);
+  const allFile = path.join(chains, 'all.chain.json');
   if (pendingCalls.length > 1 && !fs.existsSync(allFile)) {
     const seen = new Set<string>(); const signIns: Record<string, unknown>[] = []; const calls: Record<string, unknown>[] = [];
     // A call as a chain step, with the headers that shape the answer (never the ones that prove who calls).
@@ -337,8 +181,8 @@ export function run({ _, flags }: Args): void {
     for (const e of pendingCalls) {
       const api = e.evidence.api!; const seq = e.evidence.apiSequence ?? [];
       // When the failed check read a state back, the call that made that state comes first: a read alone replays nothing.
-      const at = seq.indexOf(api);
-      const cause = api.request.method === 'GET' ? seq.slice(0, at < 0 ? seq.length : at).reverse().find((x) => x.request.method !== 'GET') : undefined;
+      const at = e.evidence.apiRelevantIndex ?? seq.length;
+      const cause = api.request.method === 'GET' ? seq.slice(0, at).reverse().find((x) => x.request.method !== 'GET') : undefined;
       const steps = [...(cause ? [stepOf(`the call before the failing check of ${e.scenario}`, cause)] : []),
         ...(starterChain(cfg, e)?.steps ?? [stepOf(`the failing call of ${e.scenario}`, api)])];
       for (const s of steps) {
@@ -349,22 +193,21 @@ export function run({ _, flags }: Args): void {
         (s.setup ? signIns : calls).push(s);
       }
     }
-    const pending = report.entries.filter((x) => x.status !== 'passed' && !x.final).length;
-    if (calls.length <= 40) writeFile(allFile, `${JSON.stringify({ note: `Starting point written by heldout triage: the API calls of this run's failures in one chain. ${pendingCalls.length} of the ${pending} failures made an API call (the others are checks on a page: replay those with heldout inspect). Calls that differ only in the ids of the records they name are listed once, under the first test that made them: ${calls.length} call(s). Where the failed check read a state back, the call that made the state is listed before it. The run's records may be gone: add setup steps that make each record once (save its id), put the saved ids in the calls, add a control call per root cause, and delete the calls you don't need.`, steps: [...signIns, ...calls] }, null, 2)}\n`);
+    if (calls.length <= 40) writeFile(allFile, `${JSON.stringify({ note: `Starting point written by heldout triage: the API calls of this run's failures in one chain. ${pendingCalls.length} of the ${pendingEntries.length} failures made an API call (the others are checks on a page: replay those with heldout inspect). Calls that differ only in the ids of the records they name are listed once, under the first test that made them: ${calls.length} call(s). Where the failed check read a state back, the call that made the state is listed before it. The run's records may be gone: add setup steps that make each record once (save its id), put the saved ids in the calls, add a control call per root cause, and delete the calls you don't need.`, steps: [...signIns, ...calls] }, null, 2)}\n`);
   }
-  writeFile(path.join(runDir, 'triage.md'), renderTriageMd(report, runDir));
+  const report = writeReport(p, record);
 
-  console.log(`Triage ${key} / ${runName}: ${report.summary.passed}/${report.summary.total} passed, ${report.summary.failed} failed, ${report.summary.flaky} flaky\n`);
-  for (const e of report.entries.filter((x) => x.auto)) {
+  console.log(`Triage ${key} / ${runName}: ${record.summary.passed}/${record.summary.total} passed, ${record.summary.failed} failed, ${record.summary.flaky} flaky\n`);
+  for (const e of triaged) {
     // A confirmed decision is what counts: show it, not the automatic suggestion it replaced.
     const shown = e.final ? `${e.final.category.padEnd(20)} ✔ confirmed  ` : `${e.auto!.category.padEnd(20)} (${e.auto!.confidence.padEnd(6)}) ⏳ pending `;
     console.log(`  ${e.scenario.padEnd(10)} ${shown} ${e.error!.headline.slice(0, 80)}`);
   }
-  console.log(`\n  ${rel(path.join(runDir, 'triage.md'))}`);
+  console.log(`\n  report: ${rel(report)}${pendingEntries.length && fs.existsSync(chains) ? `\n  chains: ${rel(chains)}/` : ''}`);
   // Failures an earlier run already confirmed, identically: say so, rather than asking for the investigation again.
-  const earlier = carryFrom ? undefined : runs.filter((r) => r < runName && fs.existsSync(path.join(p.runs, r, 'triage.json'))
-    && readJson<TriageReport>(path.join(p.runs, r, 'triage.json')).entries.some((x) => x.final)).at(-1);
-  const same = earlier ? report.entries.filter((e) => e.status === 'failed' && !e.final && readJson<TriageReport>(path.join(p.runs, earlier, 'triage.json')).entries.some((x) => x.scenario === e.scenario && x.final && signature(x) === signature(e))) : [];
+  const earlier = carryFrom ? undefined : runs.filter((r) => r < runName && withDecisions(r)).at(-1);
+  const earlierEntries = earlier ? readRunRecord(runFile(p, earlier)).entries : [];
+  const same = pendingEntries.filter((e) => e.status === 'failed' && earlierEntries.some((x) => x.scenario === e.scenario && x.final && signature(x) === signature(e)));
   if (same.length) console.log(`\n↻ ${same.map((e) => e.scenario).join(', ')}: the same failure${same.length > 1 ? 's were' : ' was'} confirmed in ${earlier} (identical signature). Reuse ${same.length > 1 ? 'those decisions' : 'that decision'}: npm run heldout -- triage ${key} --carry-from auto`);
-  if (report.entries.some((x) => x.auto && !x.final && !same.includes(x))) console.log('\nNext: investigate each pending failure live (references/triage.md), then confirm with --set.');
+  if (pendingEntries.some((x) => !same.includes(x))) console.log('\nNext: investigate each pending failure live (references/triage.md), then confirm with --set.');
 }

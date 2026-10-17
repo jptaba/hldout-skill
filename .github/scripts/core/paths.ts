@@ -84,6 +84,11 @@ export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir' | 'auts'>, p
 /** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
 export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;
 
+/** The record of one run (5-runs/NN-label.json): how it ran, and every test with the evidence of its failures. */
+export const runFile = (p: Pick<StoryPaths, 'runs'>, run: string) => path.join(p.runs, `${run}.json`);
+/** The raw output of one run, in the scratch area (Playwright's JSON, artifacts, traces, logs). */
+export const runRaw = (p: Pick<StoryPaths, 'work'>, run: string) => path.join(p.work.runs, run);
+
 /**
  * A story's evaluation runs, oldest first: every run of the whole suite that is not a hardening, reproduction or
  * repair run. A run of some of the tests (`--grep`) is never one, whatever it was labelled: a verdict from four tests
@@ -92,16 +97,15 @@ export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;
 export function evalRunsOf(runsDir: string): string[] {
   return listRuns(runsDir).filter((r) => {
     if (NON_EVAL_RUN.test(r)) return false;
-    const meta = path.join(runsDir, r, 'run-meta.json');
-    return !(fs.existsSync(meta) && readJson<{ grep?: string | null }>(meta).grep);
+    return !readJson<{ meta?: { grep?: string | null } }>(runFile({ runs: runsDir }, r)).meta?.grep;
   });
 }
 
-/** Run folders (NN-label), oldest → newest. */
+/** The story's runs (NN-label, from their records), oldest → newest. */
 export function listRuns(runsDir: string): string[] {
   if (!fs.existsSync(runsDir)) return [];
   return fs.readdirSync(runsDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && /^\d{2,}-/.test(d.name))
-    .map((d) => d.name)
+    .filter((d) => d.isFile() && /^\d{2,}-[\w-]+\.json$/.test(d.name))
+    .map((d) => d.name.replace(/\.json$/, ''))
     .sort();
 }

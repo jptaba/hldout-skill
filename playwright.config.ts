@@ -32,11 +32,13 @@ export default defineConfig({
   workers: num(process.env.HELDOUT_WORKERS, cfg.run?.workers ?? 4),
   timeout: cfg.run?.testTimeoutMs ?? 60_000,
   expect: { timeout: cfg.run?.expectTimeoutMs ?? 5_000 },
+  // `heldout run` digests the JSON into the run's record; JUnit (for a CI server) and the HTML report (for a person
+  // debugging) only when asked for (--junit, --html).
   reporter: [
     ['list'],
     ['json', { outputFile: path.join(runDir, 'results.json') }],
-    ['junit', { outputFile: path.join(runDir, 'junit.xml') }],
-    ['html', { outputFolder: path.join(runDir, 'html'), open: 'never' }],
+    ...(process.env.HELDOUT_JUNIT ? [['junit', { outputFile: path.join(runDir, 'junit.xml') }] as const] : []),
+    ...(process.env.HELDOUT_HTML ? [['html', { outputFolder: path.join(runDir, 'html'), open: 'never' }] as const] : []),
   ],
   use: {
     baseURL: process.env.AUT_BASE_URL,

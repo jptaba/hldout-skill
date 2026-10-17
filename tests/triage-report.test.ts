@@ -5,8 +5,12 @@ import { likeness, renderTriageMd, short } from '../.github/scripts/triage/triag
 import type { TriageEntry, TriageReport } from '../.github/scripts/triage/triage-model';
 
 const ROOT = path.resolve('some-project');
-const RUN = path.join(ROOT, 'output', 'shop', 'ABC-1', 'runs', '02-eval');
-const ART = 'output/shop/ABC-1/runs/02-eval/artifacts';
+const RUN = {
+  dir: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '5-runs'),
+  chains: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '4-evidence', 'chains', '02-eval'),
+  evidence: path.join(ROOT, 'output', 'shop', 'ABC-1', '4-evidence'),
+};
+const ART = '.heldout/shop/ABC-1/5-runs/02-eval/artifacts';
 
 function failure(scenario: string, o: { ac?: string; url?: string; status?: number; body?: unknown; locator?: string; headline?: string; final?: TriageEntry['final'] } = {}): TriageEntry {
   return {
@@ -65,11 +69,11 @@ describe('the triage report', () => {
     assert.match(first, /- Requirement refs: AC-1/);
     assert.match(first, /\*\*Auto: APPLICATION_DEFECT \(high\)\*\*/);
     assert.doesNotMatch(first, /^- Expected: "4xx"$/m, 'the signals do not repeat the expected value');
-    assert.match(first, /replay: `npm run heldout -- api-probe --key ABC-1 POST "https:\/\/shop\.test\/api\/accounts\/12345\/transfer\?amount=0" --out output\/shop\/ABC-1\/runs\/02-eval\/confirm\/scn-001\.md`/);
+    assert.match(first, /replay: `npm run heldout -- api-probe --key ABC-1 POST "https:\/\/shop\.test\/api\/accounts\/12345\/transfer\?amount=0" --out output\/shop\/ABC-1\/4-evidence\/02-eval-scn-001\.md`/);
     assert.match(second, /- Like SCN-001 \(group 1\)/);
     assert.match(second, /response body: as SCN-001/);
     assert.doesNotMatch(second, /\*\*Auto:/);
-    assert.match(second, /- Evidence: test-failed-1\.png, trace\.zip, error-context\.md in \[this folder\]\(artifacts\/SCN-002\/\)/);
+    assert.match(second, /- Evidence: test-failed-1\.png, trace\.zip, error-context\.md in \[this folder\]\(02-eval\/artifacts\/SCN-002\/\)/);
     assert.match(third, /- Requirement refs: AC-1/, 'another status is another group, written in full');
   });
 

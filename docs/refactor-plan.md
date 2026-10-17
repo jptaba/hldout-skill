@@ -148,14 +148,14 @@ output/<profile>/KEY/                         ← the record (committed)
   2-contract/      contract.json  review.json               what the requirement means, and its independent review
   3-tests/         <key>.spec.ts  test-data.json  freeze.json  hardening.md   the tests, their data, the frozen draft, how they were made to work
   4-evidence/      probes.jsonl  P7.md  05-eval-SCN-012.png  everything observed live: every probe; cited reports and screenshots
-  5-runs/          01-harden.json  02-eval.json  02-eval.triage.json   one record per run; the triage beside its run
+  5-runs/          01-harden.json  02-eval.json             one record per run: its tests, their evidence, the decisions
   6-verdict/       verdict.md  verdict.json                 the recommendation
   history.jsonl                                              every step that changed the story, in order
 
 .heldout/<profile>/KEY/                       ← scratch and views (git-ignored), the same folder names
   2-contract/      evidence-pack.md  contract.md
   4-evidence/      probes/Pn.md  steps/  chains/
-  5-runs/          NN-label/ (results.json artifacts/ html/ junit.xml console.log shared-data/ snapshots/)  triage-NN.md
+  5-runs/          NN-label/ (results.json artifacts/ html/ junit.xml console.log shared-data/ snapshots/)  triage-NN-label.md
   stray/
 ```
 
@@ -182,7 +182,9 @@ output/<profile>/KEY/                         ← the record (committed)
 - **No prefixes inside a folder.** The folder already says what a file is: `2-contract/review.json`, not
   `requirement-contract.review.json`. The exceptions are `<key>.spec.ts` (Playwright needs the suffix) and
   `verdict.md`, which keeps its name because it is published.
-- **Runs are files, not folders.** `05-eval.json` and `05-eval.triage.json` sort together. The rule "runs are
+- **A run is one file.** `05-eval.json` holds how the run was made, every test, the evidence of each failure, its
+  automatic class and, once confirmed, the triager's decision: the triage writes into the run's record instead of a
+  second file. The rule "runs are
   history" applies to these records: they are never renamed, renumbered or deleted. Only a run's raw output in the
   scratch is rotated away.
 - **The scratch mirrors the record.** The evidence pack is in `.heldout/…/2-contract/`, the raw output of run 05 in
@@ -204,7 +206,7 @@ output/<profile>/KEY/                         ← the record (committed)
 ```
 
 Citations keep working without change. The contract cites `story.md#L34`, relative to `1-requirement/`. The verdict
-links `../4-evidence/P7.md` and `../5-runs/05-eval.triage.json`; the copy published to Jira keeps them as text, as
+links `../4-evidence/P7.md` and `../5-runs/05-eval.json`; the copy published to Jira keeps them as text, as
 today. Playwright finds the tests by `**/3-tests/*.spec.ts`.
 
 What is kept: about 10 files, plus the linked pages and transcripts, one or two files per run, and the evidence
@@ -235,8 +237,8 @@ renumbers the later one, rewriting its citations.
 | a screenshot the verdict shows | `4-evidence/NN-label-SCN-x.png` | Record |
 | files the agents named (`gaps*.json`, `*.out`, step and chain files) | scratch `4-evidence/steps/`, `chains/`; anything else in `stray/` | Scratch |
 | `runs/NN/run-meta.json` and a digest of `results.json` | `5-runs/NN-label.json` | Record |
-| `runs/NN/triage.json` | `5-runs/NN-label.triage.json`, evidence by reference | Record |
-| `runs/NN/triage.md` | scratch `5-runs/triage-NN.md` | View |
+| `runs/NN/triage.json` | the decisions go into `5-runs/NN-label.json`; its evidence is the record's own | Record |
+| `runs/NN/triage.md` | scratch `5-runs/triage-NN-label.md` | View |
 | `runs/NN/results.json`, `console.log`, `snapshots/`, `shared-data.json`, `artifacts/` | scratch `5-runs/NN-label/` | Scratch |
 | `runs/NN/junit.xml`, `html/` | scratch `5-runs/NN-label/`, only with `--junit` / `--html` | Scratch |
 | `runs/NN/verdict.md` | not written | — |
@@ -359,7 +361,9 @@ in the record. Lines are appended one at a time, so two probes started at once c
     journeys/   journeys.ts registry.ts
   probe/        inspect.ts api-probe.ts mcp-probe.ts mcp-client.ts page.ts detect.ts accounts-recipe.ts
                 + probe-log.ts, trace.ts (packages 6, 7)
-  run/          run.ts results.ts fast-harden.ts  + run-record.ts (package 4)
+  run/          run.ts results.ts fast-harden.ts
+                (the digest of a run's raw results is triage/record.ts: the run command writes the record with it,
+                which is why `triage` sits below `run`)
   triage/       triage.ts classify.ts triage-model.ts triage-report.ts repro.ts
   report/       verdict.ts verdict-rules.ts publish.ts scrub.ts
   flow/         advance.ts phases.ts status.ts  + show.ts, note.ts, prune.ts (package 7)
@@ -385,7 +389,7 @@ package 2). Every other file asks it for a phase folder and never writes a folde
 
 ### Rules
 
-1. **Areas depend downwards only:** `core` ← `requirement` ← `authoring` ← `probe` ← `run` ← `triage` ← `report` ←
+1. **Areas depend downwards only:** `core` ← `requirement` ← `authoring` ← `probe` ← `triage` ← `run` ← `report` ←
    `flow`, `setup` (`flow` and `setup` don't import each other). `core` imports nothing of the skill. No runtime import
    cycles. Type-only imports don't count.
 2. **Commands don't import commands.** Code two commands share (what `verdict` takes from `triage` today) moves into
@@ -447,7 +451,7 @@ package 2). Every other file asks it for a phase folder and never writes a folde
   phase, phase times, stray files and tool gaps per story, from the histories.
 - `demo/inflight.ts <transcripts folder>` counts inline scripts per agent type: the measure of goal 3. It reads Claude
   Code transcripts, so rounds run in Claude Code are what it measures.
-- `demo/score.ts` reads `6-verdict/verdict.json` and `5-runs/*.triage.json`.
+- `demo/score.ts` reads `6-verdict/verdict.json` and the run records `5-runs/*.json` (done with package 4).
 - `dev-round-auditor` works from `heldout show` and `demo/round.ts stats`, and reports tool gaps and stray files as
   skill defects. Its instructions walk the story folder in its numbered order.
 
@@ -490,9 +494,8 @@ what those rounds produced, links and file names aside. It is cheaper to find a 
 | --- | --- | --- | --- |
 | 1a | done | d7747cd | 51 scripts in 9 areas, only `heldout.ts` at the top; 235 self-tests green (230 + 5 layout). Found on the way: the typecheck was already red at the start (a test fixture missing `attempts`, fixed first); the `contract-model` ⇄ `evidence` "cycle" was type-only; `detect` and `accounts-recipe` belong to `probe/`; two functions moved to break upward imports (section 5). Tests stay in one folder (rule 6) |
 | 1b | done | a0758d2 | 24 commands on the contract; 239 self-tests green. `add-aut` became its own module (`setup/add-aut.ts`), with `init` and it sharing `setup/profile-setup.ts`, instead of `init` reading a `--add-aut` flag the dispatcher slipped in. `init` started from the skill's clone runs `update` and the project's `init` through the dispatcher, not by script path; `add-aut` runs in a set-up project only. Flags are declared by name: their help stays in the module's leading comment (rule 3). Checked live: `init` from a clone into an empty project, `add-aut`, `status`, `lint` |
-| 2 + 3 | done | (this commit) | Done as one package: in `3-tests/`, the old `draft/` folder of spec files would have sat inside the tests folder, where spec discovery is recursive, so the freeze had to become `freeze.json` in the same step. Built: `core/paths.ts` with the six phase folders and the scratch area (`PHASE_FOLDERS`, `SCRATCH_DIR`); `core/history.ts` (`recordEvent`, `recordChange` (only when the outcome changed), `lastEvent`, the skill fingerprint moved here from `run`); events written by `fetch` (fetched, revised), `contract` (contract-checked), `lint --draft-finished`, `integrity` (frozen, refrozen, amended, integrity), `run`, `triage` (triaged, decided), `verdict`, `publish`, the harvest; `phases`/`status` read them and print each phase beside its folder; `readContract`/`readReview` take the file; the evidence pack and the readable contract go to the scratch area (and `advance` rebuilds a missing pack without handing the story back to the extractor); `raw-issue.json`, `evaluation.json`, `draft-finished.json`, `publish-log.json`, `journeys-harvest.json`, `integrity.json`, `amendments.json`, `refreeze-log.json`, `draft-history/` and the per-run verdict copy are gone; the mock outbox is one `.http` file per story; `init`/`update` add `.heldout/` and the union merge; verdict links are relative to `6-verdict/`; a `doctor` check that still looked for `test-data.json` at the story's root fixed. Probe reports go to `4-evidence/` (record) and working files to the scratch `4-evidence/` until package 6 brings probe ids. Tests: `history.test.ts`, layout rule 4 (no phase-folder name outside `core/paths.ts`), integrity tests on `freeze.json`; 246 green. Checked live: `init`, `new`, `fetch`, `contract --pack`, `status` in an empty project |
-| 4 | to do | | |
-| 5 | to do | | |
+| 2 + 3 | done | aa470a4 | Done as one package: in `3-tests/`, the old `draft/` folder of spec files would have sat inside the tests folder, where spec discovery is recursive, so the freeze had to become `freeze.json` in the same step. Built: `core/paths.ts` with the six phase folders and the scratch area (`PHASE_FOLDERS`, `SCRATCH_DIR`); `core/history.ts` (`recordEvent`, `recordChange` (only when the outcome changed), `lastEvent`, the skill fingerprint moved here from `run`); events written by `fetch` (fetched, revised), `contract` (contract-checked), `lint --draft-finished`, `integrity` (frozen, refrozen, amended, integrity), `run`, `triage` (triaged, decided), `verdict`, `publish`, the harvest; `phases`/`status` read them and print each phase beside its folder; `readContract`/`readReview` take the file; the evidence pack and the readable contract go to the scratch area (and `advance` rebuilds a missing pack without handing the story back to the extractor); `raw-issue.json`, `evaluation.json`, `draft-finished.json`, `publish-log.json`, `journeys-harvest.json`, `integrity.json`, `amendments.json`, `refreeze-log.json`, `draft-history/` and the per-run verdict copy are gone; the mock outbox is one `.http` file per story; `init`/`update` add `.heldout/` and the union merge; verdict links are relative to `6-verdict/`; a `doctor` check that still looked for `test-data.json` at the story's root fixed. Probe reports go to `4-evidence/` (record) and working files to the scratch `4-evidence/` until package 6 brings probe ids. Tests: `history.test.ts`, layout rule 4 (no phase-folder name outside `core/paths.ts`), integrity tests on `freeze.json`; 246 green. Checked live: `init`, `new`, `fetch`, `contract --pack`, `status` in an empty project |
+| 4 + 5 | done | (this commit) | Done as one package, and simpler than planned: the run's record is the one file per run, and triage writes its decisions into it, so there is no second `.triage.json`. Inventory of readers first (classify and triage read the raw JSON's attachments, `phases`/`verdict`/`advance` read `run-meta.json` and `triage.json`, the rate-limit check reads `console.log` and error contexts, `score.ts` reads `triage.json`); then: `triage/record.ts` (the digest that `triage` used to build on demand, now built by `run`, with long answers cut to 8 000 characters for the exchange a failure is about, 2 000 for the rest of its calls and 1 000 for precondition calls — after the classification has read them whole); `RunRecord`/`RunMeta`/`SeedSummary` in `triage-model`; `triage` moved below `run` in the area order (the run command writes the record with triage's digest); Playwright's output to the scratch area, JSON always, JUnit and HTML only with `--junit` / `--html`; only the failing attempt's artifacts kept; raw output rotated (the last two runs, and any evaluation run still in triage); a run that produced nothing is recorded all the same; the fixtures attach a test's API exchanges only when it failed; the triage report (`triage-<run>.md`) and the replay chains (`4-evidence/chains/<run>/`) in the scratch area; the verdict copies the screenshot a finding shows into `4-evidence/` and links the run records; the CI templates pass `--junit` and upload the record and the raw output; `score.ts` reads the run records. **Replay check** on round 36's TOOL-8 (four runs, raw results kept): the automatic classes of both evaluation runs match the round's, the verdict, its three defects and their tests match, and `score.ts` scores it as before. Size: 344 KB per run record against 436 KB of `triage.json` + 1.85 MB of `results.json` + 182 KB of JUnit before. Live check: three runs of a two-test story (retries, `--junit`), record, raw output, pruned retry artifacts, triage, status. Tests: `run-record.test.ts`; 248 green |
 | 6 | to do | | |
 | 7 | to do | | |
 | 8 | to do | | |

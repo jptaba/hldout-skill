@@ -1,4 +1,6 @@
-/** Triage data model + repeat merging (pure; unit tested). The CLI lives in scripts/triage.ts. */
+/** The run record and triage data model, and repeat merging (unit tested). The command lives in triage/triage.ts. */
+import fs from 'node:fs';
+import path from 'node:path';
 import type { ApiExchange, AutoClassification, Category, ParsedError } from './classify';
 
 export interface TriageEntry {
@@ -43,6 +45,47 @@ export interface TriageReport {
 
 
 export interface HealthSample { url: string; ok: boolean; status?: number; ms: number; error?: string }
+
+/** What the tests' seeding did in a run: records created, cleaned and kept, records left behind, accounts used. */
+export interface SeedSummary {
+  created: number; cleaned: number; alreadyGone: number; kept: number; keptBy: Record<string, number>; leftovers: string[];
+  accounts: { used: number; reset: number; notReset: string[] };
+}
+
+/** How a run was made. */
+export interface RunMeta {
+  label: string; startedAt: string; finishedAt: string; autId: string; aut: { name: string; baseURL: string; apiBaseURL?: string };
+  command: string; workers: number | null; repeatEach: number | null; grep: string | null; capture: boolean;
+  preflight: 'skipped' | { health: HealthSample[] }; postflight: { health: HealthSample[] };
+  /** The skill's fingerprint: two runs made by different skill versions can be told apart. */
+  skill: string;
+  exitCode: number | null;
+  stats?: { expected: number; unexpected: number; flaky: number; skipped: number; duration: number };
+  /** Where the raw output is while it is kept (the scratch area). */
+  raw: string;
+  /** Set when Playwright produced no results: the run is recorded all the same (runs are history). */
+  error?: string;
+}
+
+/**
+ * The record of one run (5-runs/NN-label.json): how it was made, what its seeding did, and every test — one line for
+ * a test that passed, the evidence of the failure and its classification for one that didn't, and, once the triager
+ * has confirmed it, the decision. Everything after the run (triage, the verdict, the review of an evaluation) reads
+ * this file, never the raw output.
+ */
+export interface RunRecord extends TriageReport { meta: RunMeta; seed?: SeedSummary }
+
+export function readRunRecord(file: string): RunRecord {
+  return JSON.parse(fs.readFileSync(file, 'utf8')) as RunRecord;
+}
+
+export function writeRunRecord(file: string, record: RunRecord): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(record, null, 2)}\n`);
+}
+
+/** The failures of a run that have no confirmed decision yet. */
+export const pendingOf = (r: Pick<TriageReport, 'entries'>) => r.entries.filter((e) => e.status !== 'passed' && e.status !== 'skipped' && e.auto && !e.final);
 
 /**
  * Run-level environment correlation: if the AUT was measurably degraded around the run (a pre/post
