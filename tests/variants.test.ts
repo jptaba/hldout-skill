@@ -3,12 +3,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { accountRoles, existingAccountWorkers, validateConfig, type AccountRecipe } from '../.github/scripts/config';
+import { validateConfig } from '../.github/scripts/core/config';
+import { accountRoles, existingAccountWorkers, type AccountRecipe } from '../.github/scripts/core/profile';
 import {
   checkContract, checkVariantCoverage, comboLabel, requirementRevision, variantCombinations, type RequirementContract,
-} from '../.github/scripts/contract-model';
-import { contractHash, reviewRefs } from '../.github/scripts/evidence';
-import { readSuite } from '../.github/scripts/spec-model';
+} from '../.github/scripts/requirement/contract-model';
+import { contractHash, reviewRefs } from '../.github/scripts/requirement/evidence';
+import { readSuite } from '../.github/scripts/authoring/spec-model';
 
 const STORY = `# ABC-7: Invoices for every user type
 

@@ -24,8 +24,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page } from '@playwright/test';
-import { closeOverlays, locateOn } from '../.github/scripts/page';
-import { redact, redactHeaders, redactSnapshot } from '../.github/scripts/redact';
+import { redact, redactHeaders, redactSnapshot } from '../.github/scripts/core/redact';
+import { closeOverlays, locateOn } from '../.github/scripts/probe/page';
 
 export { redact, redactSnapshot };
 /** Playwright's own types, so journeys and specs import everything from here. */

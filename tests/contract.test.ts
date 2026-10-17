@@ -6,8 +6,8 @@ import { describe, it } from 'node:test';
 import {
   checkContract, checkSuiteAgainstContract, locateQuote, normaliseText, notEvaluable, openQuestions, oracleDigest,
   requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
-} from '../.github/scripts/contract-model';
-import { checkIntegrity, snapshotDraft } from '../.github/scripts/integrity-check';
+} from '../.github/scripts/requirement/contract-model';
+import { checkIntegrity, snapshotDraft } from '../.github/scripts/authoring/integrity-check';
 
 const STORY = `---
 key: ABC-9

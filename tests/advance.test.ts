@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/fast-harden';
-import { evalRunsOf } from '../.github/scripts/config';
-import { draftFinished, markDraftFinished } from '../.github/scripts/phases';
+import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/run/fast-harden';
+import { evalRunsOf } from '../.github/scripts/core/paths';
+import { draftFinished, markDraftFinished } from '../.github/scripts/authoring/draft';
 
 describe('guesses left in tests, settled by the run', () => {
   const passed = (...ids: string[]) => ids.map((scenario) => ({ scenario, status: 'passed' }));

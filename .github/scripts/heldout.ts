@@ -9,34 +9,34 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { knownFlags } from './config';
+import { knownFlags } from './core/cli';
 
 interface Command { script: string; args: string; about: string; group: string }
 const COMMANDS: Record<string, Command> = {
-  init: { script: 'init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci]', about: 'set a project up: update, then config, npm script, .gitignore, .env (never overwrites)' },
-  update: { script: 'update.ts', group: 'Setup', args: '[--ci [gitlab|github]]   (run from the skill repository, in the project folder)', about: 'install or update the skill, its scripts, the subagents and the workspace files' },
-  'add-aut': { script: 'init.ts', group: 'Setup', args: '<id> --base-url <url> [--api-base-url <url>]', about: 'add another application profile' },
-  doctor: { script: 'doctor.ts', group: 'Setup', args: '[--jira] [--offline]', about: 'check that everything is wired up, with a fix for each problem' },
-  secret: { script: 'secret.ts', group: 'Setup', args: 'NAME --generate | --ask  [--force]', about: 'a secret into .env without showing it: generated, or typed at a hidden prompt' },
-  accounts: { script: 'accounts.ts', group: 'Setup', args: '--add-existing --username … --password-env NAME|--password-vault path#field  | --key KEY --from-chain chain.json  | --check', about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live' },
-  status: { script: 'status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
-  advance: { script: 'advance.ts', group: 'Setup', args: 'KEY [--aut id] [--rerun]', about: 'run the story\'s next script steps, up to the next subagent (run it again after each one)' },
-  new: { script: 'mock/jira-create.ts', group: 'Requirement', args: 'KEY --from story.md [--ac-from ac.md] [--page <id>=page.md]…', about: 'create a story (and the Confluence pages it links) in the mock Jira (no Jira needed)' },
-  fetch: { script: 'jira-fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch the story (title, description, acceptance criteria, the images they show, linked Confluence pages); binds it to an AUT profile' },
-  contract: { script: 'contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --answer G2 --value … --by … | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
-  scaffold: { script: 'scaffold.ts', group: 'Tests', args: 'KEY [--force]', about: 'a spec skeleton (one test stub per criterion) and test data from the contract' },
-  journeys: { script: 'journeys.ts', group: 'Tests', args: 'KEY [--all | --stale <id> --evidence … | --harvest [--apply]]  |  [--aut id] [--check | --sync | --resolve]', about: 'the reusable journeys (journeys/fixtures/<domain>.ts) and their registry (journeys/registry.yml)' },
-  lint: { script: 'lint.ts', group: 'Tests', args: 'KEY [--allow-unhardened] [--no-health]', about: 'traceability lint + AUT healthcheck' },
-  integrity: { script: 'integrity.ts', group: 'Tests', args: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]', about: 'freeze the draft / verify nothing expected changed' },
-  inspect: { script: 'inspect.ts', group: 'Hardening', args: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]', about: 'tier-3 UI inspector: ARIA snapshot + ranked locators' },
-  confirm: { script: 'confirm.ts', group: 'Hardening', args: 'KEY --file <spec or journey file>… --evidence "<probe report>"', about: 'remove the TODO(harden) marks of guesses the probe showed were right, in one go' },
-  'api-probe': { script: 'api-probe.ts', group: 'Hardening', args: '--key KEY <METHOD> <path> | --chain chain.json', about: 'call the API (or a chain of calls) with redacted output' },
-  'mcp-probe': { script: 'mcp-probe.ts', group: 'Hardening', args: '--key KEY --steps steps.json [--var name=value]… [--out report.md]', about: 'tier 2: drive the Playwright MCP server over stdio' },
-  run: { script: 'run.ts', group: 'Run', args: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]', about: 'preflight + run the held-out suite' },
-  triage: { script: 'triage.ts', group: 'Run', args: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]', about: 'classify failures; record confirmed decisions' },
-  verdict: { script: 'verdict.ts', group: 'Report', args: 'KEY', about: 'render verdict.md / verdict.json' },
-  publish: { script: 'jira-publish.ts', group: 'Report', args: 'KEY', about: 'attach the verdict, comment, label (never creates issues)' },
-  scrub: { script: 'scrub.ts', group: 'Report', args: 'KEY [--value <literal>]', about: 'remove the story\'s secrets from existing artifacts' },
+  init: { script: 'setup/init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci]', about: 'set a project up: update, then config, npm script, .gitignore, .env (never overwrites)' },
+  update: { script: 'setup/update.ts', group: 'Setup', args: '[--ci [gitlab|github]]   (run from the skill repository, in the project folder)', about: 'install or update the skill, its scripts, the subagents and the workspace files' },
+  'add-aut': { script: 'setup/init.ts', group: 'Setup', args: '<id> --base-url <url> [--api-base-url <url>]', about: 'add another application profile' },
+  doctor: { script: 'setup/doctor.ts', group: 'Setup', args: '[--jira] [--offline]', about: 'check that everything is wired up, with a fix for each problem' },
+  secret: { script: 'setup/secret.ts', group: 'Setup', args: 'NAME --generate | --ask  [--force]', about: 'a secret into .env without showing it: generated, or typed at a hidden prompt' },
+  accounts: { script: 'setup/accounts.ts', group: 'Setup', args: '--add-existing --username … --password-env NAME|--password-vault path#field  | --key KEY --from-chain chain.json  | --check', about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live' },
+  status: { script: 'flow/status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
+  advance: { script: 'flow/advance.ts', group: 'Setup', args: 'KEY [--aut id] [--rerun]', about: 'run the story\'s next script steps, up to the next subagent (run it again after each one)' },
+  new: { script: 'requirement/mock/new.ts', group: 'Requirement', args: 'KEY --from story.md [--ac-from ac.md] [--page <id>=page.md]…', about: 'create a story (and the Confluence pages it links) in the mock Jira (no Jira needed)' },
+  fetch: { script: 'requirement/fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch the story (title, description, acceptance criteria, the images they show, linked Confluence pages); binds it to an AUT profile' },
+  contract: { script: 'requirement/contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --answer G2 --value … --by … | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
+  scaffold: { script: 'authoring/scaffold.ts', group: 'Tests', args: 'KEY [--force]', about: 'a spec skeleton (one test stub per criterion) and test data from the contract' },
+  journeys: { script: 'authoring/journeys/journeys.ts', group: 'Tests', args: 'KEY [--all | --stale <id> --evidence … | --harvest [--apply]]  |  [--aut id] [--check | --sync | --resolve]', about: 'the reusable journeys (journeys/fixtures/<domain>.ts) and their registry (journeys/registry.yml)' },
+  lint: { script: 'authoring/lint.ts', group: 'Tests', args: 'KEY [--allow-unhardened] [--no-health]', about: 'traceability lint + AUT healthcheck' },
+  integrity: { script: 'authoring/integrity.ts', group: 'Tests', args: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]', about: 'freeze the draft / verify nothing expected changed' },
+  inspect: { script: 'probe/inspect.ts', group: 'Hardening', args: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]', about: 'tier-3 UI inspector: ARIA snapshot + ranked locators' },
+  confirm: { script: 'authoring/confirm.ts', group: 'Hardening', args: 'KEY --file <spec or journey file>… --evidence "<probe report>"', about: 'remove the TODO(harden) marks of guesses the probe showed were right, in one go' },
+  'api-probe': { script: 'probe/api-probe.ts', group: 'Hardening', args: '--key KEY <METHOD> <path> | --chain chain.json', about: 'call the API (or a chain of calls) with redacted output' },
+  'mcp-probe': { script: 'probe/mcp-probe.ts', group: 'Hardening', args: '--key KEY --steps steps.json [--var name=value]… [--out report.md]', about: 'tier 2: drive the Playwright MCP server over stdio' },
+  run: { script: 'run/run.ts', group: 'Run', args: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]', about: 'preflight + run the held-out suite' },
+  triage: { script: 'triage/triage.ts', group: 'Run', args: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]', about: 'classify failures; record confirmed decisions' },
+  verdict: { script: 'report/verdict.ts', group: 'Report', args: 'KEY', about: 'render verdict.md / verdict.json' },
+  publish: { script: 'report/publish.ts', group: 'Report', args: 'KEY', about: 'attach the verdict, comment, label (never creates issues)' },
+  scrub: { script: 'report/scrub.ts', group: 'Report', args: 'KEY [--value <literal>]', about: 'remove the story\'s secrets from existing artifacts' },
 };
 
 function help(): void {

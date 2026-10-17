@@ -15,7 +15,7 @@ const profile = profiles[process.env.HELDOUT_AUT ?? cfg.defaultAut ?? Object.key
 const runDir = process.env.HELDOUT_RUN_DIR ?? path.join('test-results', 'heldout');
 const num = (v: string | undefined, fallback: number) => (v !== undefined && v !== '' ? Number(v) : fallback);
 
-// Fixtures read these, so direct `npx playwright test` runs behave like run.ts runs.
+// Fixtures read these, so direct `npx playwright test` runs behave like `heldout run` runs.
 process.env.AUT_BASE_URL ??= profile.baseURL;
 process.env.AUT_API_BASE_URL ??= profile.apiBaseURL ?? profile.baseURL;
 

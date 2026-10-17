@@ -13,8 +13,8 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { after, before, describe, it } from 'node:test';
-import { JiraDataCenterClient } from '../.github/scripts/jira-datacenter';
-import { doc, p } from '../.github/scripts/jira-adf';
+import { JiraDataCenterClient } from '../.github/scripts/requirement/jira/datacenter';
+import { doc, p } from '../.github/scripts/requirement/jira/adf';
 
 const PAT = 'not-a-real-pat';
 interface Captured { method: string; url: string; headers: http.IncomingHttpHeaders; body: Buffer }
@@ -123,7 +123,7 @@ describe('JiraDataCenterClient against a fake Jira Data Center', () => {
       defaultAut: 'app', auts: { app: { name: 'App', baseURL: 'http://localhost:1' } },
       jira: { mode: 'datacenter', mockRoot: 'mock-jira', baseUrl: base, acceptanceCriteriaField: 'customfield_10035' }, outputDir: 'output', run: { retries: 0 },
     }));
-    const script = path.resolve(import.meta.dirname, '..', '.github', 'scripts', 'jira-fetch.ts');
+    const script = path.resolve(import.meta.dirname, '..', '.github', 'scripts', 'requirement', 'fetch.ts');
     const tsxLoader = pathToFileURL(createRequire(import.meta.url).resolve('tsx/esm')).href; // resolve from the project, not the temp cwd
     calls.length = 0;
     // Async spawn: the fake server lives in this process, so a blocking spawnSync would deadlock.

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { likeness, renderTriageMd, short } from '../.github/scripts/triage-report';
-import type { TriageEntry, TriageReport } from '../.github/scripts/triage-model';
+import { likeness, renderTriageMd, short } from '../.github/scripts/triage/triage-report';
+import type { TriageEntry, TriageReport } from '../.github/scripts/triage/triage-model';
 
 const ROOT = path.resolve('some-project');
 const RUN = path.join(ROOT, 'output', 'shop', 'ABC-1', 'runs', '02-eval');

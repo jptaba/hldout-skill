@@ -350,34 +350,44 @@ in the record. Lines are appended one at a time, so two probes started at once c
   heldout.ts                 the dispatcher: the command table, help, flag checks (the only file at the top)
   heldout.config.schema.json
   core/         profile.ts (types) config.ts (load, validate) paths.ts (story folders, journeys, scratch) cli.ts
-                (arguments, command contract, main) files.ts (JSON, write, rel, hashes) history.ts secrets.ts
-                redact.ts zip.ts
-  requirement/  fetch.ts contract.ts contract-model.ts evidence-pack.ts review.ts
-    jira/       client.ts datacenter.ts confluence.ts adf.ts types.ts publish-client.ts
+                (arguments, command contract, main) files.ts (JSON, write, rel, hashes) secrets.ts redact.ts zip.ts
+                + history.ts (package 2)
+  requirement/  fetch.ts contract.ts contract-model.ts evidence.ts
+    jira/       client.ts datacenter.ts confluence.ts adf.ts types.ts
     mock/       jira-client.ts confluence-client.ts storage-format.ts new.ts
-  authoring/    scaffold.ts spec-model.ts lint.ts preflight.ts integrity.ts freeze.ts confirm.ts
-    journeys/   journeys.ts registry.ts parse.ts
-  probe/        inspect.ts inspect-steps.ts api-probe.ts mcp-probe.ts mcp-client.ts page.ts probe-log.ts trace.ts
-  run/          run.ts run-record.ts seed-summary.ts fast-harden.ts
+  authoring/    scaffold.ts spec-model.ts lint.ts preflight.ts integrity.ts integrity-check.ts confirm.ts draft.ts
+    journeys/   journeys.ts registry.ts
+  probe/        inspect.ts api-probe.ts mcp-probe.ts mcp-client.ts page.ts detect.ts accounts-recipe.ts
+                + probe-log.ts, trace.ts (packages 6, 7)
+  run/          run.ts results.ts fast-harden.ts  + run-record.ts (package 4)
   triage/       triage.ts classify.ts triage-model.ts triage-report.ts repro.ts
-  report/       verdict.ts verdict-model.ts verdict-render.ts verdict-rules.ts publish.ts scrub.ts
-  flow/         advance.ts phases.ts status.ts show.ts note.ts prune.ts
-  setup/        init.ts update.ts doctor.ts detect.ts mcp-config.ts secret.ts accounts.ts accounts-recipe.ts
+  report/       verdict.ts verdict-rules.ts publish.ts scrub.ts
+  flow/         advance.ts phases.ts status.ts  + show.ts, note.ts, prune.ts (package 7)
+  setup/        init.ts update.ts doctor.ts mcp-config.ts secret.ts accounts.ts
 ```
 
-The names are indicative; the areas and the rules are what this plan fixes. `core/paths.ts` is the one place that
-knows the story layout of section 3. Every other file asks it for a phase folder (`paths.contract`,
-`paths.runs`, `scratch.runs`…) and never writes a folder name of its own. Splits made along the way:
-- `config.ts` into `core/profile`, `core/config`, `core/paths`, `core/cli` and `core/files`;
-- `journeys-store.ts` into the registry and the journey parser;
-- `verdict.ts` into the model and the markdown;
-- `inspect.ts` into the step engine and the report;
-- `evidence.ts` into the pack and the review checks, which breaks the cycle with `contract-model.ts`.
+This is the tree package 1a built. `core/paths.ts` is the one place that knows the story layout of section 3 (from
+package 2). Every other file asks it for a phase folder and never writes a folder name of its own. What 1a decided:
+- `config.ts` split into `core/profile`, `core/config`, `core/paths`, `core/cli` and `core/files`.
+- `detect` and `accounts-recipe` are in `probe/`, not `setup/`: the inspector, `run`, `scrub` and the probes use them,
+  and an area may only import downwards.
+- `failedTests` moved from `triage-model` to `run/results.ts` (the run reads it, and `run` is below `triage`), and the
+  draft's "finished" mark from `flow/phases` to `authoring/draft.ts` (`lint` writes it, and `authoring` is below
+  `flow`).
+- `verdict` takes its triage types from `triage-model`, not from the `triage` command.
+- `requirement/jira/client.ts` no longer re-exports the Jira types and `confluenceLinks`: importers name the module
+  that defines them.
+- `contract-model` ⇄ `evidence` was a cycle of types only (`evidence` imports nothing of `contract-model` at runtime),
+  so `evidence.ts` stays whole. The layout rules count runtime imports: type-only imports are erased when the
+  scripts run and can't create a load-order problem.
+- Files over 400 lines (`journeys/registry`, `contract-model`, `verdict`, `inspect`) are split when a package next
+  changes them, not in 1a, which changes no behaviour.
 
 ### Rules
 
 1. **Areas depend downwards only:** `core` ← `requirement` ← `authoring` ← `probe` ← `run` ← `triage` ← `report` ←
-   `flow`, `setup`. `core` imports nothing of the skill. No cycles.
+   `flow`, `setup` (`flow` and `setup` don't import each other). `core` imports nothing of the skill. No runtime import
+   cycles. Type-only imports don't count.
 2. **Commands don't import commands.** Code two commands share (what `verdict` takes from `triage` today) moves into
    the area's model file.
 3. **The command contract.** A command module exports `spec` (name, area, one-line about, usage, and each flag with
@@ -388,10 +398,13 @@ knows the story layout of section 3. Every other file asks it for a phase folder
    looks for literal phase-folder names outside `core/paths.ts`.
 5. **Where a new file goes:** into the area of its concern. A file over 400 lines is split at a seam when it is next
    changed. A new area needs a line in rule 1, and `SKILL.md` says nothing about the internal layout.
-6. **Tests mirror the areas** (`tests/core/`, `tests/requirement/`, …); `test:skill` runs `tests/**/*.test.ts`.
-7. **`tests/layout.test.ts`** checks rules 1 to 4 and 6: only `heldout.ts` at the top; every import within the allowed
-   direction; no cycles; no command module importing another; every module in the dispatcher's table exports `spec`
-   and `run`; no phase-folder name outside `core/paths.ts`.
+6. **Tests stay in one folder, named after what they cover** (`tests/<module or concern>.test.ts`). Most test files
+   cover several areas (`parsing.test.ts` checks a dozen modules), so area folders would split them for no gain; at
+   about fifteen files the folder doesn't need them.
+7. **`tests/layout.test.ts`** checks rules 1 to 4: only `heldout.ts` at the top and every other script in a known
+   area; every import resolves; every import within the allowed direction; no cycles; no command module importing
+   another; from package 1b, every module in the dispatcher's table exports `spec` and `run`; from package 2, no
+   phase-folder name outside `core/paths.ts`.
 
 ### What moves with it
 
@@ -449,7 +462,7 @@ In this order. No round project is updated while a package is half done.
 
 | # | Package | Main files | Tests |
 | --- | --- | --- | --- |
-| 1a | **Areas.** Move the scripts into the tree (`git mv`, so history follows); split `config.ts`; break the `contract-model` ⇄ `evidence` cycle and the command-to-command import; tests into area folders; fixtures' imports. Behaviour unchanged, so the existing self-tests prove the move | all of `.github/scripts/`, `heldout-support/fixtures.ts`, `package.json`, `tests/` | all existing tests, moved; new `layout.test.ts` (rules 1, 2, 6) |
+| 1a | **Areas.** Move the scripts into the tree (`git mv`, so history follows); split `config.ts`; remove the command-to-command import and the upward imports; fixtures' imports. Behaviour unchanged, so the existing self-tests prove the move | all of `.github/scripts/`, `heldout-support/fixtures.ts`, `tests/` | all existing tests; new `layout.test.ts` (rules 1, 2) |
 | 1b | **The command contract.** `spec`/`run` in every command module; the dispatcher built on the specs; `knownFlags` and leading-comment help removed | every command module, `heldout.ts`, `core/cli.ts` | new `dispatcher.test.ts` (the smoke test); `layout.test.ts` (rule 3) |
 | 2 | **Story folders, history and scratch.** `core/paths.ts` defines the whole layout of section 3 at once, record and scratch, so every later package writes straight into its final place; every reader and writer of a story path goes through it; `testMatch` becomes `**/3-tests/*.spec.ts`; `core/history.ts`; `init`/`update` add `.heldout/` to `.gitignore` and the union merge to `.gitattributes`; `fetch` stops writing `raw-issue.json` and `evaluation.json`; `draft-finished`, `published` and `harvested` become events; `phases` and `status` read them and print the phase folders; the mock outbox becomes one file per story | `core/*`, `playwright.config.ts`, `requirement/fetch.ts`, `flow/phases.ts`, `flow/status.ts`, `report/publish.ts`, `authoring/journeys/*`, `setup/init.ts`, `setup/update.ts` | new `paths.test.ts`, `history.test.ts`; `advance.test.ts` |
 | 3 | **Freeze in one file.** `3-tests/freeze.json` replaces `draft/`, `integrity.json`, `amendments.json`, `refreeze-log.json` and `draft-history/` | `authoring/integrity.ts`, `authoring/freeze.ts`, `report/verdict*`, `run/fast-harden.ts`, `flow/advance.ts` | `integrity.test.ts` |
@@ -470,7 +483,7 @@ what those rounds produced, links and file names aside. It is cheaper to find a 
 
 | # | State | Commit | Notes |
 | --- | --- | --- | --- |
-| 1a | to do | | |
+| 1a | done | (this commit) | 51 scripts in 9 areas, only `heldout.ts` at the top; 235 self-tests green (230 + 5 layout). Found on the way: the typecheck was already red at the start (a test fixture missing `attempts`, fixed first); the `contract-model` ⇄ `evidence` "cycle" was type-only; `detect` and `accounts-recipe` belong to `probe/`; two functions moved to break upward imports (section 5). Tests stay in one folder (rule 6) |
 | 1b | to do | | |
 | 2 | to do | | |
 | 3 | to do | | |
