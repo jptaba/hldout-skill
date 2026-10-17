@@ -36,7 +36,7 @@
  */
 import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
-import { flagList, flagStr, main, parseArgs, resolveUrl as autUrl } from '../core/cli';
+import { flagList, flagStr, resolveUrl as autUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { writeFile } from '../core/files';
 import { pageText, redact, redactSnapshot, shapeOf } from '../core/redact';
@@ -149,8 +149,13 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
 
 const q = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 
-main(async () => {
-  const { flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]',
+  about: 'tier-3 UI inspector: ARIA snapshot + ranked locators',
+  flags: ['aut', 'body-limit', 'headed', 'html', 'key', 'no-snapshot', 'out', 'probe', 'probes', 'screenshot', 'steps', 'steps-json', 'url', 'var', 'wait-for'],
+};
+
+export async function run({ flags, argv }: Args): Promise<void> {
   for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
@@ -158,7 +163,7 @@ main(async () => {
   // Git Bash turns "--url /" into a Windows path before it gets here: say that it was read as the path it stood for.
   if (/^#?[A-Za-z]:[\\/]/.test(flagStr(flags, 'url') ?? '')) console.log(`• --url arrived as "${flagStr(flags, 'url')}" (Git Bash rewrote it) and was read as ${target}: the right page, nothing to repeat`);
   const stepsFile = flagStr(flags, 'steps');
-  await requireVaultSecrets([process.argv.slice(2).join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
+  await requireVaultSecrets([argv.join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
   const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8'))
     : flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) : [];
 
@@ -419,10 +424,10 @@ main(async () => {
     await browser.close();
   }
   // Last line of defence: no secret the steps used reaches the report (a path or address can carry one), raw or encoded.
-  const used = JSON.stringify([steps, process.argv.slice(2)]);
+  const used = JSON.stringify([steps, argv]);
   const secrets = [...new Set([...[...used.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
     ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
   const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), out.join('\n'));
   const file = flagStr(flags, 'out');
   if (file) { writeFile(file, report); console.log(`✔ inspection written to ${file}`); } else console.log(report);
-});
+}

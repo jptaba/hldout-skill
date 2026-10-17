@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
+import { COMMANDS } from '../.github/scripts/heldout';
 
 const DIR = path.join(import.meta.dirname, '..', '.github', 'scripts');
 /** Lowest first: an area may import its own files and those of the areas before it. */
@@ -24,7 +25,7 @@ function runtimeImports(file: string): string[] {
     .map((p) => (p.endsWith('.ts') ? p : `${p}.ts`));
 }
 
-const commands = [...new Set([...fs.readFileSync(path.join(DIR, 'heldout.ts'), 'utf8').matchAll(/script: '([\w/.-]+\.ts)'/g)].map((m) => m[1]))];
+const commands = [...new Set(Object.values(COMMANDS))];
 
 describe('the scripts layout', () => {
   it('has only the dispatcher at the top, and every other script in a known area', () => {

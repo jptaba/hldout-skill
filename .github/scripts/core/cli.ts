@@ -5,6 +5,28 @@
 
 export type Flags = Record<string, string | boolean | string[]>;
 
+/** What a command is given: its positional arguments, its flags, and the arguments as typed (after the command name). */
+export interface Args { _: string[]; flags: Flags; argv: string[] }
+
+/**
+ * What the dispatcher knows of a command without running it. Its usage in full is the leading comment of its module,
+ * which `heldout <command> --help` prints.
+ */
+export interface CommandSpec {
+  /** As typed after `heldout`. */
+  name: string;
+  group: 'Setup' | 'Requirement' | 'Tests' | 'Hardening' | 'Run' | 'Report';
+  /** One line for `heldout help`. */
+  about: string;
+  /** The arguments, in short, for `heldout help`. */
+  usage: string;
+  /** Every flag the command reads (without the dashes). The dispatcher rejects any other. */
+  flags: readonly string[];
+}
+
+/** A command module: its spec, and what it does. Importing it runs nothing. */
+export interface CommandModule { spec: CommandSpec; run(args: Args): Promise<void> | void }
+
 /** Tiny argv parser: positionals + `--flag value` / `--flag=value` / `--flag`. Repeated flags become arrays. */
 export function parseArgs(argv = process.argv.slice(2)): { _: string[]; flags: Flags } {
   const _: string[] = [];
@@ -43,11 +65,6 @@ export function main(fn: () => Promise<void> | void): void {
       console.error(`\n✖ ${err instanceof Error ? err.message : String(err)}`);
       process.exit(1);
     });
-}
-
-/** The flags a command script reads (flags.x, flags['x'], flagStr/flagList(flags, 'x')): the dispatcher rejects others. */
-export function knownFlags(src: string): Set<string> {
-  return new Set([...src.matchAll(/flags\.([A-Za-z_]\w*)|flags\[['"]([a-z-]+)['"]\]|flag(?:Str|List)\(flags, ['"]([a-z-]+)['"]\)/g)].map((m) => m[1] ?? m[2] ?? m[3]));
 }
 
 /**

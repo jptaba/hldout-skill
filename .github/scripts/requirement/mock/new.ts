@@ -20,7 +20,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagList, flagStr, main, parseArgs } from '../../core/cli';
+import { flagList, flagStr, type Args, type CommandSpec } from '../../core/cli';
 import { assertIssueKey, loadConfig } from '../../core/config';
 import { ROOT, rel, writeFile } from '../../core/files';
 import { embeddedFiles } from '../jira/client';
@@ -39,8 +39,13 @@ function copyBeside(names: string[], from: string, dir: string): { name: string;
   });
 }
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'new', group: 'Requirement', usage: 'KEY --from story.md [--ac-from ac.md] [--page <id>=page.md]…',
+  about: 'create a story (and the Confluence pages it links) in the mock Jira (no Jira needed)',
+  flags: ['ac-from', 'force', 'from', 'label', 'page', 'priority', 'status', 'summary', 'type'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const from = flagStr(flags, 'from');
   if (!from) throw new Error('--from <story.md> is required');
@@ -113,4 +118,4 @@ main(() => {
   writeFile(path.join(dir, 'ISSUE_VIEW.md'), renderIssueView(issue, `${base}/browse/${key}`));
   console.log(`✔ mock Jira issue ${key} "${summary}" → ${rel(dir)}/ (${attachment.length} screenshot(s))`);
   console.log(`\nNext: npm run heldout -- fetch ${key}   (or ask Opus: "Run a held-out evaluation of ${key}")`);
-});
+}

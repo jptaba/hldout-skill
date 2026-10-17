@@ -8,7 +8,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { main, parseArgs } from '../core/cli';
+import type { Args, CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { ROOT } from '../core/files';
 import { listStories } from '../core/paths';
@@ -16,8 +16,13 @@ import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
 
-main(() => {
-  const { _ } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'status', group: 'Setup', usage: '[KEY]',
+  about: 'where each story is in the pipeline and the next command',
+  flags: [],
+};
+
+export function run({ _ }: Args): void {
   const stories = listStories(loadConfig()).sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
   const keys = _[0] ? [{ key: _[0], profile: undefined as string | undefined }] : stories;
   if (!keys.length) {
@@ -45,4 +50,4 @@ main(() => {
     const v = phases.find((ph) => ph.name === 'verdict')!;
     console.log(`${key.padEnd(12)} ${String(profile).slice(0, 24).padEnd(24)} ${(next?.name ?? 'done').padEnd(10)} ${(v.done ? v.detail : '-').slice(0, 20).padEnd(20)} ${next?.next ?? ''}`);
   }
-});
+}

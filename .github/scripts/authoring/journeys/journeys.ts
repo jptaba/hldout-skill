@@ -23,7 +23,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagStr, main, parseArgs } from '../../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../../core/cli';
 import { assertIssueKey, loadConfig } from '../../core/config';
 import { readJson, rel, writeFile } from '../../core/files';
 import { evalPaths, journeyPaths } from '../../core/paths';
@@ -41,8 +41,13 @@ interface Staged { stale: { id: string; evidence: string; at: string }[] }
 /** `finalRun`: the run the harvest kept what passed in (a re-rendered verdict of the same run needs no new harvest). */
 export interface HarvestLog { at: string; finalRun: string; registry: string; proven: string[]; stale: string[]; dropped: { id: string; why: string }[] }
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'journeys', group: 'Tests', usage: 'KEY [--all | --stale <id> --evidence … | --harvest [--apply]]  |  [--aut id] [--check | --sync | --resolve | --copy-from <profile>]',
+  about: 'the reusable journeys (journeys/fixtures/<domain>.ts) and their registry (journeys/registry.yml)',
+  flags: ['all', 'apply', 'aut', 'check', 'copy-from', 'evidence', 'harvest', 'resolve', 'stale', 'sync', 'unstage'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = _[0] ? assertIssueKey(_[0]) : undefined;
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const profile = cfg.autId;
@@ -111,7 +116,7 @@ main(() => {
   console.log(`A journey you need and don't find: add it to its domain's file, ${rel(jp.fixtures)}/<domain>.ts (a new domain is a new`);
   console.log('file), exported with a /** doc comment */; helpers the domain\'s journeys share stay in the file, not exported.');
   console.log('HOW only: no [REQ …] assertion, no expected value. The harvest records it in the registry once a passing test used it.');
-});
+}
 
 function printJourneys(cfg: HeldoutConfig, profile: string, journeys: JourneyCode[], registry: Registry, contract: RequirementContract | undefined, all: boolean, testsDir?: string): void {
   const shown = all || !contract ? journeys : journeys.filter((a) => relevantJourney(a, contract));

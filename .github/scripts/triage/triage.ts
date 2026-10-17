@@ -21,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { allJourneys, journeysOfFiles, journeysUsedBy } from '../authoring/journeys/registry';
 import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles, type Endpoint } from '../authoring/spec-model';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
 import { evalPaths, journeyPaths, listRuns } from '../core/paths';
@@ -231,8 +231,13 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
 
 export { renderTriageMd, signature };
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'triage', group: 'Run', usage: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]',
+  about: 'classify failures; record confirmed decisions',
+  flags: ['action', 'any-reading', 'carry-from', 'category', 'evidence', 'rationale', 'run', 'set', 'severity', 'title'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -351,4 +356,4 @@ main(() => {
   const same = earlier ? report.entries.filter((e) => e.status === 'failed' && !e.final && readJson<TriageReport>(path.join(p.runs, earlier, 'triage.json')).entries.some((x) => x.scenario === e.scenario && x.final && signature(x) === signature(e))) : [];
   if (same.length) console.log(`\n↻ ${same.map((e) => e.scenario).join(', ')}: the same failure${same.length > 1 ? 's were' : ' was'} confirmed in ${earlier} (identical signature). Reuse ${same.length > 1 ? 'those decisions' : 'that decision'}: npm run heldout -- triage ${key} --carry-from auto`);
   if (report.entries.some((x) => x.auto && !x.final && !same.includes(x))) console.log('\nNext: investigate each pending failure live (references/triage.md), then confirm with --set.');
-});
+}

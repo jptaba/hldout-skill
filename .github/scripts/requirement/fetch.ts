@@ -17,7 +17,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, boundProfile, loadConfig } from '../core/config';
 import { rel, timestamp, writeFile } from '../core/files';
 import { evalPaths } from '../core/paths';
@@ -33,8 +33,13 @@ const hashDir = (dir: string): Map<string, string> => new Map(fs.existsSync(dir)
   : []);
 const body = (md: string) => md.replace(/^fetchedAt: .*$/m, '').trim();
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'fetch', group: 'Requirement', usage: 'KEY [--aut id]',
+  about: 'fetch the story (title, description, acceptance criteria, the images they show, linked Confluence pages); binds it to an AUT profile',
+  flags: ['aut'],
+};
+
+export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const p = evalPaths(cfg, key);
@@ -178,4 +183,4 @@ main(async () => {
   for (const l of removed.slice(0, 8)) console.log(`    - ${l.slice(0, 140)}`);
   console.log(`  → ${rel(changesFile)} (previous revision in requirement/history/${stamp}/)`);
   if (fs.existsSync(p.tests)) console.log('  The tests were written against the previous revision — re-review them before the next run.');
-});
+}

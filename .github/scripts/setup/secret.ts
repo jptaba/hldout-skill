@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { ROOT } from '../core/files';
 import { safeToScrub, strongSecret } from '../core/redact';
 
@@ -25,8 +25,13 @@ function hiddenPrompt(question: string): Promise<string> {
   });
 }
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'secret', group: 'Setup', usage: 'NAME --generate [--length N] | --ask  [--force]',
+  about: 'a secret into .env without showing it: generated, or typed at a hidden prompt',
+  flags: ['ask', 'force', 'generate', 'length'],
+};
+
+export async function run({ _, flags }: Args): Promise<void> {
   const name = _[0];
   if (!name || !/^[A-Z][A-Z0-9_]*$/.test(name)) throw new Error('Usage: heldout secret NAME --generate | --ask   (NAME in capitals, e.g. APP_USER_PASSWORD)');
   if (!flags.generate && !flags.ask) throw new Error(`Add --generate for a strong random value (accounts the tests create), or --ask to type an existing account's password at a hidden prompt.`);
@@ -45,4 +50,4 @@ main(async () => {
   fs.writeFileSync(file, next);
   console.log(`✔ ${name} set in .env (${value.length} characters; not shown).${flags.generate ? ' Accounts created with it are the tests\' own, so nothing else needs it.' : ''}`);
   if (!safeToScrub(value)) console.log('  ⚠ it is a plain word or very short: run artifacts can\'t be scrubbed of it reliably — a stronger test password is safer');
-});
+}

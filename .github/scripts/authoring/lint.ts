@@ -7,15 +7,20 @@
  *
  * Exit 1 on any lint error or failed healthcheck. run.ts runs the same gates automatically.
  */
-import { main, parseArgs } from '../core/cli';
+import type { Args, CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel } from '../core/files';
 import { evalPaths } from '../core/paths';
 import { markDraftFinished } from './draft';
 import { healthcheck, lintEvaluation, printFindings } from './preflight';
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'lint', group: 'Tests', usage: 'KEY [--allow-unhardened] [--no-health] [--draft-finished]',
+  about: 'traceability lint + AUT healthcheck',
+  flags: ['allow-unhardened', 'no-health', 'draft-finished'],
+};
+
+export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   console.log(`Preflight ${key} → AUT profile "${cfg.autId}" (${cfg.aut.name})`);
@@ -34,4 +39,4 @@ main(async () => {
     markDraftFinished(p.base, p.tests);
     console.log(`✔ the draft of ${key} is marked finished (${rel(p.tests)} as it is now): it can be frozen`);
   }
-});
+}

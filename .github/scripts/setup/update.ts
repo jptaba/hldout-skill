@@ -25,7 +25,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagStr, main, parseArgs, type Flags } from '../core/cli';
+import { flagStr, type Args, type CommandSpec, type Flags } from '../core/cli';
 import { AGENT_FILES, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitignore } from '../core/config';
 import { ROOT, fileHash, rel } from '../core/files';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
@@ -188,8 +188,13 @@ function ensureCi(flags: Flags): void {
   }
 }
 
-main(() => {
-  const { flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'update', group: 'Setup', usage: '[--ci [gitlab|github]]   (run from the skill repository, in the project folder)',
+  about: 'install or update the skill, its scripts, the subagents and the workspace files',
+  flags: ['ci'],
+};
+
+export function run({ flags }: Args): void {
   const toSkill = path.relative(ROOT, SKILL_DIR);
   const fromRepository = toSkill.startsWith('..') || path.isAbsolute(toSkill);
 
@@ -217,4 +222,4 @@ main(() => {
       ? '\nNext: npm run heldout -- doctor   (checks the project with this version of the skill; stories and journeys carry on as before)'
       : '\nNext: set the project up — <clone>/setup.ps1 -BaseUrl https://your-app (PowerShell) or <clone>/setup.sh --base-url https://your-app (bash, zsh)');
   }
-});
+}

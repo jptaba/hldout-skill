@@ -16,7 +16,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { main, parseArgs } from '../core/cli';
+import type { Args, CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel, writeFile } from '../core/files';
 import { evalPaths } from '../core/paths';
@@ -37,8 +37,13 @@ interface VerdictJson {
 const PANEL: Record<string, 'success' | 'error' | 'warning' | 'note'> = { PASS: 'success', FAIL: 'error', PASS_WITH_WARNINGS: 'warning', INCONCLUSIVE: 'note' };
 const short = (v: unknown, n = 120) => { const s = String(v ?? '-'); return s.length > n ? `${s.slice(0, n)}…` : s; };
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'publish', group: 'Report', usage: 'KEY [--dry-run]',
+  about: 'attach the verdict, comment, label (never creates issues)',
+  flags: ['dry-run'],
+};
+
+export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const pth = evalPaths(cfg, key);
@@ -98,4 +103,4 @@ main(async () => {
     console.log(`  view:       ${cfg.jira.mockRoot}/issues/${key}/ISSUE_VIEW.md`);
     console.log(`  REST log:   ${cfg.jira.mockRoot}/outbox/ (requests a real Jira would have received)`);
   }
-});
+}

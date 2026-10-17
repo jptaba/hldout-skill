@@ -117,18 +117,18 @@ describe('JiraDataCenterClient against a fake Jira Data Center', () => {
     await assert.rejects(new JiraDataCenterClient(base, 'wrong').getIssue('DC-7'), /401/);
   });
 
-  it('jira-fetch.ts reads the story, its images and its linked page — never comments or other attachments', async () => {
+  it('heldout fetch reads the story, its images and its linked page — never comments or other attachments', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dc-proj-'));
     fs.writeFileSync(path.join(dir, 'heldout.config.json'), JSON.stringify({
       defaultAut: 'app', auts: { app: { name: 'App', baseURL: 'http://localhost:1' } },
       jira: { mode: 'datacenter', mockRoot: 'mock-jira', baseUrl: base, acceptanceCriteriaField: 'customfield_10035' }, outputDir: 'output', run: { retries: 0 },
     }));
-    const script = path.resolve(import.meta.dirname, '..', '.github', 'scripts', 'requirement', 'fetch.ts');
+    const script = path.resolve(import.meta.dirname, '..', '.github', 'scripts', 'heldout.ts');
     const tsxLoader = pathToFileURL(createRequire(import.meta.url).resolve('tsx/esm')).href; // resolve from the project, not the temp cwd
     calls.length = 0;
     // Async spawn: the fake server lives in this process, so a blocking spawnSync would deadlock.
     const r = await new Promise<{ status: number | null; stderr: string }>((resolve) => {
-      const child = spawn(process.execPath, ['--import', tsxLoader, script, 'DC-7'], { cwd: dir, env: { ...process.env, JIRA_MODE: 'datacenter', JIRA_BASE_URL: base, JIRA_PAT: PAT } });
+      const child = spawn(process.execPath, ['--import', tsxLoader, script, 'fetch', 'DC-7'], { cwd: dir, env: { ...process.env, JIRA_MODE: 'datacenter', JIRA_BASE_URL: base, JIRA_PAT: PAT } });
       let stderr = '';
       child.stderr.on('data', (d) => { stderr += d; });
       child.on('close', (status) => resolve({ status, stderr }));

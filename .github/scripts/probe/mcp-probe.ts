@@ -29,7 +29,7 @@ import { envNamesIn } from './accounts-recipe';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { flagList, flagStr, main, parseArgs, resolveUrl } from '../core/cli';
+import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { writeFile } from '../core/files';
 import { evalPaths } from '../core/paths';
@@ -59,12 +59,17 @@ const describe = (f: Find) => `${f.role}${f.name !== undefined ? ` "${f.name}"` 
 /** Pull the YAML snapshot out of an MCP tool response (Playwright MCP embeds it in a ```yaml block). */
 const yamlOf = (text: string) => text.match(/```yaml\r?\n([\s\S]*?)```/)?.[1] ?? '';
 
-main(async () => {
-  const { flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'mcp-probe', group: 'Hardening', usage: '--key KEY --steps steps.json [--var name=value]… [--out report.md]',
+  about: 'tier 2: drive the Playwright MCP server over stdio',
+  flags: ['aut', 'browser', 'headed', 'key', 'out', 'steps', 'steps-json', 'var'],
+};
+
+export async function run({ flags, argv }: Args): Promise<void> {
   for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const stepsFile = flagStr(flags, 'steps');
-  await requireVaultSecrets([process.argv.slice(2).join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
+  await requireVaultSecrets([argv.join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
   const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8')) : JSON.parse(flagStr(flags, 'steps-json') ?? '[]');
   // MCP writes large snapshots/screenshots to its output dir — keep that out of the project.
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-mcp-'));
@@ -184,4 +189,4 @@ main(async () => {
   const out = flagStr(flags, 'out');
   if (out) { writeFile(out, report); console.log(`${failures ? '✖' : '✔'} ${steps.length} steps, ${failures} failed → ${out}`); } else console.log(report);
   if (failures) process.exitCode = 1;
-});
+}

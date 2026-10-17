@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { allJourneys, journeyUse, journeysUsedBy, ownCodeOf, readRegistry, statusOf } from '../authoring/journeys/registry';
 import { readSuite, specFiles } from '../authoring/spec-model';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel, writeFile } from '../core/files';
 import { evalPaths, evalRunsOf, journeyPaths, listRuns } from '../core/paths';
@@ -166,8 +166,13 @@ function writeNotEvaluable(cfg: HeldoutConfig, key: string, c: RequirementContra
   }, null, 2)}\n`);
 }
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'advance', group: 'Setup', usage: 'KEY [--aut id] [--rerun]',
+  about: 'run the story\'s next script steps, up to the next subagent (run it again after each one)',
+  flags: ['aut', 'rerun'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const aut = flagStr(flags, 'aut');
   const heldout = (...args: string[]) => {
@@ -291,4 +296,4 @@ main(() => {
     stuck(`unknown phase ${next.name}`);
   }
   stuck('the story did not reach its end');
-});
+}

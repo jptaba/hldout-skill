@@ -11,7 +11,7 @@
  * Exit 2 if any [REQ …] assertion or the @req-constants block changed without an amendment,
  * or TODO(harden) markers remain.
  */
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { evalPaths } from '../core/paths';
@@ -23,8 +23,13 @@ import { specFiles } from './spec-model';
 import fs from 'node:fs';
 import path from 'node:path';
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'integrity', group: 'Tests', usage: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]',
+  about: 'freeze the draft / verify nothing expected changed',
+  flags: ['amend', 'reason', 'snapshot'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -97,4 +102,4 @@ main(() => {
   for (const m of r.unhardenedMarkers) console.log(`  ⚠ unhardened: ${m.file}:${m.line} ${m.text}`);
   console.log(`  → ${rel(p.integrity)}`);
   if (r.status === 'VIOLATED' || r.unhardenedMarkers.length) process.exit(2);
-});
+}

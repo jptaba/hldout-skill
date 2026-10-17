@@ -8,15 +8,20 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagList, flagStr, main, parseArgs } from '../core/cli';
+import { flagList, flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
 import { evalPaths } from '../core/paths';
 
 const MARK = /[ \t]*\/\/[ \t]*TODO\(harden\)[^\n]*/g;
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'confirm', group: 'Hardening', usage: 'KEY --file <spec or journey file>… --evidence "<probe report>"',
+  about: 'remove the TODO(harden) marks of guesses the probe showed were right, in one go',
+  flags: ['evidence', 'file'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const p = evalPaths(loadConfig({ key }), key);
   const files = flagList(flags, 'file');
@@ -46,4 +51,4 @@ main(() => {
     console.log(`  noted in ${rel(p.hardeningLog)} — the log changed: read it again before you edit it`);
   }
   if (noted.length) console.log(`Next: npm run heldout -- integrity ${key}   (must say PRESERVED)`);
-});
+}

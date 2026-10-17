@@ -15,7 +15,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SKILL_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { evalPaths } from '../core/paths';
@@ -63,8 +63,14 @@ function accountsLine(r?: AccountRecipe): string | undefined {
   return `${who}${how ? `, with ${how} saved in the profile's accounts recipe${header}` : '; how they sign in is found while hardening and saved in the profile for every later story'}`;
 }
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'contract', group: 'Requirement',
+  usage: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --resolve-from gaps.json | --answer G2 --value … --by … | --allow-unreviewed]',
+  about: 'evidence pack + checks for the model-built, independently reviewed requirement contract',
+  flags: ['allow-unreviewed', 'answer', 'by', 'evidence', 'pack', 'questions', 'resolve', 'resolve-from', 'review-prompt', 'value'],
+};
+
+export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -197,4 +203,4 @@ main(async () => {
   writeFile(path.join(p.base, 'requirement-contract.md'), render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
   console.log(`  → ${rel(path.join(p.base, 'requirement-contract.md'))} (the contract for people to read)`);
   if (all.some((f) => f.level === 'error')) process.exit(1);
-});
+}

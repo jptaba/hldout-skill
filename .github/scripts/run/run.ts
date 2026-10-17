@@ -20,7 +20,7 @@ import path from 'node:path';
 import { journeysUsedBy } from '../authoring/journeys/registry';
 import { healthcheck, lintEvaluation, printFindings } from '../authoring/preflight';
 import { specFiles } from '../authoring/spec-model';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
 import { NON_EVAL_RUN, evalPaths, listRuns } from '../core/paths';
@@ -84,8 +84,13 @@ function skillFingerprint(): string {
   return h.digest('hex').slice(0, 16);
 }
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'run', group: 'Run', usage: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]',
+  about: 'preflight + run the held-out suite',
+  flags: ['allow-degraded', 'aut', 'capture', 'grep', 'headed', 'label', 'quiet', 'repeat-each', 'retries', 'skip-preflight', 'verbose', 'wait-healthy', 'workers'],
+};
+
+export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const p = evalPaths(cfg, key);
@@ -276,4 +281,4 @@ main(async () => {
   else if (grep) console.log(`\nA run of some of the tests is never the evaluation: the verdict comes from a run of them all (npm run heldout -- advance ${key}${/repair/.test(runName) ? ' --rerun' : ''}).`);
   else if (!NON_EVAL_RUN.test(runName)) console.log(`\nNext: npm run heldout -- verdict ${key}`);
   else if (/harden/.test(runName)) console.log(`\nNext: record what hardening found (any mechanics gap still open: contract ${key} --resolve Gn …; hardening/hardening-log.md), then: npm run heldout -- advance ${key}`);
-});
+}

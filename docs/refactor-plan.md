@@ -390,10 +390,15 @@ package 2). Every other file asks it for a phase folder and never writes a folde
    cycles. Type-only imports don't count.
 2. **Commands don't import commands.** Code two commands share (what `verdict` takes from `triage` today) moves into
    the area's model file.
-3. **The command contract.** A command module exports `spec` (name, area, one-line about, usage, and each flag with
-   its type and help) and `run(args)`. The dispatcher's table lists module paths only. It imports just the requested
-   module, checks the flags against `spec` and builds `help` and `--help` from the specs. This removes `knownFlags`,
-   the regular expression over source code, the leading-comment help and the usage strings written twice.
+3. **The command contract.** A command module exports `spec` (name, group, one-line about, short usage, and the
+   names of every flag it reads) and `run({ _, flags, argv })`. Importing it runs nothing. The dispatcher's table maps
+   each command to its module. It imports just the requested module, rejects any flag not in `spec.flags`, and builds
+   `heldout help` from the specs. `--help` prints the module's leading comment, which stays the one place a command's
+   full usage is written: agents read it, and a second copy in `spec` would drift. `tests/dispatcher.test.ts` holds
+   the three together: every flag the module (or a helper of its own area) reads is declared, every declared flag is
+   read, and every flag the comment documents is declared. This removes `knownFlags` (the regular expression over
+   source code at runtime), commands that run on import, `process.argv` read inside commands, and usage strings
+   written twice.
 4. **Paths come from `core/paths.ts`.** No other file joins a story folder or file name by hand; `layout.test.ts`
    looks for literal phase-folder names outside `core/paths.ts`.
 5. **Where a new file goes:** into the area of its concern. A file over 400 lines is split at a seam when it is next
@@ -483,8 +488,8 @@ what those rounds produced, links and file names aside. It is cheaper to find a 
 
 | # | State | Commit | Notes |
 | --- | --- | --- | --- |
-| 1a | done | (this commit) | 51 scripts in 9 areas, only `heldout.ts` at the top; 235 self-tests green (230 + 5 layout). Found on the way: the typecheck was already red at the start (a test fixture missing `attempts`, fixed first); the `contract-model` ⇄ `evidence` "cycle" was type-only; `detect` and `accounts-recipe` belong to `probe/`; two functions moved to break upward imports (section 5). Tests stay in one folder (rule 6) |
-| 1b | to do | | |
+| 1a | done | d7747cd | 51 scripts in 9 areas, only `heldout.ts` at the top; 235 self-tests green (230 + 5 layout). Found on the way: the typecheck was already red at the start (a test fixture missing `attempts`, fixed first); the `contract-model` ⇄ `evidence` "cycle" was type-only; `detect` and `accounts-recipe` belong to `probe/`; two functions moved to break upward imports (section 5). Tests stay in one folder (rule 6) |
+| 1b | done | (this commit) | 24 commands on the contract; 239 self-tests green. `add-aut` became its own module (`setup/add-aut.ts`), with `init` and it sharing `setup/profile-setup.ts`, instead of `init` reading a `--add-aut` flag the dispatcher slipped in. `init` started from the skill's clone runs `update` and the project's `init` through the dispatcher, not by script path; `add-aut` runs in a set-up project only. Flags are declared by name: their help stays in the module's leading comment (rule 3). Checked live: `init` from a clone into an empty project, `add-aut`, `status`, `lint` |
 | 2 | to do | | |
 | 3 | to do | | |
 | 4 | to do | | |

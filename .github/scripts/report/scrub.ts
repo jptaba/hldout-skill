@@ -7,15 +7,20 @@
  * (e.g. a public demo password that lives in test-data.json as a literal). Password-textbox values in
  * snapshots are redacted regardless. trace.zip / html/index.html are not rewritten (local-only, git-ignored).
  */
-import { flagList, main, parseArgs } from '../core/cli';
+import { flagList, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel } from '../core/files';
 import { evalPaths } from '../core/paths';
 import { scrubDir, secretValuesFor } from '../core/redact';
 import { envNamesIn } from '../probe/accounts-recipe';
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'scrub', group: 'Report', usage: 'KEY [--value <literal>]',
+  about: 'remove the story\'s secrets from existing artifacts',
+  flags: ['value'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -24,4 +29,4 @@ main(() => {
   for (const dir of [p.runs, p.hardening]) files += scrubDir(dir, secrets.values).files;
   console.log(`🔒 ${key}: scrubbed ${files} artifact(s) under ${rel(p.runs)} and ${rel(p.hardening)} (${secrets.values.length} secret value(s) + password-field values)`);
   if (secrets.weak.length) console.log(`  ⚠ refused as unsafe to replace literally (plain word / too short): ${secrets.weak.join(', ')}`);
-});
+}

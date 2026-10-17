@@ -13,7 +13,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { main, parseArgs } from '../core/cli';
+import type { Args, CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel, writeFile } from '../core/files';
 import { evalPaths, journeyPaths } from '../core/paths';
@@ -41,8 +41,13 @@ const shortTitle = (ac: ContractAC) => {
   return title.length > 90 ? `${title.slice(0, 87).replace(/\s+\S*$/, '')}…` : title;
 };
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'scaffold', group: 'Tests', usage: 'KEY [--force]',
+  about: 'a spec skeleton (one test stub per criterion) and test data from the contract',
+  flags: ['force'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -160,4 +165,4 @@ main(() => {
     console.log(`• the tests make their own accounts: once hardening has found how (create, sign in, delete), save it as auts.${cfg.autId}.accounts in heldout.config.json — then seed.account() does it for this and every later story (references/data-and-journeys.md)`);
   }
   console.log(`\nNext: the journeys you can call (heldout journeys ${key}); write the tests, then: heldout lint ${key} --allow-unhardened`);
-});
+}

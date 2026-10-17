@@ -543,23 +543,6 @@ describe('app discovery', () => {
   });
 });
 
-describe('command flags', () => {
-  it('every flag a command documents in its usage header is accepted by the dispatcher', async () => {
-    const { knownFlags } = await import('../.github/scripts/core/cli');
-    const dir = path.join(import.meta.dirname, '..', '.github', 'scripts');
-    // The command scripts are the ones heldout.ts dispatches to; the rest are modules they share.
-    const commands = [...new Set([...fs.readFileSync(path.join(dir, 'heldout.ts'), 'utf8').matchAll(/script: '([\w/.-]+\.ts)'/g)].map((m) => m[1]))];
-    assert.ok(commands.length > 10, 'commands found in heldout.ts');
-    const rejected = commands.flatMap((f) => {
-      const src = fs.readFileSync(path.join(dir, f), 'utf8');
-      const header = src.match(/^\/\*\*([\s\S]*?)\*\//)?.[1] ?? '';
-      const known = knownFlags(src);
-      return [...new Set([...header.matchAll(/(?<![\w-])--([a-z][a-z-]+)/g)].map((m) => m[1]))].filter((d) => !known.has(d)).map((d) => `${f} --${d}`);
-    });
-    assert.deepEqual(rejected, []);
-  });
-});
-
 describe('generated secrets', () => {
   it('are long, mixed and never plain words, so artifacts can be scrubbed of them', async () => {
     const { safeToScrub, strongSecret } = await import('../.github/scripts/core/redact');

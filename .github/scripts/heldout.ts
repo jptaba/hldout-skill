@@ -9,84 +9,89 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { knownFlags } from './core/cli';
+import { main, parseArgs, type CommandModule } from './core/cli';
 
-interface Command { script: string; args: string; about: string; group: string }
-const COMMANDS: Record<string, Command> = {
-  init: { script: 'setup/init.ts', group: 'Setup', args: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci]', about: 'set a project up: update, then config, npm script, .gitignore, .env (never overwrites)' },
-  update: { script: 'setup/update.ts', group: 'Setup', args: '[--ci [gitlab|github]]   (run from the skill repository, in the project folder)', about: 'install or update the skill, its scripts, the subagents and the workspace files' },
-  'add-aut': { script: 'setup/init.ts', group: 'Setup', args: '<id> --base-url <url> [--api-base-url <url>]', about: 'add another application profile' },
-  doctor: { script: 'setup/doctor.ts', group: 'Setup', args: '[--jira] [--offline]', about: 'check that everything is wired up, with a fix for each problem' },
-  secret: { script: 'setup/secret.ts', group: 'Setup', args: 'NAME --generate | --ask  [--force]', about: 'a secret into .env without showing it: generated, or typed at a hidden prompt' },
-  accounts: { script: 'setup/accounts.ts', group: 'Setup', args: '--add-existing --username … --password-env NAME|--password-vault path#field  | --key KEY --from-chain chain.json  | --check', about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live' },
-  status: { script: 'flow/status.ts', group: 'Setup', args: '[KEY]', about: 'where each story is in the pipeline and the next command' },
-  advance: { script: 'flow/advance.ts', group: 'Setup', args: 'KEY [--aut id] [--rerun]', about: 'run the story\'s next script steps, up to the next subagent (run it again after each one)' },
-  new: { script: 'requirement/mock/new.ts', group: 'Requirement', args: 'KEY --from story.md [--ac-from ac.md] [--page <id>=page.md]…', about: 'create a story (and the Confluence pages it links) in the mock Jira (no Jira needed)' },
-  fetch: { script: 'requirement/fetch.ts', group: 'Requirement', args: 'KEY [--aut id]', about: 'fetch the story (title, description, acceptance criteria, the images they show, linked Confluence pages); binds it to an AUT profile' },
-  contract: { script: 'requirement/contract.ts', group: 'Requirement', args: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --answer G2 --value … --by … | --allow-unreviewed]', about: 'evidence pack + checks for the model-built, independently reviewed requirement contract' },
-  scaffold: { script: 'authoring/scaffold.ts', group: 'Tests', args: 'KEY [--force]', about: 'a spec skeleton (one test stub per criterion) and test data from the contract' },
-  journeys: { script: 'authoring/journeys/journeys.ts', group: 'Tests', args: 'KEY [--all | --stale <id> --evidence … | --harvest [--apply]]  |  [--aut id] [--check | --sync | --resolve]', about: 'the reusable journeys (journeys/fixtures/<domain>.ts) and their registry (journeys/registry.yml)' },
-  lint: { script: 'authoring/lint.ts', group: 'Tests', args: 'KEY [--allow-unhardened] [--no-health]', about: 'traceability lint + AUT healthcheck' },
-  integrity: { script: 'authoring/integrity.ts', group: 'Tests', args: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]', about: 'freeze the draft / verify nothing expected changed' },
-  inspect: { script: 'probe/inspect.ts', group: 'Hardening', args: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]', about: 'tier-3 UI inspector: ARIA snapshot + ranked locators' },
-  confirm: { script: 'authoring/confirm.ts', group: 'Hardening', args: 'KEY --file <spec or journey file>… --evidence "<probe report>"', about: 'remove the TODO(harden) marks of guesses the probe showed were right, in one go' },
-  'api-probe': { script: 'probe/api-probe.ts', group: 'Hardening', args: '--key KEY <METHOD> <path> | --chain chain.json', about: 'call the API (or a chain of calls) with redacted output' },
-  'mcp-probe': { script: 'probe/mcp-probe.ts', group: 'Hardening', args: '--key KEY --steps steps.json [--var name=value]… [--out report.md]', about: 'tier 2: drive the Playwright MCP server over stdio' },
-  run: { script: 'run/run.ts', group: 'Run', args: 'KEY [--label eval] [--grep …] [--repeat-each N] [--capture] [--wait-healthy 300]', about: 'preflight + run the held-out suite' },
-  triage: { script: 'triage/triage.ts', group: 'Run', args: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]', about: 'classify failures; record confirmed decisions' },
-  verdict: { script: 'report/verdict.ts', group: 'Report', args: 'KEY', about: 'render verdict.md / verdict.json' },
-  publish: { script: 'report/publish.ts', group: 'Report', args: 'KEY', about: 'attach the verdict, comment, label (never creates issues)' },
-  scrub: { script: 'report/scrub.ts', group: 'Report', args: 'KEY [--value <literal>]', about: 'remove the story\'s secrets from existing artifacts' },
+/** Every command and its module, in the order `help` lists them. Each module exports its spec and its run. */
+export const COMMANDS: Record<string, string> = {
+  init: 'setup/init.ts',
+  update: 'setup/update.ts',
+  'add-aut': 'setup/add-aut.ts',
+  doctor: 'setup/doctor.ts',
+  secret: 'setup/secret.ts',
+  accounts: 'setup/accounts.ts',
+  status: 'flow/status.ts',
+  advance: 'flow/advance.ts',
+  new: 'requirement/mock/new.ts',
+  fetch: 'requirement/fetch.ts',
+  contract: 'requirement/contract.ts',
+  scaffold: 'authoring/scaffold.ts',
+  journeys: 'authoring/journeys/journeys.ts',
+  lint: 'authoring/lint.ts',
+  integrity: 'authoring/integrity.ts',
+  inspect: 'probe/inspect.ts',
+  confirm: 'authoring/confirm.ts',
+  'api-probe': 'probe/api-probe.ts',
+  'mcp-probe': 'probe/mcp-probe.ts',
+  run: 'run/run.ts',
+  triage: 'triage/triage.ts',
+  verdict: 'report/verdict.ts',
+  publish: 'report/publish.ts',
+  scrub: 'report/scrub.ts',
 };
 
-function help(): void {
+const fileOf = (name: string) => path.join(import.meta.dirname, COMMANDS[name]);
+export const loadCommand = async (name: string): Promise<CommandModule> => await import(pathToFileURL(fileOf(name)).href) as CommandModule;
+
+async function help(): Promise<void> {
   console.log('Held-out evaluator — usage: heldout <command> [args]\n');
   let group = '';
-  for (const [name, c] of Object.entries(COMMANDS)) {
-    if (c.group !== group) { group = c.group; console.log(`${group}`); }
-    console.log(`  ${name.padEnd(10)} ${c.about}\n  ${' '.repeat(10)} ${c.args}`);
+  for (const name of Object.keys(COMMANDS)) {
+    const { spec } = await loadCommand(name);
+    if (spec.group !== group) { group = spec.group; console.log(`${group}`); }
+    console.log(`  ${name.padEnd(10)} ${spec.about}\n  ${' '.repeat(10)} ${spec.usage}`);
   }
   console.log('\nFirst time here?  heldout init --base-url https://your-app --install   then   heldout doctor');
   console.log('A newer skill?    git pull the skill repository, then run its heldout update in this folder');
   console.log('Then ask Opus:     "Run a held-out evaluation of ABC-123"');
 }
 
-const [cmd, ...rest] = process.argv.slice(2);
-if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') { help(); process.exit(0); }
-const c = COMMANDS[cmd];
-if (!c) {
-  const near = Object.keys(COMMANDS).filter((k) => k.startsWith(cmd.slice(0, 3)));
-  console.error(`✖ Unknown command "${cmd}".${near.length ? ` Did you mean: ${near.join(', ')}?` : ''} Run "heldout help".`);
-  process.exit(1);
-}
-const script = path.join(import.meta.dirname, c.script);
-// Reject flags the command doesn't read (a typo or a guessed flag would otherwise be silently ignored).
-const src = fs.readFileSync(script, 'utf8');
-if (rest.includes('--help') || rest.includes('-h')) {
-  // Each script documents its usage in its leading comment.
-  console.log((src.match(/^\/\*\*([\s\S]*?)\*\//)?.[1] ?? '').split('\n').map((l) => l.replace(/^ ?\* ?/, '')).join('\n').trim());
-  process.exit(0);
-}
-const known = knownFlags(src);
-// Windows PowerShell drops a bare `--`, so `npm run heldout -- run KEY --label eval` reaches npm as
-// `npm run heldout run KEY --label eval`: npm keeps the flags for itself (as npm_config_*, `--aut` expanded to
-// `--auth-type`) and passes their values on as plain arguments. Stop rather than run the command without them.
-if (process.env.npm_lifecycle_event) {
-  const npmKeys = Object.keys(process.env).filter((k) => /^npm_config_/i.test(k)).map((k) => k.slice(11).toLowerCase().replace(/_/g, '-'));
-  const passed = new Set(rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]));
-  const swallowed = [...known].filter((f) => !passed.has(f) && npmKeys.some((k) => k === f || (f.length >= 3 && k.startsWith(f))));
-  if (swallowed.length) {
-    console.error(`✖ npm kept ${swallowed.map((f) => `--${f}`).join(', ')} for itself: the "--" after "npm run heldout" didn't reach npm (Windows PowerShell drops it).`);
-    console.error(`  In PowerShell, quote it: npm run heldout '--' ${cmd} …   (or use npm.cmd: npm.cmd run heldout -- ${cmd} …)`);
-    process.exit(1);
+/** The usage a command's module documents in its leading comment. */
+const usageOf = (name: string) => (fs.readFileSync(fileOf(name), 'utf8').match(/^\/\*\*([\s\S]*?)\*\//)?.[1] ?? '')
+  .split('\n').map((l) => l.replace(/^ ?\* ?/, '')).join('\n').trim();
+
+async function dispatch(cmd: string | undefined, rest: string[]): Promise<void> {
+  if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') { await help(); return; }
+  if (!COMMANDS[cmd]) {
+    const near = Object.keys(COMMANDS).filter((k) => k.startsWith(cmd.slice(0, 3)));
+    throw new Error(`Unknown command "${cmd}".${near.length ? ` Did you mean: ${near.join(', ')}?` : ''} Run "heldout help".`);
   }
+  if (rest.includes('--help') || rest.includes('-h')) { console.log(usageOf(cmd)); return; }
+  const command = await loadCommand(cmd);
+  const known = new Set(command.spec.flags);
+  // Windows PowerShell drops a bare `--`, so `npm run heldout -- run KEY --label eval` reaches npm as
+  // `npm run heldout run KEY --label eval`: npm keeps the flags for itself (as npm_config_*, `--aut` expanded to
+  // `--auth-type`) and passes their values on as plain arguments. Stop rather than run the command without them.
+  if (process.env.npm_lifecycle_event) {
+    const npmKeys = Object.keys(process.env).filter((k) => /^npm_config_/i.test(k)).map((k) => k.slice(11).toLowerCase().replace(/_/g, '-'));
+    const passed = new Set(rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]));
+    const swallowed = [...known].filter((f) => !passed.has(f) && npmKeys.some((k) => k === f || (f.length >= 3 && k.startsWith(f))));
+    if (swallowed.length) {
+      throw new Error(`npm kept ${swallowed.map((f) => `--${f}`).join(', ')} for itself: the "--" after "npm run heldout" didn't reach npm (Windows PowerShell drops it).\n`
+        + `  In PowerShell, quote it: npm run heldout '--' ${cmd} …   (or use npm.cmd: npm.cmd run heldout -- ${cmd} …)`);
+    }
+  }
+  // Reject flags the command doesn't read (a typo or a guessed flag would otherwise be silently ignored).
+  const unknown = rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]).filter((f) => !known.has(f));
+  if (unknown.length) {
+    throw new Error(`${cmd} does not take ${unknown.map((f) => `--${f}`).join(', ')}. It takes: ${[...known].sort().map((f) => `--${f}`).join(' ')}\n`
+      + `  usage: heldout ${cmd} ${command.spec.usage}`);
+  }
+  await command.run({ ...parseArgs(rest), argv: rest });
 }
-const unknown = rest.filter((a) => a.startsWith('--')).map((a) => a.slice(2).split('=')[0]).filter((f) => !known.has(f));
-if (unknown.length) {
-  console.error(`✖ ${cmd} does not take ${unknown.map((f) => `--${f}`).join(', ')}. It takes: ${[...known].sort().map((f) => `--${f}`).join(' ')}`);
-  console.error(`  usage: heldout ${cmd} ${c.args}`);
-  process.exit(1);
+
+// Run as a program, not when the self-tests import the command table (drive letters differ in case on Windows).
+const same = (a: string, b: string) => (process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b);
+if (process.argv[1] && same(path.resolve(process.argv[1]), path.resolve(import.meta.filename))) {
+  const [cmd, ...rest] = process.argv.slice(2);
+  main(() => dispatch(cmd, rest));
 }
-// Each script reads process.argv.slice(2) and runs on import.
-process.argv = [process.argv[0], script, ...(cmd === 'add-aut' ? ['--add-aut', ...rest] : rest)];
-await import(pathToFileURL(script).href);

@@ -32,7 +32,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { flagStr, main, parseArgs, unmangleMsysPath } from '../core/cli';
+import { flagStr, unmangleMsysPath, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { ROOT } from '../core/files';
 import { evalPaths } from '../core/paths';
@@ -50,8 +50,16 @@ function reference(name: string, literal: string | undefined, envName: string | 
   return literal;
 }
 
-main(async () => {
-  const { flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'accounts', group: 'Setup',
+  usage: '--add-existing --username … --password-env NAME|--password-vault path#field  | --key KEY --from-chain chain.json  | --check',
+  about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live',
+  flags: ['add-existing', 'aut', 'check', 'create', 'from-chain', 'id', 'key', 'lookup', 'lookup-id', 'no-delete', 'password', 'password-env',
+    'password-vault', 'per-test', 'reset', 'role', 'shared', 'sign-in-done', 'sign-in-json', 'sign-in-path', 'sign-in-steps', 'sign-up-done',
+    'sign-up-json', 'sign-up-path', 'sign-up-steps', 'username', 'username-env', 'username-vault'],
+};
+
+export async function run({ flags }: Args): Promise<void> {
   const key = flagStr(flags, 'key');
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const base = key ? evalPaths(cfg, key).base : ROOT;
@@ -183,4 +191,4 @@ main(async () => {
   console.log(`✔ accounts ready${pool ? ` (${recipe.existing?.length} existing${roles.size ? `: ${[...roles].map(([r, n]) => `${n} ${r}`).join(', ')}` : ''}${(recipe.perTest ?? 1) > 1 ? `, ${recipe.perTest} per test` : ''}; runs use at most ${pool} parallel worker${pool > 1 ? 's' : ''})` : ''}. In tests: const me = await seed.account(${roles.size ? `'me', { role: '${[...roles.keys()][0]}' }` : ''});${recipe.signIn ? ' await signIn(page, me);' : ''}`);
   if (recipe.token || recipe.signIn) console.log(`  in the spec: import { ${recipe.signIn ? 'signIn, ' : ''}type Account } from '<…>/heldout-support/fixtures' — seed.account() and me.headers need nothing else`);
   if (!recipe.token && !recipe.signIn) console.log(`  next: save how to sign in — the api-probe chain of the sign-in call (heldout accounts --from-chain …), and/or the UI steps (--sign-in-json …)`);
-});
+}

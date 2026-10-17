@@ -20,7 +20,7 @@
  * requirement + shape, never by copying AUT values into expectations).
  */
 import fs from 'node:fs';
-import { flagList, flagStr, main, parseArgs, resolveUrl } from '../core/cli';
+import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { writeFile } from '../core/files';
 import { literalsOf, pageText, redact, redactHeaders, shapeOf } from '../core/redact';
@@ -98,7 +98,7 @@ function decode(v: unknown, how?: string): unknown {
   if (how === 'jwt') { const [h, p, sig] = v.split('.'); return { header: parsed(b64(h ?? '')), payload: parsed(b64(p ?? '')), signature: sig ?? '' }; }
   return parsed(b64(v));
 }
-async function runChain(file: string, base: string, cfgName: string, outFile?: string): Promise<void> {
+async function runChain(file: string, base: string, cfgName: string, chainBodyLimit: number, outFile?: string): Promise<void> {
   const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, unknown>; steps: ChainStep[] };
   const vars: Record<string, string> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
   const interpVars = (s: string): string => s.replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
@@ -109,8 +109,6 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
   const deep = (v: unknown): unknown => (typeof v === 'string' ? (whole(v) !== undefined && typed[whole(v)!] !== undefined ? typed[whole(v)!] : interp(v))
     : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
   for (const [k, v] of Object.entries(chain.vars ?? {})) { if (typeof v === 'string') vars[k] = interp(v); else { vars[k] = String(v); typed[k] = v; } }
-  // Each answer is shown in one line: its first 300 characters, or --body-limit N of them ("show" picks fields).
-  const chainBodyLimit = Number(process.argv.find((a, i, all) => all[i - 1] === '--body-limit') ?? 300);
   const lines = [`# API chain — ${file}`, '', `- AUT: ${cfgName} · ${base} · captured ${new Date().toISOString()}`, ''];
   let failed = 0;
   for (const [i, s] of chain.steps.entries()) {
@@ -183,14 +181,20 @@ async function runChain(file: string, base: string, cfgName: string, outFile?: s
   if (outFile) { writeFile(outFile, out); console.log(`✔ chain of ${chain.steps.length} call(s) → ${outFile}${failed ? ` (${failed} unexpected)` : ''}`); } else console.log(out);
 }
 
-main(async () => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'api-probe', group: 'Hardening', usage: '--key KEY <METHOD> <path> | --chain chain.json',
+  about: 'call the API (or a chain of calls) with redacted output',
+  flags: ['aut', 'body-limit', 'chain', 'cookie', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'out', 'raw-data', 'repeat'],
+};
+
+export async function run({ _, flags, argv }: Args): Promise<void> {
   const bodyLimit = Number(flagStr(flags, 'body-limit') ?? 4000);
   const chainFile = flagStr(flags, 'chain');
-  await requireVaultSecrets([process.argv.slice(2).join(' '), chainFile && fs.existsSync(chainFile) ? fs.readFileSync(chainFile, 'utf8') : '']);
+  await requireVaultSecrets([argv.join(' '), chainFile && fs.existsSync(chainFile) ? fs.readFileSync(chainFile, 'utf8') : '']);
   if (chainFile) {
     const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
-    await runChain(chainFile, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, flagStr(flags, 'out'));
+    // Each answer is shown in one line: its first 300 characters, or --body-limit N of them ("show" picks fields).
+    await runChain(chainFile, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300), flagStr(flags, 'out'));
     return;
   }
   const [methodArg, pathArg] = _;
@@ -235,7 +239,7 @@ main(async () => {
   const results = [];
   for (let i = 0; i < repeat; i++) results.push(await send(url, method, headers, body));
   const r = results.at(-1)!;
-  const input = [...process.argv.slice(2), dataFile ? fs.readFileSync(dataFile, 'utf8') : ''].join(' ');
+  const input = [...argv, dataFile ? fs.readFileSync(dataFile, 'utf8') : ''].join(' ');
 
   if (flags.json) {
     console.log(scrubEnv(JSON.stringify({ request: { method, url: shownUrl, headers: redactHeaders(headers), body: body && redactBody(body, headers['Content-Type']) }, response: { status: r.status, ms: r.ms, headers: redactHeaders(r.headers), body: r.json !== undefined ? redact(r.json) : r.text } }, null, 2), input));
@@ -263,4 +267,4 @@ main(async () => {
   ].join('\n'), input);
   const file = flagStr(flags, 'out');
   if (file) { writeFile(file, out); console.log(scrubEnv(`✔ ${method} ${shownUrl} → ${r.status} (${r.ms} ms) — written to ${file}`, pathArg)); } else console.log(out);
-});
+}

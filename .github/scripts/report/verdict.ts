@@ -14,7 +14,7 @@ import path from 'node:path';
 import { checkIntegrity, type IntegrityResult } from '../authoring/integrity-check';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, storyJourneys } from '../authoring/journeys/registry';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from '../authoring/spec-model';
-import { flagStr, main, parseArgs } from '../core/cli';
+import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
 import { evalPaths, evalRunsOf, journeyPaths, listRuns } from '../core/paths';
@@ -53,8 +53,13 @@ function journeysLine(cfg: HeldoutConfig, p: ReturnType<typeof evalPaths>, scena
   ].join(' · ');
 }
 
-main(() => {
-  const { _, flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'verdict', group: 'Report', usage: 'KEY [--run NN-label] [--evaluator <name>] [--exit-code]',
+  about: 'render verdict.md / verdict.json',
+  flags: ['evaluator', 'exit-code', 'run'],
+};
+
+export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -463,4 +468,4 @@ main(() => {
   writeFile(p.verdictJson, `${JSON.stringify(json, null, 2)}\n`);
   console.log(`Verdict for ${key}: ${BADGE[verdict]}\n  ${reason}\n  → ${rel(p.verdictMd)}\n  → ${rel(p.verdictJson)}`);
   if (flags['exit-code']) process.exit({ PASS: 0, PASS_WITH_WARNINGS: 0, FAIL: 1, INCONCLUSIVE: 2 }[verdict]);
-});
+}

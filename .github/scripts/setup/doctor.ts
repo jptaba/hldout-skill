@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { allJourneys, duplicateJourneys, journeyFiles, lintJourneys, readRegistry, syncRegistry } from '../authoring/journeys/registry';
-import { main, parseArgs, resolveUrl } from '../core/cli';
+import { resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { AGENT_FILES, SKILL_DIR, UPDATE_HINT, loadConfig, loadEnv, validateConfig } from '../core/config';
 import { ROOT, fileHash, rel } from '../core/files';
 import { journeyPaths, listStories } from '../core/paths';
@@ -43,8 +43,13 @@ async function reachable(url: string): Promise<{ ok: boolean; detail: string }> 
   }
 }
 
-main(async () => {
-  const { flags } = parseArgs();
+export const spec: CommandSpec = {
+  name: 'doctor', group: 'Setup', usage: '[--aut id] [--jira] [--offline]',
+  about: 'check that everything is wired up, with a fix for each problem',
+  flags: ['aut', 'jira', 'offline'],
+};
+
+export async function run({ flags }: Args): Promise<void> {
   loadEnv();
 
   // ---- skill --------------------------------------------------------------------------------------
@@ -269,6 +274,6 @@ main(async () => {
   const warns = results.filter((r) => r.level === 'warn').length;
   console.log(`\n${fails ? '✖' : '✔'} ${fails} problem(s), ${warns} warning(s).${fails ? '' : ' Ready — ask Opus: "Run a held-out evaluation of <KEY>".'}`);
   if (fails) process.exit(1);
-});
+}
 
 function pathToFile(p: string): string { return `file:///${p.replace(/\\/g, '/').replace(/^\//, '')}`; }
