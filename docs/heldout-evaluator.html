@@ -487,7 +487,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <p>One request in the chat, then nothing from you until the verdict. This is TOOL-6 on Practice Software Testing (Toolshop): a story whose one missing status sits behind a link the evaluator doesn't read. <code>advance</code> runs the script steps, the lines in violet are Opus handing a phase to a subagent with the task <code>advance</code> named, and the open question travels to the verdict instead of stopping the run.</p>
   <div class="term" data-cast="e2e" data-title="~/toolshop-qa — TOOL-6, from the request to the published verdict">
   </div>
-  <p class="termnote">Replay based on captured output. The <code>heldout</code> output is as it was printed; each subagent's work is shortened to a summary of its report, with the time it really took: a little over nine minutes in all.</p>
+  <p class="termnote">Replay based on captured output. The <code>heldout</code> output is as it was printed; each subagent's work is shortened to a summary of its report, with the time it really took: a little over nine minutes in all. It was recorded before a story's record took its current folders (<code>1-requirement/</code> to <code>6-verdict/</code>), so the paths it prints are the earlier ones.</p>
 </section>
 
 <!-- ============ STORY TO TESTS ============ -->
@@ -512,8 +512,8 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="122" class="t-s">description, AC field, the images</text>
         <text x="74" y="138" class="t-s">they show, the pages they link</text>
         <rect x="360" y="62" width="260" height="84" rx="10" class="box plain"/>
-        <text x="374" y="86" class="t-m">requirement/</text>
-        <text x="374" y="106" class="t-s">story.md · raw-issue.json</text>
+        <text x="374" y="86" class="t-m">1-requirement/</text>
+        <text x="374" y="106" class="t-s">story.md · history.jsonl: fetched</text>
         <text x="374" y="122" class="t-s">linked/ screenshots, confluence-*.md</text>
         <text x="374" y="138" class="t-s">never comments, never attachments</text>
         <path d="M290 104 H356" class="edge"/><text x="323" y="97" text-anchor="middle" class="t-s">writes</text>
@@ -526,10 +526,10 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="240" class="t-s">starts an empty contract bound</text>
         <text x="74" y="256" class="t-s">to this requirement revision</text>
         <rect x="360" y="180" width="260" height="84" rx="10" class="box plain"/>
-        <text x="374" y="204" class="t-m">evidence-pack.md</text>
+        <text x="374" y="204" class="t-m">evidence-pack.md (scratch)</text>
         <text x="374" y="224" class="t-s">"story.md L24 | Adding a product…"</text>
         <text x="374" y="240" class="t-s">+ transcripts/&lt;image&gt;.md</text>
-        <text x="374" y="256" class="t-s">+ requirement-contract.json (empty)</text>
+        <text x="374" y="256" class="t-s">+ 2-contract/contract.json (empty)</text>
         <rect x="690" y="180" width="250" height="84" rx="10" class="box violet"/>
         <text x="704" y="204" class="t-b">contract extractor</text>
         <text x="704" y="224" class="t-s">transcribes each screenshot into</text>
@@ -546,7 +546,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="358" class="t-s">its cited line · coverage of every</text>
         <text x="74" y="374" class="t-s">line · literals exist in the sources</text>
         <rect x="360" y="298" width="260" height="84" rx="10" class="box plain"/>
-        <text x="374" y="322" class="t-m">requirement-contract.json</text>
+        <text x="374" y="322" class="t-m">2-contract/contract.json</text>
         <text x="374" y="342" class="t-s">ACs quoted + cited · rules · endpoints</text>
         <text x="374" y="358" class="t-s">errors · auth · test data · gaps</text>
         <text x="374" y="374" class="t-s">coverage ledger for every line</text>
@@ -566,7 +566,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="476" class="t-s">exact contract hash; lists the</text>
         <text x="74" y="492" class="t-s">open questions for the verdict</text>
         <rect x="360" y="416" width="260" height="84" rx="10" class="box plain"/>
-        <text x="374" y="440" class="t-m">…contract.review.json</text>
+        <text x="374" y="440" class="t-m">2-contract/review.json</text>
         <text x="374" y="460" class="t-s">per item: supported, unsupported,</text>
         <text x="374" y="476" class="t-s">misread, incomplete, missed</text>
         <text x="374" y="492" class="t-s">bound to the contract's hash</text>
@@ -587,7 +587,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="614" class="t-m">lint KEY</text>
         <text x="74" y="632" class="t-s">every AC tested, one @type, sources</text>
         <rect x="360" y="534" width="260" height="110" rx="10" class="box plain"/>
-        <text x="374" y="558" class="t-m">tests/&lt;key&gt;.spec.ts</text>
+        <text x="374" y="558" class="t-m">3-tests/&lt;key&gt;.spec.ts</text>
         <text x="374" y="576" class="t-s">test-data.json</text>
         <text x="374" y="600" class="t-m">journeys/fixtures/&lt;domain&gt;.ts</text>
         <text x="374" y="618" class="t-s">shared HOW, read through</text>
@@ -611,10 +611,10 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
         <text x="74" y="738" class="t-s">the @req-constants block and</text>
         <text x="74" y="754" class="t-s">the contract's expected outcomes</text>
         <rect x="360" y="678" width="260" height="84" rx="10" class="box plain"/>
-        <text x="374" y="702" class="t-m">draft/</text>
-        <text x="374" y="722" class="t-s">a copy of the specs (the oracle)</text>
-        <text x="374" y="738" class="t-s">contract-oracle.json</text>
-        <text x="374" y="754" class="t-s">journeys.json: a hash per journey</text>
+        <text x="374" y="702" class="t-m">3-tests/freeze.json</text>
+        <text x="374" y="722" class="t-s">a copy of the specs (the oracle),</text>
+        <text x="374" y="738" class="t-s">the contract's oracle digest and</text>
+        <text x="374" y="754" class="t-s">a hash per journey</text>
         <path d="M290 720 H356" class="edge"/><text x="323" y="713" text-anchor="middle" class="t-s">writes</text>
 
         <path d="M40 790 H940" class="edge red"/>
@@ -628,7 +628,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
           <text x="74" y="872" class="t-s">changed; journeys --harvest</text>
           <text x="74" y="888" class="t-s">records what passing tests proved</text>
           <rect x="360" y="812" width="260" height="84" rx="10" class="box plain"/>
-          <text x="374" y="836" class="t-m">runs/ · verdict.md</text>
+          <text x="374" y="836" class="t-m">5-runs/ · 6-verdict/</text>
           <text x="374" y="856" class="t-s">journeys/registry.yml updated</text>
           <text x="374" y="872" class="t-s">for the next story</text>
           <rect x="690" y="812" width="250" height="84" rx="10" class="box violet"/>
@@ -645,10 +645,10 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   </figure>
 
   <h3>The artifacts, step by step</h3>
-  <p>What each step of the diagram reads and writes, shown on one criterion of one story: AC3 of TOOL-6, the run in the <a href="#pipeline">end-to-end replay</a>. Every excerpt is from that run's files, shortened where marked with an ellipsis. AC3 is a useful one to follow because half of it can't be settled from the story: it points to a document the evaluator doesn't read.</p>
+  <p>What each step of the diagram reads and writes, shown on one criterion of one story: AC3 of TOOL-6, the run in the <a href="#pipeline">end-to-end replay</a>. Every excerpt is from that run's files, shortened where marked with an ellipsis, and shown where the current layout keeps it (the freeze's journey hashes and the integrity result are given in the current files' form, with the run's values). AC3 is a useful one to follow because half of it can't be settled from the story: it points to a document the evaluator doesn't read.</p>
 
-  <p><span class="badge b-muted">1 · script</span> <b><code>fetch TOOL-6</code> writes <code>requirement/</code></b>: the story as text, and each Confluence page it links as a file beside it.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement/story.md (excerpt)</div><pre>## Description
+  <p><span class="badge b-muted">1 · script</span> <b><code>fetch TOOL-6</code> writes <code>1-requirement/</code></b>: the story as text, and each Confluence page it links as a file beside it.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/1-requirement/story.md (excerpt)</div><pre>## Description
 
 The mobile app shows the shop's categories as a tree, the same one the web shop shows in its filter. It reads them from the public catalogue API.
 
@@ -662,8 +662,8 @@ AC2 - Every sub-category's parent_id is the id of the category it is listed unde
 AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-categories. For an id that does not exist the API answers with the error status given in the OpenAPI file.
 …</pre></div>
 
-  <p><span class="badge b-muted">2 · script</span> <b><code>contract TOOL-6 --pack</code> writes <code>evidence-pack.md</code></b>: every source line numbered, and each line that may carry a requirement marked ●. This is all the extractor and the reviewer read.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement/evidence-pack.md (excerpt)</div><pre>## story.md
+  <p><span class="badge b-muted">2 · script</span> <b><code>contract TOOL-6 --pack</code> writes <code>evidence-pack.md</code></b> in the scratch area: every source line numbered, and each line that may carry a requirement marked ●. This is all the extractor and the reviewer read, and it is built again whenever it is needed.</p>
+  <div class="code"><div class="hd">.heldout/practicesoftwaretesting/TOOL-6/2-contract/evidence-pack.md (excerpt)</div><pre>## story.md
 ● L20  | The complete OpenAPI file is on the API portal: https://api.practicesoftwaretesting.com/api/documentation
 …
 ● L26  | AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-categories. For an id that does not exist the API answers with the error status given in the OpenAPI file.
@@ -676,8 +676,8 @@ AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-c
 ● L69  |     responses:
 ● L70  |       "200": { description: The category with sub_categories }</pre></div>
 
-  <p><span class="badge b-inc">3 · subagent</span> <b>The contract extractor writes <code>requirement-contract.json</code></b>: the criterion quoted from its line, its outcomes in the source's own words, and a gap for what the sources don't settle. The coverage ledger accounts for every ● line.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement-contract.json (excerpt: AC-3, its gap, three ledger entries)</div><pre data-lang="json">{ "id": "AC-3",
+  <p><span class="badge b-inc">3 · subagent</span> <b>The contract extractor writes <code>2-contract/contract.json</code></b>: the criterion quoted from its line, its outcomes in the source's own words, and a gap for what the sources don't settle. The coverage ledger accounts for every ● line.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/2-contract/contract.json (excerpt: AC-3, its gap, three ledger entries)</div><pre data-lang="json">{ "id": "AC-3",
   "quote": "GET /categories/tree/{categoryId} returns that one category with its sub-categories. For an id that does not exist the API answers with the error status given in the OpenAPI file.",
   "source": "story.md#L26",
   "layer": "api",
@@ -704,8 +704,8 @@ AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-c
   … ]</pre></div>
   <p class="small">The page states 404 for a missing <i>brand</i>. The extractor did not carry that over to categories, and nobody was asked: the gap stays open and travels on.</p>
 
-  <p><span class="badge b-inc">4 · subagent</span> <b>The contract reviewer writes <code>requirement-contract.review.json</code></b>, in a fresh context and on another model, from the pack alone. <span class="badge b-muted">script</span> <code>contract TOOL-6</code> accepts the contract only with a review of this exact hash.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/requirement-contract.review.json (excerpt)</div><pre data-lang="json">{ "reviewer": "heldout-contract-reviewer (Claude Sonnet 5.5)",
+  <p><span class="badge b-inc">4 · subagent</span> <b>The contract reviewer writes <code>2-contract/review.json</code></b>, in a fresh context and on another model, from the pack alone. <span class="badge b-muted">script</span> <code>contract TOOL-6 --review-bind</code> stamps it with the contract's hash and the time, and <code>contract TOOL-6</code> accepts the contract only with a review of this exact hash.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/2-contract/review.json (excerpt)</div><pre data-lang="json">{ "reviewer": "heldout-contract-reviewer (Claude Sonnet 5.5)",
   "contractHash": "4f7cd8cf62eadfd0",
   "items": [
     { "ref": "AC-3", "verdict": "supported",
@@ -718,8 +718,8 @@ AC3 - GET /categories/tree/{categoryId} returns that one category with its sub-c
   "missed": [],
   "summary": "All listed items are grounded in the pack. The one oracle gap (the 404-style status for a missing category) is correctly recorded as open." }</pre></div>
 
-  <p><span class="badge b-inc">5 · subagent</span> <b>The test author writes <code>tests/tool-6.spec.ts</code></b> from the reviewed contract, without a browser. The open question is written at the top of the spec, and the test asserts only what holds under every answer to it: an error status, not which one.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/tests/tool-6.spec.ts (excerpt)</div><pre data-lang="ts">import { test, expect, expectResponse, checkShape, type ApiResponse, type ShapeRule } from '../../../../heldout-support/fixtures';
+  <p><span class="badge b-inc">5 · subagent</span> <b>The test author writes <code>3-tests/tool-6.spec.ts</code></b> from the reviewed contract, without a browser. The open question is written at the top of the spec, and the test asserts only what holds under every answer to it: an error status, not which one.</p>
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/3-tests/tool-6.spec.ts (excerpt)</div><pre data-lang="ts">import { test, expect, expectResponse, checkShape, type ApiResponse, type ShapeRule } from '../../../../heldout-support/fixtures';
 import { categoryTree, missingCategoryId, topLevelCategory } from '../../../../journeys/fixtures/categories';
 
 // OPEN-QUESTION: G1 — the error status GET /categories/tree/{categoryId} must answer for an id that does not exist. AC3 says it is the one "given in the OpenAPI file", and that file is on the API portal, not among the story's sources. …
@@ -753,9 +753,9 @@ export async function missingCategoryId(api: Api, seed: Seed): Promise&lt;string
   return id;
 }</pre></div>
 
-  <p><span class="badge b-muted">6 · script</span> <b><code>integrity TOOL-6 --snapshot</code> freezes the draft</b> into <code>draft/</code>: the spec, the contract's expected values and a hash of each journey the spec uses. After the hardener's work, <code>integrity TOOL-6</code> compares against it.</p>
+  <p><span class="badge b-muted">6 · script</span> <b><code>integrity TOOL-6 --snapshot</code> freezes the draft</b> into <code>3-tests/freeze.json</code>: the spec, the contract's expected values and a hash of each journey the spec uses. After the hardener's work, <code>integrity TOOL-6</code> compares against it and writes the result as a line of the story's history.</p>
   <div class="grid two">
-    <div class="code"><div class="hd">…/TOOL-6/draft/journeys.json</div><pre data-lang="json">{
+    <div class="code"><div class="hd">…/TOOL-6/3-tests/freeze.json (its journeys)</div><pre data-lang="json">"journeys": {
   "api.categories.category-tree": "ac619859518f",
   "api.categories.missing-category-id": "27b85b5d4c7f",
   "api.categories.top-level-category": "7a753e9fd10d",
@@ -763,15 +763,10 @@ export async function missingCategoryId(api: Api, seed: Seed): Promise&lt;string
   "ui.shop.read-filter-tree": "51fbf937c7e1",
   "ui.shop.shop-filter": "570b3e6600a2"
 }</pre></div>
-    <div class="code"><div class="hd">…/TOOL-6/hardening/integrity.json (excerpt)</div><pre data-lang="json">{
+    <div class="code"><div class="hd">…/TOOL-6/history.jsonl (the integrity line)</div><pre data-lang="json">{ "event": "integrity",
   "status": "PRESERVED",
-  "files": [
-    { "file": "tool-6.spec.ts",
-      "draftAssertions": 26,
-      "currentAssertions": 26 }
-  ],
-  "removed": [], "changed": [], "amended": [],
-  "constantsChanged": [],
+  "changed": [], "removed": [], "amended": 0,
+  "constantsChanged": [], "contractChanged": false,
   "journeysChanged": [
     "api.categories.missing-category-id",
     "ui.shop.open-shop",
@@ -781,7 +776,7 @@ export async function missingCategoryId(api: Api, seed: Seed): Promise&lt;string
   <p class="small">Three journeys changed after the freeze, which is allowed (they are HOW) and listed in the verdict. None of the 26 requirement assertions did.</p>
 
   <p><b>After the tests: the run, the verdict and the registry.</b> The run passed 13 of 13. The open question arrives where a person reads it, and the journey the test used is recorded with this story as its proof, for the next story to reuse.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/verdict.md (excerpts)</div><pre># Held-out Evaluation Verdict — TOOL-6
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-6/6-verdict/verdict.md (excerpts)</div><pre># Held-out Evaluation Verdict — TOOL-6
 
 &gt; **Verdict: ⚠️ PASS WITH WARNINGS** — All tests passed, with warnings: 1 open question(s) not tested.
 
@@ -898,7 +893,7 @@ test('SCN-002: Adding a product
     <li><b>Kinds of user are accounts with roles.</b> Existing accounts get a role once (<code>accounts --add-existing … --role admin</code>), and a test asks for the kind it needs: <code>seed.account('administrator', { role: 'admin' })</code>. A guest takes no account. See <a href="#accounts">Test users</a>.</li>
     <li><b>The verdict shows the grid as it ran</b>, from the tags of the tests that actually executed. A required setup that didn't run is a warning, never a silent pass.</li>
   </ul>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-7/verdict.md, "Setups" (excerpt: all 24 were tested)</div><pre data-lang="sh">| Criterion | Setup                                 | Result    | Tests     |
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-7/6-verdict/verdict.md, "Setups" (excerpt: all 24 were tested)</div><pre data-lang="sh">| Criterion | Setup                                 | Result    | Tests     |
 | AC-3      | user-type=guest                       | ✅ passed | SCN-008   |
 | AC-3      | user-type=customer                    | ✅ passed | SCN-007   |
 | AC-3      | user-type=administrator               | ✅ passed | SCN-006   |
@@ -915,7 +910,7 @@ test('SCN-002: Adding a product
   <div class="tbl"><table>
     <thead><tr><th>Subagent</th><th>Story sources</th><th>Contract</th><th>Live app</th><th>Journeys code</th><th>Writes</th></tr></thead>
     <tbody>
-      <tr><td>Contract extractor</td><td>yes</td><td>builds it</td><td>no</td><td>no</td><td><code>requirement-contract.json</code>, transcripts</td></tr>
+      <tr><td>Contract extractor</td><td>yes</td><td>builds it</td><td>no</td><td>no</td><td><code>2-contract/contract.json</code>, transcripts</td></tr>
       <tr><td>Contract reviewer</td><td>yes</td><td>reviews it</td><td>no</td><td>no</td><td><code>…review.json</code></td></tr>
       <tr><td>Test author</td><td>as quoted in the contract</td><td>yes</td><td>no browser</td><td>reads, adds</td><td>specs, test data, new journeys</td></tr>
       <tr><td>Hardener</td><td>—</td><td>its mechanics gaps</td><td>yes</td><td>fixes HOW</td><td>locators, waits, fields; the accounts recipe</td></tr>
@@ -1159,7 +1154,7 @@ test('SCN-002: Adding a product
         <path class="edge" d="M410 66 H446"/>
         <rect class="box violet" x="450" y="24" width="190" height="84" rx="12"/><text class="t-b" x="545" y="50" text-anchor="middle">Extractor subagent</text><text class="t-s" x="545" y="70" text-anchor="middle">fresh context,</text><text class="t-s" x="545" y="88" text-anchor="middle">reads the pack only</text>
         <path class="edge acc flow" d="M640 66 H676"/>
-        <rect class="box acc" x="680" y="24" width="260" height="84" rx="12"/><text class="t-b" x="810" y="50" text-anchor="middle">requirement-contract.json</text><text class="t-s" x="810" y="70" text-anchor="middle">criteria quoted and cited, rules,</text><text class="t-s" x="810" y="88" text-anchor="middle">endpoints, gaps, coverage ledger</text>
+        <rect class="box acc" x="680" y="24" width="260" height="84" rx="12"/><text class="t-b" x="810" y="50" text-anchor="middle">2-contract/contract.json</text><text class="t-s" x="810" y="70" text-anchor="middle">criteria quoted and cited, rules,</text><text class="t-s" x="810" y="88" text-anchor="middle">endpoints, gaps, coverage ledger</text>
         <path class="edge" d="M810 108 V128 H127 V150"/><path class="edge" d="M362 128 V150"/><path class="edge" d="M597 128 V150"/><path class="edge" d="M832 128 V150"/>
         <rect class="box" x="20" y="154" width="215" height="88" rx="12"/><text class="t-b" x="127" y="180" text-anchor="middle">① Anchoring</text><text class="t-s" x="127" y="200" text-anchor="middle">each criterion's quote appears</text><text class="t-s" x="127" y="218" text-anchor="middle">verbatim at its cited lines</text>
         <rect class="box" x="255" y="154" width="215" height="88" rx="12"/><text class="t-b" x="362" y="180" text-anchor="middle">② Coverage ledger</text><text class="t-s" x="362" y="200" text-anchor="middle">every numbered line is captured</text><text class="t-s" x="362" y="218" text-anchor="middle">or dismissed with a reason</text>
@@ -1173,7 +1168,7 @@ test('SCN-002: Adding a product
     </div>
   </figure>
   <p>One acceptance criterion from the TOOL-4 contract, exactly as the extractor wrote it:</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/requirement-contract.json</div><pre data-lang="json">{
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/2-contract/contract.json</div><pre data-lang="json">{
   "id": "AC-5",
   "quote": "On the web shop, a signed-in customer who clicks \"Add to favourites\" on a product page sees \"Product added to your favorites list.\" and the product then appears on the \"Favorites\" page of their account.",
   "source": "story.md#L27",
@@ -1186,7 +1181,7 @@ test('SCN-002: Adding a product
   "gaps": ["G2", "G4", "G5", "G6"]
 }</pre></div>
   <p>Where the story leaves an expected value out, a page it links may hold it. TOOL-4's description links the team's Favourites API page; <code>fetch</code> saves it as Markdown beside the story, with its OpenAPI excerpt kept verbatim, and the status for a duplicate favourite is cited from there. No API document is looked for anywhere else.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/requirement/linked/confluence-880001-favourites-api.md (excerpt)</div><pre data-lang="yaml">    post:
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/1-requirement/linked/confluence-880001-favourites-api.md (excerpt)</div><pre data-lang="yaml">    post:
       summary: Add a product to the signed-in customer's favourites
       …
       responses:
@@ -1225,7 +1220,7 @@ test('SCN-002: Adding a product
   </table></div>
   <p class="small">A requirement that is real but can't be observed from the outside, such as a trail kept only in server logs, is listed in the verdict as not verified instead of being tested.</p>
   <p>An excerpt of the TOOL-4 spec for Toolshop: one API test and one UI test, their steps on the app's journeys (imported from their domain's file), every expected value in the spec.</p>
-  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/tests/tool-4.spec.ts</div><pre data-lang="ts">import { test, expect, signIn, type Account } from '../../../../heldout-support/fixtures';
+  <div class="code"><div class="hd">output/practicesoftwaretesting/TOOL-4/3-tests/tool-4.spec.ts</div><pre data-lang="ts">import { test, expect, signIn, type Account } from '../../../../heldout-support/fixtures';
 import { products, openProduct } from '../../../../journeys/fixtures/products';   // journeys: HOW, never WHAT
 import { openFavourites } from '../../../../journeys/fixtures/favorites';
 
@@ -1286,7 +1281,7 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
       <svg class="dia" viewBox="0 0 960 280" role="img" aria-label="Integrity: the draft is frozen, hardening changes mechanics only, and the integrity check reports preserved, amended or violated">
         <rect class="box plain" x="20" y="30" width="200" height="84" rx="12"/><text class="t-b" x="120" y="57" text-anchor="middle">Draft tests</text><text class="t-m" x="120" y="77" text-anchor="middle">tests/*.spec.ts</text><text class="t-s" x="120" y="96" text-anchor="middle">written from the contract</text>
         <path class="edge acc" d="M220 72 H266"/><text class="t-s" x="243" y="64" text-anchor="middle">freeze</text>
-        <rect class="box acc" x="270" y="30" width="220" height="84" rx="12"/><text class="t-b" x="380" y="57" text-anchor="middle">Frozen draft</text><text class="t-m" x="380" y="77" text-anchor="middle">draft/ + integrity.json</text><text class="t-s" x="380" y="96" text-anchor="middle">every [REQ] assertion, hashed</text>
+        <rect class="box acc" x="270" y="30" width="220" height="84" rx="12"/><text class="t-b" x="380" y="57" text-anchor="middle">Frozen draft</text><text class="t-m" x="380" y="77" text-anchor="middle">3-tests/freeze.json</text><text class="t-s" x="380" y="96" text-anchor="middle">every [REQ] assertion, hashed</text>
         <path class="edge" d="M490 72 H536"/>
         <rect class="box blue" x="540" y="30" width="180" height="84" rx="12"/><text class="t-b" x="630" y="57" text-anchor="middle">Hardening</text><text class="t-s" x="630" y="77" text-anchor="middle">against the</text><text class="t-s" x="630" y="95" text-anchor="middle">live application</text>
         <path class="edge" d="M720 72 H766"/>
@@ -1299,7 +1294,7 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
     </div>
   </figure>
   <p>There are only two audited exceptions, and both are listed in the verdict. <code>integrity --amend</code> fixes a buggy assertion <i>implementation</i>, such as an over-strict regular expression. <code>integrity --snapshot --reason</code> re-freezes after the requirement itself was revised.</p>
-  <p>Journeys are not frozen, because they hold no expected values. The freeze records a hash of each journey in the files the draft uses (<code>draft/journeys.json</code>; comments don't count), the verdict lists the journeys that changed after it, and a <code>[REQ …]</code> assertion inside a journey file is a violation: it would escape the freeze.</p>
+  <p>Journeys are not frozen, because they hold no expected values. The freeze records a hash of each journey in the files the draft uses (in <code>3-tests/freeze.json</code>; comments don't count), the verdict lists the journeys that changed after it, and a <code>[REQ …]</code> assertion inside a journey file is a violation: it would escape the freeze.</p>
   <div class="plain">
     <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>
     <p>The answer key is sealed in an envelope before the practice round. During practice you may fix your pen or find the right room, but you may not change the answers. If someone does, the result is thrown out as inconclusive.</p>
@@ -1319,7 +1314,8 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
     <div class="tier"><div class="lv">3<small>Bundled</small></div><div><h4><code>inspect</code>, <code>api-probe --chain</code>, <code>run --capture</code></h4><p>An ARIA snapshot with ranked unique locators and probes. Walks whose steps can also give a control a value it does not offer, change the page's next request, or make a call of their own; each step says what the page announced and where it landed. API calls or whole call chains with status, timing, shape and a redacted body. A snapshot after every step of a run.</p></div></div>
   </div>
   <p>Cookie banners and welcome dialogs that the app itself shows go in the profile's <code>overlays</code>: the button that closes each. Tests, the UI sign-in and the inspector click it whenever it appears, so no test has to deal with it.</p>
-  <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract TOOL-4 --resolve G4 --value … --evidence hardening/signin-steps.json</code> (how a web shop test signs in). Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
+  <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract TOOL-4 --resolve G4 --value … --evidence P3</code> (how a web shop test signs in, shown by the story's third probe). Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
+  <p><b>Every probe is numbered, and builds on the ones before.</b> A probe made for a story is logged as its next one (<code>P1</code>, <code>P2</code>…, one line each in <code>4-evidence/probes.jsonl</code>, with what was asked and a digest of what came back). A decision or a resolved gap cites it by that id, and only a cited probe's full report is kept with the story. A new question starts from an earlier answer instead of a script: <code>inspect --sign-in admin</code> walks as a signed-in user, <code>--from P4:5 --then '…'</code> takes an earlier walk's first five steps and adds one, <code>api-probe --chain P7 --set 2.json.qty=0</code> runs an earlier chain with one value changed, and <code>--pages page --where 'name~^Hand' --pick price --count</code> reads every page of a list.</p>
   <p>The hardener makes the journeys the tests call work too, the same way: a journey is mechanics to verify, never evidence. A fix keeps every other story that calls it working; a journey that no longer works and is replaced is marked with <code>journeys KEY --stale "ui.products.open-product" --evidence …</code>.</p>
   <p>The first story that needs users also produces the accounts recipe: the probe chain that signed up and signed in becomes <code>accounts --from-chain</code>, and the login steps from <code>inspect</code> become the UI sign-in.</p>
 </section>
@@ -1431,7 +1427,7 @@ export async function openProduct(page: Page, id: string) {
     <div class="phase"><div class="n">1</div><div><h4>setup <span class="badge b-muted">script</span></h4><p>Creates an empty <code>journeys/fixtures/</code> folder and sets <code>journeysDir</code> in <code>heldout.config.json</code>. It never writes a journey and never overwrites the folder: a project that already has journeys keeps them. A second application added later with <code>add-aut</code> gets a folder of its own, <code>journeys-&lt;its profile&gt;/</code>.</p><span class="cmd">setup.ps1 -BaseUrl https://your-app</span></div><div class="ex"><b>Toolshop</b>journeys/fixtures/ is empty, no registry yet</div></div>
     <div class="phase"><div class="n">2</div><div><h4>doctor <span class="badge b-muted">script</span></h4><p>Sees that there are no journeys yet and says where the first ones will go. From the first story on, it lints every journey file, reports possible duplicates and files outside <code>fixtures/&lt;domain&gt;.ts</code>, counts what the registry holds, and says when the registry is behind the code.</p><span class="cmd">heldout doctor</span></div><div class="ex"><b>Before TOOL-4</b>✔ no journeys yet — the first story's tests start them in journeys/fixtures/&lt;domain&gt;.ts</div></div>
     <div class="phase"><div class="n">3</div><div><h4>First story: writing the tests <span class="badge b-inc">subagent</span></h4><p><code>heldout journeys TOOL-4</code> has nothing to list, so the test author writes each step the story needs as a new journey, in the file of the area of the app it works on, with a doc comment that says what it does. It writes them from the contract alone, without a browser, and marks every guessed route, locator or field with <code>// TODO(harden)</code>. That is safe before the freeze because a journey never holds an expected value.</p><span class="cmd">heldout journeys TOOL-4 · heldout lint TOOL-4 --allow-unhardened</span></div><div class="ex"><b>TOOL-4</b>5 journeys in 2 files: fixtures/favorites.ts (add a favourite, remove a product's favourites, open the Favorites page), fixtures/products.ts (find products, open a product page)</div></div>
-    <div class="phase"><div class="n">4</div><div><h4>Freeze <span class="badge b-muted">script</span></h4><p>The freeze seals the spec and the contract's oracle and records a hash of every journey in the files the spec imports, in the story's own folder (<code>draft/journeys.json</code>). Journeys are not frozen: the hashes only let the verdict say which ones hardening changed. Comments don't count, so taking a <code>TODO(harden)</code> off is not a change.</p><span class="cmd">heldout integrity TOOL-4 --snapshot</span></div><div class="ex"><b>TOOL-4</b>✔ Draft frozen (1 spec file(s) + requirement-contract oracle + the hashes of 5 journey(s))</div></div>
+    <div class="phase"><div class="n">4</div><div><h4>Freeze <span class="badge b-muted">script</span></h4><p>The freeze seals the spec and the contract's oracle and records a hash of every journey in the files the spec imports, in the story's own folder (<code>3-tests/freeze.json</code>). Journeys are not frozen: the hashes only let the verdict say which ones hardening changed. Comments don't count, so taking a <code>TODO(harden)</code> off is not a change.</p><span class="cmd">heldout integrity TOOL-4 --snapshot</span></div><div class="ex"><b>TOOL-4</b>✔ Draft frozen (1 spec file(s) + the requirement contract's oracle + the hashes of 5 journey(s)) → output/practicesoftwaretesting/TOOL-4/3-tests/freeze.json</div></div>
     <div class="phase"><div class="n">5</div><div><h4>Hardening <span class="badge b-inc">subagent</span></h4><p>The hardener makes each journey work against the live app, as it does the tests: a verified locator, wait or field replaces each <code>TODO(harden)</code>. It fixes HOW a journey works for every caller and never bends it to one story; for a different need it adds a journey. What it discovers that later stories will need becomes a new journey too. A journey it replaces is marked stale, with evidence.</p><span class="cmd">heldout run TOOL-4 --label harden · journeys TOOL-4 --stale "&lt;id&gt;" --evidence …</span></div><div class="ex"><b>TOOL-4</b>the Favorites page shows its title before its list, so <code>openFavourites</code> also waits for the page's own <code>GET /favorites</code>; <code>openProduct</code> waits for the product's name as a heading</div></div>
     <div class="phase"><div class="n">6</div><div><h4>Run and verdict <span class="badge b-muted">script</span></h4><p>Before every run, preflight lints the journey files the tests import: an expected value or a <code>[REQ …]</code> assertion in one is an error, and a <code>TODO(harden)</code> left in one blocks the official run. The verdict then says how the journeys took part.</p><span class="cmd">heldout run TOOL-4 --label eval · heldout verdict TOOL-4</span></div><div class="ex"><b>TOOL-4 verdict</b>5 journey(s) from journeys/fixtures/ (0 proven by earlier stories, 5 new to the registry) · 2 journey(s) changed after the freeze: ui.favorites.open-favourites, ui.products.open-product</div></div>
     <div class="phase"><div class="n">7</div><div><h4>Harvest <span class="badge b-muted">script</span></h4><p>After the verdict, <code>--harvest</code> previews and <code>--harvest --apply</code> writes into <code>registry.yml</code> the journeys a passing test used: where each is, what it opens, calls and uses, what ran before it, and the run and tests that proved it. Journeys only failing tests used are left out, since they may work around a defect. Commit the journey files, the registry and the story's output together.</p><span class="cmd">heldout journeys TOOL-4 --harvest → --harvest --apply</span></div><div class="ex"><b>TOOL-4</b>Harvest of TOOL-4 (03-eval): 5 proven, 0 stale, 0 left out → journeys/registry.yml</div></div>
@@ -1515,7 +1511,7 @@ fixtures/products.ts
       <tr><td>Add journeys to different domains</td><td>Different files: git merges them on its own</td></tr>
       <tr><td>Add journeys to the same domain</td><td>Usually merged on its own, at different places in the file; a conflict only where both edited the same lines (two journeys added at the very end of one file)</td></tr>
       <tr><td>Harvest their stories</td><td>Both change <code>registry.yml</code>: a conflict where their entries meet, settled by <code>heldout journeys --resolve</code></td></tr>
-      <tr><td>Freeze, harden, run and stage stale marks</td><td>All in the story's own folder, <code>output/&lt;profile&gt;/&lt;KEY&gt;/</code> (<code>draft/journeys.json</code>, <code>hardening/journeys-staged.json</code>, <code>journeys-harvest.json</code>): no other story writes there</td></tr>
+      <tr><td>Freeze, harden, run and stage stale marks</td><td>All in the story's own folder, <code>output/&lt;profile&gt;/&lt;KEY&gt;/</code> (<code>3-tests/freeze.json</code>, the harvest's preview in its scratch area, the harvest as a line of its history): no other story writes there</td></tr>
       <tr><td>Fix the same journey, both of them</td><td>A real conflict, in its domain's file: the two fixes have to be reconciled anyway</td></tr>
       <tr><td>Add the same journey twice, under two names</td><td>No conflict, but a duplicate: <code>journeys --check</code> and <code>doctor</code> report journeys that make the same calls, or open the same routes with the same locators</td></tr>
     </tbody>
@@ -1617,7 +1613,7 @@ $ npm run heldout -- journeys --resolve
     <div class="st"><b>Playwright</b>UI and API tests, traces kept for failures</div><span class="ar">›</span>
     <div class="st"><b>After</b>scrub secrets, summary, test-data receipt</div>
   </div>
-  <p>A down or degraded application aborts the run before any test starts, so an outage is never mistaken for a defect. Each run lands in <code>runs/NN-label/</code> with results, JUnit, the HTML report, traces and screenshots. Runs are history: they are never deleted or renumbered. Inside an agent session, a run prints a short digest, one line per failing test, and keeps the full output in the run folder.</p>
+  <p>A down or degraded application aborts the run before any test starts, so an outage is never mistaken for a defect. Each run leaves one record, <code>5-runs/NN-label.json</code>: how it ran, every test, and for each failure its error, failing step, page snapshot, API exchanges and automatic class; the triager's decisions are written into it. Runs are history: their records are never deleted or renumbered. The raw output (Playwright's results, traces, screenshots; JUnit and the HTML report with <code>--junit</code> and <code>--html</code>) goes to the scratch area, for the last two runs and any run still in triage. Inside an agent session, a run prints a short digest, one line per failing test.</p>
 </section>
 
 <!-- ============ TRIAGE ============ -->
@@ -1658,7 +1654,7 @@ $ npm run heldout -- journeys --resolve
         <path class="edge" d="M900 278 V330"/><text class="t-s" x="912" y="306">different</text>
         <rect class="box blue" x="610" y="334" width="220" height="52" rx="10"/><text class="t-b t-blue" x="720" y="357" text-anchor="middle">SCRIPT_DEFECT</text><text class="t-s" x="720" y="375" text-anchor="middle">fix + audited amendment</text>
         <rect class="box red" x="840" y="334" width="100" height="52" rx="10"/><text class="t-b t-red" x="890" y="365" text-anchor="middle">APPLICATION</text>
-        <rect class="box green" x="20" y="320" width="520" height="66" rx="12"/><text class="t-b" x="280" y="346" text-anchor="middle">No application defect without live reproduction</text><text class="t-s" x="280" y="366" text-anchor="middle">replayed in a browser tier or with api-probe, saved under runs/NN/confirm/</text>
+        <rect class="box green" x="20" y="320" width="520" height="66" rx="12"/><text class="t-b" x="280" y="346" text-anchor="middle">No application defect without live reproduction</text><text class="t-s" x="280" y="366" text-anchor="middle">replayed in a browser tier or with api-probe, cited as a probe (P7)</text>
       </svg>
     </div>
     <figcaption>The automatic pass is a hypothesis built from the failure's ARIA snapshot, its <code>[REQ]</code> message and the full, redacted API exchange. Opus confirms each one live and records the decision with <code>triage --set</code>.</figcaption>
@@ -1736,7 +1732,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
     <div class="st"><b>Carry over</b><code>triage --carry-from auto</code></div><span class="ar">›</span>
     <div class="st"><b>Gate</b><code>verdict KEY --exit-code</code>: 0 pass, 1 fail, 2 inconclusive</div>
   </div>
-  <p>Known, confirmed findings carry over by signature. Any <b>new</b> failure stays unconfirmed, so the pipeline reports INCONCLUSIVE and asks a person to investigate with the skill. CI never classifies a new defect by itself. Secrets come from masked CI variables of the same names, or from Vault through <code>VAULT_TOKEN</code> or AppRole. The verdict, the run folder and JUnit results are kept as job artifacts.</p>
+  <p>Known, confirmed findings carry over by signature. Any <b>new</b> failure stays unconfirmed, so the pipeline reports INCONCLUSIVE and asks a person to investigate with the skill. CI never classifies a new defect by itself. Secrets come from masked CI variables of the same names, or from Vault through <code>VAULT_TOKEN</code> or AppRole. The story's record (the run's record and the verdict among it), the run's raw output and the JUnit results are kept as job artifacts.</p>
 </section>
 
 <!-- ============ EVIDENCE ============ -->
@@ -1940,15 +1936,19 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
       <tr><td></td><td><code>secret NAME --generate | --ask</code></td><td>a secret into <code>.env</code> without showing it</td></tr>
       <tr><td></td><td><code>accounts …</code></td><td>test accounts: existing (each with a <code>--role</code> when stories need kinds of users), or created by the tests; checked live</td></tr>
       <tr><td>Requirement</td><td><code>new</code> · <code>fetch KEY [--aut id]</code></td><td>create a story in the mock Jira; fetch a story from Jira and bind it to an app</td></tr>
-      <tr><td></td><td><code>contract</code></td><td>evidence pack and checks for the model-built, independently reviewed contract</td></tr>
+      <tr><td></td><td><code>contract</code></td><td>evidence pack and checks for the model-built, independently reviewed contract; <code>--review-bind</code> binds the review to the contract's hash</td></tr>
       <tr><td>Tests</td><td><code>scaffold</code></td><td>a spec skeleton (one stub per criterion) and test data from the contract</td></tr>
       <tr><td></td><td><code>journeys KEY [--all | --stale &lt;id&gt; --evidence … | --harvest [--apply]]</code> · <code>journeys [--check | --sync | --resolve]</code></td><td>the app's journeys for this story; mark one stale; record in the registry what passing tests proved; check all of them (lint, possible duplicates, a registry behind the code), bring the registry in line with the code, settle a merge conflict in it</td></tr>
       <tr><td></td><td><code>lint</code> · <code>integrity</code></td><td>traceability and type checks; freeze and verify</td></tr>
-      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3; <code>inspect</code> lists the calls each step made with what the page sent, <code>--html</code> prints how an element is built, and <code>--probes file</code> takes one locator per line</td></tr>
+      <tr><td>Hardening</td><td><code>inspect</code> · <code>api-probe</code> · <code>mcp-probe</code></td><td>UI and API probing, tiers 2 and 3; <code>inspect</code> lists the calls each step made with what the page sent, <code>--html</code> prints how an element is built, and <code>--probes file</code> takes one locator per line. With <code>--key</code> each probe is the story's next <code>Pn</code>, cited by that id</td></tr>
+      <tr><td></td><td><code>--sign-in &lt;role&gt;</code> · <code>--from P4[:k]</code> · <code>--then</code> · <code>--chain P7 --set …</code> · <code>--pages</code> · <code>--where</code> · <code>--pick</code> · <code>--count</code></td><td>a probe built on earlier ones instead of a script: signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items; <code>${text:N}</code> and <code>${now}</code> in values</td></tr>
       <tr><td></td><td><code>confirm KEY --file … --evidence …</code></td><td>remove the <code>TODO(harden)</code> marks of the guesses a probe showed were right, in one go</td></tr>
       <tr><td></td><td><code>journeys --aut id --copy-from profile</code></td><td>start an application's journeys from a related one's, as drafts to be probed</td></tr>
       <tr><td>Run</td><td><code>run</code> · <code>triage</code></td><td>preflight and run; classify and record decisions</td></tr>
-      <tr><td>Report</td><td><code>verdict</code> · <code>publish</code> · <code>scrub</code></td><td>render; post to Jira; remove secrets from old artifacts</td></tr>
+      <tr><td></td><td><code>trace KEY SCN-x</code></td><td>a failed test's kept trace as text: steps, calls with their bodies, console; secrets masked</td></tr>
+      <tr><td>Report</td><td><code>verdict</code> · <code>publish</code> · <code>scrub [--check]</code></td><td>render; post to Jira; remove secrets from old artifacts, or list where one still is</td></tr>
+      <tr><td></td><td><code>show KEY contract|run|triage|probes|history</code> · <code>show config</code></td><td>read a story's record and the profile (secrets as references), as text or <code>--json</code></td></tr>
+      <tr><td></td><td><code>note KEY --tool-gap "…"</code> · <code>prune KEY | --all</code></td><td>record what no command could do; remove scratch areas</td></tr>
     </tbody>
   </table></div>
   <h3>Where things live</h3>
@@ -1967,15 +1967,15 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
 ├── journeys/                       <span class="c">shared by every story on the app (journeysDir), committed</span>
 │   ├── fixtures/&lt;domain&gt;.ts         <span class="c">the reusable HOW of one area, UI and API, e.g. fixtures/favorites.ts (phases 2–3)</span>
 │   └── registry.yml                <span class="c">each journey's id, file, what it touches and requires, who proved it (phase 8)</span>
-└── output/&lt;profile&gt;/KEY/            <span class="c">everything of one story (outputDir)</span>
-    ├── evaluation.json             <span class="c">when, and for which application profile</span>
-    ├── requirement/                <span class="c">story.md, linked/ (screenshots, Confluence pages), transcripts/, CHANGES.md, history/</span>
-    ├── requirement-contract.json   <span class="c">+ .md, + .review.json bound to the contract's hash</span>
-    ├── tests/*.spec.ts · test-data.json
-    ├── draft/                      <span class="c">the frozen oracle, and journeys.json: a hash of each journey it uses</span>
-    ├── hardening/                  <span class="c">hardening log, integrity.json, amendments, probes, journeys-staged.json, journeys-harvest.json</span>
-    ├── runs/NN-label/              <span class="c">results, JUnit, HTML report, artifacts, triage (never renumbered)</span>
-    └── verdict.md · verdict.json</div>
+├── output/&lt;profile&gt;/KEY/            <span class="c">the record of one story (outputDir, committed): one folder per question, in order</span>
+│   ├── 1-requirement/              <span class="c">what was asked: story.md, linked/ (screenshots, Confluence pages), transcripts/ (+ revisions/, CHANGES.md)</span>
+│   ├── 2-contract/                 <span class="c">what it means: contract.json, review.json bound to the contract's hash</span>
+│   ├── 3-tests/                    <span class="c">how it is tested: &lt;key&gt;.spec.ts, test-data.json, freeze.json (the frozen draft, re-freezes, amendments), hardening.md</span>
+│   ├── 4-evidence/                 <span class="c">what was seen: probes.jsonl (every probe, P1…), P7.md (the reports a decision cites), the verdict's screenshots</span>
+│   ├── 5-runs/NN-label.json        <span class="c">one record per run: how it ran, every test, each failure's evidence, the decisions (never renumbered)</span>
+│   ├── 6-verdict/                  <span class="c">what we recommend: verdict.md, verdict.json</span>
+│   └── history.jsonl               <span class="c">every step that changed the story, in order</span>
+└── .heldout/&lt;profile&gt;/KEY/          <span class="c">scratch (git-ignored), the same folder names: the evidence pack, probe reports, each run's raw output, triage reports; removed when the story is complete</span></div>
   <h3>Non-negotiable guardrails</h3>
   <ul class="clean">
     <li><b>Held-out isolation.</b> Tests come only from the story (title, description, acceptance criteria, the screenshots they show, the Confluence pages they link) and black-box observation.</li>
@@ -1985,7 +1985,8 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
     <li><b>No application defect without live reproduction.</b></li>
     <li><b>A person decides.</b> No issues are created, transitioned or assigned.</li>
     <li><b>A bounded repair loop</b> of at most three cycles.</li>
-    <li><b>Runs are history.</b> Never deleted, renamed or renumbered.</li>
+    <li><b>Runs are history.</b> A run's record is never deleted, renamed or renumbered.</li>
+    <li><b>Commands, not scripts.</b> The agents write no scripts of their own; what no command does is reported as a tool gap, and becomes a command.</li>
     <li><b>Seed, don't assume;</b> and secrets stay references.</li>
   </ul>
 </section>

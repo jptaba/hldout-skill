@@ -24,8 +24,19 @@ Two folders in your project hold the work:
 ```
 journeys/fixtures/<domain>.ts   reusable journeys, UI and API, one file per area of the app (products.ts, favorites.ts…)
 journeys/registry.yml           each journey's id and file, what it touches, what must run before it, which story proved it
-output/<app>/<KEY>/             everything of one story: requirement, contract, tests, runs, verdict
+output/<app>/<KEY>/             the record of one story, one folder per question a reviewer asks, in order:
+  1-requirement/  story.md  linked/  transcripts/                  what was asked
+  2-contract/     contract.json  review.json                       what we took it to mean, and its independent review
+  3-tests/        <key>.spec.ts  test-data.json  freeze.json  hardening.md   how it was tested
+  4-evidence/     probes.jsonl  P7.md  05-eval-SCN-012.png         what was seen in the application
+  5-runs/         01-harden.json  05-eval.json                     one record per run: its tests, evidence and decisions
+  6-verdict/      verdict.md  verdict.json                         what we recommend
+  history.jsonl                                                    every step that changed the story, in order
 ```
+
+About ten files per story, plus one per run and the evidence a decision cites. Everything else (the raw Playwright
+output, traces, views, working files) goes to `.heldout/<app>/<KEY>/` under the same folder names: git-ignored, and
+removed once the story is complete.
 
 **The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains every capability with diagrams, plain-English
 summaries, terminal replays and recordings of the tests driving a real app. Git hosts show HTML as source,
@@ -92,7 +103,8 @@ The prompts that remain are your agent app's own for file edits and other comman
 ![A story end to end: one request in the chat, then advance and the subagents up to the published verdict](docs/media/end-to-end.gif)
 
 The recording is TOOL-6 on Practice Software Testing: the `heldout` output as it was printed, each subagent's work
-shortened to a summary of its report, a little over nine minutes in real time.
+shortened to a summary of its report, a little over nine minutes in real time. It was recorded before a story's record
+took its current folders, so the paths it prints are the earlier ones.
 
 **Update:** the same command without the address, in the project's folder:
 
@@ -172,13 +184,16 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
 | `accounts --add-existing … [--role admin] [--shared]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users; `--shared` for an account every parallel worker may use, such as the one administrator) or created by the tests; checked live |
 | `fetch KEY [--aut id]` | the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (never comments or other attachments); binds the AUT; detects requirement revisions |
-| `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review) |
+| `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` · `contract KEY --review-bind` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review); binds the reviewer's review to the contract's hash |
 | `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
 | `journeys KEY` · `journeys KEY --harvest --apply` · `journeys --check` · `journeys --resolve` | the app's journeys for this story; record in the registry what passing tests proved; lint them all and find duplicates (after merging); settle a merge conflict in `registry.yml` |
 | `journeys --aut <id> --copy-from <profile>` | start an application's journeys from a related one's (another environment or build of the same product): copied as drafts, marked to be probed, proven by nothing until a story passes on them |
-| `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3) |
+| `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3); with `--key`, each probe is logged as the story's next `Pn` and cited by that id |
+| `inspect --sign-in <role>` · `--from P4[:k]` · `--then '<step>'` · `api-probe --chain P7 --set 2.json.qty=0` · `--pages` `--where` `--pick` `--count` | build a probe on earlier ones (signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items) instead of writing a script |
+| `show KEY contract\|run\|triage\|probes\|history` · `show config` · `trace KEY SCN-x [--network] [--steps]` | read a story's record, the profile (secrets as references), a failed test's trace as text |
+| `note KEY --tool-gap "…"` · `prune KEY` (or `--all --older-than 30d`) | record what no command could do (it becomes a command); remove scratch areas |
 | `confirm KEY --file <file> --evidence "<probe report>"` | hardening: remove the `TODO(harden)` marks of the guesses a probe showed were right, in one go |
-| `run`, `triage`, `verdict`, `publish`, `scrub` | run → triage → verdict → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report). A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
+| `run`, `triage`, `verdict`, `publish`, `scrub [--check]` | run → triage → verdict → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report), or list where one still is. A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira and Confluence) · TypeScript |
 
 ## Requirement contract: any story format, evidence not recall
@@ -187,7 +202,7 @@ The requirement is the story's title, description and acceptance criteria, the s
 transcribed) and the Confluence pages they link. Comments and other attachments are not part of it, and there is no API
 document unless one of those sources holds it (a page with the service's OpenAPI or YAML definition, or an excerpt). A
 model reads it, whatever its shape: AC field or bullets, Given/When/Then, tables, prose, a screenshot, an API definition
-on a linked page. It writes `requirement-contract.json`, and everything downstream works from that. Four guards keep it
+on a linked page. It writes `2-contract/contract.json`, and everything downstream works from that. Four guards keep it
 factual:
 
 - Each AC is quoted verbatim from cited lines, and the quote is verified.
@@ -293,6 +308,8 @@ independent author wrote and nobody changed: 2 of 3 verdicts as keyed, 16 of 17 
 keys do not list. Round 36 pointed round 34's project at Toolshop started locally, a newer build than the public
 demo: after one repair of two locators, the same two verdicts and 8 of 8 defects.
 Both applications can be started on your own machine for a round and thrown away after it:
-[demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md). What comes next is in [docs/next-steps.md](docs/next-steps.md).
+[demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md), which also shows how a round is made (`demo/round.ts new`) and
+measured (`demo/round.ts stats` for runs, repairs, probes and minutes per story; `demo/inflight.ts` for the scripts
+the agents wrote on the fly). What comes next is in [docs/next-steps.md](docs/next-steps.md).
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
 commits before this one).

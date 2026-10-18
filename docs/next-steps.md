@@ -52,6 +52,29 @@ as before.
   an evaluation, whatever its label, and the loop counts repairs in a row. With that, the full re-run gave FAIL with
   the same four defects as on the public demo.
 
+## The refactoring after round 36
+
+[refactor-plan.md](refactor-plan.md) has the whole plan and its progress. What changed:
+
+- **Fewer files, the same review.** A story's record is about ten files plus one per run and the evidence a decision
+  cites, in six folders in the order a reviewer reads them (`1-requirement/` to `6-verdict/`, and `history.jsonl`).
+  Round 36's TOOL-8, replayed into the new layout: the same classes, verdict and defects, and the score as before,
+  from a run record of 344 KB where triage.json, results.json and JUnit took 2.5 MB. Raw output, traces and views go
+  to `.heldout/`, which is git-ignored and removed when the story is complete.
+- **Commands, not scripts.** What the agents used to write scripts for is now a command: `show`, `trace`, `note`,
+  `prune`, `scrub --check`, `contract --review-bind`, and probes built on earlier ones (`--sign-in`, `--from Pn`,
+  `--then`, `--chain Pn --set`, `--pages`, `--where`, `--pick`, `--count`, `${text:N}`). Before it, the contract
+  reviewer wrote 17.5 scripts per 100 tool calls, mostly for the review's hash and time. The agents now have a
+  no-scripts rule and report a command they lack as a tool gap.
+- **Scripts by area.** `.github/scripts/` has nine areas that depend downwards only, one module per command with
+  its own spec, and tests that keep it that way.
+
+## Open after the refactoring
+
+| What | Why it matters |
+| --- | --- |
+| Round 37: the demo stories in a fresh round project (`demo/round.ts new`) | The new layout and commands have unit tests, a replay of one story and live checks of each command, but no round run end to end yet. `demo/round.ts stats` and `demo/inflight.ts` measure it: in-flight scripts per agent should fall to near zero, and every tool gap the agents report is a command to add |
+
 ## Open after round 35
 
 | What | Why it matters |
