@@ -296,16 +296,16 @@ plan has finished.
 
 | # | Status | Commit | Notes |
 | --- | --- | --- | --- |
-| GP1 | to do | | |
+| GP1 | done | 134f021 | `core/probe-log.requireFrozen`, called first by `inspect`, `mcp-probe` and `api-probe` with `--key`: refused until `3-tests/freeze.json` exists, an `isolation` note in the story's history (no folder made for an unknown key). `demo/inflight.ts` counts probes by the extractor, reviewer and test author (round 37: none). Made through the agent setup end to end: verify → one Opus review (approve, 3 low) → gate → CI. Follow-up: validate `--key` (`assertIssueKey`), keep the isolation count out of the scripts ratio |
 | GP2 | to do | | |
 | GP3 | to do | | |
 | GP4 | to do | | |
 | GP5 | to do | | |
 | GP6 | to do | | |
-| GM1 | to do | | |
-| GM2 | to do | | |
-| GM3 | to do | | |
-| GM4 | to do | | |
+| GM1 | done | a2d18c1 | `AGENTS.md` and `.agents/config.json` the only project-specific files; generic `CLAUDE.md`, `GOVERNANCE.md`, `SECURITY.md`, `.github/copilot-instructions.md`; `CODEOWNERS`; ADRs 0001–0002. |
+| GM2 | done | a2d18c1 | The `contract`, `implement`, `review` and `pr-packet` skills (`.agents/skills/`, Claude bridges), the read-only `code-reviewer` agent (both apps), `agentctl` (verify, review, status, audit, ci, scan-secrets, install-hooks). The change gated itself: seven review rounds on two models (Sonnet, Opus) before both approved, fixing a tier bug, rename evasion, forged-trailer gaps, merge handling and secret-scan misses; 23 kit tests. |
+| GM3 | done | a2d18c1 | Hooks (pre-commit, prepare-commit-msg, commit-msg), tiers in `.agents/config.json`, `verify.yml` (SHA-pinned, read-only; proof, audit, scan; passed on GitHub), Dependabot. |
+| GM4 | partly | a2d18c1 | The shipping boundary is tested (`tests/agent-kit.test.ts`); the answer keys are guardrail files. Deferred: moving developer code from `demo/` to `dev/`, and pinning answer-key hashes in the scorecard. |
 | Proof | to do | | |
 
 ## 10. Risks
