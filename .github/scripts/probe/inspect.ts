@@ -15,6 +15,8 @@
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--vars-from P7] [--screenshot shot.png] [--headed] [--no-snapshot]
  *       (--vars-from: the values api-probe chain P7 saved, the ids it made, as ${var:name}; --var wins over them)
+ *       [--save qid="POST /messages:id"]...   keep a field of the last JSON answer the page got for that call (the id of
+ *       what the walk created), logged with the probe for a later walk or chain (--vars-from Pn)
  *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200), and
@@ -177,7 +179,7 @@ export function maskSecretFields(html: string): string {
 export const spec: CommandSpec = {
   name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]…   (logged as the story\'s next probe, Pn)',
   about: 'tier-3 UI inspector: ARIA snapshot + ranked locators',
-  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'vars-from', 'wait-for'],
+  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'save', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'vars-from', 'wait-for'],
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
@@ -214,6 +216,8 @@ export async function run({ flags, argv }: Args): Promise<void> {
   // The application's own API calls (fetch/XHR on its site): how the UI does what it does, e.g. which call returns an id.
   const sites = new Set([cfg.aut.baseURL, cfg.aut.apiBaseURL].filter((u): u is string => Boolean(u)).map((u) => siteOf(new URL(u).hostname)));
   const calls: Promise<string>[] = [];
+  // The JSON answers the page received, for --save (a value the page was given, such as the id of what it created).
+  const answers: { method: string; path: string; json: unknown }[] = [];
   // Which step a call followed ("load" for the page itself), and calls still in flight (a step's call may start late).
   let phase = 'load';
   let inFlight = 0;
@@ -237,6 +241,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
     calls.push((async () => {
       const isJson = /json/i.test(res.headers()['content-type'] ?? '');
       const json: unknown = isJson ? await res.json().catch(() => undefined) : undefined;
+      if (json !== undefined) answers.push({ method: req.method(), path: u.pathname, json });
       // A browser drops an answer's body once the page navigates away (a sign-in that redirects): api-probe reads it.
       const shape = json !== undefined ? `\`${JSON.stringify(shapeOf(json)).replace(/\|/g, '\\|').slice(0, 300)}\`` : isJson ? '(JSON not kept: the page moved on; read it with heldout api-probe)' : '-';
       // The host too when the call goes to another one than the page's (an API on its own host).
@@ -254,6 +259,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   // The profile's overlays (cookie consent, welcome dialogs) are closed as in the tests, so the snapshot shows the page.
   await closeOverlays(page, cfg.aut.overlays);
   const out: string[] = [];
+  const saved: Record<string, string> = {};
   try {
     // Until the page's own calls have settled (none in flight and none started for a moment; ≤10 s).
     const quiet = async () => { for (const until = Date.now() + 10_000; Date.now() < until && (inFlight > 0 || Date.now() - lastActivity < 700);) await page.waitForTimeout(100); };
@@ -306,6 +312,20 @@ export async function run({ flags, argv }: Args): Promise<void> {
     for (const row of await Promise.all(calls)) counts.set(row, (counts.get(row) ?? 0) + 1);
     const made = [...counts].map(([row, n]) => (n > 1 ? row.replace(/^\| ([^|]+) \| (\S+) \|/, `| $1 | $2 ×${n} |`) : row));
     if (made.length) out.push('## API calls the page made (what it sent, secrets redacted; the answers as types only)', '', '| after | method | path | sent | status | answer shape |', '| --- | --- | --- | --- | --- | --- |', ...made, '');
+    // --save qid="POST /messages:id": a field of the last answer the page got for that call, for a later walk or chain.
+    const saves = flagList(flags, 'save').map((x) => {
+      const m = x.match(/^([A-Za-z_]\w*)=([A-Z]+)\s+(\S+):(\S+)$/);
+      if (!m) throw new Error(`--save ${x}: write <name>="<METHOD> <path>:<field>", e.g. qid="POST /messages:id"`);
+      return { name: m[1], method: m[2], path: m[3], field: m[4], text: x };
+    });
+    const missed: string[] = [];
+    for (const s of saves) {
+      const answer = answers.filter((a) => a.method === s.method && a.path.endsWith(s.path)).at(-1);
+      const value = answer && s.field.split('.').reduce<unknown>((v, k) => (v && typeof v === 'object' ? (v as Record<string, unknown>)[k] : undefined), answer.json);
+      if (value === undefined || (value !== null && typeof value === 'object')) missed.push(`- ✖ ${s.text}: ${answer ? `no value at "${s.field}" in the answer` : `the page made no ${s.method} …${s.path} call with a JSON answer`}`);
+      else saved[s.name] = String(value);
+    }
+    if (saves.length) out.push('## Saved (for --vars-from)', '', ...Object.entries(saved).map(([k, v]) => `- ${k} = \`${v}\``), ...missed, '');
     // Where the page keeps its state (a guest cart id, a session flag): how a test can find or set it. Long values and
     // tokens are shown by length only.
     const stored = await page.evaluate(() => (['localStorage', 'sessionStorage'] as const).flatMap((area) => {
@@ -459,7 +479,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), out.join('\n'));
   deliverProbe(cfg, flagStr(flags, 'key'), {
     tool: 'inspect', tier: 3, report,
-    input: { url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for') },
-    digest: tableRows(report, ['Setup steps', 'Locator probes', 'API calls the page made']),
+    input: { url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for'), ...(Object.keys(saved).length ? { saved } : {}) },
+    digest: [...tableRows(report, ['Setup steps', 'Locator probes', 'API calls the page made']), ...(Object.keys(saved).length ? [`saved: ${Object.entries(saved).map(([k, v]) => `${k}=${v}`).join(', ')}`] : [])],
   });
 }
