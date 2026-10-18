@@ -83,7 +83,9 @@ shell redirection, `sed`, or a script written to patch or generate a file: such 
 
 Runs: start `heldout run` in the foreground and wait for it to end (give the shell its longest timeout; a stability
 run of a large suite takes minutes). Never start it in the background and never reply while one is still going: the
-run's browsers end with your session, and a run cut off that way is a list of crashed workers, not a result.
+run's browsers end with your session, and a run cut off that way is a list of crashed workers, not a result. A
+stability run that would outlast your shell's time limit is made in parts, each in the foreground, split by test id
+(`--grep "SCN-0[0-1]"`, then `--grep "SCN-0[2-9]"`): together they are the stability proof.
 
 No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
 `npm run heldout -- show KEY …`, `trace` and the file tools; probe with `inspect`, `mcp-probe` and `api-probe`. When no
