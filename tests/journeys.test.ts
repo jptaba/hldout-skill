@@ -115,6 +115,12 @@ describe('journeys: what the code says', () => {
     assert.equal(journeysIn(file, base)[0].hash, add.hash, 'a comment is not a change');
     fs.rmSync(file);
   });
+  it('reads a path constant a call interpolates as its value, not as a parameter', () => {
+    const file = path.join(base, 'fixtures', 'brands.ts');
+    fs.writeFileSync(file, "const BRANDS = '/brands';\n/** Rename a brand. */\nexport async function renameBrand(api, id) { return api.put(`${BRANDS}/${id}`, {}); }\n");
+    assert.deepEqual(journeysIn(file, base)[0].endpoints, ['PUT /brands/{}']);
+    fs.rmSync(file);
+  });
   it('the file\'s own helpers are part of the journeys that call them, not journeys themselves', () => {
     assert.ok(!allJourneys(cfg, 'shop').some((j) => j.name === 'favouritesIn'));
   });

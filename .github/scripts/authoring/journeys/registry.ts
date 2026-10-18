@@ -129,6 +129,9 @@ export function journeysIn(file: string, base: string): JourneyCode[] {
   // Paths the file names once: `const FAVORITES = '/favorites'`, `const favorite = (id: string) => \`/favorites/${id}\``.
   const paths = new Map([...src.matchAll(/^(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*(?::[^=]*)?=\s*(?:\([^)]*\)\s*(?::[^=]*)?=>\s*)?([`'"])(\/[^`'"]*)\2/gm)]
     .map((m) => [m[1], m[3]] as const));
+  // A path as the registry keeps it: a path constant it interpolates (`${BRANDS}/${id}`) read as its value, every other
+  // value a parameter ({}), so "PUT /brands/{}" and "PUT /products/{}" stay two calls.
+  const asPath = (p: string) => p.replace(/\$\{([A-Za-z_$][\w$]*)\}/g, (m, n: string) => paths.get(n) ?? m).replace(/\$\{[^}]*\}/g, '{}');
   // A journey's code with the file's helpers it calls (and theirs), so their calls and locators are its own.
   const withHelpers = (body: string) => {
     const seen = new Set<string>();
@@ -149,8 +152,8 @@ export function journeysIn(file: string, base: string): JourneyCode[] {
     const summary = doc?.replace(/^\s*\*\s?/gm, '').trim().split(/(?<!\b(?:e\.g|i\.e|etc|vs|cf))(?<=[.!?])\s+(?=[A-Z`"'(])|\n\s*\n/)[0]?.replace(/\s+/g, ' ').trim();
     const endpoints = uniq([...body.matchAll(/\bapi\.(get|post|put|patch|delete|head)\s*(?:<[^()]*?>)?\(\s*(?:([`'"])([^`'"]+)\2|([A-Za-z_$][\w$]*))/g)]
       .map((e) => [e[1], e[3] ?? paths.get(e[4])] as const).filter(([, p]) => p !== undefined)
-      .map(([method, p]) => `${method.toUpperCase()} ${p!.replace(/\$\{[^}]*\}/g, '{}').replace(/\?.*$/, '')}`));
-    const routes = uniq([...body.matchAll(/\b(?:gotoPage\(\s*\w+\s*,|\.goto\()\s*([`'"])([^`'"]+)\1/g)].map((r) => r[2].replace(/\$\{[^}]*\}/g, '{}')));
+      .map(([method, p]) => `${method.toUpperCase()} ${asPath(p!).replace(/\?.*$/, '')}`));
+    const routes = uniq([...body.matchAll(/\b(?:gotoPage\(\s*\w+\s*,|\.goto\()\s*([`'"])([^`'"]+)\1/g)].map((r) => asPath(r[2])));
     const params = (m[2] ?? m[4] ?? m[5])?.replace(/\s+/g, ' ').trim() ?? '';
     const kind = kindOf(params, body);
     const locators = kind === 'ui' ? uniq([...body.matchAll(/\b(?:page|\w+)\.((?:getBy\w+|locator)\((?:[^()]|\([^()]*\))*\))/g)].map((l) => l[1])).slice(0, 12) : [];
