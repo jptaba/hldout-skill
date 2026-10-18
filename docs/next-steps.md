@@ -73,7 +73,8 @@ as before.
 
 | What | Why it matters |
 | --- | --- |
-| Round 37: the demo stories in a fresh round project (`demo/round.ts new`) | The new layout and commands have unit tests, a replay of one story and live checks of each command, but no round run end to end yet. `demo/round.ts stats` and `demo/inflight.ts` measure it: in-flight scripts per agent should fall to near zero, and every tool gap the agents report is a command to add |
+| Governance, guardrails, observability, security and separation of duties ([governance-plan.md](governance-plan.md)) | Round 37 ran the refactored skill end to end: PB-2 and TOOL-8 as keyed, TOOL-10 PASS, no script written on the fly, every tool gap fixed (the refactoring plan's Progress, "Round 37"). What it doesn't yet have is enforcement where only instructions hold (a probe before the freeze, an agent's tools beyond its role), care with untrusted text, pinned versions, and a gate on changes to the skill itself |
+| A reading assumed in the contract and contradicted by the application goes to the owner, even when the assumption is the plain reading | PB-2's self-transfer (keyed D4) was raised as an owner question because the contract assumed its reading (G9) rather than stating it. Whether a "required, assumed" gap whose reading is the story's plain words should let the triager confirm a defect is open |
 
 ## Open after round 35
 
