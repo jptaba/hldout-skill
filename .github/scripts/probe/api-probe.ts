@@ -39,7 +39,7 @@ import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../c
 import { loadConfig } from '../core/config';
 import { literalsOf, pageText, redact, redactHeaders, shapeOf } from '../core/redact';
 import { expandGenerated, expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
-import { chainOfProbe, deliverProbe, savedOf } from '../core/probe-log';
+import { chainOfProbe, deliverProbe, requireFrozen, savedOf } from '../core/probe-log';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
 const env = (s: string) => {
@@ -284,6 +284,7 @@ export async function listView(flags: Args['flags'], first: unknown, fetchPage: 
 }
 
 export async function run({ _, flags, argv }: Args): Promise<void> {
+  if (flagStr(flags, 'key')) requireFrozen(loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') }), flagStr(flags, 'key'), 'api-probe');
   const bodyLimit = Number(flagStr(flags, 'body-limit') ?? 4000);
   const chainArg = flagStr(flags, 'chain');
   // --chain P7: the chain an earlier probe of the story ran. --set 2.json.country=AT: one value changed for this call.

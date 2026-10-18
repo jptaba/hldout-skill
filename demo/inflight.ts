@@ -10,6 +10,10 @@
  * Counted as a script: an inline program (`node -e`, `tsx -e`, `node <<`, `python -c`, `python - <<`), a file
  * written by a shell heredoc or redirection of generated text, an in-place `sed -i`, and a script file written with
  * the file tools (.js, .mjs, .cjs, .py).
+ *
+ * Also counted, as a breach of held-out isolation: a probe of the application (`heldout inspect`, `api-probe`,
+ * `mcp-probe`, a Playwright MCP browser tool) by an agent that works before the freeze (the contract extractor and
+ * reviewer, the test author). A probe for a story is refused before the freeze; one made for no story is caught here.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,6 +32,9 @@ const INLINE: [string, RegExp][] = [
   ['heredoc file', /\bcat\s*>{1,2}\s*\S+\s*<<|\btee\s+\S+\s*<<|<<-?\s*'?\w+'?\s*>\s*\S+/],
   ['sed -i', /\bsed\s+(-\w*\s+)*-i/],
 ];
+
+const BEFORE_FREEZE = /contract-extractor|contract-reviewer|test-author/;
+const PROBE = /\bheldout\s+(?:'--'\s+|--\s+)?(?:inspect|api-probe|mcp-probe)\b|mcp__playwright__browser_/;
 
 interface Tally { sessions: number; calls: number; found: Record<string, number> }
 const tally = new Map<string, Tally>();
@@ -50,6 +57,9 @@ function scan(file: string, agent: string): void {
       t.calls++;
       const kinds: string[] = [];
       const cmd = b.input?.command;
+      // Held-out isolation: an agent that works before the freeze never probes the application (a probe with --key is
+      // refused; one without it is only caught here).
+      if (BEFORE_FREEZE.test(agent) && (PROBE.test(typeof cmd === 'string' ? cmd : '') || PROBE.test(b.name ?? ''))) kinds.push('probe before freeze');
       // Quoted text is an argument, not a command: a `grep "node -e"` is no inline program.
       const bare = typeof cmd === 'string' ? cmd.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""') : undefined;
       if (bare) for (const [kind, re] of INLINE) if (re.test(bare)) kinds.push(kind);
@@ -76,7 +86,7 @@ for (const f of files) {
   scan(f, agent);
 }
 
-const kinds = [...INLINE.map(([k]) => k), 'script file'];
+const kinds = [...INLINE.map(([k]) => k), 'script file', 'probe before freeze'];
 console.log(`| Agent | Sessions | Tool calls | ${kinds.join(' | ')} | Scripts per 100 calls |`);
 console.log(`| --- | --- | --- | ${kinds.map(() => '---').join(' | ')} | --- |`);
 for (const [agent, t] of [...tally].filter(([, t]) => t.calls).sort((a, b) => a[0].localeCompare(b[0]))) {

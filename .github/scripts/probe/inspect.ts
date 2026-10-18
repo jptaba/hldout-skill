@@ -55,7 +55,7 @@ import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/
 import { generatedId, siteOf } from './detect';
 import { composeSteps } from './compose';
 import { closeOverlays, locateOn } from './page';
-import { deliverProbe, savedOf, tableRows } from '../core/probe-log';
+import { deliverProbe, requireFrozen, savedOf, tableRows } from '../core/probe-log';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -184,6 +184,7 @@ export const spec: CommandSpec = {
 
 export async function run({ flags, argv }: Args): Promise<void> {
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
+  requireFrozen(cfg, flagStr(flags, 'key'), 'inspect');
   // The values an earlier chain saved first (--vars-from P7), then --var: the later one wins.
   const from = flagStr(flags, 'vars-from');
   if (from) {

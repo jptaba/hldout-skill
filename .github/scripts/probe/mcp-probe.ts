@@ -39,7 +39,7 @@ import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { composeSteps } from './compose';
 import { McpStdioClient, nodeFor, refFor } from './mcp-client';
-import { deliverProbe } from '../core/probe-log';
+import { deliverProbe, requireFrozen } from '../core/probe-log';
 
 interface Match { role: string; name?: string; exact?: boolean }
 interface Find { role?: string; name?: string; exact?: boolean; nth?: number; ref?: string }
@@ -72,6 +72,7 @@ export const spec: CommandSpec = {
 export async function run({ flags, argv }: Args): Promise<void> {
   for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
+  requireFrozen(cfg, flagStr(flags, 'key'), 'mcp-probe');
   const steps = composeSteps(cfg, flags) as Step[];
   await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);
   // MCP writes large snapshots/screenshots to its output dir — keep that out of the project.

@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { rel, writeFile } from './files';
+import { recordEvent } from './history';
 import { evalPaths, evalRunsOf, type StoryPaths } from './paths';
 import type { HeldoutConfig } from './profile';
 
@@ -46,6 +47,19 @@ export function tableRows(report: string, sections: string[]): string[] {
     else if (inside && line.startsWith('| ') && !/^\|\s*(#|expression|after|-{3})/.test(line)) out.push(line.slice(0, 240));
   }
   return out.slice(0, 40);
+}
+
+/**
+ * Held-out isolation: nobody looks at the application for a story before its draft is frozen, so a probe for a story
+ * (--key) is refused until `3-tests/freeze.json` exists, whatever tools the caller has. The refusal is a `note` of kind
+ * `isolation` in the story's history. A probe for no story (setting a profile up) is not about a story, and stays open.
+ */
+export function requireFrozen(cfg: HeldoutConfig, key: string | undefined, tool: ProbeEntry['tool']): void {
+  if (!key) return;
+  const p = evalPaths(cfg, key);
+  if (fs.existsSync(p.freeze)) return;
+  if (fs.existsSync(p.base)) recordEvent(p.history, 'note', { kind: 'isolation', text: `${tool} refused: the draft of ${key} is not frozen yet` });
+  throw new Error(`${tool} refused: the draft of ${key} is not frozen yet (${rel(p.freeze)}). Nobody looks at the application for a story before its tests are frozen (held-out isolation); the freeze comes first: heldout integrity ${key} --snapshot`);
 }
 
 /**
