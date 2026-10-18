@@ -12,12 +12,16 @@ import type { AccountRecipe, HeldoutConfig } from '../core/profile';
 
 type Step = Record<string, unknown>;
 
-/** The recorded UI sign-in of an existing account, as inspector steps (the password stays a reference). */
+/**
+ * The recorded UI sign-in as inspector steps (the password stays a reference): of an existing account, by role or user
+ * name; or of an account the tests or a probe created, by its user name, with the password the recipe gives them all.
+ */
 export function signInSteps(recipe: AccountRecipe | undefined, who: string): Step[] {
   if (!recipe?.signIn) throw new Error('--sign-in: the profile has no UI sign-in recorded yet (heldout accounts --sign-in-json …)');
   const accounts = recipe.existing ?? [];
-  const account = accounts.find((a) => a.role === who) ?? accounts.find((a) => a.username === who || a.username.includes(who));
-  if (!account) throw new Error(`--sign-in ${who}: no existing account has that role or user name (${accounts.map((a) => a.role ?? a.username).join(', ') || 'none'})`);
+  const account = accounts.find((a) => a.role === who) ?? accounts.find((a) => a.username === who || a.username.includes(who))
+    ?? (recipe.password ? { username: who, password: recipe.password } : undefined);
+  if (!account) throw new Error(`--sign-in ${who}: no existing account has that role or user name (${accounts.map((a) => a.role ?? a.username).join(', ') || 'none'}), and the profile gives no password for the accounts the tests create`);
   const fill = (v = '') => v.replace(/\$\{username\}/g, account.username).replace(/\$\{password\}/g, account.password);
   return [
     { do: 'goto', url: recipe.signIn.path },

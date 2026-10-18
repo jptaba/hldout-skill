@@ -10,8 +10,8 @@
  *       In that order: sign-in, --from, the step files, --steps-json, --then.
  *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
  *       [--probes probes.txt]   the same, one locator per line in a file (regexes and nested quotes survive any shell)
- *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values; what was
- *                                 typed into fields left out)
+ *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values, a field's
+ *                                 value; the value of a password field or a secret-named one left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--screenshot shot.png] [--headed] [--no-snapshot]
  *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
@@ -156,6 +156,15 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
 }
 
 const q = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+
+/**
+ * An element's HTML with the values of secret fields left out: a password field, and a field whose name or id says it
+ * holds a secret (password, token, csrf…). Every other value stays readable (a setting, an amount, a date).
+ */
+export function maskSecretFields(html: string): string {
+  return html.replace(/<(?:input|textarea)\b[^>]*>/g, (tag) => (/\btype="password"|\b(?:name|id)="[^"]*(?:pass|secret|token|csrf|key)[^"]*"/i.test(tag)
+    ? tag.replace(/(\s)value="[^"]*"/, '$1value="…"') : tag));
+}
 
 export const spec: CommandSpec = {
   name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]…   (logged as the story\'s next probe, Pn)',
@@ -417,7 +426,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
         const count = await loc.count();
         const html = count ? await loc.first().evaluate((el) => el.outerHTML) : '';
         // Field values never leave the page: the HTML shows structure, not what was typed.
-        const clean = html.replace(/(<(?:input|textarea)\b[^>]*?\s)value="[^"]*"/g, '$1value="…"').replace(/<!--[\s\S]*?-->/g, '').slice(0, 20_000);
+        const clean = maskSecretFields(html).replace(/<!--[\s\S]*?-->/g, '').slice(0, 20_000);
         out.push(`## HTML of \`${expr}\`${count > 1 ? ` (first of ${count})` : ''}`, '', count ? '```html' : '_no match_', ...(count ? [clean, '```'] : []), '');
       } catch (e) {
         out.push(`## HTML of \`${expr}\``, '', `error: ${(e as Error).message.split('\n')[0]}`, '');

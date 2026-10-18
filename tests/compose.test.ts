@@ -12,6 +12,7 @@ import { deliverProbe } from '../.github/scripts/core/probe-log';
 import type { AccountRecipe, HeldoutConfig } from '../.github/scripts/core/profile';
 import { expandGenerated, textOf } from '../.github/scripts/core/secrets';
 import { listView } from '../.github/scripts/probe/api-probe';
+import { maskSecretFields } from '../.github/scripts/probe/inspect';
 import { composeSteps, signInSteps } from '../.github/scripts/probe/compose';
 
 const profile = `compose-test-${process.pid}`;
@@ -42,6 +43,10 @@ describe('composed steps', () => {
     assert.deepEqual(steps.at(-1), { do: 'wait', target: "getByText('My account')" });
     assert.equal(signInSteps(recipe, 'admin@shop').length, steps.length);
     assert.throws(() => signInSteps(recipe, 'clerk'), /no existing account/);
+    // An account the tests created signs in with the password the recipe gives them all.
+    const made = signInSteps({ ...recipe, password: '${env:USER_PASSWORD}' }, 'hldout-abc1');
+    assert.deepEqual(made[1], { do: 'fill', target: "getByLabel('Email')", value: 'hldout-abc1' });
+    assert.deepEqual(made[2], { do: 'fill', target: "getByLabel('Password')", value: '${env:USER_PASSWORD}' });
     assert.throws(() => signInSteps({}, 'admin'), /no UI sign-in recorded/);
   });
 
@@ -54,6 +59,13 @@ describe('composed steps', () => {
     assert.deepEqual(steps[0], { do: 'goto', url: '/login' });
     assert.equal(composeSteps(cfg, { key: 'ABC-1', from: 'P1' }).length, 3);
     assert.throws(() => composeSteps(cfg, { key: 'ABC-1', from: 'P7' }), /P7 is not a walk/);
+  });
+});
+
+describe('an element\'s HTML', () => {
+  it('keeps field values readable, except a password field\'s and a secret-named one\'s', () => {
+    const html = '<form><input name="minimumBalance" value="100.00"><input type="password" name="p" value="s3cret"><input id="csrfToken" value="abc"></form>';
+    assert.equal(maskSecretFields(html), '<form><input name="minimumBalance" value="100.00"><input type="password" name="p" value="…"><input id="csrfToken" value="…"></form>');
   });
 });
 
