@@ -4,7 +4,8 @@
  * MCP tools (no restart yet, CI, other IDEs), or to record a reproducible tier-2 walk as evidence.
  *
  *   heldout mcp-probe [--key KEY | --aut <profile>]
- *       (--steps steps.json | --steps-json '[…]') [--headed] [--browser chrome|msedge|firefox|webkit]
+ *       (--steps steps.json… | --steps-json '[…]' | --from P7[:k]) [--then '<step>']… [--headed] [--browser chrome|msedge|firefox|webkit]
+ *       the steps in that order: an earlier walk of the story (its first k), the step files, the inline steps, --then
  *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--var name=value]...   per-run data for ${var:name} (e.g. a user created seconds earlier) — shown in the report;
@@ -36,6 +37,7 @@ import { loadConfig } from '../core/config';
 import { evalPaths } from '../core/paths';
 import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
+import { composeSteps } from './compose';
 import { McpStdioClient, nodeFor, refFor } from './mcp-client';
 import { deliverProbe } from '../core/probe-log';
 
@@ -64,15 +66,14 @@ const yamlOf = (text: string) => text.match(/```yaml\r?\n([\s\S]*?)```/)?.[1] ??
 export const spec: CommandSpec = {
   name: 'mcp-probe', group: 'Hardening', usage: '--key KEY --steps steps.json [--var name=value]…   (logged as the story\'s next probe, Pn)',
   about: 'tier 2: drive the Playwright MCP server over stdio',
-  flags: ['aut', 'browser', 'headed', 'key', 'steps', 'steps-json', 'var'],
+  flags: ['aut', 'browser', 'from', 'headed', 'key', 'steps', 'steps-json', 'then', 'var'],
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
   for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
-  const stepsFile = flagStr(flags, 'steps');
-  await requireVaultSecrets([argv.join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
-  const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8')) : JSON.parse(flagStr(flags, 'steps-json') ?? '[]');
+  const steps = composeSteps(cfg, flags) as Step[];
+  await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);
   // MCP writes large snapshots/screenshots to its output dir — keep that out of the project.
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-mcp-'));
   // The profile's blockHosts (ads, analytics): blocked in the MCP browser as in the tests, and kept out of its output.

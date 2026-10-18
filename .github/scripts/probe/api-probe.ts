@@ -13,6 +13,15 @@
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
  *       [--repeat N] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)
+ *   heldout api-probe --key KEY --chain P7 [--set 2.json.country=AT]...   re-run an earlier probe's chain, values changed
+ *       (--set <step number>.<dotted field>=<value>; the value is read as JSON when it is JSON, e.g. 3.expect=422)
+ *
+ * A list answer, without a script (the items are the body when it is a list, else its first list field):
+ *   [--pages <param>[=from..to]]   follow the pages (?page=1, 2…) until one is empty, last_page is reached or the range ends
+ *   [--where <field>~<regex>]...   keep the items whose field matches (dotted path; repeatable, all must match)
+ *   [--pick <field>]...            show this field of each item ("price", "category.name"; an answer that is no list: of the body)
+ *   [--count]                      how many items there are (after --where)
+ * Values may use ${text:N} (N characters of generated text, starting with the profile's data prefix) and ${now}.
  *
  * With --key a call or chain is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full
  * report written to the scratch area; cite it as Pn. Without --key (or with --json) the report is printed.
@@ -22,11 +31,13 @@
  * requirement + shape, never by copying AUT values into expectations).
  */
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { literalsOf, pageText, redact, redactHeaders, shapeOf } from '../core/redact';
-import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
-import { deliverProbe } from '../core/probe-log';
+import { expandGenerated, expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
+import { chainOfProbe, deliverProbe } from '../core/probe-log';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
 const env = (s: string) => {
@@ -37,7 +48,7 @@ const env = (s: string) => {
 };
 
 /** A path with a secret reference: the value is URL-encoded into the request, and shown as *** in every report. */
-const envPath = (s: string) => s.replace(/\$\{(?:env|vault):[^}]+\}/g, (m) => encodeURIComponent(env(m)));
+const envPath = (s: string) => expandGenerated(s.replace(/\$\{(?:env|vault):[^}]+\}/g, (m) => encodeURIComponent(env(m))));
 const maskEnv = (s: string) => s.replace(/\$\{(?:env|vault):[^}]+\}/g, '***');
 /** Last line of defence: the value of every secret reference the input mentions never reaches a report, raw or encoded. */
 function scrubEnv(report: string, input: string): string {
@@ -100,7 +111,7 @@ function decode(v: unknown, how?: string): unknown {
   if (how === 'jwt') { const [h, p, sig] = v.split('.'); return { header: parsed(b64(h ?? '')), payload: parsed(b64(p ?? '')), signature: sig ?? '' }; }
   return parsed(b64(v));
 }
-async function runChain(file: string, base: string, cfgName: string, chainBodyLimit: number): Promise<{ report: string; digest: string[]; chain: unknown }> {
+async function runChain(file: string, label: string, base: string, cfgName: string, chainBodyLimit: number): Promise<{ report: string; digest: string[]; chain: unknown }> {
   const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, unknown>; steps: ChainStep[] };
   const vars: Record<string, string> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
   const interpVars = (s: string): string => s.replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
@@ -111,7 +122,7 @@ async function runChain(file: string, base: string, cfgName: string, chainBodyLi
   const deep = (v: unknown): unknown => (typeof v === 'string' ? (whole(v) !== undefined && typed[whole(v)!] !== undefined ? typed[whole(v)!] : interp(v))
     : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
   for (const [k, v] of Object.entries(chain.vars ?? {})) { if (typeof v === 'string') vars[k] = interp(v); else { vars[k] = String(v); typed[k] = v; } }
-  const lines = [`# API chain — ${file}`, '', `- AUT: ${cfgName} · ${base} · captured ${new Date().toISOString()}`, ''];
+  const lines = [`# API chain — ${label}`, '', `- AUT: ${cfgName} · ${base} · captured ${new Date().toISOString()}`, ''];
   let failed = 0;
   for (const [i, s] of chain.steps.entries()) {
     const method = (s.method ?? 'GET').toUpperCase();
@@ -188,17 +199,100 @@ async function runChain(file: string, base: string, cfgName: string, chainBodyLi
 export const spec: CommandSpec = {
   name: 'api-probe', group: 'Hardening', usage: '--key KEY <METHOD> <path> | --chain chain.json   (logged as the story\'s next probe, Pn)',
   about: 'call the API (or a chain of calls) with redacted output',
-  flags: ['aut', 'body-limit', 'chain', 'cookie', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'raw-data', 'repeat'],
+  flags: ['aut', 'body-limit', 'chain', 'cookie', 'count', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'pages', 'pick', 'raw-data', 'repeat', 'set', 'where'],
 };
+
+/**
+ * A chain with values changed for one call: each --set is <step number>.<dotted field>=<value> (the value read as JSON
+ * when it is JSON, otherwise as text), e.g. 2.json.billing_country=AT or 3.expect=422. A temporary file: the probe log
+ * keeps the chain that ran.
+ */
+function withSets(file: string, sets: string[]): string {
+  const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { steps: Record<string, unknown>[] };
+  for (const s of sets) {
+    const m = s.match(/^(\d+)\.([^=]+)=(.*)$/s);
+    if (!m) throw new Error(`--set ${s}: write <step number>.<field>=<value>, e.g. 2.json.country=AT`);
+    const step = chain.steps[Number(m[1]) - 1];
+    if (!step) throw new Error(`--set ${s}: the chain has ${chain.steps.length} step(s)`);
+    const keys = m[2].split('.');
+    let at: Record<string, unknown> = step;
+    for (const k of keys.slice(0, -1)) at = (at[k] ??= {}) as Record<string, unknown>;
+    let value: unknown = m[3];
+    try { value = JSON.parse(m[3]); } catch { /* text */ }
+    at[keys.at(-1)!] = value;
+  }
+  const out = path.join(os.tmpdir(), `heldout-chain-${process.pid}-${path.basename(file)}`);
+  fs.writeFileSync(out, `${JSON.stringify(chain, null, 2)}\n`);
+  return out;
+}
+
+/** The items of a list answer: the body itself when it is a list, else its first list field (data, items, results…). */
+const itemsOf = (body: unknown): unknown[] | undefined => (Array.isArray(body) ? body
+  : body && typeof body === 'object' ? Object.values(body as Record<string, unknown>).find(Array.isArray) as unknown[] | undefined : undefined);
+
+const withParam = (url: string, param: string, n: number) => { const u = new URL(url); u.searchParams.set(param, String(n)); return u.toString(); };
+
+/**
+ * --pages / --where / --pick / --count over a list answer, as report lines (redacted). `fetchPage` asks for page n.
+ * Paging stops at an empty page, the answer's last_page, the end of the range, or after 50 pages.
+ */
+export async function listView(flags: Args['flags'], first: unknown, fetchPage: (param: string, n: number) => Promise<unknown>): Promise<string[]> {
+  const pages = flagStr(flags, 'pages');
+  const picks = flagList(flags, 'pick');
+  const wheres = flagList(flags, 'where').map((w) => {
+    const i = w.indexOf('~');
+    if (i < 1) throw new Error(`--where ${w}: write <field>~<regex>, e.g. category.name~^Hand`);
+    return { field: w.slice(0, i), re: new RegExp(w.slice(i + 1), 'i'), text: w };
+  });
+  if (!pages && !picks.length && !wheres.length && !flags.count) return [];
+  const lines: string[] = [];
+  let items = itemsOf(first);
+  if (pages) {
+    const m = pages.match(/^([^=]+)(?:=(\d+)\.\.(\d+)?)?$/);
+    if (!m) throw new Error(`--pages ${pages}: write <param> or <param>=<from>..<to>, e.g. page=1..5`);
+    const [param, from = '1', to] = [m[1], m[2], m[3]];
+    items = [];
+    let n = Number(from);
+    let body = await fetchPage(param, n);
+    for (let fetched = 1; ; fetched++) {
+      const got = itemsOf(body) ?? [];
+      items.push(...got);
+      const last = Number((body as { last_page?: unknown; meta?: { last_page?: unknown } } | undefined)?.last_page ?? (body as { meta?: { last_page?: unknown } } | undefined)?.meta?.last_page);
+      if (!got.length || (last && n >= last) || (to && n >= Number(to)) || fetched >= 50) break;
+      body = await fetchPage(param, ++n);
+    }
+    lines.push(`pages ${param}=${from}..${n}: ${items.length} item(s)`);
+  }
+  if (!items) {
+    // An answer that is no list: --pick reads the body itself.
+    if (wheres.length || flags.count) lines.push('the answer holds no list: --where and --count need one');
+    lines.push(...picks.map((p) => `${p} = ${JSON.stringify(redact(dig(first, p)))}`));
+    return lines;
+  }
+  const textOfField = (v: unknown) => (v !== null && typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''));
+  const kept = items.filter((x) => wheres.every((w) => w.re.test(textOfField(dig(x, w.field)))));
+  if (flags.count || wheres.length) lines.push(`count${wheres.length ? ` where ${wheres.map((w) => w.text).join(' and ')}` : ''}: ${kept.length} of ${items.length}`);
+  if (picks.length) for (const [i, x] of kept.slice(0, 200).entries()) lines.push(`${i + 1}. ${picks.map((p) => `${p} = ${JSON.stringify(redact(dig(x, p)))}`).join(' · ')}`);
+  if (picks.length && kept.length > 200) lines.push(`… ${kept.length - 200} more`);
+  return lines;
+}
 
 export async function run({ _, flags, argv }: Args): Promise<void> {
   const bodyLimit = Number(flagStr(flags, 'body-limit') ?? 4000);
-  const chainFile = flagStr(flags, 'chain');
-  await requireVaultSecrets([argv.join(' '), chainFile && fs.existsSync(chainFile) ? fs.readFileSync(chainFile, 'utf8') : '']);
-  if (chainFile) {
+  const chainArg = flagStr(flags, 'chain');
+  // --chain P7: the chain an earlier probe of the story ran. --set 2.json.country=AT: one value changed for this call.
+  const chainFile = chainArg && /^P[1-9]\d*$/.test(chainArg)
+    ? chainOfProbe(loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') }), flagStr(flags, 'key') ?? (() => { throw new Error('--chain Pn names a probe of a story: give the story with --key'); })(), chainArg)
+    : chainArg;
+  const sets = flagList(flags, 'set');
+  if (sets.length && !chainFile) throw new Error('--set changes a value of a chain: use it with --chain');
+  const chainToRun = chainFile && sets.length ? withSets(chainFile, sets) : chainFile;
+  await requireVaultSecrets([argv.join(' '), chainToRun && fs.existsSync(chainToRun) ? fs.readFileSync(chainToRun, 'utf8') : '']);
+  if (chainToRun) {
     const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
     // Each answer is shown in one line: its first 300 characters, or --body-limit N of them ("show" picks fields).
-    const done = await runChain(chainFile, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300));
+    const done = await runChain(chainToRun, [chainArg, ...sets.map((s) => `--set ${s}`)].join(' '), cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300))
+      .finally(() => { if (chainToRun !== chainFile) fs.rmSync(chainToRun, { force: true }); });
     deliverProbe(cfg, flagStr(flags, 'key'), { tool: 'api-probe', tier: 3, input: { chain: done.chain }, report: done.report, digest: done.digest });
     return;
   }
@@ -245,6 +339,7 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
   for (let i = 0; i < repeat; i++) results.push(await send(url, method, headers, body));
   const r = results.at(-1)!;
   const input = [...argv, dataFile ? fs.readFileSync(dataFile, 'utf8') : ''].join(' ');
+  const picked = await listView(flags, r.json, async (param, n) => (await send(withParam(url, param, n), method, headers, body)).json);
 
   if (flags.json) {
     console.log(scrubEnv(JSON.stringify({ request: { method, url: shownUrl, headers: redactHeaders(headers), body: body && redactBody(body, headers['Content-Type']) }, response: { status: r.status, ms: r.ms, headers: redactHeaders(r.headers), body: r.json !== undefined ? redact(r.json) : r.text } }, null, 2), input));
@@ -265,6 +360,7 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
     `- Content-Type: ${r.headers['content-type'] ?? '-'}`, '',
     ...(body !== undefined ? ['## Request body', '', '```json', reqBody, '```', ''] : []),
     '## Response headers (redacted)', '', '```json', JSON.stringify(redactHeaders(r.headers), null, 2), '```', '',
+    ...(picked.length ? ['## Picked', '', ...picked.map((x) => `- ${x}`), ''] : []),
     // A listing's wrapper values (per_page, total, how many items) come first: the clipped body below ends before them.
     ...(topLevel.length ? ['## Top-level values (the body below is clipped)', '', ...topLevel.map((x) => `- ${x}`), ''] : []),
     `## Response body (redacted${pretty.length > bodyLimit ? `, first ${bodyLimit} of ${pretty.length} chars; --body-limit N for more` : ''})`, '', '```json', pretty.slice(0, bodyLimit), '```', '',
@@ -272,6 +368,6 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
   ].join('\n'), input);
   deliverProbe(cfg, flagStr(flags, 'key'), {
     tool: 'api-probe', tier: 3, report: out, input: { call: argv.filter((a) => a !== '--key' && a !== flagStr(flags, 'key')) },
-    digest: [scrubEnv(`${method} ${shownUrl} → ${r.status} (${r.ms} ms)${repeat > 1 ? `, all runs: ${results.map((x) => x.status).join(', ')}` : ''}`, input), ...topLevel.slice(0, 10)],
+    digest: [scrubEnv(`${method} ${shownUrl} → ${r.status} (${r.ms} ms)${repeat > 1 ? `, all runs: ${results.map((x) => x.status).join(', ')}` : ''}`, input), ...picked.slice(0, 20).map((x) => scrubEnv(x, input)), ...topLevel.slice(0, 10)],
   });
 }

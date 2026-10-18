@@ -184,7 +184,8 @@ Pick the first tier whose tools are actually available in this session (check yo
 3. **Tier 3 — bundled tools** (always available): `heldout inspect` (ARIA snapshot, ranked unique
    locators, `--probe`, `--steps-json`, `--wait-for`), `heldout run KEY --label harden --capture`
    (snapshot after every step), and `heldout api-probe` for APIs (single calls or `--chain` sequences; status, timing, redacted body, type
-   shape, `--login` token chaining, `--repeat`).
+   shape, `--login` token chaining, `--repeat`). Probes build on earlier ones (`--sign-in`, `--from Pn`, `--then`,
+   `--chain Pn --set`, `--pages`, `--where`, `--pick`, `--count`): no ad-hoc scripts (hardening reference: "Compose probes").
 
 Verify every final locator with a probe (exactly one match, in the right state) and every API
 mechanic with `heldout api-probe`. Record the tiers you actually used in the hardening log

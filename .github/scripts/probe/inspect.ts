@@ -3,7 +3,11 @@
  * nor Playwright MCP (tier 2) is available, and for scripted probing/verification in any tier).
  *
  *   heldout inspect [--key KEY | --aut <profile>] [--url login]   (path relative to the AUT base URL, or a full URL)
- *       [--steps steps.json | --steps-json '[{"do":"fill","target":"getByLabel(\'Email\')","value":"a@b.c"}]']
+ *       [--steps steps.json]... [--steps-json '[{"do":"fill","target":"getByLabel(\'Email\')","value":"a@b.c"}]']
+ *       [--sign-in <role or user name>]   start with the profile's recorded UI sign-in of that existing account
+ *       [--from P7[:k]]   start from the steps of an earlier walk of the story (its first k)
+ *       [--then '<step>']...   add one step after the others (in bash; in PowerShell write a step file instead)
+ *       In that order: sign-in, --from, the step files, --steps-json, --then.
  *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
  *       [--probes probes.txt]   the same, one locator per line in a file (regexes and nested quotes survive any shell)
  *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values; what was
@@ -28,7 +32,8 @@
  *   { "do": "dialog", "value": "accept" | "dismiss" } answers the next browser dialog (alert, confirm, prompt) that way;
  *   dialogs nobody answers are dismissed. Every dialog shown is listed in the report.
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
- *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets) and ${var:name} (from --var name=value, per-run data)
+ *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets), ${var:name} (from --var name=value, per-run
+ *   data), ${text:N} (a text of N characters starting with the data prefix) and ${now} (the time)
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address;
  *   without a target, value is a load state (load, networkidle) or a number of milliseconds ("1500"; at most
  *   60000 in one step).
@@ -43,6 +48,7 @@ import { loadConfig } from '../core/config';
 import { pageText, redact, redactSnapshot, shapeOf } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { generatedId, siteOf } from './detect';
+import { composeSteps } from './compose';
 import { closeOverlays, locateOn } from './page';
 import { deliverProbe, tableRows } from '../core/probe-log';
 
@@ -154,7 +160,7 @@ const q = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 export const spec: CommandSpec = {
   name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]…   (logged as the story\'s next probe, Pn)',
   about: 'tier-3 UI inspector: ARIA snapshot + ranked locators',
-  flags: ['aut', 'body-limit', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'screenshot', 'steps', 'steps-json', 'url', 'var', 'wait-for'],
+  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'wait-for'],
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
@@ -164,10 +170,8 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
   // Git Bash turns "--url /" into a Windows path before it gets here: say that it was read as the path it stood for.
   if (/^#?[A-Za-z]:[\\/]/.test(flagStr(flags, 'url') ?? '')) console.log(`• --url arrived as "${flagStr(flags, 'url')}" (Git Bash rewrote it) and was read as ${target}: the right page, nothing to repeat`);
-  const stepsFile = flagStr(flags, 'steps');
-  await requireVaultSecrets([argv.join(' '), stepsFile && fs.existsSync(stepsFile) ? fs.readFileSync(stepsFile, 'utf8') : '']);
-  const steps: Step[] = stepsFile ? JSON.parse(fs.readFileSync(stepsFile, 'utf8'))
-    : flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) : [];
+  const steps = composeSteps(cfg, flags, flagStr(flags, 'sign-in')) as unknown as Step[];
+  await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);
 
   const sentLimit = Number(flagStr(flags, 'body-limit') ?? 200);
   answerLimit = sentLimit;

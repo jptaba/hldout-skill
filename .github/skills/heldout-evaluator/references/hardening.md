@@ -194,6 +194,20 @@ npm run heldout -- inspect --key KEY --steps .heldout/<profile>/KEY/4-evidence/l
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 
+**Compose probes instead of writing scripts.** Every question a script would answer has an option:
+
+| You need | Use |
+|---|---|
+| A walk as a signed-in user | `inspect --sign-in <role or user name>`: the profile's recorded UI sign-in of an existing account, in front of your steps |
+| An earlier walk again, or its start | `inspect` / `mcp-probe --from P4` (its steps) or `--from P4:5` (its first 5), then `--then '<step>'` (repeatable) or `--steps <file>` (repeatable, in order) |
+| An earlier chain with one value changed | `api-probe --chain P7 --set 2.json.country=AT --set 2.expect=422` (step number, dotted field, a JSON or text value) |
+| Every page of a list | `api-probe GET products --pages page` (stops at an empty page or `last_page`) or `--pages page=1..5` |
+| Some items of a list, or how many | `--where 'category.name~^Hand'` (repeatable), `--pick price` (repeatable), `--count` |
+| A text of exact length, or the time | `${text:256}` (starts with the profile's data prefix), `${now}`: in a path, a body or a chain value |
+
+A question no option answers is a tool gap: say so with `heldout note KEY --tool-gap "<what you needed>"`, and work
+around it as narrowly as you can.
+
 **Values the application takes as codes.** When a value the tests name in words (an account type, a status, a
 category) turns out to be sent as a code (0, 1, 2), a test's "unknown" or "not allowed" value must be sent the way
 the valid ones are: a code outside the set, not the word passed through. An application often answers a value of the

@@ -27,7 +27,24 @@ export const loadedVaultSecrets = (): Record<string, string> => Object.fromEntri
 
 /** Replace ${env:…} and ${vault:…} in a string. Unknown env names are left as they are (callers report them). */
 export function expandSecrets(s: string): string {
-  return s.replace(ENV_REF, (m, n: string) => process.env[n] ?? m).replace(VAULT_REF, (m, p: string, f: string) => loaded.get(`${p.trim()}#${f.trim()}`) ?? m);
+  return expandGenerated(s.replace(ENV_REF, (m, n: string) => process.env[n] ?? m).replace(VAULT_REF, (m, p: string, f: string) => loaded.get(`${p.trim()}#${f.trim()}`) ?? m));
+}
+
+/**
+ * Values a probe makes up instead of a script: ${text:N} is a text of exactly N characters that starts with the data
+ * prefix (so the record it lands in can be found and swept), ${now} the current time (ISO). Tests don't use them: a
+ * length a test checks comes from the requirement, in its @req-constants.
+ */
+export function expandGenerated(s: string, prefix = process.env.AUT_DATA_PREFIX || 'hldout'): string {
+  return s.replace(/\$\{text:(\d{1,6})\}/g, (_m, n: string) => textOf(Number(n), prefix)).replace(/\$\{now\}/g, () => new Date().toISOString());
+}
+
+/** A readable text of exactly n characters, starting with the prefix when it fits. */
+export function textOf(n: number, prefix = 'hldout'): string {
+  const filler = 'abcdefghijklmnopqrstuvwxyz ';
+  let out = n > prefix.length + 1 ? `${prefix} ` : '';
+  while (out.length < n) out += filler;
+  return out.slice(0, n).replace(/ $/, 'z');
 }
 
 export interface VaultSettings { addr?: string; namespace?: string; token?: string; tokenSource?: string; roleId?: string; secretId?: string }

@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, rel } from './files';
 import { PHASE_FOLDERS, SCRATCH_DIR } from './paths';
-import { JIRA_MODES, type HeldoutConfig, type JiraMode } from './profile';
+import { JIRA_MODES, dataPrefix, type HeldoutConfig, type JiraMode } from './profile';
 
 /** The skill's scripts (.github/scripts) and the skill itself (.github/skills/heldout-evaluator: SKILL.md, references). */
 export const SCRIPTS_DIR = path.resolve(import.meta.dirname, '..');
@@ -96,6 +96,8 @@ export function loadConfig(opts: { key?: string; aut?: string } = {}): HeldoutCo
   if (process.env.JIRA_BASE_URL) cfg.jira.baseUrl = process.env.JIRA_BASE_URL;
   cfg.jira.mockRoot ??= 'mock-jira';
   cfg.jira.verdictLabelPrefix ??= 'heldout-';
+  // The prefix of every name the tests and probes make (${text:N} in a probe starts with it).
+  process.env.AUT_DATA_PREFIX ??= dataPrefix(cfg.aut);
   return cfg;
 }
 
