@@ -33,9 +33,10 @@ export function signInSteps(recipe: AccountRecipe | undefined, who: string): Ste
 
 /**
  * Every step source a probe was given, in order: sign-in, an earlier probe, step files, inline steps, --then.
- * `signInAs` is the inspector's --sign-in (an MCP walk signs in by starting --from an earlier walk that did).
+ * `signInAs` is the inspector's --sign-in (an MCP walk signs in by starting --from an earlier walk that did), and `url`
+ * its --url.
  */
-export function composeSteps(cfg: HeldoutConfig, flags: Flags, signInAs?: string): Step[] {
+export function composeSteps(cfg: HeldoutConfig, flags: Flags, signInAs?: string, url?: string): Step[] {
   const key = flagStr(flags, 'key');
   const from = flagStr(flags, 'from');
   const fromSteps = (): Step[] => {
@@ -48,8 +49,9 @@ export function composeSteps(cfg: HeldoutConfig, flags: Flags, signInAs?: string
     // The walk as it ran: from the page it started on (its --url), then its steps (k counts these, as its report numbers them).
     return [...(input.url ? [{ do: 'goto', url: input.url }] : []), ...(k ? input.steps.slice(0, Number(k)) : input.steps)];
   };
+  // Signed in first, then on to the page the walk is about (the inspector's --url), which a sign-in would leave behind.
   return [
-    ...(signInAs ? signInSteps(cfg.aut.accounts, signInAs) : []),
+    ...(signInAs ? [...signInSteps(cfg.aut.accounts, signInAs), ...(url ? [{ do: 'goto', url }] : [])] : []),
     ...fromSteps(),
     ...flagList(flags, 'steps').flatMap((f) => JSON.parse(fs.readFileSync(f, 'utf8')) as Step[]),
     ...(flagStr(flags, 'steps-json') ? JSON.parse(flagStr(flags, 'steps-json')!) as Step[] : []),

@@ -58,6 +58,9 @@ describe('composed steps', () => {
     assert.deepEqual(steps.slice(-4), [{ do: 'goto', url: '/a' }, { do: 'click', target: 'x' }, { do: 'snapshot' }, { do: 'screenshot' }]);
     assert.deepEqual(steps[0], { do: 'goto', url: '/login' });
     assert.equal(composeSteps(cfg, { key: 'ABC-1', from: 'P1' }).length, 3);
+    // Signed in, then on to the page the walk is about.
+    const signedIn = composeSteps(cfg, {}, 'admin', '/admin/messages');
+    assert.deepEqual(signedIn.at(-1), { do: 'goto', url: '/admin/messages' });
     // A walk that started on a page (--url) starts there again.
     quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'inspect', tier: 2, input: { url: '/admin', steps: [{ do: 'click', target: 'a' }, { do: 'click', target: 'b' }] }, report: '# walk', digest: [] }));
     assert.deepEqual(composeSteps(cfg, { key: 'ABC-1', from: 'P2:1' }), [{ do: 'goto', url: '/admin' }, { do: 'click', target: 'a' }]);

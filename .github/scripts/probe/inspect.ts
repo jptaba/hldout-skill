@@ -193,7 +193,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
   // Git Bash turns "--url /" into a Windows path before it gets here: say that it was read as the path it stood for.
   if (/^#?[A-Za-z]:[\\/]/.test(flagStr(flags, 'url') ?? '')) console.log(`• --url arrived as "${flagStr(flags, 'url')}" (Git Bash rewrote it) and was read as ${target}: the right page, nothing to repeat`);
-  const steps = composeSteps(cfg, flags, flagStr(flags, 'sign-in')) as unknown as Step[];
+  const steps = composeSteps(cfg, flags, flagStr(flags, 'sign-in'), flagStr(flags, 'url')) as unknown as Step[];
   await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);
 
   const sentLimit = Number(flagStr(flags, 'body-limit') ?? 200);
