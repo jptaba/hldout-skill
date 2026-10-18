@@ -10,7 +10,7 @@ you must not look at it, its code, or anything outside the files below.
 - Evidence pack (every source line numbered; this is your only source of truth): `{{PACK}}`
 - Contract under review: `{{CONTRACT}}`
 - Write your review to: `{{REVIEW}}`
-- Contract hash to record: `{{HASH}}`
+- Contract under review, by its hash: `{{HASH}}` (`--review-bind` records it in the review)
 
 The sources are the story's title, description and acceptance criteria, the Confluence pages they link
 (`linked/confluence-*.md`) and the images they show, which appear in the pack as transcripts (`transcripts/<file>.md`).
@@ -81,8 +81,8 @@ only if the contract records the conflict as a gap and says which source it foll
 ```json
 {
   "reviewer": "heldout-contract-reviewer (<model name>)",
-  "reviewedAt": "<the current time, from: node -p \"new Date().toISOString()\">",
-  "contractHash": "{{HASH}}",
+  "reviewedAt": "",
+  "contractHash": "",
   "items": [
     { "ref": "AC-1", "verdict": "supported", "evidence": "story.md#L23-L24", "note": "" }
   ],
@@ -96,5 +96,7 @@ only if the contract records the conflict as a gap and says which source it foll
 }
 ```
 
-Give one item per ref listed above, and nothing else in the file. Then reply with a single line:
+Give one item per ref listed above, and nothing else in the file. Leave `reviewedAt` and `contractHash` empty: your
+last command, `npm run heldout -- contract {{KEY}} --review-bind`, binds the review to the contract it reviewed
+(hash {{HASH}}) and stamps the time. Then reply with a single line:
 `<n> supported, <n> unsupported, <n> misread, <n> incomplete, <n> missed`.

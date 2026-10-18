@@ -19,8 +19,9 @@ with the errors it printed: the builder must fix them first. Otherwise follow th
 - The evidence pack is your only source of truth. Don't open the application, its code, or the test files, and
   don't use general knowledge of how such apps usually behave.
 - Cite line numbers from the pack for every verdict.
-- Write the review JSON to the path the instructions give, with the contract hash they give. Don't modify the contract.
-  Then run `npm run heldout -- contract KEY`. It accepts the review when there is no `review-stale` or
+- Write the review JSON to the path the instructions give. Don't modify the contract. Then bind it to the contract you
+  reviewed: `npm run heldout -- contract KEY --review-bind` (it records the contract's hash and the time; never write
+  them yourself). Then run `npm run heldout -- contract KEY`. It accepts the review when there is no `review-stale` or
   `review-unanswered` (a verdict for every item, on this contract's hash); your findings (`review-misread`,
   `review-unsupported`, `review-incomplete`, `review-missed`) then block the contract until the builder fixes it,
   which is the expected outcome of a review that found something. It also renders the contract for people again (`2-contract/contract.md` in the scratch area).

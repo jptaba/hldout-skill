@@ -35,9 +35,13 @@ export const COMMANDS: Record<string, string> = {
   'mcp-probe': 'probe/mcp-probe.ts',
   run: 'run/run.ts',
   triage: 'triage/triage.ts',
+  trace: 'probe/trace.ts',
   verdict: 'report/verdict.ts',
   publish: 'report/publish.ts',
+  show: 'flow/show.ts',
+  note: 'flow/note.ts',
   scrub: 'report/scrub.ts',
+  prune: 'flow/prune.ts',
 };
 
 const fileOf = (name: string) => path.join(import.meta.dirname, COMMANDS[name]);

@@ -5,6 +5,7 @@
  *   heldout contract KEY --pack           evidence pack (every source line numbered) + empty contract bound to this revision
  *   heldout contract KEY                  check: anchoring, coverage ledger, literal grounding, review status (+ a copy to read, in the scratch area)
  *   heldout contract KEY --review-prompt  the independent reviewer's instructions (for the heldout-contract-reviewer subagent)
+ *   heldout contract KEY --review-bind    the reviewer's last step: binds its review to the contract (hash, time) and checks
  *   heldout contract KEY --questions      open oracle gaps: the questions the verdict puts to the story's owner (JSON)
  *   heldout contract KEY --resolve G1 --value "…" --evidence P7   a mechanics gap found in the application (the probe
  *                                         that shows it: its report is kept in 4-evidence/; or the run that showed it)
@@ -19,41 +20,16 @@ import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SKILL_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
-import { recordChange } from '../core/history';
+import { readHistory, recordChange, recordEvent } from '../core/history';
 import { citeProbes } from '../core/probe-log';
 import { evalPaths } from '../core/paths';
 import { accountRoles, createsAccounts, type AccountRecipe } from '../core/profile';
-import { checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
-import { changedSinceReview, checkReview, contractHash, evidencePack, readReview, reviewItemHashes, reviewRefs, type ContractReview } from './evidence';
+import { checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover } from './contract-model';
+import { renderContract } from './contract-render';
+import { changedSinceReview, checkReview, contractHash, evidencePack, readReview, reviewItemHashes, reviewRefs } from './evidence';
 
 const BINARY = /\.(png|jpe?g|gif|webp|bmp|pdf|docx?|xlsx?|pptx?)$/i;
 
-function render(c: RequirementContract, review: ContractReview | undefined, reviewOk: boolean): string {
-  const gapRow = (g: RequirementContract['gaps'][number]) =>
-    `| ${g.id} | ${g.element} | ${g.kind} | ${g.required ? 'yes' : 'no'} | ${g.affects.join(', ')} | ${g.tried.map((t) => t.where).join(' → ')} | ${g.resolution}${g.value ? `: ${g.value}` : ''} |`;
-  const esc = (s: string) => s.replace(/\|/g, '\\|');
-  return [
-    `# Requirement contract — ${c.key}: ${c.title}`, '',
-    `_Built by the evaluator from the story (title, description, acceptance criteria), the images they show and the pages they link. Every criterion is quoted from a cited line, every source line is accounted for, and every expected value is grounded in the sources${reviewOk ? '; an independent reviewer checked it' : ''}._`, '',
-    `**Independent review:** ${review ? `${reviewOk ? '✅ all items supported' : '❌ open findings'} — ${review.reviewer}, ${review.reviewedAt.slice(0, 16)}` : '⚠️ not reviewed'}`, '',
-    '## Sources read', '', '| Source | Contributes |', '| --- | --- |',
-    ...c.sourcesRead.map((s) => `| ${s.file} | ${s.contributes ?? ''} |`), '',
-    '## Acceptance criteria', '', '| AC | Layer | Criterion | Observable outcomes | Source |', '| --- | --- | --- | --- | --- |',
-    ...c.acceptanceCriteria.map((a) => `| ${a.id} | ${a.layer} | ${esc(a.text)} | ${esc(a.outcomes.join('; '))} | ${a.source} |`), '',
-    ...(c.endpoints.length ? ['## Endpoints', '', '| Endpoint | Auth | Success | Source |', '| --- | --- | --- | --- |',
-      ...c.endpoints.map((e) => `| ${e.method} ${e.path} | ${e.auth ?? ''} | ${esc(e.success ?? '')} | ${e.source} |`), ''] : []),
-    ...(c.rules.length ? ['## Rules and boundaries', '', ...c.rules.map((r) => `- **${r.id}** ${r.text} _(${r.source})_`), ''] : []),
-    ...(c.errorModel.length ? ['## Error model', '', '| # | Case | Status | Body | Source |', '| --- | --- | --- | --- | --- |',
-      ...c.errorModel.map((e) => `| ${e.id} | ${e.case} | ${e.status ?? ''} | ${esc(e.body ?? '')} | ${e.source} |`), ''] : []),
-    ...(c.auth ? ['## Authentication', '', `${c.auth.mechanism}${c.auth.credentials ? ` — credentials: ${c.auth.credentials}` : ''} _(${c.auth.source})_`, ''] : []),
-    ...(c.testData ? ['## Test data', '', c.testData.strategy, ...(c.testData.constraints ?? []).map((x) => `- ${x}`), ...(c.testData.cleanup ? [`- Cleanup: ${c.testData.cleanup}`] : []), ''] : []),
-    '## Gaps', '', ...(c.gaps.length
-      ? ['| Gap | Missing element | Kind | Required | Affects | Ladder tried | Resolution |', '| --- | --- | --- | --- | --- | --- | --- |', ...c.gaps.map(gapRow)]
-      : ['_None: the requirement states every element the evaluation needs._']), '',
-    ...(c.coverage?.length ? ['## Coverage ledger (every source line accounted for)', '', '| Lines | Captured as | Note |', '| --- | --- | --- |',
-      ...c.coverage.map((e) => `| ${e.lines} | ${e.as} | ${esc(e.note ?? '')} |`), ''] : []),
-  ].join('\n');
-}
 
 /** What the profile's accounts recipe already provides, for the evidence pack (no user names, no secrets). */
 function accountsLine(r?: AccountRecipe): string | undefined {
@@ -70,7 +46,7 @@ export const spec: CommandSpec = {
   name: 'contract', group: 'Requirement',
   usage: 'KEY [--pack | --review-prompt | --questions | --resolve G1 --value … --evidence … | --resolve-from gaps.json | --answer G2 --value … --by … | --allow-unreviewed]',
   about: 'evidence pack + checks for the model-built, independently reviewed requirement contract',
-  flags: ['allow-unreviewed', 'answer', 'by', 'evidence', 'pack', 'questions', 'resolve', 'resolve-from', 'review-prompt', 'value'],
+  flags: ['allow-unreviewed', 'answer', 'by', 'evidence', 'pack', 'questions', 'resolve', 'resolve-from', 'review-bind', 'review-prompt', 'value'],
 };
 
 export async function run({ _, flags }: Args): Promise<void> {
@@ -176,6 +152,20 @@ export async function run({ _, flags }: Args): Promise<void> {
     return;
   }
 
+  // --review-bind: the reviewer's last step. The review is bound to the contract as it is now, and stamped with the
+  // time: the reviewer never writes a hash or a time itself.
+  if (flags['review-bind']) {
+    const written = readReview(p.review);
+    if (!written) throw new Error(`No review at ${rel(p.review)} to bind — the heldout-contract-reviewer subagent writes it first`);
+    const bound = { ...written, contractHash: contractHash(c), reviewedAt: new Date().toISOString(), itemHashes: reviewItemHashes(c) };
+    writeFile(p.review, `${JSON.stringify(bound, null, 2)}\n`);
+    const findings = bound.items.filter((i) => i.verdict !== 'supported');
+    recordEvent(p.history, 'review-bound', {
+      hash: bound.contractHash, round: readHistory(p.history).filter((e) => e.event === 'review-bound').length + 1, items: bound.items.length,
+      findings: findings.map((i) => `${i.ref}:${i.verdict}`), missed: bound.missed.length,
+    });
+    console.log(`✔ review bound to the contract (hash ${bound.contractHash}, ${bound.items.length} item(s), ${findings.length} finding(s), ${bound.missed.length} missed line(s))`);
+  }
   const review = readReview(p.review);
   // A review that matches the contract gets a hash per item, so a later change names the items to re-check.
   if (review && review.contractHash === contractHash(c) && !review.itemHashes) {
@@ -200,7 +190,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   // After recording one gap, the lists would repeat themselves: say what is left in a line.
   if (gapFlag && !all.some((f) => f.level === 'error')) {
     console.log(`  still to discover: ${discover.map((g) => g.id).join(', ') || 'nothing'} · open questions: ${questions.map((g) => g.id).join(', ') || 'none'}   (heldout contract ${key} lists them)`);
-    writeFile(p.work.contractMd, render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
+    writeFile(p.work.contractMd, renderContract(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
     return;
   }
   if (questions.length) {
@@ -212,7 +202,7 @@ export async function run({ _, flags }: Args): Promise<void> {
     for (const g of discover) console.log(`  ${g.id} ${g.element} → affects ${g.affects.join(', ') || 'no criterion'}`);
   }
   if (!review && !findings.some((f) => f.level === 'error')) console.log(`\nNext: independent review — heldout-contract-reviewer subagent (instructions: heldout contract ${key} --review-prompt)`);
-  writeFile(p.work.contractMd, render(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
+  writeFile(p.work.contractMd, renderContract(c, review, Boolean(review) && !reviewFindings.some((f) => f.level === 'error')));
   console.log(`  → ${rel(p.work.contractMd)} (the contract for people to read; rendered again by every check)`);
   if (all.some((f) => f.level === 'error')) process.exit(1);
 }

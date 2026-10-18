@@ -20,8 +20,8 @@ import { allJourneys, journeyUse, journeysUsedBy, ownCodeOf, readRegistry, statu
 import { readSuite, specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
-import { readJson, rel, writeFile } from '../core/files';
-import { readHistory } from '../core/history';
+import { readJson, rel, removeDir, writeFile } from '../core/files';
+import { readHistory, recordEvent } from '../core/history';
 import { evalPaths, evalRunsOf, journeyPaths, listRuns, runFile } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../requirement/contract-model';
@@ -202,6 +202,11 @@ export function run({ _, flags }: Args): void {
     const next = phasesOf(cfg, key).find((ph) => !ph.done && !(manualPublish && ph.name === 'publish'));
     if (!next) {
       console.log(`\n✔ ${key} is complete: ${rel(p.verdictMd)}`);
+      // The scratch area (raw run output, views, working files) goes with the story's end; the record stays.
+      if (!cfg.keepScratch) {
+        const freed = removeDir(p.work.base);
+        if (freed) { recordEvent(p.history, 'pruned', { bytes: freed }); console.log(`  scratch area removed (${(freed / 1024 / 1024).toFixed(1)} MB); "keepScratch": true in heldout.config.json keeps it`); }
+      }
       if (manualPublish && phasesOf(cfg, key).some((ph) => ph.name === 'publish' && !ph.done)) console.log(`  Not published (jira.publish is "manual"): ${H} publish ${key}`);
       return;
     }

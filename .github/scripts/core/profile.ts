@@ -147,6 +147,8 @@ export interface HeldoutConfig {
   outputDir: string;
   /** The application's journeys: fixtures/<domain>.ts and registry.yml (a profile's own journeysDir wins). */
   journeysDir: string;
+  /** Keep a story's scratch area (raw run output, traces) when it is complete; by default `advance` removes it. */
+  keepScratch?: boolean;
   run: {
     retries: number;
     workers?: number;

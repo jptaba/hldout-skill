@@ -5,7 +5,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { scrubZip } from './zip';
+import { readZip, scrubZip } from './zip';
 const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|session/i;
 // Header NAMES that carry credentials (incl. misspellings like "Authorisation") and VALUES that look like credentials.
 const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
@@ -186,6 +186,29 @@ export function scrubDir(dir: string, secrets: string[]): { files: number } {
     if (after !== before) { fs.writeFileSync(file, after); files++; }
   }
   return { files };
+}
+
+/**
+ * Where secret values still are under `dir`, without changing anything: text files, the files inside trace archives,
+ * and the base64 attachments of Playwright's results. Each hit names the file (and the archive entry).
+ */
+export function findSecrets(dir: string, secrets: string[]): string[] {
+  const hits: string[] = [];
+  if (!fs.existsSync(dir) || !secrets.length) return hits;
+  const has = (s: string) => secrets.some((v) => s.includes(v));
+  for (const rel of fs.readdirSync(dir, { recursive: true, encoding: 'utf8' })) {
+    const file = path.join(dir, rel);
+    if (!fs.statSync(file).isFile()) continue;
+    if (/\.zip$/i.test(file)) {
+      for (const e of readZip(fs.readFileSync(file)) ?? []) if (has(e.data.toString('utf8'))) hits.push(`${file} › ${e.name}`);
+      continue;
+    }
+    if (!TEXT_ARTIFACT.test(file) && !/\.(html|jsonl|http)$/i.test(file)) continue;
+    const text = fs.readFileSync(file, 'utf8');
+    const decoded = [...text.matchAll(/"body":\s*"([A-Za-z0-9+/=]{8,})"/g)].map((m) => Buffer.from(m[1], 'base64').toString('utf8')).join('\n');
+    if (has(text) || has(decoded)) hits.push(file);
+  }
+  return hits;
 }
 
 /** A strong random secret: upper and lower case, digits and a symbol, never a plain word (so it can be scrubbed). */

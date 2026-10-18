@@ -440,7 +440,12 @@
     "outputDir": {
       "type": "string",
       "default": "output",
-      "description": "Everything of a story, per application: <outputDir>/<profile>/<KEY>/ (requirement, contract, tests, hardening, runs, verdict)."
+      "description": "Everything of a story, per application: <outputDir>/<profile>/<KEY>/ (1-requirement, 2-contract, 3-tests, 4-evidence, 5-runs, 6-verdict, history.jsonl)."
+    },
+    "keepScratch": {
+      "type": "boolean",
+      "default": false,
+      "description": "Keep a story's scratch area (.heldout/<profile>/<KEY>/: raw run output, traces, views) when the story is complete. By default `heldout advance` removes it; the record in outputDir always stays."
     },
     "journeysDir": {
       "type": "string",
