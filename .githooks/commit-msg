@@ -1,0 +1,3 @@
+#!/bin/sh
+# Refuses a commit that lacks what its tier needs: proof, independent reviews, the gate's restatement or approval.
+exec node .agents/scripts/agentctl.mjs hook commit-msg "$1"

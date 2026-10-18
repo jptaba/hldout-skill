@@ -1,0 +1,4 @@
+#!/bin/sh
+# The agent setup's pre-commit gate: secrets, file size, branch policy, a passing proof for the staged tree.
+# Install once per clone: git config core.hooksPath .githooks
+exec node .agents/scripts/agentctl.mjs hook pre-commit

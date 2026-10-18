@@ -40,6 +40,8 @@ const SETTINGS: [file: string, why: string][] = [
 ];
 /** The regression pipeline (--ci), from the same paths in the skill repository. */
 const CI_FILES = { github: '.github/workflows/heldout.yml', gitlab: '.gitlab/heldout.gitlab-ci.yml' };
+/** Everything a project gets from the skill repository (files, or folders copied whole); the rest is maintainer-only. */
+export const SHIPPED = ['.github/skills/heldout-evaluator', '.github/scripts', ...WORKSPACE_FILES, ...SETTINGS.map(([f]) => f), ...Object.values(CI_FILES)];
 
 const PROJECT_SKILL = path.join(ROOT, '.github', 'skills', 'heldout-evaluator');
 const PROJECT_SCRIPTS = path.join(ROOT, '.github', 'scripts');
@@ -93,8 +95,7 @@ function installSkill(): SourceInfo {
   }
   // A working tree with uncommitted changes to the skill is not that commit: say so.
   const head = git(SOURCE_ROOT, 'rev-parse', '--short', 'HEAD');
-  const shipped = ['.github/skills/heldout-evaluator', '.github/scripts', ...WORKSPACE_FILES, ...SETTINGS.map(([f]) => f), ...Object.values(CI_FILES)];
-  const commit = head && git(SOURCE_ROOT, 'status', '--porcelain', '--', ...shipped) ? `${head}+local changes` : head;
+  const commit = head && git(SOURCE_ROOT, 'status', '--porcelain', '--', ...SHIPPED) ? `${head}+local changes` : head;
   const remote = git(SOURCE_ROOT, 'remote', 'get-url', 'origin');
   const info: SourceInfo = { ...(remote ? { remote } : {}), ...(commit ? { commit } : {}), installedAt: new Date().toISOString(), scripts, files: before?.files ?? {} };
   writeSource(info);

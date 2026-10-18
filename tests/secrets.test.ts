@@ -22,9 +22,9 @@ before(async () => {
     }
     const token = req.headers['x-vault-token'];
     if (token !== 'good-token' && token !== 'approle-token') return send(403, { errors: ['permission denied'] });
-    if (req.url === '/v1/secret/data/qa/app') return send(200, { data: { data: { user1: 'qa.one@example.com', password1: 'Pw-One-1234!' } } });
+    if (req.url === '/v1/secret/data/qa/app') return send(200, { data: { data: { user1: 'qa.one@example.com', password1: 'Pw-One-1234!' } } }); // agentctl-allow-secret: a fake vault's made-up value
     if (req.url === '/v1/kv1/data/legacy') return send(404, { errors: [] });
-    if (req.url === '/v1/kv1/legacy') return send(200, { data: { password: 'Legacy-Pw-99!' } });
+    if (req.url === '/v1/kv1/legacy') return send(200, { data: { password: 'Legacy-Pw-99!' } }); // agentctl-allow-secret: a fake vault's made-up value
     if (req.url?.startsWith('/v1/secret/data/locked')) return send(403, { errors: ['permission denied'] });
     return send(404, { errors: [] });
   });
@@ -73,7 +73,7 @@ describe('existing accounts in the config', () => {
     assert.deepEqual(validateConfig(cfg({ existing: [{ username: 'qa1', password: '${env:APP_PW_1}' }, { username: '${vault:secret/qa#u2}', password: '${vault:secret/qa#p2}' }] })), []);
   });
   it('refuses a password written into the committed config', () => {
-    assert.match(validateConfig(cfg({ existing: [{ username: 'qa1', password: 'hunter2!' }] })).join(' '), /never the password itself/);
+    assert.match(validateConfig(cfg({ existing: [{ username: 'qa1', password: 'hunter2!' }] })).join(' '), /never the password itself/); // agentctl-allow-secret: the literal the check must refuse
   });
   it('needs create or existing', () => {
     assert.match(validateConfig(cfg({ token: { method: 'POST', path: '/login', token: 'token' } })).join(' '), /needs "create".*or "existing"/);

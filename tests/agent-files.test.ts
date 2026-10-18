@@ -7,8 +7,8 @@ import { COMMANDS, loadCommand } from '../.github/scripts/heldout';
 
 const REPO = path.resolve(import.meta.dirname, '..');
 const COPILOT = AGENT_FILES.filter((f) => f.startsWith('.github/agents/'));
-/** Dev-only agents (dev-* prefix): used in this repository, never shipped by init. */
-const DEV = fs.readdirSync(path.join(REPO, '.github', 'agents')).filter((f) => f.startsWith('dev-')).map((f) => `.github/agents/${f}`);
+/** Maintainer-only agents, never shipped by init: dev-* ones, and the agent setup's reviewer (.agents/README.md). */
+const DEV = fs.readdirSync(path.join(REPO, '.github', 'agents')).filter((f) => f.startsWith('dev-') || f === 'code-reviewer.agent.md').map((f) => `.github/agents/${f}`);
 /** The Claude Code bridge of a Copilot agent file. */
 const bridgeOf = (f: string) => f.replace('.github/agents/', '.claude/agents/').replace('.agent.md', '.md');
 /** The YAML frontmatter as raw `key: value` lines (values kept as written). */
@@ -27,7 +27,7 @@ describe('agent files', () => {
   it('no dev-only agent is shipped, and every agent in .github/agents is either shipped or dev-only', () => {
     assert.deepEqual(AGENT_FILES.filter((f) => path.basename(f).startsWith('dev-')), []);
     const all = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`);
-    assert.deepEqual(all.filter((f) => !COPILOT.includes(f) && !DEV.includes(f)), [], 'name a new agent dev-… or add it to SUBAGENTS');
+    assert.deepEqual(all.filter((f) => !COPILOT.includes(f) && !DEV.includes(f)), [], 'name a new agent dev-… (or make it part of the agent setup) or add it to SUBAGENTS');
   });
 
   it('each Claude Code bridge carries the name and description of what it points at', () => {

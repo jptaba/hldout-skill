@@ -134,75 +134,80 @@ mapped to NIST AI RMF and OWASP; `CODEOWNERS`; and Dependabot.
 
 ### Take, adapt, drop
 
+As built (ADR 0002 records where this departs from the first draft of this section):
+
 | From sample-agent-setup | Here | Why |
 | --- | --- | --- |
-| `AGENTS.md` (build, test, never-do) | **Take**, rewritten for this repository: `npm run verify`; the greenfield, AUT-agnostic, agent-agnostic and no-machine-paths rules; Edit/Write only. Plus `CLAUDE.md` (one line, `@AGENTS.md`) and `.github/copilot-instructions.md`, so both apps load the same rules. | Today these rules live only in one maintainer's agent memory. |
-| `implement`, `review`, `pr-packet` skills | **Adapt** as `.github/skills/dev-implement`, `dev-review` and `dev-pr-packet`, with bridges in `.claude/skills/`. | Same folders and bridges as the product skill; `dev-` keeps them out of `init`. |
-| `code-reviewer` (read-only) | **Adapt** as `dev-code-reviewer`, in both apps: Copilot `tools: ['read', 'search', 'execute']`; Claude `tools: Read, Grep, Glob, Bash`, `disallowedTools: Write, Edit`. | Independent review by construction, as `heldout-contract-reviewer` already does for contracts. |
-| `references/contract.md` per change | **Adapt.** A change's contract is the plan section or round finding it implements. A small change gets a short file in `docs/contracts/NNNN-*.md` with the same headings (inputs, outputs, proof, done when, bad result). | The plans here already are contracts; no second copy. |
-| `collect-evidence.sh`, `scan-secrets.sh` (bash) | **Adapt** as `dev/evidence.ts` and `dev/scan-secrets.ts`, in TypeScript. They reuse `core/redact.ts` and the repository's test runner, and they work on Windows. | One language, tested like the rest. |
-| `.agents/runs/runs.jsonl` | **Adapt** as `dev/.ledger.jsonl` (git-ignored). Each line: the tree hash, the contract hash, the proof command, its exit code, and the time. | The local half of the audit trail. The commit carries the other half (see the gate below). |
-| Pre-commit: secrets, files over 1 MB | **Take.** | Cheap, catches the costly mistakes. |
-| Pre-commit: no commits to `main` | **Replace** with a proof gate: a commit is accepted only when the ledger shows `npm run verify` passed on exactly the staged tree. | The owner's workflow is small commits pushed to `master` once green. The proof gate keeps that speed and adds what the branch rule was for. |
-| ADRs (`docs/adr/`) | **Take.** 0001 as in the sample, then short ADRs written after the fact for the decisions already made: the record layout, commands not scripts, unattended after fetch, greenfield. | The rationale is in chat transcripts today. |
-| `GOVERNANCE.md`, `SECURITY.md`, `CODEOWNERS` | **Take** and fill in: owner `@jptaba`; the gate as below; secrets, dependencies, skills as a trust boundary, least privilege, prompt injection. | |
-| `dependabot.yml` | **Adapt:** `npm` and `github-actions` (the repository is on GitHub). | |
+| `AGENTS.md` (build, test, never-do) | **Take.** The project's rules; with `.agents/config.json`, the only project-specific files. `CLAUDE.md` (`@AGENTS.md`) and `.github/copilot-instructions.md` point both apps at it. | One place for the rules, loaded by every app. |
+| `implement`, `review`, `pr-packet` skills | **Take**, rewritten project-agnostic, in `.agents/skills/` (Copilot reads them there), with Claude Code bridges in `.claude/skills/`; plus a `contract` skill and template. | The sample's own layout; a test keeps them free of project names. |
+| `code-reviewer` (read-only) | **Take**, in both apps: Copilot `tools: ['read', 'search', 'execute']`; Claude `tools: Read, Grep, Glob, Bash`, `disallowedTools: Write, Edit, NotebookEdit`. | Its one write is its verdict, through `agentctl review`. |
+| `references/contract.md` per change | **Adapt.** A change's contract is the plan section or finding it implements (`--contract docs/<plan>.md#<heading or row>`), or a file in `docs/contracts/`. Only that section is hashed. | The plans here already are contracts; editing another section doesn't make every packet stale. |
+| `collect-evidence.sh`, `scan-secrets.sh` (bash) | **Replace** with one tool, `.agents/scripts/agentctl.mjs` (Node, no dependencies): `verify` (secret scan, proof steps, packet, ledger, all bound to the staged tree), `review`, `status`, `audit`, `ci`, `scan-secrets`, `install-hooks`, and the hooks. | Runs on Windows and POSIX alike; tested like the rest; project-agnostic, configured by `.agents/config.json`. |
+| `.agents/runs/runs.jsonl` | **Take** as `.agents/runs/ledger.jsonl` (git-ignored): proofs and reviews by tree hash. The commit's trailers carry the shared half. | The audit can check trailers against each commit's own tree. |
+| Pre-commit: secrets, files over 1 MB | **Take**, stronger: staged content (UTF-8 and UTF-16), credential assignments, more token shapes, an explicit allow marker; renames count both paths. Also a proof step, and run again in CI over what a push changed. | A secret is refused before the proof is green, and a `--no-verify` commit is caught in CI. |
+| Pre-commit: no commits to `main` | **Replace** with the proof gate (`"branchPolicy": "proof"`): a commit needs a passing proof of exactly its tree. `"no-direct-commits"` restores the sample's rule. | The owner commits small changes to `master` once green. |
+| ADRs (`docs/adr/`) | **Take**: 0001 as in the sample; 0002 for this setup. ADRs for earlier decisions are written when those decisions are next touched. | |
+| `GOVERNANCE.md`, `SECURITY.md`, guardrails | **Take**, project-agnostic: they read the owner, tiers and gate from `.agents/config.json`, and say which controls are checked (hashes, trees) and which are declared (who reviewed, who approved). | |
+| `CODEOWNERS`, `dependabot.yml` | **Take**: host files in their host's format; a test checks `CODEOWNERS` names the config's owner. | |
 | Python and Java demos, `textutils`, the sample packets | **Drop.** | They demonstrate the setup, not this project. |
 
 ### Where things go: maintainer-only by construction
 
 ```
-AGENTS.md  CLAUDE.md  GOVERNANCE.md  SECURITY.md      maintainer rules and policy (repository root)
-.github/CODEOWNERS  .github/copilot-instructions.md  .github/dependabot.yml
-.github/workflows/dev-verify.yml                      this repository's CI (heldout.yml stays the shipped template)
-.github/agents/dev-*.agent.md  .claude/agents/dev-*.md
-.github/skills/dev-*/  .claude/skills/dev-*/
-.githooks/                                            pre-commit, commit-msg (installed with npm run dev:hooks)
-dev/                                                  maintainer tools: evidence, scan-secrets, gate, round, inflight, score
-dev/policy.json                                       the gate's settings and the risk tiers
+AGENTS.md  .agents/config.json                        the project's own: its rules, and the facts the tools enforce
+CLAUDE.md  GOVERNANCE.md  SECURITY.md                 generic (the same in any project)
+.agents/skills/  .agents/scripts/agentctl.mjs  .agents/templates/  .agents/policy/  .agents/README.md
+.claude/skills/  .claude/agents/code-reviewer.md  .github/agents/code-reviewer.agent.md
+.github/copilot-instructions.md  .github/workflows/verify.yml  .githooks/
+.github/CODEOWNERS  .github/dependabot.yml            host files
 docs/adr/  docs/contracts/                            decisions, per-change contracts
-demo/                                                 data only: the stories and their answer keys
 ```
 
-`init` and `update` ship only the skill folder, `.github/scripts/`, the workspace files, the settings and the CI
-templates. A test fails if any path above ever appears in what they ship. Developer code moves out of `demo/` into
-`dev/` (round, inflight, score), so `demo/` holds data only (G9).
+`init` and `update` ship only what `SHIPPED` in `setup/update.ts` lists. `tests/agent-kit.test.ts` fails if any path
+above appears in it, if a generic file names a project, or if `CODEOWNERS` and the config disagree. Moving developer
+code from `demo/` into `dev/` (G9) is left for later: it is unrelated to the gate.
 
 ### The gate, and who does the human steps
 
 Every change goes through the same sequence:
 
-1. **Implement** under a contract (the `dev-implement` skill).
-2. **`npm run verify`**: typecheck, `test:skill` and the agent-files checks. `dev/evidence.ts` writes the PR
-   packet, from real output only, and a ledger line.
-3. **Review** by `dev-code-reviewer` in a fresh context, read-only. Its verdict is APPROVE, REQUEST CHANGES or
-   BLOCKED, with file and line per finding.
-4. **Gate**: the commit message carries trailers, which the `commit-msg` hook checks:
+1. **Implement** under a contract (the `implement` skill; `contract` writes one when none fits).
+2. **`agentctl verify --contract <file>#<section>`**: the secret scan and the project's proof steps on the staged
+   tree; the packet, from real output only, and a ledger line, both bound to the tree's hash.
+3. **Review** by the `code-reviewer` agent in a fresh context, with no write tool. It records APPROVE,
+   REQUEST_CHANGES or BLOCKED for the tree (`agentctl review`), with file and line per finding. A request for changes
+   blocks that tree for good: only a changed tree, after the fix, can pass, with new reviews.
+4. **Gate**: the gatekeeper writes `Gate:`; the hook adds the rest from the ledger; `commit-msg` checks it all, and CI
+   checks each pushed commit's trailers against its own tree and contract:
 
    ```
-   Contract: docs/refactor-plan.md#8 (sha256:…)
-   Proof: npm run verify · exit 0 · tree 4b1e…
-   Review: dev-code-reviewer · APPROVE · 0 findings
    Gate: <the change restated in the gatekeeper's own words, and what was not checked>
+   Tier: guardrail
+   Contract: docs/governance-plan.md#The maintainer tooling · sha256:81a8ccaf392d
+   Proof: secrets ok · typecheck ok · tests ok · tree 69693429852d
+   Review: code-reviewer · claude-sonnet-5-5 · APPROVE · 0 finding(s) · tree 69693429852d
+   Review: code-reviewer · claude-opus-5-5 · APPROVE · 0 finding(s) · tree 69693429852d
    ```
 
 In sample-agent-setup the gate is a person who restates the packet in their own words before merge. **In this
 repository the maintainer agent is the gatekeeper**, as the owner asked. It restates the change in its own words,
-names what could not be checked, and the hook accepts the commit only with an independent review on record. So
-the change is never approved by its author's say-so alone, even when the author is also the gatekeeper.
+names what could not be checked, and the hook accepts the commit only with the independent reviews on record. Who
+reviewed and on which model are declared, not authenticated: the separation rests on reviews running in their own
+context and on the trail being audited (`GOVERNANCE.md`, `.agents/policy/guardrails.md`).
 
-How much review a change needs depends on what it touches. The tiers are path globs in `dev/policy.json`:
+How much review a change needs depends on what it touches. The tiers are path globs in `.agents/config.json`, listed
+in matching order (the catch-all last); the most demanding tier any file falls in governs the change:
 
-| Tier | Paths | Review |
+| Tier | Paths | Needs |
 | --- | --- | --- |
-| 0 · docs | `docs/**` (not the guide's guardrail sections), plan progress, `*.md` outside `.github/` | none; proof gate only |
-| 1 · code | everything else | one `dev-code-reviewer` |
-| 2 · guardrails | `core/redact.ts`, `core/secrets.ts`, `authoring/integrity*`, `requirement/contract-model.ts`, `requirement/evidence.ts`, the evaluation agents' held-out rules, `demo/answer-keys/**`, `dev/policy.json`, `.githooks/**` | two reviews, the second on a different model; an answer-key change also needs an ADR |
+| docs | `docs/**`, `README.md`, the demo's notes and scorecard | the hooks' secret and size checks |
+| code | everything else | proof, a contract, one review, the gate |
+| guardrail | the agent setup itself (`.agents/**`, hooks, the reviewer, bridges, CI, `AGENTS.md`, the policies, the kit's tests), what defines the proof and the shipping list (`package.json`, the tsconfigs, `.gitignore`, `setup/update.ts`), every agent and skill file (the held-out rules), `core/redact.ts`, `core/secrets.ts`, `authoring/integrity*`, `requirement/contract-model.ts`, `requirement/evidence.ts`, `demo/answer-keys/**` | proof, a contract, two reviews on two models, the gate |
 
-**Anyone else who clones this repository** gets the same agents, skills, hooks and gate, and they work unchanged,
-with the agent as gatekeeper. A team that wants a person at the gate sets `"gate": "human"` in `dev/policy.json`.
-The `commit-msg` hook then requires an `Approved-by:` trailer, and refuses one written by an agent run (the dev
-skills tell agents never to write it). That is the one change.
+**Anyone else who clones this repository** gets the same agents, skills, hooks and gate, working unchanged with the
+agent as gatekeeper. A team that wants a person at the gate sets `"gate": "human"` and lists its `approvers` in
+`.agents/config.json`; the `commit-msg` hook then requires an `Approved-by:` naming one of them (agents are told
+never to write it). That is the one change.
 
 **What stays with a person** whatever the setting, because an agent can't or mustn't do it:
 
@@ -214,9 +219,9 @@ The maintainer agent prepares each of these (what, where, why) and stops; it nev
 
 ### Answer keys (G8)
 
-`demo/answer-keys/HASHES` pins the SHA-256 of each key. `npm run verify` fails when a key changes without its pinned
-hash being updated in the same commit, which is a tier-2 change: two reviews and an ADR. `dev/score.ts` prints each
-key's hash in the scorecard, so a score always names the exact key it was measured against.
+The answer keys are guardrail files: a change to one needs two reviews on two models, and `AGENTS.md` requires an ADR.
+Pinning each key's hash in the scorecard, so a score names the exact key it was measured against, is left for the
+`dev/` move (G9).
 
 ## 5. Separation of duties and isolation
 

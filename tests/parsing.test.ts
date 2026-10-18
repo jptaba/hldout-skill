@@ -244,7 +244,7 @@ describe('redaction', () => {
     const { redact, literalsOf } = await import('../.github/scripts/core/redact');
     const step = { email: 'hldout-1@example.com', password: 'abcd', token: '${env:API_TOKEN}' };
     assert.deepEqual(redact({ ...step, token: 'eyJ.real.token' }, { keep: literalsOf(step) }), { email: 'hldout-1@example.com', password: 'abcd', token: '***redacted***' });
-    const shown = redact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!', again: { password: 'Str0ng-Generated-Pw!' }, wrong: { password: 'Wr0ng-Password-99' } }, { testValues: true }) as Record<string, Record<string, string> | string>;
+    const shown = redact({ password: 'abc', passwordRepeat: 'Str0ng-Generated-Pw!', again: { password: 'Str0ng-Generated-Pw!' }, wrong: { password: 'Wr0ng-Password-99' } }, { testValues: true }) as Record<string, Record<string, string> | string>; // agentctl-allow-secret: made-up values the redaction must hide
     assert.equal(shown.password, 'abc');
     assert.match(String(shown.passwordRepeat), /^\*\*\*redacted:[0-9a-f]{4}\*\*\*$/);
     // The same hidden value keeps its tag; a different one gets another (right vs wrong password in a reproduction).
@@ -252,7 +252,7 @@ describe('redaction', () => {
     assert.notEqual((shown.wrong as Record<string, string>).password, shown.passwordRepeat);
     assert.deepEqual(redact({ password: 'abc' }), { password: '***redacted***' });
     // An account is recorded as its toJSON says: id and user name, never its password or token.
-    const account = { id: '7', username: 'hldout-x', password: 'Str0ng-Generated-Pw!' };
+    const account = { id: '7', username: 'hldout-x', password: 'Str0ng-Generated-Pw!' }; // agentctl-allow-secret: a made-up value
     Object.defineProperty(account, 'toJSON', { value: () => ({ id: account.id, username: account.username }) });
     assert.deepEqual(redact({ me: account }), { me: { id: '7', username: 'hldout-x' } });
   });
@@ -407,10 +407,10 @@ describe('run artifact scrubbing', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scrub-'));
     fs.mkdirSync(path.join(dir, 'artifacts'));
     fs.writeFileSync(path.join(dir, 'artifacts', 'error-context.md'), '- textbox "Pwd field": hunter2-xyz\n- text: hunter2-xyz');
-    const att = Buffer.from('- textbox "Password": hunter2-xyz').toString('base64');
+    const att = Buffer.from('- textbox "Password": hunter2-xyz').toString('base64'); // agentctl-allow-secret: a made-up value
     fs.writeFileSync(path.join(dir, 'results.json'), JSON.stringify({ suites: [{ attachments: [{ name: 'aria-snapshot', contentType: 'text/yaml', body: att }] }] }));
     fs.writeFileSync(path.join(dir, 'td.json'), '{"p":"${env:APP_LOGIN}"}');
-    const found = secretValuesFor(path.join(dir, 'td.json'), { APP_LOGIN: 'hunter2-xyz', MY_API_KEY: 'k-123456', PATH: '/usr/bin' }, ['password', 'x9-secret']);
+    const found = secretValuesFor(path.join(dir, 'td.json'), { APP_LOGIN: 'hunter2-xyz', MY_API_KEY: 'k-123456', PATH: '/usr/bin' }, ['password', 'x9-secret']); // agentctl-allow-secret: made-up values the scrub must find
     // Only what the story references (never the whole environment); plain words are refused, not replaced everywhere.
     assert.deepEqual(found, { values: ['hunter2-xyz', 'x9-secret'], weak: ['--value'] });
     const secrets = found.values;

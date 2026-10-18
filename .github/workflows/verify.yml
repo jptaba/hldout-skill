@@ -1,0 +1,32 @@
+# The agent setup's CI half: the project's install and proof steps (from .agents/config.json); every commit a push or
+# pull request brings, checked against its tier, its own tree and its contract; and a secret scan of what it changed.
+# A hook bypassed locally (--no-verify) is caught here. Actions are pinned to commit SHAs.
+name: verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install, prove, audit the pushed commits
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: node .agents/scripts/agentctl.mjs ci --audit "${{ github.event.before }}..${{ github.sha }}"
+      - name: Install, prove, audit a new branch's commits (from its merge base)
+        if: github.event_name == 'push' && github.event.before == '0000000000000000000000000000000000000000'
+        run: node .agents/scripts/agentctl.mjs ci --audit auto
+      - name: Install, prove, audit the pull request's commits
+        if: github.event_name == 'pull_request'
+        run: node .agents/scripts/agentctl.mjs ci --audit "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"

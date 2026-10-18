@@ -1,0 +1,60 @@
+{
+  "owner": "@jptaba",
+  "install": "npm ci",
+  "proof": [
+    { "name": "typecheck", "run": "npm run typecheck" },
+    { "name": "tests", "run": "npm run test:skill" }
+  ],
+  "gate": "agent",
+  "approvers": ["@jptaba"],
+  "branchPolicy": "proof",
+  "maxFileBytes": 1048576,
+  "packet": ".agents/runs/packet.md",
+  "ledger": ".agents/runs/ledger.jsonl",
+  "secretScan": { "skip": ["**/package-lock.json"] },
+  "tiers": [
+    {
+      "name": "guardrail",
+      "match": [
+        ".agents/**",
+        ".githooks/**",
+        ".github/agents/**",
+        ".github/skills/**",
+        ".github/workflows/**",
+        ".github/CODEOWNERS",
+        ".github/copilot-instructions.md",
+        ".github/dependabot.yml",
+        ".github/scripts/setup/update.ts",
+        "package.json",
+        "tsconfig.json",
+        "tests/tsconfig.json",
+        ".gitignore",
+        ".claude/agents/**",
+        ".claude/skills/**",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GOVERNANCE.md",
+        "SECURITY.md",
+        "tests/agent-kit.test.ts",
+        "tests/agent-files.test.ts",
+        ".github/scripts/core/redact.ts",
+        ".github/scripts/core/secrets.ts",
+        ".github/scripts/authoring/integrity*.ts",
+        ".github/scripts/requirement/contract-model.ts",
+        ".github/scripts/requirement/evidence.ts",
+        "demo/answer-keys/**"
+      ],
+      "proof": true, "reviews": 2, "models": 2, "gate": true, "contract": true
+    },
+    {
+      "name": "docs",
+      "match": ["docs/**", "README.md", "demo/RUNNING-LOCALLY.md", "demo/SCORECARD.md"],
+      "proof": false, "reviews": 0, "gate": false
+    },
+    {
+      "name": "code",
+      "match": ["**"],
+      "proof": true, "reviews": 1, "gate": true, "contract": true
+    }
+  ]
+}

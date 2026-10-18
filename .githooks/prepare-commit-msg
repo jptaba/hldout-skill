@@ -1,0 +1,3 @@
+#!/bin/sh
+# Adds what the staged tree has on record (tier, contract, proof, reviews) to the commit message as trailers.
+exec node .agents/scripts/agentctl.mjs hook prepare-commit-msg "$1" "$2"
