@@ -7,7 +7,9 @@
  *   heldout advance KEY --rerun               after the hardener repaired confirmed script defects: run again first
  *
  * Scripts it runs: fetch, the contract's evidence pack, lint and the freeze, the integrity check and the evaluation
- * run, triage (the automatic classification), verdict, publish and the journeys harvest.
+ * run, triage (the automatic classification), verdict, publish and the journeys harvest. Before the verdict it moves
+ * files the record's layout doesn't have to the scratch area's stray/ and gives a probe id found twice (two merged
+ * branches) a new number; before publishing it checks the story's files for secret values, as `heldout scrub` does.
  * Where it stops: heldout-contract-extractor, heldout-contract-reviewer, heldout-test-author, heldout-hardener,
  * heldout-triager. Nothing stops it for a person: open questions about the requirement go into the tests and the
  * verdict, a story without acceptance criteria gets an INCONCLUSIVE verdict saying so, and the verdict is published
@@ -22,7 +24,8 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel, removeDir, writeFile } from '../core/files';
 import { readHistory, recordEvent } from '../core/history';
-import { evalPaths, evalRunsOf, journeyPaths, listRuns, runFile } from '../core/paths';
+import { evalPaths, evalRunsOf, journeyPaths, listRuns, moveStrayFiles, runFile } from '../core/paths';
+import { renumberDuplicateProbes } from '../core/probe-log';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../requirement/contract-model';
 import { checkReview, readReview } from '../requirement/evidence';
@@ -184,6 +187,17 @@ export function run({ _, flags }: Args): void {
     console.log(`  Then: ${H} advance ${key}`);
   };
   const stuck = (what: string) => { throw new Error(`${what} — see the output above; fix it, then: ${H} advance ${key}`); };
+  /** No secret value goes out with the verdict: checked, scrubbed if one is found, and checked again. */
+  const publish = () => {
+    if (heldout('scrub', key, '--check') !== 0 && (heldout('scrub', key) !== 0 || heldout('scrub', key, '--check') !== 0)) stuck('a secret value is still in the story\'s files after scrubbing');
+    return heldout('publish', key);
+  };
+  /** The record as its layout has it, before the verdict: stray files to the scratch area, each probe id once. */
+  const tidy = (p: ReturnType<typeof evalPaths>) => {
+    const moved = moveStrayFiles(p);
+    if (moved.length) { recordEvent(p.history, 'stray-moved', { files: moved }); console.log(`• moved ${moved.length} file(s) the record's layout doesn't have to ${rel(p.work.stray)}/: ${moved.slice(0, 5).join(', ')}${moved.length > 5 ? ', …' : ''}`); }
+    for (const r of renumberDuplicateProbes(p)) { recordEvent(p.history, 'note', { remark: `${r.from} was in the probe log twice: the later one is now ${r.to}; citations of ${r.from} mean the earlier` }); console.log(`• ${r.from} was in the probe log twice: the later one is now ${r.to}`); }
+  };
 
   if (flags.rerun) {
     const cfg = loadConfig({ key, aut });
@@ -225,7 +239,7 @@ export function run({ _, flags }: Args): void {
         writeNotEvaluable(cfg, key, contract);
         console.log(`\n■ ${key} is not evaluable: the story states no acceptance criteria. Verdict INCONCLUSIVE: ${rel(p.verdictMd)}`);
         if (manualPublish) console.log(`  Not published (jira.publish is "manual"): ${H} publish ${key}`);
-        else if (heldout('publish', key) !== 0) stuck('the verdict could not be published');
+        else if (publish() !== 0) stuck('the verdict could not be published');
         return;
       }
       const built = checkContract(contract, p.requirement, { apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL }).filter((f) => f.level === 'error');
@@ -288,11 +302,12 @@ export function run({ _, flags }: Args): void {
         console.log(`  Then: ${H} advance ${key} --rerun`);
         return;
       }
+      tidy(p);
       if (heldout('verdict', key) !== 0 || !moved()) stuck('the verdict could not be rendered');
       continue;
     }
 
-    if (next.name === 'publish') { if (heldout('publish', key) !== 0 || !moved()) stuck('the verdict could not be published'); continue; }
+    if (next.name === 'publish') { if (publish() !== 0 || !moved()) stuck('the verdict could not be published'); continue; }
     if (next.name === 'journeys') { if (heldout('journeys', key, '--harvest', '--apply') !== 0 || !moved()) stuck('the journeys could not be harvested'); continue; }
     stuck(`unknown phase ${next.name}`);
   }

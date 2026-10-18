@@ -11,7 +11,7 @@ import path from 'node:path';
 import type { Args, CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
-import { evalPaths, listStories } from '../core/paths';
+import { evalPaths, listStories, strayFiles } from '../core/paths';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -43,6 +43,8 @@ export function run({ _ }: Args): void {
       console.log(`  ${(ph.folder === folder ? '' : ph.folder).padEnd(14)} ${ph.done ? '✔' : '·'} ${ph.name.padEnd(9)} ${ph.detail}`);
       folder = ph.folder;
     }
+    const stray = strayFiles(p);
+    if (stray.length) console.log(`\n⚠ ${stray.length} file(s) the record's layout doesn't have (advance moves them to ${rel(p.work.stray)}/ before the verdict):\n${stray.slice(0, 10).map((s) => `    ${s.file} → belongs in ${s.home}`).join('\n')}`);
     const next = phases.find((ph) => !ph.done);
     console.log(next ? `\nNext: ${next.next}\n      (or ${H} advance ${_[0]}: it runs the script steps up to the next subagent)` : '\n✔ Complete.');
     return;

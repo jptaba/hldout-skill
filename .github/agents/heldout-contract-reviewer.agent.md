@@ -33,3 +33,7 @@ Shell: in Windows PowerShell write the commands as `npm run heldout '--' <comman
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself.
 
 Files: write the review with your file tool only, never with a shell redirection or a script.
+
+No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
+`npm run heldout -- show KEY …` and the file tools. When no command does what you need, do it by hand and say so:
+`Tool gap: <what you needed>` in your reply, and `npm run heldout -- note KEY --tool-gap "<what you needed>"`.

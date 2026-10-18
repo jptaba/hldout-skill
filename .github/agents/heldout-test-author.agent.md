@@ -84,6 +84,10 @@ with an expression that yields it. A `// from` line sits directly above its test
 Files: write and change the spec and the journeys with your file tools only. Never with a shell redirection, `sed`,
 or a script written to patch a file: such a change shows nobody what was changed.
 
+No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
+`npm run heldout -- show KEY …` and the file tools. When no command does what you need, do it by hand and say so:
+`Tool gap: <what you needed>` in your reply, and `npm run heldout -- note KEY --tool-gap "<what you needed>"`.
+
 A type-check is optional: `npx tsc --noEmit -p .` covers the spec and the journeys and prints nothing when they are clean.
 
 Shell: in Windows PowerShell write the commands as `npm run heldout '--' <command> …` (quoted dashes), or run them in

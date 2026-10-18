@@ -89,6 +89,33 @@ export function citeProbes(cfg: HeldoutConfig, key: string, evidence: string): s
   return ids;
 }
 
+/** Probe ids the log holds more than once (two branches that each made a P7, merged). */
+export function duplicateProbeIds(p: Pick<StoryPaths, 'evidence'>): string[] {
+  const seen = new Set<string>();
+  return [...new Set(readProbes(p).filter((e) => seen.has(e.id) || !seen.add(e.id)).map((e) => e.id))];
+}
+
+/**
+ * Gives each later probe of a duplicated id the next free id (the earliest made keeps it), and says which. A citation
+ * can't tell which of the two it meant, so citations keep pointing at the earliest; the renumbered probe's full report
+ * stays where it was written.
+ */
+export function renumberDuplicateProbes(p: Pick<StoryPaths, 'evidence'>): { from: string; to: string }[] {
+  const probes = readProbes(p);
+  let next = probes.reduce((n, e) => Math.max(n, Number(e.id.slice(1)) || 0), 0);
+  const first = new Map<string, ProbeEntry>();
+  for (const e of [...probes].sort((a, b) => a.at.localeCompare(b.at))) if (!first.has(e.id)) first.set(e.id, e);
+  const changed: { from: string; to: string }[] = [];
+  const out = probes.map((e) => {
+    if (first.get(e.id) === e) return e;
+    const to = `P${++next}`;
+    changed.push({ from: e.id, to });
+    return { ...e, id: to, renumberedFrom: e.id };
+  });
+  if (changed.length) fs.writeFileSync(logOf(p), out.map((e) => `${JSON.stringify(e)}\n`).join(''));
+  return changed;
+}
+
 /** The chain a probe ran (`api-probe --chain`), as a file the caller can read again. */
 export function chainOfProbe(cfg: HeldoutConfig, key: string, id: string): string {
   const p = evalPaths(cfg, key);

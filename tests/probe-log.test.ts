@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { chainOfProbe, citeProbes, deliverProbe, readProbes, tableRows } from '../.github/scripts/core/probe-log';
+import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, readProbes, renumberDuplicateProbes, tableRows } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 
 // The record goes to a temporary folder; the scratch area is the project's (.heldout/), under a profile of its own.
@@ -49,5 +49,18 @@ describe('the probe log', () => {
   it('takes the rows of the named tables of a report for its digest', () => {
     const report = '## Setup steps\n\n| # | action |\n| --- | --- |\n| 1 | goto ✔ |\n\n## Accessibility snapshot\n\n| x | y |\n## Locator probes\n\n| expression | count |\n| `a` | 1 ✔ |';
     assert.deepEqual(tableRows(report, ['Setup steps', 'Locator probes']), ['| 1 | goto ✔ |', '| `a` | 1 ✔ |']);
+  });
+
+  it('gives the later of two probes with one id (two merged branches) the next free id', () => {
+    const q = { evidence: fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-probes-twice-')) };
+    const line = (id: string, at: string) => JSON.stringify({ id, at, phase: 'harden', tool: 'api-probe', tier: 3, input: {}, digest: [at], report: '' });
+    // A union merge puts the other branch's lines after ours, whatever their time.
+    fs.writeFileSync(path.join(q.evidence, 'probes.jsonl'), [line('P1', '2026-01-01'), line('P2', '2026-01-03'), line('P2', '2026-01-02'), ''].join('\n'));
+    assert.deepEqual(duplicateProbeIds(q), ['P2']);
+    assert.deepEqual(renumberDuplicateProbes(q), [{ from: 'P2', to: 'P3' }]);
+    assert.deepEqual(readProbes(q).map((e) => `${e.id} ${e.digest[0]}`), ['P1 2026-01-01', 'P3 2026-01-03', 'P2 2026-01-02']);
+    assert.deepEqual(duplicateProbeIds(q), []);
+    assert.deepEqual(renumberDuplicateProbes(q), []);
+    fs.rmSync(q.evidence, { recursive: true, force: true });
   });
 });

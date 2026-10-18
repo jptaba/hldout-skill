@@ -60,5 +60,10 @@ doesn't survive PowerShell's quoting: put the steps in a file in the scratch are
 Files: write step and chain files with your file tools only, never with a shell redirection or a script that
 generates them.
 
+No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
+`npm run heldout -- show KEY …`, `trace` and the file tools; probe with `inspect`, `mcp-probe` and `api-probe`. When no
+command does what you need, do it by hand and say so: `Tool gap: <what you needed>` in your reply, and
+`npm run heldout -- note KEY --tool-gap "<what you needed>"`.
+
 Records the application can't delete: reproduce failures that need the same kind of record in one chain (each
 sign-in once, the record made once, then every failing call), and say in your reply how many records you left.

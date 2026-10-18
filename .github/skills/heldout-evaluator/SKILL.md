@@ -213,8 +213,11 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   stays NEEDS_INVESTIGATION (verdict INCONCLUSIVE).
 - **A verdict comes from a run of every test.** A run of some of them (`--grep`: a reproduction, the hardener's
   check of a repair) is never the evaluation, whatever it was labelled and whatever came of it.
-- **Runs are history.** Never delete, rename or renumber a run folder, including a broken or superseded one. The
-  verdict lists every run; a gap in it would hide an earlier result.
+- **Runs are history.** Never delete, rename or renumber a run's record (`5-runs/NN-label.json`), including a broken
+  or superseded one. The verdict lists every run; a gap in it would hide an earlier result.
+- **Commands, not scripts.** No agent writes a script of its own (`node -e`, `python`, `.mjs`/`.cjs`, JSON built by
+  code): reading is `$H show`, `$H trace` and the file tools, probing is the probe commands. What no command does is
+  done by hand and reported as a tool gap (`$H note KEY --tool-gap "…"`), which becomes a command in the skill.
 - **Observations outside the criteria** (something the story's goal implies but no AC states) go in the spec as
   `// OBSERVATION: …`. The verdict lists them for the owner, and they don't change it.
 - **Evidence, not recall.** The requirement contract is built by a model but must be proven. Each criterion is quoted from cited lines; every source line is accounted for; every expected literal (status, number, message, path) exists in the sources or in an answered gap. An independent reviewer subagent confirms each item, and its review is bound to the contract hash. The builder never writes its own review.
@@ -264,9 +267,15 @@ output/<profile>/KEY/                       ← the record of one story (committ
   2-contract/evidence-pack.md contract.md   4-evidence/ (step files, chains/<run>/)   6-verdict/journeys-staged.json
   5-runs/NN-label/ (the raw output: Playwright's JSON, the failures' traces and screenshots; JUnit and HTML report with
   --junit, --html; only the last two runs and any run still in triage)   5-runs/triage-NN-label.md (the triage report)
+  stray/                                    ← files that were in the record but are no part of it, moved by advance
 ```
 
-`$H status KEY` prints each phase beside its folder. Everything the phases decide without leaving a file (the draft
+The record holds only the files above. `$H lint KEY` and `$H status KEY` warn about any other file and say where it
+belongs; `$H advance KEY` moves such files to the scratch area's `stray/` before the verdict (a `stray-moved` line in
+the history) and checks the story's files for secret values before publishing. The scratch area is removed once the
+story is complete, unless the config sets `"keepScratch": true`.
+
+`$H status KEY` prints each phase beside its folder, and both roots. Everything the phases decide without leaving a file (the draft
 marked finished, the verdict published, the journeys harvested), and every run, check and decision, is a line of
 `history.jsonl`.
 
@@ -281,4 +290,5 @@ Tell the user:
 - requirement gaps and how each was filled (found, discovered, answered by the owner earlier, assumed or open)
 - the open questions for the story's owner, and anything that was missing (an account, a role, a secret) with the
   tests it blocked: this summary and the verdict are where they are raised
+- the tool gaps the subagents reported (`Tool gap:` in their replies; `$H show KEY history` lists the `note` lines)
 - where `verdict.md` and the Jira comment/attachment ended up

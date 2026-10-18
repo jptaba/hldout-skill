@@ -65,6 +65,52 @@ export function evalPaths(cfg: Pick<HeldoutConfig, 'outputDir' | 'autId'>, key: 
   };
 }
 
+/** What each part of a story's record may hold (path relative to the story's folder); anything else is a stray file. */
+const RECORD_LAYOUT: RegExp[] = [
+  /^history\.jsonl$/,
+  new RegExp(`^${REQUIREMENT}/(story\\.md|CHANGES\\.md|(linked|transcripts|revisions)/.+)$`),
+  new RegExp(`^${CONTRACT}/(contract|review)\\.json$`),
+  new RegExp(`^${TESTS}/([^/]+\\.spec\\.ts|test-data\\.json|freeze\\.json|hardening\\.md)$`),
+  new RegExp(`^${EVIDENCE}/(probes\\.jsonl|P[1-9]\\d*\\.md|[^/]+\\.(png|jpe?g|gif|webp))$`),
+  new RegExp(`^${RUNS}/\\d{2,}-[\\w-]+\\.json$`),
+  new RegExp(`^${VERDICT}/verdict\\.(md|json)$`),
+];
+
+/** Where a stray file most likely belongs, said to whoever made it. */
+function homeOf(file: string): string {
+  const name = path.posix.basename(file);
+  if (/\.spec\.ts$/.test(name)) return `${TESTS}/ (a spec file)`;
+  if (/\.(steps|chain)\.json$|^gaps|\.out$|\.log$/.test(name)) return `the scratch area's ${EVIDENCE}/ (a working file)`;
+  if (/^\d{2,}-/.test(file.split('/')[1] ?? '') && file.startsWith(`${RUNS}/`)) return `the scratch area's ${RUNS}/ (a run's raw output)`;
+  return 'the scratch area (no part of the record holds it)';
+}
+
+/** The files in a story's record that the layout doesn't have, each with where it belongs. */
+export function strayFiles(p: Pick<StoryPaths, 'base'>): { file: string; home: string }[] {
+  if (!fs.existsSync(p.base)) return [];
+  return (fs.readdirSync(p.base, { recursive: true, withFileTypes: true }) as fs.Dirent[])
+    .filter((d) => d.isFile())
+    .map((d) => path.relative(p.base, path.join(d.parentPath, d.name)).split(path.sep).join('/'))
+    .filter((f) => !RECORD_LAYOUT.some((re) => re.test(f)))
+    .sort()
+    .map((file) => ({ file, home: homeOf(file) }));
+}
+
+/** Moves the stray files of a story's record to the scratch area's stray/ folder, keeping their paths. Returns them. */
+export function moveStrayFiles(p: { base: string; work: Pick<StoryPaths['work'], 'stray'> }): string[] {
+  const stray = strayFiles(p).map((s) => s.file);
+  for (const f of stray) {
+    const to = path.join(p.work.stray, f);
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.renameSync(path.join(p.base, f), to);
+  }
+  // Folders the move left empty go too (a run's raw-output folder, a draft folder).
+  for (const dir of [...new Set(stray.map((f) => path.dirname(path.join(p.base, f))))].sort((a, b) => b.length - a.length)) {
+    for (let d = dir; d.startsWith(p.base) && d !== p.base && fs.existsSync(d) && !fs.readdirSync(d).length; d = path.dirname(d)) fs.rmdirSync(d);
+  }
+  return stray;
+}
+
 /** Every story folder: output/<profile>/<KEY>/. */
 export function listStories(cfg: Pick<HeldoutConfig, 'outputDir'>): { profile: string; key: string; dir: string }[] {
   const out = path.resolve(ROOT, cfg.outputDir);

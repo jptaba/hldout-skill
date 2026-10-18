@@ -81,6 +81,11 @@ Read a file the tools wrote for you (`3-tests/hardening.md`) before you write to
 Files: write and change files (the spec, the journeys, step and chain files) with your file tools only. Never with a
 shell redirection, `sed`, or a script written to patch or generate a file: such a change shows nobody what was changed.
 
+No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
+`npm run heldout -- show KEY …`, `trace` and the file tools; probe with `inspect`, `mcp-probe` and `api-probe`. When no
+command does what you need, do it by hand and say so: `Tool gap: <what you needed>` in your reply, and
+`npm run heldout -- note KEY --tool-gap "<what you needed>"`.
+
 Records the application can't delete (a sent message, a placed order): every probe, walk and run of yours leaves
 more of them. Reuse one you already made, probe a create call only as far as its validation answer when that is
 enough, and say in your reply how many you left.

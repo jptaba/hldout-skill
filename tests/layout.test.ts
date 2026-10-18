@@ -5,8 +5,10 @@
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
+import { moveStrayFiles, strayFiles } from '../.github/scripts/core/paths';
 import { COMMANDS } from '../.github/scripts/heldout';
 
 const DIR = path.join(import.meta.dirname, '..', '.github', 'scripts');
@@ -74,5 +76,26 @@ describe('the scripts layout', () => {
     assert.ok(commands.length > 10, 'commands found in heldout.ts');
     const crossed = commands.flatMap((c) => runtimeImports(c).filter((i) => commands.includes(i) && i !== c).map((i) => `${c} → ${i}`));
     assert.deepEqual(crossed, []);
+  });
+});
+
+describe('the story record', () => {
+  it('finds the files its layout does not have, says where they belong, and moves them to the scratch stray/', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-stray-'));
+    const p = { base: path.join(root, 'KEY'), work: { stray: path.join(root, 'scratch', 'stray') } };
+    const kept = ['history.jsonl', '1-requirement/story.md', '1-requirement/linked/page.md', '2-contract/contract.json', '3-tests/key.spec.ts',
+      '3-tests/freeze.json', '4-evidence/probes.jsonl', '4-evidence/P12.md', '4-evidence/05-eval-SCN-001.png', '5-runs/05-eval.json', '6-verdict/verdict.md'];
+    const stray = ['3-tests/login.steps.json', '5-runs/05-eval/results.json', 'gaps.json', '4-evidence/notes.txt'];
+    for (const f of [...kept, ...stray]) { fs.mkdirSync(path.dirname(path.join(p.base, f)), { recursive: true }); fs.writeFileSync(path.join(p.base, f), 'x'); }
+    const found = strayFiles(p);
+    assert.deepEqual(found.map((s) => s.file), [...stray].sort());
+    assert.match(found.find((s) => s.file === '3-tests/login.steps.json')!.home, /scratch area's 4-evidence/);
+    assert.match(found.find((s) => s.file === '5-runs/05-eval/results.json')!.home, /raw output/);
+    assert.deepEqual(moveStrayFiles(p), [...stray].sort());
+    assert.deepEqual(strayFiles(p), []);
+    assert.ok(fs.existsSync(path.join(p.work.stray, '5-runs/05-eval/results.json')));
+    assert.ok(!fs.existsSync(path.join(p.base, '5-runs/05-eval')), 'the emptied folder goes too');
+    for (const f of kept) assert.ok(fs.existsSync(path.join(p.base, f)), f);
+    fs.rmSync(root, { recursive: true, force: true });
   });
 });

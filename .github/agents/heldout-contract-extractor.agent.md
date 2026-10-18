@@ -49,3 +49,7 @@ bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for i
 
 Files: write and change files with your file tools only. Never with a shell redirection, `sed`, or a script written
 to patch a file: such a change shows nobody what was changed.
+
+No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
+`npm run heldout -- show KEY …` and the file tools. When no command does what you need, do it by hand and say so:
+`Tool gap: <what you needed>` in your reply, and `npm run heldout -- note KEY --tool-gap "<what you needed>"`.

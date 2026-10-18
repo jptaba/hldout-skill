@@ -8,7 +8,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { resolveUrl } from '../core/cli';
 import { ROOT, rel } from '../core/files';
-import { evalPaths, journeyPaths } from '../core/paths';
+import { evalPaths, journeyPaths, strayFiles } from '../core/paths';
+import { duplicateProbeIds } from '../core/probe-log';
 import { accountRoles, type HeldoutConfig } from '../core/profile';
 import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from '../requirement/contract-model';
 import { checkReview, readReview } from '../requirement/evidence';
@@ -39,6 +40,11 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   const out: Finding[] = [];
   const err = (code: string, message: string) => out.push({ level: 'error', code, message });
   const warn = (code: string, message: string) => out.push({ level: 'warn', code, message });
+
+  // The record holds only what its layout has (`advance` moves the rest to the scratch area's stray/ before the verdict),
+  // and each probe id once (`advance` renumbers the later of two).
+  for (const s of strayFiles(p)) warn('stray-file', `${s.file} is not part of a story's record: it belongs in ${s.home}`);
+  for (const id of duplicateProbeIds(p)) warn('probe-id-twice', `${id} is in ${rel(p.evidence)}/probes.jsonl more than once (two branches merged): heldout advance gives the later one a new id`);
 
   // Requirement contract (phase 1b): the tests are written from it, and its criteria drive coverage.
   const contract = readContract(p.contract);
