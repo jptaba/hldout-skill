@@ -38,6 +38,11 @@ describe('classify — UI', () => {
     assert.equal(r.category, 'APPLICATION_DEFECT');
     assert.equal(r.confidence, 'high');
   });
+  it('a worker process that died → ENVIRONMENT_ISSUE, retried or not', () => {
+    const e = parseError(pw(['Error: worker process exited unexpectedly (code=3221225794, signal=null)']));
+    assert.equal(classify(e).category, 'ENVIRONMENT_ISSUE');
+    assert.equal(classify(e, { flaky: true }).category, 'ENVIRONMENT_ISSUE');
+  });
   it('element missing but text present with another role → SCRIPT_DEFECT (high)', () => {
     const e = parseError(pw(['TimeoutError: locator.click: Timeout 10000ms exceeded.', "  - waiting for getByRole('link', { name: 'Checkout' })"]));
     const r = classify(e, { snapshot: '- button "Checkout" [ref=e33]' });

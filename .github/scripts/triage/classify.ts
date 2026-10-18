@@ -165,6 +165,12 @@ export function classify(e: ParsedError, ctx: ClassifyContext = {}): AutoClassif
         ...(network ? ['The seeding failure looks network/availability-related (environment).'] : [])],
       next: 'Replay the seed call with api-probe.ts. Seed plumbing wrong → fix (SCRIPT); AUT unavailable → re-run later; a requirement endpoint used for seeding is broken → that is evidence for the AC that owns it, not for this one.' };
   }
+  // The test's worker process died: killed, out of memory, or the session that started the run ended under it. Neither
+  // the test nor the application did anything, whether or not a retry then passed.
+  if (/worker process exited unexpectedly/i.test(m)) {
+    return { category: 'ENVIRONMENT_ISSUE', confidence: 'high', signals: ['The test\'s worker process died before the test ended (crashed, killed, or the session that started the run ended).'],
+      next: 'Run again in the foreground and wait for it to end; if workers still die, run with fewer workers.' };
+  }
   if (ctx.flaky) {
     return { category: 'FLAKY', confidence: 'medium', signals: ['Failed then passed on retry — nondeterministic.'],
       next: 'Look for missing web-first waits / race conditions (script) or intermittent AUT/backend errors (environment). Re-run 3x to confirm.' };

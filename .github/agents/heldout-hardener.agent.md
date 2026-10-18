@@ -81,6 +81,10 @@ Read a file the tools wrote for you (`3-tests/hardening.md`) before you write to
 Files: write and change files (the spec, the journeys, step and chain files) with your file tools only. Never with a
 shell redirection, `sed`, or a script written to patch or generate a file: such a change shows nobody what was changed.
 
+Runs: start `heldout run` in the foreground and wait for it to end (give the shell its longest timeout; a stability
+run of a large suite takes minutes). Never start it in the background and never reply while one is still going: the
+run's browsers end with your session, and a run cut off that way is a list of crashed workers, not a result.
+
 No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
 `npm run heldout -- show KEY …`, `trace` and the file tools; probe with `inspect`, `mcp-probe` and `api-probe`. When no
 command does what you need, do it by hand and say so: `Tool gap: <what you needed>` in your reply, and

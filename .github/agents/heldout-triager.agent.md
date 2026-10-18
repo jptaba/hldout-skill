@@ -60,6 +60,9 @@ doesn't survive PowerShell's quoting: put the steps in a file in the scratch are
 Files: write step and chain files with your file tools only, never with a shell redirection or a script that
 generates them.
 
+Runs: start `heldout run` (a reproduction with `--grep`) in the foreground and wait for it to end. Never start it in
+the background and never reply while one is still going: the run's browsers end with your session.
+
 No scripts of your own: no `node -e`, `python`, `.mjs`/`.cjs` files, no JSON built by code. Read with
 `npm run heldout -- show KEY …`, `trace` and the file tools; probe with `inspect`, `mcp-probe` and `api-probe`. When no
 command does what you need, do it by hand and say so: `Tool gap: <what you needed>` in your reply, and
