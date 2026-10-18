@@ -50,7 +50,9 @@ function scan(file: string, agent: string): void {
       t.calls++;
       const kinds: string[] = [];
       const cmd = b.input?.command;
-      if (typeof cmd === 'string') for (const [kind, re] of INLINE) if (re.test(cmd)) kinds.push(kind);
+      // Quoted text is an argument, not a command: a `grep "node -e"` is no inline program.
+      const bare = typeof cmd === 'string' ? cmd.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""') : undefined;
+      if (bare) for (const [kind, re] of INLINE) if (re.test(bare)) kinds.push(kind);
       if ((b.name === 'Write' || b.name === 'Edit') && /\.(m?js|cjs|py)$/.test(b.input?.file_path ?? '')) kinds.push('script file');
       for (const k of kinds) {
         t.found[k] = (t.found[k] ?? 0) + 1;
