@@ -29,7 +29,14 @@ Do this:
 1. Score it: `npx tsx demo/score.ts KEY --from <project>` (for this repository's samples, leave out `--from`; that
    rewrites `demo/SCORECARD.md`, which is expected). Note the verdict match, the defects found and missed, the false
    positives and the automatic-triage agreement.
-2. Read the round's history and list every hiccup, with the file and line that shows it:
+2. Get the round's numbers: `npx tsx demo/round.ts stats <project> KEY` (runs, failures, script defects, amendments,
+   review rounds, probes per phase, minutes per phase, stray files, tool gaps), and read the record with
+   `npm run heldout -- show KEY history|run|triage|probes` run in the project; never with a script of your own. When the
+   round ran in Claude Code, `npx tsx demo/inflight.ts <its transcripts folder> --list` counts the scripts the agents
+   wrote on the fly, per agent.
+3. Read the round's history and list every hiccup, with the file and line that shows it:
+   - each tool gap (a `note` line of kind `tool-gap`), each stray file moved, and each script an agent wrote on the
+     fly: a command the skill lacks, or an instruction that sent the agent elsewhere — a skill defect;
    - runs beyond the first harden and the first eval, and why each was needed;
    - each confirmed SCRIPT_DEFECT (a test the author or hardener got wrong), each NEEDS_INVESTIGATION or BLOCKED;
    - integrity amendments and re-freezes, and their reasons;
@@ -37,12 +44,12 @@ Do this:
      the sources (a held-out leak is the most serious finding there is);
    - each trap in the answer key: avoided, or fallen into (and where);
    - each expected outcome per criterion that the verdict contradicts.
-3. Classify each hiccup:
+4. Classify each hiccup:
    - **Skill defect**: the skill, a reference, an agent's instructions or a script led to it or failed to prevent it.
      Name the file and the change. The change must work for any application: never name this AUT, its routes or its
      values, and never carry anything from the answer key into the skill.
    - **Environment**: the AUT or its host (down, rate-limited, shared sandbox settings, data someone else changed).
    - **Expected**: the skill worked as designed (a real defect found, a correct NEEDS_INVESTIGATION).
-4. Write the report to the path your task gives (default: reply with it): the score, a table of hiccups (what, evidence,
+5. Write the report to the path your task gives (default: reply with it): the score, the stats line, a table of hiccups (what, evidence,
    class, proposed change), the skill defects ranked by how much they cost the round, and whether a confirmation re-run
    from a fresh onboarding is needed after the fixes.

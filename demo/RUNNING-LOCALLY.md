@@ -63,3 +63,23 @@ docker run -d --name parabank -p 3080:8080 parasoft/parabank
   (`npm run heldout -- init --profile parabank --max-workers 1`).
 - **Nothing can be deleted**, and some checks leave the accounts they touch unreadable. Throw the container away
   between rounds: `docker rm -f parabank`, then the `docker run` line again.
+
+## A round, and what it cost
+
+A round runs in a project of its own, made from this clone, with the demo stories in its mock Jira. Set
+`HELDOUT_ROUNDS_DIR` to the folder the round projects go in, then:
+
+```bash
+npx tsx demo/round.ts new r37 --base-url http://localhost:4200/ --api-base-url http://localhost:8091 --stories TOOL-1,TOOL-4
+cd "$HELDOUT_ROUNDS_DIR/r37" && npm run heldout -- advance TOOL-1      # then each story, one at a time
+```
+
+After the round, from this repository:
+
+```bash
+npx tsx demo/score.ts TOOL-1 --from "$HELDOUT_ROUNDS_DIR/r37"           # against the answer key
+npx tsx demo/round.ts stats "$HELDOUT_ROUNDS_DIR/r37"                   # runs, repairs, probes, minutes, stray files, tool gaps
+npx tsx demo/inflight.ts ~/.claude/projects/<the round's folder> --list   # scripts the agents wrote on the fly (Claude Code rounds)
+```
+
+The `dev-round-auditor` subagent does all three and classifies what went wrong.
