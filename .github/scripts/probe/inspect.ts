@@ -13,7 +13,8 @@
  *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values, a field's
  *                                 value; the value of a password field or a secret-named one left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
- *       [--var name=value]... [--screenshot shot.png] [--headed] [--no-snapshot]
+ *       [--var name=value]... [--vars-from P7] [--screenshot shot.png] [--headed] [--no-snapshot]
+ *       (--vars-from: the values api-probe chain P7 saved, the ids it made, as ${var:name}; --var wins over them)
  *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200), and
@@ -52,7 +53,7 @@ import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/
 import { generatedId, siteOf } from './detect';
 import { composeSteps } from './compose';
 import { closeOverlays, locateOn } from './page';
-import { deliverProbe, tableRows } from '../core/probe-log';
+import { deliverProbe, savedOf, tableRows } from '../core/probe-log';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -176,12 +177,18 @@ export function maskSecretFields(html: string): string {
 export const spec: CommandSpec = {
   name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]…   (logged as the story\'s next probe, Pn)',
   about: 'tier-3 UI inspector: ARIA snapshot + ranked locators',
-  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'wait-for'],
+  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'vars-from', 'wait-for'],
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
-  for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
+  // The values an earlier chain saved first (--vars-from P7), then --var: the later one wins.
+  const from = flagStr(flags, 'vars-from');
+  if (from) {
+    if (!flagStr(flags, 'key')) throw new Error('--vars-from Pn names a probe of a story: give the story with --key');
+    Object.assign(vars, savedOf(cfg, flagStr(flags, 'key')!, from));
+  }
+  for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
   // Git Bash turns "--url /" into a Windows path before it gets here: say that it was read as the path it stood for.

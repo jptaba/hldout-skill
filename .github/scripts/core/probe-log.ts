@@ -116,6 +116,16 @@ export function renumberDuplicateProbes(p: Pick<StoryPaths, 'evidence'>): { from
   return changed;
 }
 
+/** The values a chain probe saved (the ids it made), for a later chain or walk (`--vars-from Pn`). */
+export function savedOf(cfg: HeldoutConfig, key: string, id: string): Record<string, string> {
+  const p = evalPaths(cfg, key);
+  const probe = readProbes(p).find((x) => x.id === id);
+  if (!probe) throw new Error(`${id} is not in ${rel(logOf(p))}`);
+  const saved = (probe.input as { saved?: Record<string, string> } | undefined)?.saved;
+  if (!saved) throw new Error(`${id} saved no values (only an api-probe chain whose steps "save" something does)`);
+  return saved;
+}
+
 /** The chain a probe ran (`api-probe --chain`), as a file the caller can read again. */
 export function chainOfProbe(cfg: HeldoutConfig, key: string, id: string): string {
   const p = evalPaths(cfg, key);

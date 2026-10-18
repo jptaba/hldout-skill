@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, readProbes, renumberDuplicateProbes, tableRows } from '../.github/scripts/core/probe-log';
+import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, readProbes, renumberDuplicateProbes, savedOf, tableRows } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 
 // The record goes to a temporary folder; the scratch area is the project's (.heldout/), under a profile of its own.
@@ -49,6 +49,12 @@ describe('the probe log', () => {
   it('takes the rows of the named tables of a report for its digest', () => {
     const report = '## Setup steps\n\n| # | action |\n| --- | --- |\n| 1 | goto ✔ |\n\n## Accessibility snapshot\n\n| x | y |\n## Locator probes\n\n| expression | count |\n| `a` | 1 ✔ |';
     assert.deepEqual(tableRows(report, ['Setup steps', 'Locator probes']), ['| 1 | goto ✔ |', '| `a` | 1 ✔ |']);
+  });
+
+  it('gives back what a chain saved, for a later chain or walk', () => {
+    const e = quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'api-probe', tier: 3, input: { chain: { steps: [] }, saved: { brandId: '01K7' } }, report: '# chain', digest: [] }))!;
+    assert.deepEqual(savedOf(cfg, 'ABC-1', e.id), { brandId: '01K7' });
+    assert.throws(() => savedOf(cfg, 'ABC-1', 'P1'), /saved no values/);
   });
 
   it('gives the later of two probes with one id (two merged branches) the next free id', () => {

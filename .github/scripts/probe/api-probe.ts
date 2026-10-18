@@ -15,6 +15,8 @@
  *       [--repeat N] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)
  *   heldout api-probe --key KEY --chain P7 [--set 2.json.country=AT]...   re-run an earlier probe's chain, values changed
  *       (--set <step number>.<dotted field>=<value>; the value is read as JSON when it is JSON, e.g. 3.expect=422)
+ *   [--vars-from P7]   with --chain: start with the values chain P7 saved (the ids it made, as ${name}); a chain's
+ *       saved values are logged with it (tokens and other secrets are not)
  *
  * A list answer, without a script (the items are the body when it is a list, else its first list field):
  *   [--pages <param>[=from..to]]   follow the pages (?page=1, 2…) until one is empty, last_page is reached or the range ends
@@ -37,7 +39,7 @@ import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../c
 import { loadConfig } from '../core/config';
 import { literalsOf, pageText, redact, redactHeaders, shapeOf } from '../core/redact';
 import { expandGenerated, expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
-import { chainOfProbe, deliverProbe } from '../core/probe-log';
+import { chainOfProbe, deliverProbe, savedOf } from '../core/probe-log';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
 const env = (s: string) => {
@@ -111,9 +113,9 @@ function decode(v: unknown, how?: string): unknown {
   if (how === 'jwt') { const [h, p, sig] = v.split('.'); return { header: parsed(b64(h ?? '')), payload: parsed(b64(p ?? '')), signature: sig ?? '' }; }
   return parsed(b64(v));
 }
-async function runChain(file: string, label: string, base: string, cfgName: string, chainBodyLimit: number): Promise<{ report: string; digest: string[]; chain: unknown }> {
+async function runChain(file: string, label: string, base: string, cfgName: string, chainBodyLimit: number, preset: Record<string, string> = {}): Promise<{ report: string; digest: string[]; chain: unknown; saved: Record<string, string> }> {
   const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, unknown>; steps: ChainStep[] };
-  const vars: Record<string, string> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
+  const vars: Record<string, string> = { ...preset, uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
   const interpVars = (s: string): string => s.replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
   const interp = (s: string): string => interpVars(env(s));
   // A body value that is exactly "${name}" keeps the saved value's JSON type ({"BasketId": "${bid}"} sends 6, not "6").
@@ -193,14 +195,18 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
   const out = scrubEnv(lines.join('\n'), fs.readFileSync(file, 'utf8'));
   // The digest: each call and its status, and whether the expectations held.
   const digest = [...out.split('\n').filter((l) => /^\d+\. /.test(l)).map((l) => l.slice(0, 240)).slice(0, 40), ...(failed ? [`${failed} step(s) did not meet their expectation`] : [])];
-  return { report: out, digest, chain };
+  // What the chain saved (ids it made), for a later chain or walk (--vars-from); a token or other secret is not kept.
+  const saved = Object.fromEntries(Object.entries(vars).filter(([k, v]) => k !== 'uid' && !(k in (chain.vars ?? {})) && !/token|secret|pass|key|auth|cookie|session/i.test(k) && v.length < 200));
+  return { report: out, digest, chain, saved };
 }
 
 export const spec: CommandSpec = {
   name: 'api-probe', group: 'Hardening', usage: '--key KEY <METHOD> <path> | --chain chain.json   (logged as the story\'s next probe, Pn)',
   about: 'call the API (or a chain of calls) with redacted output',
-  flags: ['aut', 'body-limit', 'chain', 'cookie', 'count', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'pages', 'pick', 'raw-data', 'repeat', 'set', 'where'],
+  flags: ['aut', 'body-limit', 'chain', 'cookie', 'count', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'pages', 'pick', 'raw-data', 'repeat', 'set', 'vars-from', 'where'],
 };
+
+const requireKey = (flags: Args['flags']) => flagStr(flags, 'key') ?? (() => { throw new Error('--chain Pn and --vars-from Pn name a probe of a story: give the story with --key'); })();
 
 /**
  * A chain with values changed for one call: each --set is <step number>.<dotted field>=<value> (the value read as JSON
@@ -282,8 +288,9 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
   const chainArg = flagStr(flags, 'chain');
   // --chain P7: the chain an earlier probe of the story ran. --set 2.json.country=AT: one value changed for this call.
   const chainFile = chainArg && /^P[1-9]\d*$/.test(chainArg)
-    ? chainOfProbe(loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') }), flagStr(flags, 'key') ?? (() => { throw new Error('--chain Pn names a probe of a story: give the story with --key'); })(), chainArg)
+    ? chainOfProbe(loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') }), requireKey(flags), chainArg)
     : chainArg;
+  if (flagStr(flags, 'vars-from') && !chainFile) throw new Error('--vars-from gives a chain the values an earlier chain saved: use it with --chain');
   const sets = flagList(flags, 'set');
   if (sets.length && !chainFile) throw new Error('--set changes a value of a chain: use it with --chain');
   const chainToRun = chainFile && sets.length ? withSets(chainFile, sets) : chainFile;
@@ -291,9 +298,11 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
   if (chainToRun) {
     const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
     // Each answer is shown in one line: its first 300 characters, or --body-limit N of them ("show" picks fields).
-    const done = await runChain(chainToRun, [chainArg, ...sets.map((s) => `--set ${s}`)].join(' '), cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300))
+    const preset = flagStr(flags, 'vars-from') ? savedOf(cfg, requireKey(flags), flagStr(flags, 'vars-from')!) : {};
+    const done = await runChain(chainToRun, [chainArg, ...sets.map((s) => `--set ${s}`)].join(' '), cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300), preset)
       .finally(() => { if (chainToRun !== chainFile) fs.rmSync(chainToRun, { force: true }); });
-    deliverProbe(cfg, flagStr(flags, 'key'), { tool: 'api-probe', tier: 3, input: { chain: done.chain }, report: done.report, digest: done.digest });
+    const saved = Object.keys(done.saved).length ? done.saved : undefined;
+    deliverProbe(cfg, flagStr(flags, 'key'), { tool: 'api-probe', tier: 3, input: { chain: done.chain, ...(saved ? { saved } : {}) }, report: done.report, digest: [...done.digest, ...(saved ? [`saved: ${Object.entries(saved).map(([k, v]) => `${k}=${v}`).join(', ').slice(0, 300)}`] : [])] });
     return;
   }
   const [methodArg, pathArg] = _;
