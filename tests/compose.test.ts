@@ -40,7 +40,7 @@ describe('composed steps', () => {
     const steps = signInSteps(recipe, 'admin');
     assert.deepEqual(steps[0], { do: 'goto', url: '/login' });
     assert.deepEqual(steps[2], { do: 'fill', target: "getByLabel('Password')", value: '${env:ADMIN_PASSWORD}' });
-    assert.deepEqual(steps.at(-1), { do: 'wait', target: "getByText('My account')" });
+    assert.deepEqual(steps.at(-1), { do: 'wait', target: "getByText('My account') | url" }, 'every alternative of done');
     assert.equal(signInSteps(recipe, 'admin@shop').length, steps.length);
     assert.throws(() => signInSteps(recipe, 'clerk'), /no existing account/);
     // An account the tests created signs in with the password the recipe gives them all.
@@ -58,6 +58,9 @@ describe('composed steps', () => {
     assert.deepEqual(steps.slice(-4), [{ do: 'goto', url: '/a' }, { do: 'click', target: 'x' }, { do: 'snapshot' }, { do: 'screenshot' }]);
     assert.deepEqual(steps[0], { do: 'goto', url: '/login' });
     assert.equal(composeSteps(cfg, { key: 'ABC-1', from: 'P1' }).length, 3);
+    // A walk that started on a page (--url) starts there again.
+    quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'inspect', tier: 2, input: { url: '/admin', steps: [{ do: 'click', target: 'a' }, { do: 'click', target: 'b' }] }, report: '# walk', digest: [] }));
+    assert.deepEqual(composeSteps(cfg, { key: 'ABC-1', from: 'P2:1' }), [{ do: 'goto', url: '/admin' }, { do: 'click', target: 'a' }]);
     assert.throws(() => composeSteps(cfg, { key: 'ABC-1', from: 'P7' }), /P7 is not a walk/);
   });
 });

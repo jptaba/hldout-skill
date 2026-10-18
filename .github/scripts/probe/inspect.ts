@@ -34,7 +34,9 @@
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets), ${var:name} (from --var name=value, per-run
  *   data), ${text:N} (a text of N characters starting with the data prefix) and ${now} (the time)
+ *   A "goto" step takes its address in "url" (a path or a full address).
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address;
+ *   alternatives "url:/account | url:/admin" wait for whichever comes first;
  *   without a target, value is a load state (load, networkidle) or a number of milliseconds ("1500"; at most
  *   60000 in one step).
  *   The report lists the API calls the page made (fetch/XHR on the app's site), on load and after each step: method,
@@ -87,7 +89,9 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
       const text = count ? (await t().first().innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 80) : '';
       return `${count} match(es)${count === 1 ? ' ✔' : count ? ' ⚠ not unique' : ' ✖'} · visible ${visible}${text ? ` · "${text}"` : ''}`;
     }
-    case 'goto': await page.goto(autUrl(baseURL, env(s.url ?? s.value))); break;
+    case 'goto':
+      if (!s.url && !s.value) throw new Error(`a goto step takes its address in "url" (got ${JSON.stringify(s)})`);
+      await page.goto(autUrl(baseURL, env(s.url ?? s.value))); break;
     case 'fill': await t().fill(env(s.value)); break;
     case 'click': await t().click(); break;
     case 'press': await (s.target ? t().press(s.value ?? 'Enter') : page.keyboard.press(s.value ?? 'Enter')); break;
@@ -150,7 +154,10 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
     }
     // Wait until the first match is in the DOM: never-visible elements (<option>) and several matches both work.
     // "url:/profile" waits for the address to contain that text, as an accounts recipe's "done" does.
-    case 'wait': await (s.target?.startsWith('url:') ? page.waitForURL((u) => u.href.includes(s.target!.slice(4)), { timeout: 15_000 }) : s.target ? t().first().waitFor({ state: 'attached' }) : /^\d+$/.test(s.value ?? '') ? page.waitForTimeout(Math.min(Number(s.value), 60_000)) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
+    // Alternatives ("url:/account | url:/admin", as a recipe's "done" gives them): whichever comes first.
+    case 'wait': await (s.target ? Promise.any(env(s.target).split(/\s+\|\s+/).map((alt) => (alt.startsWith('url:')
+      ? page.waitForURL((u) => u.href.includes(alt.slice(4)), { timeout: 15_000 }) : locate(page, alt).first().waitFor({ state: 'attached' }))))
+      : /^\d+$/.test(s.value ?? '') ? page.waitForTimeout(Math.min(Number(s.value), 60_000)) : page.waitForLoadState(s.value as 'load' | 'networkidle' ?? 'load')); break;
     default: throw new Error(`Unknown step "${s.do}"`);
   }
 }

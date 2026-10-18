@@ -26,7 +26,8 @@ export function signInSteps(recipe: AccountRecipe | undefined, who: string): Ste
   return [
     { do: 'goto', url: recipe.signIn.path },
     ...recipe.signIn.steps.map((s) => (s.fill ? { do: 'fill', target: s.fill, value: fill(s.value) } : { do: 'click', target: s.click })),
-    ...(recipe.signIn.done ? [{ do: 'wait', target: recipe.signIn.done.split('|')[0].trim() }] : []),
+    // Every alternative of "done" (an administrator lands elsewhere than a customer): the inspector waits for any.
+    ...(recipe.signIn.done ? [{ do: 'wait', target: recipe.signIn.done.split('|').map((x) => x.trim()).join(' | ') }] : []),
   ];
 }
 
@@ -42,9 +43,10 @@ export function composeSteps(cfg: HeldoutConfig, flags: Flags, signInAs?: string
     const [id, k] = from.split(':');
     if (!key) throw new Error('--from Pn names a probe of a story: give the story with --key');
     const probe = readProbes(evalPaths(cfg, key)).find((x) => x.id === id);
-    const steps = (probe?.input as { steps?: Step[] } | undefined)?.steps;
-    if (!probe || !steps) throw new Error(`${id} is not a walk in the probe log of ${key}`);
-    return k ? steps.slice(0, Number(k)) : steps;
+    const input = probe?.input as { steps?: Step[]; url?: string } | undefined;
+    if (!probe || !input?.steps) throw new Error(`${id} is not a walk in the probe log of ${key}`);
+    // The walk as it ran: from the page it started on (its --url), then its steps (k counts these, as its report numbers them).
+    return [...(input.url ? [{ do: 'goto', url: input.url }] : []), ...(k ? input.steps.slice(0, Number(k)) : input.steps)];
   };
   return [
     ...(signInAs ? signInSteps(cfg.aut.accounts, signInAs) : []),
