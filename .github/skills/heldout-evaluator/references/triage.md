@@ -82,7 +82,7 @@ When something *was* disclosed or changed, the severity follows that, not the st
    those groups, reproduce one failure of each, and decide yourself whether a group is one root cause: two groups
    often share one (a page and the call behind it), and one group can hide two.
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json`;
-   replay API requests with `heldout api-probe`. Save the reports in the story's `4-evidence/` (`--out`). Start from
+   replay API requests with `heldout api-probe`. Probe with `--key`: each probe is logged as the story's next one (`P7`), and the decision cites it (`--evidence P7`). Start from
    `.heldout/<profile>/KEY/4-evidence/chains/<run>/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
    once. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is
    replayed with the inspector's own steps, never with a script of yours: `force` gives a control the value,

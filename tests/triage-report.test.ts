@@ -8,7 +8,6 @@ const ROOT = path.resolve('some-project');
 const RUN = {
   dir: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '5-runs'),
   chains: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '4-evidence', 'chains', '02-eval'),
-  evidence: path.join(ROOT, 'output', 'shop', 'ABC-1', '4-evidence'),
 };
 const ART = '.heldout/shop/ABC-1/5-runs/02-eval/artifacts';
 
@@ -69,7 +68,7 @@ describe('the triage report', () => {
     assert.match(first, /- Requirement refs: AC-1/);
     assert.match(first, /\*\*Auto: APPLICATION_DEFECT \(high\)\*\*/);
     assert.doesNotMatch(first, /^- Expected: "4xx"$/m, 'the signals do not repeat the expected value');
-    assert.match(first, /replay: `npm run heldout -- api-probe --key ABC-1 POST "https:\/\/shop\.test\/api\/accounts\/12345\/transfer\?amount=0" --out output\/shop\/ABC-1\/4-evidence\/02-eval-scn-001\.md`/);
+    assert.match(first, /replay: `npm run heldout -- api-probe --key ABC-1 POST "https:\/\/shop\.test\/api\/accounts\/12345\/transfer\?amount=0"` \(it prints the probe's id, Pn: cite it in the decision\)/);
     assert.match(second, /- Like SCN-001 \(group 1\)/);
     assert.match(second, /response body: as SCN-001/);
     assert.doesNotMatch(second, /\*\*Auto:/);

@@ -10,8 +10,9 @@
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
  *
  *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
- *        --rationale "..." [--evidence "..."] [--action "..."] [--title "..."] [--any-reading [SCN-a,SCN-b]]
- *        → records the evaluator's *confirmed* classification after live re-investigation, in the run's record.
+ *        --rationale "..." [--evidence "P7 …"] [--action "..."] [--title "..."] [--any-reading [SCN-a,SCN-b]]
+ *        → records the evaluator's *confirmed* classification after live re-investigation, in the run's record. The
+ *        probes the evidence names (Pn) must be in the story's probe log; their reports are kept in 4-evidence/.
  *        --any-reading: the test is tagged @assumes or @needs-clarification, but the failure holds whichever way the
  *        open question is answered (the rationale says why): it is reported as a defect, not as a question for the owner.
  *        With ids, only those tests of the call are marked (the others stay questions for the owner).
@@ -26,6 +27,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { recordEvent } from '../core/history';
+import { citeProbes } from '../core/probe-log';
 import { evalPaths, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { CATEGORIES, type ApiExchange, type Category } from './classify';
@@ -77,13 +79,12 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
 const placesOf = (p: StoryPaths, run: string) => ({
   report: path.join(p.work.runs, `triage-${run}.md`),
   chains: path.join(p.work.evidence, 'chains', run),
-  evidence: p.evidence,
 });
 
 /** Write the run's triage report (a view: rendered again whenever a decision is recorded). */
 function writeReport(p: StoryPaths, record: RunRecord): string {
   const places = placesOf(p, record.run);
-  writeFile(places.report, renderTriageMd(record, { dir: path.dirname(places.report), chains: places.chains, evidence: places.evidence }));
+  writeFile(places.report, renderTriageMd(record, { dir: path.dirname(places.report), chains: places.chains }));
   return places.report;
 }
 
@@ -116,6 +117,8 @@ export function run({ _, flags }: Args): void {
     if (!CATEGORIES.includes(category)) throw new Error(`--category must be one of ${CATEGORIES.join(', ')}`);
     const rationale = flagStr(flags, 'rationale');
     if (!rationale) throw new Error('--rationale is required (explain the evidence).');
+    // The live reproduction a decision rests on is a probe (Pn): its report is kept in the story's evidence.
+    if (flagStr(flags, 'evidence')) citeProbes(cfg, key, flagStr(flags, 'evidence')!);
     const decision = { category, severity: flagStr(flags, 'severity'), title: flagStr(flags, 'title'), rationale,
       evidence: flagStr(flags, 'evidence'), action: flagStr(flags, 'action'), confirmedAt: new Date().toISOString() };
     // --any-reading alone marks every test of the call; with ids, those tests only (one root cause, one call, although

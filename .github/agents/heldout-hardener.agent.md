@@ -36,8 +36,9 @@ Do this:
 3. Replace every `// TODO(harden)`, in the spec and in the journeys it calls, with a mechanic you verified: each final
    locator matches exactly one element in the right state, each API mechanic answers through `heldout api-probe`. Use
    the first browser tier available to you (your IDE browser tools, then Playwright MCP, then `heldout inspect` /
-   `heldout mcp-probe`). Save probe reports in the story's `4-evidence/` (`--out`); step and chain files go in the scratch area's
-   `4-evidence/`. Correct the guesses that were wrong by hand; then
+   `heldout mcp-probe`). Every probe you make with `--key` is logged as the story's next probe (`P1`, `P2`…, in `4-evidence/probes.jsonl`)
+   and prints its id: cite that id as the evidence (`--evidence P7`), in your log too. Step and chain files go in the
+   scratch area's `4-evidence/`. Correct the guesses that were wrong by hand; then
    remove the marks of the ones the probe confirmed in one command per file, not one edit per mark:
    `npm run heldout -- confirm KEY --file journeys/fixtures/<domain>.ts --evidence "<probe report>"`. When your
    session's folder is not the project, the native Playwright MCP browser is not usable for it: tier 2 is then

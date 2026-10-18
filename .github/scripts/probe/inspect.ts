@@ -9,7 +9,9 @@
  *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values; what was
  *                                 typed into fields left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
- *       [--var name=value]... [--out report.md] [--screenshot shot.png] [--headed] [--no-snapshot]
+ *       [--var name=value]... [--screenshot shot.png] [--headed] [--no-snapshot]
+ *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
+ *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200), and
  *                          a "request" step that much of its answer
  *
@@ -38,11 +40,11 @@ import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, resolveUrl as autUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { writeFile } from '../core/files';
 import { pageText, redact, redactSnapshot, shapeOf } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { generatedId, siteOf } from './detect';
 import { closeOverlays, locateOn } from './page';
+import { deliverProbe, tableRows } from '../core/probe-log';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -150,9 +152,9 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
 const q = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 
 export const spec: CommandSpec = {
-  name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]… [--out report.md]',
+  name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]…   (logged as the story\'s next probe, Pn)',
   about: 'tier-3 UI inspector: ARIA snapshot + ranked locators',
-  flags: ['aut', 'body-limit', 'headed', 'html', 'key', 'no-snapshot', 'out', 'probe', 'probes', 'screenshot', 'steps', 'steps-json', 'url', 'var', 'wait-for'],
+  flags: ['aut', 'body-limit', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'screenshot', 'steps', 'steps-json', 'url', 'var', 'wait-for'],
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
@@ -428,6 +430,9 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const secrets = [...new Set([...[...used.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
     ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
   const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), out.join('\n'));
-  const file = flagStr(flags, 'out');
-  if (file) { writeFile(file, report); console.log(`✔ inspection written to ${file}`); } else console.log(report);
+  deliverProbe(cfg, flagStr(flags, 'key'), {
+    tool: 'inspect', tier: 3, report,
+    input: { url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for') },
+    digest: tableRows(report, ['Setup steps', 'Locator probes', 'API calls the page made']),
+  });
 }

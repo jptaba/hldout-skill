@@ -24,8 +24,9 @@ Do this:
    identical failure signatures; anything new must be investigated).
 2. For each failure without a confirmed decision, read the triage report (`triage` prints where: the scratch area's
    `5-runs/triage-<run>.md`), then reproduce it live: UI steps in the first
-   browser tier available to you or with `heldout inspect --steps-json`, API calls with `heldout api-probe`. Save the
-   reports in the story's `4-evidence/` (`--out`). On a shared sandbox, check its own settings or health page before blaming the
+   browser tier available to you or with `heldout inspect --steps-json`, API calls with `heldout api-probe`. Each probe
+   made with `--key` is logged as the story's next probe and prints its id (`P7`): the decision cites it
+   (`--evidence P7 …`), and its report is then kept with the story's evidence. On a shared sandbox, check its own settings or health page before blaming the
    application.
 3. Decide with the reference's decision tree and record it:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.

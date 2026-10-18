@@ -253,7 +253,8 @@ output/<profile>/KEY/                       ← the record of one story (committ
   1-requirement/  story.md linked/ transcripts/ (CHANGES.md revisions/ after a revision)   ← what was asked (phase 1)
   2-contract/     contract.json review.json                              ← what it means (phase 1b)
   3-tests/        <key>.spec.ts test-data.json freeze.json hardening.md   ← how it is tested (phases 2–3)
-  4-evidence/     the probe reports of hardening and triage               ← what was seen in the application
+  4-evidence/     probes.jsonl (every probe, P1…), Pn.md (the reports a decision cites), the screenshots the verdict shows
+                                                                          ← what was seen in the application
   5-runs/         NN-label.json, one record per run: how it ran, every test, each failure's evidence, the decisions   ← phases 4–5
   6-verdict/      verdict.md verdict.json                                 ← what we recommend (phase 6)
   history.jsonl                                                           ← every step that changed the story

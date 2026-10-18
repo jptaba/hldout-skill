@@ -38,7 +38,7 @@ verdict records in `journeys/registry.yml` what the passing tests proved; never 
 | --- | --- | --- | --- | --- |
 | 1 IDE browser tool | host IDE exposes browser tools | navigate / read page / act step by step | the tool's network view, if any | tier-3 probe |
 | 2 Playwright MCP | `mcp__playwright__*` present | `browser_navigate` → `browser_snapshot` → `browser_click`/`browser_type` | `browser_network_requests` | tier-3 probe |
-| 3 bundled | always | `heldout inspect --key KEY [--url path] [--steps steps.json] [--wait-for "<loc>"] [--out report.md]`, `heldout run KEY --label harden --capture` | `heldout api-probe --key KEY METHOD path [--data …] [--login …]` | `heldout inspect --probe "<expr>"` (exactly 1 match); `heldout api-probe` status/shape |
+| 3 bundled | always | `heldout inspect --key KEY [--url path] [--steps steps.json] [--wait-for "<loc>"]` (logged as the story's next probe, `Pn`), `heldout run KEY --label harden --capture` | `heldout api-probe --key KEY METHOD path [--data …] [--login …]` | `heldout inspect --probe "<expr>"` (exactly 1 match); `heldout api-probe` status/shape |
 
 ## 1a. Complete the contract's mechanics
 
@@ -48,7 +48,7 @@ it makes), then record it. Don't go looking for an API document on the applicati
 evaluation knows is one the requirement contains (e.g. an excerpt on a linked Confluence page).
 
 ```bash
-npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence output/<profile>/KEY/4-evidence/api-user.md
+npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, password}" --evidence P3     # P3: the api-probe that showed it
 ```
 
 This sets `"resolution": "discovered-in-aut"`, `value` and `evidence`, and adds `{ "where": "aut" }` to `tried`.
@@ -142,12 +142,13 @@ MSYS rewrites `/…` arguments into Windows paths.
   same holds for an `inspect` walk and for the journey you write.
   Before a step that clicks by role and name, wait for that text (the button's label). The server saves its snapshots wherever the
   app started it, not in the story's folder: the walk is not evidence until you replay the steps that matter with
-  `mcp-probe … --out output/<profile>/KEY/4-evidence/<walk>.md` (below) or prove them with `heldout inspect`.
+  `heldout mcp-probe --key KEY` (below) or prove them with `heldout inspect --key KEY`: each is logged as the story's
+  next probe (`Pn`), the id you cite as evidence.
 - **Not loaded** (pending approval, CI, other hosts): drive the same server through the bundled stdio client.
   Same tools, same snapshots, recorded as evidence:
 
   ```bash
-  npm run heldout -- mcp-probe --key KEY --steps .heldout/<profile>/KEY/4-evidence/<walk>.steps.json --out output/<profile>/KEY/4-evidence/<walk>.md
+  npm run heldout -- mcp-probe --key KEY --steps .heldout/<profile>/KEY/4-evidence/<walk>.steps.json
   ```
 
   Steps resolve elements by **role + accessible name** from the live MCP snapshot (`{"find": {"role": "button", "name": "Login"}}`),
@@ -164,7 +165,7 @@ MSYS rewrites `/…` arguments into Windows paths.
   on the same page (e.g. the other form fields *are* exposed).
 - Native MCP writes its snapshots under the agent app's working folder (`.playwright-mcp/`). When that is not the
   project (a session opened in another folder), use `heldout mcp-probe`: its snapshots stay in a temporary folder of
-  its own and its report goes where `--out` says.
+  its own and its report is the probe's (`Pn`).
 - Large snapshots are written to files (`[Snapshot](….yml)`). `heldout mcp-probe` reads them, keeps MCP output
   in its own temp directory and deletes it when the walk ends. When MCP runs natively, add `.playwright-mcp/` to `.gitignore`.
 
@@ -179,7 +180,7 @@ dialogs, empty live regions that shadow `role=alert`, and so on.
 API: probe each declared endpoint with `heldout api-probe`. Verify the path, the auth mechanism (cookie
 vs header, token field), content type, and the body *shape* (`## Shape`). Fix plumbing only. Status
 codes and values come from the requirement, never from the probe. For a large answer, use
-`api-probe … --body-limit 200000 --out …`: the report clips bodies at 4000 characters by default. A shared host
+`api-probe … --body-limit 200000`: the report clips bodies at 4000 characters by default. A shared host
 that answers 429 is rate-limiting you: the `api` fixture waits and retries (twice, as `Retry-After` says) and
 the preflight refuses to run while it happens. Page loads answered with 429 are retried the same way. For a host that
 bans bursts, set the profile's `maxWorkers` (e.g. 1) and `minTestIntervalMs` (e.g. 12000: tests start at least that
@@ -189,7 +190,7 @@ that leaves its records behind all the same. Go to more workers once two sign-up
 
 ```bash
 # steps in a file (write it with your file tool: shell quoting mangles locators and regexes)
-npm run heldout -- inspect --key KEY --steps .heldout/<profile>/KEY/4-evidence/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })" --out output/<profile>/KEY/4-evidence/login.md
+npm run heldout -- inspect --key KEY --steps .heldout/<profile>/KEY/4-evidence/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })"
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 

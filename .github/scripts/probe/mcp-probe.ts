@@ -4,7 +4,9 @@
  * MCP tools (no restart yet, CI, other IDEs), or to record a reproducible tier-2 walk as evidence.
  *
  *   heldout mcp-probe [--key KEY | --aut <profile>]
- *       (--steps steps.json | --steps-json '[…]') [--out report.md] [--headed] [--browser chrome|msedge|firefox|webkit]
+ *       (--steps steps.json | --steps-json '[…]') [--headed] [--browser chrome|msedge|firefox|webkit]
+ *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
+ *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--var name=value]...   per-run data for ${var:name} (e.g. a user created seconds earlier) — shown in the report;
  *                               ${env:NAME} values are secrets and are redacted everywhere in the report
  *
@@ -31,11 +33,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { writeFile } from '../core/files';
 import { evalPaths } from '../core/paths';
 import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { McpStdioClient, nodeFor, refFor } from './mcp-client';
+import { deliverProbe } from '../core/probe-log';
 
 interface Match { role: string; name?: string; exact?: boolean }
 interface Find { role?: string; name?: string; exact?: boolean; nth?: number; ref?: string }
@@ -60,9 +62,9 @@ const describe = (f: Find) => `${f.role}${f.name !== undefined ? ` "${f.name}"` 
 const yamlOf = (text: string) => text.match(/```yaml\r?\n([\s\S]*?)```/)?.[1] ?? '';
 
 export const spec: CommandSpec = {
-  name: 'mcp-probe', group: 'Hardening', usage: '--key KEY --steps steps.json [--var name=value]… [--out report.md]',
+  name: 'mcp-probe', group: 'Hardening', usage: '--key KEY --steps steps.json [--var name=value]…   (logged as the story\'s next probe, Pn)',
   about: 'tier 2: drive the Playwright MCP server over stdio',
-  flags: ['aut', 'browser', 'headed', 'key', 'out', 'steps', 'steps-json', 'var'],
+  flags: ['aut', 'browser', 'headed', 'key', 'steps', 'steps-json', 'var'],
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
@@ -186,7 +188,6 @@ export async function run({ flags, argv }: Args): Promise<void> {
     `- Result: ${failures ? `✖ ${failures} step(s) failed` : '✔ all steps passed'}`, '',
     '| # | Step | OK | Detail |', '| --- | --- | --- | --- |', ...rows, '', ...snapshots, '',
   ].join('\n');
-  const out = flagStr(flags, 'out');
-  if (out) { writeFile(out, report); console.log(`${failures ? '✖' : '✔'} ${steps.length} steps, ${failures} failed → ${out}`); } else console.log(report);
+  deliverProbe(cfg, key, { tool: 'mcp-probe', tier: 2, input: { steps }, report, digest: [`${steps.length} steps, ${failures} failed`, ...rows.slice(0, 39).map((r) => r.slice(0, 240))] });
   if (failures) process.exitCode = 1;
 }

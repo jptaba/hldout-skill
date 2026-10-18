@@ -4,7 +4,9 @@
  * as it is) and notes it in the hardening log, instead of one edit per mark. A guess that was wrong is edited by hand
  * first: what is left when this runs is what the evidence confirmed.
  *
- *   heldout confirm KEY --file journeys/fixtures/cart.ts [--file …] --evidence "<probe report>"
+ *   heldout confirm KEY --file journeys/fixtures/cart.ts [--file …] --evidence P7
+ *
+ * The evidence is the probe that showed it (Pn: its report is kept in the story's 4-evidence/), or the run.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,22 +14,25 @@ import { flagList, flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
 import { evalPaths } from '../core/paths';
+import { citeProbes } from '../core/probe-log';
 
 const MARK = /[ \t]*\/\/[ \t]*TODO\(harden\)[^\n]*/g;
 
 export const spec: CommandSpec = {
-  name: 'confirm', group: 'Hardening', usage: 'KEY --file <spec or journey file>… --evidence "<probe report>"',
+  name: 'confirm', group: 'Hardening', usage: 'KEY --file <spec or journey file>… --evidence Pn',
   about: 'remove the TODO(harden) marks of guesses the probe showed were right, in one go',
   flags: ['evidence', 'file'],
 };
 
 export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
-  const p = evalPaths(loadConfig({ key }), key);
+  const cfg = loadConfig({ key });
+  const p = evalPaths(cfg, key);
   const files = flagList(flags, 'file');
   const evidence = flagStr(flags, 'evidence');
   if (!files.length) throw new Error('--file <path> names the spec or journey file whose guesses the probe confirmed (repeat it for more files)');
-  if (!evidence) throw new Error('--evidence "<probe report or run>" says what showed the guesses were right');
+  if (!evidence) throw new Error('--evidence "<the probe (Pn) or the run>" says what showed the guesses were right');
+  citeProbes(cfg, key, evidence);
   const noted: string[] = [];
   for (const f of files) {
     const file = path.resolve(ROOT, f);

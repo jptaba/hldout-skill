@@ -243,7 +243,7 @@ Built from the story:
   "tried": [{ "where": "story", "result": "L21 names no method or path" }], "resolution": "open" }
 ```
 Completed during hardening: G2 gets `{ "where": "aut", "result": "the cart page's Remove button calls DELETE /carts/{cartId}" }` in `tried`,
-`"resolution": "discovered-in-aut"`, `"value": "DELETE /carts/{id}"`, `"evidence": "4-evidence/inspect-cart.md"`; AC-7 gets
+`"resolution": "discovered-in-aut"`, `"value": "DELETE /carts/{id}"`, `"evidence": "P4"` (the inspector walk that showed it); AC-7 gets
 `"endpoints": ["DELETE /carts/{id}"]`; and `endpoints[]` gets `{ "method": "DELETE", "path": "/carts/{id}", "source": "G2" }`.
 
 ### 4. Custom field plus an API definition on a linked page

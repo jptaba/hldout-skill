@@ -46,8 +46,6 @@ export interface TriageReportPlaces {
   dir: string;
   /** The starting chains `triage` writes for the failures (scratch). */
   chains: string;
-  /** Where the replay reports go (the story's evidence). */
-  evidence: string;
 }
 
 /** @param root the project's folder, which the paths in the report's evidence are relative to. */
@@ -114,8 +112,8 @@ export function renderTriageMd(r: TriageReport, places: TriageReportPlaces, root
         // A starting point for the live replay: the call as the test made it (a body, a token or the calls before it
         // are added by hand, or the sequence goes in a chain file).
         ...(e.final ? [] : signedIn(api)
-          ? [`  - replay: the test sent this call signed in, so replay it as a chain: the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator). A starting chain, when the profile has an API sign-in: \`npm run heldout -- api-probe --key ${r.key} --chain ${fromRoot(places.chains, `${replaySlug(e.scenario)}.chain.json`)} --out ${fromRoot(places.evidence, `${r.run}-${replaySlug(e.scenario)}.md`)}\``]
-          : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''} --out ${fromRoot(places.evidence, `${r.run}-${replaySlug(e.scenario)}.md`)}\``])] : []),
+          ? [`  - replay: the test sent this call signed in, so replay it as a chain: the sign-in of that kind of user, this call, and a control call that should succeed (the owner, an administrator). A starting chain, when the profile has an API sign-in: \`npm run heldout -- api-probe --key ${r.key} --chain ${fromRoot(places.chains, `${replaySlug(e.scenario)}.chain.json`)}\` (it prints the probe's id, Pn: cite it in the decision)`]
+          : [`  - replay: \`npm run heldout -- api-probe --key ${r.key} ${api.request.method} "${replayPath(api.request.url)}"${api.request.body ? " --data '<the request body>'" : ''}\` (it prints the probe's id, Pn: cite it in the decision)`])] : []),
       evidenceLine(e),
       // The expected and received values are above: the signals say only what the classification adds.
       '', `**Auto: ${e.auto!.category} (${e.auto!.confidence})**`, '', ...e.auto!.signals.filter((s) => !/^(Expected|Received):/.test(s)).map((s) => `- ${s}`), '', `Next: ${e.auto!.next}`, '', ...confirmed);

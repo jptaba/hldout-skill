@@ -13,7 +13,7 @@
  *       run when a test takes the account and again after it
  *
  * Accounts the tests create (with or without a way to delete them), from the api-probe chain hardening already ran:
- *   heldout accounts --key KEY --from-chain <chain.json>
+ *   heldout accounts --key KEY --from-chain P7        (the probe that ran the chain; or a chain.json file)
  *       [--sign-in-steps signin.json | --sign-in-json '<inspect steps>'] --sign-in-path /login --sign-in-done "url:/profile"
  *   A chain that only signs in (a step saving "token") as an existing account adds that account to the list instead.
  *   heldout accounts --aut <profile> --sign-in-json '<inspect steps>' --sign-in-path /login --sign-in-done "url:/home"   the UI sign-in alone
@@ -36,6 +36,7 @@ import { flagStr, unmangleMsysPath, type Args, type CommandSpec } from '../core/
 import { loadConfig } from '../core/config';
 import { ROOT } from '../core/files';
 import { evalPaths } from '../core/paths';
+import { chainOfProbe } from '../core/probe-log';
 import { accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, type AccountRecipe, type ExistingAccount } from '../core/profile';
 import { loadVaultSecrets } from '../core/secrets';
 import { checkAccountRecipe, recipeFromChain, signInFromSteps } from '../probe/accounts-recipe';
@@ -81,7 +82,10 @@ export async function run({ flags }: Args): Promise<void> {
   /** Set when this command only added an existing account: only that one is checked. */
   let added: ExistingAccount | undefined;
 
-  const chainFile = flagStr(flags, 'from-chain');
+  // A probe of the story (Pn) or a chain file: the chain that made, signed in or deleted an account.
+  const chainArg = flagStr(flags, 'from-chain');
+  if (chainArg && /^P[1-9]\d*$/.test(chainArg) && !key) throw new Error(`--from-chain ${chainArg} names a probe of a story: give the story with --key`);
+  const chainFile = chainArg && /^P[1-9]\d*$/.test(chainArg) ? chainOfProbe(cfg, key!, chainArg) : chainArg;
   const signInSteps = flagStr(flags, 'sign-in-steps') ? JSON.parse(fs.readFileSync(find(flagStr(flags, 'sign-in-steps')!), 'utf8'))
     : flagStr(flags, 'sign-in-json') ? JSON.parse(flagStr(flags, 'sign-in-json')!) : undefined;
   if (signInSteps && !flagStr(flags, 'sign-in-path')) throw new Error('--sign-in-path is required with sign-in steps (the page the sign-in starts on, e.g. /login)');

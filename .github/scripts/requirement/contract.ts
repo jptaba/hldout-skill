@@ -6,7 +6,8 @@
  *   heldout contract KEY                  check: anchoring, coverage ledger, literal grounding, review status (+ a copy to read, in the scratch area)
  *   heldout contract KEY --review-prompt  the independent reviewer's instructions (for the heldout-contract-reviewer subagent)
  *   heldout contract KEY --questions      open oracle gaps: the questions the verdict puts to the story's owner (JSON)
- *   heldout contract KEY --resolve G1 --value "…" --evidence "<probe report>"   a mechanics gap found in the application
+ *   heldout contract KEY --resolve G1 --value "…" --evidence P7   a mechanics gap found in the application (the probe
+ *                                         that shows it: its report is kept in 4-evidence/; or the run that showed it)
  *   heldout contract KEY --resolve-from gaps.json    several of them at once: [{ "id", "value", "evidence" }, …]
  *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the owner's answer to a verdict's open question, before the next evaluation (re-review)
  *   … --allow-unreviewed  accept a contract without an independent review (warning instead of error)
@@ -19,6 +20,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SKILL_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { recordChange } from '../core/history';
+import { citeProbes } from '../core/probe-log';
 import { evalPaths } from '../core/paths';
 import { accountRoles, createsAccounts, type AccountRecipe } from '../core/profile';
 import { checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover, type RequirementContract } from './contract-model';
@@ -117,8 +119,9 @@ export async function run({ _, flags }: Args): Promise<void> {
       const g = c.gaps.find((x) => x.id === r.id);
       if (!g) throw new Error(`No gap ${r.id} in ${rel(file)} — gaps: ${c.gaps.map((x) => x.id).join(', ') || 'none'}`);
       if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Nothing was written.`);
-      if (!r.value || !r.evidence) throw new Error(`${r.id} needs a "value" (what was found) and an "evidence" (the probe report, or the proven journey and the run that used it). Nothing was written.`);
+      if (!r.value || !r.evidence) throw new Error(`${r.id} needs a "value" (what was found) and an "evidence" (the probe that shows it, Pn, or the proven journey and the run that used it). Nothing was written.`);
     }
+    for (const r of list) citeProbes(cfg, key, r.evidence);
     for (const r of list) {
       const g = c.gaps.find((x) => x.id === r.id)!;
       Object.assign(g, { resolution: 'discovered-in-aut', value: r.value, evidence: r.evidence });
@@ -137,7 +140,8 @@ export async function run({ _, flags }: Args): Promise<void> {
     if (gapFlag === 'resolve') {
       if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Leave it open: the verdict puts it to the story's owner, whose answer is recorded with: heldout contract ${key} --answer ${g.id} --value "…" --by "<who>"`);
       const evidence = flagStr(flags, 'evidence');
-      if (!evidence) throw new Error(`--resolve ${g.id} needs --evidence "<probe report or run that shows it>"`);
+      if (!evidence) throw new Error(`--resolve ${g.id} needs --evidence "<the probe that shows it (Pn), or the run>"`);
+      citeProbes(cfg, key, evidence);
       Object.assign(g, { resolution: 'discovered-in-aut', value, evidence });
       g.tried = [...g.tried.filter((t) => t.where !== 'aut'), { where: 'aut', result: value }];
     } else {

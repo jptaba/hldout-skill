@@ -3,7 +3,7 @@
  *
  *   heldout api-probe [--key KEY | --aut <profile>] <METHOD> <path>
  *       [--data '<json>' | --data-file body.json | --raw-data '<string>' | --form 'a=1&b=2' or --form '{"a":1}']   (values support ${env:NAME})
- *   heldout api-probe [--key KEY] --chain chain.json [--out repro.md]   multi-call sequence, chain.json =
+ *   heldout api-probe [--key KEY] --chain chain.json   multi-call sequence, chain.json =
  *       { "steps": [ { "name", "method", "path", "headers"?, "json"? | "form"? | "raw"?, "save"?: { "token": "data.token" },
  *                      "expect"?: 201 | [200, 201], "expectBody"?: { "code": "1200" }, "show"?: ["books", "token|jwt", "data.*.price"],
  *                      "notContains"?: [{ "field": "token", "decode": "jwt", "value": "${env:PASSWORD}" }], "setup"?: true, "parallel"?: 3 } ] }
@@ -12,8 +12,10 @@
  *       "save" paths are relative to the answer's body ("id", "data.0.id", "data.token")
  *       [--header "Name: value"]... [--cookie "name=value"]...
  *       [--login '{"method":"POST","path":"api/auth/login","data":{...},"extract":"token","as":"cookie:token"}']
- *       [--repeat N] [--out report.md] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)
+ *       [--repeat N] [--json] [--body-limit N]   (report shows the first N body characters; default 4000)
  *
+ * With --key a call or chain is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full
+ * report written to the scratch area; cite it as Pn. Without --key (or with --json) the report is printed.
  * Paths resolve against the profile's apiBaseURL. Under Git Bash omit the leading "/" (api/room), or
  * set MSYS_NO_PATHCONV=1 — MSYS rewrites "/…" arguments into Windows paths.
  * Prints status, timing, redacted headers, body and a type *shape* (write schema assertions from the
@@ -22,9 +24,9 @@
 import fs from 'node:fs';
 import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { writeFile } from '../core/files';
 import { literalsOf, pageText, redact, redactHeaders, shapeOf } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
+import { deliverProbe } from '../core/probe-log';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
 const env = (s: string) => {
@@ -98,7 +100,7 @@ function decode(v: unknown, how?: string): unknown {
   if (how === 'jwt') { const [h, p, sig] = v.split('.'); return { header: parsed(b64(h ?? '')), payload: parsed(b64(p ?? '')), signature: sig ?? '' }; }
   return parsed(b64(v));
 }
-async function runChain(file: string, base: string, cfgName: string, chainBodyLimit: number, outFile?: string): Promise<void> {
+async function runChain(file: string, base: string, cfgName: string, chainBodyLimit: number): Promise<{ report: string; digest: string[]; chain: unknown }> {
   const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, unknown>; steps: ChainStep[] };
   const vars: Record<string, string> = { uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
   const interpVars = (s: string): string => s.replace(/\$\{([A-Za-z_][\w]*)\}/g, (m, n: string) => (vars[n] !== undefined ? vars[n] : m));
@@ -178,13 +180,15 @@ async function runChain(file: string, base: string, cfgName: string, chainBodyLi
   lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**`
     : chain.steps.some((s) => s.expect !== undefined || s.expectBody || s.notContains?.length) ? 'All expectations held.' : 'No expectation was declared: the statuses and bodies above are what the application answered, not a pass.', '');
   const out = scrubEnv(lines.join('\n'), fs.readFileSync(file, 'utf8'));
-  if (outFile) { writeFile(outFile, out); console.log(`✔ chain of ${chain.steps.length} call(s) → ${outFile}${failed ? ` (${failed} unexpected)` : ''}`); } else console.log(out);
+  // The digest: each call and its status, and whether the expectations held.
+  const digest = [...out.split('\n').filter((l) => /^\d+\. /.test(l)).map((l) => l.slice(0, 240)).slice(0, 40), ...(failed ? [`${failed} step(s) did not meet their expectation`] : [])];
+  return { report: out, digest, chain };
 }
 
 export const spec: CommandSpec = {
-  name: 'api-probe', group: 'Hardening', usage: '--key KEY <METHOD> <path> | --chain chain.json',
+  name: 'api-probe', group: 'Hardening', usage: '--key KEY <METHOD> <path> | --chain chain.json   (logged as the story\'s next probe, Pn)',
   about: 'call the API (or a chain of calls) with redacted output',
-  flags: ['aut', 'body-limit', 'chain', 'cookie', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'out', 'raw-data', 'repeat'],
+  flags: ['aut', 'body-limit', 'chain', 'cookie', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'raw-data', 'repeat'],
 };
 
 export async function run({ _, flags, argv }: Args): Promise<void> {
@@ -194,11 +198,12 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
   if (chainFile) {
     const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
     // Each answer is shown in one line: its first 300 characters, or --body-limit N of them ("show" picks fields).
-    await runChain(chainFile, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300), flagStr(flags, 'out'));
+    const done = await runChain(chainFile, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, `${cfg.aut.name} (profile \`${cfg.autId}\`)`, Number(flagStr(flags, 'body-limit') ?? 300));
+    deliverProbe(cfg, flagStr(flags, 'key'), { tool: 'api-probe', tier: 3, input: { chain: done.chain }, report: done.report, digest: done.digest });
     return;
   }
   const [methodArg, pathArg] = _;
-  if (!methodArg || pathArg === undefined) throw new Error('Usage: api-probe.ts <METHOD> <path> [options]   or   api-probe.ts --chain chain.json');
+  if (!methodArg || pathArg === undefined) throw new Error('Usage: heldout api-probe <METHOD> <path> [options]   or   heldout api-probe --chain chain.json');
   const method = methodArg.toUpperCase();
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   const base = cfg.aut.apiBaseURL ?? cfg.aut.baseURL;
@@ -265,6 +270,8 @@ export async function run({ _, flags, argv }: Args): Promise<void> {
     `## Response body (redacted${pretty.length > bodyLimit ? `, first ${bodyLimit} of ${pretty.length} chars; --body-limit N for more` : ''})`, '', '```json', pretty.slice(0, bodyLimit), '```', '',
     ...(r.json !== undefined ? ['## Shape (types only)', '', '```json', JSON.stringify(shapeOf(r.json), null, 2), '```', ''] : []),
   ].join('\n'), input);
-  const file = flagStr(flags, 'out');
-  if (file) { writeFile(file, out); console.log(scrubEnv(`✔ ${method} ${shownUrl} → ${r.status} (${r.ms} ms) — written to ${file}`, pathArg)); } else console.log(out);
+  deliverProbe(cfg, flagStr(flags, 'key'), {
+    tool: 'api-probe', tier: 3, report: out, input: { call: argv.filter((a) => a !== '--key' && a !== flagStr(flags, 'key')) },
+    digest: [scrubEnv(`${method} ${shownUrl} → ${r.status} (${r.ms} ms)${repeat > 1 ? `, all runs: ${results.map((x) => x.status).join(', ')}` : ''}`, input), ...topLevel.slice(0, 10)],
+  });
 }
