@@ -31,8 +31,89 @@ const INLINE: [string, RegExp][] = [
 const BEFORE_FREEZE = /contract-extractor|contract-reviewer|test-author/;
 // The dispatcher form (outside quotes), or a Playwright MCP browser tool.
 const PROBE = /\bheldout\s+(?:'--'\s+|--\s+|""\s+)?(?:inspect|api-probe|mcp-probe)\b|^mcp__playwright__browser_/;
-// A probe script that tsx or node runs: the first argument after its options, quoted or not, / or \ paths.
-const SCRIPT = /\b(?:npx\s+)?(?:tsx|node)(?:\s+-{1,2}[\w-]+(?:[= ](?!["']?\S*[\\/]probe[\\/])\S+)?)*\s+["']?\S*scripts[\\/]probe[\\/](?:inspect|api-probe|mcp-probe)\.ts\b/;
+const PROBE_SCRIPT = /scripts[\\/]probe[\\/](?:inspect|api-probe|mcp-probe)\.ts/;
+// tsx or node in any form a shell reaches them by: node.exe, npx.cmd tsx, tsx@4, a quoted full path.
+const RUNNER = /(?:^|[^\w.-])(?:tsx|node)(?:@[\w.^~-]+|\.exe|\.cmd)?(?![\w-])/;
+// A command that only reads or searches what it names (a commit message that mentions a run is a git command).
+const READ = /^(?:grep|rg|ag|cat|bat|less|more|head|tail|ls|wc|stat|file|diff|git|echo|printf|tsc|code|type|Select-String|Get-Content)\b/;
+// …unless it can run a command of its own.
+// (`rebase … -x` is two tests: one regex with `.*` between them backtracks once per `rebase`.)
+const RUNS_OTHERS = /\bbisect\s+run\b|\bsubmodule\s+foreach\b|\balias\.|\s-c\s+["']?alias/;
+const runsOthers = (part: string) => RUNS_OTHERS.test(part) || (/\brebase\b/.test(part) && /\s(?:-x|--exec)\b/.test(part));
+
+/**
+ * Whether a shell command runs a probe script. A heuristic for a tally, so it errs toward counting: some part of the
+ * command (see splitCommands) names a probe script and tsx or node in some form, and is not a read or a search. Every
+ * wrapper (npx -y, xargs, sudo, nohup, timeout, find -exec, bash -c, pwsh -Command, a subshell, a redirect) therefore
+ * counts when the script is named on the wrapped command. Known over-count: a runner used on another file in the same
+ * part (`node eslint …/probe/inspect.ts`). Known under-counts, on purpose: the script's name reaching the runner from
+ * another part (`cat …/inspect.ts | npx tsx`, `echo …/inspect.ts | xargs npx tsx`, `npx tsx $(echo …/inspect.ts)`).
+ * Linear.
+ */
+export function runsProbeScript(command: string): boolean {
+  if (!PROBE_SCRIPT.test(command)) return false;
+  return splitCommands(command).some((p) => PROBE_SCRIPT.test(p) && RUNNER.test(p) && (!READ.test(p.trim()) || runsOthers(p)));
+}
+
+/**
+ * A shell command's parts, in one pass: split at newlines, ; & | ( ) outside quotes; a command substitution (`$(…)`, a
+ * backtick) is a part of its own, inside double quotes too, where bash still runs it; single-quoted text and escaped
+ * characters are text; a heredoc's body stays with the command that opened it (`git commit -F - <<'EOF' … EOF`; a
+ * `<<-` terminator may follow tabs; `<<<` is a here-string); a `#` comment runs to the end of its line.
+ */
+export function splitCommands(command: string): string[] {
+  const parts: string[] = [];
+  const stack: string[] = []; // open contexts: '"', "'", '$(' or '`'
+  let current = '';
+  let heredoc = '';
+  let tabs = false;
+  const cut = () => { parts.push(current); current = ''; };
+  for (let i = 0; i < command.length; i++) {
+    const c = command[i];
+    const top = stack.at(-1);
+    if (top === "'") { current += c; if (c === "'") stack.pop(); continue; }
+    if (c === '\\') { current += c + (command[i + 1] ?? ''); i++; continue; }
+    if (top === '"') {
+      if (c === '"') { stack.pop(); current += c; continue; }
+      if (c === '$' && command[i + 1] === '(') { cut(); stack.push('$('); i++; continue; }
+      if (c === '`') { cut(); stack.push('`'); continue; }
+      current += c; continue;
+    }
+    // Unquoted, or inside a command substitution.
+    if (c === '"' || c === "'") { stack.push(c); current += c; continue; }
+    if (c === '$' && command[i + 1] === '(') { cut(); stack.push('$('); i++; continue; }
+    if (c === '`') { cut(); if (top === '`') stack.pop(); else stack.push('`'); continue; }
+    if (c === ')' && top === '$(') { cut(); stack.pop(); continue; }
+    // A comment runs to the end of its line: an apostrophe in it opens no quote.
+    if (c === '#' && (i === 0 || /[\s;&|()]/.test(command[i - 1]))) {
+      const eol = command.indexOf('\n', i);
+      i = (eol < 0 ? command.length : eol) - 1;
+      continue;
+    }
+    // A here-string (<<<) is a word, not a heredoc.
+    if (c === '<' && command.startsWith('<<<', i)) { current += '<<<'; i += 2; continue; }
+    const here = c === '<' && command.slice(i).match(/^<<(-?)\s*["']?(\w+)["']?/);
+    if (here) { heredoc = here[2]; tabs = here[1] === '-'; current += here[0]; i += here[0].length - 1; continue; }
+    if (c === '\n' && heredoc) {
+      // The body, up to the line that ends it (after tabs, for <<-), belongs to the command that opened it.
+      let stop = command.length;
+      for (let j = i; j >= 0; j = command.indexOf('\n', j + 1)) {
+        let k = j + 1;
+        if (tabs) while (command[k] === '\t') k++;
+        const after = command[k + heredoc.length];
+        if (command.startsWith(heredoc, k) && (after === undefined || after === '\n' || after === '\r')) { stop = k + heredoc.length; break; }
+      }
+      current += command.slice(i, stop);
+      i = stop - 1;
+      heredoc = '';
+      continue;
+    }
+    if ('\n\r;&|()'.includes(c)) { cut(); continue; }
+    current += c;
+  }
+  cut();
+  return parts;
+}
 
 /**
  * Whether a tool call probes the application: the dispatcher's probe commands (quoted text is an argument, not a
@@ -40,7 +121,7 @@ const SCRIPT = /\b(?:npx\s+)?(?:tsx|node)(?:\s+-{1,2}[\w-]+(?:[= ](?!["']?\S*[\\
  */
 export function probes(command: string | undefined, tool = ''): boolean {
   const bare = command?.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""') ?? '';
-  return PROBE.test(bare) || SCRIPT.test(command ?? '') || PROBE.test(tool);
+  return PROBE.test(bare) || runsProbeScript(command ?? '') || PROBE.test(tool);
 }
 
 interface Tally { sessions: number; calls: number; found: Record<string, number> }

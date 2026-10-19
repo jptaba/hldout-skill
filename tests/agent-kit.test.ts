@@ -130,6 +130,10 @@ describe('the agent setup: the gate\'s logic', () => {
     const wide = scanSettings({ ...relaxed, secretScan: { skip: ['**/*.lock', 'secrets/**'] }, maxFileBytes: 5_000_000 }, { ...strict, secretScan: { skip: ['**/*.lock'] }, maxFileBytes: 1_000_000 });
     assert.deepEqual(wide.secretScan?.skip, ['**/*.lock']);
     assert.equal(wide.maxFileBytes, 1_000_000);
+    // An unset skip list is the default list.
+    assert.deepEqual(scanSettings({ ...relaxed }, { ...strict }).secretScan?.skip, ['**/package-lock.json'], 'neither set');
+    assert.deepEqual(scanSettings({ ...relaxed, secretScan: { skip: ['**/package-lock.json', 'x/**'] } }, { ...strict }).secretScan?.skip, ['**/package-lock.json'], 'one set');
+    assert.deepEqual(scanSettings({ ...relaxed }, { ...strict, secretScan: { skip: ['**/package-lock.json', 'x/**'] } }).secretScan?.skip, ['**/package-lock.json'], 'the other set');
   });
 
   it('says what a commit lacks for its tier, from the ledger', () => {
@@ -215,6 +219,7 @@ describe('the agent setup: the gate\'s logic', () => {
     assert.equal(secretHits('PASSWORD="$DB_PASSWORD_V2"', 'deploy.sh').length, 0, 'so is one in double quotes, which a shell expands');
     assert.equal(secretHits('PASSWORD="${DB_PASSWORD_V2}"', 'deploy.sh').length, 0);
     assert.equal(secretHits(`PASSWORD='${fake('$DB_PASS', 'WORD_V2')}'`, 'deploy.sh').length, 1, 'single quotes keep it as written');
+    assert.equal(secretHits("password: '${env:TS_PASSWORD_2}'", 'src/x.ts').length, 0, 'a ${…} placeholder is a reference in any quoting');
     assert.equal(secretHits(`password=${fake('$ecret-', 'Pass99')}`, '.env').length, 1, 'a value that only starts with $ is not');
     assert.equal(secretHits(`password: '${fake('$ecret', 'Pass99')}'`, 'src/x.ts').length, 1, 'a quoted one is taken as written');
     // In source code an unquoted expression is code.

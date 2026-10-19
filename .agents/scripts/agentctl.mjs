@@ -37,6 +37,8 @@ import { pathToFileURL } from 'node:url';
 /** @typedef {ProofRecord | ReviewRecord} LedgerRecord */
 
 const VERDICTS = ['APPROVE', 'REQUEST_CHANGES', 'BLOCKED'];
+/** The scan's skip list when a config sets none. @type {string[]} */
+export const DEFAULT_SKIP = ['**/package-lock.json'];
 const SCISSORS = /^# -+ >8 -+$/m;
 
 // ---------------------------------------------------------------- pure logic (exported for tests)
@@ -129,10 +131,10 @@ export function governing(config, before, files) {
  */
 export function scanSettings(config, before) {
   if (!before) return config;
-  // Neither config sets a skip list: the default one stands.
-  const either = config.secretScan?.skip ?? before.secretScan?.skip;
-  const skip = either && (config.secretScan?.skip ?? []).filter((g) => (before.secretScan?.skip ?? []).includes(g));
-  return { ...config, secretScan: skip ? { skip } : {}, maxFileBytes: Math.min(config.maxFileBytes ?? 1024 * 1024, before.maxFileBytes ?? 1024 * 1024) };
+  // An unset skip list is the default one; only the globs both lists have stay skipped.
+  const theirs = before.secretScan?.skip ?? DEFAULT_SKIP;
+  const skip = (config.secretScan?.skip ?? DEFAULT_SKIP).filter((g) => theirs.includes(g));
+  return { ...config, secretScan: { skip }, maxFileBytes: Math.min(config.maxFileBytes ?? 1024 * 1024, before.maxFileBytes ?? 1024 * 1024) };
 }
 
 /**
@@ -363,8 +365,9 @@ export function secretHits(text, file = '') {
     // PowerShell's `$env:NAME = …` names the key after the prefix.
     const pairs = [...line.replace(/\$?env:(?=[A-Za-z_])/gi, '').matchAll(source ? PAIR : PAIR_CONFIG)];
     // Not a secret: a quoted value with spaces (prose: a validation message, a label; the trade-off is that a passphrase
-    // with spaces is missed), or a whole `$NAME` / `${NAME}` unquoted or in double quotes (a shell expands it there; in
-    // single quotes it would not, so it is taken as written).
+    // with spaces is missed), or a whole `$NAME` unquoted or in double quotes (a shell expands it there; in single
+    // quotes it would not, so `'$NAME'` is taken as written). A `${…}` placeholder (`${env:NAME}`, `${{ secrets.X }}`)
+    // is a reference in any quoting (PLACEHOLDER).
     const reference = /^\$(?:[A-Za-z_]\w*|\{[A-Za-z_]\w*\})$/;
     const credential = (/** @type {RegExpMatchArray} */ m) => {
       const quoted = m[2] !== undefined;
@@ -515,7 +518,7 @@ const sha256 = (text) => createHash('sha256').update(text.replace(/\r\n/g, '\n')
  * @param {(f: string) => Buffer} read
  */
 function scanFiles(config, files, read) {
-  const skip = (config.secretScan?.skip ?? ['**/package-lock.json']).map(globToRegExp);
+  const skip = (config.secretScan?.skip ?? DEFAULT_SKIP).map(globToRegExp);
   let found = 0;
   let scanned = 0;
   /** @type {string[]} */

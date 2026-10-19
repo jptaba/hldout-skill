@@ -2,9 +2,6 @@
 *.png binary
 *.jpg binary
 *.zip binary
-# A copy of the repository as one file (a zip archive under another name); never packed into itself.
-*.bk binary
-hldout-skill.bk export-ignore
 *.pdf binary
 *.gif binary
 *.webm binary
