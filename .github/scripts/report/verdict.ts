@@ -20,6 +20,7 @@ import { recordEvent } from '../core/history';
 import { evalPaths, evalRunsOf, journeyPaths, listRuns, runFile, runRaw } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { comboLabel, oracleDigest, readContract, variantCombinations } from '../requirement/contract-model';
+import { injectionSuspects } from '../requirement/evidence';
 import type { Category } from '../triage/classify';
 import { curlFor, exchangeLine, rerunCommand } from '../triage/repro';
 import { readRunRecord, type TriageEntry } from '../triage/triage-model';
@@ -29,6 +30,14 @@ const BADGE: Record<Verdict, string> = { PASS: '✅ PASS', PASS_WITH_WARNINGS: '
 const SEVERITY_ORDER = ['Critical', 'Major', 'Minor', 'Trivial'];
 const cat = (e: TriageEntry): Category | undefined => e.final?.category ?? e.auto?.category;
 const esc = (s = '') => s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+
+/** Untrusted content: the requirement lines that read like instructions to an agent, for the reviewer to weigh. */
+export function suspectSection(reqDir: string): string[] {
+  const suspects = fs.existsSync(reqDir) ? injectionSuspects(reqDir) : [];
+  if (!suspects.length) return [];
+  return ['## Requirement lines that read like instructions to an agent', '', 'Treated as data: quoted and covered like any other line, never followed. Check whether the story was meant to say this.', '',
+    '| Source | Line |', '| --- | --- |', ...suspects.map((l) => `| ${l.file}#L${l.line} | ${esc(l.text.trim().slice(0, 200))} |`), ''];
+}
 const short = (v: unknown, n = 500) => { const s = typeof v === 'string' ? v : JSON.stringify(v); return s && s.length > n ? `${s.slice(0, n)}…` : s ?? ''; };
 
 function frontMatter(file: string): Record<string, string> {
@@ -302,6 +311,8 @@ export function run({ _, flags }: Args): void {
       '| Assertion | Draft | Amended | Reason |', '| --- | --- | --- | --- |',
       ...integrity.amended.map((a) => `| ${esc(a.assertion)} | \`${esc(a.draft)}\` | \`${esc(a.current)}\` | ${esc(a.reason)} |`), '');
   }
+
+  md.push(...suspectSection(p.requirement));
 
   const refreezes = freeze?.refreezes ?? [];
   if (refreezes.length) {

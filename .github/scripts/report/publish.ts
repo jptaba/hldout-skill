@@ -37,6 +37,9 @@ interface VerdictJson {
 
 const PANEL: Record<string, 'success' | 'error' | 'warning' | 'note'> = { PASS: 'success', FAIL: 'error', PASS_WITH_WARNINGS: 'warning', INCONCLUSIVE: 'note' };
 const short = (v: unknown, n = 120) => { const s = String(v ?? '-'); return s.length > n ? `${s.slice(0, n)}…` : s; };
+/** A finding's row in the comment: what the application said is bounded here, and made literal by the wiki writer. */
+export const findingCells = (d: VerdictJson['applicationDefects'][number]): string[] =>
+  [d.id, d.severity ?? '-', d.criteria.join(', '), d.testType ?? '-', short(d.title, 200), short(d.expected), short(d.actual)];
 
 export const spec: CommandSpec = {
   name: 'publish', group: 'Report', usage: 'KEY [--dry-run]',
@@ -71,7 +74,7 @@ export async function run({ _, flags }: Args): Promise<void> {
     ...(findings.length ? [
       h(4, `Findings for review (${findings.length})`),
       table(['ID', 'Suggested severity', 'Criteria', 'Type', 'Finding', 'Expected (requirement)', 'Actual (AUT)'],
-        findings.map((d) => [d.id, d.severity ?? '-', d.criteria.join(', '), d.testType ?? '-', d.title, short(d.expected), short(d.actual)])),
+        findings.map(findingCells)),
       p(txt('Each finding in the attached report has reproduction steps (manual, curl and automated re-run), evidence and a reviewer-decision checkbox. No issues were raised automatically.', 'em')),
     ] : []),
     ...(v.openQuestions?.length ? [p(txt('Open questions (not tested): ', 'strong'), v.openQuestions.join(' · '))] : []),

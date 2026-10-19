@@ -29,16 +29,37 @@ export const doc = (...content: AdfNode[]): AdfNode => ({ type: 'doc', version: 
 
 // ---- ADF → Jira wiki markup -----------------------------------------------
 
+const ZWSP = String.fromCharCode(0x200b);
+/** A backslash is wiki markup's escape, and two make a line break: text gets the full-width look-alike instead. */
+const BACKSLASH = String.fromCharCode(0xff3c);
+/**
+ * A text node, literal in wiki markup: what the application said (an error text, a page's words) can't become a link,
+ * a mention (`[~user]`), a macro (`{html}`), an image (`!x!`), a table cell, a heading, a rule or a new line. Markup
+ * comes only from the builder's marks and blocks. A URL stays readable but not clickable; the attached report keeps
+ * every value exactly as it is. Each step is one linear pass.
+ */
+export function wikiText(s: string): string {
+  return s.replace(/[\s\x85]+/g, (w) => (w === ' ' ? w : ' '))
+    .replace(/\\/g, BACKSLASH)
+    .replace(/[[\]{}|!]/g, (c) => `\\${c}`)
+    .replace(/(?<![a-z0-9+.-])([a-z][a-z0-9+.-]*):\/\//gi, `$1:${ZWSP}//`)
+    .replace(/\b(mailto|www)([:.])/gi, `$1${ZWSP}$2`)
+    .replace(/^(?=\s*(?:h[1-6]\.|bq\.|[#*-]\s|-{4}))/, ZWSP);
+}
+
+/** A link's target: the characters that would end the link markup are percent-encoded. */
+const href = (h: string) => h.replace(/[|\]\s]/g, (c) => encodeURIComponent(c));
+
 export function adfToWiki(node: AdfNode): string {
   const inl = (n: AdfNode): string => {
     if (n.type === 'hardBreak') return '\\\\\n';
     if (n.type !== 'text') return (n.content ?? []).map(inl).join('');
-    let t = n.text ?? '';
+    let t = wikiText(n.text ?? '');
     for (const m of n.marks ?? []) {
       if (m.type === 'strong') t = `*${t}*`;
       else if (m.type === 'em') t = `_${t}_`;
       else if (m.type === 'code') t = `{{${t}}}`;
-      else if (m.type === 'link') t = `[${t}|${String(m.attrs?.href ?? '')}]`;
+      else if (m.type === 'link') t = `[${t}|${href(String(m.attrs?.href ?? ''))}]`;
     }
     return t;
   };
@@ -53,11 +74,13 @@ export function adfToWiki(node: AdfNode): string {
         ? blk(c, depth + 1).trimEnd() : `${(n.type === 'orderedList' ? '#' : '*').repeat(depth)} ${blk(c, depth).trim()}`)).join('\n')).join('\n')}\n\n`;
       case 'table': return `${(n.content ?? []).map((r) => {
         const head = r.content?.[0]?.type === 'tableHeader';
-        const cells = (r.content ?? []).map((cell) => (cell.content ?? []).map((c) => blk(c, depth).trim()).join(' ').replace(/\|/g, '\\|'));
+        // A cell's text is already literal (wikiText escapes its pipes).
+        const cells = (r.content ?? []).map((cell) => (cell.content ?? []).map((c) => blk(c, depth).trim()).join(' '));
         return head ? `||${cells.join('||')}||` : `|${cells.join('|')}|`;
       }).join('\n')}\n\n`;
       case 'panel': return `{panel:title=${String(n.attrs?.panelType ?? 'note').toUpperCase()}}\n${kids().trim()}\n{panel}\n\n`;
-      case 'codeBlock': return `{code${n.attrs?.language ? `:${String(n.attrs.language)}` : ''}}\n${(n.content ?? []).map(inl).join('')}\n{code}\n\n`;
+      // Inside {code} Jira shows text as written (escapes included): only a closing {code} is neutralised.
+      case 'codeBlock': return `{code${n.attrs?.language ? `:${String(n.attrs.language)}` : ''}}\n${(n.content ?? []).map((c) => c.text ?? '').join('').replace(/\{code/gi, `{${ZWSP}code`)}\n{code}\n\n`;
       case 'rule': return '----\n\n';
       default: return n.content ? kids() : inl(n);
     }

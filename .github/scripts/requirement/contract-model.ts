@@ -22,7 +22,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkCoverage, checkLiterals, decodeEntities, parseRange, type CoverageEntry } from './evidence';
+import { checkCoverage, checkInjection, checkLiterals, decodeEntities, parseRange, type CoverageEntry } from './evidence';
 
 export type Layer = 'ui' | 'api' | 'e2e';
 export type GapResolution = 'found-in-requirement' | 'found-in-config' | 'discovered-in-aut' | 'provided-by-user' | 'assumed' | 'open';
@@ -378,6 +378,8 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
 
   // Evidence: nothing omitted (coverage ledger), nothing invented (literal grounding).
   out.push(...checkCoverage(c, reqDir), ...checkLiterals(c, reqDir, { apiBaseURL: opts.apiBaseURL }));
+  // Untrusted content: a source line that reads like an instruction to an agent is shown, never silently acted on.
+  out.push(...checkInjection(reqDir));
   return out;
 }
 
