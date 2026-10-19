@@ -68,14 +68,14 @@ export function main(fn: () => Promise<void> | void): void {
 }
 
 /**
- * Git Bash (MSYS) rewrites arguments that start with "/" into Windows paths under the Git install:
- * "/" → "C:/Program Files/Git/", "/products" → "C:/Program Files/Git/products". Undo that when recognisable.
+ * Git Bash (MSYS) rewrites arguments that start with "/" into Windows paths under the Git install folder
+ * (written <git> here): "/" → "<git>/", "/products" → "<git>/products". Undo that when recognisable.
  */
 export function unmangleMsysPath(value: string): string {
-  // Path-list form: "api:/products" → "api;C:\Program Files\Git\products".
+  // Path-list form: "api:/products" → "api;<git>\products".
   const list = value.match(/^([A-Za-z]+);[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i);
   if (list) return `${list[1]}:/${list[2].replace(/\\/g, '/')}`;
-  // A hash route ("#/login", "#!/login") is rewritten too: "#C:/Program Files/Git/login".
+  // A hash route ("#/login", "#!/login") is rewritten too: "#<git>/login".
   const m = value.match(/^(#!?)?[A-Za-z]:[\\/](?:Program Files(?: \(x86\))?[\\/])?Git[\\/](.*)$/i) ?? value.match(/^(#!?)?[A-Za-z]:[\\/](?:msys64|msys2)[\\/](.*)$/i);
   return m ? `${m[1] ?? ''}/${m[2].replace(/\\/g, '/')}` : value;
 }
