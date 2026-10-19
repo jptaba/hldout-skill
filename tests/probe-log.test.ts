@@ -62,6 +62,7 @@ describe('the probe log', () => {
     assert.doesNotThrow(() => requireFrozen(q, undefined, 'api-probe'), 'a probe for no story stays open');
     assert.throws(() => requireFrozen(q, 'NEW-1', 'api-probe'), /not frozen/);
     assert.ok(!fs.existsSync(evalPaths(q, 'NEW-1').base), 'a story that does not exist gets no folder');
+    assert.throws(() => requireFrozen(q, '../..', 'inspect'), /KEY|key/, 'a key that is no story key goes nowhere');
     fs.rmSync(path.join(q.outputDir, q.autId), { recursive: true, force: true });
   });
 

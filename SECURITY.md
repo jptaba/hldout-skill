@@ -12,6 +12,7 @@ not in a public issue.
   credential assigned a literal value (`password: …`, `DB_PASSWORD=…`) and long high-entropy strings. It runs on the
   staged content in `verify` and in the pre-commit hook, and in CI on every pushed commit's own files. A line that
   holds a known non-secret (a test fixture) can carry `agentctl-allow-secret` with the reason; reviewers check each.
+  The scan is a heuristic (`.agents/policy/guardrails.md`): the host's own secret scanning is the backstop.
 - Files over `maxFileBytes` are refused.
 - If a secret was ever committed: rotate it at once. A revert does not take it out of history.
 - Keep the repository host's secret scanning and push protection on.

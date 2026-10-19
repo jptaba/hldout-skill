@@ -23,7 +23,9 @@ You did not write this change. Judge it like a stranger's, from the evidence onl
    - The project's rules in `AGENTS.md`, its review flags included.
    - Readability and duplication: say so only where it costs the next reader.
 6. Record your verdict for the staged tree. It is your only write:
-   `node .agents/scripts/agentctl.mjs review --verdict APPROVE|REQUEST_CHANGES|BLOCKED --findings <n> --model <your model id> --reviewer code-reviewer`
+   `node .agents/scripts/agentctl.mjs review --verdict APPROVE|REQUEST_CHANGES|BLOCKED --findings <n> --model <your model id> --reviewer <name>`
+   The name is the one your task gives (`code-reviewer-1`, `code-reviewer-2` when a tier needs several independent
+   reviews), `code-reviewer` when it gives none. Each independent review records its own name.
 
 ## Reply
 

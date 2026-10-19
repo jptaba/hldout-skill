@@ -17,15 +17,10 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const args = process.argv.slice(2);
-const dir = args.find((a) => !a.startsWith('--') && args[args.indexOf(a) - 1] !== '--since');
-const since = args.includes('--since') ? args[args.indexOf('--since') + 1] : undefined;
-const list = args.includes('--list');
-if (!dir || !fs.existsSync(dir)) {
-  console.log(fs.readFileSync(import.meta.filename, 'utf8').match(/^\/\*\*([\s\S]*?)\*\//)![1].replace(/^ \* ?/gm, '').trim());
-  process.exit(dir ? 1 : 0);
-}
+let since: string | undefined;
+let list = false;
 
 const INLINE: [string, RegExp][] = [
   ['inline program', /\b(node|tsx)\s+(-e|--eval|-p|--print)\b|\bnode\s+(-\s+)?<<|\bpython3?\s+(-c\b|-\s*<<)/],
@@ -34,7 +29,19 @@ const INLINE: [string, RegExp][] = [
 ];
 
 const BEFORE_FREEZE = /contract-extractor|contract-reviewer|test-author/;
-const PROBE = /\bheldout\s+(?:'--'\s+|--\s+)?(?:inspect|api-probe|mcp-probe)\b|mcp__playwright__browser_/;
+// The dispatcher form (outside quotes), or a Playwright MCP browser tool.
+const PROBE = /\bheldout\s+(?:'--'\s+|--\s+|""\s+)?(?:inspect|api-probe|mcp-probe)\b|^mcp__playwright__browser_/;
+// A probe script that tsx or node runs: the first argument after its options, quoted or not, / or \ paths.
+const SCRIPT = /\b(?:npx\s+)?(?:tsx|node)(?:\s+-{1,2}[\w-]+(?:[= ](?!["']?\S*[\\/]probe[\\/])\S+)?)*\s+["']?\S*scripts[\\/]probe[\\/](?:inspect|api-probe|mcp-probe)\.ts\b/;
+
+/**
+ * Whether a tool call probes the application: the dispatcher's probe commands (quoted text is an argument, not a
+ * command), a probe script run by tsx or node, or a Playwright MCP browser tool.
+ */
+export function probes(command: string | undefined, tool = ''): boolean {
+  const bare = command?.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""') ?? '';
+  return PROBE.test(bare) || SCRIPT.test(command ?? '') || PROBE.test(tool);
+}
 
 interface Tally { sessions: number; calls: number; found: Record<string, number> }
 const tally = new Map<string, Tally>();
@@ -59,9 +66,9 @@ function scan(file: string, agent: string): void {
       const cmd = b.input?.command;
       // Held-out isolation: an agent that works before the freeze never probes the application (a probe with --key is
       // refused; one without it is only caught here).
-      if (BEFORE_FREEZE.test(agent) && (PROBE.test(typeof cmd === 'string' ? cmd : '') || PROBE.test(b.name ?? ''))) kinds.push('probe before freeze');
       // Quoted text is an argument, not a command: a `grep "node -e"` is no inline program.
       const bare = typeof cmd === 'string' ? cmd.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""') : undefined;
+      if (BEFORE_FREEZE.test(agent) && probes(typeof cmd === 'string' ? cmd : undefined, b.name)) kinds.push('probe before freeze');
       if (bare) for (const [kind, re] of INLINE) if (re.test(bare)) kinds.push(kind);
       if ((b.name === 'Write' || b.name === 'Edit') && /\.(m?js|cjs|py)$/.test(b.input?.file_path ?? '')) kinds.push('script file');
       for (const k of kinds) {
@@ -72,25 +79,38 @@ function scan(file: string, agent: string): void {
   }
 }
 
-const files: string[] = [];
-(function walk(d: string) {
-  for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-    const p = path.join(d, e.name);
-    if (e.isDirectory()) walk(p);
-    else if (p.endsWith('.jsonl')) files.push(p);
+function main(args: string[]): number {
+  const dir = args.find((a) => !a.startsWith('--') && args[args.indexOf(a) - 1] !== '--since');
+  since = args.includes('--since') ? args[args.indexOf('--since') + 1] : undefined;
+  list = args.includes('--list');
+  if (!dir || !fs.existsSync(dir)) {
+    console.log(fs.readFileSync(import.meta.filename, 'utf8').match(/^\/\*\*([\s\S]*?)\*\//)![1].replace(/^ \* ?/gm, '').trim());
+    return dir ? 1 : 0;
   }
-})(dir);
-for (const f of files) {
-  const meta = f.replace(/\.jsonl$/, '.meta.json');
-  const agent = fs.existsSync(meta) ? String((JSON.parse(fs.readFileSync(meta, 'utf8')) as { agentType?: string }).agentType ?? 'subagent') : 'main session';
-  scan(f, agent);
+  const files: string[] = [];
+  (function walk(d: string) {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (p.endsWith('.jsonl')) files.push(p);
+    }
+  })(dir);
+  for (const f of files) {
+    const meta = f.replace(/\.jsonl$/, '.meta.json');
+    const agent = fs.existsSync(meta) ? String((JSON.parse(fs.readFileSync(meta, 'utf8')) as { agentType?: string }).agentType ?? 'subagent') : 'main session';
+    scan(f, agent);
+  }
+
+  // Scripts are one measure; a probe before the freeze is another (a breach of held-out isolation), shown apart.
+  const kinds = [...INLINE.map(([k]) => k), 'script file'];
+  console.log(`| Agent | Sessions | Tool calls | ${kinds.join(' | ')} | Scripts per 100 calls | Probes before the freeze |`);
+  console.log(`| --- | --- | --- | ${kinds.map(() => '---').join(' | ')} | --- | --- |`);
+  for (const [agent, t] of [...tally].filter(([, t]) => t.calls).sort((a, b) => a[0].localeCompare(b[0]))) {
+    const total = kinds.reduce((n, k) => n + (t.found[k] ?? 0), 0);
+    console.log(`| ${agent} | ${t.sessions} | ${t.calls} | ${kinds.map((k) => t.found[k] ?? 0).join(' | ')} | ${(100 * total / t.calls).toFixed(1)} | ${t.found['probe before freeze'] ?? 0} |`);
+  }
+  if (list) for (const f of found) console.log(f);
+  return 0;
 }
 
-const kinds = [...INLINE.map(([k]) => k), 'script file', 'probe before freeze'];
-console.log(`| Agent | Sessions | Tool calls | ${kinds.join(' | ')} | Scripts per 100 calls |`);
-console.log(`| --- | --- | --- | ${kinds.map(() => '---').join(' | ')} | --- |`);
-for (const [agent, t] of [...tally].filter(([, t]) => t.calls).sort((a, b) => a[0].localeCompare(b[0]))) {
-  const total = kinds.reduce((n, k) => n + (t.found[k] ?? 0), 0);
-  console.log(`| ${agent} | ${t.sessions} | ${t.calls} | ${kinds.map((k) => t.found[k] ?? 0).join(' | ')} | ${(100 * total / t.calls).toFixed(1)} |`);
-}
-if (list) for (const f of found) console.log(f);
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) process.exitCode = main(process.argv.slice(2));

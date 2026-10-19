@@ -2,7 +2,7 @@
 name: heldout-contract-reviewer
 description: Independent, evidence-only review of a held-out evaluation's requirement contract — checks every acceptance criterion, rule, error, oracle gap and endpoint against the numbered evidence pack, lists anything missed, and writes 2-contract/review.json bound to the contract hash. Use after the contract is built (heldout-evaluator phase 1b), always in a fresh context separate from the agent that built the contract.
 tools: ['read', 'search', 'edit', 'execute']
-model: ['Claude Sonnet 5.5 (copilot)', 'Claude Sonnet 5 (copilot)', 'Claude Opus 5.5 (copilot)', 'GPT-6.1 Sol (copilot)']
+model: ['Claude Opus 5.5 (copilot)', 'Claude Opus 5 (copilot)', 'Claude Sonnet 5.5 (copilot)', 'GPT-6.1 Sol (copilot)']
 user-invocable: false
 ---
 

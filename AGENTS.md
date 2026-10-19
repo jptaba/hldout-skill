@@ -10,11 +10,17 @@ the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECU
 - Hooks, once per clone: `git config core.hooksPath .githooks`.
 
 ## How a change is made
-- `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; two models for guardrail files) →
+- `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; two independent ones for guardrail files) →
   `pr-packet` (the commit carries the `Gate:` restatement; the hooks add the record). `agentctl status` says what the
   staged change still needs. Docs-only changes need neither proof nor review.
 - Commit and push at each green point: small, focused commits on `master`.
 - The plans in `docs/` are contracts: point `--contract` at the section or progress row a change implements.
+
+## Models
+- Every agent runs on Opus (Copilot lists start with Claude Opus; Claude Code bridges say `opus`). Sonnet is only a
+  fallback, for when Opus is unavailable; an agent that only did basic work (just running a command) could run on it,
+  and none of the current agents does. Independence between agents comes from separate contexts, not separate models
+  (ADR 0003).
 
 ## Rules of this project
 - **Greenfield:** no backward-compatibility shims, deprecated aliases or migration code.

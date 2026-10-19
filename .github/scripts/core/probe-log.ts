@@ -7,6 +7,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { assertIssueKey } from './config';
 import { rel, writeFile } from './files';
 import { recordEvent } from './history';
 import { evalPaths, evalRunsOf, type StoryPaths } from './paths';
@@ -56,7 +57,7 @@ export function tableRows(report: string, sections: string[]): string[] {
  */
 export function requireFrozen(cfg: HeldoutConfig, key: string | undefined, tool: ProbeEntry['tool']): void {
   if (!key) return;
-  const p = evalPaths(cfg, key);
+  const p = evalPaths(cfg, assertIssueKey(key));
   if (fs.existsSync(p.freeze)) return;
   if (fs.existsSync(p.base)) recordEvent(p.history, 'note', { kind: 'isolation', text: `${tool} refused: the draft of ${key} is not frozen yet` });
   throw new Error(`${tool} refused: the draft of ${key} is not frozen yet (${rel(p.freeze)}). Nobody looks at the application for a story before its tests are frozen (held-out isolation); the freeze comes first: heldout integrity ${key} --snapshot`);
@@ -68,7 +69,7 @@ export function requireFrozen(cfg: HeldoutConfig, key: string | undefined, tool:
  */
 export function deliverProbe(cfg: HeldoutConfig, key: string | undefined, o: { tool: ProbeEntry['tool']; tier: ProbeEntry['tier']; input: unknown; report: string; digest: string[] }): ProbeEntry | undefined {
   if (!key) { console.log(o.report); return undefined; }
-  const p = evalPaths(cfg, key);
+  const p = evalPaths(cfg, assertIssueKey(key));
   const probes = readProbes(p);
   const id = `P${probes.reduce((n, e) => Math.max(n, Number(e.id.slice(1)) || 0), 0) + 1}`;
   const report = scratchReport(p, id);

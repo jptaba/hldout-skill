@@ -83,7 +83,15 @@ export function tierOfFile(config, file) {
  */
 export function tierOf(config, files) {
   const tiers = files.map((f) => tierOfFile(config, f));
-  if (!tiers.length) return /** @type {Tier} */ (config.tiers.at(-1));
+  return tiers.length ? combine(tiers) : /** @type {Tier} */ (config.tiers.at(-1));
+}
+
+/**
+ * Tiers combined: every requirement at its most demanding, named after the most demanding tier.
+ * @param {Tier[]} tiers
+ * @returns {Tier}
+ */
+function combine(tiers) {
   const top = tiers.reduce((best, t) => (demands(t) > demands(best) ? t : best));
   return {
     name: top.name, match: top.match,
@@ -93,6 +101,38 @@ export function tierOf(config, files) {
     gate: tiers.some((t) => t.gate !== false),
     contract: tiers.some((t) => Boolean(t.contract)),
   };
+}
+
+/**
+ * What a change is held to: the stricter of the config it commits and the config before it, tier by tier and for the
+ * gate itself, so that no change relaxes its own requirements (a change to the config passes the old rules first).
+ * @param {Config} config the config as it will be committed
+ * @param {Config | undefined} before the config before the change (none for the first commit)
+ * @param {string[]} files
+ * @returns {{ tier: Tier, gate: Pick<Config, 'gate' | 'approvers'> }}
+ */
+export function governing(config, before, files) {
+  const tier = before ? combine([tierOf(config, files), tierOf(before, files)]) : tierOf(config, files);
+  const humans = [before, config].filter((c) => c?.gate === 'human');
+  if (!humans.length) return { tier, gate: { gate: config.gate ?? 'agent' } };
+  // Approvers a change can't add itself: only those every human gate in play names.
+  const approvers = humans.map((c) => (c?.approvers ?? []).map((a) => a.toLowerCase())).reduce((a, b) => a.filter((x) => b.includes(x)));
+  return { tier, gate: { gate: 'human', approvers } };
+}
+
+/**
+ * The scan's own settings a change is held to: only the skip globs both configs have, and the smaller size limit. The
+ * proof steps are the committed config's: changing them is a change to `.agents/`, which its tier reviews.
+ * @param {Config} config
+ * @param {Config | undefined} before
+ * @returns {Config}
+ */
+export function scanSettings(config, before) {
+  if (!before) return config;
+  // Neither config sets a skip list: the default one stands.
+  const either = config.secretScan?.skip ?? before.secretScan?.skip;
+  const skip = either && (config.secretScan?.skip ?? []).filter((g) => (before.secretScan?.skip ?? []).includes(g));
+  return { ...config, secretScan: skip ? { skip } : {}, maxFileBytes: Math.min(config.maxFileBytes ?? 1024 * 1024, before.maxFileBytes ?? 1024 * 1024) };
 }
 
 /**
@@ -302,7 +342,7 @@ const looksLikeCode = (value, quoted, source) => source && !quoted && (/[([]/.te
 const BEARER = /\bBearer\s+([A-Za-z0-9._~+/-]{20,}=*)/;
 const URL_CREDENTIALS = /\b[a-z][a-z0-9+.-]*:\/\/([^\s/:@$<>]+):([^\s/@$<>]{6,})@/i;
 // Not a literal: a reference, a placeholder, or code (a regex, a path, an expression).
-const PLACEHOLDER = /^(?:\$\{|\$\(|\$[A-Za-z_]|<|process\.env|env\.|os\.environ|getenv|\{\{|%|\*+$|x+$|example|changeme|placeholder|redacted|dummy|your[_-]|[/\\[({])/i;
+const PLACEHOLDER = /^(?:\$\{|\$\(|<|process\.env|env\.|os\.environ|getenv|\{\{|%|\*+$|x+$|example|changeme|placeholder|redacted|dummy|your[_-]|[/\\[({])/i;
 const ALLOW = 'agentctl-allow-secret';
 /** @param {string} s */
 const entropy = (s) => { /** @type {Map<string, number>} */ const n = new Map(); for (const c of s) n.set(c, (n.get(c) ?? 0) + 1); return [...n.values()].reduce((h, k) => h - (k / s.length) * Math.log2(k / s.length), 0); };
@@ -322,7 +362,18 @@ export function secretHits(text, file = '') {
     const literal = (/** @type {string} */ v) => !PLACEHOLDER.test(v) && /[0-9]/.test(v) && /[A-Za-z]/.test(v);
     // PowerShell's `$env:NAME = …` names the key after the prefix.
     const pairs = [...line.replace(/\$?env:(?=[A-Za-z_])/gi, '').matchAll(source ? PAIR : PAIR_CONFIG)];
-    if (pairs.some((m) => { const value = m[3] ?? m[4]; return namesCredential(m[1]) && literal(value) && !looksLikeCode(value, m[2] !== undefined, source); })) { hits.push({ line: i + 1, why: 'a credential assigned a literal value' }); return; }
+    // Not a secret: a quoted value with spaces (prose: a validation message, a label; the trade-off is that a passphrase
+    // with spaces is missed), or a whole `$NAME` / `${NAME}` unquoted or in double quotes (a shell expands it there; in
+    // single quotes it would not, so it is taken as written).
+    const reference = /^\$(?:[A-Za-z_]\w*|\{[A-Za-z_]\w*\})$/;
+    const credential = (/** @type {RegExpMatchArray} */ m) => {
+      const quoted = m[2] !== undefined;
+      const value = m[3] ?? m[4];
+      if (quoted && /\s/.test(value)) return false;
+      if ((!quoted || m[2] === '"') && reference.test(value)) return false;
+      return namesCredential(m[1]) && literal(value) && !looksLikeCode(value, quoted, source);
+    };
+    if (pairs.some(credential)) { hits.push({ line: i + 1, why: 'a credential assigned a literal value' }); return; }
     const b = line.match(BEARER);
     if (b && literal(b[1])) { hits.push({ line: i + 1, why: 'a bearer token' }); return; }
     const u = line.match(URL_CREDENTIALS);
@@ -377,6 +428,18 @@ function gatedFiles() {
   return heads.reduce((own, h) => { const differs = new Set(nul(git(['diff', '--cached', '--name-only', '-z', '--no-renames', h]))); return own.filter((f) => differs.has(f)); }, stagedFiles());
 }
 
+/**
+ * The config as a commit had it (default: HEAD, the config before the staged change), if it had one.
+ * @param {string} [rev]
+ * @returns {Config | undefined}
+ */
+function configAt(rev = 'HEAD') {
+  const bytes = git(['show', `${rev}:.agents/config.json`], { raw: true, allowFail: true });
+  if (!bytes.length) return undefined;
+  // A config that can't be read would drop the rules a change is held to: refuse rather than go on without them.
+  try { return JSON.parse(bytes.toString('utf8')); } catch { throw new Error(`.agents/config.json at ${rev} can't be read, so the rules before this change are unknown: repair it first`); }
+}
+
 /** @param {string} dir */
 function loadConfig(dir) {
   const file = path.join(dir, '.agents', 'config.json');
@@ -400,7 +463,11 @@ function readLedger(dir, c, opts = {}) {
   const f = ledgerFile(dir, c);
   if (!fs.existsSync(f)) return [];
   return fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).flatMap((l, i) => {
-    try { return [JSON.parse(l)]; } catch {
+    try {
+      const r = JSON.parse(l);
+      if (!r || typeof r !== 'object' || !['proof', 'review'].includes(r.kind) || typeof r.tree !== 'string') throw new Error('not a record');
+      return [r];
+    } catch {
       const what = `${path.relative(dir, f)}:${i + 1} is not a record: a damaged ledger can hide a veto`;
       if (opts.strict) throw new Error(`${what}. Repair or remove that line (and re-run verify and the reviews if unsure), then commit again.`);
       console.error(`⚠ ${what}; check it`);
@@ -483,7 +550,7 @@ function verify(args) {
   if (!files.length) { console.error('✖ nothing is staged'); return 1; }
   if (!hooksInstalled()) console.log('⚠ the hooks are not installed in this clone: node .agents/scripts/agentctl.mjs install-hooks');
   const tree = stagedTree();
-  const tier = tierOf(config, files);
+  const { tier, gate } = governing(config, configAt(), files);
   const contractArg = flag(args, 'contract');
   let contract; let contractSha; let asked = '(no contract given: --contract <file>[#section])';
   if (contractArg) {
@@ -494,7 +561,7 @@ function verify(args) {
     contract = contractArg;
     contractSha = sha256(asked);
   } else if (tier.contract) { console.error(`✖ tier ${tier.name} needs a contract: --contract <file>[#section]`); return 1; }
-  const scan = scanFiles(config, stagedPresent(), readStaged);
+  const scan = scanFiles(scanSettings(config, configAt()), stagedPresent(), readStaged);
   /** @type {{ name: string, exit: number, ms: number }[]} */
   const steps = [{ name: 'secrets', exit: scan.found ? 1 : 0, ms: 0 }];
   const outputs = [{ step: { name: 'secrets', run: 'agentctl scan-secrets --staged' }, exit: scan.found ? 1 : 0, tail: [`${scan.found} hit(s) in ${scan.scanned} file(s)`, scan.skipped].filter(Boolean).join('\n') }];
@@ -520,7 +587,7 @@ function verify(args) {
   fs.writeFileSync(packet, [
     `# PR packet — ${new Date().toISOString()}`, '',
     `- Staged tree: \`${tree}\` (on ${head.slice(0, 12)})`,
-    `- Tier: **${tier.name}**: proof ${tier.proof === false ? 'not required' : 'required'}, ${tier.reviews ?? 0} review(s)${(tier.models ?? 1) > 1 ? ` from ${tier.models} models` : ''}, gate ${tier.gate === false ? 'not required' : (config.gate ?? 'agent')}`,
+    `- Tier: **${tier.name}**: proof ${tier.proof === false ? 'not required' : 'required'}, ${tier.reviews ?? 0} review(s)${(tier.models ?? 1) > 1 ? ` from ${tier.models} models` : ''}, gate ${tier.gate === false ? 'not required' : gate.gate}`,
     `- Contract: ${contract ? `${contract} (sha256 of the section: ${contractSha})` : 'none'}`, '',
     '## What was asked', '', asked.split('\n').slice(0, 120).join('\n'), '',
     '## What changed', '', '```', git(['diff', '--cached', '--stat', '--no-renames']).trimEnd(), '```', '',
@@ -566,7 +633,7 @@ function status() {
   const files = stagedFiles();
   if (!files.length) { console.log('nothing staged'); return 0; }
   const tree = stagedTree();
-  const tier = tierOf(config, files);
+  const { tier, gate } = governing(config, configAt(), gatedFiles());
   const records = readLedger(dir, config);
   console.log(`staged: ${files.length} file(s), tree ${tree.slice(0, 12)}, tier ${tier.name}`);
   for (const f of files.slice(0, 20)) console.log(`  ${tierOfFile(config, f).name.padEnd(10)} ${f}`);
@@ -576,8 +643,8 @@ function status() {
   const verdicts = latestVerdicts(records, tree);
   console.log(`reviews: ${verdicts.length ? verdicts.map((r) => `${r.reviewer}/${r.model} ${r.verdict}`).join(', ') : 'none'} (tier needs ${tier.reviews ?? 0}${(tier.models ?? 1) > 1 ? ` from ${tier.models} models` : ''})`);
   // The commit message's own trailer (Gate or Approved-by) is written at commit time: everything else is checked here.
-  const missing = gateProblems({ config, tier: { ...tier, gate: false }, message: '', tree, records });
-  console.log(missing.length ? `missing: ${missing.join('; ')}` : `✔ ready to commit${tier.gate === false ? '' : (config.gate ?? 'agent') === 'human' ? ' (a person adds Approved-by:)' : ' (with a Gate: trailer)'}`);
+  const missing = gateProblems({ config: gate, tier: { ...tier, gate: false }, message: '', tree, records });
+  console.log(missing.length ? `missing: ${missing.join('; ')}` : `✔ ready to commit${tier.gate === false ? '' : gate.gate === 'human' ? ' (a person adds Approved-by:)' : ' (with a Gate: trailer)'}`);
   return 0;
 }
 
@@ -587,7 +654,7 @@ function scanSecrets(args) {
   const config = fs.existsSync(path.join(dir, '.agents', 'config.json')) ? loadConfig(dir) : /** @type {Config} */ ({ proof: [], tiers: [{ name: 'all', match: ['**'] }] });
   const staged = args[0] === '--staged';
   // A path that can't be read is an error, never "clean".
-  const { found, scanned } = staged ? scanFiles(config, stagedPresent(), readStaged)
+  const { found, scanned } = staged ? scanFiles(scanSettings(config, configAt()), stagedPresent(), readStaged)
     : scanFiles(config, args.map((a) => path.relative(dir, path.resolve(a)).split(path.sep).join('/')), (f) => fs.readFileSync(path.join(dir, f)));
   console.log(found ? `✖ scan-secrets: ${found} hit(s)` : `✔ scan-secrets: clean (${scanned} file(s))`);
   return found ? 1 : 0;
@@ -601,11 +668,11 @@ function preCommit() {
     console.error(`✖ pre-commit: no direct commits to ${branch}: commit on a branch and open a pull request`); return 1;
   }
   if (scanSecrets(['--staged']) !== 0) { console.error(`✖ pre-commit: a staged file looks like it holds a secret (above). Remove it (if one was ever committed, rotate it); a known non-secret line can carry "${ALLOW}" with the reason.`); return 1; }
-  const limit = config.maxFileBytes ?? 1024 * 1024;
+  const limit = scanSettings(config, configAt()).maxFileBytes ?? 1024 * 1024;
   const big = stagedPresent().filter((f) => Number(git(['cat-file', '-s', `:${f}`])) > limit);
   if (big.length) { console.error(`✖ pre-commit: over ${limit} bytes: ${big.join(', ')}`); return 1; }
   const files = gatedFiles();
-  const tier = tierOf(config, files);
+  const { tier } = governing(config, configAt(), files);
   if (files.length && tier.proof !== false && !readLedger(dir, config, { strict: true }).some((r) => r.kind === 'proof' && r.tree === stagedTree() && r.ok)) {
     console.error(`✖ pre-commit: no passing proof for the staged tree (tier ${tier.name}): node .agents/scripts/agentctl.mjs verify`); return 1;
   }
@@ -620,7 +687,7 @@ function prepareCommitMsg([file, source]) {
   const files = gatedFiles();
   if (!files.length) return 0;
   const tree = stagedTree();
-  fs.writeFileSync(file, withTrailers(fs.readFileSync(file, 'utf8'), recordTrailers(tierOf(config, files), readLedger(dir, config, { strict: true }), tree)));
+  fs.writeFileSync(file, withTrailers(fs.readFileSync(file, 'utf8'), recordTrailers(governing(config, configAt(), files).tier, readLedger(dir, config, { strict: true }), tree)));
   return 0;
 }
 
@@ -634,7 +701,8 @@ function commitMsg([file]) {
   if (!files.length) return 0;
   const tree = stagedTree();
   const records = readLedger(dir, config, { strict: true });
-  const problems = gateProblems({ config, tier: tierOf(config, files), message: fs.readFileSync(file, 'utf8'), tree, records });
+  const held = governing(config, configAt(), files);
+  const problems = gateProblems({ config: held.gate, tier: held.tier, message: fs.readFileSync(file, 'utf8'), tree, records });
   // The contract proven must still say the same, in the version being committed.
   const proof = /** @type {ProofRecord[]} */ (records.filter((r) => r.kind === 'proof' && r.tree === tree && r.ok)).at(-1);
   if (proof?.contract) {
@@ -674,7 +742,6 @@ function audit([given]) {
   let scanned = 0;
   let gated = 0;
   const big = [];
-  const limit = config.maxFileBytes ?? 1024 * 1024;
   // Every commit's own files are scanned as that commit has them, merges included (a secret added and removed in one
   // push stays in history). The gate applies to the commits that make changes; a merge only brings them together.
   const all = git(['rev-list', range]).split('\n').filter(Boolean);
@@ -685,7 +752,10 @@ function audit([given]) {
     const files = merges.has(c) ? nul(git(['diff-tree', '--no-commit-id', '-r', '-c', '--name-only', '-z', c]))
       : nul(git(['diff-tree', '--no-commit-id', '--name-only', '-r', '-z', '--root', '--no-renames', c]));
     const present = files.filter((f) => git(['cat-file', '-t', `${c}:${f}`], { allowFail: true }).trim() === 'blob');
-    const scan = scanFiles(config, present, (f) => git(['show', `${c}:${f}`], { raw: true }));
+    // Scanned as the commit's own config and the one before it allow together (a commit can't skip itself out).
+    const settings = scanSettings(configAt(c) ?? config, configAt(`${c}^`));
+    const limit = settings.maxFileBytes ?? 1024 * 1024;
+    const scan = scanFiles(settings, present, (f) => git(['show', `${c}:${f}`], { raw: true }));
     found += scan.found;
     scanned += scan.scanned;
     big.push(...present.filter((f) => Number(git(['cat-file', '-s', `${c}:${f}`])) > limit).map((f) => `${c.slice(0, 10)}:${f}`));
@@ -693,7 +763,8 @@ function audit([given]) {
     // from every parent (a resolution, an edit, a file git combined from both sides) is gated by them.
     if (merges.has(c) && !files.length) continue;
     gated++;
-    const tier = tierOf(config, files);
+    // Held, as at commit time, to the stricter of the config it committed and the one before it.
+    const { tier, gate } = governing(configAt(c) ?? config, configAt(`${c}^`), files);
     /** @param {string} contract */
     const contractShaAt = (contract) => {
       const [f, anchor] = contract.split('#');
@@ -702,10 +773,10 @@ function audit([given]) {
       try { return text === undefined ? undefined : sha256(contractSection(text, f, anchor)); } catch { return undefined; }
     };
     const tree = git(['rev-parse', `${c}^{tree}`]).trim();
-    const problems = gateProblems({ config, tier, message: git(['log', '-1', '--format=%B', c]), tree, contractShaAt });
+    const problems = gateProblems({ config: gate, tier, message: git(['log', '-1', '--format=%B', c]), tree, contractShaAt });
     if (problems.length) { bad++; console.error(`✖ ${c.slice(0, 10)} (tier ${tier.name}): ${problems.join('; ')}`); }
   }
-  if (big.length) console.error(`✖ over ${limit} bytes: ${big.join(', ')}`);
+  if (big.length) console.error(`✖ over the size limit: ${big.join(', ')}`);
   console.log(bad ? `✖ audit (${range}): ${bad} of ${gated} commit(s) lack what their tier needs, or carry trailers that don't match them` : `✔ audit (${range}): ${gated} commit(s) carry trailers consistent with their tier, tree and contract`);
   console.log(found ? `✖ audit: ${found} possible secret(s) in the commits' own files` : `✔ audit: no secret in the ${scanned} file version(s) the commits changed`);
   return bad || found || big.length ? 1 : 0;

@@ -35,11 +35,16 @@ different files is not gated (the commits it brings are). A merge with files of 
 every parent, is gated by those files' tier, like any change, locally and in the audit: a conflict resolution, an edit
 made in the merge, and also a file both sides changed that git combined without a conflict (a combination neither
 side's proof or review saw). So merging a branch that touched the same files as yours needs `verify` and its reviews.
+A host's squash or rebase merge makes a tree nobody proved, so it fails the audit: under `"no-direct-commits"`, merge
+with a merge commit. A change to `.agents/config.json` can't relax its own requirements: every change is held to the
+stricter of the config it commits and the one before it for its tier, the gate and its approvers (only those both
+name), and the scan (only skip globs both have, the smaller size limit). The proof steps are the committed config's
+own; changing them is a change to `.agents/`, reviewed at its tier.
 
 **The secret scan is a heuristic.** It catches the common shapes of keys, tokens and credentials; it can't prove a file
-holds none. The repository host's own secret scanning and push protection (`SECURITY.md`) are the backstop. A host's squash or rebase merge makes a tree nobody proved, so it
-fails the audit: under `"no-direct-commits"`, merge with a merge commit. Binary content is not scanned, and the scan
-names the files it skipped (UTF-16 without a byte-order mark reads as binary).
+holds none. The repository host's own secret scanning and push protection (`SECURITY.md`) are the backstop. Binary
+content is not scanned, and the scan names the files it skipped (UTF-16 without a byte-order mark reads as binary).
+Quoted prose (a value with spaces) and an unquoted or double-quoted `$NAME` are not taken for secrets.
 
 ## Install the hooks
 `node .agents/scripts/agentctl.mjs install-hooks` (`git config core.hooksPath .githooks`) — once per clone.

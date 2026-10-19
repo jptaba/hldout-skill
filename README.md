@@ -145,7 +145,7 @@ tests it judges.
 | Subagent | Phase | Browser | GitHub Copilot (first available) | Claude Code |
 | --- | --- | --- | --- | --- |
 | `heldout-contract-extractor` | 1b build the requirement contract | — | Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol | `opus`, falling back to `sonnet` |
-| `heldout-contract-reviewer` | 1b review it independently | — | Claude Sonnet 5.5 → Claude Sonnet 5 → Claude Opus 5.5 → GPT-6.1 Sol | `sonnet`, falling back to `opus` |
+| `heldout-contract-reviewer` | 1b review it independently, in a fresh context | — | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-test-author` | 2 write the tests from the contract, on the app's journeys | — | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-hardener` | 3 harden tests and fixtures; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-triager` | 5 triage, reproduce live | ✔ | as the extractor | `opus`, falling back to `sonnet` |

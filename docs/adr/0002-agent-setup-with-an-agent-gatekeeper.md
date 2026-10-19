@@ -16,7 +16,7 @@ and usable by anyone who clones it with minimal or no changes.
 - One project-agnostic tool, `agentctl` (Node, no dependencies), records proof and reviews by the staged tree's hash
   and enforces them in git hooks; CI re-audits every pushed commit's trailers.
 - Tiers by path: docs need nothing; code needs proof, one review and the gate; guardrails need proof, two reviews on
-  two models and the gate.
+  two models and the gate (two independent reviews on one model since ADR 0003).
 - The gate is the maintainer agent (`"gate": "agent"`): a restatement in its own words, accepted only with the
   independent reviews on record. `"gate": "human"` switches to an `Approved-by:` naming one of the `approvers`.
 - The sample's "no commits to main" is replaced by the proof gate (`"branchPolicy": "proof"`), keeping small commits

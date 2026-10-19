@@ -45,8 +45,8 @@ costs: `.agents/policy/guardrails.md`.
   verified, reviewed, committed with its trailers) and closes the automated pull request.
 - **Merges:** a merge whose sides touched different files is not gated; the commits it brings are. A merge with files
   of its own (a conflict resolution, an edit made in the merge, or a file both sides changed that git combined) is new
-  content and passes the gate at those files' tier: proof, reviews, the gatekeeper's restatement. A host's squash or rebase merge makes a tree nobody proved: merge with a merge commit, or
-  commit the change through the gate.
+  content and passes the gate at those files' tier: proof, reviews, the gatekeeper's restatement. A host's squash or
+  rebase merge makes a tree nobody proved: merge with a merge commit, or commit the change through the gate.
 
 ## Decisions
 Significant choices are short ADRs in `docs/adr/` (see ADR 0001): a new guardrail or a change of tier, a new

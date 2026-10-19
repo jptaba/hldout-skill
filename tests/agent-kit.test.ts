@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
-import { approvals, asText, contractSection, gateProblems, globToRegExp, parseReview, secretHits, tierOf, trailersOf, vetoes, withTrailers } from '../.agents/scripts/agentctl.mjs';
+import { approvals, asText, contractSection, gateProblems, globToRegExp, governing, parseReview, scanSettings, secretHits, tierOf, trailersOf, vetoes, withTrailers } from '../.agents/scripts/agentctl.mjs';
 import { SHIPPED } from '../.github/scripts/setup/update';
 
 const REPO = path.resolve(import.meta.dirname, '..');
@@ -115,8 +115,26 @@ describe('the agent setup: the gate\'s logic', () => {
     assert.equal(parseReview('a · m1 · not APPROVE'), undefined);
   });
 
+  it('holds a change to the stricter of the config it commits and the one before it', () => {
+    const strict = { proof: [], gate: 'human' as const, approvers: ['@owner'], tiers: [{ name: 'guard', match: ['g/**'], reviews: 2, models: 2, gate: true }, { name: 'rest', match: ['**'], proof: false, reviews: 0, gate: false }] };
+    const relaxed = { proof: [], gate: 'agent' as const, tiers: [{ name: 'rest', match: ['**'], proof: false, reviews: 0, gate: false }] };
+    const held = governing(relaxed, strict, ['g/x.ts']);
+    assert.equal(held.tier.reviews, 2);
+    assert.equal(held.tier.models, 2);
+    assert.equal(held.gate.gate, 'human', 'a change can\'t switch the gate away from a person');
+    assert.equal(governing(relaxed, undefined, ['g/x.ts']).tier.reviews, 0, 'the first config governs itself');
+    // Approvers a change can't add itself: only those every human gate names.
+    const widened = { ...strict, approvers: ['@owner', '@newcomer'] };
+    assert.deepEqual(governing(widened, strict, ['x.ts']).gate.approvers, ['@owner']);
+    // The scan: only the skip globs both configs have, the smaller size limit.
+    const wide = scanSettings({ ...relaxed, secretScan: { skip: ['**/*.lock', 'secrets/**'] }, maxFileBytes: 5_000_000 }, { ...strict, secretScan: { skip: ['**/*.lock'] }, maxFileBytes: 1_000_000 });
+    assert.deepEqual(wide.secretScan?.skip, ['**/*.lock']);
+    assert.equal(wide.maxFileBytes, 1_000_000);
+  });
+
   it('says what a commit lacks for its tier, from the ledger', () => {
-    const tier = tierNamed('guardrail');
+    // A tier that asks for two reviews from two models, whatever this project's config sets.
+    const tier = { ...tierNamed('guardrail'), reviews: 2, models: 2 };
     const proof = { kind: 'proof' as const, tree: 't', ok: true, steps: [], ts: '1', head: 'h', contract: 'docs/x.md#A', contractSha: 'abc' };
     const review = (model: string, verdict = 'APPROVE') => ({ kind: 'review' as const, tree: 't', verdict, model, reviewer: 'code-reviewer', findings: 0, ts: '2' });
     const gate = 'Subject\n\nGate: the change restated in the gatekeeper\'s own words, with what was not checked';
@@ -191,6 +209,14 @@ describe('the agent setup: the gate\'s logic', () => {
     assert.equal(secretHits(`CSRF_TOKEN_SECRET=${fake('a8f3k2', 'j9x7q1')}`, '.env').length, 1, 'another credential word keeps it a credential');
     assert.equal(secretHits('DB_PASSWORD=$DB_PASSWORD_V2', 'deploy.sh').length, 0, 'a shell reference is not a literal');
     assert.equal(secretHits('    token: t.slice(0, 12),', 'README.md').length, 0, 'a code example in Markdown is code');
+    assert.equal(secretHits('password: "Must be at least 8 characters"', 'src/x.ts').length, 0, 'quoted prose is not a secret');
+    assert.equal(secretHits('"password": "Password (min. 8 chars)"', 'i18n/en.json').length, 0);
+    assert.equal(secretHits('password=$DB_PASSWORD_2', '.env').length, 0, 'an unquoted whole $NAME is a reference');
+    assert.equal(secretHits('PASSWORD="$DB_PASSWORD_V2"', 'deploy.sh').length, 0, 'so is one in double quotes, which a shell expands');
+    assert.equal(secretHits('PASSWORD="${DB_PASSWORD_V2}"', 'deploy.sh').length, 0);
+    assert.equal(secretHits(`PASSWORD='${fake('$DB_PASS', 'WORD_V2')}'`, 'deploy.sh').length, 1, 'single quotes keep it as written');
+    assert.equal(secretHits(`password=${fake('$ecret-', 'Pass99')}`, '.env').length, 1, 'a value that only starts with $ is not');
+    assert.equal(secretHits(`password: '${fake('$ecret', 'Pass99')}'`, 'src/x.ts').length, 1, 'a quoted one is taken as written');
     // In source code an unquoted expression is code.
     for (const line of ['passwordRepeat: "Abc12345xyz"', 'token_type: "Bearer01"', 'const secretName = "app-secret-01"', 'if (token === expected01) {}',
       'const token = tokens[0];', 'token: t.slice(0, 12),', 'const apiKey = cfg.keys.v2;', 'const secret = crypto.randomBytes(32).toString("hex");',
@@ -381,6 +407,28 @@ describe('the agent setup: end to end in a git repository', () => {
     }
   });
 
+  it('compares an octopus merge with every head, not only the first', () => {
+    const main = run('git', ['rev-parse', '--abbrev-ref', 'HEAD']).stdout.trim();
+    const start = run('git', ['rev-parse', 'HEAD']).stdout.trim();
+    try {
+      for (const b of ['oa', 'ob']) {
+        run('git', ['checkout', '-q', '-b', b, start]);
+        write(`${b}.ts`, `export const ${b} = 1;\n`);
+        run('git', ['add', '-A']);
+        run('git', ['commit', '-q', '--no-verify', '-m', b]);
+      }
+      run('git', ['checkout', '-q', main]);
+      assert.equal(run('git', ['merge', '-q', '--no-ff', '--no-commit', 'oa', 'ob']).status, 0);
+      fs.writeFileSync(msg, 'Merge branches oa and ob\n');
+      assert.equal(ctl('hook', 'commit-msg', msg).status, 0, 'each file is one head\'s own: nothing of the merge\'s');
+    } finally {
+      run('git', ['merge', '--abort']);
+      run('git', ['checkout', '-q', main]);
+      run('git', ['reset', '-q', '--hard', start]);
+      run('git', ['branch', '-q', '-D', 'oa', 'ob']);
+    }
+  });
+
   it('needs a proof to commit a merge that resolved a conflict', () => {
     const main = run('git', ['rev-parse', '--abbrev-ref', 'HEAD']).stdout.trim();
     const start = run('git', ['rev-parse', 'HEAD']).stdout.trim();
@@ -409,6 +457,9 @@ describe('the agent setup: end to end in a git repository', () => {
     assert.match(scan.stdout, /not scanned \(binary\): blob\.bin/);
     const ledger = path.join(dir, '.agents', 'runs', 'ledger.jsonl');
     const lines = fs.readFileSync(ledger, 'utf8').split('\n').filter(Boolean).length;
+    fs.appendFileSync(ledger, 'null\n');
+    assert.match(ctl('hook', 'pre-commit').stderr, /damaged ledger/, 'valid JSON that is no record is damage too');
+    fs.writeFileSync(ledger, `${fs.readFileSync(ledger, 'utf8').split('\n').filter(Boolean).slice(0, lines).join('\n')}\n`);
     fs.appendFileSync(ledger, '{"kind":"review", broken\n');
     assert.match(ctl('status').stderr, new RegExp(`ledger\\.jsonl:${lines + 1} is not a record`), 'status warns');
     fs.writeFileSync(msg, `Add blob\n\n${gateLine}\n`);

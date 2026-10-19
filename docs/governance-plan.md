@@ -202,7 +202,7 @@ in matching order (the catch-all last); the most demanding tier any file falls i
 | --- | --- | --- |
 | docs | `docs/**`, `README.md`, the demo's notes and scorecard | the hooks' secret and size checks |
 | code | everything else | proof, a contract, one review, the gate |
-| guardrail | the agent setup itself (`.agents/**`, hooks, the reviewer, bridges, CI, `AGENTS.md`, the policies, the kit's tests), what defines the proof and the shipping list (`package.json`, the tsconfigs, `.gitignore`, `setup/update.ts`), every agent and skill file (the held-out rules), `core/redact.ts`, `core/secrets.ts`, `authoring/integrity*`, `requirement/contract-model.ts`, `requirement/evidence.ts`, `demo/answer-keys/**` | proof, a contract, two reviews on two models, the gate |
+| guardrail | the agent setup itself (`.agents/**`, hooks, the reviewer, bridges, CI, `AGENTS.md`, the policies, the kit's tests), what defines the proof and the shipping list (`package.json`, the tsconfigs, `.gitignore`, `setup/update.ts`), every agent and skill file (the held-out rules), `core/redact.ts`, `core/secrets.ts`, `authoring/integrity*`, `requirement/contract-model.ts`, `requirement/evidence.ts`, `demo/answer-keys/**` | proof, a contract, two independent reviews, the gate |
 
 **Anyone else who clones this repository** gets the same agents, skills, hooks and gate, working unchanged with the
 agent as gatekeeper. A team that wants a person at the gate sets `"gate": "human"` and lists its `approvers` in
@@ -219,7 +219,7 @@ The maintainer agent prepares each of these (what, where, why) and stops; it nev
 
 ### Answer keys (G8)
 
-The answer keys are guardrail files: a change to one needs two reviews on two models, and `AGENTS.md` requires an ADR.
+The answer keys are guardrail files: a change to one needs two independent reviews, and `AGENTS.md` requires an ADR.
 Pinning each key's hash in the scorecard, so a score names the exact key it was measured against, is left for the
 `dev/` move (G9).
 
@@ -315,6 +315,6 @@ plan has finished.
 | The phase gate blocks a legitimate probe | A hardener stuck before the freeze | There is no legitimate one: the draft is frozen before anyone looks at the application. Setup probes carry no `--key` and stay open. |
 | `injection-suspect` warns on ordinary story text ("you must sign in") | Noise the reviewer learns to ignore | The patterns address an agent or a system, not a user. Measured on the 14 demo stories before it ships: zero hits there is the bar. |
 | Reviews slow maintainers down | Fewer, bigger commits | Tier 0 needs none; tier 1 runs while the next change starts; the hook itself stays under 1 s. Measured in the Proof package. |
-| The agent gatekeeper approves weak changes | Self-approval in another form | The gate requires an independent review on record; tier 2 requires two, on different models. The `Gate:` restatement and the review are in the commit for the owner to audit at any time. |
+| The agent gatekeeper approves weak changes | Self-approval in another form | The gate requires an independent review on record; the guardrail tier requires two, each in its own context. The `Gate:` restatement and the review are in the commit for the owner to audit at any time. |
 | Rules diverge between the two agent apps | One app runs looser | A single source (`AGENTS.md`, `core/roles.ts`) and tests that check the generated files against it. |
 | Maintainer files leak into adopters' projects | Clutter, confusing rules | The shipping-boundary test (GM4). |
