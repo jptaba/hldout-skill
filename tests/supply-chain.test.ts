@@ -9,7 +9,7 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 import { PLAYWRIGHT_MCP } from '../.github/scripts/core/config';
 import { DEV_DEPENDENCIES } from '../.github/scripts/setup/init';
-import { MCP_FILE, playwrightMcpSpecs } from '../.github/scripts/setup/mcp-config';
+import { MCP_FILE, playwrightMcpConfigured, playwrightMcpSpecs } from '../.github/scripts/setup/mcp-config';
 
 const REPO = path.resolve(import.meta.dirname, '..');
 const read = (f: string) => fs.readFileSync(path.join(REPO, f), 'utf8');
@@ -50,6 +50,15 @@ describe('supply chain', () => {
     assert.deepEqual(off(vscode(['dlx', '@playwright/mcp@next'], 'yarn')), ['@playwright/mcp@next']);
     assert.deepEqual(off(vscode(undefined, 'npx -y @playwright/mcp@latest')), ['@playwright/mcp@latest']);
     assert.deepEqual(off(JSON.stringify({ servers: { a: { command: 'npx', args: [PLAYWRIGHT_MCP] } }, mcpServers: { a: { command: 'npx', args: ['@playwright/mcp@latest'] } } })), ['@playwright/mcp@latest']);
+    // A path that only contains the words (a config file) is not the server.
+    assert.deepEqual(off(vscode(['-y', PLAYWRIGHT_MCP, '--config', './playwright/mcp.json'])), []);
+    assert.deepEqual(off(vscode(['-y', 'file:../vendor/playwright/mcp.tgz'])), ['file:../vendor/playwright/mcp.tgz']);
+    assert.deepEqual(off(vscode(['-y', PLAYWRIGHT_MCP, '--config', 'C:/cfg/playwright/mcp.json'])), [], 'a drive letter is no URL scheme');
+    // Configured: by the parsed specs, or for a file with comments, by whether its text names the server.
+    assert.equal(playwrightMcpConfigured(vscode(['-y', PLAYWRIGHT_MCP])), true);
+    assert.equal(playwrightMcpConfigured(vscode(['server.js'], 'node')), false);
+    assert.equal(playwrightMcpConfigured('{ // tier 2\n "servers": { "p": { "command": "npx", "args": ["@playwright/mcp@0.0.83"] } } }'), true);
+    assert.equal(playwrightMcpConfigured('{ // no browser here\n "servers": {} }'), false);
     // Not Playwright, or malformed entries: nothing to hold to the pin, and no crash.
     assert.deepEqual(playwrightMcpSpecs(JSON.stringify({ servers: { p: { command: 'node', args: ['server.js'] } } })), []);
     assert.deepEqual(playwrightMcpSpecs(JSON.stringify({ servers: { p: null, q: { args: {} }, r: 3 } })), []);

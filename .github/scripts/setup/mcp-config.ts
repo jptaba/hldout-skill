@@ -13,7 +13,7 @@ type Server = { command?: string; args?: string[]; [k: string]: unknown };
 
 /**
  * How an MCP file (either app's format) names the Playwright MCP server: every word of every server's command and
- * arguments that mentions `playwright/mcp` (a `--package=` prefix dropped), in whatever runner, tarball or URL form.
+ * arguments that names `@playwright/mcp`, or a URL or tarball of it (a `--package=` prefix dropped), in any runner.
  * [] when no server runs it; undefined when the file can't be read as plain JSON (VS Code also accepts comments).
  * The skill pins one exact spec (`PLAYWRIGHT_MCP`): anything else differs from what it is tested with.
  */
@@ -28,10 +28,18 @@ export function playwrightMcpSpecs(text: string): string[] | undefined {
       if (!server || typeof server !== 'object') continue;
       const { command, args } = server as { command?: unknown; args?: unknown };
       const words = [command, ...(Array.isArray(args) ? args : [])].filter((w): w is string => typeof w === 'string').flatMap((w) => w.split(/\s+/));
-      specs.push(...words.map((w) => w.replace(/^(?:--package=|-p=)/, '')).filter((w) => /playwright\/mcp/i.test(w)));
+      // The package by its name, or fetched from a URL or a tarball; a path that merely contains the words (a config
+      // file) is not the server.
+      specs.push(...words.map((w) => w.replace(/^(?:--package=|-p=)/, '')).filter((w) => /@playwright\/mcp/i.test(w) || (/playwright\/mcp/i.test(w) && /^[a-z][a-z+]+:|\.tgz\b/i.test(w))));
     }
   }
   return specs;
+}
+
+/** Whether an MCP file's text configures the Playwright MCP server: by its parsed specs, or, unparsable, by its text. */
+export function playwrightMcpConfigured(text: string): boolean {
+  const specs = playwrightMcpSpecs(text);
+  return specs === undefined ? /playwright\/mcp/i.test(text) : specs.length > 0;
 }
 
 /** The servers a .vscode/mcp.json declares; undefined when it is missing or not plain JSON. */

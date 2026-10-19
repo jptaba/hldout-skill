@@ -24,7 +24,7 @@ import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from
 import { checkAccountRecipe, envNamesIn } from '../probe/accounts-recipe';
 import { appRootOf, describeCounts, discoverApp } from '../probe/detect';
 import { createTracker } from '../requirement/jira/client';
-import { CLAUDE_MCP_FILE, MCP_FILE, playwrightMcpSpecs } from './mcp-config';
+import { CLAUDE_MCP_FILE, MCP_FILE, playwrightMcpConfigured, playwrightMcpSpecs } from './mcp-config';
 
 type Level = 'ok' | 'warn' | 'fail';
 const results: { level: Level; area: string; msg: string; fix?: string }[] = [];
@@ -117,12 +117,13 @@ export async function run({ flags }: Args): Promise<void> {
   // Playwright MCP (tier 2): .vscode/mcp.json for GitHub Copilot, the root .mcp.json for Claude Code.
   for (const [file, app, fix] of [[MCP_FILE, 'GitHub Copilot', UPDATE_HINT], [CLAUDE_MCP_FILE, 'Claude Code', `${H} init`]] as const) {
     const at = path.join(ROOT, file);
-    const specs = fs.existsSync(at) ? playwrightMcpSpecs(fs.readFileSync(at, 'utf8')) : [];
+    const text = fs.existsSync(at) ? fs.readFileSync(at, 'utf8') : '';
+    const specs = text ? playwrightMcpSpecs(text) : [];
     // Pinned: the version this skill is tested with, in both apps' files (update refreshes .vscode/mcp.json, never a
     // server .mcp.json already has), so @latest, a range or an older pin is a warning.
     if (specs === undefined) check('warn', 'browser tiers', `${file} isn't plain JSON (comments?), so its Playwright MCP version can't be checked`, `make sure it runs ${PLAYWRIGHT_MCP}`);
     for (const spec of (specs ?? []).filter((s) => s !== PLAYWRIGHT_MCP)) check('warn', 'browser tiers', `${file} runs ${spec}, not ${PLAYWRIGHT_MCP} — the version this skill is tested with (a floating one changes the browser tier on the day of a release)`, `set it to ${PLAYWRIGHT_MCP} in ${file}`);
-    if (specs === undefined || specs.length) check('ok', 'browser tiers', `Playwright MCP configured for ${app} (${file}) — tier 2 after restarting it`);
+    if (text && playwrightMcpConfigured(text)) check('ok', 'browser tiers', `Playwright MCP configured for ${app} (${file}) — tier 2 after restarting it`);
     else check('warn', 'browser tiers', `Playwright MCP not configured for ${app} (${file}) — hardening there falls back to heldout mcp-probe and the bundled inspector`, fix);
   }
 

@@ -108,7 +108,8 @@ whatever its tools allow. The refusal says why, and it lands in the history as a
   Claude Code's copy is kept in step. Other MCP servers a project adds are its own to pin.
 - `tests/supply-chain.test.ts` keeps the three in step and no script fetching a package as `@latest`.
 - **Bumping the pin:** by hand, through the gate, after a round on the new version (Dependabot doesn't read it).
-- **Residual:** the pin covers the server's own version; npx resolves its dependencies by range, with no lock file.
+- **Residual:** the pin covers the server's own version, not where it comes from (a registry set in the server's
+  arguments, environment or `.npmrc`), and npx resolves its dependencies by range, with no lock file.
 - `update` already records the skill's source commit (`SOURCE.json`).
 - **Cost:** none at run time.
 
@@ -315,7 +316,7 @@ plan has finished.
 | GP1 | done | 134f021 | `core/probe-log.requireFrozen`, called first by `inspect`, `mcp-probe` and `api-probe` with `--key`: refused until `3-tests/freeze.json` exists, an `isolation` note in the story's history (no folder made for an unknown key). `demo/inflight.ts` counts probes by the extractor, reviewer and test author (round 37: none). Made through the agent setup end to end: verify → one Opus review (approve, 3 low) → gate → CI. Follow-up: validate `--key` (`assertIssueKey`), keep the isolation count out of the scripts ratio |
 | GP2 | to do | | |
 | GP3 | done | c0b15bb | `core/roles.ts`: a role per shipped subagent and the exact allow lists in both apps (the Claude Code hardener and triager had every tool; now files, shell and `mcp__playwright__*`). `toolProblems` catches a widened list, an unknown key, a continued line, a repeated key; checked by `agent-files.test.ts` and `doctor`. Two Opus reviews, two rounds. Open: a round shows the Playwright tools reach the Claude Code hardener through `mcp__playwright__*` |
-| GP4 | done | (this change) | `PLAYWRIGHT_MCP` pinned in `core/config.ts`, `.vscode/mcp.json` and `mcp-probe`; exact dev dependencies in `init` and `package.json`; `doctor` flags a Playwright MCP server in either app's file that isn't the pin; `tests/supply-chain.test.ts`. With the GP3 follow-ups (contract 0003) |
+| GP4 | done | 4eca6f3 | `PLAYWRIGHT_MCP` pinned in `core/config.ts`, `.vscode/mcp.json` and `mcp-probe`; exact dev dependencies in `init` and `package.json`; `doctor` flags a Playwright MCP server in either app's file that isn't the pin; `tests/supply-chain.test.ts`. With the GP3 follow-ups (contract 0003) |
 | GP5 | to do | | |
 | GP6 | to do | | |
 | GM1 | done | a2d18c1 | `AGENTS.md` and `.agents/config.json` the only project-specific files; generic `CLAUDE.md`, `GOVERNANCE.md`, `SECURITY.md`, `.github/copilot-instructions.md`; `CODEOWNERS`; ADRs 0001–0002. |
