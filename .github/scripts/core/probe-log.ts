@@ -33,10 +33,13 @@ const scratchReport = (p: Pick<StoryPaths, 'work'>, id: string) => path.join(p.w
 const keptReport = (p: Pick<StoryPaths, 'evidence'>, id: string) => path.join(p.evidence, `${id}.md`);
 export const PROBE_ID = /\bP[1-9]\d*\b/g;
 
+/** Every probe logged for a story; a line that isn't a JSON object (a merge gone wrong) is skipped, not fatal. */
 export function readProbes(p: Pick<StoryPaths, 'evidence'>): ProbeEntry[] {
   const file = logOf(p);
   if (!fs.existsSync(file)) return [];
-  return fs.readFileSync(file, 'utf8').split(/\r?\n/).filter((l) => l.trim()).flatMap((l) => { try { return [JSON.parse(l) as ProbeEntry]; } catch { return []; } });
+  return fs.readFileSync(file, 'utf8').split(/\r?\n/).filter((l) => l.trim()).flatMap((l) => {
+    try { const e: unknown = JSON.parse(l); return e && typeof e === 'object' && !Array.isArray(e) ? [e as ProbeEntry] : []; } catch { return []; }
+  });
 }
 
 /** The table rows of the named sections of a markdown report (headers and separators left out). */

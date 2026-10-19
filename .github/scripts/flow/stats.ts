@@ -7,8 +7,8 @@
  * One row per story with a history: runs, failures in the last evaluation run, script defects repaired, amendments
  * and re-freezes, contract review rounds, probes while hardening and triaging, minutes per phase, stray files, tool
  * gaps, and what the subagents cost (as the orchestrator recorded it with the note command). A story is shown as
- * <profile>/<KEY> when the project has several profiles. With KEY (and --aut when the key is in several profiles),
- * also the runs, each subagent's cost, the probes refused before the freeze, the tool gaps and the remarks.
+ * <profile>/<KEY> when the project has several profiles; --aut keeps one profile's stories (and says which, for a key
+ * in several). With KEY, also the runs, each subagent's cost, the probes refused before the freeze, the tool gaps and the remarks.
  * A record that can't be read is named on stderr and counted as unknown, never fatal to the table.
  */
 import fs from 'node:fs';
@@ -115,7 +115,7 @@ export function run({ _, flags }: Args): void {
   const only = _[0] ? assertIssueKey(_[0]) : undefined;
   const aut = flagStr(flags, 'aut');
   const cfg = loadConfig({ ...(only ? { key: only } : {}), ...(aut ? { aut } : {}) });
-  const found = listStories(cfg).filter((s) => fs.existsSync(path.join(s.dir, STORY_ROOT_FILES[0])) && (!only || s.key === only));
+  const found = listStories(cfg).filter((s) => fs.existsSync(path.join(s.dir, STORY_ROOT_FILES[0])) && (!only || s.key === only) && (!aut || s.profile === aut));
   // A key in several profiles: the one the config resolves it to (--aut, or the profile the story is bound to).
   const chosen = only && found.length > 1 ? found.filter((s) => s.profile === cfg.autId) : found;
   const stories = chosen.map((s) => storyStats(s.dir, s.profile, s.key))

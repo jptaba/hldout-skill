@@ -192,7 +192,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `inspect --sign-in <role>` · `--from P4[:k]` · `--then '<step>'` · `api-probe --chain P7 --set 2.json.qty=0` · `--pages` `--where` `--pick` `--count` | build a probe on earlier ones (signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items) instead of writing a script |
 | `show KEY contract\|run\|triage\|probes\|history` · `show config` · `trace KEY SCN-x [--network] [--steps]` | read a story's record, the profile (secrets as references), a failed test's trace as text |
 | `note KEY --tool-gap "…"` · `note KEY --usage "<agent> tokens=<n> minutes=<m>"` · `prune KEY` (or `--all --older-than 30d`) | record what no command could do (it becomes a command), or what a subagent cost; remove scratch areas |
-| `stats [KEY]` | per story: runs, repairs, review rounds, probes, minutes per phase, tool gaps and subagent cost |
+| `stats [KEY] [--aut <profile>]` | per story: runs, repairs, review rounds, probes, minutes per phase, tool gaps and subagent cost |
 | `confirm KEY --file <file> --evidence "<probe report>"` | hardening: remove the `TODO(harden)` marks of the guesses a probe showed were right, in one go |
 | `run`, `triage`, `verdict`, `publish`, `scrub [--check]` | run → triage → verdict → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report), or list where one still is. A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira and Confluence) · TypeScript |

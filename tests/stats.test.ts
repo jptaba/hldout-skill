@@ -104,15 +104,26 @@ describe('heldout stats', () => {
     assert.equal(bank.status, 0, bank.stderr);
     assert.match(bank.stdout, /^Remark: from bank$/m);
     assert.doesNotMatch(bank.stdout, /from shop/);
+    const ambiguous = heldout(root, 'stats', 'ABC-1');
+    assert.notEqual(ambiguous.status, 0);
+    assert.match(ambiguous.stderr + ambiguous.stdout, /--aut/, 'a key in two profiles asks which');
+    // A key in one profile only: found through the profile it is bound to, not the default.
+    story(root, 'bank', 'ABC-2', [{ at: at(0), event: 'fetched' }, { at: at(1), event: 'note', kind: 'remark', text: 'only in bank' }]);
+    assert.match(heldout(root, 'stats', 'ABC-2').stdout, /^Remark: only in bank$/m);
+    // --aut alone keeps one profile's stories.
+    const onlyBank = heldout(root, 'stats', '--aut', 'bank').stdout;
+    assert.match(onlyBank, /^\| ABC-1 \|/m);
+    assert.doesNotMatch(onlyBank, /shop/);
   });
 
   it('counts an unreadable run record as unknown, names it, and goes on', () => {
     const root = project();
-    story(root, 'shop', 'ABC-1', FULL, { '02-eval': '{ damaged' });
+    const dir = story(root, 'shop', 'ABC-1', FULL, { '02-eval': '{ damaged' });
+    fs.writeFileSync(path.join(dir, '4-evidence', 'probes.jsonl'), 'null\n[2]\n{"id":"P1","phase":"harden"}\n');
     story(root, 'shop', 'ABC-2', [{ at: at(0), event: 'fetched' }, 'null', '[1]', '{ half'].map((e) => (typeof e === 'string' ? e : JSON.stringify(e))));
     const r = heldout(root, 'stats');
     assert.equal(r.status, 0, r.stderr);
-    assert.match(r.stdout, /^\| ABC-1 \| 1 \| \? \|/m);
+    assert.match(r.stdout, /^\| ABC-1 \| 1 \| \? \| 2 \| 1 \/ 0 \| 1 \| 1 \/ 0 \|/m, 'non-object probe lines skipped');
     assert.match(r.stderr, /ABC-1: can't read .*02-eval\.json/);
     assert.match(r.stdout, /^\| ABC-2 \| 0 \|/m, 'a history with non-object lines still reads');
     assert.equal(readHistory(path.join(root, 'output', 'shop', 'ABC-2', 'history.jsonl')).length, 1);

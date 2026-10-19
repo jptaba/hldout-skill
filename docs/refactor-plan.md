@@ -510,7 +510,7 @@ what those rounds produced, links and file names aside. It is cheaper to find a 
 
 One fresh onboarding made with `demo/round.ts new`, the stories one at a time on locally started applications, and
 the skill fixed between stories. The stories: PB-2 (the most failures), TOOL-8 (deep, several roles) and TOOL-10 (the
-fast path). Then `demo/round.ts stats` and `demo/inflight.ts` on the round's transcripts.
+fast path). Then `demo/round.ts stats` (now `heldout stats`) and `demo/inflight.ts` on the round's transcripts.
 
 | Measure | Rounds 35–36 | Target |
 | --- | --- | --- |
