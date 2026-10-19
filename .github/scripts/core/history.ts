@@ -54,11 +54,11 @@ export function recordChange(file: string, event: HistoryEventName, data: Record
   return recordEvent(file, event, data);
 }
 
-/** Every event of a story, oldest first. A line that isn't JSON (a merge gone wrong) is skipped, not fatal. */
+/** Every event of a story, oldest first. A line that isn't a JSON object (a merge gone wrong) is skipped, not fatal. */
 export function readHistory(file: string): HistoryEvent[] {
   if (!fs.existsSync(file)) return [];
   return fs.readFileSync(file, 'utf8').split(/\r?\n/).filter((l) => l.trim()).flatMap((l) => {
-    try { return [JSON.parse(l) as HistoryEvent]; } catch { return []; }
+    try { const e: unknown = JSON.parse(l); return e && typeof e === 'object' && !Array.isArray(e) ? [e as HistoryEvent] : []; } catch { return []; }
   });
 }
 

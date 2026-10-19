@@ -78,8 +78,10 @@ After the round, from this repository:
 
 ```bash
 npx tsx demo/score.ts TOOL-1 --from "$HELDOUT_ROUNDS_DIR/r37"           # against the answer key
-npx tsx demo/round.ts stats "$HELDOUT_ROUNDS_DIR/r37"                   # runs, repairs, probes, minutes, stray files, tool gaps
 npx tsx demo/inflight.ts ~/.claude/projects/<the round's folder> --list   # scripts the agents wrote on the fly (Claude Code rounds)
 ```
+
+and in the round project, `npm run heldout -- stats` (runs, repairs, probes, minutes, stray files, tool gaps, subagent
+cost).
 
 The `dev-round-auditor` subagent does all three and classifies what went wrong.

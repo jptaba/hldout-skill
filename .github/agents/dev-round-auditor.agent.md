@@ -29,10 +29,10 @@ Do this:
 1. Score it: `npx tsx demo/score.ts KEY --from <project>` (for this repository's samples, leave out `--from`; that
    rewrites `demo/SCORECARD.md`, which is expected). Note the verdict match, the defects found and missed, the false
    positives and the automatic-triage agreement.
-2. Get the round's numbers: `npx tsx demo/round.ts stats <project> KEY` (runs, failures, script defects, amendments,
-   review rounds, probes per phase, minutes per phase, stray files, tool gaps), and read the record with
-   `npm run heldout -- show KEY history|run|triage|probes` run in the project; never with a script of your own. When the
-   round ran in Claude Code, `npx tsx demo/inflight.ts <its transcripts folder> --list` counts the scripts the agents
+2. Get the round's numbers: `npm run heldout -- stats KEY` run in the project (runs, failures, script defects,
+   amendments, review rounds, probes per phase, minutes per phase, stray files, tool gaps, subagent cost), and read
+   the record with `npm run heldout -- show KEY history|run|triage|probes` run in the project; never with a script of
+   your own. When the round ran in Claude Code, `npx tsx demo/inflight.ts <its transcripts folder> --list` counts the scripts the agents
    wrote on the fly, per agent.
 3. Read the round's history and list every hiccup, with the file and line that shows it:
    - each tool gap (a `note` line of kind `tool-gap`), each stray file moved, and each script an agent wrote on the

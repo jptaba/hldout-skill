@@ -196,7 +196,7 @@ export function run({ _, flags }: Args): void {
   const tidy = (p: ReturnType<typeof evalPaths>) => {
     const moved = moveStrayFiles(p);
     if (moved.length) { recordEvent(p.history, 'stray-moved', { files: moved }); console.log(`• moved ${moved.length} file(s) the record's layout doesn't have to ${rel(p.work.stray)}/: ${moved.slice(0, 5).join(', ')}${moved.length > 5 ? ', …' : ''}`); }
-    for (const r of renumberDuplicateProbes(p)) { recordEvent(p.history, 'note', { remark: `${r.from} was in the probe log twice: the later one is now ${r.to}; citations of ${r.from} mean the earlier` }); console.log(`• ${r.from} was in the probe log twice: the later one is now ${r.to}`); }
+    for (const r of renumberDuplicateProbes(p)) { recordEvent(p.history, 'note', { kind: 'remark', text: `${r.from} was in the probe log twice: the later one is now ${r.to}; citations of ${r.from} mean the earlier` }); console.log(`• ${r.from} was in the probe log twice: the later one is now ${r.to}`); }
   };
 
   if (flags.rerun) {

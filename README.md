@@ -191,7 +191,8 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3); with `--key`, each probe is logged as the story's next `Pn` and cited by that id |
 | `inspect --sign-in <role>` · `--from P4[:k]` · `--then '<step>'` · `api-probe --chain P7 --set 2.json.qty=0` · `--pages` `--where` `--pick` `--count` | build a probe on earlier ones (signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items) instead of writing a script |
 | `show KEY contract\|run\|triage\|probes\|history` · `show config` · `trace KEY SCN-x [--network] [--steps]` | read a story's record, the profile (secrets as references), a failed test's trace as text |
-| `note KEY --tool-gap "…"` · `prune KEY` (or `--all --older-than 30d`) | record what no command could do (it becomes a command); remove scratch areas |
+| `note KEY --tool-gap "…"` · `note KEY --usage "<agent> tokens=<n> minutes=<m>"` · `prune KEY` (or `--all --older-than 30d`) | record what no command could do (it becomes a command), or what a subagent cost; remove scratch areas |
+| `stats [KEY]` | per story: runs, repairs, review rounds, probes, minutes per phase, tool gaps and subagent cost |
 | `confirm KEY --file <file> --evidence "<probe report>"` | hardening: remove the `TODO(harden)` marks of the guesses a probe showed were right, in one go |
 | `run`, `triage`, `verdict`, `publish`, `scrub [--check]` | run → triage → verdict → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report), or list where one still is. A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira and Confluence) · TypeScript |
@@ -309,7 +310,7 @@ keys do not list. Round 36 pointed round 34's project at Toolshop started locall
 demo: after one repair of two locators, the same two verdicts and 8 of 8 defects.
 Both applications can be started on your own machine for a round and thrown away after it:
 [demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md), which also shows how a round is made (`demo/round.ts new`) and
-measured (`demo/round.ts stats` for runs, repairs, probes and minutes per story; `demo/inflight.ts` for the scripts
+measured (`heldout stats` for runs, repairs, probes, minutes and subagent cost per story; `demo/inflight.ts` for the scripts
 the agents wrote on the fly). What comes next is in [docs/next-steps.md](docs/next-steps.md).
 Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
 commits before this one).

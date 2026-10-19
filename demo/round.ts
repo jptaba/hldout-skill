@@ -5,19 +5,13 @@
  *        a fresh round project in $HELDOUT_ROUNDS_DIR/<name>: set up from this clone (setup.sh), and each story
  *        created in its mock Jira from demo/stories/<KEY>/ (story.md; ac-field.md as the criteria field; any other
  *        page as the Confluence page the story links by its title)
- *   npx tsx demo/round.ts stats <project> [KEY]
- *        per story, from its history and record: runs, failures, script defects, amendments and re-freezes, review
- *        rounds, probes per phase, time per phase, stray files and tool gaps; with KEY, the details
  *
+ * A round's numbers come from the shipped command, run in the round project: `npm run heldout -- stats [KEY]`.
  * The rounds folder comes from the environment, so the repository holds no machine path.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { readHistory, type HistoryEvent } from '../.github/scripts/core/history';
-import { NON_EVAL_RUN, listRuns, runFile } from '../.github/scripts/core/paths';
-import { readProbes } from '../.github/scripts/core/probe-log';
-import { readRunRecord } from '../.github/scripts/triage/triage-model';
 
 const REPO = path.resolve(import.meta.dirname, '..');
 const [cmd, ...rest] = process.argv.slice(2);
@@ -60,68 +54,7 @@ function newRound(args: string[]): void {
   console.log(`\n✔ round ${name}: ${project}${stories.length ? ` with ${stories.join(', ')} in its mock Jira` : ''}. Next: npm run heldout -- advance ${stories[0] ?? 'KEY'}`);
 }
 
-interface Stats {
-  key: string; runs: string[]; failed: number | null; scriptDefects: number; amendments: number; refreezes: number; reviews: number;
-  probes: Record<string, number>; times: Record<string, number | null>; stray: string[]; gaps: string[]; remarks: string[];
-}
-
-const minutes = (a?: HistoryEvent, b?: HistoryEvent) => (a && b ? Math.round((Date.parse(b.at) - Date.parse(a.at)) / 60_000) : null);
-
-function statsOf(dir: string, key: string): Stats {
-  const events = readHistory(path.join(dir, 'history.jsonl'));
-  const first = (name: string, where: (e: HistoryEvent) => boolean = () => true) => events.find((e) => e.event === name && where(e));
-  const last = (name: string) => events.filter((e) => e.event === name).at(-1);
-  const all = (name: string) => events.filter((e) => e.event === name);
-  const runsDir = path.join(dir, '5-runs');
-  const runs = listRuns(runsDir);
-  const lastEval = runs.filter((r) => !NON_EVAL_RUN.test(r)).at(-1);
-  const isEval = (e: HistoryEvent) => typeof e.run === 'string' && !NON_EVAL_RUN.test(e.run);
-  const probes = readProbes({ evidence: path.join(dir, '4-evidence') });
-  return {
-    key, runs,
-    failed: lastEval ? readRunRecord(runFile({ runs: runsDir }, lastEval)).entries.filter((e) => e.status === 'failed').length : null,
-    scriptDefects: all('decided').filter((e) => e.category === 'SCRIPT_DEFECT').reduce((n, e) => n + ((e.tests as string[] | undefined)?.length ?? 1), 0),
-    amendments: all('amended').length, refreezes: all('refrozen').length, reviews: all('review-bound').length,
-    probes: probes.reduce<Record<string, number>>((m, p) => ({ ...m, [p.phase]: (m[p.phase] ?? 0) + 1 }), {}),
-    times: {
-      requirement: minutes(first('fetched'), last('review-bound')),
-      tests: minutes(last('review-bound'), first('draft-finished')),
-      harden: minutes(first('frozen'), first('run', isEval)),
-      triage: minutes(first('run', isEval), last('verdict')),
-      total: minutes(events[0], events.at(-1)),
-    },
-    stray: all('stray-moved').flatMap((e) => (e.files as string[] | undefined) ?? []),
-    gaps: all('note').filter((e) => e.kind === 'tool-gap').map((e) => String(e.text)),
-    remarks: all('note').filter((e) => e.kind !== 'tool-gap').map((e) => String(e.text ?? e.remark)),
-  };
-}
-
-function stats(args: string[]): void {
-  const [project, only] = args;
-  if (!project) throw new Error('Usage: demo/round.ts stats <project> [KEY]');
-  const out = path.resolve(project, 'output');
-  if (!fs.existsSync(out)) throw new Error(`${out} does not exist`);
-  const stories = fs.readdirSync(out, { withFileTypes: true }).filter((d) => d.isDirectory()).flatMap((p) => fs.readdirSync(path.join(out, p.name))
-    .filter((k) => (!only || k === only) && fs.existsSync(path.join(out, p.name, k, 'history.jsonl'))).map((k) => statsOf(path.join(out, p.name, k), k)))
-    .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
-  if (!stories.length) throw new Error(only ? `${only} has no history in ${out}` : `no story with a history in ${out}`);
-  const t = (n: number | null) => (n === null ? '-' : `${n}m`);
-  console.log(`| Story | Runs | Failed (last eval) | Script defects | Amend / refreeze | Reviews | Probes harden / triage | Minutes req / tests / harden / triage / total | Stray | Tool gaps |`);
-  console.log('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
-  for (const s of stories) {
-    console.log(`| ${s.key} | ${s.runs.length} | ${s.failed ?? '-'} | ${s.scriptDefects} | ${s.amendments} / ${s.refreezes} | ${s.reviews} | ${s.probes.harden ?? 0} / ${s.probes.triage ?? 0} | ${['requirement', 'tests', 'harden', 'triage', 'total'].map((k) => t(s.times[k])).join(' / ')} | ${s.stray.length} | ${s.gaps.length} |`);
-  }
-  if (only) {
-    const s = stories[0];
-    console.log(`\nRuns: ${s.runs.join(', ') || 'none'}`);
-    if (s.stray.length) console.log(`Stray files moved: ${s.stray.join(', ')}`);
-    for (const g of s.gaps) console.log(`Tool gap: ${g}`);
-    for (const r of s.remarks) console.log(`Remark: ${r}`);
-  }
-}
-
 if (cmd === 'new') newRound(rest);
-else if (cmd === 'stats') stats(rest);
 else {
   console.log(fs.readFileSync(import.meta.filename, 'utf8').match(/^\/\*\*([\s\S]*?)\*\//)![1].replace(/^ \* ?/gm, '').trim());
   process.exitCode = cmd ? 1 : 0;

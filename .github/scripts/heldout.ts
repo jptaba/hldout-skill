@@ -40,6 +40,7 @@ export const COMMANDS: Record<string, string> = {
   publish: 'report/publish.ts',
   show: 'flow/show.ts',
   note: 'flow/note.ts',
+  stats: 'flow/stats.ts',
   scrub: 'report/scrub.ts',
   prune: 'flow/prune.ts',
 };

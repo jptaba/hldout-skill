@@ -31,7 +31,7 @@ The evaluator was built around separation and evidence. The plan starts from wha
 | WHAT vs HOW | The draft is frozen; hardening changes mechanics only | `integrity` (freeze, audited amendments); journey lint |
 | Evidence, not recall | Every criterion is quoted and cited; every literal is grounded; every probe is `Pn` and cited by id | `contract` checks; probe log; `citeProbes` |
 | Audit trail | `history.jsonl` per story, with the skill's hash on every event; one record per run; the freeze | `core/history.ts`, run records, `freeze.json` |
-| Observability | `status`, `show`, `trace`; `demo/round.ts stats`; `demo/inflight.ts` | Commands |
+| Observability | `status`, `show`, `trace`, `stats`; `demo/inflight.ts` | Commands |
 | Secrets | `${env:…}`/`${vault:…}` references; redaction; scrub after each run; `scrub --check` before publishing | `core/redact.ts`, `core/secrets.ts`, `advance` |
 | Human decision | The verdict is a recommendation; `jira.publish: "manual"` | Verdict wording, config |
 | Layering of the code | Areas depend downwards only; commands don't import commands | `tests/layout.test.ts` |
@@ -122,11 +122,16 @@ whatever its tools allow. The refusal says why, and it lands in the history as a
 
 ### P5 · Observability for every team (G5)
 
-- **`heldout stats [KEY]`** (shipped) replaces the developer-only `demo/round.ts stats`. It is a table per story,
-  built from the histories, the run records and the probe logs: runs, repairs, amendments, review rounds, probes per
-  phase, minutes per phase, stray files and tool gaps.
+- **`heldout stats [KEY]`** (shipped, `flow/stats.ts`) replaces the developer-only `demo/round.ts stats`, which is
+  removed. It is a table per story, built from the histories, the run records and the probe logs: runs, repairs,
+  amendments, review rounds, probes per phase, minutes per phase, stray files, tool gaps and subagent cost, a story
+  shown as `<profile>/<KEY>` when there are several profiles; with KEY (and `--aut` for a key in two profiles), also
+  each subagent's cost, the probes refused before the freeze, the tool gaps and every other note. A record it can't
+  read is named and counted as unknown, never fatal. On round 37 it prints the dev tool's numbers exactly, each story
+  named with its profile (the round has two).
 - **`heldout note KEY --usage "<agent> tokens=N minutes=M"`**: the orchestrator records each subagent's cost when it
-  hands back (SKILL.md tells it to; agent apps report the cost to the orchestrator). `stats` shows the cost per phase.
+  hands back, as far as its agent app reports it (SKILL.md tells it to; either figure may be left out). `stats` sums
+  it per story and per agent.
 - **Cost:** a command that reads files already written.
 
 ### P6 · Governance for adopters (G6, and the adopter's secrets)

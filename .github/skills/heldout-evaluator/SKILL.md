@@ -170,7 +170,9 @@ Work through the phases in order and do not skip the freeze. **You orchestrate:*
 context, works from the files on disk and the scripts, and replies with a summary; `$H advance KEY` runs the steps
 between them (freeze, runs, verdict, publish, journey registry) and names the next subagent with its task. Keep the
 questions and missing pieces the subagents report for your closing summary; they are never a reason to pause. Give
-each one the story KEY, and the run or findings when there are any. If your app can't run subagents, do the subagent's work yourself in the same order, following its
+each one the story KEY, and the run or findings when there are any. When a subagent hands back and your app reports
+what it cost (tokens, time), record it under the subagent's name: `$H note KEY --usage "<agent> tokens=<n> minutes=<m>"`.
+Only figures the app reported: leave out what it didn't, and never record an estimate. If your app can't run subagents, do the subagent's work yourself in the same order, following its
 instructions in `.github/agents/<name>.agent.md`.
 Self-tests for the skill's own logic: `npm run test:skill`.
 
@@ -291,4 +293,5 @@ Tell the user:
 - the open questions for the story's owner, and anything that was missing (an account, a role, a secret) with the
   tests it blocked: this summary and the verdict are where they are raised
 - the tool gaps the subagents reported (`Tool gap:` in their replies; `$H show KEY history` lists the `note` lines)
+- the story's numbers: `$H stats KEY` (runs, repairs, review rounds, probes, minutes per phase, subagent cost)
 - where `verdict.md` and the Jira comment/attachment ended up

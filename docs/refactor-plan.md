@@ -448,12 +448,13 @@ package 2). Every other file asks it for a phase folder and never writes a folde
 - `demo/round.ts new <name> [--stories PB-1,PB-2]` makes a fresh round project in `$HELDOUT_ROUNDS_DIR/<name>`: a
   clone of the skill, `setup`, and the stories created in the mock Jira from `demo/stories/` with `heldout new`. The
   folder comes from the environment variable, so the repository holds no machine path.
-- `demo/round.ts stats <project> [KEY]` lists runs, failures, script defects, amendments, review rounds, probes per
-  phase, phase times, stray files and tool gaps per story, from the histories.
+- A round's numbers come from the shipped `heldout stats [KEY]`, run in the round project (governance plan, P5):
+  runs, failures, script defects, amendments, review rounds, probes per phase, phase times, stray files, tool gaps
+  and subagent cost per story, from the histories.
 - `demo/inflight.ts <transcripts folder>` counts inline scripts per agent type: the measure of goal 3. It reads Claude
   Code transcripts, so rounds run in Claude Code are what it measures.
 - `demo/score.ts` reads `6-verdict/verdict.json` and the run records `5-runs/*.json` (done with package 4).
-- `dev-round-auditor` works from `heldout show` and `demo/round.ts stats`, and reports tool gaps and stray files as
+- `dev-round-auditor` works from `heldout show` and `heldout stats`, and reports tool gaps and stray files as
   skill defects. Its instructions walk the story folder in its numbered order.
 
 ## 8. Work packages
