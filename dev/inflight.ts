@@ -4,7 +4,7 @@
  * subagent's `.jsonl` beside its `.meta.json` (which names the agent type), so rounds run in Claude Code are what it
  * measures.
  *
- *   npx tsx demo/inflight.ts <transcripts folder> [--since 2026-10-01] [--list]
+ *   npx tsx dev/inflight.ts <transcripts folder> [--since 2026-10-01] [--list]
  *        the folder is the round project's under ~/.claude/projects/; --list prints each script found
  *
  * Counted as a script: an inline program (`node -e`, `tsx -e`, `node <<`, `python -c`, `python - <<`), a file

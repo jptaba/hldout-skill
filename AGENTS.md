@@ -31,7 +31,7 @@ the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECU
 - **File tools only:** change files with Edit/Write, never with `sed`, heredocs or scripts that patch files.
 - **What ships** to adopters (`init`/`update`): `.github/skills/heldout-evaluator/`, `.github/scripts/` and the files
   `SHIPPED` in `setup/update.ts` lists. Everything else here, the agent setup included, is maintainer-only
-  (`tests/agent-kit.test.ts`).
+  (`tests/agent-kit.test.ts`): the developer tools in `dev/`, the demo stories and answer keys in `demo/`.
 - **Secrets:** probes and tests reference secrets as `${env:NAME}` or `${vault:path#field}`, never their values; the
   evaluator redacts and scrubs what it writes.
 
@@ -50,7 +50,7 @@ the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECU
 
 ## Testing
 - New behaviour ships with tests; a bug fix with a regression test. Never declare done on a red suite.
-- A round (`demo/round.ts`) proves agent-facing changes; unit tests alone don't.
+- A round (`dev/round.ts`) proves agent-facing changes; unit tests alone don't.
 
 ## Review flags (for any reviewer)
 An application named inside the skill, an agent app named alone where both apply, a machine path, a weakened
@@ -60,5 +60,6 @@ convincing reason.
 ## Never
 - Commit with `--no-verify`, approve your own diff, or write an `Approved-by:` trailer.
 - Weaken, skip or delete a test to go green.
-- Change an answer key in `demo/answer-keys/` without an ADR (guardrail tier: two reviews).
+- Change an answer key in `demo/answer-keys/` without an ADR and its new pin (`npx tsx dev/answer-keys.ts --pin`, in
+  the same commit; guardrail tier: two reviews).
 - Add a dependency the contract doesn't name.

@@ -35,6 +35,11 @@ describe('the agent setup: boundary and portability', () => {
     for (const f of MAINTAINER) assert.ok(fs.existsSync(path.join(REPO, f)), `${f} exists`);
     const shippedBy = (f: string) => SHIPPED.find((s) => f === s || f.startsWith(`${s}/`));
     assert.deepEqual(MAINTAINER.filter(shippedBy), []);
+    // The developer tools and the demo's stories and answer keys are maintainer-only too.
+    const devAndDemo = ['dev', 'demo'].flatMap((d) => fs.readdirSync(path.join(REPO, d), { recursive: true, encoding: 'utf8' }).map((f) => `${d}/${f.split(path.sep).join('/')}`));
+    assert.ok(devAndDemo.includes('dev/score.ts') && devAndDemo.includes('demo/answer-keys/HASHES'));
+    assert.deepEqual(devAndDemo.filter(shippedBy), []);
+    assert.deepEqual(fs.readdirSync(path.join(REPO, 'demo'), { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.ts')), [], 'code lives in dev/, data in demo/');
   });
 
   it('names no project in its generic parts, so it works anywhere with only its config and AGENTS.md changed', () => {

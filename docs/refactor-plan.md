@@ -96,7 +96,7 @@ scripts (0.4 per run), and 43 general-purpose runs that orchestrated rounds wrot
 | Read the network log out of a trace | hardener | `heldout trace` |
 | Search the output for a password | hardener | `heldout scrub KEY --check` |
 | Make a text of N characters for a boundary | hardener, triager | `${text:N}` in probe steps, chains and `--var` |
-| Set up a fresh round project; count runs and failures for the audit | orchestrator, auditor (development only) | `demo/round.ts` |
+| Set up a fresh round project; count runs and failures for the audit | orchestrator, auditor (development only) | `dev/round.ts` |
 
 ### The scripts folder
 
@@ -445,15 +445,15 @@ package 2). Every other file asks it for a phase folder and never writes a folde
 
 ## 7. Developer tooling (this repository only, never copied by `init`)
 
-- `demo/round.ts new <name> [--stories PB-1,PB-2]` makes a fresh round project in `$HELDOUT_ROUNDS_DIR/<name>`: a
+- `dev/round.ts new <name> [--stories PB-1,PB-2]` makes a fresh round project in `$HELDOUT_ROUNDS_DIR/<name>`: a
   clone of the skill, `setup`, and the stories created in the mock Jira from `demo/stories/` with `heldout new`. The
   folder comes from the environment variable, so the repository holds no machine path.
 - A round's numbers come from the shipped `heldout stats [KEY]`, run in the round project (governance plan, P5):
   runs, failures, script defects, amendments, review rounds, probes per phase, phase times, stray files, tool gaps
   and subagent cost per story, from the histories.
-- `demo/inflight.ts <transcripts folder>` counts inline scripts per agent type: the measure of goal 3. It reads Claude
+- `dev/inflight.ts <transcripts folder>` counts inline scripts per agent type: the measure of goal 3. It reads Claude
   Code transcripts, so rounds run in Claude Code are what it measures.
-- `demo/score.ts` reads `6-verdict/verdict.json` and the run records `5-runs/*.json` (done with package 4).
+- `dev/score.ts` reads `6-verdict/verdict.json` and the run records `5-runs/*.json` (done with package 4).
 - `dev-round-auditor` works from `heldout show` and `heldout stats`, and reports tool gaps and stray files as
   skill defects. Its instructions walk the story folder in its numbered order.
 

@@ -31,11 +31,11 @@ The evaluator was built around separation and evidence. The plan starts from wha
 | WHAT vs HOW | The draft is frozen; hardening changes mechanics only | `integrity` (freeze, audited amendments); journey lint |
 | Evidence, not recall | Every criterion is quoted and cited; every literal is grounded; every probe is `Pn` and cited by id | `contract` checks; probe log; `citeProbes` |
 | Audit trail | `history.jsonl` per story, with the skill's hash on every event; one record per run; the freeze | `core/history.ts`, run records, `freeze.json` |
-| Observability | `status`, `show`, `trace`, `stats`; `demo/inflight.ts` | Commands |
+| Observability | `status`, `show`, `trace`, `stats`; `dev/inflight.ts` | Commands |
 | Secrets | `${env:…}`/`${vault:…}` references; redaction; scrub after each run; `scrub --check` before publishing | `core/redact.ts`, `core/secrets.ts`, `advance` |
 | Human decision | The verdict is a recommendation; `jira.publish: "manual"` | Verdict wording, config |
 | Layering of the code | Areas depend downwards only; commands don't import commands | `tests/layout.test.ts` |
-| Agent rules | No scripts of their own; tool gaps reported; documented commands exist | `tests/agent-files.test.ts`, `demo/inflight.ts` |
+| Agent rules | No scripts of their own; tool gaps reported; documented commands exist | `tests/agent-files.test.ts`, `dev/inflight.ts` |
 | Bounded autonomy | At most 3 repair loops; no question to anyone after fetch | `advance` |
 
 ## 2. Gaps
@@ -62,7 +62,7 @@ whatever its tools allow. The refusal says why, and it lands in the history as a
 
 - Probes made with no story (setting up a profile, `accounts --check`) stay open: they are not about a story.
 - **Residual risk:** a probe made without `--key` while a story is being written. The instructions forbid it, and
-  `demo/inflight.ts` gains a check that flags any probe command in a contract-extractor, contract-reviewer or
+  `dev/inflight.ts` gains a check that flags any probe command in a contract-extractor, contract-reviewer or
   test-author transcript.
 - **Cost:** one file check per probe.
 
@@ -99,7 +99,7 @@ whatever its tools allow. The refusal says why, and it lands in the history as a
   file, and Copilot's `edit` covers creating one. The guard is `contract --review-bind`, which binds the review to
   the contract's hash.
 - **Residual:** a shell (every role has one) can reach the application over the network; P1 refuses the
-  evaluator's own probes before the freeze, and `demo/inflight.ts` counts the rest.
+  evaluator's own probes before the freeze, and `dev/inflight.ts` counts the rest.
 - **Cost:** a test, and one frontmatter read per agent file in `doctor`.
 
 ### P4 · Pinned supply chain (G4)
@@ -205,7 +205,7 @@ docs/adr/  docs/contracts/                            decisions, per-change cont
 
 `init` and `update` ship only what `SHIPPED` in `setup/update.ts` lists. `tests/agent-kit.test.ts` fails if any path
 above appears in it, if a generic file names a project, or if `CODEOWNERS` and the config disagree. Moving developer
-code from `demo/` into `dev/` (G9) is left for later: it is unrelated to the gate.
+code from `demo/` into `dev/` (G9) followed in GM4.
 
 ### The gate, and who does the human steps
 
@@ -260,8 +260,10 @@ The maintainer agent prepares each of these (what, where, why) and stops; it nev
 ### Answer keys (G8)
 
 The answer keys are guardrail files: a change to one needs two independent reviews, and `AGENTS.md` requires an ADR.
-Pinning each key's hash in the scorecard, so a score names the exact key it was measured against, is left for the
-`dev/` move (G9).
+Each key is pinned by the SHA-256 of its text (LF line endings) in `demo/answer-keys/HASHES`
+(`npx tsx dev/answer-keys.ts --pin` writes it; `tests/answer-keys.test.ts` checks it): an edited, added or removed
+key without its new pin fails the proof, `dev/score.ts` refuses to score with it, and each story's score in the
+scorecard names its key's hash.
 
 ## 5. Separation of duties and isolation
 
@@ -345,7 +347,7 @@ plan has finished.
 | GM1 | done | a2d18c1 | `AGENTS.md` and `.agents/config.json` the only project-specific files; generic `CLAUDE.md`, `GOVERNANCE.md`, `SECURITY.md`, `.github/copilot-instructions.md`; `CODEOWNERS`; ADRs 0001–0002. |
 | GM2 | done | a2d18c1 | The `contract`, `implement`, `review` and `pr-packet` skills (`.agents/skills/`, Claude bridges), the read-only `code-reviewer` agent (both apps), `agentctl` (verify, review, status, audit, ci, scan-secrets, install-hooks). The change gated itself: seven review rounds on two models (Sonnet, Opus) before both approved, fixing a tier bug, rename evasion, forged-trailer gaps, merge handling and secret-scan misses; 23 kit tests. |
 | GM3 | done | a2d18c1 | Hooks (pre-commit, prepare-commit-msg, commit-msg), tiers in `.agents/config.json`, `verify.yml` (SHA-pinned, read-only; proof, audit, scan; passed on GitHub), Dependabot. |
-| GM4 | partly | a2d18c1 | The shipping boundary is tested (`tests/agent-kit.test.ts`); the answer keys are guardrail files. Deferred: moving developer code from `demo/` to `dev/`, and pinning answer-key hashes in the scorecard. |
+| GM4 | done | a2d18c1, (this change) | The shipping boundary is tested (`tests/agent-kit.test.ts`, now also every file in `dev/` and `demo/`); the developer tools moved to `dev/` (`round.ts`, `inflight.ts`, `score.ts`), the data stays in `demo/`; each answer key pinned by its SHA-256 in `demo/answer-keys/HASHES` (`dev/answer-keys.ts`, `tests/answer-keys.test.ts`): an edited key fails the proof and `dev/score.ts` refuses it, and every score names its key's hash. |
 | Proof | to do | | |
 
 ## 10. Risks

@@ -1,6 +1,6 @@
 ---
 name: dev-round-auditor
-description: Dev-only (never shipped by init). Audits one finished held-out evaluation round for the skill's developers — scores it against the story's answer key with demo/score.ts, reads the run history for hiccups (re-runs, script defects, amendments, unresolved gaps, traps the evaluator fell into) and classifies each as a skill defect (with the AUT-agnostic file and change that would prevent it), an environment issue or expected behaviour. Reads artifacts only; never touches the application, the skill or the evaluation. Use after a round, before deciding what to fix and whether to re-run.
+description: Dev-only (never shipped by init). Audits one finished held-out evaluation round for the skill's developers — scores it against the story's answer key with dev/score.ts, reads the run history for hiccups (re-runs, script defects, amendments, unresolved gaps, traps the evaluator fell into) and classifies each as a skill defect (with the AUT-agnostic file and change that would prevent it), an environment issue or expected behaviour. Reads artifacts only; never touches the application, the skill or the evaluation. Use after a round, before deciding what to fix and whether to re-run.
 tools: ['read', 'search', 'edit', 'execute']
 model: ['Claude Opus 5.5 (copilot)', 'Claude Opus 5 (copilot)', 'Claude Sonnet 5.5 (copilot)', 'GPT-6.1 Sol (copilot)']
 user-invocable: true
@@ -26,14 +26,14 @@ the commands below from its root.
 - `.github/skills/heldout-evaluator/` and `.github/agents/`: what the skill told the evaluator to do.
 
 Do this:
-1. Score it: `npx tsx demo/score.ts KEY --from <project>` (for this repository's samples, leave out `--from`; that
+1. Score it: `npx tsx dev/score.ts KEY --from <project>` (for this repository's samples, leave out `--from`; that
    rewrites `demo/SCORECARD.md`, which is expected). Note the verdict match, the defects found and missed, the false
    positives and the automatic-triage agreement.
 2. Get the round's numbers: `npm run heldout -- stats KEY` run in the project (runs, failures, script defects,
    amendments, review rounds, probes per phase, minutes per phase, stray files, tool gaps, subagent cost), and read
    the record with `npm run heldout -- show KEY history|run|triage|probes` run in the project; never with a script of
-   your own. When the round ran in Claude Code, `npx tsx demo/inflight.ts <its transcripts folder> --list` counts the scripts the agents
-   wrote on the fly, per agent.
+   your own. When the round ran in Claude Code, `npx tsx dev/inflight.ts <its transcripts folder> --list` counts
+   the scripts the agents wrote on the fly, per agent.
 3. Read the round's history and list every hiccup, with the file and line that shows it:
    - each tool gap (a `note` line of kind `tool-gap`), each stray file moved, and each script an agent wrote on the
      fly: a command the skill lacks, or an instruction that sent the agent elsewhere — a skill defect;

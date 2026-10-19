@@ -1,9 +1,9 @@
 /**
- * demo/inflight.ts: which tool calls count as probing the application (held-out isolation before the freeze).
+ * dev/inflight.ts: which tool calls count as probing the application (held-out isolation before the freeze).
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { probes, splitCommands } from '../demo/inflight';
+import { probes, splitCommands } from '../dev/inflight';
 
 const S = '.github/scripts/probe/inspect.ts';
 

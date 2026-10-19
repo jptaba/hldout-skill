@@ -1,8 +1,8 @@
 /**
  * Evaluator scorecard — tests the held-out evaluator itself against machine-readable answer keys.
  *
- *   npx tsx demo/score.ts [KEY ...]        (default: every demo/answer-keys/*.json)
- *   npx tsx demo/score.ts [KEY ...] --from <project>
+ *   npx tsx dev/score.ts [KEY ...]        (default: every demo/answer-keys/*.json)
+ *   npx tsx dev/score.ts [KEY ...] --from <project>
  *        score the evaluations of another project (a round's fresh onboarding) and print the full scorecard
  *        instead of writing demo/SCORECARD.md (default: the stories evaluated there)
  *
@@ -18,6 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
+import { KEYS_DIR, pinProblems, readPins } from './answer-keys';
 
 interface Key {
   key: string; aut: string; expectedVerdict: string;
@@ -31,7 +32,11 @@ interface Verdict { verdict: string; applicationDefects: Finding[]; contradicted
 interface Entry { scenario: string; status: string; error?: { headline: string }; auto?: { category: string }; final?: { category: string; rationale: string; action?: string; title?: string } }
 
 const REPO = path.resolve(import.meta.dirname, '..');
-const keysDir = path.join(REPO, 'demo', 'answer-keys');
+const keysDir = KEYS_DIR;
+// A score is measured against a pinned key: an edited one is refused (re-pin it, with its ADR, in the same commit).
+const unpinned = pinProblems();
+if (unpinned.length) throw new Error(`the answer keys don't match their pins (demo/answer-keys/HASHES):\n  ${unpinned.join('\n  ')}`);
+const pins = readPins();
 const args = process.argv.slice(2);
 const fromAt = args.indexOf('--from');
 const from = fromAt >= 0 ? path.resolve(args[fromAt + 1] ?? '') : undefined;
@@ -99,7 +104,7 @@ for (const k of keys) {
 
   rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | ${verdictOk ? '✅' : '❌'} ${v.verdict} | ${tp}/${k.defects.length} (${pct(tp, k.defects.length)})${asked ? ` + ${asked} as owner question` : ''} | ${fps.length} | ${agree.length}/${judged.length} (${pct(agree.length, judged.length)}) · abstained ${abstained.length} · wrong ${wrong.length} |`);
   details.push(`## ${k.key} (${k.aut})`, '',
-    `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed`, '',
+    `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed · key \`${k.key}.json\` sha256:${(pins.get(`${k.key}.json`) ?? '?').slice(0, 12)}`, '',
     ...(k.defects.length ? ['| Expected defect | Criteria | Origin | Matched finding |', '| --- | --- | --- | --- |',
       ...defectResults.map(({ d, f, q }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : q ? `❔ surfaced as a reading the app contradicts (${q.test}, rests on ${q.restsOn.join(', ')}): a question for the owner, not a defect` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
     ...(fps.length ? ['**False positives (confirmed findings not in the answer key):**', '', ...fps.map((f) => `- ❌ ${f.id}: ${f.title} (${f.criteria.join(', ')})`), ''] : ['False positives: none ✅', '']),
@@ -110,7 +115,7 @@ for (const k of keys) {
 
 const md = [
   '# Held-out evaluator — scorecard', '',
-  `Generated ${new Date().toISOString()} by \`demo/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation)${from ? `, for the evaluations in ${from}` : ''}.`, '',
+  `Generated ${new Date().toISOString()} by \`dev/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation)${from ? `, for the evaluations in ${from}` : ''}.`, '',
   '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |',
   '| --- | --- | --- | --- | --- | --- | --- |', ...rows,
   `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',

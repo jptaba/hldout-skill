@@ -1,7 +1,7 @@
 /**
  * Rounds of the demo stories, for the skill's developers (this repository only, never copied by init).
  *
- *   npx tsx demo/round.ts new <name> --base-url <url> [--stories PB-1,PB-2] [other setup options: --api-base-url, --name, --profile …]
+ *   npx tsx dev/round.ts new <name> --base-url <url> [--stories PB-1,PB-2] [other setup options: --api-base-url, --name, --profile …]
  *        a fresh round project in $HELDOUT_ROUNDS_DIR/<name>: set up from this clone (setup.sh), and each story
  *        created in its mock Jira from demo/stories/<KEY>/ (story.md; ac-field.md as the criteria field; any other
  *        page as the Confluence page the story links by its title)
@@ -42,7 +42,7 @@ function storyArgs(key: string): string[] {
 function newRound(args: string[]): void {
   const [name, ...opts] = args;
   const roundsDir = process.env.HELDOUT_ROUNDS_DIR;
-  if (!name) throw new Error('Usage: demo/round.ts new <name> --base-url <url> [--stories A-1,B-2] [setup options]');
+  if (!name) throw new Error('Usage: dev/round.ts new <name> --base-url <url> [--stories A-1,B-2] [setup options]');
   if (!roundsDir) throw new Error('Set HELDOUT_ROUNDS_DIR to the folder the round projects go in');
   const project = path.resolve(roundsDir, name);
   if (fs.existsSync(project)) throw new Error(`${project} exists: a round starts from an empty project`);
