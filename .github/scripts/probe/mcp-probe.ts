@@ -33,7 +33,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
-import { loadConfig } from '../core/config';
+import { PLAYWRIGHT_MCP, loadConfig } from '../core/config';
 import { evalPaths } from '../core/paths';
 import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
@@ -80,7 +80,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   // The profile's blockHosts (ads, analytics): blocked in the MCP browser as in the tests, and kept out of its output.
   const blockHosts = (cfg.aut.blockHosts ?? []).map((h) => h.toLowerCase());
   const blocked = blockHosts.length ? ['--blocked-origins', blockHosts.flatMap((h) => [`https://${h}`, `http://${h}`, `https://www.${h}`]).join(';')] : [];
-  const args = ['-y', '@playwright/mcp@latest', '--isolated', ...blocked, '--output-dir', outputDir, ...(flags.headed ? [] : ['--headless']), ...(flagStr(flags, 'browser') ? ['--browser', flagStr(flags, 'browser')!] : [])];
+  const args = ['-y', PLAYWRIGHT_MCP, '--isolated', ...blocked, '--output-dir', outputDir, ...(flags.headed ? [] : ['--headless']), ...(flagStr(flags, 'browser') ? ['--browser', flagStr(flags, 'browser')!] : [])];
   const client = new McpStdioClient('npx', args);
   const rows: string[] = [];
   const snapshots: string[] = [];

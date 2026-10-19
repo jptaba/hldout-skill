@@ -49,8 +49,11 @@ const STARTER_PROFILE = {
   healthcheck: ['/'],
   notes: 'Everything AUT-specific belongs here or in .env, never inside the skill. Add one profile per application: its stories go to output/<profile>/<KEY>/; its journeys go to journeys/ (a second application gets its own journeysDir).',
 };
-/** Versions the skill is tested with (caret ranges — npm resolves the latest compatible). */
-const DEV_DEPENDENCIES: Record<string, string> = { '@playwright/test': '^1.63.0', tsx: '^4.23.0', typescript: '^7.0.0', '@types/node': '^26.0.0' };
+/**
+ * The exact versions the skill is tested with (the skill repository's own package.json: tests/supply-chain.test.ts), so
+ * a release on the day of setup changes nothing; a project moves past them on its own terms.
+ */
+export const DEV_DEPENDENCIES: Record<string, string> = { '@playwright/test': '1.63.0', tsx: '4.23.15', typescript: '7.0.2', '@types/node': '26.6.3' };
 
 const PROJECT_SCRIPTS = path.join(ROOT, '.github', 'scripts');
 

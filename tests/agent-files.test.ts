@@ -108,7 +108,11 @@ describe('agent files', () => {
       [reviewer, read(reviewer).replace('Write,', 'Write, Edit,')], // the reviewer never edits the contract
     ];
     for (const [f, text] of widened) assert.ok(toolProblems(f, text).length >= 1, `${f}:\n${text.slice(0, 400)}`);
-    assert.deepEqual(toolProblems(author, `﻿${read(author)}`), [], 'a byte-order mark is no change');
+    assert.deepEqual(toolProblems(author, `${String.fromCharCode(0xfeff)}${read(author)}`), [], 'a byte-order mark is no change');
+    // The frontmatter ends only at an exact "---" line: one with more after it is a problem, not the end.
+    const early = toolProblems(bridge, read(bridge).replace(/^(model:.*)$/m, '$1\n---x: 1\nmcpServers: {a: 1}'));
+    assert.ok(early.some((p) => p.includes('isn\'t one "key: value" (---x')), early.join('\n'));
+    assert.ok(early.some((p) => p.includes('unknown frontmatter key mcpServers')), 'the lines after it are still read');
   });
 
   it('each Copilot agent lists its model with fallbacks; each Claude Code bridge names one model', () => {

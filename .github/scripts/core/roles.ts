@@ -34,19 +34,21 @@ export function claudeTools(role: Role): string[] {
 
 /** The frontmatter keys each kind of file may have: any other (an MCP server, a permission mode, hooks) widens it. */
 const KEYS = { copilot: ['name', 'description', 'tools', 'model', 'user-invocable'], claude: ['name', 'description', 'tools', 'model'] };
+const BOM = String.fromCharCode(0xfeff);
 
 /**
  * A file's frontmatter as one-line `key: value` pairs, with what can't be read that way: a line continued on the next
  * one, a block list, a repeated key. A tool list the check can't read whole is a problem, never a pass.
  */
 function frontmatter(text: string): { fields: Record<string, string>; problems: string[] } {
-  const m = /^﻿?---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  // A byte-order mark is no change; the frontmatter ends only at a line that is exactly "---".
+  const m = /^---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/.exec(text.startsWith(BOM) ? text.slice(1) : text);
   if (!m) return { fields: {}, problems: ['no frontmatter'] };
   const fields: Record<string, string> = {};
   const problems: string[] = [];
   for (const line of m[1].split(/\r?\n/)) {
     const kv = /^([\w-]+):[ \t]*(.*)$/.exec(line);
-    if (!kv) { if (line.trim()) problems.push(`a line that isn't one "key: value" (${line.trim().slice(0, 40)})`); continue; }
+    if (!kv || line.startsWith('---')) { if (line.trim()) problems.push(`a line that isn't one "key: value" (${line.trim().slice(0, 40)})`); continue; }
     if (kv[1] in fields) problems.push(`${kv[1]} given twice`);
     fields[kv[1]] = kv[2].trim();
   }
@@ -69,7 +71,7 @@ export function toolProblems(file: string, text: string): string[] {
   const copilot = file.includes('.github/agents/');
   const { fields, problems } = frontmatter(text);
   const out = problems.map((p) => `${file}: ${p}`);
-  for (const key of Object.keys(fields)) if (!KEYS[copilot ? 'copilot' : 'claude'].includes(key)) out.push(`${file}: ${key} is not a key this file may have`);
+  for (const key of Object.keys(fields)) if (!KEYS[copilot ? 'copilot' : 'claude'].includes(key)) out.push(`${file}: unknown frontmatter key ${key} (it may widen what the agent can do; only ${KEYS[copilot ? 'copilot' : 'claude'].join(', ')} are checked)`);
   const want = copilot ? copilotTools(role) : claudeTools(role);
   if (!same(listOf(fields.tools), want)) out.push(`${file}: tools ${fields.tools ?? '(none: every tool)'} — its role allows ${want.join(', ')}`);
   return out;

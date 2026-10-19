@@ -14,6 +14,11 @@ export const SCRIPTS_DIR = path.resolve(import.meta.dirname, '..');
 export const SKILL_DIR = path.resolve(SCRIPTS_DIR, '..', 'skills', 'heldout-evaluator');
 /** How a project updates the skill: setup pulls the clone, then updates the project it is run in. */
 export const UPDATE_HINT = 'in this folder, run setup from your clone of the skill — <clone>/setup.ps1 (PowerShell) or <clone>/setup.sh (bash, zsh)';
+/**
+ * The Playwright MCP server (browser tier 2), pinned: a release on the day of an evaluation must not change the browser
+ * tier. The skill's .vscode/mcp.json names the same version (tests/supply-chain.test.ts); a new one comes through review.
+ */
+export const PLAYWRIGHT_MCP = '@playwright/mcp@0.0.83';
 /** The JSON schema of heldout.config.json (its $schema, for editor help). */
 export const CONFIG_SCHEMA = path.join(SCRIPTS_DIR, 'heldout.config.schema.json');
 
