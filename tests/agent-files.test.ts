@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { AGENT_FILES, SKILL_DIR } from '../.github/scripts/core/config';
+import { ROLES, toolProblems } from '../.github/scripts/core/roles';
 import { COMMANDS, loadCommand } from '../.github/scripts/heldout';
 
 const REPO = path.resolve(import.meta.dirname, '..');
@@ -27,7 +28,7 @@ describe('agent files', () => {
   it('no dev-only agent is shipped, and every agent in .github/agents is either shipped or dev-only', () => {
     assert.deepEqual(AGENT_FILES.filter((f) => path.basename(f).startsWith('dev-')), []);
     const all = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`);
-    assert.deepEqual(all.filter((f) => !COPILOT.includes(f) && !DEV.includes(f)), [], 'name a new agent dev-… (or make it part of the agent setup) or add it to SUBAGENTS');
+    assert.deepEqual(all.filter((f) => !COPILOT.includes(f) && !DEV.includes(f)), [], 'name a new agent dev-… (or make it part of the agent setup) or give it a role in core/roles.ts');
   });
 
   it('each Claude Code bridge carries the name and description of what it points at', () => {
@@ -76,6 +77,38 @@ describe('agent files', () => {
     }
     assert.deepEqual([...new Set(problems)], []);
     assert.ok(checked > 100, `only ${checked} commands found in the documents: the scan is broken`);
+  });
+
+  it('each subagent\'s tools in both apps are exactly what its role allows (core/roles.ts)', () => {
+    const onDisk = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`).filter((f) => !DEV.includes(f));
+    assert.deepEqual(Object.keys(ROLES).sort(), onDisk.map((f) => path.basename(f, '.agent.md')).sort());
+    for (const f of [...COPILOT, ...COPILOT.map(bridgeOf)]) assert.deepEqual(toolProblems(f, fs.readFileSync(path.join(REPO, f), 'utf8')), [], f);
+    // No role looks at the application before the freeze; the contract reviewer never edits what it judges.
+    for (const [name, role] of Object.entries(ROLES)) assert.equal(role.browser, ['heldout-hardener', 'heldout-triager'].includes(name), name);
+    assert.equal(ROLES['heldout-contract-reviewer'].writes, 'create');
+  });
+
+  it('a widened tool list is caught, however it is written', () => {
+    const read = (f: string) => fs.readFileSync(path.join(REPO, f), 'utf8');
+    const author = '.github/agents/heldout-test-author.agent.md';
+    const bridge = bridgeOf(author);
+    const hardener = bridgeOf('.github/agents/heldout-hardener.agent.md');
+    const reviewer = bridgeOf('.github/agents/heldout-contract-reviewer.agent.md');
+    const widened: [string, string][] = [
+      [author, read(author).replace(/^tools:.*$/m, "tools: ['read', 'search', 'edit', 'execute', 'browser']")],
+      [author, read(author).replace(/^tools:.*\r?\n/m, '')], // no tools line: every tool
+      [author, read(author).replace(/^tools: \[(.*)\]$/m, "tools: [$1,\n  'browser', 'playwright/*']")], // continued on the next line
+      [author, read(author).replace(/^name:/m, "mcp-servers:\n  - x\nname:")],
+      [bridge, read(bridge).replace(/^(tools:.*)$/m, '$1,\n  WebFetch')],
+      [bridge, read(bridge).replace(/^(tools:.*)$/m, '$1\ntools: Read, Grep, Glob, Write, Edit, Bash, WebFetch')], // given twice
+      [bridge, read(bridge).replace(/^(tools:.*)$/m, '$1\ndisallowedTools: NotebookEdit')],
+      [hardener, read(hardener).replace(/^(model:.*)$/m, '$1\npermissionMode: bypassPermissions')],
+      [hardener, read(hardener).replace('mcp__playwright__*', 'mcp__*')],
+      [hardener, read(hardener).replace(/^tools:.*\r?\n/m, '')],
+      [reviewer, read(reviewer).replace('Write,', 'Write, Edit,')], // the reviewer never edits the contract
+    ];
+    for (const [f, text] of widened) assert.ok(toolProblems(f, text).length >= 1, `${f}:\n${text.slice(0, 400)}`);
+    assert.deepEqual(toolProblems(author, `﻿${read(author)}`), [], 'a byte-order mark is no change');
   });
 
   it('each Copilot agent lists its model with fallbacks; each Claude Code bridge names one model', () => {

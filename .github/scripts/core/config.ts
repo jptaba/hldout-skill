@@ -7,6 +7,7 @@ import path from 'node:path';
 import { ROOT, rel } from './files';
 import { PHASE_FOLDERS, SCRATCH_DIR } from './paths';
 import { JIRA_MODES, dataPrefix, type HeldoutConfig, type JiraMode } from './profile';
+import { ROLES } from './roles';
 
 /** The skill's scripts (.github/scripts) and the skill itself (.github/skills/heldout-evaluator: SKILL.md, references). */
 export const SCRIPTS_DIR = path.resolve(import.meta.dirname, '..');
@@ -23,7 +24,7 @@ export const CONFIG_SCHEMA = path.join(SCRIPTS_DIR, 'heldout.config.schema.json'
  * only .claude/). The main agent runs the scripts between them. Paths are the same in the skill repository and in a
  * project.
  */
-const SUBAGENTS = ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-test-author', 'heldout-hardener', 'heldout-triager'];
+const SUBAGENTS = Object.keys(ROLES);
 export const AGENT_FILES: string[] = [
   ...SUBAGENTS.flatMap((a) => [`.github/agents/${a}.agent.md`, `.claude/agents/${a}.md`]),
   '.claude/skills/heldout-evaluator/SKILL.md',

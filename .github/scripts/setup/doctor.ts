@@ -19,6 +19,7 @@ import { ROOT, fileHash, rel } from '../core/files';
 import { PHASE_FOLDERS, evalPaths, journeyPaths, listStories } from '../core/paths';
 import { accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, type HeldoutConfig } from '../core/profile';
 import { safeToScrub } from '../core/redact';
+import { toolProblems } from '../core/roles';
 import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
 import { checkAccountRecipe, envNamesIn } from '../probe/accounts-recipe';
 import { appRootOf, describeCounts, discoverApp } from '../probe/detect';
@@ -107,8 +108,11 @@ export async function run({ flags }: Args): Promise<void> {
   if (!/^\.env\s*$/m.test(gi)) check('warn', 'files', '.env is not git-ignored — secrets could be committed', `${H} init   (adds the .gitignore entries)`);
   for (const target of AGENT_FILES) {
     const what = target.startsWith('.claude/') ? 'Claude Code bridge' : 'phase subagent';
-    if (fs.existsSync(path.join(ROOT, target))) check('ok', 'subagents', target);
-    else check('warn', 'subagents', `${target} is missing (${what})`, `${UPDATE_HINT}; then restart your agent app`);
+    if (!fs.existsSync(path.join(ROOT, target))) { check('warn', 'subagents', `${target} is missing (${what})`, `${UPDATE_HINT}; then restart your agent app`); continue; }
+    // Least privilege: a tool list widened in this project lets a subagent do more than its role (core/roles.ts).
+    const wider = target.endsWith('SKILL.md') ? [] : toolProblems(target, fs.readFileSync(path.join(ROOT, target), 'utf8'));
+    if (wider.length) for (const p of wider) check('warn', 'subagents', p, `restore the skill's version: delete ${target}, then ${UPDATE_HINT} (update keeps a file this project changed)`);
+    else check('ok', 'subagents', target);
   }
   // Playwright MCP (tier 2): .vscode/mcp.json for GitHub Copilot, the root .mcp.json for Claude Code.
   for (const [file, app, fix] of [[MCP_FILE, 'GitHub Copilot', UPDATE_HINT], [CLAUDE_MCP_FILE, 'Claude Code', `${H} init`]] as const) {

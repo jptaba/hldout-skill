@@ -80,13 +80,20 @@ whatever its tools allow. The refusal says why, and it lands in the history as a
 
 ### P3 · Least privilege, checked (G3)
 
-- `core/roles.ts` holds a matrix of each agent's role: whether it may use a browser or an MCP browser, whether it may
-  write, and which phase folders it writes.
-- Every Copilot agent's `tools:` list and every Claude bridge's `tools` / `disallowedTools` is generated from or
-  checked against that matrix (`tests/agent-files.test.ts`). The hardener and triager bridges get explicit lists.
-- The contract reviewer may write only `2-contract/review.json`; `contract --review-bind` already refuses a review
-  whose items don't match the contract.
-- **Cost:** a test.
+- `core/roles.ts` holds a matrix of each agent's role: whether it may look at the application (browser and MCP
+  browser), and whether it edits files or only creates its own. The subagent list (`AGENT_FILES`) comes from it.
+- Every Copilot agent's `tools:` and every Claude bridge's `tools` must be exactly the allow list its role gives
+  (`toolProblems`): checked by `tests/agent-files.test.ts` here and by `doctor` in a project, so a list widened by
+  hand is a warning. The browser is the Playwright MCP server's tools only (`playwright/*`, `mcp__playwright__*`), so
+  no subagent reaches another MCP server, the web or other agents. A frontmatter key the file type doesn't use (an
+  MCP server, a permission mode, hooks), a list continued on a second line and a repeated key are problems too:
+  what the check can't read whole never passes.
+- The contract reviewer has no Edit tool in Claude Code, as defence in depth: Write and the shell can still change a
+  file, and Copilot's `edit` covers creating one. The guard is `contract --review-bind`, which binds the review to
+  the contract's hash.
+- **Residual:** a shell (every role has one) can reach the application over the network; P1 refuses the
+  evaluator's own probes before the freeze, and `demo/inflight.ts` counts the rest.
+- **Cost:** a test, and one frontmatter read per agent file in `doctor`.
 
 ### P4 · Pinned supply chain (G4)
 
@@ -228,13 +235,13 @@ Pinning each key's hash in the scorecard, so a score names the exact key it was 
 | Role | Sees | Writes | Can't | Enforced by |
 | --- | --- | --- | --- | --- |
 | Contract extractor | the evidence pack | `2-contract/contract.json`, transcripts | probe the application; write the review | P1, P3, `review-bind` |
-| Contract reviewer | the evidence pack and the contract | `2-contract/review.json` | change the contract; probe | P3, `review-bind` (hash) |
+| Contract reviewer | the evidence pack and the contract | `2-contract/review.json` | change the contract unnoticed; probe | `review-bind` (hash), P1, P3 (no Edit, no browser) |
 | Test author | the reviewed contract, the journeys | `3-tests/`, journey files | probe the application | P1 (freeze gate), P3 |
 | Hardener | everything, live | HOW only: locators, journeys, gaps' mechanics | change WHAT | `integrity` (freeze, amendments), journey lint |
-| Triager | runs, live | decisions in the run record, probes | edit tests or journeys | P3, `integrity` |
+| Triager | runs, live | decisions in the run record, probes | edit tests or journeys unnoticed | `integrity` (snapshot of the frozen draft), instructions |
 | Orchestrator | everything | nothing in a story's record directly | skip a phase or a gate | `advance`, phase checks |
 | Maintainer implementer | the repository | code under a contract | approve its own change | the gate (`commit-msg` + independent review) |
-| `dev-code-reviewer` | the diff, the packet | nothing | edit anything | its tool lists |
+| `code-reviewer` | the diff, the packet | its verdict (`agentctl review`) | edit anything | its tool lists |
 
 Other separations stay as they are:
 
