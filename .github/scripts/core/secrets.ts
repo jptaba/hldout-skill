@@ -25,6 +25,19 @@ const loaded = new Map<string, string>();
 /** The loaded Vault values as a JSON map, for a child process (heldout run → Playwright) through HELDOUT_VAULT_SECRETS. */
 export const loadedVaultSecrets = (): Record<string, string> => Object.fromEntries(loaded);
 
+/**
+ * The project's secret values that must never be committed, by name: environment variables (.env included) whose name
+ * says secret (PASS, TOKEN, SECRET, API_KEY) and the Vault values loaded, each only when it is safe to look for
+ * (`safeToScrub`: no plain word or short number) and not a value a story itself publishes (`published`: the text of
+ * the stories' requirement folders, where a sandbox's documented demo password is not a secret).
+ */
+export function projectSecrets(published = '', safe: (v: string) => boolean = () => true): [name: string, value: string][] {
+  return [
+    ...Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safe(v) && !published.includes(v)) as [string, string][],
+    ...Object.entries(loadedVaultSecrets()).filter(([, v]) => safe(v) && !published.includes(v)).map(([ref, v]) => [`${'$'}{vault:${ref}}`, v] as [string, string]),
+  ];
+}
+
 /** Replace ${env:…} and ${vault:…} in a string. Unknown env names are left as they are (callers report them). */
 export function expandSecrets(s: string): string {
   return expandGenerated(s.replace(ENV_REF, (m, n: string) => process.env[n] ?? m).replace(VAULT_REF, (m, p: string, f: string) => loaded.get(`${p.trim()}#${f.trim()}`) ?? m));

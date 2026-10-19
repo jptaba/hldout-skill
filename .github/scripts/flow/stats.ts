@@ -120,7 +120,7 @@ export function run({ _, flags }: Args): void {
   const chosen = only && found.length > 1 ? found.filter((s) => s.profile === cfg.autId) : found;
   const stories = chosen.map((s) => storyStats(s.dir, s.profile, s.key))
     .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }) || a.profile.localeCompare(b.profile));
-  if (!stories.length) throw new Error(only ? `${only} has no story with a history under ${cfg.outputDir}/${found.length ? ` for profile ${cfg.autId}` : ''}` : `no story with a history under ${cfg.outputDir}/ yet`);
+  if (!stories.length) throw new Error(only ? `${only} has no story with a history under ${cfg.outputDir}/${found.length ? ` for profile ${cfg.autId}` : ''}` : `no story with a history under ${cfg.outputDir}/${aut ? ` for profile ${aut}` : ''} yet`);
   for (const s of stories) for (const f of s.unreadable) console.error(`⚠ ${s.key}: can't read ${f} — counted as unknown`);
   for (const line of statsTable(stories)) console.log(line);
   if (!only) return;

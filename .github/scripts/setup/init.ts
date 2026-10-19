@@ -7,6 +7,8 @@
  *                [--install] [--ci]
  *   heldout init [--profile <id>] --data-prefix qa        the prefix of the names tests make (default "hldout")
  *   heldout init [--profile <id>] --max-workers 1 --min-test-interval-ms 10000   pacing for a rate-limited host
+ *   heldout init --git-hooks        a pre-commit hook (opt-in) that runs heldout precommit: no secret value, no file
+ *                                   over 1 MB in the output folder, in a commit
  *
  * setup.ps1 / setup.sh at the root of the skill's clone run it for a new project (and `update` for a set-up one).
  * Run from the skill repository (a clone anywhere, any git host), it first runs that repository's `update`, which
@@ -26,13 +28,14 @@ import { AGENT_FILES, CONFIG_SCHEMA, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensure
 import { ROOT, rel } from '../core/files';
 import { JIRA_MODES } from '../core/profile';
 import { profileIdFor } from '../probe/detect';
+import { installGitHook } from './git-hook';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 import { discover, profileFrom, say } from './profile-setup';
 
 export const spec: CommandSpec = {
-  name: 'init', group: 'Setup', usage: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci]',
+  name: 'init', group: 'Setup', usage: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci] [--git-hooks]',
   about: 'set a project up: update, then config, npm script, .gitignore, .env (never overwrites)',
-  flags: ['ac-field', 'api-base-url', 'base-url', 'ci', 'data-prefix', 'healthcheck', 'install', 'jira', 'jira-url', 'max-workers', 'min-test-interval-ms', 'name', 'profile', 'test-id-attr'],
+  flags: ['ac-field', 'api-base-url', 'base-url', 'ci', 'data-prefix', 'git-hooks', 'healthcheck', 'install', 'jira', 'jira-url', 'max-workers', 'min-test-interval-ms', 'name', 'profile', 'test-id-attr'],
 };
 
 /** Files update copies from the skill repository; init only checks they are there. */
@@ -131,6 +134,8 @@ export async function run({ flags, argv }: Args): Promise<void> {
     const shipped = fs.existsSync(sourceFile) ? (JSON.parse(fs.readFileSync(sourceFile, 'utf8')) as { mcpServers?: string[] }).mcpServers : undefined;
     writeClaudeCodeMcp(ROOT, Object.fromEntries(Object.entries(servers).filter(([name]) => !shipped || shipped.includes(name))), (mark, msg) => { if (mark !== '•') say(mark, msg); });
   }
+
+  if (flags['git-hooks']) installGitHook(ROOT, say);
 
   if (flags.install) {
     const npm = (args: string[]) => spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, { stdio: 'inherit', cwd: ROOT, shell: process.platform === 'win32' });

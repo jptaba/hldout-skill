@@ -20,7 +20,7 @@ import { PHASE_FOLDERS, evalPaths, journeyPaths, listStories } from '../core/pat
 import { accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, type HeldoutConfig } from '../core/profile';
 import { safeToScrub } from '../core/redact';
 import { toolProblems } from '../core/roles';
-import { loadVaultSecrets, loadedVaultSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
+import { loadVaultSecrets, projectSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
 import { checkAccountRecipe, envNamesIn } from '../probe/accounts-recipe';
 import { appRootOf, describeCounts, discoverApp } from '../probe/detect';
 import { createTracker } from '../requirement/jira/client';
@@ -138,8 +138,7 @@ export async function run({ flags }: Args): Promise<void> {
     const files = git.stdout.split('\0').filter(Boolean);
     const read = (f: string) => { try { return fs.statSync(path.join(ROOT, f)).size < 5_000_000 ? fs.readFileSync(path.join(ROOT, f), 'utf8') : ''; } catch { return ''; } };
     const published = files.filter((f) => f.startsWith(`${rel(outDir)}/`) && f.split('/')[3] === PHASE_FOLDERS[0]).map(read).join('\n');
-    const secrets = [...Object.entries(process.env).filter(([k, v]) => /PASS|TOKEN|SECRET|API_KEY/.test(k) && v && safeToScrub(v) && !published.includes(v)) as [string, string][],
-      ...Object.entries(loadedVaultSecrets()).filter(([, v]) => safeToScrub(v) && !published.includes(v)).map(([ref, v]) => [`${'$'}{vault:${ref}}`, v] as [string, string])];
+    const secrets = projectSecrets(published, safeToScrub);
     const leaks = new Map<string, string[]>();
     if (!secrets.length) return leaks;
     for (const f of files) {

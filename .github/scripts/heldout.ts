@@ -20,6 +20,7 @@ export const COMMANDS: Record<string, string> = {
   doctor: 'setup/doctor.ts',
   secret: 'setup/secret.ts',
   accounts: 'setup/accounts.ts',
+  precommit: 'setup/precommit.ts',
   status: 'flow/status.ts',
   advance: 'flow/advance.ts',
   new: 'requirement/mock/new.ts',

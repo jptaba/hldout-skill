@@ -107,7 +107,7 @@ describe('heldout stats', () => {
     const ambiguous = heldout(root, 'stats', 'ABC-1');
     assert.notEqual(ambiguous.status, 0);
     assert.match(ambiguous.stderr + ambiguous.stdout, /--aut/, 'a key in two profiles asks which');
-    // A key in one profile only: found through the profile it is bound to, not the default.
+    // A key in one profile only, not the default one: found there.
     story(root, 'bank', 'ABC-2', [{ at: at(0), event: 'fetched' }, { at: at(1), event: 'note', kind: 'remark', text: 'only in bank' }]);
     assert.match(heldout(root, 'stats', 'ABC-2').stdout, /^Remark: only in bank$/m);
     // --aut alone keeps one profile's stories.

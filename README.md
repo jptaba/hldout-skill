@@ -180,6 +180,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | Command | Purpose |
 | --- | --- |
 | `init`, `update`, `add-aut`, `doctor`, `status [KEY]` | set up, install or update the skill (what `setup.ps1` / `setup.sh` run from the skill's clone), add an application, check the setup, see where each story is and the next step |
+| `init --git-hooks` · `precommit` | opt-in pre-commit hook: a commit with a secret value, or a file over 1 MB in the output folder, is refused; who decides what and how the evaluator is controlled: [references/governance.md](.github/skills/heldout-evaluator/references/governance.md) |
 | `advance KEY [--rerun]` | run a story's next script steps (fetch, evidence pack, freeze, run, automatic triage, verdict, publish, journey registry) up to the next subagent; run it again after each one. When a draft leaves nothing to discover (no guess marked, every journey it calls proven in the registry), it also does the hardening itself: two runs of the tests instead of a hardener subagent |
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
 | `accounts --add-existing … [--role admin] [--shared]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users; `--shared` for an account every parallel worker may use, such as the one administrator) or created by the tests; checked live |

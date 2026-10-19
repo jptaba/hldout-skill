@@ -143,9 +143,20 @@ whatever its tools allow. The refusal says why, and it lands in the history as a
   - the audit trail (the story folder and its history);
   - a mapping to the NIST AI RMF (Govern, Map, Measure, Manage) and the OWASP Top 10 for LLM and for Agentic
     applications.
-- **`init --git-hooks`** (opt-in): a pre-commit hook in the adopter's project that runs the existing `findSecrets`
-  scan (`core/redact.ts`) on the staged files, and refuses files over 1 MB in `output/`.
-- **Cost:** under 1 s per commit.
+- **`init --git-hooks`** (opt-in): a pre-commit hook in the adopter's project that runs `heldout precommit`.
+  - Installed where git looks for this repository's hooks (`core.hooksPath` only when inside the repository); it goes
+    to the project's folder first when the project is a sub-folder. One the project has, or a global hooks folder, is
+    never written to: init prints the line to add.
+  - The project's staged files, read from the index by blob id in one `git cat-file` pass (zip entries, or the raw
+    bytes of an archive that can't be opened, and a run record's base64 bodies included), are refused when they hold
+    one of the project's secret values, or when a file in the output folder is over 1 MB. Refusals name the file and
+    the secret's name, never its value.
+  - The secret values are the set `doctor` looks for (now `projectSecrets` in `core/secrets.ts`): secret-named
+    environment variables and the project's Vault values, loaded when Vault can be reached (otherwise said, not
+    fatal). Weak values are not looked for. Only requirement files the index holds under the output folder count as
+    published; never untracked files or symbolic links.
+- **Cost:** about a second per commit (the command's start-up), plus Vault's answer when the project uses Vault, at
+  most 5 s.
 
 ## 4. The maintainer tooling: adopting sample-agent-setup
 
@@ -329,7 +340,7 @@ plan has finished.
 | GP2 | done | d3b5f91 | `injection-suspect` (evidence.ts: NFKC, zero-width removed; zero hits on the demo stories) in the contract check, the pack and the verdict; `wikiText` makes Jira text literal; finding rows bounded; four agents told untrusted text is data. Two Opus reviews, two rounds; follow-ups in contract 0005. Open: a live Jira Data Center rendering check |
 | GP3 | done | c0b15bb | `core/roles.ts`: a role per shipped subagent and the exact allow lists in both apps (the Claude Code hardener and triager had every tool; now files, shell and `mcp__playwright__*`). `toolProblems` catches a widened list, an unknown key, a continued line, a repeated key; checked by `agent-files.test.ts` and `doctor`. Two Opus reviews, two rounds. Open: a round shows the Playwright tools reach the Claude Code hardener through `mcp__playwright__*` |
 | GP4 | done | 4eca6f3 | `PLAYWRIGHT_MCP` pinned in `core/config.ts`, `.vscode/mcp.json` and `mcp-probe`; exact dev dependencies in `init` and `package.json`; `doctor` flags a Playwright MCP server in either app's file that isn't the pin; `tests/supply-chain.test.ts`. With the GP3 follow-ups (contract 0003) |
-| GP5 | done | fd74e2f | `heldout stats [KEY] [--aut]` (shipped; `demo/round.ts stats` removed) and `note --usage`; SKILL.md records each subagent's reported cost and reads `stats` in its summary. Round 37: the same numbers as the dev tool. Two Opus reviews, two rounds; follow-ups in contract 0006. Open: whether the agent apps report subagent cost in a live round |
+| GP5 | done | fd74e2f, 9826c6e | `heldout stats [KEY] [--aut]` (shipped; `demo/round.ts stats` removed) and `note --usage`; SKILL.md records each subagent's reported cost and reads `stats` in its summary. Round 37: the same numbers as the dev tool. Two Opus reviews, two rounds; follow-ups in contract 0006. Open: whether the agent apps report subagent cost in a live round |
 | GP6 | to do | | |
 | GM1 | done | a2d18c1 | `AGENTS.md` and `.agents/config.json` the only project-specific files; generic `CLAUDE.md`, `GOVERNANCE.md`, `SECURITY.md`, `.github/copilot-instructions.md`; `CODEOWNERS`; ADRs 0001–0002. |
 | GM2 | done | a2d18c1 | The `contract`, `implement`, `review` and `pr-packet` skills (`.agents/skills/`, Claude bridges), the read-only `code-reviewer` agent (both apps), `agentctl` (verify, review, status, audit, ci, scan-secrets, install-hooks). The change gated itself: seven review rounds on two models (Sonnet, Opus) before both approved, fixing a tier bug, rename evasion, forged-trailer gaps, merge handling and secret-scan misses; 23 kit tests. |
