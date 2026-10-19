@@ -3,8 +3,9 @@
  * value or an oversized record file, and `init --git-hooks` installs the hook without replacing one the project has.
  */
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
@@ -149,6 +150,29 @@ describe('heldout precommit', () => {
     const v = spawnSync(process.execPath, [TSX, DISPATCHER, 'precommit'], { cwd: vault, encoding: 'utf8', env: { ...ENV, VAULT_ADDR: '', npm_lifecycle_event: '' } });
     assert.equal(v.status, 0);
     assert.match(v.stderr, /Vault values not checked/);
+  });
+
+  it('waits for a Vault that doesn\'t answer at most 5 seconds, and still refuses what it should', async () => {
+    const root = repo();
+    fs.writeFileSync(path.join(root, 'heldout.config.json'), JSON.stringify({ defaultAut: 'shop', auts: { shop: { name: 'Shop', baseURL: 'https://shop.test/', accounts: { existing: [{ username: 'a@shop.test', password: '${vault:secret/qa#pw}', role: 'admin', shared: true }] } } } }));
+    stage(root, 'a.txt', SECRET);
+    // A server that accepts the connection and never answers.
+    const server = net.createServer((socket) => socket.on('error', () => {})); // the child's exit resets it
+    await new Promise<void>((done) => server.listen(0, '127.0.0.1', done));
+    const { port } = server.address() as net.AddressInfo;
+    try {
+      const t0 = Date.now();
+      const r = await new Promise<{ status: number | null; stderr: string }>((done) => {
+        const child = spawn(process.execPath, [TSX, DISPATCHER, 'precommit'], { cwd: root, env: { ...ENV, VAULT_ADDR: `http://127.0.0.1:${port}`, VAULT_TOKEN: 'x', npm_lifecycle_event: '' } });
+        let stderr = '';
+        child.stderr.on('data', (d) => { stderr += d; });
+        child.on('close', (status) => done({ status, stderr }));
+      });
+      assert.ok(Date.now() - t0 < 12_000, `took ${Date.now() - t0} ms`);
+      assert.match(r.stderr, /Vault didn't answer within 5 s/);
+      assert.equal(r.status, 1, 'the .env value is still refused');
+      assert.match(r.stderr, /a\.txt: holds the value of SHOP_PASSWORD/, 'the whole report, though the process ends early');
+    } finally { server.close(); }
   });
 });
 

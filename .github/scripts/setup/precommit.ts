@@ -110,36 +110,43 @@ export function precommitProblems(staged: { file: string; data: Buffer }[], secr
   return problems;
 }
 
+// Written at once (not buffered): the process may end while Vault's request is still open.
+const out = (s: string) => fs.writeSync(1, `${s}\n`);
+const err = (s: string) => fs.writeSync(2, `${s}\n`);
+
 export async function run(_: Args): Promise<void> {
   loadEnv();
   let outputDir = 'output';
   let vaultLate = false;
   const notes: string[] = [];
-  try {
-    const cfg = loadConfig();
-    outputDir = cfg.outputDir;
-    // The Vault values the project uses (test data and accounts recipes), as doctor reads them.
-    const users = [...listStories(cfg).map((s) => evalPaths({ outputDir: cfg.outputDir, autId: s.profile }, s.key).testData).filter((f) => fs.existsSync(f)).map((f) => fs.readFileSync(f, 'utf8')),
-      ...Object.values(cfg.auts).map((a) => a.accounts)];
-    // A commit waits for Vault at most a few seconds: one that can't be reached in time is said, not waited for.
-    const late = new Promise<string[]>((done) => { const t = setTimeout(() => { vaultLate = true; done([`Vault didn't answer within ${VAULT_WAIT_MS / 1000} s`]); }, VAULT_WAIT_MS); t.unref(); });
-    const problems = await Promise.race([loadVaultSecrets(users), late]);
-    if (problems.length) notes.push(`Vault values not checked: ${problems.join('; ')}`);
-  } catch (e) {
+  let cfg: ReturnType<typeof loadConfig> | undefined;
+  try { cfg = loadConfig(); outputDir = cfg.outputDir; } catch (e) {
     notes.push(`heldout.config.json not read (${(e as Error).message.split('\n')[0]}): the output folder is taken as "output", and Vault values are not checked`);
   }
-  for (const n of notes) console.error(`⚠ heldout precommit: ${n}`);
+  if (cfg) {
+    // The Vault values the project uses (test data and accounts recipes), as doctor reads them.
+    const conf = cfg;
+    const users = [...listStories(conf).map((s) => evalPaths({ outputDir: conf.outputDir, autId: s.profile }, s.key).testData).filter((f) => fs.existsSync(f)).map((f) => fs.readFileSync(f, 'utf8')),
+      ...Object.values(conf.auts).map((a) => a.accounts)];
+    // A commit waits for Vault at most a few seconds: one that can't be reached in time is said, not waited for.
+    const late = new Promise<string[]>((done) => { const t = setTimeout(() => { vaultLate = true; done([`Vault didn't answer within ${VAULT_WAIT_MS / 1000} s`]); }, VAULT_WAIT_MS); t.unref(); });
+    try {
+      const problems = await Promise.race([loadVaultSecrets(users), late]);
+      if (problems.length) notes.push(`Vault values not checked: ${problems.join('; ')}`);
+    } catch (e) { notes.push(`Vault values not checked: ${(e as Error).message.split('\n')[0]}`); }
+  }
+  for (const n of notes) err(`⚠ heldout precommit: ${n}`);
   const staged = stagedFiles();
   const published = publishedFiles(outputDir);
   // Said, so a reviewer sees it: which secrets a requirement file publishes, and so aren't looked for (names only).
   for (const [name, value] of projectSecrets('', safeToScrub)) {
     const where = published.filter((p) => p.text.includes(value)).map((p) => p.file);
-    if (where.length) console.log(`• ${name} is published in ${where.slice(0, 3).join(', ')}${where.length > 3 ? ', …' : ''}: not looked for`);
+    if (where.length) out(`• ${name} is published in ${where.slice(0, 3).join(', ')}${where.length > 3 ? ', …' : ''}: not looked for`);
   }
   const problems = precommitProblems(staged, projectSecrets(published.map((p) => p.text).join('\n'), safeToScrub), outputDir);
-  if (!problems.length) console.log(`✔ heldout precommit: ${staged.length} staged file(s), no secret value, no oversized record file`);
+  if (!problems.length) out(`✔ heldout precommit: ${staged.length} staged file(s), no secret value, no oversized record file`);
   else {
-    console.error(`✖ heldout precommit: commit refused\n${problems.map((p) => `  - ${p}`).join('\n')}\n  A secret goes in .env or Vault and is referenced as \${env:NAME} or \${vault:path#field}; to scrub a story: heldout scrub KEY`);
+    err(`✖ heldout precommit: commit refused\n${problems.map((p) => `  - ${p}`).join('\n')}\n  A secret goes in .env or Vault and is referenced as \${env:NAME} or \${vault:path#field}; to scrub a story: heldout scrub KEY`);
     process.exitCode = 1;
   }
   // Vault's request may still be open: the commit doesn't wait for it.
