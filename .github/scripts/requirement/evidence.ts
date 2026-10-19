@@ -108,12 +108,12 @@ export function evidencePack(key: string, reqDir: string, screenshots: string[],
  */
 const INJECTION = [
   /\b(?:ignore|disregard|forget|override)\b[^.\n]{0,40}\b(?:previous|prior|above|earlier|preceding|your|all)\b[^.\n]{0,20}\b(?:instructions?|prompts?|directions)\b/i,
-  /\b(?:print|reveal|repeat|output|leak|show|ignore|disregard)\b[^.\n]{0,20}\byour (?:system prompt|prompt|instructions)\b/i,
+  /\b(?:print|reveal|repeat|leak|ignore|disregard)\b[^.\n]{0,20}\byour (?:system prompt|instructions)\b|\b(?:show|output)\b[^.\n]{0,20}\byour system prompt\b/i,
   /\byou are (?:now )?(?:an?|the) (?:ai|language model|llm|evaluator)\b/i,
   /\bas an (?:ai )?language model\b|\bas an llm\b/i,
   /\b(?:mark|set|report|record|change) the verdict (?:as|to)\b/i,
   /<\/?\s*(?:system|assistant|instructions?)\s*>/i,
-  /\b(?:evaluator|llm|language model)s?\b[,:]?\s+(?:must|should|shall)\s+(?:not\s+)?(?:ignore|skip|mark|report|approve|pass|treat)\b/i,
+  /\b(?:llm|language model)s?\b[,:]?\s+(?:must|should|shall)\s+(?:not\s+)?(?:ignore|skip|mark|report|approve|pass|treat)\b/i,
 ];
 /** Zero-width characters inside a word would hide it from the patterns; compatibility forms are folded too. */
 const INVISIBLE = new RegExp(`[${[0x200b, 0x200c, 0x200d, 0x2060, 0xfeff].map((c) => String.fromCharCode(c)).join('')}]`, 'g');

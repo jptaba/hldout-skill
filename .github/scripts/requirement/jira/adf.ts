@@ -33,13 +33,20 @@ const ZWSP = String.fromCharCode(0x200b);
 /** A backslash is wiki markup's escape, and two make a line break: text gets the full-width look-alike instead. */
 const BACKSLASH = String.fromCharCode(0xff3c);
 /**
+ * Line breaks of any kind, with every space and tab between and around them, as one match; other spaces, tabs and
+ * no-break spaces are kept. A match starts only where a run of spaces begins, so a long run without a break is one
+ * pass, not one per position.
+ */
+const BREAKS = `\\r\\n\\f\\v${String.fromCharCode(0x85, 0x2028, 0x2029)}`;
+const LINE_BREAK = new RegExp(`(?<![ \\t])[ \\t]*[${BREAKS}][${BREAKS} \\t]*`, 'g');
+/**
  * A text node, literal in wiki markup: what the application said (an error text, a page's words) can't become a link,
  * a mention (`[~user]`), a macro (`{html}`), an image (`!x!`), a table cell, a heading, a rule or a new line. Markup
  * comes only from the builder's marks and blocks. A URL stays readable but not clickable; the attached report keeps
  * every value exactly as it is. Each step is one linear pass.
  */
 export function wikiText(s: string): string {
-  return s.replace(/[\s\x85]+/g, (w) => (w === ' ' ? w : ' '))
+  return s.replace(LINE_BREAK, ' ')
     .replace(/\\/g, BACKSLASH)
     .replace(/[[\]{}|!]/g, (c) => `\\${c}`)
     .replace(/(?<![a-z0-9+.-])([a-z][a-z0-9+.-]*):\/\//gi, `$1:${ZWSP}//`)
