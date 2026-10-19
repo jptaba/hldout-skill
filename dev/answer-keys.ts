@@ -29,10 +29,16 @@ export function readPins(file = PINS_FILE): Map<string, string> {
   return new Map(fs.readFileSync(file, 'utf8').split(/\r?\n/).map((l) => /^([0-9a-f]{64}) {2}(\S+)$/.exec(l)).filter((m): m is RegExpExecArray => m !== null).map((m) => [m[2], m[1]]));
 }
 
-/** What doesn't match its pin: a key changed, unpinned, or a pin for a key that is gone. [] when every key matches. */
+/**
+ * What doesn't match its pin: a key changed, unpinned, a pin for a key that is gone, or a key pinned twice. [] when
+ * every key matches.
+ */
 export function pinProblems(dir = KEYS_DIR, pins = readPins(path.join(dir, 'HASHES'))): string[] {
   const files = keyFiles(dir);
+  const pinFile = path.join(dir, 'HASHES');
+  const named = fs.existsSync(pinFile) ? fs.readFileSync(pinFile, 'utf8').split(/\r?\n/).map((l) => /^[0-9a-f]{64} {2}(\S+)$/.exec(l)?.[1]).filter((f): f is string => f !== undefined) : [];
   return [
+    ...[...new Set(named.filter((f, i) => named.indexOf(f) !== i))].map((f) => `${f}: pinned more than once`),
     ...files.filter((f) => !pins.has(f)).map((f) => `${f}: not pinned`),
     ...files.filter((f) => pins.has(f) && pins.get(f) !== keyHash(path.join(dir, f))).map((f) => `${f}: changed since it was pinned`),
     ...[...pins.keys()].filter((f) => !files.includes(f)).map((f) => `${f}: pinned but gone`),

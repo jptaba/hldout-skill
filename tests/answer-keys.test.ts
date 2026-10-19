@@ -33,5 +33,8 @@ describe('answer keys', () => {
     fs.writeFileSync(path.join(dir, 'NEW-1.json'), '{}');
     assert.deepEqual(pinProblems(dir).sort(), [`${second}: changed since it was pinned`, `${third}: pinned but gone`, 'NEW-1.json: not pinned'].sort());
     assert.equal(readPins(path.join(dir, 'HASHES')).get(first), keyHash(path.join(KEYS_DIR, first)));
+    // A key pinned twice is a problem, whichever line would win.
+    fs.appendFileSync(path.join(dir, 'HASHES'), `${keyHash(path.join(KEYS_DIR, first))}  ${first}\n`);
+    assert.ok(pinProblems(dir).includes(`${first}: pinned more than once`));
   });
 });

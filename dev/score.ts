@@ -21,6 +21,8 @@ import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
 import { KEYS_DIR, pinProblems, readPins } from './answer-keys';
 
 interface Key {
+  /** The file it was read from (the pin is by file). */
+  file: string;
   key: string; aut: string; expectedVerdict: string;
   defects: { id: string; criteria: string[]; origin: string; keywords: string[]; description: string }[];
   seededScriptDefects: { id: string; keywords: string[]; description: string }[];
@@ -50,7 +52,7 @@ const storyDir = (key: string): string | undefined => {
 };
 const wanted = args.filter((_, i) => fromAt < 0 || (i !== fromAt && i !== fromAt + 1));
 const keys: Key[] = fs.readdirSync(keysDir).filter((f) => f.endsWith('.json'))
-  .map((f) => JSON.parse(fs.readFileSync(path.join(keysDir, f), 'utf8')) as Key)
+  .map((f) => ({ ...JSON.parse(fs.readFileSync(path.join(keysDir, f), 'utf8')) as Key, file: f }))
   .filter((k) => (wanted.length ? wanted.includes(k.key) : !from || Boolean(storyDir(k.key))));
 
 const text = (...parts: (string | null | undefined)[]) => parts.filter(Boolean).join(' ').toLowerCase();
@@ -104,7 +106,7 @@ for (const k of keys) {
 
   rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | ${verdictOk ? '✅' : '❌'} ${v.verdict} | ${tp}/${k.defects.length} (${pct(tp, k.defects.length)})${asked ? ` + ${asked} as owner question` : ''} | ${fps.length} | ${agree.length}/${judged.length} (${pct(agree.length, judged.length)}) · abstained ${abstained.length} · wrong ${wrong.length} |`);
   details.push(`## ${k.key} (${k.aut})`, '',
-    `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed · key \`${k.key}.json\` sha256:${(pins.get(`${k.key}.json`) ?? '?').slice(0, 12)}`, '',
+    `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed · key \`${k.file}\` sha256:${(pins.get(k.file) ?? '?').slice(0, 12)}`, '',
     ...(k.defects.length ? ['| Expected defect | Criteria | Origin | Matched finding |', '| --- | --- | --- | --- |',
       ...defectResults.map(({ d, f, q }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : q ? `❔ surfaced as a reading the app contradicts (${q.test}, rests on ${q.restsOn.join(', ')}): a question for the owner, not a defect` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
     ...(fps.length ? ['**False positives (confirmed findings not in the answer key):**', '', ...fps.map((f) => `- ❌ ${f.id}: ${f.title} (${f.criteria.join(', ')})`), ''] : ['False positives: none ✅', '']),

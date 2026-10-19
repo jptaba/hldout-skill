@@ -10,6 +10,6 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["playwright.config.ts", "heldout-support/**/*.ts", "journeys*/**/*.ts", "output/**/*.ts", ".github/scripts/**/*.ts", "dev/**/*.ts"],
+  "include": ["playwright.config.ts", "heldout-support/**/*.ts", "journeys*/**/*.ts", "output/**/*.ts", ".github/scripts/**/*.ts"],
   "exclude": ["node_modules"]
 }

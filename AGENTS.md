@@ -61,5 +61,5 @@ convincing reason.
 - Commit with `--no-verify`, approve your own diff, or write an `Approved-by:` trailer.
 - Weaken, skip or delete a test to go green.
 - Change an answer key in `demo/answer-keys/` without an ADR and its new pin (`npx tsx dev/answer-keys.ts --pin`, in
-  the same commit; guardrail tier: two reviews).
+  the same commit; guardrail tier: two reviews). The proof catches a missing pin; the reviewers check for the ADR.
 - Add a dependency the contract doesn't name.
