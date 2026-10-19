@@ -51,6 +51,25 @@ describe('heldout confirm', () => {
     assert.equal(out, `const s = '${M}';`);
   });
 
+  it('never changes what code means: a lone operator line, a comment between statements, a regex after if (…)', () => {
+    // A line comment after a multiplication operator: the `*` is code and stays.
+    assert.equal(withoutMarks(`const v = a\n  * // ${M}\n  b;`).out, 'const v = a\n  *\n  b;');
+    // An emptied block comment spanning lines between code: kept, so the line break stays.
+    assert.equal(withoutMarks(`return /*\n ${M}\n */ 1;`).out, 'return /*\n */ 1;');
+    // A regular expression right after a condition is not a division.
+    const code = `if (ok) /\\/\\/ ${M}/.test(s);`;
+    assert.deepEqual(withoutMarks(code), { out: code, removed: 0, left: 1 });
+    // A multiplication operator beside a block comment is code and stays.
+    assert.equal(withoutMarks(`const v = a\n  * /* ${M} */\n  b;`).out, 'const v = a\n  *\n  b;');
+    assert.equal(withoutMarks(`const v = a\n  /* ${M} */ *\n  b;`).out, 'const v = a\n *\n  b;', 'only the comment and the space before it go');
+    assert.equal(withoutMarks(`/* ${M}\n */ *\n b`).out, ' *\n b');
+    // A method named like a keyword is no condition: what follows its call is a division.
+    for (const s of [`x.if(ok) / 2; s = '/ // ${M}';`, `t.for(x) / y; s = '/ // ${M}';`, `o?.while(z) / 2; s = '/ // ${M}';`]) assert.equal(withoutMarks(s).out, s, s);
+    // `for await (…)` is a condition like `for (…)`.
+    const loop = `for await (const x of y) /[//] ${M}/.test(x);`;
+    assert.equal(withoutMarks(loop).out, loop);
+  });
+
   it('keeps CRLF line endings as they are', () => {
     const src = `a(); // ${M} g\r\nb();\r\n// ${M}\r\nc(); /* ${M} */\r\nd();\r\n`;
     assert.equal(withoutMarks(src).out, 'a();\r\nb();\r\nc();\r\nd();\r\n');

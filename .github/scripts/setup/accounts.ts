@@ -57,7 +57,7 @@ export const spec: CommandSpec = {
   about: 'test accounts: existing ones (.env, environment, Vault) or created by the tests; checked live',
   flags: ['add-existing', 'aut', 'check', 'create', 'from-chain', 'id', 'key', 'lookup', 'lookup-id', 'no-delete', 'password', 'password-env',
     'password-vault', 'per-test', 'reset', 'role', 'shared', 'sign-in-done', 'sign-in-json', 'sign-in-path', 'sign-in-steps', 'sign-up-done',
-    'sign-up-json', 'sign-up-path', 'sign-up-steps', 'username', 'username-env', 'username-vault'],
+    'sign-up-json', 'sign-up-path', 'sign-up-steps', 'username', 'username-env', 'username-vault'], words: 0,
 };
 
 export async function run({ flags }: Args): Promise<void> {

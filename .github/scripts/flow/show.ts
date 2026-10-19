@@ -24,7 +24,7 @@ import { readReview } from '../requirement/evidence';
 import { pendingOf, readRunRecord, type TriageEntry } from '../triage/triage-model';
 
 export const spec: CommandSpec = {
-  name: 'show', group: 'Report', usage: 'KEY contract|run|triage|probes|history [...] | config [--aut id]   [--json]',
+  name: 'show', group: 'Report', usage: 'KEY contract|run|triage|probes|history [...] | config [--aut id]   [--json]', words: 3,
   about: 'read a story\'s record or the profile: parts of the contract, a run, the decisions, the probes, the history',
   flags: ['ac', 'aut', 'endpoints', 'errors', 'failed', 'gaps', 'id', 'json', 'md', 'pending', 'phase', 'rules', 'test', 'variants'],
 };

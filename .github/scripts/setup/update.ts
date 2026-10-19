@@ -192,7 +192,7 @@ function ensureCi(flags: Flags): void {
 export const spec: CommandSpec = {
   name: 'update', group: 'Setup', usage: '[--ci [gitlab|github]]   (run from the skill repository, in the project folder)',
   about: 'install or update the skill, its scripts, the subagents and the workspace files',
-  flags: ['ci'],
+  flags: ['ci'], words: 0,
 };
 
 export function run({ flags }: Args): void {

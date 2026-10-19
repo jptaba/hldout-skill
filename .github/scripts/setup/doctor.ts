@@ -47,7 +47,7 @@ async function reachable(url: string): Promise<{ ok: boolean; detail: string }> 
 export const spec: CommandSpec = {
   name: 'doctor', group: 'Setup', usage: '[--aut id] [--jira] [--offline]',
   about: 'check that everything is wired up, with a fix for each problem',
-  flags: ['aut', 'jira', 'offline'],
+  flags: ['aut', 'jira', 'offline'], words: 0,
 };
 
 export async function run({ flags }: Args): Promise<void> {

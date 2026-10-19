@@ -31,6 +31,9 @@ const BEFORE_REGEX = new Set(['return', 'typeof', 'case', 'do', 'else', 'in', 'o
 export function commentsOf(src: string): Comment[] {
   const out: Comment[] = [];
   const templates: number[] = []; // brace depth at which each open template resumes
+  const parens: boolean[] = []; // for each open `(`: whether it holds an if/while/for condition
+  let word = ''; // the last word read, to know a condition's `(` (empty when it was a property: `x.if`)
+  let wordBefore = ''; // the word before it (`for await (`)
   let depth = 0;
   let prev = ''; // the last token: '' at the start, a punctuator, or 'a' for a value
   let i = 0;
@@ -77,8 +80,18 @@ export function commentsOf(src: string): Comment[] {
     if (/[A-Za-z_$]/.test(c)) {
       let j = i + 1;
       while (j < n && /[\w$]/.test(src[j])) j++;
-      prev = BEFORE_REGEX.has(src.slice(i, j)) ? 'kw' : 'a'; i = j; continue;
+      const read = src.slice(i, j);
+      const property = prev === '.';
+      wordBefore = word; word = property ? '' : read;
+      prev = !property && BEFORE_REGEX.has(read) ? 'kw' : 'a'; i = j; continue;
     }
+    // After the `)` of an if/while/for condition a statement starts, so a `/` there opens a regular expression.
+    if (c === '(') {
+      const condition = ['if', 'while', 'for', 'with'].includes(word) || (word === 'await' && wordBefore === 'for');
+      parens.push(condition); prev = c; word = ''; wordBefore = ''; i++; continue;
+    }
+    if (c === ')') { prev = parens.pop() ? 'kw' : 'a'; word = ''; i++; continue; }
+    if (!/\s/.test(c)) { word = ''; wordBefore = ''; }
     if (c === '{') depth++;
     if (c === '}') {
       if (templates.length && templates.at(-1) === depth - 1) { templates.pop(); depth--; i = template(i + 1); prev = 'a'; continue; }
@@ -112,6 +125,8 @@ export function withoutMarks(src: string): { out: string; removed: number; left:
   const lineOf = (at: number) => lines.findIndex((l) => at >= l.start && at <= l.end);
   /** Deletions, each within one line: [start, end) in source offsets. */
   const cuts: [number, number][] = [];
+  /** The comments' own spans: a `*` left on a line is the comment's when it lies inside one, else it is code. */
+  const spans: [number, number][] = [];
   const leadingSpace = (at: number) => at - (src.slice(lines[lineOf(at)].start, at).match(/[ \t]*$/)?.[0].length ?? 0);
   let removed = 0;
   for (const c of commentsOf(src)) {
@@ -132,12 +147,16 @@ export function withoutMarks(src: string): { out: string; removed: number; left:
       const head = beforeMark(src.slice(line.start, m));
       blockCuts.push([line.start + head.length + (stop === close && head.trim() ? 1 : 0), stop]);
     }
-    // Nothing left but the comment's own punctuation: the whole comment goes, line by line.
+    // Nothing left but the comment's own punctuation: the whole comment goes, line by line — unless it spans lines
+    // between code on both sides, where taking out the line breaks could join two statements; then it stays, empty.
     let rest = src.slice(c.start, c.end);
     for (const [a, b] of [...blockCuts].sort((x, y) => y[0] - x[0])) rest = rest.slice(0, a - c.start) + rest.slice(b - c.start);
-    if (/^\/\*[\s*]*\*\/$/.test(rest)) {
-      for (let k = lineOf(c.start); k <= lineOf(c.end); k++) cuts.push([Math.max(lines[k].start, k === lineOf(c.start) ? leadingSpace(c.start) : 0), Math.min(lines[k].end, c.end)]);
+    const [first, last] = [lineOf(c.start), lineOf(c.end)];
+    const codeAround = first !== last && src.slice(lines[first].start, c.start).trim() !== '' && src.slice(c.end, lines[last].end).trim() !== '';
+    if (/^\/\*[\s*]*\*\/$/.test(rest) && !codeAround) {
+      for (let k = first; k <= last; k++) cuts.push([Math.max(lines[k].start, k === first ? leadingSpace(c.start) : 0), Math.min(lines[k].end, c.end)]);
     } else cuts.push(...blockCuts);
+    spans.push([c.start, c.end]);
   }
   // Apply the cuts line by line: a line they leave blank or holding only a `*` goes with its line ending; a `* */`
   // line keeps only ` */`. Every other line, and every line ending, stays as it was.
@@ -150,7 +169,11 @@ export function withoutMarks(src: string): { out: string; removed: number; left:
     let text = line.text;
     for (const [a, b] of mine) text = text.slice(0, a - line.start) + text.slice(b - line.start);
     text = text.replace(/[ \t]+$/, '');
-    if (!text.trim() || /^[ \t]*\*+[ \t]*$/.test(text)) return '';
+    // What is left on the line, by source offset: a lone `*` goes only when every one left is a comment's own.
+    const left = [...Array(line.end - line.start).keys()].map((k) => line.start + k)
+      .filter((at) => !mine.some(([a, b]) => at >= a && at < b) && !/\s/.test(src[at]));
+    const commentStars = left.length > 0 && left.every((at) => src[at] === '*' && spans.some(([a, b]) => at >= a && at < b));
+    if (!text.trim() || commentStars) return '';
     const closing = /^([ \t]*)\*[ \t]+\*\/$/.exec(text);
     return `${closing ? `${closing[1]} */` : text}${line.ending}`;
   }).join('');

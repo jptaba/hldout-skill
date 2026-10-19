@@ -179,7 +179,7 @@ export function maskSecretFields(html: string): string {
 export const spec: CommandSpec = {
   name: 'inspect', group: 'Hardening', usage: '--key KEY --url <path> [--steps steps.json] [--probe <locator>]…   (logged as the story\'s next probe, Pn)',
   about: 'tier-3 UI inspector: ARIA snapshot + ranked locators',
-  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'save', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'vars-from', 'wait-for'],
+  flags: ['aut', 'body-limit', 'from', 'headed', 'html', 'key', 'no-snapshot', 'probe', 'probes', 'save', 'screenshot', 'sign-in', 'steps', 'steps-json', 'then', 'url', 'var', 'vars-from', 'wait-for'], words: 0,
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {

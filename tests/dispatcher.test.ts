@@ -45,6 +45,26 @@ describe('the command contract', () => {
     }
     assert.deepEqual(problems, []);
   });
+
+  it('every command declares how many words it reads, and the dispatcher refuses more', async () => {
+    const problems: string[] = [];
+    for (const [name, file] of Object.entries(COMMANDS)) {
+      const src = sourceWithHelpers(file);
+      // The highest positional index read (`_[n]`, or `const [a, b] = _`).
+      const indexed = [...src.matchAll(/\b_\[(\d+)\]/g)].map((m) => Number(m[1]) + 1);
+      const destructured = [...src.matchAll(/const \[([^\]]+)\] = _;/g)].map((m) => m[1].split(',').length);
+      const used = Math.max(0, ...indexed, ...destructured);
+      const words = (await loadCommand(name)).spec.words ?? 1;
+      // Exactly: a command that declares more than it reads would still drop a stray word without a word.
+      if (used !== words) problems.push(`${name} reads ${used} word(s) but declares ${words}`);
+      if (/\b_\.(?:slice|length|join|map|filter)\b|\.\.\._\b/.test(src)) problems.push(`${name} reads its words in a way this check can't count`);
+    }
+    assert.deepEqual(problems, []);
+    // An unquoted value with spaces keeps its first word only: stopped, with the reason.
+    const r = spawnSync(process.execPath, [TSX, DISPATCHER, 'note', 'ABC-1', '--remark', 'two', 'words'], { encoding: 'utf8', env: { ...process.env, npm_lifecycle_event: '' } });
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr, /note takes at most 1 word\(s\) besides its flags, and got 2: "ABC-1" "words"[\s\S]*in quotes/);
+  });
 });
 
 describe('the dispatcher', () => {

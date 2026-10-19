@@ -32,7 +32,7 @@ interface Snapshot {
 export const spec: CommandSpec = {
   name: 'trace', group: 'Run', usage: 'KEY SCN-x [--run NN-label] [--network [--grep text]] [--steps] [--console]',
   about: 'a failed test\'s trace as text: its steps, its calls, the console (secrets masked)',
-  flags: ['body-limit', 'console', 'grep', 'network', 'run', 'steps'],
+  flags: ['body-limit', 'console', 'grep', 'network', 'run', 'steps'], words: 2,
 };
 
 const lines = (e: ZipEntry | undefined): TraceEvent[] => (e ? e.data.toString('utf8').split('\n').filter((l) => l.trim()).flatMap((l) => { try { return [JSON.parse(l) as TraceEvent]; } catch { return []; } }) : []);

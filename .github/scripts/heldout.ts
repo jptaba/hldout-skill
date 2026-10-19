@@ -93,8 +93,14 @@ async function dispatch(cmd: string | undefined, rest: string[]): Promise<void> 
     throw new Error(`${cmd} does not take ${unknown.map((f) => `--${f}`).join(', ')}. It takes: ${[...known].sort().map((f) => `--${f}`).join(' ')}\n`
       + `  usage: heldout ${cmd} ${command.spec.usage}`);
   }
+  const parsed = parseArgs(rest);
+  const words = command.spec.words ?? 1;
+  if (parsed._.length > words) {
+    throw new Error(`${cmd} takes ${words === 0 ? 'no word' : `at most ${words} word(s)`} besides its flags, and got ${parsed._.length}: ${parsed._.map((w) => JSON.stringify(w)).join(' ')}.\n`
+      + `  A flag's value with spaces goes in quotes (--evidence "P19 P20"); usage: heldout ${cmd} ${command.spec.usage}`);
+  }
   setCommandLine(cmd, rest);
-  await command.run({ ...parseArgs(rest), argv: rest });
+  await command.run({ ...parsed, argv: rest });
 }
 
 // Run as a program, not when the self-tests import the command table (drive letters differ in case on Windows).

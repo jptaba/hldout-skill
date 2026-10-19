@@ -66,7 +66,7 @@ const yamlOf = (text: string) => text.match(/```yaml\r?\n([\s\S]*?)```/)?.[1] ??
 export const spec: CommandSpec = {
   name: 'mcp-probe', group: 'Hardening', usage: '--key KEY --steps steps.json [--var name=value]…   (logged as the story\'s next probe, Pn)',
   about: 'tier 2: drive the Playwright MCP server over stdio',
-  flags: ['aut', 'browser', 'from', 'headed', 'key', 'steps', 'steps-json', 'then', 'var'],
+  flags: ['aut', 'browser', 'from', 'headed', 'key', 'steps', 'steps-json', 'then', 'var'], words: 0,
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {

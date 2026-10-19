@@ -28,7 +28,7 @@ Do this:
    `5-runs/triage-<run>.md`), then reproduce it live: UI steps in the first
    browser tier available to you or with `heldout inspect --steps-json`, API calls with `heldout api-probe`. Each probe
    made with `--key` is logged as the story's next probe and prints its id (`P7`): the decision cites it
-   (`--evidence P7 …`), and its report is then kept with the story's evidence. On a shared sandbox, check its own settings or health page before blaming the
+   (`--evidence "P7 P8: …"`, one quoted value), and its report is then kept with the story's evidence. On a shared sandbox, check its own settings or health page before blaming the
    application.
 3. Decide with the reference's decision tree and record it:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.

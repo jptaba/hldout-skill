@@ -33,7 +33,7 @@ const VAULT_WAIT_MS = 5000;
 export const spec: CommandSpec = {
   name: 'precommit', group: 'Setup', usage: '',
   about: 'the pre-commit check (the hook init installs on request): no secret value and no file over 1 MB in the output folder staged',
-  flags: [],
+  flags: [], words: 0,
 };
 
 const git = (args: string[], cwd: string, input?: string) => {

@@ -203,7 +203,7 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
 export const spec: CommandSpec = {
   name: 'api-probe', group: 'Hardening', usage: '--key KEY <METHOD> <path> | --chain chain.json   (logged as the story\'s next probe, Pn)',
   about: 'call the API (or a chain of calls) with redacted output',
-  flags: ['aut', 'body-limit', 'chain', 'cookie', 'count', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'pages', 'pick', 'raw-data', 'repeat', 'set', 'vars-from', 'where'],
+  flags: ['aut', 'body-limit', 'chain', 'cookie', 'count', 'data', 'data-file', 'form', 'header', 'json', 'key', 'login', 'pages', 'pick', 'raw-data', 'repeat', 'set', 'vars-from', 'where'], words: 2,
 };
 
 const requireKey = (flags: Args['flags']) => flagStr(flags, 'key') ?? (() => { throw new Error('--chain Pn and --vars-from Pn name a probe of a story: give the story with --key'); })();

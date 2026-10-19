@@ -35,7 +35,7 @@ import { discover, profileFrom, say } from './profile-setup';
 export const spec: CommandSpec = {
   name: 'init', group: 'Setup', usage: '--base-url <url> [--api-base-url <url>] [--name …] [--profile id] [--install] [--ci] [--git-hooks]',
   about: 'set a project up: update, then config, npm script, .gitignore, .env (never overwrites)',
-  flags: ['ac-field', 'api-base-url', 'base-url', 'ci', 'data-prefix', 'git-hooks', 'healthcheck', 'install', 'jira', 'jira-url', 'max-workers', 'min-test-interval-ms', 'name', 'profile', 'test-id-attr'],
+  flags: ['ac-field', 'api-base-url', 'base-url', 'ci', 'data-prefix', 'git-hooks', 'healthcheck', 'install', 'jira', 'jira-url', 'max-workers', 'min-test-interval-ms', 'name', 'profile', 'test-id-attr'], words: 0,
 };
 
 /** Files update copies from the skill repository; init only checks they are there. */

@@ -22,6 +22,12 @@ export interface CommandSpec {
   usage: string;
   /** Every flag the command reads (without the dashes). The dispatcher rejects any other. */
   flags: readonly string[];
+  /**
+   * The most words (arguments that are neither a flag nor a flag's value) the command reads; 1 when not given. The
+   * dispatcher rejects more: an unquoted value with spaces (`--evidence P1 P2`) would otherwise keep its first word
+   * and lose the rest without a word.
+   */
+  words?: number;
 }
 
 /** A command module: its spec, and what it does. Importing it runs nothing. */
