@@ -152,6 +152,14 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    balance or a unique name under simultaneous use needs `concurrency`; ACs that hand data to each other need one
    `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. Add a type only when the requirement states or clearly
    implies it: an unstated expectation is a gap.
+   **A rule or criterion that names the channels** a feature works in ("in the web application and through the API":
+   the contract's `R<n>`, or the criteria it reaches, which are `e2e`) governs every criterion it reaches, its
+   refusals included: each channel gets its own test of each refusal, in the matching `@layer`. A criterion that gives
+   only one channel's form of a refusal (a status code) does not confine it to that channel; only a rule or criterion
+   that says so does. When the requirement says the refusal comes with a message ("a message saying which field is
+   wrong"), each channel's test asserts, untagged, that such a message is shown, matched on the requirement's own
+   words (rule 2); only a wording or a place the requirement doesn't give stays an open question (rule 5). A channel
+   that refuses by doing nothing passes the "nothing changed" test, and only the message test shows it.
 2. **Quote the requirement.** Expected texts, numbers, formulas and codes are copied verbatim from the contract (its
    quotes, outcomes, error model and answered gaps). Never "improve" them: a mismatch is what the evaluation finds.
    When the requirement gives a message's meaning and not its wording ("is told the passwords did not match"), the
