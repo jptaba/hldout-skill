@@ -14,7 +14,9 @@
  *                                 value; the value of a password field or a secret-named one left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--vars-from P7] [--screenshot shot.png] [--headed] [--no-snapshot]
- *       (--vars-from: the values api-probe chain P7 saved, the ids it made, as ${var:name}; --var wins over them)
+ *       (--vars-from: the values api-probe chain P7 saved, the ids it made, as ${var:name}; --var wins over them. A walk
+ *       --from Pn starts with Pn's --var values too, since its steps name them; not with its --vars-from ones: give
+ *       --vars-from again. A --var value is logged as given: a secret goes in as ${env:NAME})
  *       [--save qid="POST /messages:id"]...   keep a field of the last JSON answer the page got for that call (the id of
  *       what the walk created), logged with the probe for a later walk or chain (--vars-from Pn)
  *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
@@ -53,7 +55,7 @@ import { loadConfig } from '../core/config';
 import { pageText, redact, redactSnapshot, shapeOf } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { generatedId, siteOf } from './detect';
-import { composeSteps } from './compose';
+import { composeSteps, walkInput, walkVars } from './compose';
 import { closeOverlays, locateOn } from './page';
 import { deliverProbe, requireFrozen, savedOf, tableRows } from '../core/probe-log';
 
@@ -191,7 +193,9 @@ export async function run({ flags, argv }: Args): Promise<void> {
     if (!flagStr(flags, 'key')) throw new Error('--vars-from Pn names a probe of a story: give the story with --key');
     Object.assign(vars, savedOf(cfg, flagStr(flags, 'key')!, from));
   }
-  for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
+  // The walk's own values (--var, over those of the walk it starts from) win over a chain's saved ones.
+  const given = walkVars(cfg, flags);
+  Object.assign(vars, given);
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
   const target = autUrl(cfg.aut.baseURL, flagStr(flags, 'url'));
   // Git Bash turns "--url /" into a Windows path before it gets here: say that it was read as the path it stood for.
@@ -480,7 +484,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), out.join('\n'));
   deliverProbe(cfg, flagStr(flags, 'key'), {
     tool: 'inspect', tier: 3, report,
-    input: { url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for'), ...(Object.keys(saved).length ? { saved } : {}) },
+    input: walkInput({ url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for'), ...(Object.keys(saved).length ? { saved } : {}) }, given),
     digest: [...tableRows(report, ['Setup steps', 'Locator probes', 'API calls the page made']), ...(Object.keys(saved).length ? [`saved: ${Object.entries(saved).map(([k, v]) => `${k}=${v}`).join(', ')}`] : [])],
   });
 }

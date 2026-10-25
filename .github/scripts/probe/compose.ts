@@ -32,6 +32,27 @@ export function signInSteps(recipe: AccountRecipe | undefined, who: string): Ste
 }
 
 /**
+ * The `--var` values a walk is given, with those of the earlier walk it starts from (--from Pn) underneath: its steps
+ * name them (`${var:name}`), so they come along with the steps. Recorded with the walk for the next one to inherit.
+ */
+export function walkVars(cfg: HeldoutConfig, flags: Flags): Record<string, string> {
+  const from = flagStr(flags, 'from')?.split(':')[0];
+  const key = flagStr(flags, 'key');
+  const inherited = from && key ? ((readProbes(evalPaths(cfg, key)).find((x) => x.id === from)?.input as { vars?: Record<string, string> } | undefined)?.vars ?? {}) : {};
+  const given = Object.fromEntries(flagList(flags, 'var').map((v) => {
+    const i = v.indexOf('=');
+    if (i < 1) throw new Error(`--var ${v}: give it as name=value`);
+    return [v.slice(0, i), v.slice(i + 1)] as const;
+  }));
+  return { ...inherited, ...given };
+}
+
+/** A walk's logged input with its values, for a later walk --from it; none recorded when it had none. */
+export function walkInput<T extends object>(input: T, vars: Record<string, string>): T & { vars?: Record<string, string> } {
+  return { ...input, ...(Object.keys(vars).length ? { vars } : {}) };
+}
+
+/**
  * Every step source a probe was given, in order: sign-in, an earlier probe, step files, inline steps, --then.
  * `signInAs` is the inspector's --sign-in (an MCP walk signs in by starting --from an earlier walk that did), and `url`
  * its --url.

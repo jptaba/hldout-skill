@@ -153,10 +153,13 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. Add a type only when the requirement states or clearly
    implies it: an unstated expectation is a gap.
    **A rule or criterion that names the channels** a feature works in ("in the web application and through the API":
-   the contract's `R<n>`, or the criteria it reaches, which are `e2e`) governs every criterion it reaches, its
-   refusals included: each channel gets its own test of each refusal, in the matching `@layer`. A criterion that gives
-   only one channel's form of a refusal (a status code) does not confine it to that channel; only a rule or criterion
-   that says so does. When the requirement says the refusal comes with a message ("a message saying which field is
+   the contract's `R<n>`, or the criteria it reaches) governs every criterion it reaches, its refusals included: each
+   channel gets its own test of each kind of refusal, in the matching `@layer`. The rule reaches every criterion of the
+   feature it names unless the requirement scopes it otherwise; when unsure, it reaches. A table of cases (every
+   boundary row) runs in the channel whose form the criterion gives, the API when it gives none; the other channel gets
+   one test per kind of refusal, at the value just past the limit. A criterion that gives only one channel's form of a refusal (a status code) does not confine it to
+   that channel; only the requirement saying so does (a rule, a criterion, an out-of-scope line, an answered gap).
+   When the requirement says the refusal comes with a message ("a message saying which field is
    wrong"), each channel's test asserts, untagged, that such a message is shown, matched on the requirement's own
    words (rule 2); only a wording or a place the requirement doesn't give stays an open question (rule 5). A channel
    that refuses by doing nothing passes the "nothing changed" test, and only the message test shows it.

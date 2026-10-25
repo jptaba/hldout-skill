@@ -58,6 +58,9 @@ export async function openProduct(page: Page, id: string) {
   it drives a page (takes a `Page`), `api` otherwise.
 - Mechanics only: routes, readiness anchors, locators, calls and their fields, seeding and cleanup. A journey may check
   its own preconditions with a plain `expect(…, '… (precondition)')`.
+- Its comments too say HOW, never what the application did or failed to do (a check it skips, a value it gets wrong,
+  "takes no credentials on this build"): the next story's test author reads them before writing tests the application
+  must not shape. What a story's hardening observed goes in its log, as a deviation or a resolved gap.
 - **Never** what a story expects: no `[REQ …]` assertion, no `expectResponse`, no `@req-constants`, no message or value
   the requirement says the application shows. A journey returns what its step produced (an answer, a record, a
   locator); the test asserts it. `heldout lint` refuses a journey file that breaks this, and `heldout integrity` marks

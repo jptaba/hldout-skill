@@ -13,7 +13,7 @@ import type { AccountRecipe, HeldoutConfig } from '../.github/scripts/core/profi
 import { expandGenerated, textOf } from '../.github/scripts/core/secrets';
 import { listView } from '../.github/scripts/probe/api-probe';
 import { maskSecretFields } from '../.github/scripts/probe/inspect';
-import { composeSteps, signInSteps } from '../.github/scripts/probe/compose';
+import { composeSteps, signInSteps, walkInput, walkVars } from '../.github/scripts/probe/compose';
 
 const profile = `compose-test-${process.pid}`;
 const recipe: AccountRecipe = {
@@ -65,6 +65,19 @@ describe('composed steps', () => {
     quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'inspect', tier: 2, input: { url: '/admin', steps: [{ do: 'click', target: 'a' }, { do: 'click', target: 'b' }] }, report: '# walk', digest: [] }));
     assert.deepEqual(composeSteps(cfg, { key: 'ABC-1', from: 'P2:1' }), [{ do: 'goto', url: '/admin' }, { do: 'click', target: 'a' }]);
     assert.throws(() => composeSteps(cfg, { key: 'ABC-1', from: 'P7' }), /P7 is not a walk/);
+  });
+
+  it('starts a walk --from Pn with the --var values Pn was given, its own --var winning', () => {
+    quietly(() => deliverProbe(cfg, 'ABC-2', { tool: 'inspect', tier: 2, input: { steps: [{ do: 'fill', target: 'x', value: '${var:user}' }], vars: { user: 'hldout-a', id: '7' } }, report: '# walk', digest: [] }));
+    assert.deepEqual(walkVars(cfg, { key: 'ABC-2', from: 'P1:1', var: ['id=8', 'note=a=b'] }), { user: 'hldout-a', id: '8', note: 'a=b' });
+    assert.deepEqual(walkVars(cfg, { key: 'ABC-2', var: ['id=8'] }), { id: '8' }, 'nothing inherited without --from');
+    assert.deepEqual(walkVars(cfg, { key: 'ABC-2', from: 'P9' }), {}, 'an unknown walk is composeSteps\'s to refuse');
+    assert.throws(() => walkVars(cfg, { var: ['user'] }), /name=value/, 'a --var without = defines nothing silently');
+    assert.throws(() => walkVars(cfg, { var: ['=x'] }), /name=value/);
+    // What a walk logs is what the next one --from it starts with.
+    quietly(() => deliverProbe(cfg, 'ABC-2', { tool: 'mcp-probe', tier: 2, input: walkInput({ steps: [] }, { user: 'hldout-b' }), report: '# walk', digest: [] }));
+    assert.deepEqual(walkVars(cfg, { key: 'ABC-2', from: 'P2' }), { user: 'hldout-b' });
+    assert.deepEqual(walkInput({ steps: [] }, {}), { steps: [] }, 'no values, none recorded');
   });
 });
 

@@ -220,7 +220,8 @@ the test's unknown value to such a code in the journey, and say so in the log.
 If the AUT contradicts the requirement (different text, status code, total, missing control or
 label, unauthenticated access…), **leave the assertion exactly as drafted** and log it under
 *Observed deviations*. A requirement-named element that is missing is also a deviation: keep the
-step, use the most literal locator, and use `strict` when the locator is the requirement.
+step, use the most literal locator, and use `strict` when the locator is the requirement. A deviation goes in the log
+only: never in a journey's comments, which the next story's test author reads before writing its tests.
 
 ## 4. Dry run, triage, integrity
 

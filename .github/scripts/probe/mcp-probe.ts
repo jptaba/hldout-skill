@@ -9,7 +9,9 @@
  *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--var name=value]...   per-run data for ${var:name} (e.g. a user created seconds earlier) — shown in the report;
- *                               ${env:NAME} values are secrets and are redacted everywhere in the report
+ *                               ${env:NAME} values are secrets and are redacted everywhere in the report. A walk
+ *                               --from Pn starts with Pn's values (its steps name them); --var wins over them.
+ *                               A value is logged as given: a secret goes in as ${env:NAME}
  *
  * Step forms (element resolution is by ROLE + ACCESSIBLE NAME from the live MCP snapshot → ref):
  *   { "tool": "browser_navigate", "url": "login" }                     path resolved against the AUT base URL
@@ -32,12 +34,12 @@ import { envNamesIn } from './accounts-recipe';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
+import { flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { PLAYWRIGHT_MCP, loadConfig } from '../core/config';
 import { evalPaths } from '../core/paths';
 import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
-import { composeSteps } from './compose';
+import { composeSteps, walkInput, walkVars } from './compose';
 import { McpStdioClient, nodeFor, refFor } from './mcp-client';
 import { deliverProbe, requireFrozen } from '../core/probe-log';
 
@@ -70,8 +72,8 @@ export const spec: CommandSpec = {
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
-  for (const v of flagList(flags, 'var')) { const i = v.indexOf('='); if (i > 0) vars[v.slice(0, i)] = v.slice(i + 1); }
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
+  Object.assign(vars, walkVars(cfg, flags));
   requireFrozen(cfg, flagStr(flags, 'key'), 'mcp-probe');
   const steps = composeSteps(cfg, flags) as Step[];
   await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);
@@ -190,6 +192,6 @@ export async function run({ flags, argv }: Args): Promise<void> {
     `- Result: ${failures ? `✖ ${failures} step(s) failed` : '✔ all steps passed'}`, '',
     '| # | Step | OK | Detail |', '| --- | --- | --- | --- |', ...rows, '', ...snapshots, '',
   ].join('\n');
-  deliverProbe(cfg, key, { tool: 'mcp-probe', tier: 2, input: { steps }, report, digest: [`${steps.length} steps, ${failures} failed`, ...rows.slice(0, 39).map((r) => r.slice(0, 240))] });
+  deliverProbe(cfg, key, { tool: 'mcp-probe', tier: 2, input: walkInput({ steps }, vars), report, digest: [`${steps.length} steps, ${failures} failed`, ...rows.slice(0, 39).map((r) => r.slice(0, 240))] });
   if (failures) process.exitCode = 1;
 }
