@@ -225,4 +225,27 @@ describe('classify — declared request field names', () => {
   it('a deliberately missing field (negative test) is not flagged', () => {
     assert.notEqual(classify(err, { api: call({ product_id: 'p1' }), requestContracts: contracts }).category, 'SCRIPT_DEFECT');
   });
+  it('reads declared fields inside a nested object and in the query string', () => {
+    const pay = [{ method: 'POST', path: '/pay', fields: ['accountId', 'amount', 'name', 'address.street', 'address.city'] }];
+    const at = (url: string, body: unknown): ApiExchange => ({ request: { method: 'POST', url, body }, response: { status: 422 } });
+    const conforming = at('https://x.test/pay?accountId=1&amount=5', { name: 'n', address: { street: 's', city: 'c' } });
+    assert.notEqual(classify(err, { api: conforming, requestContracts: pay }).category, 'SCRIPT_DEFECT');
+    // A renamed object is still caught, named once.
+    const renamed = classify(err, { api: at('https://x.test/pay?accountId=1&amount=5', { name: 'n', adress: { street: 's', city: 'c' } }), requestContracts: pay });
+    assert.equal(renamed.category, 'SCRIPT_DEFECT');
+    assert.ok(renamed.signals.some((s) => /sends "adress", which/.test(s)), renamed.signals.join('\n'));
+    assert.ok(!renamed.signals.some((s) => /lacks[^.]*"accountId"/.test(s)), 'the query string\'s fields are read');
+    // A renamed query parameter is caught; an undeclared one in a negative test is not a reason to flag it.
+    const query = classify(err, { api: at('https://x.test/pay?accountid=1&amount=5', { name: 'n', address: { street: 's', city: 'c' } }), requestContracts: pay });
+    assert.equal(query.category, 'SCRIPT_DEFECT');
+    assert.ok(query.signals.some((s) => /"accountid" looks like "accountId"/.test(s)), query.signals.join('\n'));
+    assert.notEqual(classify(err, { api: at('https://x.test/pay?accountId=1&amount=5&expand=a&expand=b', { address: { street: 's', city: 'c' } }), requestContracts: pay }).category, 'SCRIPT_DEFECT');
+    // A value where the contract declares an object is not the object's fields.
+    const scalar = classify(err, { api: at('https://x.test/pay?accountId=1&amount=5', { name: 'n', address: '1 Main St' }), requestContracts: pay });
+    assert.equal(scalar.category, 'SCRIPT_DEFECT');
+    assert.ok(scalar.signals.some((s) => /sends "address"[^.]*lacks "address\.street", "address\.city"/.test(s)), scalar.signals.join('\n'));
+    // A field declared flat may be sent as an object.
+    const flatDeclared = [{ method: 'POST', path: '/pay', fields: ['name', 'address'] }];
+    assert.notEqual(classify(err, { api: at('https://x.test/pay', { name: 'n', address: { street: 's' } }), requestContracts: flatDeclared }).category, 'SCRIPT_DEFECT');
+  });
 });

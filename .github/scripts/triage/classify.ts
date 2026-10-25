@@ -219,13 +219,26 @@ export function classify(e: ParsedError, ctx: ClassifyContext = {}): AutoClassif
     // Field names: a body that drops a declared field AND sends an undeclared one almost always renamed it (productId vs product_id).
     if (e.reqTag && rc?.fields?.length && body && typeof body === 'object' && !Array.isArray(body)) {
       const inner = (rc.envelope && typeof (body as Record<string, unknown>)[rc.envelope] === 'object' ? (body as Record<string, Record<string, unknown>>)[rc.envelope] : body) as Record<string, unknown>;
-      const sent = Object.keys(inner ?? {});
+      // A declared field may sit in a nested object (address.street) or in the query string (?accountId=…): the body
+      // sent every path into it, objects included (an object leads on to the fields inside it, a value doesn't).
+      const paths = (o: Record<string, unknown>, at = ''): { path: string; object: boolean }[] => Object.entries(o ?? {}).flatMap(([k, v]) => {
+        const object = Boolean(v) && typeof v === 'object' && !Array.isArray(v);
+        return [{ path: at + k, object }, ...(object ? paths(v as Record<string, unknown>, `${at}${k}.`) : [])];
+      });
+      let query: string[] = [];
+      try { query = [...new Set(new URL(url, 'http://x').searchParams.keys())]; } catch { /* no query */ }
+      const sent = paths(inner);
+      // Declared, or an object on the way to a declared field, or inside one; an undeclared object is named once.
+      const declaredAt = (p: string, object = true) => rc.fields!.some((f) => f === p || (object && f.startsWith(`${p}.`)) || p.startsWith(`${f}.`));
+      const parent = (p: string) => p.slice(0, Math.max(0, p.lastIndexOf('.')));
       const flat = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const unknown = sent.filter((k) => !rc.fields!.includes(k));
-      const missing = rc.fields.filter((k) => !sent.includes(k));
+      const missing = rc.fields.filter((k) => !sent.some((s) => s.path === k) && !query.includes(k));
+      // Query parameters the contract doesn't list are usual (its request prose names them): one counts only as a rename.
+      const unknown = [...sent.filter((s) => !declaredAt(s.path, s.object) && (!parent(s.path) || declaredAt(parent(s.path)))).map((s) => s.path),
+        ...query.filter((q) => !declaredAt(q, false) && missing.some((m) => flat(m) === flat(q)))];
       if (unknown.length && missing.length) {
         const renamed = unknown.map((u) => [u, missing.find((m) => flat(m) === flat(u))] as const).filter(([, m]) => m);
-        signals.push(`The request body sends ${unknown.map((u) => `"${u}"`).join(', ')}, which the requirement contract does not declare for ${rc.method} ${rc.path}, and lacks ${missing.map((m) => `"${m}"`).join(', ')}${renamed.length ? ` (${renamed.map(([u, m]) => `"${u}" looks like "${m}"`).join('; ')})` : ''}.`);
+        signals.push(`The request sends ${unknown.map((u) => `"${u}"`).join(', ')}, which the requirement contract does not declare for ${rc.method} ${rc.path}, and lacks ${missing.map((m) => `"${m}"`).join(', ')}${renamed.length ? ` (${renamed.map(([u, m]) => `"${u}" looks like "${m}"`).join('; ')})` : ''}.`);
         return { category: 'SCRIPT_DEFECT', confidence: renamed.length ? 'high' : 'medium', signals,
           next: 'Use the declared field names (HOW only), confirm with api-probe.ts, re-run. The AC is evaluated only once the request conforms.' };
       }
