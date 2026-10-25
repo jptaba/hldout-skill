@@ -44,7 +44,7 @@
         ".github/scripts/requirement/evidence.ts",
         "demo/answer-keys/**",
         "dev/answer-keys.ts",
-        "dev/score.ts",
+        "dev/score*.ts",
         "tests/answer-keys.test.ts"
       ],
       "proof": true, "reviews": 2, "models": 1, "gate": true, "contract": true

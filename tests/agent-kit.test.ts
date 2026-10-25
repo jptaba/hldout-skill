@@ -56,7 +56,7 @@ describe('the agent setup: boundary and portability', () => {
     const guarded = [...GENERIC, ...PROJECT, 'tests/agent-kit.test.ts', 'package.json', 'tsconfig.json', 'tests/tsconfig.json', '.gitignore',
       '.github/scripts/setup/update.ts', '.github/skills/heldout-evaluator/SKILL.md', '.github/skills/heldout-evaluator/references/triage.md',
       // The answer keys and what pins and scores them.
-      'demo/answer-keys/TOOL-1.json', 'demo/answer-keys/HASHES', 'dev/answer-keys.ts', 'dev/score.ts', 'tests/answer-keys.test.ts'];
+      'demo/answer-keys/TOOL-1.json', 'demo/answer-keys/HASHES', 'dev/answer-keys.ts', 'dev/score.ts', 'dev/score-match.ts', 'tests/answer-keys.test.ts'];
     for (const f of guarded) assert.equal(tierOf(config, [f]).name, 'guardrail', f);
   });
 

@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
 import { KEYS_DIR, pinProblems, readPins } from './answer-keys';
+import { matchDefects } from './score-match';
 
 interface Key {
   /** The file it was read from (the pin is by file). */
@@ -61,7 +62,7 @@ const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : 'n/
 
 const rows: string[] = [];
 const details: string[] = [];
-let totals = { expected: 0, tp: 0, asked: 0, fp: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
+let totals = { expected: 0, tp: 0, asked: 0, fp: 0, confirmed: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
 
 for (const k of keys) {
   const base = storyDir(k.key) ?? path.join(ROOT, 'output', k.aut, k.key);
@@ -71,19 +72,18 @@ for (const k of keys) {
   const v = JSON.parse(fs.readFileSync(vFile, 'utf8')) as Verdict;
   const confirmed = v.applicationDefects.filter((f) => f.confirmed);
 
-  // defects: match each expected defect to a confirmed finding (criteria overlap + keyword), else to a reading the
+  // defects: match each expected defect to its best confirmed finding (dev/score-match.ts), else to a reading the
   // application contradicts (the evaluator surfaced it, as a question for the owner, because the requirement was
   // judged not to settle it: found, but not counted as a defect).
-  const matchedFindings = new Set<string>();
-  const defectResults = k.defects.map((d) => {
-    const f = confirmed.find((x) => x.criteria.some((c) => d.criteria.includes(c)) && hit(text(x.title, x.expected, x.actual, x.rationale), d.keywords));
-    if (f) matchedFindings.add(f.id);
+  const { best, unmatched } = matchDefects(k.defects, confirmed.map((x) => ({ criteria: x.criteria, words: text(x.title, x.expected, x.actual, x.rationale) })));
+  const defectResults = k.defects.map((d, i) => {
+    const f = best[i] >= 0 ? confirmed[best[i]] : undefined;
     const q = f ? undefined : (v.contradictedReadings ?? []).find((x) => x.criteria.some((c) => d.criteria.includes(c)) && hit(text(x.title, x.expected, x.actual, x.rationale), d.keywords));
     return { d, f, q };
   });
   const tp = defectResults.filter((r) => r.f).length;
   const asked = defectResults.filter((r) => r.q).length;
-  const fps = confirmed.filter((f) => !matchedFindings.has(f.id));
+  const fps = unmatched.map((i) => confirmed[i]);
 
   // runs: auto-triage agreement. (An answer key's seededScriptDefects belong to drafts planted by hand; the test author
   // writes its own draft, so there is nothing seeded to detect.)
@@ -100,7 +100,7 @@ for (const k of keys) {
   const wrong = judged.filter((e) => e.auto!.category !== e.final!.category && !abstained.includes(e));
 
   const verdictOk = v.verdict === k.expectedVerdict;
-  totals = { expected: totals.expected + k.defects.length, tp: totals.tp + tp, asked: totals.asked + asked, fp: totals.fp + fps.length,
+  totals = { expected: totals.expected + k.defects.length, tp: totals.tp + tp, asked: totals.asked + asked, fp: totals.fp + fps.length, confirmed: totals.confirmed + confirmed.length,
     autoN: totals.autoN + judged.length, autoAgree: totals.autoAgree + agree.length, autoWrong: totals.autoWrong + wrong.length,
     verdictOk: totals.verdictOk + (verdictOk ? 1 : 0), stories: totals.stories + 1 };
 
@@ -121,7 +121,8 @@ const md = [
   '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |',
   '| --- | --- | --- | --- | --- | --- | --- |', ...rows,
   `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',
-  `Precision: ${pct(totals.tp, totals.tp + totals.fp)} (${totals.tp} of ${totals.tp + totals.fp} confirmed findings are real).`, '',
+  // Per finding: one finding may cover two of a key's defects, and two findings one.
+  `Precision: ${pct(totals.confirmed - totals.fp, totals.confirmed)} (${totals.confirmed - totals.fp} of ${totals.confirmed} confirmed findings are real).`, '',
   ...details,
 ].join('\n');
 if (from) console.log(md);
