@@ -1,8 +1,9 @@
 # AGENTS.md
 
 The rules of this project for any agent: the held-out evaluator skill. Every agent app loads this file each session,
-so it stays short. With `.agents/config.json` (owner, proof steps, tiers, gate) it is all that is project-specific in
-the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` are the same in any project.
+so it stays short. With `.agents/config.json` (owner, proof steps, tiers, gate) and the constitution
+(`.specify/memory/constitution.md`, the principles these rules detail) it is all that is project-specific in the agent
+setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` are the same in any project.
 
 ## Build and test
 - Install: `npm ci` (Node 20.11+). Typecheck: `npm run typecheck`. Tests: `npm run test:skill`.
@@ -10,6 +11,8 @@ the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECU
 - Hooks, once per clone: `git config core.hooksPath .githooks`.
 
 ## How a change is made
+- A change starts with `/speckit-specify` (ADR 0004); its spec is the contract. Until retired, a contract in
+  `docs/contracts/` or a plan section counts too.
 - `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; two independent ones for guardrail files) →
   `pr-packet` (the commit carries the `Gate:` restatement; the hooks add the record). `agentctl status` says what the
   staged change still needs. Docs-only changes need neither proof nor review.
@@ -45,6 +48,7 @@ the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECU
 
 ## Agent and skill files (`.github/agents/`, `.github/skills/`)
 - They name commands, never script files, and folders by phase (`4-evidence/`), never paths built from a profile.
+  Spec Kit's vendored `speckit-*` skills, pinned and unedited, are exempt (ADR 0004).
 - Every `heldout <command> --flag` they write must exist (`tests/agent-files.test.ts`).
 - A held-out rule (who may see what; WHAT vs HOW) is a guardrail: its change needs two reviews.
 

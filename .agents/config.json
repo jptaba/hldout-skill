@@ -17,6 +17,7 @@
       "name": "guardrail",
       "match": [
         ".agents/**",
+        ".specify/**",
         ".githooks/**",
         ".github/agents/**",
         ".github/skills/**",

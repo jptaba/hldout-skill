@@ -40,6 +40,11 @@ describe('the agent setup: boundary and portability', () => {
     assert.ok(devAndDemo.includes('dev/score.ts') && devAndDemo.includes('demo/answer-keys/HASHES'));
     assert.deepEqual(devAndDemo.filter(shippedBy), []);
     assert.deepEqual(fs.readdirSync(path.join(REPO, 'demo'), { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.ts')), [], 'code lives in dev/, data in demo/');
+    // Spec Kit (ADR 0004) is the maintainers' way of working: its files and its skills, for both apps, stay here.
+    const specKit = ['.specify/memory/constitution.md', ...['.github/skills', '.claude/skills'].flatMap((d) =>
+      fs.readdirSync(path.join(REPO, d)).filter((s) => s.startsWith('speckit-')).map((s) => `${d}/${s}/SKILL.md`))];
+    for (const d of ['.github/skills', '.claude/skills']) assert.ok(specKit.includes(`${d}/speckit-specify/SKILL.md`), `Spec Kit in ${d}`);
+    assert.deepEqual(specKit.filter(shippedBy), []);
   });
 
   it('names no project in its generic parts, so it works anywhere with only its config and AGENTS.md changed', () => {
@@ -53,7 +58,7 @@ describe('the agent setup: boundary and portability', () => {
   });
 
   it('puts the gate\'s own files, what defines the proof, and the held-out rules in the strictest tier', () => {
-    const guarded = [...GENERIC, ...PROJECT, 'tests/agent-kit.test.ts', 'package.json', 'tsconfig.json', 'tests/tsconfig.json', '.gitignore',
+    const guarded = [...GENERIC, ...PROJECT, '.specify/memory/constitution.md', '.github/skills/speckit-plan/SKILL.md', 'tests/agent-kit.test.ts', 'package.json', 'tsconfig.json', 'tests/tsconfig.json', '.gitignore',
       '.github/scripts/setup/update.ts', '.github/skills/heldout-evaluator/SKILL.md', '.github/skills/heldout-evaluator/references/triage.md',
       // The answer keys and what pins and scores them.
       'demo/answer-keys/TOOL-1.json', 'demo/answer-keys/HASHES', 'dev/answer-keys.ts', 'dev/score.ts', 'dev/score-match.ts', 'tests/answer-keys.test.ts'];

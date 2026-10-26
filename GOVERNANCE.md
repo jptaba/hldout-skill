@@ -24,8 +24,8 @@ costs: `.agents/policy/guardrails.md`.
   cryptography.
 
 ## Change control
-- A change implements a **contract**: a plan section, a finding, or a file in `docs/contracts/` (the `contract`
-  skill). Its SHA-256 is bound into the evidence; a packet against another version of the contract is stale.
+- A change implements a **contract**: a spec (a project on Spec Kit: `specs/<feature>/spec.md`), a plan section, a
+  finding, or a file in `docs/contracts/` (the `contract` skill). Its SHA-256 is bound into the evidence; a packet against another version of the contract is stale.
 - **Tiers** (`tiers` in `.agents/config.json`) decide what a change needs, by the files it touches: whether it needs
   proof, how many independent reviews and from how many models, whether it passes the gate, whether it names a
   contract. The strictest tier any file falls in applies.
