@@ -1,6 +1,6 @@
 /**
- * The answer keys are pinned (docs/governance-plan.md, GM4): every key in demo/answer-keys/ matches its SHA-256 in
- * demo/answer-keys/HASHES, so a key can't change after a round has used it without a new pin in the same commit.
+ * The answer keys are pinned: every key in demo/answer-keys/ matches its SHA-256 in demo/answer-keys/HASHES, so a
+ * key can't change after a round has used it without a new pin in the same commit.
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

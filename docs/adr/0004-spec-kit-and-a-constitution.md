@@ -28,4 +28,6 @@ constitution stating the project's non-negotiable rules. Changes so far named a 
 - A second tool to keep pinned: an upgrade (`specify integration upgrade`) is a change through the gate, its new
   skills reviewed like a package.
 - The `contract` skill and `docs/contracts/` overlap with Spec Kit's specs; until a change of its own retires them,
-  GOVERNANCE.md's contract counts as well (constitution, principle III).
+  GOVERNANCE.md's contract counts as well (constitution, principle III). Retired by `specs/002-repo-cleanup`: here
+  a change names a spec, or a section of one; the generic kit keeps its `contract` skill for projects
+  without Spec Kit.

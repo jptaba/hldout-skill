@@ -28,9 +28,8 @@ Detail: AGENTS.md.
 
 ### III. Spec-driven, Proven, Independently Reviewed (NON-NEGOTIABLE)
 
-- Every code or guardrail change implements a spec (`/speckit-specify`), pinned by hash as its contract;
-  until the contract route is retired, a contract as GOVERNANCE.md defines it also counts. Docs-only
-  changes need none.
+- Every code or guardrail change implements a spec (`/speckit-specify`), or a section of one, pinned
+  by hash as its contract. Docs-only changes need none.
 - Proof is `agentctl verify` on the staged tree; reviews run in fresh contexts, as many as the tier needs,
   and a dissenting review blocks; the commit carries the `Gate:` restatement.
 - Nobody approves their own change; never `--no-verify`; agents never write `Approved-by:`.
@@ -92,4 +91,4 @@ records an ADR in `docs/adr/`. Versions follow semantic versioning: MAJOR for a 
 principle, MINOR for a new principle or section, PATCH for wording. Every review checks the change against
 these principles and cites the file and line of any breach.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
+**Version**: 1.0.1 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-27

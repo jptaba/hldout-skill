@@ -1,6 +1,6 @@
 /**
- * `heldout stats` and `heldout note --usage` (docs/governance-plan.md, P5): a story's numbers from what it already
- * wrote, and what each subagent cost.
+ * `heldout stats` and `heldout note --usage`: a story's numbers from what it already wrote, and what each subagent
+ * cost.
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';

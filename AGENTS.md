@@ -11,13 +11,13 @@ setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` a
 - Hooks, once per clone: `git config core.hooksPath .githooks`.
 
 ## How a change is made
-- A change starts with `/speckit-specify` (ADR 0004); its spec is the contract. Until retired, a contract in
-  `docs/contracts/` or a plan section counts too.
+- A change starts with `/speckit-specify` (ADR 0004); its spec is the contract. A follow-up may name a section of an
+  existing spec: a heading or table row (`--contract "specs/<feature>/tasks.md#Phase 3"`).
 - `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; two independent ones for guardrail files) →
   `pr-packet` (the commit carries the `Gate:` restatement; the hooks add the record). `agentctl status` says what the
   staged change still needs. Docs-only changes need neither proof nor review.
 - Commit and push at each green point: small, focused commits on `master`.
-- The plans in `docs/` are contracts: point `--contract` at the section or progress row a change implements.
+- What is still open is in `docs/next-steps.md`; finished plans and contracts are not kept (git history has them).
 
 ## Models
 - Every agent runs on Opus (Copilot lists start with Claude Opus; Claude Code bridges say `opus`). Sonnet is only a

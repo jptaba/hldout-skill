@@ -1,6 +1,6 @@
 /**
- * The adopter's opt-in pre-commit check (docs/governance-plan.md, P6): `heldout precommit` refuses a staged secret
- * value or an oversized record file, and `init --git-hooks` installs the hook without replacing one the project has.
+ * The adopter's opt-in pre-commit check: `heldout precommit` refuses a staged secret value or an oversized record
+ * file, and `init --git-hooks` installs the hook without replacing one the project has.
  */
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';

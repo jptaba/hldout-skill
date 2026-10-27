@@ -1,7 +1,7 @@
 /**
- * The layout of the skill's scripts (docs/refactor-plan.md, section 5): one folder per area, areas that depend
- * downwards only, no import cycles, and commands that never import other commands. Type-only imports are erased when
- * the scripts run, so only runtime imports count.
+ * The layout of the skill's scripts (AGENTS.md, Code): one folder per phase, phases that import earlier ones only,
+ * no import cycles, and commands that never import other commands. Type-only imports are erased when the scripts
+ * run, so only runtime imports count.
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

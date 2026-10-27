@@ -1,5 +1,5 @@
 /**
- * Untrusted content is data (docs/governance-plan.md, P2): a story line that reads like an instruction to an agent is
+ * Untrusted content is data: a story line that reads like an instruction to an agent is
  * flagged and listed, never acted on, and what the application said reaches Jira as literal text.
  */
 import assert from 'node:assert/strict';

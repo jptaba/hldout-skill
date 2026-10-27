@@ -4,6 +4,9 @@ test-results/
 playwright-report/
 # the scratch area: raw run output, views and working files
 .heldout/
+# what an evaluation run here would write; rounds run in projects of their own (dev/round.ts)
+/mock-jira/
+/output/
 # the agent setup's local ledger and packet (the commit trailers are the shared record)
 .agents/runs/
 .claude/settings.local.json

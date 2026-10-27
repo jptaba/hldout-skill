@@ -1,7 +1,7 @@
 /**
- * The supply chain the skill ships pinned (docs/governance-plan.md, P4): the Playwright MCP server and the dev
- * dependencies a project gets are exact versions, the same everywhere the skill names them, and `doctor` flags a
- * Playwright MCP server that isn't the pinned one.
+ * The supply chain the skill ships pinned: the Playwright MCP server and the dev dependencies a project gets are
+ * exact versions, the same everywhere the skill names them, and `doctor` flags a Playwright MCP server that isn't the
+ * pinned one.
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

@@ -1,83 +1,38 @@
 # Next steps
 
-Recommended after round 34 (2026-10-12) and worked through in order in round 35; what round 35 left open was then
-worked through as well, and round 36 ran on a local Toolshop. Results are in the guide
-([heldout-evaluator.html](heldout-evaluator.html), "Round 35" and "After round 35").
+What is still open, most important first. Finished work is in git history and the guide
+([heldout-evaluator.html](heldout-evaluator.html)); a change starts with `/speckit-specify`.
 
-| # | Step | Why | Outcome |
-| --- | --- | --- | --- |
-| 1 | Run the skill on a second application | Every fix since round 31 came from one application, so "works on any application" was a design claim, not a measured one | Done. ParaBank: pages rendered on the server, a session cookie, an API that takes no credentials, sign-up on a page only, nothing deletable. Three stories from one onboarding; thirteen things it showed were fixed |
-| 2 | Fresh stories, with answer keys the evaluator's developer does not touch afterwards | TOOL-8 and TOOL-9 had been run three times and both keys were edited after runs | Done. PB-1 to PB-3 and their keys were written by an independent author before the runs and are as that author left them: 2 of 3 verdicts as keyed, 16 of 17 defects, 2 findings the keys do not list |
-| 3 | Put the fast path through a real story | "A guess left in a test is settled by the test's own run" had unit tests only | Done, with a caveat. A second draft of PB-3 left two guesses; one sat in a new journey, so the hardener was called (both guesses were right; about 100,000 tokens). Replayed from the same frozen draft with that journey proven, `advance` settled the guess in the test by its run and went to the evaluation without a hardener |
-| 4 | Write the standing rules into the agent files | Rules known to the main agent only were broken by subagents | Done: files are changed with the file tools only; records that can't be deleted are kept to a minimum and counted in the reply |
-| 5 | Move the rounds off shared live demos | One round left about ninety undeletable records on a public demo | Done for both applications: each can be started locally for a round and thrown away after it ([demo/RUNNING-LOCALLY.md](../demo/RUNNING-LOCALLY.md)). Round 35 ran on a local ParaBank; round 34's project was then pointed at a local Toolshop, a newer build than the public demo, and gave the same two verdicts after one repair of two locators |
-| 6 | Two conveniences that were left out | Neither blocked a run | Done: `triage` writes one chain with every distinct failing call (`confirm/all.chain.json`); the inspector has `request`, `force` and `rewrite` steps (a call in the middle of a walk; a forced submission replayed) |
+## Proof waiting for a round
 
-## Decided after round 35
+Rounds start from scratch: a new round project, a fresh onboarding, freshly started applications.
 
-A verdict whose only open questions block no criterion stays PASS: the criteria were judged in full, and a warning
-on every loosely written story would make warnings mean nothing. What changed is where the questions are seen: the
-verdict's first line, and the summary posted to the story, now count them and point to the section that lists them.
-A question the criteria can't be judged without is recorded as required and makes the verdict PASS WITH WARNINGS,
-as before.
+| What | Where |
+| --- | --- |
+| The phase separation, live: record size at most 40% of round 38's PB-2 (about 2.1 MB), agents reading at least half as much, verdicts scoring as before; then the stories round 38 did not reach | `specs/001-phase-separation` T016 |
+| If the size target is missed: slim the verdict report (PB-2's was 206 KB) | `specs/001-phase-separation` T013c |
+| The Playwright tools reach the hardener and triager through `mcp__playwright__*` in a session started in the project | round 38 ran the agents from the skill repository |
+| A live Jira Data Center rendering of what the skill posts | |
+| The opt-in pre-commit hook through POSIX sh, and a live Vault | Git for Windows' sh is proven |
+| Whether GitHub Copilot reports each subagent's cost (Claude Code does) | `note --usage` |
 
-## Done after round 35
-
-- **Secrets in traces.** After a run, known secrets are taken out of the files inside every trace archive and out of
-  the archive the HTML report carries in its page. All 44 traces of one ParaBank run, and its report, held the test
-  users' password before; none does after, and the archives still open.
-
-- **The new triage tools, used by an agent.** PB-1 was run again on a fresh instance and triaged from nothing: all 22
-  failures confirmed as before, with the merged chain as the starting point, a loan account opened by `force`,
-  another customer's money taken by `rewrite`, and eight `request` calls inside the walk; no script of the triager's
-  own. What that use showed was fixed: the chain now lists the call that made a state before the check that read it,
-  carries the headers that shape the answer and says which failures it leaves out; a rewritten request is reported
-  with the value it would have sent and the one that went out.
-
-- **A triage report that is read, not searched.** It opens with the failures that look alike (the same criterion and
-  the same call and status, or the same locator); the first of a group is written out, the others show what differs.
-  Of an HTML error page it shows what the page says, not its markup; the tests that passed are one line; a decision
-  written out once is named after that. PB-2's report for 57 failures went from 115 KB to about 70 KB before the
-  decisions and from 144 KB to 80 KB with them; TOOL-8's from 47 KB to 27 KB. A triager then worked PB-2 again from
-  nothing with it: read whole in two reads, 25 groups became 8 root causes (six merges, and two groups by locator that
-  each hid two causes), no trace or screenshot opened, 11 of 11 keyed defects again. What that reading showed was
-  fixed: page tests are grouped apart from direct calls, a body is referred to only when it is the same, the matcher
-  and the call before a failed read-back are shown, `--any-reading` can name some tests of one call, and an HTML
-  answer is shown as text in chain reports and inspector steps too. The renderer has unit tests.
-
-- **A verdict from four tests.** The move to a local Toolshop exposed the worst fault of these weeks. The hardener
-  checked its repair with a run of the four repaired tests; that run was taken for the story's latest evaluation, the
-  repair loop's limit (counted over every evaluation run the story ever had) allowed no further run, and the verdict
-  read PASS on four tests while four confirmed defects sat in the run before. A run of some of the tests is now never
-  an evaluation, whatever its label, and the loop counts repairs in a row. With that, the full re-run gave FAIL with
-  the same four defects as on the public demo.
-
-## The refactoring after round 36
-
-[refactor-plan.md](refactor-plan.md) has the whole plan and its progress. What changed:
-
-- **Fewer files, the same review.** A story's record is about ten files plus one per run and the evidence a decision
-  cites, in six folders in the order a reviewer reads them (`1-requirement/` to `6-verdict/`, and `history.jsonl`).
-  Round 36's TOOL-8, replayed into the new layout: the same classes, verdict and defects, and the score as before,
-  from a run record of 344 KB where triage.json, results.json and JUnit took 2.5 MB. Raw output, traces and views go
-  to `.heldout/`, which is git-ignored and removed when the story is complete.
-- **Commands, not scripts.** What the agents used to write scripts for is now a command: `show`, `trace`, `note`,
-  `prune`, `scrub --check`, `contract --review-bind`, and probes built on earlier ones (`--sign-in`, `--from Pn`,
-  `--then`, `--chain Pn --set`, `--pages`, `--where`, `--pick`, `--count`, `${text:N}`). Before it, the contract
-  reviewer wrote 17.5 scripts per 100 tool calls, mostly for the review's hash and time. The agents now have a
-  no-scripts rule and report a command they lack as a tool gap.
-- **Scripts by area.** `.github/scripts/` has nine areas that depend downwards only, one module per command with
-  its own spec, and tests that keep it that way.
-
-## Open after the refactoring
+## Improvements
 
 | What | Why it matters |
 | --- | --- |
-| Governance, guardrails, observability, security and separation of duties ([governance-plan.md](governance-plan.md)) | Round 37 ran the refactored skill end to end: PB-2 and TOOL-8 as keyed, TOOL-10 PASS, no script written on the fly, every tool gap fixed (the refactoring plan's Progress, "Round 37"). What it doesn't yet have is enforcement where only instructions hold (a probe before the freeze, an agent's tools beyond its role), care with untrusted text, pinned versions, and a gate on changes to the skill itself |
-| A reading assumed in the contract and contradicted by the application goes to the owner, even when the assumption is the plain reading | PB-2's self-transfer (keyed D4) was raised as an owner question because the contract assumed its reading (G9) rather than stating it. Whether a "required, assumed" gap whose reading is the story's plain words should let the triager confirm a defect is open |
+| Measure the context each agent takes in, per round | Round 38's test author, hardener and triager peaked at 150k–210k tokens; whole spec files, references and triage reports read several times were the largest part |
+| `hardening/confirm.ts` and `core/probe-log.ts` in the guardrail tier | They enforce held-out rules (the frozen draft, no probe before the freeze) with one review |
+| The channel rule checked against TOOLB-1 | The rule's change for refusals has no live proof |
+| A reading assumed in the contract and contradicted by the application | PB-2's self-transfer (keyed D4) went to the owner because the contract assumed its plain reading; whether such a gap may let the triager confirm a defect is open |
+| Array fields in contracts | A field that holds a list can't be stated today |
+| `--vars-from` inheritance for composed probes | A probe built on another repeats its variables |
+| A wizard for connecting Jira Data Center | Onboarding asks for the settings one by one |
+| Housekeeping: duplicate ParaBank journeys in the demo; over-long lines in GOVERNANCE.md and `references/test-authoring.md` | |
 
-## Open after round 35
+## Decided
 
-| What | Why it matters |
-| --- | --- |
-| Most guesses in a new journey still call the hardener | The run now settles the narrow case: a few journeys new with the story beside proven ones, each guess on a statement of the journey itself that clicks, fills or waits for what it locates, every test that uses the journey passing both times. A path or field of an API call, a value a journey returns (the yes-or-no journey of step 3 among them), a guess in a branch, a helper or a constant are still the hardener's, because a wrong guess there can pass. A small story written to try it (TOOL-10, on pages with proven journeys) did not meet the rule: its author put all five guesses in the journey file as locators a helper or a journey returns, and changed a proven journey. The hardener then found two of the five wrong, one of them a paging stop that no run of the tests would have exercised. So authors do not write guesses where this rule can settle them, and the cases it leaves to the hardener are the ones that need one. Not to be loosened |
+- A verdict whose open questions block no criterion stays PASS; the first line and the summary posted to the story
+  count them. A question a criterion can't be judged without makes it PASS WITH WARNINGS.
+- A guess in a new journey is settled by the run only in the narrow case (a statement of the journey itself that
+  clicks, fills or waits for what it locates, every test using it passing twice); every other guess is the
+  hardener's. Not to be loosened.
