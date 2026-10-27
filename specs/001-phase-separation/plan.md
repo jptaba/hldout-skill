@@ -46,20 +46,21 @@ specs/001-phase-separation/
 ```text
 .github/scripts/
 ├── core/        shared: paths, config, files, history, cli, probe-log, secrets, redact
+├── fetch/       1 requirement   (from requirement/: fetch, jira, mock)
+├── contract/    2 contract      (from requirement/: contract*, evidence)
+├── authoring/   3 tests         (scaffold, lint, preflight, spec-model, draft, journeys)
 ├── probe/       shared tools of hardening and triage: inspect, api-probe, mcp-probe, trace
-├── fetch/       1 requirement   (from requirement/: fetch, jira, mock, evidence)
-├── contract/    2 contract      (from requirement/: contract*)
-├── authoring/   3 tests         (scaffold, lint, spec-model, draft, journeys)
-├── hardening/   4 hardening     (from authoring/: integrity*, confirm, preflight; run/fast-harden)
-├── run/         5 run           (run, results)
-├── triage/      6 triage
+├── hardening/   4 hardening     (from authoring/: integrity*, confirm; from run/: fast-harden)
+├── run/         5 run           (run, results; from triage/: record, classify, the run record's model)
+├── triage/      6 triage        (triage, its report, repro)
 ├── verdict/     7 verdict       (from report/)
 ├── flow/        advance, status, show, stats, note, prune
 └── setup/
 ```
 
 **Structure Decision**: one folder per phase, named for what it does; `core/` and `probe/` are shared. The import
-order becomes core ← probe ← fetch ← contract ← authoring ← hardening ← run ← triage ← verdict ← flow, setup.
+order becomes core ← fetch ← contract ← authoring ← probe ← hardening ← run ← triage ← verdict ← flow, setup. The run
+record and the automatic classification move to `run/`, the phase that writes them, so no phase imports a later one.
 
 ## Increments
 

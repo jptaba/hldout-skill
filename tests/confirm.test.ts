@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import path from 'node:path';
-import { commentsOf, inFolder, withoutMarks } from '../.github/scripts/authoring/confirm';
+import { commentsOf, inFolder, withoutMarks } from '../.github/scripts/hardening/confirm';
 
 describe('the frozen draft', () => {
   it('is told apart from the hardened copy, whatever a file is named', () => {

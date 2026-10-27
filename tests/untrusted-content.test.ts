@@ -7,11 +7,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { findingCells } from '../.github/scripts/report/publish';
-import { suspectSection } from '../.github/scripts/report/verdict';
-import { checkContract, skeletonContract } from '../.github/scripts/requirement/contract-model';
-import { checkInjection, evidencePack, injectionSuspects } from '../.github/scripts/requirement/evidence';
-import { adfToWiki, doc, link, p, table, txt, wikiText } from '../.github/scripts/requirement/jira/adf';
+import { checkContract, skeletonContract } from '../.github/scripts/contract/contract-model';
+import { checkInjection, evidencePack, injectionSuspects } from '../.github/scripts/contract/evidence';
+import { adfToWiki, doc, link, p, table, txt, wikiText } from '../.github/scripts/fetch/jira/adf';
+import { findingCells } from '../.github/scripts/verdict/publish';
+import { suspectSection } from '../.github/scripts/verdict/verdict';
 
 const STORIES = path.join(import.meta.dirname, '..', 'demo', 'stories');
 

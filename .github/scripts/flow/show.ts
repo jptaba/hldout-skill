@@ -19,10 +19,10 @@ import { rel } from '../core/files';
 import { readHistory } from '../core/history';
 import { evalPaths, evalRunsOf, listRuns, movedRunNote, phaseDirs, runFile } from '../core/paths';
 import { readProbes } from '../core/probe-log';
-import { readContract } from '../requirement/contract-model';
-import { renderContract } from '../requirement/contract-render';
-import { readReview } from '../requirement/evidence';
-import { pendingOf, readRunRecord, type TriageEntry } from '../triage/triage-model';
+import { readContract } from '../contract/contract-model';
+import { renderContract } from '../contract/contract-render';
+import { readReview } from '../contract/evidence';
+import { pendingOf, readRunRecord, type TriageEntry } from '../run/run-record';
 
 export const spec: CommandSpec = {
   name: 'show', group: 'Report', usage: 'KEY contract|run|triage|probes|history [...] | config [--aut id]   [--json]', words: 3,

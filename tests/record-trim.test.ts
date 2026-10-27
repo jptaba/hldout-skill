@@ -11,7 +11,7 @@ import { keepNamedProbes, readProbes, savedOf, trimProbeLogs } from '../.github/
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { evalPaths } from '../.github/scripts/core/paths';
 import { repairsTried } from '../.github/scripts/flow/advance';
-import { repairedDefects, runsOfHistory } from '../.github/scripts/report/verdict';
+import { repairedDefects, runsOfHistory } from '../.github/scripts/verdict/verdict';
 import { nextRunNumber } from '../.github/scripts/run/run';
 
 const profile = `record-trim-${process.pid}`;
@@ -54,7 +54,9 @@ describe('after the verdict\'s tidy', () => {
     const probe = (id: string) => JSON.stringify({ id, at: 'now', phase: 'hardening', tool: 'api-probe', tier: 3, input: { chain: { steps: [] }, saved: { id: '7' } }, digest: ['d'], report: '' });
     fs.writeFileSync(path.join(p.hardened, 'probes.jsonl'), `${probe('P1')}\n${probe('P2')}\n`);
     for (const id of ['P1', 'P2']) { fs.mkdirSync(path.join(p.work.hardening, 'probes'), { recursive: true }); fs.writeFileSync(path.join(p.work.hardening, 'probes', `${id}.md`), `# ${id}`); }
-    assert.deepEqual(keepNamedProbes(p, ['| SCN-4 | the total | 12 | 13 | P2 |']), ['P2']);
+    assert.deepEqual(keepNamedProbes(p, ['| SCN-4 | the total | 12 | 13 | P2 |']), { kept: ['P2'], lost: [] });
+    fs.rmSync(path.join(p.work.hardening, 'probes', 'P1.md'));
+    assert.deepEqual(keepNamedProbes(p, ['P1 and P2']), { kept: [], lost: ['P1'] }, 'a named report already gone is said');
     assert.ok(fs.existsSync(path.join(p.hardened, 'P2.md')));
     assert.equal(trimProbeLogs(p), 1);
     assert.deepEqual(readProbes(p).map((e) => [e.id, e.input === undefined]), [['P1', true], ['P2', false]]);

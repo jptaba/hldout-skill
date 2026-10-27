@@ -18,11 +18,11 @@ import { rel, writeFile } from '../core/files';
 import { recordChange, recordEvent } from '../core/history';
 import { evalPaths, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
-import { oracleDigest, readContract } from '../requirement/contract-model';
+import { storyJourneys } from '../authoring/journeys/registry';
+import { typeErrors } from '../authoring/preflight';
+import { specFiles } from '../authoring/spec-model';
+import { oracleDigest, readContract } from '../contract/contract-model';
 import { checkIntegrity as checkWith, copyDraft, draftOf, readFreeze, revisionOf, writeFreeze, type Freeze } from './integrity-check';
-import { storyJourneys } from './journeys/registry';
-import { typeErrors } from './preflight';
-import { specFiles } from './spec-model';
 
 export const spec: CommandSpec = {
   name: 'integrity', group: 'Tests', usage: 'KEY [--snapshot [--reason …] | --amend "<assertion>" --reason …]',

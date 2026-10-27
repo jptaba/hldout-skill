@@ -21,8 +21,8 @@ import { assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel } from '../core/files';
 import { recordEvent } from '../core/history';
 import { evalPaths } from '../core/paths';
-import { doc, h, p, panel, table, txt, ul } from '../requirement/jira/adf';
-import { createTracker } from '../requirement/jira/client';
+import { doc, h, p, panel, table, txt, ul } from '../fetch/jira/adf';
+import { createTracker } from '../fetch/jira/client';
 
 interface VerdictJson {
   key: string; verdict: string; reason: string; finalRun: string; integrity: string; amendments?: number;

@@ -13,8 +13,8 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { after, before, describe, it } from 'node:test';
-import { JiraDataCenterClient } from '../.github/scripts/requirement/jira/datacenter';
-import { doc, p } from '../.github/scripts/requirement/jira/adf';
+import { JiraDataCenterClient } from '../.github/scripts/fetch/jira/datacenter';
+import { doc, p } from '../.github/scripts/fetch/jira/adf';
 
 const PAT = 'not-a-real-pat';
 interface Captured { method: string; url: string; headers: http.IncomingHttpHeaders; body: Buffer }

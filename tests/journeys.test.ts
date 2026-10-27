@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import type { RequirementContract } from '../.github/scripts/requirement/contract-model';
-import { checkIntegrity, draftOf } from '../.github/scripts/authoring/integrity-check';
+import type { RequirementContract } from '../.github/scripts/contract/contract-model';
+import { checkIntegrity, draftOf } from '../.github/scripts/hardening/integrity-check';
 import {
   allJourneys, allRequires, conflictSides, directRequires, duplicateJourneys, emptyRegistry, journeyUse, journeysIn, journeysUsedBy, kebab, lintJourneys, mergeRegistries,
   observedRequires, oracleLiterals, parseRegistry, relevantJourney, renderRegistry, statusOf, storyJourneys, syncRegistry, type Registry,

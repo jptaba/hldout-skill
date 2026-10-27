@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { requirementRevision, type RequirementContract } from '../.github/scripts/requirement/contract-model';
-import { changedSinceReview, checkCoverage, checkLiterals, checkReview, contractHash, reviewItemHashes, evidencePack, inventedLiterals, reviewRefs, sourceLines, type ContractReview } from '../.github/scripts/requirement/evidence';
+import { requirementRevision, type RequirementContract } from '../.github/scripts/contract/contract-model';
+import { changedSinceReview, checkCoverage, checkLiterals, checkReview, contractHash, reviewItemHashes, evidencePack, inventedLiterals, reviewRefs, sourceLines, type ContractReview } from '../.github/scripts/contract/evidence';
 
 const STORY = `---
 key: ABC-1

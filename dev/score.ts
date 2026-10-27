@@ -18,7 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
-import { readRunRecord } from '../.github/scripts/triage/triage-model';
+import { readRunRecord } from '../.github/scripts/run/run-record';
 import { KEYS_DIR, pinProblems, readPins } from './answer-keys';
 import { matchDefects } from './score-match';
 

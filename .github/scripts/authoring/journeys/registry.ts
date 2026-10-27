@@ -23,7 +23,7 @@ import path from 'node:path';
 import { ROOT } from '../../core/files';
 import { journeyPaths } from '../../core/paths';
 import type { HeldoutConfig } from '../../core/profile';
-import type { RequirementContract } from '../../requirement/contract-model';
+import type { RequirementContract } from '../../contract/contract-model';
 
 export type JourneyKind = 'ui' | 'api';
 export const JOURNEY_KINDS: JourneyKind[] = ['ui', 'api'];

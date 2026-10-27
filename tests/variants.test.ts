@@ -7,8 +7,8 @@ import { validateConfig } from '../.github/scripts/core/config';
 import { accountRoles, existingAccountWorkers, type AccountRecipe } from '../.github/scripts/core/profile';
 import {
   checkContract, checkVariantCoverage, comboLabel, requirementRevision, variantCombinations, type RequirementContract,
-} from '../.github/scripts/requirement/contract-model';
-import { contractHash, reviewRefs } from '../.github/scripts/requirement/evidence';
+} from '../.github/scripts/contract/contract-model';
+import { contractHash, reviewRefs } from '../.github/scripts/contract/evidence';
 import { readSuite } from '../.github/scripts/authoring/spec-model';
 
 const STORY = `# ABC-7: Invoices for every user type

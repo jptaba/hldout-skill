@@ -10,9 +10,9 @@ import { SCENARIO_ID_RE, baseScenarioId, normaliseTestType, readSuite, specFiles
 import { readJson, rel } from '../core/files';
 import { evalPaths, journeyPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
-import { readContract, requestContracts } from '../requirement/contract-model';
+import { readContract, requestContracts } from '../contract/contract-model';
 import { classify, parseError, relevantExchange, type ApiExchange } from './classify';
-import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, type HealthSample, type TriageEntry, type TriageReport } from './triage-model';
+import { correlateAuthPrecondition, correlateDegradedEnvironment, isRace, mergeRepeats, type HealthSample, type TriageEntry, type TriageReport } from './run-record';
 
 // ---- Playwright JSON reporter shapes (subset) ----
 interface PwError { message?: string; stack?: string }

@@ -30,9 +30,9 @@ import { recordEvent } from '../core/history';
 import { citeProbes } from '../core/probe-log';
 import { evalPaths, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
-import { CATEGORIES, type ApiExchange, type Category } from './classify';
+import { CATEGORIES, type ApiExchange, type Category } from '../run/classify';
 import { renderTriageMd, replaySlug, signedIn } from './triage-report';
-import { pendingOf, readRunRecord, signature, writeRunRecord, type RunRecord, type TriageEntry } from './triage-model';
+import { pendingOf, readRunRecord, signature, writeRunRecord, type RunRecord, type TriageEntry } from '../run/run-record';
 
 /**
  * A chain to start the live replay of a failure whose call was sent signed in: the sign-in of each kind of user the

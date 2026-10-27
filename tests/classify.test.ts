@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { classify, looseRegexMatch, parseError, relevantExchange, type ApiExchange } from '../.github/scripts/triage/classify';
+import { classify, looseRegexMatch, parseError, relevantExchange, type ApiExchange } from '../.github/scripts/run/classify';
 import type { Endpoint } from '../.github/scripts/authoring/spec-model';
 
 const pw = (lines: string[]) => lines.join('\n');
@@ -203,7 +203,7 @@ describe('classify — request contract conformance', () => {
     assert.equal(classify(err, { api: call({ article: { title: 't' } }, 500), requestContracts: contracts }).category, 'APPLICATION_DEFECT');
   });
   it('takes the request shape only from the structured contract fields', async () => {
-    const { requestContracts } = await import('../.github/scripts/requirement/contract-model');
+    const { requestContracts } = await import('../.github/scripts/contract/contract-model');
     const c = { endpoints: [
       { method: 'POST', path: '/api/articles', envelope: 'article', requestFields: ['title'], source: 'story.md#L1' },
       { method: 'GET', path: '/api/articles', request: '{"article": {…}} (prose only)', source: 'story.md#L1' },

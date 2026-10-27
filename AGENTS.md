@@ -42,8 +42,9 @@ setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` a
 - Builtins with the `node:` prefix; no new runtime dependency without a contract naming it.
 - A command module exports `spec` and `run`, reads only the flags its spec declares and documents them in its leading
   comment (`tests/dispatcher.test.ts`).
-- Imports follow the areas' order: core ← requirement ← authoring ← probe ← triage ← run ← report ← flow, setup
-  (`tests/layout.test.ts`); type-only imports don't count. Story folder names come from `core/paths.ts` only.
+- Scripts are grouped by phase, and imports follow the phases' order: core ← fetch ← contract ← authoring ← probe
+  (shared by hardening and triage) ← hardening ← run ← triage ← verdict ← flow, setup (`tests/layout.test.ts`); a
+  phase never imports a later one; type-only imports don't count. Story folder names come from `core/paths.ts` only.
 - Comments say why, in the density of the code around them.
 
 ## Agent and skill files (`.github/agents/`, `.github/skills/`)

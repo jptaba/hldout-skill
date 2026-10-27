@@ -11,8 +11,8 @@ import { ROOT, rel } from '../core/files';
 import { currentTests, evalPaths, journeyPaths, strayFiles } from '../core/paths';
 import { duplicateProbeIds } from '../core/probe-log';
 import { accountRoles, type HeldoutConfig } from '../core/profile';
-import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from '../requirement/contract-model';
-import { checkReview, readReview } from '../requirement/evidence';
+import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from '../contract/contract-model';
+import { checkReview, readReview } from '../contract/evidence';
 import { allJourneys, describeJourney, duplicateJourneys, journeysUsedBy, lintJourneys, readRegistry } from './journeys/registry';
 import { TEST_TYPES, readSuite, specFiles, type Scenario, type TestType } from './spec-model';
 

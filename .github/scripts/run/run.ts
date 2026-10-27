@@ -34,8 +34,8 @@ import { accountRoles, autEnv, dataPrefix, existingAccountWorkers } from '../cor
 import { relativizePaths, scrubDir, secretValuesFor } from '../core/redact';
 import { loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { envNamesIn } from '../probe/accounts-recipe';
-import { digestRun } from '../triage/record';
-import { pendingOf, readRunRecord, writeRunRecord, type RunMeta, type RunRecord, type SeedSummary } from '../triage/triage-model';
+import { digestRun } from './record';
+import { pendingOf, readRunRecord, writeRunRecord, type RunMeta, type RunRecord, type SeedSummary } from './run-record';
 import { failedTests } from './results';
 
 interface Stats { expected: number; unexpected: number; flaky: number; skipped: number; duration: number }

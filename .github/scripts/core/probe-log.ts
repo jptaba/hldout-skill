@@ -168,19 +168,21 @@ export function renumberDuplicateProbes(p: LogPaths): { from: string; to: string
 /**
  * Keeps the reports of the probes a kept text names (the hardening log's tables, a decision's rationale, a gap's
  * evidence), as `--evidence` keeps the ones it cites: before the logs are trimmed, so nothing named loses its report.
- * A report already gone from the scratch area can't be kept. Returns the ids kept now.
+ * A report already gone from the scratch area can't be kept: those ids are returned apart, to be said.
  */
-export function keepNamedProbes(p: ProbePaths, texts: string[]): string[] {
+export function keepNamedProbes(p: ProbePaths, texts: string[]): { kept: string[]; lost: string[] } {
   const named = new Set(texts.flatMap((t) => t.match(PROBE_ID) ?? []));
   const kept: string[] = [];
+  const lost: string[] = [];
   for (const e of readProbes(p).filter((x) => named.has(x.id))) {
     const to = keptReport(p, e.phase, e.id);
     const from = scratchReport(p, e.phase, e.id);
-    if (fs.existsSync(to) || !fs.existsSync(from)) continue;
+    if (fs.existsSync(to)) continue;
+    if (!fs.existsSync(from)) { lost.push(e.id); continue; }
     fs.copyFileSync(from, to);
     kept.push(e.id);
   }
-  return kept;
+  return { kept, lost };
 }
 
 /**

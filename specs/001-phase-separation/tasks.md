@@ -45,9 +45,9 @@ one gated commit (guardrail tier: agent files and the skill's references).
 
 ## Phase 4: User Story 3 — scripts by phase (P3)
 
-- [ ] T014 [US3] Move modules per plan.md (fetch/, contract/, hardening/, verdict/; probe/ shared) with their tests'
+- [x] T014 [US3] Move modules per plan.md (fetch/, contract/, hardening/, verdict/; probe/ shared) with their tests'
   imports; `heldout.ts` dispatcher table
-- [ ] T015 [US3] `tests/layout.test.ts`: areas core, probe, fetch, contract, authoring, hardening, run, triage,
+- [x] T015 [US3] `tests/layout.test.ts`: areas core, probe, fetch, contract, authoring, hardening, run, triage,
   verdict, flow, setup; AGENTS.md's import-order line
 
 ## Phase 5: Proof

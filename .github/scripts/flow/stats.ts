@@ -19,7 +19,7 @@ import { rel } from '../core/files';
 import { readHistory, type HistoryEvent } from '../core/history';
 import { NON_EVAL_RUN, PHASE_FOLDERS, STORY_ROOT_FILES, listRuns, listStories, runFile } from '../core/paths';
 import { readProbes } from '../core/probe-log';
-import { readRunRecord } from '../triage/triage-model';
+import { readRunRecord } from '../run/run-record';
 
 export interface Usage { agent: string; tokens: number; minutes: number }
 

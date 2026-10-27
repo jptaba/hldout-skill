@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/run/fast-harden';
+import { guessesNotSettled, journeyGuessesNotSettled } from '../.github/scripts/hardening/fast-harden';
 import { evalRunsOf } from '../.github/scripts/core/paths';
 import { draftFinished, markDraftFinished } from '../.github/scripts/authoring/draft';
 import { readHistory } from '../.github/scripts/core/history';

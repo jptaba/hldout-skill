@@ -29,7 +29,7 @@ import { readJson, rel, writeFile } from '../../core/files';
 import { lastEvent, recordEvent } from '../../core/history';
 import { evalPaths, journeyPaths } from '../../core/paths';
 import type { HeldoutConfig } from '../../core/profile';
-import { readContract, type RequirementContract } from '../../requirement/contract-model';
+import { readContract, type RequirementContract } from '../../contract/contract-model';
 import {
   CONFLICT, allJourneys, allRequires, conflictSides, directRequires, describeJourney, duplicateJourneys, journeyFiles, journeyUse, journeysUsedBy, lintJourneys,
   mergeRegistries, observedRequires, parseRegistry, readRegistry, relevantJourney, statusOf, syncRegistry, writeRegistry,

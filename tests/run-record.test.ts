@@ -7,8 +7,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
-import { digestRun } from '../.github/scripts/triage/record';
-import { readRunRecord, writeRunRecord, type RunRecord } from '../.github/scripts/triage/triage-model';
+import { digestRun } from '../.github/scripts/run/record';
+import { readRunRecord, writeRunRecord, type RunRecord } from '../.github/scripts/run/run-record';
 
 const SPEC = `import { test } from '../../../../heldout-support/fixtures';
 test('SCN-001: a product is listed', { tag: ['@AC-1', '@type:functional', '@layer:api'] }, async () => {});

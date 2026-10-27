@@ -12,7 +12,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { specFiles } from './spec-model';
+import { specFiles } from '../authoring/spec-model';
 
 const sha256 = (s: string) => createHash('sha256').update(s.replace(/\r\n/g, '\n')).digest('hex');
 

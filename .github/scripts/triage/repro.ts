@@ -2,7 +2,7 @@
  * Reproduction helpers for the verdict: a reviewer must be able to replay every finding without
  * this tooling (curl for API exchanges) and with it (single-test re-run command).
  */
-import type { ApiExchange } from './classify';
+import type { ApiExchange } from '../run/classify';
 
 const shq = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`;
 const REDACTED = '***redacted***';

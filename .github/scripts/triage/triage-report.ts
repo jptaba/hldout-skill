@@ -5,8 +5,8 @@
 import path from 'node:path';
 import { ROOT } from '../core/files';
 import { pageText } from '../core/redact';
-import type { ApiExchange } from './classify';
-import { maskVolatile, type TriageEntry, type TriageReport } from './triage-model';
+import type { ApiExchange } from '../run/classify';
+import { maskVolatile, type TriageEntry, type TriageReport } from '../run/run-record';
 
 /** A body for the report, on one line: of an HTML page what it says (its text), not its markup; long ones cut. */
 export const short = (v: unknown, n = 600) => {

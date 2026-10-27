@@ -10,7 +10,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkIntegrity, readFreeze, type IntegrityResult } from '../authoring/integrity-check';
+import { checkIntegrity, readFreeze, type IntegrityResult } from '../hardening/integrity-check';
 import { allJourneys, journeyUse, journeysUsedBy, readRegistry, storyJourneys } from '../authoring/journeys/registry';
 import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
@@ -19,11 +19,11 @@ import { ROOT, rel, writeFile } from '../core/files';
 import { readHistory, recordEvent } from '../core/history';
 import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, movedRunNote, runFile, runRaw } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
-import { comboLabel, oracleDigest, readContract, variantCombinations } from '../requirement/contract-model';
-import { injectionSuspects } from '../requirement/evidence';
-import type { Category } from '../triage/classify';
+import { comboLabel, oracleDigest, readContract, variantCombinations } from '../contract/contract-model';
+import { injectionSuspects } from '../contract/evidence';
+import type { Category } from '../run/classify';
 import { curlFor, exchangeLine, rerunCommand } from '../triage/repro';
-import { readDecisions, readRunRecord, type Decisions, type TriageEntry } from '../triage/triage-model';
+import { readDecisions, readRunRecord, type Decisions, type TriageEntry } from '../run/run-record';
 import { decideVerdict, holdsUnderAnyReading, type Verdict } from './verdict-rules';
 
 const BADGE: Record<Verdict, string> = { PASS: '✅ PASS', PASS_WITH_WARNINGS: '⚠️ PASS WITH WARNINGS', FAIL: '❌ FAIL', INCONCLUSIVE: '❔ INCONCLUSIVE' };

@@ -12,7 +12,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import type { RequirementContract } from '../requirement/contract-model';
+import type { RequirementContract } from '../contract/contract-model';
 
 /**
  * Test-type taxonomy. Every test declares exactly one type, @type:<t>: what it truly proves (it drives triage and the

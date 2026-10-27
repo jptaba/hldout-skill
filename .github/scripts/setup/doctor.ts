@@ -23,7 +23,7 @@ import { toolProblems } from '../core/roles';
 import { loadVaultSecrets, projectSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
 import { checkAccountRecipe, envNamesIn } from '../probe/accounts-recipe';
 import { appRootOf, describeCounts, discoverApp } from '../probe/detect';
-import { createTracker } from '../requirement/jira/client';
+import { createTracker } from '../fetch/jira/client';
 import { CLAUDE_MCP_FILE, MCP_FILE, playwrightMcpConfigured, playwrightMcpSpecs } from './mcp-config';
 
 type Level = 'ok' | 'warn' | 'fail';

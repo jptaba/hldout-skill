@@ -6,15 +6,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { draftFinished } from '../authoring/draft';
-import { readFreeze } from '../authoring/integrity-check';
+import { readFreeze } from '../hardening/integrity-check';
 import { journeysUsedBy } from '../authoring/journeys/registry';
 import { readJson, rel } from '../core/files';
 import { lastEvent, readHistory } from '../core/history';
 import { PHASE_FOLDERS, evalPaths, evalRunsOf, runFile } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
-import { checkContract, readContract } from '../requirement/contract-model';
-import { checkReview, readReview } from '../requirement/evidence';
-import { pendingOf, readRunRecord } from '../triage/triage-model';
+import { checkContract, readContract } from '../contract/contract-model';
+import { checkReview, readReview } from '../contract/evidence';
+import { pendingOf, readRunRecord } from '../run/run-record';
 
 export interface Phase { name: string; folder: string; done: boolean; detail: string; next?: string }
 const H = 'npm run heldout --';

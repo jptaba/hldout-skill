@@ -45,7 +45,7 @@ export function evalPaths(cfg: Pick<HeldoutConfig, 'outputDir' | 'autId'>, key: 
     // 3 — how it is tested: the test author's draft, frozen as written
     tests: path.join(base, TESTS),
     testData: path.join(base, TESTS, 'test-data.json'),
-    /** The frozen draft's hashes, its re-freezes and the audited amendments (authoring/integrity-check.ts). */
+    /** The frozen draft's hashes, its re-freezes and the audited amendments (hardening/integrity-check.ts). */
     freeze: path.join(base, TESTS, 'freeze.json'),
     // 4 — how the tests were made to work: the hardener's copy of the draft, its log and the probes it cites
     hardened: path.join(base, HARDENING),
@@ -152,7 +152,8 @@ export function moveSupersededRuns(p: { runs: string; work: Pick<StoryPaths['wor
 
 /** Why a run's record is not in the record, when the verdict's tidy moved it: said in the errors that look for it. */
 export function movedRunNote(p: { work: Pick<StoryPaths['work'], 'runs'> }, run?: string): string {
-  return run && fs.existsSync(path.join(p.work.runs, `${run}.json`)) ? ` — ${run}'s record was moved to the scratch area when the verdict was due (${path.join(p.work.runs, `${run}.json`)}); its result is in the history` : '';
+  const file = run && path.join(p.work.runs, `${run}.json`);
+  return file && fs.existsSync(file) ? ` — ${run}'s record was moved to the scratch area when the verdict was due (${path.relative(ROOT, file).split(path.sep).join('/')}); its result is in the history` : '';
 }
 
 /** Every story folder: output/<profile>/<KEY>/. */

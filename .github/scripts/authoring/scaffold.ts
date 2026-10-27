@@ -17,7 +17,7 @@ import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel, writeFile } from '../core/files';
 import { evalPaths, journeyPaths } from '../core/paths';
 import { createsAccounts } from '../core/profile';
-import { comboLabel, openQuestions, readContract, toDiscover, variantCombinations, type ContractAC, type ContractEndpoint } from '../requirement/contract-model';
+import { comboLabel, openQuestions, readContract, toDiscover, variantCombinations, type ContractAC, type ContractEndpoint } from '../contract/contract-model';
 import { TEST_TYPES } from './spec-model';
 
 

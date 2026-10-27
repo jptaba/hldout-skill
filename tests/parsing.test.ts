@@ -3,15 +3,15 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { adfToWiki, doc, h, link, p, table, txt, ul } from '../.github/scripts/requirement/jira/adf';
-import { confluenceBase, confluenceLinks, pageIdOf, storageToMarkdown } from '../.github/scripts/requirement/jira/confluence';
-import { embeddedFiles } from '../.github/scripts/requirement/jira/client';
-import { markdownToStorage } from '../.github/scripts/requirement/mock/storage-format';
+import { adfToWiki, doc, h, link, p, table, txt, ul } from '../.github/scripts/fetch/jira/adf';
+import { confluenceBase, confluenceLinks, pageIdOf, storageToMarkdown } from '../.github/scripts/fetch/jira/confluence';
+import { embeddedFiles } from '../.github/scripts/fetch/jira/client';
+import { markdownToStorage } from '../.github/scripts/fetch/mock/storage-format';
 import { baseScenarioId, matchEndpoint, normaliseTestType, readSuite } from '../.github/scripts/authoring/spec-model';
 import { typeMismatch } from '../.github/scripts/authoring/preflight';
 import { curlFor, rerunCommand } from '../.github/scripts/triage/repro';
-import { decideVerdict, holdsUnderAnyReading } from '../.github/scripts/report/verdict-rules';
-import type { RequirementContract } from '../.github/scripts/requirement/contract-model';
+import { decideVerdict, holdsUnderAnyReading } from '../.github/scripts/verdict/verdict-rules';
+import type { RequirementContract } from '../.github/scripts/contract/contract-model';
 
 const SPEC = `import { test } from '../../../../heldout-support/fixtures';
 // ASSUMPTION: G2 something assumed
@@ -259,7 +259,7 @@ describe('redaction', () => {
 });
 
 describe('mergeRepeats (--repeat-each)', async () => {
-  const { mergeRepeats } = await import('../.github/scripts/triage/triage-model');
+  const { mergeRepeats } = await import('../.github/scripts/run/run-record');
   const entry = (status: 'passed' | 'failed', cat?: string) => ({
     scenario: 'SCN-009', title: 'SCN-009: sort', file: 'a.spec.ts', status, tags: [], requirementRefs: ['AC-8'], otherFailures: [],
     evidence: { attempts: 1 },
@@ -292,7 +292,7 @@ describe('mergeRepeats (--repeat-each)', async () => {
     assert.equal(mergeRepeats([{ ...entry('passed'), testType: 'concurrency' }, { ...entry('failed', 'SCRIPT_DEFECT'), testType: 'concurrency' }])[0].status, 'flaky');
   });
   it('isRace: a retried concurrency test counts as failed only for a [REQ] failure', async () => {
-    const { isRace } = await import('../.github/scripts/triage/triage-model');
+    const { isRace } = await import('../.github/scripts/run/run-record');
     assert.equal(isRace('flaky', 'concurrency', ['Error: [REQ AC-5] exactly one like is counted']), true);
     assert.equal(isRace('flaky', 'concurrency', ['Timeout 5000ms exceeded.']), false);
     assert.equal(isRace('flaky', 'idempotency', ['Error: [REQ AC-4] …']), false);
@@ -301,7 +301,7 @@ describe('mergeRepeats (--repeat-each)', async () => {
 });
 
 describe('correlateDegradedEnvironment', async () => {
-  const { correlateDegradedEnvironment } = await import('../.github/scripts/triage/triage-model');
+  const { correlateDegradedEnvironment } = await import('../.github/scripts/run/run-record');
   const failed = (id: string, message: string, cat = 'NEEDS_INVESTIGATION') => ({
     scenario: id, title: id, file: 'a', status: 'failed' as const, tags: [], requirementRefs: [], otherFailures: [], evidence: { attempts: 1 },
     error: { headline: message, message }, auto: { category: cat as never, confidence: 'low' as const, signals: [], next: '' },
@@ -327,7 +327,7 @@ describe('decideVerdict — skipped scenarios', () => {
 });
 
 describe('correlateAuthPrecondition', async () => {
-  const { correlateAuthPrecondition } = await import('../.github/scripts/triage/triage-model');
+  const { correlateAuthPrecondition } = await import('../.github/scripts/run/run-record');
   const ex = (method: string, url: string, status: number) => ({ request: { method, url }, response: { status } });
   it('a failed auth pre-step turns same-endpoint "app defects" into investigations', () => {
     const blocked = { scenario: 'SCN-010', title: '', file: '', status: 'failed' as const, tags: [], requirementRefs: [], otherFailures: [],
@@ -364,7 +364,7 @@ describe('Playwright MCP snapshot parsing', async () => {
 
 describe('failure signatures across runs', () => {
   it('mask per-run generated values but keep statuses and AC ids', async () => {
-    const { maskVolatile } = await import('../.github/scripts/triage/triage-model');
+    const { maskVolatile } = await import('../.github/scripts/run/run-record');
     assert.equal(maskVolatile('"Heldout-irl8v63eb2-74248"'), maskVolatile('"Heldout-irk2p0aa91-74230"'));
     assert.equal(maskVolatile('106886'), maskVolatile('106912'));
     assert.equal(maskVolatile("hasText: 'hldout w8n3q4-20 product'"), maskVolatile("hasText: 'hldout x7k2m9-15 product'"), 'a counter after a per-run id');
@@ -374,12 +374,12 @@ describe('failure signatures across runs', () => {
     assert.notEqual(maskVolatile('"Your account has been locked."'), maskVolatile('"Epic sadface: Sorry"'));
   });
   it('match a "must not be X" failure whatever X is this run (a seeded id)', async () => {
-    const { signature } = await import('../.github/scripts/triage/triage-model');
+    const { signature } = await import('../.github/scripts/run/run-record');
     const entry = (id: string) => ({ scenario: 'SCN-007', status: 'failed', error: { headline: "[REQ AC-6] does not return B's basket", reqTag: 'AC-6', expected: `not ${id}`, received: id, message: '' } }) as never;
     assert.equal(signature(entry('46')), signature(entry('69')));
   });
   it('depend on the failure only, not on the evidence triage picked for it', async () => {
-    const { signature } = await import('../.github/scripts/triage/triage-model');
+    const { signature } = await import('../.github/scripts/run/run-record');
     const error = { headline: '[REQ AC-6] an error is shown', reqTag: 'AC-6', received: 'hidden', message: '' };
     const exchange = (method: string, status: number) => ({ request: { method, url: 'https://x.test/a' }, response: { status } });
     const a = { scenario: 'SCN-1', status: 'failed', error, evidence: { api: exchange('GET', 200) } };

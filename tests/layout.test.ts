@@ -12,8 +12,11 @@ import { PHASE_FOLDERS, moveStrayFiles, moveSupersededRuns, strayFiles } from '.
 import { COMMANDS } from '../.github/scripts/heldout';
 
 const DIR = path.join(import.meta.dirname, '..', '.github', 'scripts');
-/** Lowest first: an area may import its own files and those of the areas before it. */
-const AREAS = ['core', 'requirement', 'authoring', 'probe', 'triage', 'run', 'report', 'flow', 'setup'];
+/**
+ * Lowest first: an area may import its own files and those of the areas before it. The phases in their order (a phase
+ * never imports a later one), core and the probe tools shared, flow and setup on top.
+ */
+const AREAS = ['core', 'fetch', 'contract', 'authoring', 'probe', 'hardening', 'run', 'triage', 'verdict', 'flow', 'setup'];
 const rank = (area: string) => (area === 'setup' ? AREAS.indexOf('flow') : AREAS.indexOf(area));
 
 const files = fs.readdirSync(DIR, { recursive: true, encoding: 'utf8' }).map((f) => f.split(path.sep).join('/')).filter((f) => f.endsWith('.ts'));
@@ -37,7 +40,7 @@ describe('the scripts layout', () => {
 
   it('imports only scripts that exist', () => {
     assert.ok(runtimeImports('run/run.ts').includes('core/cli.ts'), 'runtime imports are read');
-    assert.ok(!runtimeImports('requirement/evidence.ts').includes('requirement/contract-model.ts'), 'type-only imports are left out');
+    assert.ok(!runtimeImports('contract/evidence.ts').includes('contract/contract-model.ts'), 'type-only imports are left out');
     const missing = files.flatMap((f) => runtimeImports(f).filter((i) => !files.includes(i)).map((i) => `${f} → ${i}`));
     assert.deepEqual(missing, []);
   });

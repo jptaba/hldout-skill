@@ -27,10 +27,10 @@ import { readHistory, recordEvent } from '../core/history';
 import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, listRuns, moveStrayFiles, moveSupersededRuns, runFile } from '../core/paths';
 import { keepNamedProbes, renumberDuplicateProbes, trimProbeLogs } from '../core/probe-log';
 import type { HeldoutConfig } from '../core/profile';
-import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../requirement/contract-model';
-import { checkReview, readReview } from '../requirement/evidence';
-import { guessesNotSettled, journeyGuessesNotSettled } from '../run/fast-harden';
-import { readDecisions, readRunRecord } from '../triage/triage-model';
+import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../contract/contract-model';
+import { checkReview, readReview } from '../contract/evidence';
+import { guessesNotSettled, journeyGuessesNotSettled } from '../hardening/fast-harden';
+import { readDecisions, readRunRecord } from '../run/run-record';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -205,7 +205,11 @@ export function run({ _, flags }: Args): void {
     const superseded = moveSupersededRuns(p);
     // A probe the log, a decision or a gap names keeps its report, as one cited with --evidence does.
     const read = (f: string) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '');
-    keepNamedProbes(p, [read(p.hardeningLog), read(p.decisions), read(p.contract)]);
+    const named = keepNamedProbes(p, [read(p.hardeningLog), read(p.decisions), read(p.contract)]);
+    if (named.lost.length) {
+      recordEvent(p.history, 'note', { kind: 'remark', text: `named but their reports were gone from the scratch area before they were kept: ${named.lost.join(', ')}` });
+      console.log(`⚠ ${named.lost.join(', ')} named in the log, a decision or the contract, but their reports were gone before they were kept`);
+    }
     const trimmed = trimProbeLogs(p);
     if (superseded.length || trimmed) {
       recordEvent(p.history, 'record-trimmed', { runs: superseded, probes: trimmed });

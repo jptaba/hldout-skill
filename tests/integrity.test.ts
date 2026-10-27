@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { checkIntegrity, copyDraft, draftOf, reqAssertions, reqConstants, revisionOf, type Amendment, type Freeze } from '../.github/scripts/authoring/integrity-check';
+import { checkIntegrity, copyDraft, draftOf, reqAssertions, reqConstants, revisionOf, type Amendment, type Freeze } from '../.github/scripts/hardening/integrity-check';
 
 const SPEC = `
 // @req-constants-start
