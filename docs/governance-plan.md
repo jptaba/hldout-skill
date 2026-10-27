@@ -242,7 +242,7 @@ in matching order (the catch-all last); the most demanding tier any file falls i
 | --- | --- | --- |
 | docs | `docs/**`, `README.md`, the demo's notes and scorecard | the hooks' secret and size checks |
 | code | everything else | proof, a contract, one review, the gate |
-| guardrail | the agent setup itself (`.agents/**`, hooks, the reviewer, bridges, CI, `AGENTS.md`, the policies, the kit's tests), what defines the proof and the shipping list (`package.json`, the tsconfigs, `.gitignore`, `setup/update.ts`), every agent and skill file (the held-out rules), `core/redact.ts`, `core/secrets.ts`, `authoring/integrity*`, `requirement/contract-model.ts`, `requirement/evidence.ts`, `demo/answer-keys/**` | proof, a contract, two independent reviews, the gate |
+| guardrail | the agent setup itself (`.agents/**`, hooks, the reviewer, bridges, CI, `AGENTS.md`, the policies, the kit's tests), what defines the proof and the shipping list (`package.json`, the tsconfigs, `.gitignore`, `setup/update.ts`), every agent and skill file (the held-out rules), `core/redact.ts`, `core/secrets.ts`, `hardening/integrity*`, `contract/contract-model.ts`, `contract/evidence.ts`, `demo/answer-keys/**`, the scorer, Spec Kit (`.specify/**`) | proof, a contract, two independent reviews, the gate |
 
 **Anyone else who clones this repository** gets the same agents, skills, hooks and gate, working unchanged with the
 agent as gatekeeper. A team that wants a person at the gate sets `"gate": "human"` and lists its `approvers` in
