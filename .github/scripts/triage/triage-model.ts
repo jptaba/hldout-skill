@@ -33,7 +33,8 @@ export interface TriageEntry {
   };
   auto?: AutoClassification;
   /** `anyReading`: the failure holds under every reading of the open question or assumption its test is tagged with, so it is a defect, not a question for the owner. */
-  final?: { category: Category; severity?: string; title?: string; rationale: string; evidence?: string; action?: string; anyReading?: boolean; confirmedAt: string };
+  /** `failure`: the failure's headline as decided, so the decision reads alone once its run's record is gone. */
+  final?: { category: Category; severity?: string; title?: string; rationale: string; evidence?: string; action?: string; anyReading?: boolean; failure?: string; confirmedAt: string };
 }
 
 export interface TriageReport {
@@ -76,24 +77,38 @@ export interface RunMeta {
  */
 export interface RunRecord extends TriageReport { meta: RunMeta; seed?: SeedSummary }
 
-type Decisions = Record<string, Record<string, NonNullable<TriageEntry['final']>>>;
-function readDecisions(file: string): Decisions {
+/** The triager's decisions, by run and test. */
+export type Decisions = Record<string, Record<string, NonNullable<TriageEntry['final']>>>;
+export function readDecisions(file: string): Decisions {
   if (!fs.existsSync(file)) return {};
   try { return JSON.parse(fs.readFileSync(file, 'utf8')) as Decisions; } catch (e) {
     throw new Error(`${file} can't be read (${(e as Error).message}): mend it from version control, or record the decisions again with heldout triage --set`);
   }
 }
 
+/** The exchange a failure is about, when it is one of the failure's own calls: kept once, by its place in them. */
+const sameExchange = (e: TriageEntry) => e.evidence.api !== undefined && e.evidence.apiRelevantIndex !== undefined
+  && JSON.stringify(e.evidence.apiSequence?.[e.evidence.apiRelevantIndex]) === JSON.stringify(e.evidence.api);
+
 export function readRunRecord(file: string): RunRecord {
   const record = JSON.parse(fs.readFileSync(file, 'utf8')) as RunRecord;
   const decided = readDecisions(decisionsFor(file))[record.run] ?? {};
-  return { ...record, entries: record.entries.map((e) => (decided[e.scenario] ? { ...e, final: decided[e.scenario] } : e)) };
+  return { ...record, entries: record.entries.map((e) => {
+    const api = e.evidence.api ?? (e.evidence.apiRelevantIndex !== undefined ? e.evidence.apiSequence?.[e.evidence.apiRelevantIndex] : undefined);
+    const full = api ? { ...e, evidence: { ...e.evidence, api } } : e;
+    return decided[e.scenario] ? { ...full, final: decided[e.scenario] } : full;
+  }) };
 }
 
-/** Writes the run's record without the decisions, and the decisions to the triage phase's file. */
+/**
+ * Writes the run's record without the decisions (they go to the triage phase's file) and without what it would hold
+ * twice (the exchange a failure is about, when it is one of its own calls), and compact: a file read by agents.
+ */
 export function writeRunRecord(file: string, record: RunRecord): void {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify({ ...record, entries: record.entries.map(({ final: _, ...e }) => e) }, null, 2)}\n`);
+  const entries = record.entries.map(({ final: _, ...e }) => (sameExchange(e) ? { ...e, evidence: { ...e.evidence, api: undefined } } : e));
+  // Indented by one: a field per line keeps it readable with a file tool, with little of the whitespace.
+  fs.writeFileSync(file, `${JSON.stringify({ ...record, entries }, null, 1)}\n`);
   const finals = Object.fromEntries(record.entries.filter((e) => e.final).map((e) => [e.scenario, e.final!]));
   const dfile = decisionsFor(file);
   const all = readDecisions(dfile);

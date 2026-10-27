@@ -11,7 +11,7 @@ import { SCRIPTS_DIR } from './config';
 
 export type HistoryEventName =
   | 'fetched' | 'revised' | 'contract-checked' | 'review-bound' | 'draft-finished' | 'frozen' | 'refrozen' | 'amended' | 'integrity'
-  | 'run' | 'triaged' | 'decided' | 'verdict' | 'published' | 'harvested' | 'note' | 'stray-moved' | 'pruned';
+  | 'run' | 'triaged' | 'decided' | 'verdict' | 'published' | 'harvested' | 'note' | 'stray-moved' | 'record-trimmed' | 'pruned';
 
 export interface HistoryEvent { at: string; event: HistoryEventName; skill: string; command?: string; [field: string]: unknown }
 

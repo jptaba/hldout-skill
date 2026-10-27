@@ -17,7 +17,7 @@ import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
-import { currentTestData, evalPaths, listRuns, runFile } from '../core/paths';
+import { currentTestData, evalPaths, listRuns, movedRunNote, runFile } from '../core/paths';
 import { pageText, redact, secretValuesFor } from '../core/redact';
 import { readZip, type ZipEntry } from '../core/zip';
 import { envNamesIn } from './accounts-recipe';
@@ -47,6 +47,7 @@ export function run({ _, flags }: Args): void {
   const entryIn = (r: string) => JSON.parse(fs.readFileSync(runFile(p, r), 'utf8')).entries.find((e: { scenario: string; status: string }) => e.scenario === test && e.status !== 'passed') as { evidence: { trace?: string } } | undefined;
   const runName = flagStr(flags, 'run') ?? [...runs].reverse().find((r) => entryIn(r)?.evidence.trace);
   if (!runName) throw new Error(`${test} did not fail in any run of ${key} with a trace (runs: ${runs.join(', ') || 'none'})`);
+  if (!fs.existsSync(runFile(p, runName))) throw new Error(`No run ${runName} of ${key} (runs: ${runs.join(', ') || 'none'})${movedRunNote(p, runName)}`);
   const traceRel = entryIn(runName)?.evidence.trace;
   const file = traceRel && path.join(ROOT, traceRel);
   if (!file || !fs.existsSync(file)) throw new Error(`The trace of ${test} in ${runName} is gone: a run's raw output is kept for the last two runs and any run still in triage. Run the test again (heldout run ${key} --label repro --grep "${test}") for a new one.`);

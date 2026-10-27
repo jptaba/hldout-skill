@@ -24,13 +24,13 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel, removeDir, writeFile } from '../core/files';
 import { readHistory, recordEvent } from '../core/history';
-import { evalPaths, evalRunsOf, journeyPaths, listRuns, moveStrayFiles, runFile } from '../core/paths';
-import { renumberDuplicateProbes } from '../core/probe-log';
+import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, listRuns, moveStrayFiles, moveSupersededRuns, runFile } from '../core/paths';
+import { keepNamedProbes, renumberDuplicateProbes, trimProbeLogs } from '../core/probe-log';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../requirement/contract-model';
 import { checkReview, readReview } from '../requirement/evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../run/fast-harden';
-import { readRunRecord } from '../triage/triage-model';
+import { readDecisions, readRunRecord } from '../triage/triage-model';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -39,12 +39,14 @@ const MAX_REPAIRS = 3;
 /**
  * How many of the latest evaluation runs, counted back from the last, ended in a confirmed script defect: the repairs
  * tried in a row. An evaluation run without one (an earlier verdict, a re-run for another reason) starts the count anew.
+ * Read from the history and the decisions, which outlive the runs' records.
  */
-function repairsTried(runsDir: string, evalRuns: string[]): number {
+export function repairsTried(p: Pick<ReturnType<typeof evalPaths>, 'history' | 'decisions'>): number {
+  const decisions = readDecisions(p.decisions);
+  const evalRuns = [...new Set(readHistory(p.history).filter((e) => e.event === 'run' && typeof e.run === 'string' && !e.grep && !NON_EVAL_RUN.test(e.run)).map((e) => String(e.run)))];
   let n = 0;
-  for (const r of [...evalRuns].reverse()) {
-    const script = readRunRecord(runFile({ runs: runsDir }, r)).entries.some((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT');
-    if (!script) break;
+  for (const r of evalRuns.reverse()) {
+    if (!Object.values(decisions[r] ?? {}).some((d) => d.category === 'SCRIPT_DEFECT')) break;
     n++;
   }
   return n;
@@ -192,19 +194,30 @@ export function run({ _, flags }: Args): void {
     if (heldout('scrub', key, '--check') !== 0 && (heldout('scrub', key) !== 0 || heldout('scrub', key, '--check') !== 0)) stuck('a secret value is still in the story\'s files after scrubbing');
     return heldout('publish', key);
   };
-  /** The record as its layout has it, before the verdict: stray files to the scratch area, each probe id once. */
+  /**
+   * The record as its layout has it, before the verdict: stray files to the scratch area, each probe id once, and only
+   * what the verdict and a reader use (the final evaluation run; the probes something cites, in full).
+   */
   const tidy = (p: ReturnType<typeof evalPaths>) => {
     const moved = moveStrayFiles(p);
     if (moved.length) { recordEvent(p.history, 'stray-moved', { files: moved }); console.log(`• moved ${moved.length} file(s) the record's layout doesn't have to ${rel(p.work.stray)}/: ${moved.slice(0, 5).join(', ')}${moved.length > 5 ? ', …' : ''}`); }
     for (const r of renumberDuplicateProbes(p)) { recordEvent(p.history, 'note', { kind: 'remark', text: `${r.from} was in the probe log twice: the later one is now ${r.to}; citations of ${r.from} mean the earlier` }); console.log(`• ${r.from} was in the probe log twice: the later one is now ${r.to}`); }
+    const superseded = moveSupersededRuns(p);
+    // A probe the log, a decision or a gap names keeps its report, as one cited with --evidence does.
+    const read = (f: string) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '');
+    keepNamedProbes(p, [read(p.hardeningLog), read(p.decisions), read(p.contract)]);
+    const trimmed = trimProbeLogs(p);
+    if (superseded.length || trimmed) {
+      recordEvent(p.history, 'record-trimmed', { runs: superseded, probes: trimmed });
+      console.log(`• the record keeps the final run and the cited probes: ${superseded.length} earlier run record(s) to ${rel(p.work.runs)}/ (their results stay in the history), ${trimmed} uncited probe(s) trimmed to their digest`);
+    }
   };
 
   if (flags.rerun) {
     const cfg = loadConfig({ key, aut });
-    const runsDir = evalPaths(cfg, key).runs;
-    const evalRuns = evalRunsOf(runsDir);
-    if (!evalRuns.length) throw new Error(`--rerun follows a repair after an evaluation run; ${key} has none yet: ${H} advance ${key}`);
-    if (repairsTried(runsDir, evalRuns) > MAX_REPAIRS) console.log(`• ${MAX_REPAIRS} evaluation runs in a row ended in confirmed script defects: the repair loop is bounded, so no further re-run — going on to the verdict`);
+    const sp = evalPaths(cfg, key);
+    if (!evalRunsOf(sp.runs).length) throw new Error(`--rerun follows a repair after an evaluation run; ${key} has none yet: ${H} advance ${key}`);
+    if (repairsTried(sp) > MAX_REPAIRS) console.log(`• ${MAX_REPAIRS} evaluation runs in a row ended in confirmed script defects: the repair loop is bounded, so no further re-run — going on to the verdict`);
     else { if (heldout('integrity', key) !== 0) stuck('integrity is not preserved after the repair'); heldout('run', key, '--label', 'rerun', '--quiet'); }
   }
 
@@ -296,7 +309,7 @@ export function run({ _, flags }: Args): void {
       // Confirmed script defects are repaired and the suite run again before the verdict, at most three times.
       const evalRuns = evalRunsOf(p.runs);
       const scriptDefects = evalRuns.length ? readRunRecord(runFile(p, evalRuns.at(-1)!)).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT') : [];
-      if (scriptDefects.length && repairsTried(p.runs, evalRuns) <= MAX_REPAIRS) {
+      if (scriptDefects.length && repairsTried(p) <= MAX_REPAIRS) {
         console.log(`\n■ Next: the heldout-hardener subagent — ${scriptDefects.length} confirmed script defect(s) in ${evalRuns.at(-1)}`);
         console.log(`  Task: "Repair these script defects for ${key}: ${scriptDefects.map((e) => `${e.scenario} (${(e.final?.rationale ?? '').slice(0, 100)})`).join('; ')}"`);
         console.log(`  Then: ${H} advance ${key} --rerun`);

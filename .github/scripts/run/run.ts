@@ -28,7 +28,7 @@ import { specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, readJson, rel, writeFile } from '../core/files';
-import { recordEvent, skillFingerprint } from '../core/history';
+import { readHistory, recordEvent, skillFingerprint } from '../core/history';
 import { NON_EVAL_RUN, evalPaths, listRuns, runFile, runRaw, type StoryPaths } from '../core/paths';
 import { accountRoles, autEnv, dataPrefix, existingAccountWorkers } from '../core/profile';
 import { relativizePaths, scrubDir, secretValuesFor } from '../core/redact';
@@ -117,6 +117,16 @@ export const spec: CommandSpec = {
   flags: ['allow-degraded', 'aut', 'capture', 'grep', 'headed', 'html', 'junit', 'label', 'quiet', 'repeat-each', 'retries', 'skip-preflight', 'verbose', 'wait-healthy', 'workers'],
 };
 
+/**
+ * The next run's number: one past every run the story has had, by its history and by the records in the record and
+ * in the scratch area (the verdict keeps only the final run's record), so a number is never used twice.
+ */
+export function nextRunNumber(p: Pick<StoryPaths, 'runs' | 'history' | 'work'>): number {
+  const names = [...listRuns(p.runs), ...listRuns(p.work.runs),
+    ...readHistory(p.history).filter((e) => e.event === 'run').map((e) => String(e.run ?? ''))];
+  return Math.max(0, ...names.map((r) => Number(r.split('-')[0])).filter(Number.isFinite)) + 1;
+}
+
 export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
@@ -154,8 +164,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   const vaultValues = loadedVaultSecrets();
 
   const runs = listRuns(p.runs);
-  const next = runs.length ? Number(runs.at(-1)!.split('-')[0]) + 1 : 1;
-  const runName = `${String(next).padStart(2, '0')}-${label}`;
+  const runName = `${String(nextRunNumber(p)).padStart(2, '0')}-${label}`;
   rotateRaw(p, runs);
   // Playwright's raw output goes to the scratch area; the run's record (5-run/NN-label.json) is written from it.
   const runDir = runRaw(p, runName);

@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { PHASE_FOLDERS, moveStrayFiles, strayFiles } from '../.github/scripts/core/paths';
+import { PHASE_FOLDERS, moveStrayFiles, moveSupersededRuns, strayFiles } from '../.github/scripts/core/paths';
 import { COMMANDS } from '../.github/scripts/heldout';
 
 const DIR = path.join(import.meta.dirname, '..', '.github', 'scripts');
@@ -101,6 +101,19 @@ describe('the story record', () => {
     assert.ok(fs.existsSync(path.join(p.work.stray, '5-run/05-eval/results.json')));
     assert.ok(!fs.existsSync(path.join(p.base, '5-run/05-eval')), 'the emptied folder goes too');
     for (const f of kept) assert.ok(fs.existsSync(path.join(p.base, f)), f);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('keeps the final evaluation run before the verdict, the earlier runs going to the scratch area', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-runs-'));
+    const p = { runs: path.join(root, 'KEY', '5-run'), work: { runs: path.join(root, 'scratch', '5-run') } };
+    fs.mkdirSync(p.runs, { recursive: true });
+    const meta = (grep: string | null) => JSON.stringify({ meta: { grep } });
+    for (const [r, grep] of [['01-harden', null], ['02-eval', null], ['03-repair', 'SCN-1'], ['04-rerun', null], ['05-eval', 'SCN-2']] as const) fs.writeFileSync(path.join(p.runs, `${r}.json`), meta(grep));
+    assert.deepEqual(moveSupersededRuns(p), ['01-harden', '02-eval', '03-repair', '05-eval']);
+    assert.deepEqual(fs.readdirSync(p.runs), ['04-rerun.json'], 'a run of some tests is never the final one');
+    assert.ok(fs.existsSync(path.join(p.work.runs, '02-eval.json')));
+    assert.deepEqual(moveSupersededRuns(p), [], 'nothing left to move');
     fs.rmSync(root, { recursive: true, force: true });
   });
 });

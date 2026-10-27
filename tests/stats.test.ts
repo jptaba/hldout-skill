@@ -67,6 +67,9 @@ describe('heldout stats', () => {
     const dir = story(project(), 'shop', 'ABC-1', FULL, { '01-harden': 1, '02-eval': 1 }, ['hardening', 'triage']);
     const s = storyStats(dir, 'shop', 'ABC-1');
     assert.deepEqual(s.runs, ['01-harden', '02-eval']);
+    // Once the record keeps only the final run, the history still counts every run.
+    fs.rmSync(path.join(dir, '5-run', '01-harden.json'));
+    assert.deepEqual(storyStats(dir, 'shop', 'ABC-1').runs, ['01-harden', '02-eval']);
     assert.equal(s.failed, 1);
     assert.equal(s.scriptDefects, 2);
     assert.deepEqual([s.amendments, s.reviews], [1, 1]);
@@ -126,7 +129,7 @@ describe('heldout stats', () => {
     story(root, 'shop', 'ABC-2', [{ at: at(0), event: 'fetched' }, 'null', '[1]', '{ half'].map((e) => (typeof e === 'string' ? e : JSON.stringify(e))));
     const r = heldout(root, 'stats');
     assert.equal(r.status, 0, r.stderr);
-    assert.match(r.stdout, /^\| ABC-1 \| 1 \| \? \| 2 \| 1 \/ 0 \| 1 \| 1 \/ 0 \|/m, 'non-object probe lines skipped');
+    assert.match(r.stdout, /^\| ABC-1 \| 2 \| \? \| 2 \| 1 \/ 0 \| 1 \| 1 \/ 0 \|/m, 'non-object probe lines skipped; the runs counted from the history');
     assert.match(r.stderr, /ABC-1: can't read .*02-eval\.json/);
     assert.match(r.stdout, /^\| ABC-2 \| 0 \|/m, 'a history with non-object lines still reads');
     assert.equal(readHistory(path.join(root, 'output', 'shop', 'ABC-2', 'history.jsonl')).length, 1);

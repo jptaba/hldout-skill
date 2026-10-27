@@ -30,14 +30,17 @@ one gated commit (guardrail tier: agent files and the skill's references).
 
 ## Phase 3: User Story 2 — lean handoffs, no leftovers (P2)
 
-- [ ] T009 [US2] Slim run record (research D5): `triage/record.ts`, `triage/triage-model.ts`; `heldout show` reads
-  the scratch raw output for the rest
-- [ ] T010 [US2] Only the final evaluation run kept: hardening runs in scratch, their stability result in the log;
-  a superseded evaluation run dropped (`flow/advance.ts`, `run/run.ts`)
-- [ ] T011 [US2] Uncited probe reports and screenshots never reach the record; the kept index lists cited probes only
-- [ ] T012 [US2] Per-phase scratch cleared at handoff (`flow/advance.ts`, `flow/prune.ts`)
-- [ ] T013 [US2] Tests: a finished story's record holds only data-model.md's files
-- [ ] T013b [US2] The guide (`docs/heldout-evaluator.html`): its layout tree and the paths it explains, once the
+- [x] T009 [US2] Slim run record (research D5): compact JSON, the failure's exchange kept once, context calls cut
+  shorter (`triage/record.ts`, `triage/triage-model.ts`)
+- [x] T010 [US2] Only the final evaluation run kept: before the verdict the earlier records go to scratch; the history
+  holds each run's result and the decisions each repaired defect (`core/paths.ts`, `flow/advance.ts`, `report/verdict.ts`)
+- [x] T011 [US2] Uncited probe reports never reach the record; before the verdict the logs keep uncited probes as id,
+  tool and digest line only (`core/probe-log.ts`)
+- [x] T012 [US2] Scratch: no agent reads another phase's; the whole area goes when the story completes (as before)
+- [x] T013 [US2] Tests: superseded runs moved, logs trimmed, runs counted from the history, compact record
+- [ ] T013c [US2] If the round misses SC-001: the verdict's own size (PB-2's verdict.md was 206 KB) is the next
+  lever; the kept draft and hardened copy are about 2 × 104 KB
+- [x] T013b [US2] The guide (`docs/heldout-evaluator.html`): its layout tree and the paths it explains, once the
   layout is final (docs only)
 
 ## Phase 4: User Story 3 — scripts by phase (P3)

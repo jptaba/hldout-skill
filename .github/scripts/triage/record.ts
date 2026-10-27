@@ -145,9 +145,10 @@ export function digestRun(cfg: HeldoutConfig, key: string, runName: string, resu
           entry.auto.signals.push(`Also failed: ${o.headline}${o.expected !== undefined ? ` — expected ${o.expected}, received ${o.received}` : ''}`);
         }
         // The record keeps the start of long answers: the exchange the failure is about at more length than the rest.
-        if (entry.evidence.apiSequence) entry.evidence.apiSequence = entry.evidence.apiSequence.map((x) => bounded(x, x === entry.evidence.api ? 8000 : 2000));
+        // The other calls are context, the preconditions' calls more so: their answers are cut shorter.
+        if (entry.evidence.apiSequence) entry.evidence.apiSequence = entry.evidence.apiSequence.map((x) => bounded(x, x === entry.evidence.api ? 8000 : 600));
         if (entry.evidence.api) entry.evidence.api = bounded(entry.evidence.api, 8000);
-        if (entry.evidence.preSequence) entry.evidence.preSequence = entry.evidence.preSequence.map((x) => bounded(x, 1000));
+        if (entry.evidence.preSequence) entry.evidence.preSequence = entry.evidence.preSequence.map((x) => bounded(x, 400));
       }
       if (last?.status === 'skipped') entry.status = 'skipped';
       entries.push(entry);

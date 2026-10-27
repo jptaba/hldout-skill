@@ -22,7 +22,8 @@ Inputs, for story KEY and its run (given in your task; `npm run heldout -- statu
   Read it first and follow it.**
 
 Your output is the triage phase's: your decisions go to `6-triage/decisions.json` (through `triage --set`), and the
-reports of the probes they cite to `6-triage/`.
+reports of the probes they cite to `6-triage/`. Probe before your last decision: once every failure is decided and
+one is a script defect, a new probe counts as the repair's (hardening's).
 
 Do this:
 1. `npm run heldout -- triage KEY --run <run>`; for a re-run add `--carry-from auto` (decisions carry over only for

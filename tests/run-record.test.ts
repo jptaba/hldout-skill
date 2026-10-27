@@ -86,5 +86,12 @@ describe('the record of a run', () => {
     assert.ok(!fs.readFileSync(file, 'utf8').includes('"final"'), 'the run record holds no decision');
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(story, '6-triage', 'decisions.json'), 'utf8')), { '02-eval': { 'SCN-002': final } });
     assert.deepEqual(readRunRecord(file).entries.map((e) => e.final), [undefined, final], 'read back with the record');
+    // Compact, and the exchange a failure is about kept once (by its place among its calls), whole when read.
+    const onDisk = fs.readFileSync(file, 'utf8');
+    assert.ok(onDisk.split('\n').length > 10 && /\n "entries": \[/.test(onDisk), 'a field per line, indented by one');
+    const stored = JSON.parse(onDisk).entries[1].evidence;
+    assert.equal(stored.api, undefined);
+    assert.equal(typeof stored.apiRelevantIndex, 'number');
+    assert.deepEqual(readRunRecord(file).entries[1].evidence.api, report.entries[1].evidence.api);
   });
 });

@@ -66,6 +66,7 @@ export function composeSteps(cfg: HeldoutConfig, flags: Flags, signInAs?: string
     if (!key) throw new Error('--from Pn names a probe of a story: give the story with --key');
     const probe = readProbes(evalPaths(cfg, key)).find((x) => x.id === id);
     const input = probe?.input as { steps?: Step[]; url?: string } | undefined;
+    if (probe && probe.input === undefined) throw new Error(`${id} was trimmed to its digest when the story's record was tidied for the verdict (nothing cited it): walk again`);
     if (!probe || !input?.steps) throw new Error(`${id} is not a walk in the probe log of ${key}`);
     // The walk as it ran: from the page it started on (its --url), then its steps (k counts these, as its report numbers them).
     return [...(input.url ? [{ do: 'goto', url: input.url }] : []), ...(k ? input.steps.slice(0, Number(k)) : input.steps)];

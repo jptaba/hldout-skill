@@ -628,7 +628,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
           <text x="74" y="872" class="t-s">changed; journeys --harvest</text>
           <text x="74" y="888" class="t-s">records what passing tests proved</text>
           <rect x="360" y="812" width="260" height="84" rx="10" class="box plain"/>
-          <text x="374" y="836" class="t-m">5-runs/ · 6-verdict/</text>
+          <text x="374" y="836" class="t-m">5-run/ · 6-triage/ · 7-verdict/</text>
           <text x="374" y="856" class="t-s">journeys/registry.yml updated</text>
           <text x="374" y="872" class="t-s">for the next story</text>
           <rect x="690" y="812" width="250" height="84" rx="10" class="box violet"/>
@@ -753,7 +753,7 @@ export async function missingCategoryId(api: Api, seed: Seed): Promise&lt;string
   return id;
 }</pre></div>
 
-  <p><span class="badge b-muted">6 · script</span> <b><code>integrity TOOL-6 --snapshot</code> freezes the draft</b> into <code>3-tests/freeze.json</code>: the spec, the contract's expected values and a hash of each journey the spec uses. After the hardener's work, <code>integrity TOOL-6</code> compares against it and writes the result as a line of the story's history.</p>
+  <p><span class="badge b-muted">6 · script</span> <b><code>integrity TOOL-6 --snapshot</code> freezes the draft</b>: <code>3-tests/freeze.json</code> holds the hashes of the spec and of each of its requirement assertions, the contract's expected values and a hash of each journey the spec uses, and the hardener gets its own copy in <code>4-hardening/</code>. After the hardener's work, <code>integrity TOOL-6</code> compares that copy with the frozen draft and writes the result as a line of the story's history.</p>
   <div class="grid two">
     <div class="code"><div class="hd">…/TOOL-6/3-tests/freeze.json (its journeys)</div><pre data-lang="json">"journeys": {
   "api.categories.category-tree": "ac619859518f",
@@ -1315,7 +1315,7 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
   </div>
   <p>Cookie banners and welcome dialogs that the app itself shows go in the profile's <code>overlays</code>: the button that closes each. Tests, the UI sign-in and the inspector click it whenever it appears, so no test has to deal with it.</p>
   <p>Every final locator is verified by a probe: exactly one match, in the right state. Each open mechanics gap from the contract is recorded once it's found, with its evidence, for example <code>contract TOOL-4 --resolve G4 --value … --evidence P3</code> (how a web shop test signs in, shown by the story's third probe). Stability is proven with <code>run --label harden --repeat-each 3</code>.</p>
-  <p><b>Every probe is numbered, and builds on the ones before.</b> A probe made for a story is logged as its next one (<code>P1</code>, <code>P2</code>…, one line each in <code>4-evidence/probes.jsonl</code>, with what was asked and a digest of what came back). A decision or a resolved gap cites it by that id, and only a cited probe's full report is kept with the story. A new question starts from an earlier answer instead of a script: <code>inspect --sign-in admin</code> walks as a signed-in user, <code>--from P4:5 --then '…'</code> takes an earlier walk's first five steps and adds one, <code>api-probe --chain P7 --set 2.json.qty=0</code> runs an earlier chain with one value changed, and <code>--pages page --where 'name~^Hand' --pick price --count</code> reads every page of a list.</p>
+  <p><b>Every probe is numbered, and builds on the ones before.</b> A probe made for a story is logged as its next one (<code>P1</code>, <code>P2</code>…, one line each in the log of the phase that made it, <code>4-hardening/probes.jsonl</code> or <code>6-triage/probes.jsonl</code>, with what was asked and a digest of what came back). A decision or a resolved gap cites it by that id, and only a cited probe's full report is kept with the story. A new question starts from an earlier answer instead of a script: <code>inspect --sign-in admin</code> walks as a signed-in user, <code>--from P4:5 --then '…'</code> takes an earlier walk's first five steps and adds one, <code>api-probe --chain P7 --set 2.json.qty=0</code> runs an earlier chain with one value changed, and <code>--pages page --where 'name~^Hand' --pick price --count</code> reads every page of a list.</p>
   <p>The hardener makes the journeys the tests call work too, the same way: a journey is mechanics to verify, never evidence. A fix keeps every other story that calls it working; a journey that no longer works and is replaced is marked with <code>journeys KEY --stale "ui.products.open-product" --evidence …</code>.</p>
   <p>The first story that needs users also produces the accounts recipe: the probe chain that signed up and signed in becomes <code>accounts --from-chain</code>, and the login steps from <code>inspect</code> become the UI sign-in.</p>
 </section>
@@ -1613,7 +1613,7 @@ $ npm run heldout -- journeys --resolve
     <div class="st"><b>Playwright</b>UI and API tests, traces kept for failures</div><span class="ar">›</span>
     <div class="st"><b>After</b>scrub secrets, summary, test-data receipt</div>
   </div>
-  <p>A down or degraded application aborts the run before any test starts, so an outage is never mistaken for a defect. Each run leaves one record, <code>5-runs/NN-label.json</code>: how it ran, every test, and for each failure its error, failing step, page snapshot, API exchanges and automatic class; the triager's decisions are written into it. Runs are history: their records are never deleted or renumbered. The raw output (Playwright's results, traces, screenshots; JUnit and the HTML report with <code>--junit</code> and <code>--html</code>) goes to the scratch area, for the last two runs and any run still in triage. Inside an agent session, a run prints a short digest, one line per failing test.</p>
+  <p>A down or degraded application aborts the run before any test starts, so an outage is never mistaken for a defect. Each run leaves one record, <code>5-run/NN-label.json</code>: how it ran, every test, and for each failure its error, failing step, page snapshot, API exchanges and automatic class; the triager's decisions go to a file of their own, <code>6-triage/decisions.json</code>. Runs are history: each run's result stays in the story's history, and before the verdict the record keeps only the final evaluation run's file. The raw output (Playwright's results, traces, screenshots; JUnit and the HTML report with <code>--junit</code> and <code>--html</code>) goes to the scratch area, for the last two runs and any run still in triage. Inside an agent session, a run prints a short digest, one line per failing test.</p>
 </section>
 
 <!-- ============ TRIAGE ============ -->
@@ -1967,14 +1967,15 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
 ├── journeys/                       <span class="c">shared by every story on the app (journeysDir), committed</span>
 │   ├── fixtures/&lt;domain&gt;.ts         <span class="c">the reusable HOW of one area, UI and API, e.g. fixtures/favorites.ts (phases 2–3)</span>
 │   └── registry.yml                <span class="c">each journey's id, file, what it touches and requires, who proved it (phase 8)</span>
-├── output/&lt;profile&gt;/KEY/            <span class="c">the record of one story (outputDir, committed): one folder per question, in order</span>
+├── output/&lt;profile&gt;/KEY/            <span class="c">the record of one story (outputDir, committed): one folder per phase, each keeping only what the next ones read</span>
 │   ├── 1-requirement/              <span class="c">what was asked: story.md, linked/ (screenshots, Confluence pages), transcripts/ (+ revisions/, CHANGES.md)</span>
 │   ├── 2-contract/                 <span class="c">what it means: contract.json, review.json bound to the contract's hash</span>
-│   ├── 3-tests/                    <span class="c">how it is tested: &lt;key&gt;.spec.ts, test-data.json, freeze.json (the frozen draft, re-freezes, amendments), hardening.md</span>
-│   ├── 4-evidence/                 <span class="c">what was seen: probes.jsonl (every probe, P1…), P7.md (the reports a decision cites), the verdict's screenshots</span>
-│   ├── 5-runs/NN-label.json        <span class="c">one record per run: how it ran, every test, each failure's evidence, the decisions (never renumbered)</span>
-│   ├── 6-verdict/                  <span class="c">what we recommend: verdict.md, verdict.json</span>
-│   └── history.jsonl               <span class="c">every step that changed the story, in order</span>
+│   ├── 3-tests/                    <span class="c">the test author's draft, as frozen: &lt;key&gt;.spec.ts, test-data.json, freeze.json (its hashes, re-freezes, amendments)</span>
+│   ├── 4-hardening/                <span class="c">the hardener's copy, the tests that run: &lt;key&gt;.spec.ts, test-data.json, hardening.md, the probes it cites (P7.md)</span>
+│   ├── 5-run/NN-label.json         <span class="c">the final evaluation run: how it ran, every test, each failure's evidence</span>
+│   ├── 6-triage/                   <span class="c">why each failure failed: decisions.json, the probes they cite</span>
+│   ├── 7-verdict/                  <span class="c">what we recommend: verdict.md, verdict.json, the screenshots it shows</span>
+│   └── history.jsonl               <span class="c">every step that changed the story, in order, each run's result included</span>
 └── .heldout/&lt;profile&gt;/KEY/          <span class="c">scratch (git-ignored), the same folder names: the evidence pack, probe reports, each run's raw output, triage reports; removed when the story is complete</span></div>
   <h3>Non-negotiable guardrails</h3>
   <ul class="clean">

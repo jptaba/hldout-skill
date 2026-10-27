@@ -17,7 +17,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel } from '../core/files';
 import { readHistory } from '../core/history';
-import { evalPaths, evalRunsOf, listRuns, phaseDirs, runFile } from '../core/paths';
+import { evalPaths, evalRunsOf, listRuns, movedRunNote, phaseDirs, runFile } from '../core/paths';
 import { readProbes } from '../core/probe-log';
 import { readContract } from '../requirement/contract-model';
 import { renderContract } from '../requirement/contract-render';
@@ -90,7 +90,7 @@ export function run({ _, flags }: Args): void {
   if (what === 'run' || what === 'triage') {
     const runs = listRuns(p.runs);
     const name = _[2] ?? (what === 'triage' ? evalRunsOf(p.runs).at(-1) : runs.at(-1));
-    if (!name || !fs.existsSync(runFile(p, name))) throw new Error(`No run ${name ?? ''} of ${key} (runs: ${runs.join(', ') || 'none'})`);
+    if (!name || !fs.existsSync(runFile(p, name))) throw new Error(`No run ${name ?? ''} of ${key} (runs: ${runs.join(', ') || 'none'})${movedRunNote(p, name)}`);
     const r = readRunRecord(runFile(p, name));
     const test = flagStr(flags, 'test');
     if (test) {

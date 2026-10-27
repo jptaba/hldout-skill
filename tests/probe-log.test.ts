@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, probingPhase, readProbes, renumberDuplicateProbes, requireFrozen, savedOf, tableRows } from '../.github/scripts/core/probe-log';
+import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, probingPhase, readProbes, trimProbeLogs, renumberDuplicateProbes, requireFrozen, savedOf, tableRows } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 
 // The record goes to a temporary folder; the scratch area is the project's (.heldout/), under a profile of its own.
@@ -100,6 +100,23 @@ describe('the probe log', () => {
     const e = quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'api-probe', tier: 3, input: { chain: { steps: [] }, saved: { brandId: '01K7' } }, report: '# chain', digest: [] }))!;
     assert.deepEqual(savedOf(cfg, 'ABC-1', e.id), { brandId: '01K7' });
     assert.throws(() => savedOf(cfg, 'ABC-1', 'P1'), /saved no values/);
+  });
+
+  it('trims the probes nobody cites to their digest at the end, keeping ids and counts', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-probes-trim-'));
+    const q = { hardened: path.join(dir, '4-hardening'), triage: path.join(dir, '6-triage') };
+    fs.mkdirSync(q.hardened); fs.mkdirSync(q.triage);
+    const line = (id: string, phase: string) => JSON.stringify({ id, at: 'now', phase, tool: 'inspect', tier: 3, input: { steps: ['…'.repeat(50)] }, digest: ['first', 'second'], report: 'scratch' });
+    fs.writeFileSync(path.join(q.hardened, 'probes.jsonl'), `${line('P1', 'hardening')}\n${line('P2', 'hardening')}\n`);
+    fs.writeFileSync(path.join(q.triage, 'probes.jsonl'), `${line('P3', 'triage')}\n`);
+    fs.writeFileSync(path.join(q.hardened, 'P2.md'), '# cited');
+    assert.equal(trimProbeLogs(q), 2);
+    const [p1, p2] = readProbes(q, 'hardening');
+    assert.deepEqual([p1.id, p1.input, p1.digest], ['P1', undefined, ['first']], 'uncited: id, tool and first digest line');
+    assert.deepEqual(p2.input, { steps: ['…'.repeat(50)] }, 'cited: kept in full');
+    assert.deepEqual(readProbes(q).map((e) => e.id), ['P1', 'P2', 'P3']);
+    assert.equal(trimProbeLogs(q), 0, 'trimmed once');
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 
   it('gives the later of two probes with one id (two merged branches) the next free id', () => {

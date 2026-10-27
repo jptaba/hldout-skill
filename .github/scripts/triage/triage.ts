@@ -127,7 +127,7 @@ export function run({ _, flags }: Args): void {
     const marked = typeof anyReading === 'string' ? anyReading.split(',').map((x) => x.trim()).filter(Boolean) : [];
     const stray = marked.filter((id) => !entries.some((e) => e.scenario === id || baseScenarioId(e.scenario) === id));
     if (stray.length) throw new Error(`--any-reading names ${stray.join(', ')}, which --set does not: name tests of this call, or give the flag alone for all of them`);
-    for (const e of entries) e.final = { ...decision, ...(anyReading && (!marked.length || marked.includes(e.scenario) || marked.includes(baseScenarioId(e.scenario))) ? { anyReading: true } : {}) };
+    for (const e of entries) e.final = { ...decision, ...(e.error?.headline ? { failure: e.error.headline.slice(0, 200) } : {}), ...(anyReading && (!marked.length || marked.includes(e.scenario) || marked.includes(baseScenarioId(e.scenario))) ? { anyReading: true } : {}) };
     writeRunRecord(file, record);
     writeReport(p, record);
     recordEvent(p.history, 'decided', {

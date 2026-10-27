@@ -36,6 +36,7 @@ const logOf = (p: LogPaths, phase: ProbingPhase) => path.join(phase === 'hardeni
 const scratchReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).work, 'probes', `${id}.md`);
 const keptReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).kept, `${id}.md`);
 export const PROBE_ID = /\bP[1-9]\d*\b/g;
+const TRIMMED = (id: string) => `${id} was trimmed to its digest when the story's record was tidied for the verdict (nothing cited it): probe again`;
 
 function readLog(file: string): ProbeEntry[] {
   if (!fs.existsSync(file)) return [];
@@ -82,10 +83,11 @@ export function probingPhase(p: Pick<StoryPaths, 'runs' | 'freeze'>): ProbingPha
   const last = evalRunsOf(p.runs).at(-1);
   if (!last) return 'hardening';
   const file = runFile(p, last);
-  const record = readJson<{ meta?: { startedAt?: string }; entries?: { scenario: string; status: string; auto?: unknown }[] }>(file);
-  const frozenAt = fs.existsSync(p.freeze) ? readJson<{ frozenAt?: string }>(p.freeze).frozenAt : undefined;
+  const read = <T>(f: string): T => { try { return readJson<T>(f); } catch (e) { throw new Error(`${rel(f)} can't be read (${(e as Error).message}): mend it from version control before probing`); } };
+  const record = read<{ meta?: { startedAt?: string }; entries?: { scenario: string; status: string; auto?: unknown }[] }>(file);
+  const frozenAt = fs.existsSync(p.freeze) ? read<{ frozenAt?: string }>(p.freeze).frozenAt : undefined;
   if (frozenAt && record.meta?.startedAt && frozenAt > record.meta.startedAt) return 'hardening';
-  const decisions = fs.existsSync(decisionsFor(file)) ? (readJson<Record<string, Record<string, { category?: string }>>>(decisionsFor(file))[last] ?? {}) : {};
+  const decisions = fs.existsSync(decisionsFor(file)) ? (read<Record<string, Record<string, { category?: string }>>>(decisionsFor(file))[last] ?? {}) : {};
   const failures = (record.entries ?? []).filter((e) => (e.status === 'failed' || e.status === 'flaky') && e.auto);
   const repairing = failures.length > 0 && failures.every((e) => decisions[e.scenario]) && Object.values(decisions).some((d) => d.category === 'SCRIPT_DEFECT');
   return repairing ? 'hardening' : 'triage';
@@ -163,10 +165,50 @@ export function renumberDuplicateProbes(p: LogPaths): { from: string; to: string
   return changed;
 }
 
+/**
+ * Keeps the reports of the probes a kept text names (the hardening log's tables, a decision's rationale, a gap's
+ * evidence), as `--evidence` keeps the ones it cites: before the logs are trimmed, so nothing named loses its report.
+ * A report already gone from the scratch area can't be kept. Returns the ids kept now.
+ */
+export function keepNamedProbes(p: ProbePaths, texts: string[]): string[] {
+  const named = new Set(texts.flatMap((t) => t.match(PROBE_ID) ?? []));
+  const kept: string[] = [];
+  for (const e of readProbes(p).filter((x) => named.has(x.id))) {
+    const to = keptReport(p, e.phase, e.id);
+    const from = scratchReport(p, e.phase, e.id);
+    if (fs.existsSync(to) || !fs.existsSync(from)) continue;
+    fs.copyFileSync(from, to);
+    kept.push(e.id);
+  }
+  return kept;
+}
+
+/**
+ * At the story's end, each probe log keeps in full only the probes something cites (their report is kept beside it);
+ * the others keep their id, tool and first digest line, so the ids and the counts stay, without the steps or chains
+ * nobody reads again. Returns how many lines were trimmed.
+ */
+export function trimProbeLogs(p: LogPaths): number {
+  let trimmed = 0;
+  for (const phase of PHASES) {
+    const entries = readProbes(p, phase);
+    if (!entries.length) continue;
+    const dir = phase === 'hardening' ? p.hardened : p.triage;
+    const out = entries.map((e) => {
+      if (fs.existsSync(path.join(dir, `${e.id}.md`)) || e.input === undefined) return e;
+      trimmed++;
+      return { id: e.id, at: e.at, phase: e.phase, tool: e.tool, tier: e.tier, digest: e.digest.slice(0, 1), report: '' } as ProbeEntry;
+    });
+    fs.writeFileSync(logOf(p, phase), out.map((e) => `${JSON.stringify(e)}\n`).join(''));
+  }
+  return trimmed;
+}
+
 /** The values a chain probe saved (the ids it made), for a later chain or walk (`--vars-from Pn`). */
 export function savedOf(cfg: HeldoutConfig, key: string, id: string): Record<string, string> {
   const probe = readProbes(evalPaths(cfg, key)).find((x) => x.id === id);
   if (!probe) throw new Error(`${id} is not in the story's probe logs`);
+  if (probe.input === undefined) throw new Error(TRIMMED(id));
   const saved = (probe.input as { saved?: Record<string, string> } | undefined)?.saved;
   if (!saved) throw new Error(`${id} saved no values (an api-probe chain whose steps "save" something, or an inspect walk with --save, does)`);
   return saved;
@@ -176,6 +218,7 @@ export function savedOf(cfg: HeldoutConfig, key: string, id: string): Record<str
 export function chainOfProbe(cfg: HeldoutConfig, key: string, id: string): string {
   const p = evalPaths(cfg, key);
   const probe = readProbes(p).find((x) => x.id === id);
+  if (probe && probe.input === undefined) throw new Error(TRIMMED(id));
   const chain = (probe?.input as { chain?: unknown } | undefined)?.chain;
   if (!probe || !chain) throw new Error(`${id} is not an api-probe chain in the story's probe logs`);
   const file = path.join(phaseDirs(p, probe.phase).work, 'chains', `${id}.chain.json`);

@@ -16,14 +16,14 @@ import { TEST_TYPES, baseScenarioId, readSuite, specFiles } from '../authoring/s
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel, writeFile } from '../core/files';
-import { recordEvent } from '../core/history';
-import { evalPaths, evalRunsOf, journeyPaths, listRuns, runFile, runRaw } from '../core/paths';
+import { readHistory, recordEvent } from '../core/history';
+import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, movedRunNote, runFile, runRaw } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { comboLabel, oracleDigest, readContract, variantCombinations } from '../requirement/contract-model';
 import { injectionSuspects } from '../requirement/evidence';
 import type { Category } from '../triage/classify';
 import { curlFor, exchangeLine, rerunCommand } from '../triage/repro';
-import { readRunRecord, type TriageEntry } from '../triage/triage-model';
+import { readDecisions, readRunRecord, type Decisions, type TriageEntry } from '../triage/triage-model';
 import { decideVerdict, holdsUnderAnyReading, type Verdict } from './verdict-rules';
 
 const BADGE: Record<Verdict, string> = { PASS: '✅ PASS', PASS_WITH_WARNINGS: '⚠️ PASS WITH WARNINGS', FAIL: '❌ FAIL', INCONCLUSIVE: '❔ INCONCLUSIVE' };
@@ -68,25 +68,38 @@ export const spec: CommandSpec = {
   flags: ['evaluator', 'exit-code', 'run'],
 };
 
+/** The script defects confirmed in runs before the final one (the triage loop at work), with their status now. */
+export function repairedDefects(decisions: Decisions, finalRun: string, now: Pick<TriageEntry, 'scenario' | 'status'>[]) {
+  return Object.keys(decisions).filter((r) => r < finalRun).sort().flatMap((r) => Object.entries(decisions[r])
+    .filter(([, d]) => d.category === 'SCRIPT_DEFECT').map(([scenario, d]) => ({ run: r, scenario, d, now: now.find((x) => x.scenario === scenario)?.status ?? 'n/a' })));
+}
+
+/** Every run of the story, in order, as its history recorded it (the last line of a run name wins). */
+export function runsOfHistory(file: string): { run: string; grep?: string; stats?: { passed?: number; failed?: number; flaky?: number } }[] {
+  const byName = new Map<string, { run: string; grep?: string; stats?: { passed?: number; failed?: number; flaky?: number } }>();
+  for (const e of readHistory(file)) if (e.event === 'run' && typeof e.run === 'string') byName.set(e.run, { run: e.run, grep: typeof e.grep === 'string' ? e.grep : undefined, stats: (e.stats ?? undefined) as never });
+  return [...byName.values()].sort((a, b) => a.run.localeCompare(b.run, undefined, { numeric: true }));
+}
+
 export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
-  // Every run's record holds its tests and their classification; the triage only confirms decisions in it.
-  const allRuns = listRuns(p.runs);
-  const records = new Map(allRuns.map((r) => [r, readRunRecord(runFile(p, r))]));
+  // The final evaluation run's record holds its tests and their evidence; earlier runs are told by the story's history
+  // (each run's result) and the triager's decisions (the script defects repaired): their records are not kept.
   // Non-evaluation runs (hardening dry-runs, single-test reproductions, robustness probes) never become the final run.
   // Nor does a run of some of the tests: a verdict needs the whole suite.
   const evaluations = evalRunsOf(p.runs);
-  const finalRun = flagStr(flags, 'run') ?? allRuns.filter((r) => evaluations.includes(r)).at(-1);
-  if (!finalRun || !records.has(finalRun)) throw new Error(`No evaluation run yet (hardening runs don't count). Run: npm run heldout -- run ${key} --label eval`);
-  const runs = allRuns;
-  // Runs are numbered 01, 02…; a missing number means a run was deleted, and its result with it.
-  const numbers = allRuns.map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
+  const finalRun = flagStr(flags, 'run') ?? evaluations.at(-1);
+  if (!finalRun || !fs.existsSync(runFile(p, finalRun))) throw new Error(movedRunNote(p, finalRun) ? `No record of ${finalRun} in the record${movedRunNote(p, finalRun)}` : `No evaluation run yet (hardening runs don't count). Run: npm run heldout -- run ${key} --label eval`);
+  const history = runsOfHistory(p.history);
+  const runs = history.map((r) => r.run);
+  // Runs are numbered 01, 02…; a number the history lacks means a run went unrecorded, and its result with it.
+  const numbers = runs.map((r) => Number(r.split('-')[0])).filter(Number.isFinite);
   const missingRuns = numbers.length ? Array.from({ length: Math.max(...numbers) }, (_, i) => i + 1).filter((n) => !numbers.includes(n)) : [];
-  if (missingRuns.length) console.log(`⚠ run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} are missing from ${rel(p.runs)}/: the verdict says so`);
+  if (missingRuns.length) console.log(`⚠ run(s) ${missingRuns.map((n) => String(n).padStart(2, '0')).join(', ')} are missing from the story's history: the verdict says so`);
 
-  const tri = records.get(finalRun)!;
+  const tri = readRunRecord(runFile(p, finalRun));
   const meta = tri.meta;
   // The screenshot a finding shows is kept with the verdict: the run's raw output is scratch.
   const kept = new Map<TriageEntry, string>();
@@ -152,8 +165,7 @@ export function run({ _, flags }: Args): void {
   [...groups.values()].forEach((g, i) => g.forEach((e) => appIds.set(e, `APP-${i + 1}`)));
 
   // Script defects confirmed in any earlier run, hardening included (evidence the triage loop worked).
-  const repaired = runs.filter((r) => r < finalRun).flatMap((r) => records.get(r)!.entries
-    .filter((e) => e.final?.category === 'SCRIPT_DEFECT').map((e) => ({ run: r, e, now: tri.entries.find((x) => x.scenario === e.scenario)?.status ?? 'n/a' })));
+  const repaired = repairedDefects(readDecisions(p.decisions), finalRun, tri.entries);
 
   // An open question about a non-required oracle gap is for the owner's information: "not required" means the criteria
   // it touches can be evaluated without the answer (the reviewer confirmed that), so acceptance doesn't wait on it.
@@ -304,7 +316,7 @@ export function run({ _, flags }: Args): void {
   if (!repaired.length) md.push('_None confirmed with triage (other mechanics fixed during hardening are in the hardening log)._', '');
   else {
     md.push('| Found in run | Test | Symptom | Diagnosis | Fix applied | Final run |', '| --- | --- | --- | --- | --- | --- |',
-      ...repaired.map(({ run, e, now }) => `| \`${run}\` | ${e.scenario} | ${esc(e.error?.headline.slice(0, 120))} | ${esc(e.final!.rationale)} | ${esc(e.final!.action ?? '-')} | ${now === 'passed' ? '✅ passed' : now} |`), '');
+      ...repaired.map(({ run, scenario, d, now }) => `| \`${run}\` | ${scenario} | ${esc(d.failure?.slice(0, 120) ?? '-')} | ${esc(d.rationale)} | ${esc(d.action ?? '-')} | ${now === 'passed' ? '✅ passed' : now} |`), '');
   }
 
   if (integrity.amended.length) {
@@ -441,16 +453,15 @@ export function run({ _, flags }: Args): void {
     '4. Preflight gates (traceability lint and an AUT healthcheck) passed before the run. Every failure was triaged automatically, then re-investigated live before being classified as an application defect.',
     ...(repaired.length ? ['5. Script defects were repaired (mechanics only) and the full suite re-run. This verdict reflects the final run.', ''] : ['5. No script defect needed repairing after hardening. This verdict reflects the final run.', '']),
     '| Run | Passed | Failed | Flaky |', '| --- | --- | --- | --- |',
-    ...allRuns.map((r) => {
-      const st = records.get(r)!.meta.stats;
-      const note = r === finalRun ? ' (final)' : /^\d+-harden/.test(r) ? ' (hardening dry-run)' : !evaluations.includes(r) ? ' (not an evaluation run: a reproduction, a repair check or some of the tests)' : '';
-      return `| \`${r}\`${note} | ${st?.expected ?? '-'} | ${st?.unexpected ?? '-'} | ${st?.flaky ?? '-'} |`;
+    ...history.map(({ run: r, grep, stats: st }) => {
+      const note = r === finalRun ? ' (final)' : /^\d+-harden/.test(r) ? ' (hardening dry-run)' : NON_EVAL_RUN.test(r) || grep ? ' (not an evaluation run: a reproduction, a repair check or some of the tests)' : ' (superseded by a later run)';
+      return `| \`${r}\`${note} | ${st?.passed ?? '-'} | ${st?.failed ?? '-'} | ${st?.flaky ?? '-'} |`;
     }), '',
     '## Artifacts', '',
     `- Requirement: [story.md](${link(rel(p.storyMd))}) · contract: [contract.json](${link(rel(p.contract))}) · review: [review.json](${link(rel(p.review))})`,
     `- Tests: the frozen draft [${rel(p.tests)}/](${link(rel(p.tests))}/) ([freeze.json](${link(rel(p.freeze))})) · as hardened and run [${rel(p.hardened)}/](${link(rel(p.hardened))}/) · hardening: [hardening.md](${link(rel(p.hardeningLog))})`,
     `- Journeys: ${rel(journeyPaths(cfg, cfg.autId).fixtures)}/ · registry: ${rel(journeyPaths(cfg, cfg.autId).registry)}`,
-    `- Runs: ${allRuns.map((r) => `[${r}.json](${link(rel(runFile(p, r)))})`).join(' · ')} (each run's tests and the evidence of its failures) · triage: [decisions.json](${link(rel(p.decisions))})`,
+    `- Final run: [${finalRun}.json](${link(rel(runFile(p, finalRun)))}) (its tests and the evidence of its failures; every run's result is in the history) · triage: [decisions.json](${link(rel(p.decisions))})`,
     `- History of the evaluation: [history.jsonl](${link(rel(p.history))})`,
     ...(fs.existsSync(path.join(runRaw(p, finalRun), 'html')) ? [`- HTML report, while the run's raw output is kept: \`npx playwright show-report ${rel(path.join(runRaw(p, finalRun), 'html'))}\``] : []), '');
 
@@ -473,7 +484,7 @@ export function run({ _, flags }: Args): void {
       test: e.scenario, title: e.final?.title ?? e.title, criteria: e.requirementRefs, restsOn: assumesOf(e.scenario),
       expected: e.error?.expected ?? null, actual: actualOf(e), rationale: e.final?.rationale ?? null,
     })),
-    scriptDefectsRepaired: repaired.map(({ run, e }) => ({ run, scenario: e.scenario, action: e.final?.action ?? null })),
+    scriptDefectsRepaired: repaired.map(({ run, scenario, d }) => ({ run, scenario, action: d.action ?? null })),
     uncoveredCriteria: uncovered.map((a) => a.id),
     coverageByType,
     traceability, setups,

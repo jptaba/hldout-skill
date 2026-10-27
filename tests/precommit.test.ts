@@ -56,14 +56,14 @@ describe('heldout precommit', () => {
     assert.equal(precommit(root).status, 1, 'the staged content still holds it');
     git(root, 'add', 'a.txt');
     assert.equal(precommit(root).status, 0);
-    stage(root, 'output/shop/ABC-1/5-runs/trace.zip', writeZip([{ name: 'network.txt', data: Buffer.from(`Authorization: ${SECRET}`) }]));
+    stage(root, 'output/shop/ABC-1/5-run/trace.zip', writeZip([{ name: 'network.txt', data: Buffer.from(`Authorization: ${SECRET}`) }]));
     assert.match(precommit(root).stderr, /trace\.zip › network\.txt: holds the value of SHOP_PASSWORD/);
   });
 
   it('refuses a file over 1 MB in the output folder, and nowhere else', () => {
     const big = 'x'.repeat(MAX_RECORD_FILE + 1);
     assert.deepEqual(precommitProblems([{ file: 'docs/big.txt', data: Buffer.from(big) }], []), []);
-    assert.match(precommitProblems([{ file: 'output/shop/ABC-1/5-runs/results.json', data: Buffer.from(big) }], [])[0], /1\.0 MB in the output folder/);
+    assert.match(precommitProblems([{ file: 'output/shop/ABC-1/5-run/results.json', data: Buffer.from(big) }], [])[0], /1\.0 MB in the output folder/);
     assert.match(precommitProblems([{ file: 'runs/x.json', data: Buffer.from(big) }], [], 'runs/')[0], /output folder/, 'the configured output folder');
   });
 
@@ -83,8 +83,8 @@ describe('heldout precommit', () => {
 
   it('finds a value in a run record\'s base64 body and in an archive it can\'t open', () => {
     const root = repo();
-    stage(root, 'output/shop/ABC-1/5-runs/results.json', JSON.stringify({ attachments: [{ body: Buffer.from(`token ${SECRET}`).toString('base64') }] }));
-    stage(root, 'output/shop/ABC-1/5-runs/broken.zip', Buffer.concat([Buffer.from('PK\x03\x04garbage '), Buffer.from(SECRET)]));
+    stage(root, 'output/shop/ABC-1/5-run/results.json', JSON.stringify({ attachments: [{ body: Buffer.from(`token ${SECRET}`).toString('base64') }] }));
+    stage(root, 'output/shop/ABC-1/5-run/broken.zip', Buffer.concat([Buffer.from('PK\x03\x04garbage '), Buffer.from(SECRET)]));
     const r = precommit(root);
     assert.match(r.stderr, /results\.json \(a base64 body\): holds the value of SHOP_PASSWORD/);
     assert.match(r.stderr, /broken\.zip \(as bytes: the archive couldn't be opened\): holds the value/);
@@ -98,11 +98,11 @@ describe('heldout precommit', () => {
     fs.writeFileSync(path.join(project, '.env'), `SHOP_PASSWORD=${SECRET}\n`);
     stage(top, 'elsewhere.txt', 'outside the project');
     stage(top, 'qa/runs/out/shop/ABC-1/1-requirement/story.md', `demo ${SECRET}`);
-    stage(top, 'qa/runs/out/shop/ABC-1/5-runs/big.json', 'x'.repeat(MAX_RECORD_FILE + 1));
-    assert.deepEqual(stagedFiles(project).map((s) => s.file).sort(), ['runs/out/shop/ABC-1/1-requirement/story.md', 'runs/out/shop/ABC-1/5-runs/big.json']);
+    stage(top, 'qa/runs/out/shop/ABC-1/5-run/big.json', 'x'.repeat(MAX_RECORD_FILE + 1));
+    assert.deepEqual(stagedFiles(project).map((s) => s.file).sort(), ['runs/out/shop/ABC-1/1-requirement/story.md', 'runs/out/shop/ABC-1/5-run/big.json']);
     const r = precommit(project);
     assert.equal(r.status, 1);
-    assert.match(r.stderr, /runs\/out\/shop\/ABC-1\/5-runs\/big\.json: 1\.0 MB in the output folder/);
+    assert.match(r.stderr, /runs\/out\/shop\/ABC-1\/5-run\/big\.json: 1\.0 MB in the output folder/);
     assert.doesNotMatch(r.stderr, /holds the value/, 'the nested output folder\'s requirement publishes the demo value');
   });
 

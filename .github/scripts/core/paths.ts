@@ -134,6 +134,27 @@ export function moveStrayFiles(p: { base: string; work: Pick<StoryPaths['work'],
   return stray;
 }
 
+/**
+ * The runs the verdict doesn't stand on (hardening runs, reproductions, an evaluation run a re-run replaced), moved
+ * to the scratch area before the verdict: the record keeps the final evaluation run, and the history every run's
+ * result. Returns the runs moved.
+ */
+export function moveSupersededRuns(p: { runs: string; work: Pick<StoryPaths['work'], 'runs'> }): string[] {
+  const final = evalRunsOf(p.runs).at(-1);
+  if (!final) return [];
+  const moved = listRuns(p.runs).filter((r) => r !== final);
+  for (const r of moved) {
+    fs.mkdirSync(p.work.runs, { recursive: true });
+    fs.renameSync(runFile(p, r), path.join(p.work.runs, `${r}.json`));
+  }
+  return moved;
+}
+
+/** Why a run's record is not in the record, when the verdict's tidy moved it: said in the errors that look for it. */
+export function movedRunNote(p: { work: Pick<StoryPaths['work'], 'runs'> }, run?: string): string {
+  return run && fs.existsSync(path.join(p.work.runs, `${run}.json`)) ? ` — ${run}'s record was moved to the scratch area when the verdict was due (${path.join(p.work.runs, `${run}.json`)}); its result is in the history` : '';
+}
+
 /** Every story folder: output/<profile>/<KEY>/. */
 export function listStories(cfg: Pick<HeldoutConfig, 'outputDir'>): { profile: string; key: string; dir: string }[] {
   const out = path.resolve(ROOT, cfg.outputDir);

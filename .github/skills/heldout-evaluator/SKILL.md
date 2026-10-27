@@ -215,8 +215,11 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   stays NEEDS_INVESTIGATION (verdict INCONCLUSIVE).
 - **A verdict comes from a run of every test.** A run of some of them (`--grep`: a reproduction, the hardener's
   check of a repair) is never the evaluation, whatever it was labelled and whatever came of it.
-- **Runs are history.** Never delete, rename or renumber a run's record (`5-run/NN-label.json`), including a broken
-  or superseded one. The verdict lists every run; a gap in it would hide an earlier result.
+- **Runs are history.** No agent deletes, renames or renumbers a run or its record (`5-run/NN-label.json`). Every
+  run's result is in the story's history and the verdict lists every run; each failure decided is in
+  `6-triage/decisions.json`. Before the verdict `advance` keeps only the final evaluation run's record (the others go
+  to the scratch area, removed with it when the story completes) and trims the probes nothing names to their digest:
+  the record keeps what its readers use.
 - **Commands, not scripts.** No agent writes a script of its own (`node -e`, `python`, `.mjs`/`.cjs`, JSON built by
   code): reading is `$H show`, `$H trace` and the file tools, probing is the probe commands. What no command does is
   done by hand and reported as a tool gap (`$H note KEY --tool-gap "…"`), which becomes a command in the skill.

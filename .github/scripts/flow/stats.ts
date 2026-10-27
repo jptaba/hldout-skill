@@ -48,8 +48,10 @@ export function storyStats(dir: string, profile: string, key: string): StoryStat
   const text = (e: HistoryEvent) => String(e.text ?? e.remark ?? '');
   const [, , , HARDENING, RUN, TRIAGE] = PHASE_FOLDERS;
   const runsDir = path.join(dir, RUN);
-  const runs = listRuns(runsDir);
-  const lastEval = runs.filter((r) => !NON_EVAL_RUN.test(r)).at(-1);
+  // Every run the history recorded (the record keeps only the final one's file once the story is done).
+  const runs = [...new Set([...all('run').map((e) => e.run).filter((r): r is string => typeof r === 'string'), ...listRuns(runsDir)])]
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const lastEval = listRuns(runsDir).filter((r) => !NON_EVAL_RUN.test(r)).at(-1);
   const isEval = (e: HistoryEvent) => typeof e.run === 'string' && !NON_EVAL_RUN.test(e.run);
   const unreadable: string[] = [];
   let failed: number | null = null;

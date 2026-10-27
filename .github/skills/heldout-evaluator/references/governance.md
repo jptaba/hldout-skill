@@ -43,7 +43,8 @@ Everything an evaluation did is in its story folder, `output/<profile>/<KEY>/`, 
 - `history.jsonl`: every step, with the skill's version on each line; tool gaps, remarks, probes refused before the
   freeze and each subagent's cost, as notes.
 - The requirement as fetched, the contract and its review (bound by hash), the frozen tests (`freeze.json`, with
-  every audited amendment and re-freeze), each run's record, the triage decisions with their evidence, the verdict.
+  every audited amendment and re-freeze), the hardened tests and their log, the final run's record (each run's result
+  is in the history), the triage decisions with their evidence, the verdict.
 - `heldout show KEY …` reads it; `heldout stats` sums it per story (runs, repairs, review rounds, probes, minutes per
   phase, subagent cost).
 
