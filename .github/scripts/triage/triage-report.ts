@@ -1,5 +1,5 @@
 /**
- * The triage report of a run (5-runs/NN-label/triage.md): what its reader, a person or the triager subagent, goes through
+ * The triage report of a run (the scratch area's 6-triage/triage-NN-label.md): what its reader, a person or the triager subagent, goes through
  * before reproducing a failure. Pure rendering of a TriageReport; `heldout triage` writes it.
  */
 import path from 'node:path';

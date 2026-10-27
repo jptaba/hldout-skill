@@ -64,8 +64,8 @@ export function digestRun(cfg: HeldoutConfig, key: string, runName: string, resu
   const apiBasePath = new URL(cfg.aut.apiBaseURL ?? cfg.aut.baseURL).pathname;
   const results = readJson<{ suites: PwSuite[] }>(resultsFile);
   const contract = readContract(p.contract);
-  const feature = readSuite(p.tests, contract);
-  const plumbing = [...feature.seedEndpoints, ...journeyEndpoints(cfg, specFiles(p.tests))];
+  const feature = readSuite(p.hardened, contract);
+  const plumbing = [...feature.seedEndpoints, ...journeyEndpoints(cfg, specFiles(p.hardened))];
   const requests = requestContracts(contract);
   const entries: TriageEntry[] = [];
   for (const spec of specsOf(results.suites)) {

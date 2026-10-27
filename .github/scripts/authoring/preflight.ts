@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { resolveUrl } from '../core/cli';
 import { ROOT, rel } from '../core/files';
-import { evalPaths, journeyPaths, strayFiles } from '../core/paths';
+import { currentTests, evalPaths, journeyPaths, strayFiles } from '../core/paths';
 import { duplicateProbeIds } from '../core/probe-log';
 import { accountRoles, type HeldoutConfig } from '../core/profile';
 import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from '../requirement/contract-model';
@@ -35,7 +35,7 @@ export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 
   }
 }
 
-export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnhardened?: boolean } = {}): Finding[] {
+export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnhardened?: boolean; draft?: boolean } = {}): Finding[] {
   const p = evalPaths(cfg, key);
   const out: Finding[] = [];
   const err = (code: string, message: string) => out.push({ level: 'error', code, message });
@@ -44,14 +44,15 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   // The record holds only what its layout has (`advance` moves the rest to the scratch area's stray/ before the verdict),
   // and each probe id once (`advance` renumbers the later of two).
   for (const s of strayFiles(p)) warn('stray-file', `${s.file} is not part of a story's record: it belongs in ${s.home}`);
-  for (const id of duplicateProbeIds(p)) warn('probe-id-twice', `${id} is in ${rel(p.evidence)}/probes.jsonl more than once (two branches merged): heldout advance gives the later one a new id`);
+  for (const id of duplicateProbeIds(p)) warn('probe-id-twice', `${id} is in the story's probe logs more than once (two branches merged): heldout advance gives the later one a new id`);
 
   // Requirement contract (phase 1b): the tests are written from it, and its criteria drive coverage.
   const contract = readContract(p.contract);
   if (!contract) { err('no-contract', `No requirement contract (${rel(p.contract)}) — phase 1b comes first: heldout contract KEY --pack, then the extractor and reviewer subagents`); return out; }
-  const specs = specFiles(p.tests);
-  if (!specs.length) { err('no-tests', 'No *.spec.ts under tests/ — the heldout-test-author subagent writes them from the contract'); return out; }
-  const f = readSuite(p.tests, contract);
+  const tests = opts.draft ? p.tests : currentTests(p);
+  const specs = specFiles(tests);
+  if (!specs.length) { err('no-tests', `No *.spec.ts under ${rel(tests)}/ — the heldout-test-author subagent writes them from the contract`); return out; }
+  const f = readSuite(tests, contract);
   if (!f.acs.length) err('no-acs', 'The contract has no acceptance criteria — they drive coverage.');
 
   for (const s of f.scenarios) {
@@ -95,7 +96,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   for (const n of contract.nonFunctional ?? []) {
     if (!f.scenarios.some((s) => s.nfrs.includes(n.id))) warn('nfr-not-verified', `${n.id} is not verified by any test — tag the test that checks it @${n.id}; otherwise the verdict lists it as not verified (at most PASS WITH WARNINGS)`);
   }
-  for (const e of typeErrors(p.tests)) err('spec-type-error', e);
+  for (const e of typeErrors(tests)) err('spec-type-error', e);
   for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any test`);
 
   const src = specs.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
@@ -164,8 +165,9 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     if (prefix && !used.includes(prefix) && !JSON.stringify(cfg.aut.accounts ?? {}).includes(prefix)) warn('endpoint-unused', `Declared endpoint ${ep.method} ${ep.path} is not referenced by any test or journey it uses`);
   }
 
-  if (fs.existsSync(p.testData)) {
-    const refs = [...fs.readFileSync(p.testData, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((m) => m[1]);
+  const testData = path.join(tests, 'test-data.json');
+  if (fs.existsSync(testData)) {
+    const refs = [...fs.readFileSync(testData, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((m) => m[1]);
     for (const name of new Set(refs)) if (process.env[name] === undefined) err('env-missing', `test-data.json needs \${env:${name}} — set it in .env`);
   }
   return out;

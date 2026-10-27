@@ -7,11 +7,14 @@ import { ROOT, readJson } from './files';
 import type { HeldoutConfig } from './profile';
 
 /**
- * The phase folders of a story, in the order a reviewer reads them (docs/refactor-plan.md, section 3). The kept record
- * (output/<profile>/<KEY>/) and the scratch area (.heldout/<profile>/<KEY>/) use the same names.
+ * The phase folders of a story, one per producer, in the order the phases run (specs/001-phase-separation): each
+ * holds only what that phase hands the later ones. The kept record (output/<profile>/<KEY>/) and the scratch area
+ * (.heldout/<profile>/<KEY>/) use the same names.
  */
-export const PHASE_FOLDERS = ['1-requirement', '2-contract', '3-tests', '4-evidence', '5-runs', '6-verdict'] as const;
-const [REQUIREMENT, CONTRACT, TESTS, EVIDENCE, RUNS, VERDICT] = PHASE_FOLDERS;
+export const PHASE_FOLDERS = ['1-requirement', '2-contract', '3-tests', '4-hardening', '5-run', '6-triage', '7-verdict'] as const;
+const [REQUIREMENT, CONTRACT, TESTS, HARDENING, RUN, TRIAGE, VERDICT] = PHASE_FOLDERS;
+/** The phases that probe the application, each keeping the probes it cites. */
+export type ProbingPhase = 'hardening' | 'triage';
 /** The scratch area: raw tool output, views and working files, git-ignored, removed when a story is complete. */
 export const SCRATCH_DIR = '.heldout';
 /** The files at the top of a story's folder besides the phase folders. */
@@ -39,17 +42,21 @@ export function evalPaths(cfg: Pick<HeldoutConfig, 'outputDir' | 'autId'>, key: 
     contractDir: path.join(base, CONTRACT),
     contract: path.join(base, CONTRACT, 'contract.json'),
     review: path.join(base, CONTRACT, 'review.json'),
-    // 3 — how it is tested, and how the tests were made to work
+    // 3 — how it is tested: the test author's draft, frozen as written
     tests: path.join(base, TESTS),
     testData: path.join(base, TESTS, 'test-data.json'),
-    /** The frozen draft, its re-freezes and the audited amendments (authoring/integrity-check.ts). */
+    /** The frozen draft's hashes, its re-freezes and the audited amendments (authoring/integrity-check.ts). */
     freeze: path.join(base, TESTS, 'freeze.json'),
-    hardeningLog: path.join(base, TESTS, 'hardening.md'),
-    // 4 — what was seen in the application
-    evidence: path.join(base, EVIDENCE),
+    // 4 — how the tests were made to work: the hardener's copy of the draft, its log and the probes it cites
+    hardened: path.join(base, HARDENING),
+    hardenedData: path.join(base, HARDENING, 'test-data.json'),
+    hardeningLog: path.join(base, HARDENING, 'hardening.md'),
     // 5 — what ran
-    runs: path.join(base, RUNS),
-    // 6 — what we recommend
+    runs: path.join(base, RUN),
+    // 6 — what the failures are: the triager's decisions and the probes they cite
+    triage: path.join(base, TRIAGE),
+    decisions: path.join(base, TRIAGE, 'decisions.json'),
+    // 7 — what we recommend
     verdictMd: path.join(base, VERDICT, 'verdict.md'),
     verdictJson: path.join(base, VERDICT, 'verdict.json'),
     /** Views and working files: never committed, rendered again or written again when needed. */
@@ -57,12 +64,25 @@ export function evalPaths(cfg: Pick<HeldoutConfig, 'outputDir' | 'autId'>, key: 
       base: scratch,
       evidencePack: path.join(scratch, CONTRACT, 'evidence-pack.md'),
       contractMd: path.join(scratch, CONTRACT, 'contract.md'),
-      evidence: path.join(scratch, EVIDENCE),
-      runs: path.join(scratch, RUNS),
+      hardening: path.join(scratch, HARDENING),
+      runs: path.join(scratch, RUN),
+      triage: path.join(scratch, TRIAGE),
       journeysStaged: path.join(scratch, VERDICT, 'journeys-staged.json'),
       stray: path.join(scratch, 'stray'),
     },
   };
+}
+
+/** The tests as they are now: the test author's draft until the freeze, the hardener's copy after it. */
+export function currentTests(p: Pick<StoryPaths, 'tests' | 'hardened' | 'freeze'>): string {
+  return fs.existsSync(p.freeze) ? p.hardened : p.tests;
+}
+/** The test data beside the current tests. */
+export const currentTestData = (p: Pick<StoryPaths, 'tests' | 'hardened' | 'freeze'>) => path.join(currentTests(p), 'test-data.json');
+
+/** Where a probing phase keeps the probes it cites, and where its working files go. */
+export function phaseDirs(p: Pick<StoryPaths, 'hardened' | 'triage' | 'work'>, phase: ProbingPhase): { kept: string; work: string } {
+  return phase === 'hardening' ? { kept: p.hardened, work: p.work.hardening } : { kept: p.triage, work: p.work.triage };
 }
 
 /** What each part of a story's record may hold (path relative to the story's folder); anything else is a stray file. */
@@ -70,18 +90,21 @@ const RECORD_LAYOUT: RegExp[] = [
   /^history\.jsonl$/,
   new RegExp(`^${REQUIREMENT}/(story\\.md|CHANGES\\.md|(linked|transcripts|revisions)/.+)$`),
   new RegExp(`^${CONTRACT}/(contract|review)\\.json$`),
-  new RegExp(`^${TESTS}/([^/]+\\.spec\\.ts|test-data\\.json|freeze\\.json|hardening\\.md)$`),
-  new RegExp(`^${EVIDENCE}/(probes\\.jsonl|P[1-9]\\d*\\.md|[^/]+\\.(png|jpe?g|gif|webp))$`),
-  new RegExp(`^${RUNS}/\\d{2,}-[\\w-]+\\.json$`),
-  new RegExp(`^${VERDICT}/verdict\\.(md|json)$`),
+  new RegExp(`^${TESTS}/([^/]+\\.spec\\.ts|test-data\\.json|freeze\\.json)$`),
+  new RegExp(`^${HARDENING}/([^/]+\\.spec\\.ts|test-data\\.json|hardening\\.md|probes\\.jsonl|P[1-9]\\d*\\.md)$`),
+  new RegExp(`^${RUN}/\\d{2,}-[\\w-]+\\.json$`),
+  new RegExp(`^${TRIAGE}/(decisions\\.json|probes\\.jsonl|P[1-9]\\d*\\.md)$`),
+  // The verdict keeps the screenshot of each failure it reports.
+  new RegExp(`^${VERDICT}/(verdict\\.(md|json)|[^/]+\\.(png|jpe?g|gif|webp))$`),
 ];
 
 /** Where a stray file most likely belongs, said to whoever made it. */
 function homeOf(file: string): string {
   const name = path.posix.basename(file);
-  if (/\.spec\.ts$/.test(name)) return `${TESTS}/ (a spec file)`;
-  if (/\.(steps|chain)\.json$|^gaps|\.out$|\.log$/.test(name)) return `the scratch area's ${EVIDENCE}/ (a working file)`;
-  if (/^\d{2,}-/.test(file.split('/')[1] ?? '') && file.startsWith(`${RUNS}/`)) return `the scratch area's ${RUNS}/ (a run's raw output)`;
+  const phase = file.split('/')[0];
+  if (/\.spec\.ts$/.test(name)) return `${TESTS}/ (the draft) or ${HARDENING}/ (the hardened copy)`;
+  if (/\.(steps|chain)\.json$|^gaps|\.out$|\.log$/.test(name)) return `the scratch area's ${phase === TRIAGE ? TRIAGE : HARDENING}/ (a working file)`;
+  if (/^\d{2,}-/.test(file.split('/')[1] ?? '') && phase === RUN) return `the scratch area's ${RUN}/ (a run's raw output)`;
   return 'the scratch area (no part of the record holds it)';
 }
 
@@ -130,7 +153,10 @@ export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir' | 'auts'>, p
 /** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
 export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;
 
-/** The record of one run (5-runs/NN-label.json): how it ran, and every test with the evidence of its failures. */
+/** The triager's decisions on a story's runs, beside the run record's story (a run record's path is enough). */
+export const decisionsFor = (runRecord: string) => path.join(path.dirname(path.dirname(runRecord)), TRIAGE, 'decisions.json');
+
+/** The record of one run (5-run/NN-label.json): how it ran, and every test with the evidence of its failures. */
 export const runFile = (p: Pick<StoryPaths, 'runs'>, run: string) => path.join(p.runs, `${run}.json`);
 /** The raw output of one run, in the scratch area (Playwright's JSON, artifacts, traces, logs). */
 export const runRaw = (p: Pick<StoryPaths, 'work'>, run: string) => path.join(p.work.runs, run);

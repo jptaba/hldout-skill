@@ -179,10 +179,10 @@ describe('requirement contract', () => {
     const freeze = { ...draftOf(path.join(dir, 'tests'), oracleDigest(c)), refreezes: [], amendments: [] };
     const mech = structuredClone(c);
     mech.testData = { strategy: 'changed' }; mech.acceptanceCriteria[0].entryPoint = '/x'; mech.endpoints[0].requestFields = ['name'];
-    assert.equal(checkIntegrity(path.join(dir, 'tests'), freeze, oracleDigest(mech)).status, 'PRESERVED');
+    assert.equal(checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'tests'), freeze, oracleDigest(mech)).status, 'PRESERVED');
     const oracle = structuredClone(c);
     oracle.acceptanceCriteria[0].outcomes = ['200'];
-    const r = checkIntegrity(path.join(dir, 'tests'), freeze, oracleDigest(oracle));
+    const r = checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'tests'), freeze, oracleDigest(oracle));
     assert.equal(r.status, 'VIOLATED');
     assert.equal(r.contractChanged, true);
   });

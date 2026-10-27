@@ -25,17 +25,20 @@ const lines = (rows: unknown[]) => `${rows.map((r) => JSON.stringify(r)).join('\
 /** A story folder: its history, its run records (name → failed count, or raw text), its probes. */
 function story(root: string, profile: string, key: string, events: unknown[], runs: Record<string, number | string> = {}, probes: string[] = []): string {
   const dir = path.join(root, 'output', profile, key);
-  fs.mkdirSync(path.join(dir, '5-runs'), { recursive: true });
-  fs.mkdirSync(path.join(dir, '4-evidence'), { recursive: true });
+  for (const f of ['4-hardening', '5-run', '6-triage']) fs.mkdirSync(path.join(dir, f), { recursive: true });
   fs.writeFileSync(path.join(dir, 'history.jsonl'), typeof events[0] === 'string' ? `${events.join('\n')}\n` : lines(events));
   const entry = (scenario: string, status: string) => ({ scenario, title: `${scenario}: x`, file: 'a.spec.ts', status, tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: { attempts: 1 } });
   for (const [run, failed] of Object.entries(runs)) {
-    fs.writeFileSync(path.join(dir, '5-runs', `${run}.json`), typeof failed === 'string' ? failed : JSON.stringify({
+    fs.writeFileSync(path.join(dir, '5-run', `${run}.json`), typeof failed === 'string' ? failed : JSON.stringify({
       key, run, generatedAt: 'now', summary: { total: failed + 1, passed: 1, failed, flaky: 0, skipped: 0 },
       entries: [entry('SCN-001', 'passed'), ...Array.from({ length: failed }, (_, i) => entry(`SCN-00${i + 2}`, 'failed'))], meta: { label: run.slice(3), startedAt: at(40), grep: null, skill: 'abc' },
     }));
   }
-  if (probes.length) fs.writeFileSync(path.join(dir, '4-evidence', 'probes.jsonl'), lines(probes.map((phase, i) => ({ id: `P${i + 1}`, phase }))));
+  // Each probing phase keeps its own log.
+  for (const [phase, folder] of [['hardening', '4-hardening'], ['triage', '6-triage']]) {
+    const own = probes.map((ph, i) => ({ id: `P${i + 1}`, phase: ph })).filter((x) => x.phase === phase);
+    if (own.length) fs.writeFileSync(path.join(dir, folder, 'probes.jsonl'), lines(own));
+  }
   return dir;
 }
 
@@ -61,7 +64,7 @@ const FULL = [
 
 describe('heldout stats', () => {
   it('reads a story\'s numbers from its history, runs and probes', () => {
-    const dir = story(project(), 'shop', 'ABC-1', FULL, { '01-harden': 1, '02-eval': 1 }, ['harden', 'triage']);
+    const dir = story(project(), 'shop', 'ABC-1', FULL, { '01-harden': 1, '02-eval': 1 }, ['hardening', 'triage']);
     const s = storyStats(dir, 'shop', 'ABC-1');
     assert.deepEqual(s.runs, ['01-harden', '02-eval']);
     assert.equal(s.failed, 1);
@@ -77,7 +80,7 @@ describe('heldout stats', () => {
 
   it('prints the table and, for one story, its details', () => {
     const root = project();
-    story(root, 'shop', 'ABC-1', FULL, { '01-harden': 1, '02-eval': 1 }, ['harden', 'triage']);
+    story(root, 'shop', 'ABC-1', FULL, { '01-harden': 1, '02-eval': 1 }, ['hardening', 'triage']);
     story(root, 'shop', 'ABC-2', [{ at: at(0), event: 'fetched' }, { at: at(3), event: 'review-bound' }]);
     fs.mkdirSync(path.join(root, 'output', 'shop', 'ABC-3'), { recursive: true }); // no history: not a story yet
     const all = heldout(root, 'stats');
@@ -119,7 +122,7 @@ describe('heldout stats', () => {
   it('counts an unreadable run record as unknown, names it, and goes on', () => {
     const root = project();
     const dir = story(root, 'shop', 'ABC-1', FULL, { '02-eval': '{ damaged' });
-    fs.writeFileSync(path.join(dir, '4-evidence', 'probes.jsonl'), 'null\n[2]\n{"id":"P1","phase":"harden"}\n');
+    fs.writeFileSync(path.join(dir, '4-hardening', 'probes.jsonl'), 'null\n[2]\n{"id":"P1","phase":"hardening"}\n');
     story(root, 'shop', 'ABC-2', [{ at: at(0), event: 'fetched' }, 'null', '[1]', '{ half'].map((e) => (typeof e === 'string' ? e : JSON.stringify(e))));
     const r = heldout(root, 'stats');
     assert.equal(r.status, 0, r.stderr);

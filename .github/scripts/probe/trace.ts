@@ -17,7 +17,7 @@ import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
-import { evalPaths, listRuns, runFile } from '../core/paths';
+import { currentTestData, evalPaths, listRuns, runFile } from '../core/paths';
 import { pageText, redact, secretValuesFor } from '../core/redact';
 import { readZip, type ZipEntry } from '../core/zip';
 import { envNamesIn } from './accounts-recipe';
@@ -52,7 +52,7 @@ export function run({ _, flags }: Args): void {
   if (!file || !fs.existsSync(file)) throw new Error(`The trace of ${test} in ${runName} is gone: a run's raw output is kept for the last two runs and any run still in triage. Run the test again (heldout run ${key} --label repro --grep "${test}") for a new one.`);
   const zip = readZip(fs.readFileSync(file));
   if (!zip) throw new Error(`${rel(file)} could not be read`);
-  const secrets = secretValuesFor(p.testData, process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)).values;
+  const secrets = secretValuesFor(currentTestData(p), process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)).values;
   const mask = (s: string) => secrets.reduce((acc, v) => acc.split(v).join('***'), s);
   const limit = Number(flagStr(flags, 'body-limit') ?? 600);
   const resource = (name?: string) => (name ? zip.find((e) => e.name === name)?.data.toString('utf8') : undefined);

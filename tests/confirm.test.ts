@@ -4,7 +4,19 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { commentsOf, withoutMarks } from '../.github/scripts/authoring/confirm';
+import path from 'node:path';
+import { commentsOf, inFolder, withoutMarks } from '../.github/scripts/authoring/confirm';
+
+describe('the frozen draft', () => {
+  it('is told apart from the hardened copy, whatever a file is named', () => {
+    const tests = path.resolve('output', 'shop', 'ABC-1', '3-tests');
+    assert.ok(inFolder(tests, path.join(tests, 'abc-1.spec.ts')));
+    assert.ok(inFolder(tests, path.join(tests, '..x.spec.ts')), 'a name starting with two dots is still inside');
+    assert.ok(!inFolder(tests, path.resolve('output', 'shop', 'ABC-1', '4-hardening', 'abc-1.spec.ts')));
+    assert.ok(!inFolder(tests, path.resolve('journeys', 'fixtures', 'shop.ts')));
+    assert.ok(!inFolder(tests, tests), 'the folder itself is no file in it');
+  });
+});
 
 const M = 'TODO(harden)';
 

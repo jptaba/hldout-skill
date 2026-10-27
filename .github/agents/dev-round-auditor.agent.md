@@ -17,9 +17,10 @@ the commands below from its root.
 - `demo/answer-keys/KEY.json`: the expected verdict, the defects, the traps of the application and the expected outcome
   per criterion, written before the evaluation. The evaluator never saw it.
 - `<project>/output/<profile>/KEY/`: everything the round produced, one folder per phase in the order to read them:
-  `1-requirement/`, `2-contract/` (contract and review), `3-tests/` (the specs, the frozen draft in `freeze.json`, the
-  hardener's `hardening.md`), `4-evidence/` (probe reports), `5-runs/` (every run's record `NN-label.json`: its tests, evidence and decisions),
-  `6-verdict/` (`verdict.json`, `verdict.md`), and `history.jsonl`: every run, check, freeze, amendment, decision and
+  `1-requirement/`, `2-contract/` (contract and review), `3-tests/` (the frozen draft and `freeze.json`),
+  `4-hardening/` (the hardened tests that ran, `hardening.md`, the probes it cites), `5-run/` (each run's record
+  `NN-label.json`: its tests and evidence), `6-triage/` (`decisions.json`, the probes they cite), `7-verdict/`
+  (`verdict.json`, `verdict.md`), and `history.jsonl`: every run, check, freeze, amendment, decision and
   publication, in order — start there.
 - `<project>/journeys/`: the journeys the tests called (`fixtures/<domain>.ts`) and the registry the harvest wrote
   (`registry.yml`). A journey holding an expected value of the story is a held-out leak.

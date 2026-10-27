@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, readProbes, renumberDuplicateProbes, requireFrozen, savedOf, tableRows } from '../.github/scripts/core/probe-log';
+import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, probingPhase, readProbes, renumberDuplicateProbes, requireFrozen, savedOf, tableRows } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 
 // The record goes to a temporary folder; the scratch area is the project's (.heldout/), under a profile of its own.
@@ -22,21 +22,51 @@ describe('the probe log', () => {
     const first = quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'api-probe', tier: 3, input: { call: ['GET', 'products'] }, report: '# P\nGET → 200', digest: ['GET products → 200'] }))!;
     const second = quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'api-probe', tier: 3, input: { chain: { steps: [{ method: 'POST', path: 'users' }] } }, report: '# chain', digest: ['1. POST users → 201'] }))!;
     assert.deepEqual([first.id, second.id], ['P1', 'P2']);
-    assert.equal(first.phase, 'harden');
-    assert.ok(fs.existsSync(path.join(p.work.evidence, 'probes', 'P1.md')));
+    assert.equal(first.phase, 'hardening');
+    assert.ok(fs.existsSync(path.join(p.work.hardening, 'probes', 'P1.md')));
     assert.deepEqual(readProbes(p).map((x) => x.id), ['P1', 'P2']);
-    assert.ok(!fs.existsSync(path.join(p.evidence, 'P1.md')), 'not kept until cited');
+    assert.ok(!fs.existsSync(path.join(p.hardened, 'P1.md')), 'not kept until cited');
   });
 
-  it('keeps the report of a cited probe in the record, and refuses an id the log does not have', () => {
+  it('keeps the report of a cited probe in its phase\'s folder, and refuses an id the log does not have', () => {
     assert.deepEqual(citeProbes(cfg, 'ABC-1', 'P1 and run 03-eval'), ['P1']);
-    assert.ok(fs.existsSync(path.join(p.evidence, 'P1.md')));
+    assert.ok(fs.existsSync(path.join(p.hardened, 'P1.md')));
     assert.deepEqual(citeProbes(cfg, 'ABC-1', 'run 03-eval: the tests passed'), []);
     assert.throws(() => citeProbes(cfg, 'ABC-1', 'P9'), /P9 is not in/);
   });
 
+  it('logs a probe made after the evaluation run as triage\'s, numbered on from hardening\'s', () => {
+    fs.mkdirSync(p.runs, { recursive: true });
+    fs.writeFileSync(path.join(p.runs, '01-eval.json'), JSON.stringify({ meta: {} }));
+    const t = quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'inspect', tier: 3, input: {}, report: '# walk', digest: [] }))!;
+    assert.deepEqual([t.id, t.phase], ['P3', 'triage']);
+    assert.deepEqual(readProbes(p, 'triage').map((x) => x.id), ['P3']);
+    citeProbes(cfg, 'ABC-1', 'P3');
+    assert.ok(fs.existsSync(path.join(p.triage, 'P3.md')) && !fs.existsSync(path.join(p.hardened, 'P3.md')));
+    fs.rmSync(p.runs, { recursive: true });
+  });
+
+  it('gives a probe back to hardening for a repair, or after the draft was frozen anew', () => {
+    const q = evalPaths({ ...cfg, autId: `${profile}-phase` } as HeldoutConfig, 'ABC-3');
+    fs.mkdirSync(q.runs, { recursive: true });
+    const entry = (scenario: string) => ({ scenario, status: 'failed', auto: { category: 'SCRIPT_DEFECT' } });
+    fs.writeFileSync(path.join(q.runs, '02-eval.json'), JSON.stringify({ meta: { startedAt: '2026-10-02' }, entries: [entry('SCN-1'), entry('SCN-2')] }));
+    assert.equal(probingPhase(q), 'triage', 'failures not decided yet');
+    const decide = (d: object) => { fs.mkdirSync(q.triage, { recursive: true }); fs.writeFileSync(q.decisions, JSON.stringify({ '02-eval': d })); };
+    decide({ 'SCN-1': { category: 'SCRIPT_DEFECT' } });
+    assert.equal(probingPhase(q), 'triage', 'one still pending');
+    decide({ 'SCN-1': { category: 'SCRIPT_DEFECT' }, 'SCN-2': { category: 'APPLICATION_DEFECT' } });
+    assert.equal(probingPhase(q), 'hardening', 'every failure decided, a script defect to repair');
+    decide({ 'SCN-1': { category: 'APPLICATION_DEFECT' }, 'SCN-2': { category: 'APPLICATION_DEFECT' } });
+    assert.equal(probingPhase(q), 'triage', 'nothing to repair');
+    fs.mkdirSync(path.dirname(q.freeze), { recursive: true });
+    fs.writeFileSync(q.freeze, JSON.stringify({ frozenAt: '2026-10-03' }));
+    assert.equal(probingPhase(q), 'hardening', 'frozen anew after the run');
+    fs.rmSync(path.join(cfg.outputDir, `${profile}-phase`), { recursive: true, force: true });
+  });
+
   it('refuses a probe whose report is gone from the scratch area before anyone cited it', () => {
-    fs.rmSync(path.join(p.work.evidence, 'probes', 'P2.md'));
+    fs.rmSync(path.join(p.work.hardening, 'probes', 'P2.md'));
     assert.throws(() => citeProbes(cfg, 'ABC-1', 'P2'), /report of P2 is gone/);
   });
 
@@ -73,15 +103,16 @@ describe('the probe log', () => {
   });
 
   it('gives the later of two probes with one id (two merged branches) the next free id', () => {
-    const q = { evidence: fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-probes-twice-')) };
-    const line = (id: string, at: string) => JSON.stringify({ id, at, phase: 'harden', tool: 'api-probe', tier: 3, input: {}, digest: [at], report: '' });
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-probes-twice-'));
+    const q = { hardened: dir, triage: path.join(dir, 'none') };
+    const line = (id: string, at: string) => JSON.stringify({ id, at, phase: 'hardening', tool: 'api-probe', tier: 3, input: {}, digest: [at], report: '' });
     // A union merge puts the other branch's lines after ours, whatever their time.
-    fs.writeFileSync(path.join(q.evidence, 'probes.jsonl'), [line('P1', '2026-01-01'), line('P2', '2026-01-03'), line('P2', '2026-01-02'), ''].join('\n'));
+    fs.writeFileSync(path.join(dir, 'probes.jsonl'), [line('P1', '2026-01-01'), line('P2', '2026-01-03'), line('P2', '2026-01-02'), ''].join('\n'));
     assert.deepEqual(duplicateProbeIds(q), ['P2']);
     assert.deepEqual(renumberDuplicateProbes(q), [{ from: 'P2', to: 'P3' }]);
     assert.deepEqual(readProbes(q).map((e) => `${e.id} ${e.digest[0]}`), ['P1 2026-01-01', 'P3 2026-01-03', 'P2 2026-01-02']);
     assert.deepEqual(duplicateProbeIds(q), []);
     assert.deepEqual(renumberDuplicateProbes(q), []);
-    fs.rmSync(q.evidence, { recursive: true, force: true });
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });

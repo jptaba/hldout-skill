@@ -12,11 +12,12 @@
  *   … --json                                    the same, as JSON
  */
 import fs from 'node:fs';
+import path from 'node:path';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel } from '../core/files';
 import { readHistory } from '../core/history';
-import { evalPaths, evalRunsOf, listRuns, runFile } from '../core/paths';
+import { evalPaths, evalRunsOf, listRuns, phaseDirs, runFile } from '../core/paths';
 import { readProbes } from '../core/probe-log';
 import { readContract } from '../requirement/contract-model';
 import { renderContract } from '../requirement/contract-render';
@@ -119,7 +120,7 @@ export function run({ _, flags }: Args): void {
       console.log(JSON.stringify(x, null, 2));
       return;
     }
-    print(json, probes, () => probes.length ? probes.map((x) => `  ${x.id.padEnd(4)} ${x.phase.padEnd(7)} ${x.tool.padEnd(9)} ${one(x.digest[0] ?? '', 120)}${fs.existsSync(`${p.evidence}/${x.id}.md`) ? '  (cited)' : ''}`) : [`No probes for ${key} yet.`]);
+    print(json, probes, () => probes.length ? probes.map((x) => `  ${x.id.padEnd(4)} ${x.phase.padEnd(7)} ${x.tool.padEnd(9)} ${one(x.digest[0] ?? '', 120)}${fs.existsSync(path.join(phaseDirs(p, x.phase).kept, `${x.id}.md`)) ? '  (cited)' : ''}`) : [`No probes for ${key} yet.`]);
     return;
   }
 

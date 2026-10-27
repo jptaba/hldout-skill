@@ -56,7 +56,7 @@ interface Known { use: Map<string, Set<string>>; fresh: Set<string> }
 /** The story's journey files that hold a guess, and what a run can say about those guesses (see journeyGuessesNotSettled). */
 function journeyGuesses(cfg: HeldoutConfig, key: string, k: Known, results?: { scenario: string; status: string }[]): { files: string[]; why?: string } {
   const p = evalPaths(cfg, key);
-  const files = journeysUsedBy(cfg, cfg.autId, specFiles(p.tests)).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
+  const files = journeysUsedBy(cfg, cfg.autId, specFiles(p.hardened)).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
   if (!files.length) return { files };
   const journeys = allJourneys(cfg, cfg.autId); const base = journeyPaths(cfg, cfg.autId).base;
   const own = files.flatMap((f) => [...ownCodeOf(f, journeys, base)].map(([id, code]) => ({ id, code })));
@@ -72,9 +72,9 @@ function journeyGuesses(cfg: HeldoutConfig, key: string, k: Known, results?: { s
  */
 function knownMechanics(cfg: HeldoutConfig, key: string): Known | undefined {
   const p = evalPaths(cfg, key);
-  const specs = specFiles(p.tests);
+  const specs = specFiles(p.hardened);
   const journeys = allJourneys(cfg, cfg.autId);
-  const use = journeyUse(journeys, specs, readSuite(p.tests, readContract(p.contract)).scenarios);
+  const use = journeyUse(journeys, specs, readSuite(p.hardened, readContract(p.contract)).scenarios);
   const registry = readRegistry(cfg, cfg.autId).journeys;
   const hashOf = new Map(journeys.map((j) => [j.id, j.hash]));
   const status = (id: string) => (registry[id] ? statusOf(registry[id], hashOf.get(id)) : 'unproven');
@@ -93,10 +93,10 @@ function knownMechanics(cfg: HeldoutConfig, key: string): Known | undefined {
  */
 function specGuessesHeld(cfg: HeldoutConfig, key: string, entries: { scenario: string; status: string }[]): string | string[] {
   const p = evalPaths(cfg, key);
-  const marked = specFiles(p.tests).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
+  const marked = specFiles(p.hardened).filter((f) => /TODO\(harden\)/.test(fs.readFileSync(f, 'utf8')));
   if (!marked.length) return [];
   const inFiles = marked.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(/TODO\(harden\)/g) ?? []).length, 0);
-  return guessesNotSettled(readSuite(p.tests, readContract(p.contract)).scenarios, inFiles, entries) ?? marked;
+  return guessesNotSettled(readSuite(p.hardened, readContract(p.contract)).scenarios, inFiles, entries) ?? marked;
 }
 
 /**
@@ -128,7 +128,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, known: Known, heldo
   // The open mechanics gaps are answered by the journeys the tests of their criteria call.
   const contract = readContract(p.contract)!;
   const registry = readRegistry(cfg, cfg.autId).journeys;
-  const scenarios = readSuite(p.tests, contract).scenarios;
+  const scenarios = readSuite(p.hardened, contract).scenarios;
   const proofOf = (ids: string[]) => [...new Set(ids.flatMap((id) => registry[id]?.proven?.by ?? []))].join(', ');
   const answers = contract.gaps.filter((g) => g.kind === 'mechanics' && g.resolution === 'open').map((g) => {
     const tests = new Set(scenarios.filter((s) => g.affects.includes('*') || s.acs.some((a) => g.affects.includes(a))).map((s) => s.id));
@@ -137,7 +137,7 @@ function hardenFromRegistry(cfg: HeldoutConfig, key: string, known: Known, heldo
     return { id: g.id, value: `as the journeys the tests call do it: ${journeys.join(', ')}`, evidence: `journeys/registry.yml (proven by ${proofOf(journeys) || 'earlier stories'}${journeys.some((id) => fresh.has(id)) ? '; the ones new with this story by the run' : ''}); run ${run}` };
   });
   if (answers.length) {
-    const file = path.join(p.work.evidence, 'gaps-from-registry.json');
+    const file = path.join(p.work.hardening, 'gaps-from-registry.json');
     writeFile(file, `${JSON.stringify(answers, null, 2)}\n`);
     if (heldout('contract', key, '--resolve-from', file) !== 0) return 'the mechanics gaps could not be recorded';
   }

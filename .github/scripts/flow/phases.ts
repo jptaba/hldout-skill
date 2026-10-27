@@ -18,12 +18,16 @@ import { pendingOf, readRunRecord } from '../triage/triage-model';
 
 export interface Phase { name: string; folder: string; done: boolean; detail: string; next?: string }
 const H = 'npm run heldout --';
-const [REQUIREMENT, CONTRACT, TESTS, EVIDENCE, RUNS, VERDICT] = PHASE_FOLDERS;
+const [REQUIREMENT, CONTRACT, TESTS, HARDENING, RUN, TRIAGE, VERDICT] = PHASE_FOLDERS;
+const specsIn = (dir: string) => (fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.spec.ts')) : []);
 
 export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const p = evalPaths(cfg, key);
-  const specs = fs.existsSync(p.tests) ? fs.readdirSync(p.tests, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.spec.ts')) : [];
+  const specs = specsIn(p.tests);
   const src = specs.map((f) => fs.readFileSync(path.join(p.tests, f), 'utf8')).join('\n');
+  // The hardener's copy of the draft, made at the freeze.
+  const hardenedSpecs = specsIn(p.hardened).map((f) => path.join(p.hardened, f));
+  const hardenedSrc = hardenedSpecs.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
   const contract = readContract(p.contract);
   // cfg is resolved for the story's own profile folder (its API origin grounds the paths its sources state under it).
   const profile = cfg.aut;
@@ -43,10 +47,10 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const verdictStale = Boolean(verdict && lastEval && verdict.finalRun && verdict.finalRun < lastEval);
   const published = lastEvent<{ verdict: string }>(p.history, 'published');
   const integrity = lastEvent<{ status: string }>(p.history, 'integrity')?.status;
-  // Guessed mechanics left in the spec or in the journeys it imports.
-  const journeySrc = fs.existsSync(p.tests) ? journeysUsedBy(cfg, cfg.autId, specs.map((f) => path.join(p.tests, f))).map((f) => fs.readFileSync(f, 'utf8')).join('\n') : '';
-  const todo = ([src, journeySrc].join('\n').match(/TODO\(harden\)/g) ?? []).length;
-  // The scaffold writes the log's template: it counts once the hardener has filled in the tiers it used.
+  // Guessed mechanics left in the hardened copy or in the journeys it imports.
+  const journeySrc = journeysUsedBy(cfg, cfg.autId, hardenedSpecs).map((f) => fs.readFileSync(f, 'utf8')).join('\n');
+  const todo = ([hardenedSrc, journeySrc].join('\n').match(/TODO\(harden\)/g) ?? []).length;
+  // The freeze writes the log's template: it counts once the hardener has filled in the tiers it used.
   const hardened = fs.existsSync(p.hardeningLog) && /^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'));
   const bound = fs.existsSync(p.base) ? cfg.autId : undefined;
   const frozen = Boolean(readFreeze(p.freeze));
@@ -58,9 +62,9 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
     // Once the draft is frozen, the author's "finished" mark has done its job (hardening may change the spec's HOW).
     { name: 'tests', folder: TESTS, done: specs.length > 0 && !/TODO\(test\)/.test(src) && (frozen || finished), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}${!frozen && !finished ? ' · not marked finished by its author' : ''}` : 'missing', next: `heldout-test-author subagent (from the contract, with the journeys: ${rel(p.tests)}/*.spec.ts; its last step marks the draft finished: ${H} lint ${key} --allow-unhardened --no-health --draft-finished)` },
     { name: 'freeze', folder: TESTS, done: frozen, detail: frozen ? 'draft frozen' : 'not frozen', next: `${H} integrity ${key} --snapshot` },
-    { name: 'harden', folder: EVIDENCE, done: todo === 0 && hardened && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
-    { name: 'run', folder: RUNS, done: Boolean(lastEval), detail: lastEval ? `${lastEval}${meta?.stats ? `: ${meta.stats.expected} passed, ${meta.stats.unexpected} failed, ${meta.stats.flaky} flaky` : ''}` : 'no evaluation run', next: `${H} run ${key}` },
-    { name: 'triage', folder: RUNS, done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: `heldout-triager subagent (${triage ? 'reproduces each pending failure live and records it' : `runs ${H} triage ${key}, then reproduces each failure live`})` },
+    { name: 'harden', folder: HARDENING, done: hardenedSpecs.length > 0 && todo === 0 && hardened && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
+    { name: 'run', folder: RUN, done: Boolean(lastEval), detail: lastEval ? `${lastEval}${meta?.stats ? `: ${meta.stats.expected} passed, ${meta.stats.unexpected} failed, ${meta.stats.flaky} flaky` : ''}` : 'no evaluation run', next: `${H} run ${key}` },
+    { name: 'triage', folder: TRIAGE, done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: `heldout-triager subagent (${triage ? 'reproduces each pending failure live and records it' : `runs ${H} triage ${key}, then reproduces each failure live`})` },
     { name: 'verdict', folder: VERDICT, done: Boolean(verdict) && !verdictStale, detail: verdict ? `${verdict.verdict}${verdictStale ? ' (older than the last run)' : ''}` : 'none', next: `${H} verdict ${key}` },
     { name: 'publish', folder: VERDICT, done: Boolean(published) && (!verdict || published!.verdict === verdict.verdict) && !verdictStale, detail: published ? `${published.verdict} at ${published.at.slice(0, 16)}` : 'not published', next: `${H} publish ${key}` },
     { name: 'journeys', folder: VERDICT, done: Boolean(harvested) && harvested!.finalRun === verdict?.finalRun, detail: harvested ? `${harvested.proven.length} journey(s) recorded in the registry${harvested.finalRun === verdict?.finalRun ? '' : ` (from ${harvested.finalRun}, an older run)`}` : 'not harvested', next: `${H} journeys ${key} --harvest --apply` },

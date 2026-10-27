@@ -8,6 +8,7 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { digestRun } from '../.github/scripts/triage/record';
+import { readRunRecord, writeRunRecord, type RunRecord } from '../.github/scripts/triage/triage-model';
 
 const SPEC = `import { test } from '../../../../heldout-support/fixtures';
 test('SCN-001: a product is listed', { tag: ['@AC-1', '@type:functional', '@layer:api'] }, async () => {});
@@ -25,7 +26,8 @@ function project() {
     aut: { name: 'Shop', baseURL: 'https://shop.test/', apiBaseURL: 'https://shop.test/api/' },
     jira: { mode: 'mock', mockRoot: 'mock-jira' }, run: { retries: 0 },
   } as unknown as HeldoutConfig;
-  const tests = path.join(root, 'output', 'shop', 'ABC-1', '3-tests');
+  // What runs is the hardener's copy of the draft.
+  const tests = path.join(root, 'output', 'shop', 'ABC-1', '4-hardening');
   fs.mkdirSync(tests, { recursive: true });
   fs.writeFileSync(path.join(tests, 'abc-1.spec.ts'), SPEC);
   const big = { data: Array.from({ length: 2000 }, (_, i) => ({ id: i, name: `product ${i}` })) };
@@ -69,5 +71,20 @@ describe('the record of a run', () => {
     assert.ok(body.length < 8200);
     assert.ok((failed.evidence.apiSequence?.[0].response.body as string).length < 8200, 'the sequence keeps the same start of it');
     assert.ok(fs.statSync(resultsFile).size > 50_000, 'while the raw answer was long');
+  });
+
+  it('keeps the triager\'s decisions in the triage phase\'s file, the run record as the run wrote it', () => {
+    const { cfg, resultsFile } = project();
+    const story = path.join(cfg.outputDir, 'shop', 'ABC-1');
+    const file = path.join(story, '5-run', '02-eval.json');
+    const report = digestRun(cfg, 'ABC-1', '02-eval', resultsFile, []);
+    const record = { ...report, meta: {} } as unknown as RunRecord;
+    writeRunRecord(file, record);
+    assert.ok(!fs.existsSync(path.join(story, '6-triage', 'decisions.json')), 'no decision, no file');
+    const final = { category: 'APPLICATION_DEFECT' as const, rationale: 'reproduced (P3)', confirmedAt: 'now' };
+    writeRunRecord(file, { ...record, entries: record.entries.map((e) => (e.scenario === 'SCN-002' ? { ...e, final } : e)) });
+    assert.ok(!fs.readFileSync(file, 'utf8').includes('"final"'), 'the run record holds no decision');
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(story, '6-triage', 'decisions.json'), 'utf8')), { '02-eval': { 'SCN-002': final } });
+    assert.deepEqual(readRunRecord(file).entries.map((e) => e.final), [undefined, final], 'read back with the record');
   });
 });

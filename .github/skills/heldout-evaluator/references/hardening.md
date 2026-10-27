@@ -6,8 +6,11 @@ journeys they call, **without changing what the test expects**.
 ## 0. Freeze
 
 ```bash
-npm run heldout -- integrity KEY --snapshot     # freezes 3-tests/*.spec.ts in 3-tests/freeze.json, with a hash of each journey they use
+npm run heldout -- integrity KEY --snapshot     # freezes the draft (3-tests/freeze.json: its hashes, a hash of each journey it uses)
 ```
+
+The draft stays in `3-tests/` as frozen. Hardening works on its own copy, `4-hardening/<key>.spec.ts` and
+`test-data.json`, the tests that run; everything hardening keeps (the log, the probes it cites) is in `4-hardening/`.
 
 ## 0b. The journeys the tests call
 
@@ -148,7 +151,7 @@ MSYS rewrites `/…` arguments into Windows paths.
   Same tools, same snapshots, recorded as evidence:
 
   ```bash
-  npm run heldout -- mcp-probe --key KEY --steps .heldout/<profile>/KEY/4-evidence/<walk>.steps.json
+  npm run heldout -- mcp-probe --key KEY --steps .heldout/<profile>/KEY/4-hardening/<walk>.steps.json
   ```
 
   Steps resolve elements by **role + accessible name** from the live MCP snapshot (`{"find": {"role": "button", "name": "Login"}}`),
@@ -190,7 +193,7 @@ that leaves its records behind all the same. Go to more workers once two sign-up
 
 ```bash
 # steps in a file (write it with your file tool: shell quoting mangles locators and regexes)
-npm run heldout -- inspect --key KEY --steps .heldout/<profile>/KEY/4-evidence/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })"
+npm run heldout -- inspect --key KEY --steps .heldout/<profile>/KEY/4-hardening/login.steps.json --probe "getByRole('heading', { name: 'Dashboard' })"
 npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth/login","data":{"username":"u","password":"${env:PW}"},"extract":"token","as":"header:Authorization:Bearer"}'
 ```
 
@@ -270,14 +273,15 @@ When `jira-fetch` reports a revision, rebuild and re-review the contract, draft 
 npm run heldout -- integrity KEY --snapshot --reason "Requirement revision N: <what changed>"
 ```
 
-The draft it replaces and the changes it absorbed are kept in `3-tests/freeze.json` and shown in the verdict.
+The hashes of the draft it replaces and the changes it absorbed are kept in `3-tests/freeze.json` and shown in the
+verdict. The hardened copy is written over with the revised draft: harden it again.
 
-## 5. Hardening log — `3-tests/hardening.md`
+## 5. Hardening log — `4-hardening/hardening.md`
 
 ```markdown
 # Hardening log — KEY
 **Tiers used:** <one sentence: the tiers actually used (the verdict shows it)>. <then why others were not>
-**AUT profile:** <id> — <urls> · **Date:** <iso> · **Draft frozen:** 3-tests/freeze.json
+**AUT profile:** <id> — <urls> · **Date:** <iso>
 
 ## UI locators
 | Test(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |

@@ -25,7 +25,7 @@
  *   [--count]                      how many items there are (after --where)
  * Values may use ${text:N} (N characters of generated text, starting with the profile's data prefix) and ${now}.
  *
- * With --key a call or chain is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full
+ * With --key a call or chain is logged as the story's next probe (P1, P2…: probes.jsonl of the phase it is made in, 4-hardening/ or 6-triage/) and its full
  * report written to the scratch area; cite it as Pn. Without --key (or with --json) the report is printed.
  * Paths resolve against the profile's apiBaseURL. Under Git Bash omit the leading "/" (api/room), or
  * set MSYS_NO_PATHCONV=1 — MSYS rewrites "/…" arguments into Windows paths.

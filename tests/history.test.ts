@@ -59,6 +59,6 @@ describe('the folders of a story', () => {
 
   it('lists the phase folders in pipeline order', () => {
     assert.deepEqual([...PHASE_FOLDERS], [...PHASE_FOLDERS].sort());
-    assert.deepEqual(PHASE_FOLDERS.map((f) => f.split('-')[1]), ['requirement', 'contract', 'tests', 'evidence', 'runs', 'verdict']);
+    assert.deepEqual(PHASE_FOLDERS.map((f) => f.split('-')[1]), ['requirement', 'contract', 'tests', 'hardening', 'run', 'triage', 'verdict']);
   });
 });

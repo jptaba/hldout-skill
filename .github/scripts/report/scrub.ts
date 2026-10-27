@@ -12,7 +12,7 @@
 import { flagList, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel } from '../core/files';
-import { evalPaths } from '../core/paths';
+import { currentTestData, evalPaths } from '../core/paths';
 import { findSecrets, scrubDir, secretValuesFor } from '../core/redact';
 import { envNamesIn } from '../probe/accounts-recipe';
 
@@ -26,7 +26,7 @@ export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
-  const secrets = secretValuesFor(p.testData, process.env, [...flagList(flags, 'value'), ...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)]);
+  const secrets = secretValuesFor(currentTestData(p), process.env, [...flagList(flags, 'value'), ...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)]);
   if (flags.check) {
     const hits = [p.base, p.work.base].flatMap((dir) => findSecrets(dir, secrets.values));
     if (!hits.length) { console.log(`✔ ${key}: no secret value in ${rel(p.base)} or ${rel(p.work.base)} (${secrets.values.length} value(s) checked)`); return; }

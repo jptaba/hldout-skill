@@ -43,7 +43,7 @@ jobs:
         run: npm run heldout -- verdict "$KEY" --exit-code
       - name: Job summary
         if: always()
-        run: cat output/*/"$KEY"/6-verdict/verdict.md >> "$GITHUB_STEP_SUMMARY" || true
+        run: cat output/*/"$KEY"/7-verdict/verdict.md >> "$GITHUB_STEP_SUMMARY" || true
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -53,4 +53,4 @@ jobs:
           # The story's record (its runs, the verdict, the history) and the raw output of the runs (traces, JUnit).
           path: |
             output/*/${{ inputs.issue_key }}/
-            .heldout/*/${{ inputs.issue_key }}/5-runs/
+            .heldout/*/${{ inputs.issue_key }}/5-run/

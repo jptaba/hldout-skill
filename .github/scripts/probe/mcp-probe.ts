@@ -6,7 +6,7 @@
  *   heldout mcp-probe [--key KEY | --aut <profile>]
  *       (--steps steps.json… | --steps-json '[…]' | --from P7[:k]) [--then '<step>']… [--headed] [--browser chrome|msedge|firefox|webkit]
  *       the steps in that order: an earlier walk of the story (its first k), the step files, the inline steps, --then
- *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
+ *   With --key the walk is logged as the story's next probe (P1, P2…: probes.jsonl of the phase it is made in, 4-hardening/ or 6-triage/) and its full report
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--var name=value]...   per-run data for ${var:name} (e.g. a user created seconds earlier) — shown in the report;
  *                               ${env:NAME} values are secrets and are redacted everywhere in the report. A walk
@@ -36,7 +36,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { PLAYWRIGHT_MCP, loadConfig } from '../core/config';
-import { evalPaths } from '../core/paths';
+import { currentTestData, evalPaths } from '../core/paths';
 import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { composeSteps, walkInput, walkVars } from './compose';
@@ -100,7 +100,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   };
   /** Values typed from ${env:…} or into secret-looking fields — never written to the report (snapshots echo field values). */
   const key = flagStr(flags, 'key');
-  const secrets: string[] = key ? secretValuesFor(evalPaths(cfg, key).testData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(loadedVaultSecrets())].filter(Boolean)).values : [];
+  const secrets: string[] = key ? secretValuesFor(currentTestData(evalPaths(cfg, key)), process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(loadedVaultSecrets())].filter(Boolean)).values : [];
   const refresh = async () => { snapshot = redactSnapshot(snapshotFrom((await client.call('browser_snapshot')).text), secrets); return snapshot; };
   /** Web-first: poll the snapshot until `found(snapshot)` or the timeout. */
   const poll = async (found: (snap: string) => boolean, timeoutMs = 10_000) => {

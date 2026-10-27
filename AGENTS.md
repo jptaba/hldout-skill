@@ -47,7 +47,7 @@ setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` a
 - Comments say why, in the density of the code around them.
 
 ## Agent and skill files (`.github/agents/`, `.github/skills/`)
-- They name commands, never script files, and folders by phase (`4-evidence/`), never paths built from a profile.
+- They name commands, never script files, and folders by phase (`4-hardening/`), never paths built from a profile.
   Spec Kit's vendored `speckit-*` skills, pinned and unedited, are exempt (ADR 0004).
 - Every `heldout <command> --flag` they write must exist (`tests/agent-files.test.ts`).
 - A held-out rule (who may see what; WHAT vs HOW) is a guardrail: its change needs two reviews.

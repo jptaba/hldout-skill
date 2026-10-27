@@ -440,7 +440,7 @@
     "outputDir": {
       "type": "string",
       "default": "output",
-      "description": "Everything of a story, per application: <outputDir>/<profile>/<KEY>/ (1-requirement, 2-contract, 3-tests, 4-evidence, 5-runs, 6-verdict, history.jsonl)."
+      "description": "Everything of a story, per application: <outputDir>/<profile>/<KEY>/ (1-requirement, 2-contract, 3-tests, 4-hardening, 5-run, 6-triage, 7-verdict, history.jsonl)."
     },
     "keepScratch": {
       "type": "boolean",

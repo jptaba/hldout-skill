@@ -1,9 +1,12 @@
 # Triage: script defect or application defect? (phase 5)
 
 ```bash
-npm run heldout -- triage KEY                     # the latest run's triage report and replay chains (its record, 5-runs/NN-label.json, already holds each failure's evidence and automatic class)
+npm run heldout -- triage KEY                     # the latest run's triage report and replay chains (its record, 5-run/NN-label.json, already holds each failure's evidence and automatic class)
 npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisions for identical failure signatures
 ```
+
+Triage keeps its own output apart: the decisions in `6-triage/decisions.json` (the run record stays as the run wrote
+it), and the reports of the probes they cite in `6-triage/`.
 
 ## Categories
 
@@ -75,7 +78,7 @@ When something *was* disclosed or changed, the severity follows that, not the st
 
 ## Confirming each failure (mandatory)
 
-1. Read the triage report (`.heldout/<profile>/KEY/5-runs/triage-<run>.md`): failing step, expected vs received, API exchanges, screenshot, snapshot, trace
+1. Read the triage report (`.heldout/<profile>/KEY/6-triage/triage-<run>.md`): failing step, expected vs received, API exchanges, screenshot, snapshot, trace
    (`npx playwright show-trace <the trace.zip in the test's evidence folder>`). When a run has many failures the
    report opens with "Failures that look alike": the same criterion and the same call and status, or the same
    locator. The first failure of a group is written out in full, the others show what differs from it. Start from
@@ -84,7 +87,7 @@ When something *was* disclosed or changed, the severity follows that, not the st
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json` (or build on an
    earlier probe: `--from P4`, `api-probe --chain P7 --set …`; the hardening reference's "Compose probes" lists them);
    replay API requests with `heldout api-probe`. Probe with `--key`: each probe is logged as the story's next one (`P7`), and the decision cites it (`--evidence P7`). Start from
-   `.heldout/<profile>/KEY/4-evidence/chains/<run>/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
+   `.heldout/<profile>/KEY/6-triage/chains/<run>/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
    once. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is
    replayed with the inspector's own steps, never with a script of yours: `force` gives a control the value,
    `rewrite` changes fields of the page's next request, `request` makes a call in the middle of the walk; the report
@@ -130,7 +133,7 @@ workaround or limited scope. **Minor** means wording, contract nuance or cosmeti
 ## Repair loop
 
 1. Fix every confirmed SCRIPT_DEFECT (mechanics only; the `heldout-hardener` subagent repairs what the
-   `heldout-triager` confirmed). Re-probe; when the triager's reports in `4-evidence/` already show the new locator
+   `heldout-triager` confirmed). Re-probe; when the triager's reports in `6-triage/` already show the new locator
    with one match and the control working through it, cite them, and make no second walk that leaves more records.
    Check the repair with a run of the repaired tests only (`heldout run KEY --label repair --grep "SCN-010|SCN-014"`):
    such a run is never the evaluation, whatever comes of it. A shared journey that was repaired needs nothing done in

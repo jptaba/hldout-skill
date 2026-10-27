@@ -11,9 +11,9 @@
  * and an AUT healthcheck (3 samples per URL) — an unreachable or degraded (slow) AUT aborts before any test runs.
  *
  * Each run is numbered and named NN-label, and leaves:
- *   output/<profile>/<KEY>/5-runs/NN-label.json   its record: how it ran, its seeding, every test (one line for a test
+ *   output/<profile>/<KEY>/5-run/NN-label.json    its record: how it ran, its seeding, every test (one line for a test
  *                                                 that passed; for a failure, its evidence and an automatic class)
- *   .heldout/<profile>/<KEY>/5-runs/NN-label/     the raw output (Playwright's JSON, the failures' traces, screenshots
+ *   .heldout/<profile>/<KEY>/5-run/NN-label/      the raw output (Playwright's JSON, the failures' traces, screenshots
  *                                                 and page snapshots, console.log, snapshots/ with --capture); only
  *                                                 the last two runs' raw output is kept, and any run still in triage
  *   a line in the story's history
@@ -121,7 +121,8 @@ export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const p = evalPaths(cfg, key);
-  if (!fs.existsSync(p.tests)) throw new Error(`No tests at ${rel(p.tests)} — generate them first.`);
+  // What runs is the hardener's copy, made when the draft was frozen.
+  if (!fs.existsSync(p.freeze) || !fs.existsSync(p.hardened)) throw new Error(`No frozen tests for ${key} (${rel(p.hardened)}/) — the draft is frozen first: heldout integrity ${key} --snapshot`);
   const label = (flagStr(flags, 'label') ?? 'eval').replace(/[^a-z0-9-]+/gi, '-').toLowerCase();
 
   let health: Awaited<ReturnType<typeof healthcheck>> = [];
@@ -148,7 +149,7 @@ export async function run({ _, flags }: Args): Promise<void> {
 
   // Secrets from HashiCorp Vault (${vault:…} in test-data.json or the accounts recipe): read once, before any run
   // folder exists, and handed to the test process in memory only.
-  const testDataRaw = fs.existsSync(p.testData) ? JSON.parse(fs.readFileSync(p.testData, 'utf8')) as unknown : {};
+  const testDataRaw = fs.existsSync(p.hardenedData) ? JSON.parse(fs.readFileSync(p.hardenedData, 'utf8')) as unknown : {};
   await requireVaultSecrets([testDataRaw, cfg.aut.accounts]);
   const vaultValues = loadedVaultSecrets();
 
@@ -156,19 +157,19 @@ export async function run({ _, flags }: Args): Promise<void> {
   const next = runs.length ? Number(runs.at(-1)!.split('-')[0]) + 1 : 1;
   const runName = `${String(next).padStart(2, '0')}-${label}`;
   rotateRaw(p, runs);
-  // Playwright's raw output goes to the scratch area; the run's record (5-runs/NN-label.json) is written from it.
+  // Playwright's raw output goes to the scratch area; the run's record (5-run/NN-label.json) is written from it.
   const runDir = runRaw(p, runName);
   fs.rmSync(runDir, { recursive: true, force: true });
   fs.mkdirSync(runDir, { recursive: true });
 
-  const args = ['playwright', 'test', rel(p.tests) + '/'];
+  const args = ['playwright', 'test', rel(p.hardened) + '/'];
   const grep = flagStr(flags, 'grep');
   // Playwright greps the title and the tags: "SCN-001" would also pick every test tagged @depends:SCN-001.
   if (grep) args.push('--grep', /SCN-/.test(grep) ? `(?<!@depends:)(?:${grep})` : grep);
   // The profile's maxWorkers caps parallelism for hosts that rate-limit or challenge bursts of traffic.
   // Existing accounts are shared out among workers, so there are never more workers than accounts (of each role) — when
   // the story's tests take accounts at all.
-  const specsHere = specFiles(p.tests);
+  const specsHere = specFiles(p.hardened);
   const accountCalls = [...specsHere, ...journeysUsedBy(cfg, cfg.autId, specsHere)].flatMap((f) => fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').match(/\bseed\.account\([^)]*\)/g) ?? []);
   const takesAccounts = accountCalls.length > 0;
   // Every call names its role as a literal: only those roles limit the workers. One that doesn't may take any account.
@@ -229,7 +230,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   }) : spawnSync(process.execPath, [cli, ...args.slice(1)], { stdio: 'inherit', env, maxBuffer: 256 * 1024 * 1024 });
   if (quiet) writeFile(path.join(runDir, 'console.log'), String(res.stdout ?? ''));
   // Playwright's own error-context / report files embed page snapshots with field values: scrub known secrets.
-  const secrets = secretValuesFor(p.testData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(vaultValues)].filter(Boolean));
+  const secrets = secretValuesFor(p.hardenedData, process.env, [...envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? ''), ...Object.values(vaultValues)].filter(Boolean));
   const scrubbed = scrubDir(runDir, secrets.values);
   // …and the machine's own folder names: paths in the evidence are relative to the project.
   relativizePaths(runDir, ROOT);

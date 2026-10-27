@@ -8,7 +8,7 @@
  *   heldout contract KEY --review-bind    the reviewer's last step: binds its review to the contract (hash, time) and checks
  *   heldout contract KEY --questions      open oracle gaps: the questions the verdict puts to the story's owner (JSON)
  *   heldout contract KEY --resolve G1 --value "…" --evidence P7   a mechanics gap found in the application (the probe
- *                                         that shows it: its report is kept in 4-evidence/; or the run that showed it)
+ *                                         that shows it: its report is kept in 4-hardening/; or the run that showed it)
  *   heldout contract KEY --resolve-from gaps.json    several of them at once: [{ "id", "value", "evidence" }, …]
  *   heldout contract KEY --answer G4 --value "…" --by "<who>"                       the owner's answer to a verdict's open question, before the next evaluation (re-review)
  *   … --allow-unreviewed  accept a contract without an independent review (warning instead of error)

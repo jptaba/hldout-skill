@@ -34,6 +34,6 @@ heldout:
     # The story's record (its runs, the verdict, the history) and the raw output of the runs (traces, JUnit).
     paths:
       - output/*/$HELDOUT_KEY/
-      - .heldout/*/$HELDOUT_KEY/5-runs/
+      - .heldout/*/$HELDOUT_KEY/5-run/
     reports:
-      junit: .heldout/*/$HELDOUT_KEY/5-runs/*/junit.xml
+      junit: .heldout/*/$HELDOUT_KEY/5-run/*/junit.xml

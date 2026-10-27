@@ -126,7 +126,8 @@ export async function run(_: Args): Promise<void> {
   if (cfg) {
     // The Vault values the project uses (test data and accounts recipes), as doctor reads them.
     const conf = cfg;
-    const users = [...listStories(conf).map((s) => evalPaths({ outputDir: conf.outputDir, autId: s.profile }, s.key).testData).filter((f) => fs.existsSync(f)).map((f) => fs.readFileSync(f, 'utf8')),
+    // Both copies: the draft's and the hardener's (which may reference more).
+    const users = [...listStories(conf).flatMap((s) => { const p = evalPaths({ outputDir: conf.outputDir, autId: s.profile }, s.key); return [p.testData, p.hardenedData]; }).filter((f) => fs.existsSync(f)).map((f) => fs.readFileSync(f, 'utf8')),
       ...Object.values(conf.auts).map((a) => a.accounts)];
     // A commit waits for Vault at most a few seconds: one that can't be reached in time is said, not waited for.
     const late = new Promise<string[]>((done) => { const t = setTimeout(() => { vaultLate = true; done([`Vault didn't answer within ${VAULT_WAIT_MS / 1000} s`]); }, VAULT_WAIT_MS); t.unref(); });

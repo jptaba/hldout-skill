@@ -50,7 +50,7 @@ function frontMatter(file: string): Record<string, string> {
  * that changed after the freeze (hardening may fix HOW a journey works; the tests keep WHAT is expected).
  */
 function journeysLine(cfg: HeldoutConfig, p: ReturnType<typeof evalPaths>, scenarios: { id: string; code: string }[], integrity: IntegrityResult): string {
-  const specs = specFiles(p.tests);
+  const specs = specFiles(p.hardened);
   if (!journeysUsedBy(cfg, cfg.autId, specs).length) return 'none used';
   const calls = [...journeyUse(allJourneys(cfg, cfg.autId), specs, scenarios).keys()];
   const registry = readRegistry(cfg, cfg.autId).journeys;
@@ -88,22 +88,23 @@ export function run({ _, flags }: Args): void {
 
   const tri = records.get(finalRun)!;
   const meta = tri.meta;
-  // The screenshot a finding shows is kept with the story's evidence: the run's raw output is scratch.
+  // The screenshot a finding shows is kept with the verdict: the run's raw output is scratch.
   const kept = new Map<TriageEntry, string>();
+  const verdictDir = path.dirname(p.verdictMd);
   const keptScreenshot = (e: TriageEntry): string => {
     if (kept.has(e)) return kept.get(e)!;
     const src = e.evidence.screenshot && path.join(ROOT, e.evidence.screenshot);
-    const dest = path.join(p.evidence, `${finalRun}-${e.scenario}.png`);
-    if (src && fs.existsSync(src)) { fs.mkdirSync(p.evidence, { recursive: true }); fs.copyFileSync(src, dest); }
+    const dest = path.join(verdictDir, `${finalRun}-${e.scenario}.png`);
+    if (src && fs.existsSync(src)) { fs.mkdirSync(verdictDir, { recursive: true }); fs.copyFileSync(src, dest); }
     kept.set(e, fs.existsSync(dest) ? rel(dest) : '');
     return kept.get(e)!;
   };
   const story = frontMatter(p.storyMd);
   const contract = readContract(p.contract);
   if (!contract) throw new Error(`No requirement contract for ${key} — phase 1b first: heldout contract ${key} --pack`);
-  const feature = readSuite(p.tests, contract);
+  const feature = readSuite(p.hardened, contract);
   const freeze = readFreeze(p.freeze);
-  const integrity = checkIntegrity(p.tests, freeze, oracleDigest(contract), storyJourneys(cfg, cfg.autId, specFiles(p.tests)));
+  const integrity = checkIntegrity(p.tests, p.hardened, freeze, oracleDigest(contract), storyJourneys(cfg, cfg.autId, specFiles(p.hardened)));
   const journeys = journeysLine(cfg, p, feature.scenarios, integrity);
   // Links in verdict.md are relative to its own folder.
   const link = (projRel?: string) => (projRel ? path.relative(path.dirname(p.verdictMd), path.join(ROOT, projRel)).split(path.sep).join('/') : '');
@@ -447,9 +448,9 @@ export function run({ _, flags }: Args): void {
     }), '',
     '## Artifacts', '',
     `- Requirement: [story.md](${link(rel(p.storyMd))}) · contract: [contract.json](${link(rel(p.contract))}) · review: [review.json](${link(rel(p.review))})`,
-    `- Tests: [${rel(p.tests)}/](${link(rel(p.tests))}/) · frozen draft: [freeze.json](${link(rel(p.freeze))}) · hardening: [hardening.md](${link(rel(p.hardeningLog))})`,
+    `- Tests: the frozen draft [${rel(p.tests)}/](${link(rel(p.tests))}/) ([freeze.json](${link(rel(p.freeze))})) · as hardened and run [${rel(p.hardened)}/](${link(rel(p.hardened))}/) · hardening: [hardening.md](${link(rel(p.hardeningLog))})`,
     `- Journeys: ${rel(journeyPaths(cfg, cfg.autId).fixtures)}/ · registry: ${rel(journeyPaths(cfg, cfg.autId).registry)}`,
-    `- Runs: ${allRuns.map((r) => `[${r}.json](${link(rel(runFile(p, r)))})`).join(' · ')} (each run's tests, the evidence of its failures and the decisions)`,
+    `- Runs: ${allRuns.map((r) => `[${r}.json](${link(rel(runFile(p, r)))})`).join(' · ')} (each run's tests and the evidence of its failures) · triage: [decisions.json](${link(rel(p.decisions))})`,
     `- History of the evaluation: [history.jsonl](${link(rel(p.history))})`,
     ...(fs.existsSync(path.join(runRaw(p, finalRun), 'html')) ? [`- HTML report, while the run's raw output is kept: \`npx playwright show-report ${rel(path.join(runRaw(p, finalRun), 'html'))}\``] : []), '');
 

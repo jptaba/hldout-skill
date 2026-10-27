@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { checkIntegrity, draftOf, reqAssertions, reqConstants, type Amendment, type Freeze } from '../.github/scripts/authoring/integrity-check';
+import { checkIntegrity, copyDraft, draftOf, reqAssertions, reqConstants, revisionOf, type Amendment, type Freeze } from '../.github/scripts/authoring/integrity-check';
 
 const SPEC = `
 // @req-constants-start
@@ -18,17 +18,19 @@ test('SCN-001: a', async () => {
 `;
 
 const ORACLE = '{"acs":[]}';
-/** A tests folder holding `current`, and a freeze of `draft` (with the contract oracle and any amendments). */
-function workspace(draft: string, current: string, amendments: Amendment[] = []): { tests: string; freeze: Freeze } {
+/** The frozen `draft` in 3-tests/ with its freeze, and the hardener's copy in 4-hardening/ holding `current`. */
+function workspace(draft: string, current: string, amendments: Amendment[] = []): { tests: string; hardened: string; freeze: Freeze } {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-int-'));
   const tests = path.join(dir, '3-tests');
+  const hardened = path.join(dir, '4-hardening');
   fs.mkdirSync(tests);
   fs.writeFileSync(path.join(tests, 'a.spec.ts'), draft);
   const freeze: Freeze = { ...draftOf(tests, ORACLE), refreezes: [], amendments };
-  fs.writeFileSync(path.join(tests, 'a.spec.ts'), current);
-  return { tests, freeze };
+  copyDraft(tests, hardened);
+  fs.writeFileSync(path.join(hardened, 'a.spec.ts'), current);
+  return { tests, hardened, freeze };
 }
-const check = (w: { tests: string; freeze: Freeze }) => checkIntegrity(w.tests, w.freeze, ORACLE);
+const check = (w: { tests: string; hardened: string; freeze: Freeze }) => checkIntegrity(w.tests, w.hardened, w.freeze, ORACLE);
 
 describe('reqAssertions', () => {
   const m = reqAssertions(SPEC);
@@ -79,14 +81,44 @@ describe('checkIntegrity', () => {
   });
   it('without a freeze there is nothing to compare: NO_DRAFT', () => {
     const w = workspace(SPEC, SPEC);
-    assert.equal(checkIntegrity(w.tests, undefined, ORACLE).status, 'NO_DRAFT');
+    assert.equal(checkIntegrity(w.tests, w.hardened, undefined, ORACLE).status, 'NO_DRAFT');
+  });
+  it('the freeze keeps hashes, not the draft; a draft edited after the freeze is a violation', () => {
+    const w = workspace(SPEC, SPEC);
+    assert.match(w.freeze.specs['a.spec.ts'], /^[0-9a-f]{64}$/);
+    assert.equal(check(w).status, 'PRESERVED');
+    fs.writeFileSync(path.join(w.tests, 'a.spec.ts'), SPEC.replace("getByTestId('msg')", "locator('#msg')"));
+    const r = check(w);
+    assert.equal(r.status, 'VIOLATED');
+    assert.deepEqual(r.draftChanged, ['a.spec.ts']);
+    // Line endings are no change.
+    fs.writeFileSync(path.join(w.tests, 'a.spec.ts'), SPEC.replace(/\n/g, '\r\n'));
+    assert.equal(check(w).status, 'PRESERVED');
+  });
+  it('the hardener\'s copy carries the test data, and a re-freeze lists what the revised draft changed', () => {
+    const w = workspace(SPEC, SPEC);
+    fs.writeFileSync(path.join(w.tests, 'test-data.json'), '{"term":"x"}');
+    assert.deepEqual(copyDraft(w.tests, w.hardened), ['a.spec.ts', 'test-data.json']);
+    assert.equal(fs.readFileSync(path.join(w.hardened, 'test-data.json'), 'utf8'), '{"term":"x"}');
+    // Audited against the freeze's own hashes: a hardened copy edited the same way changes nothing in the audit.
+    fs.writeFileSync(path.join(w.tests, 'a.spec.ts'), SPEC.replace('.toHaveText(REQ.MSG)', ".toHaveText('Hi')").replace("MSG: 'Hello'", "MSG: 'Hey'"));
+    fs.copyFileSync(path.join(w.tests, 'a.spec.ts'), path.join(w.hardened, 'a.spec.ts'));
+    const r = revisionOf(w.freeze, w.tests);
+    assert.deepEqual([r.changed, r.constantsChanged, r.removed, r.added], [['a.spec.ts: [REQ AC-1] message shown'], ['a.spec.ts'], [], []]);
+  });
+  it('the hardener\'s copy keeps a spec in a subfolder', () => {
+    const w = workspace(SPEC, SPEC);
+    fs.mkdirSync(path.join(w.tests, 'more'));
+    fs.writeFileSync(path.join(w.tests, 'more', 'b.spec.ts'), SPEC);
+    copyDraft(w.tests, w.hardened);
+    assert.ok(fs.existsSync(path.join(w.hardened, 'more', 'b.spec.ts')));
   });
 });
 
 describe('contract oracle in the frozen draft', () => {
   it('a draft frozen with another contract oracle is a violation', () => {
     const w = workspace(SPEC, SPEC);
-    const r = checkIntegrity(w.tests, { ...w.freeze, contractOracle: '' }, ORACLE);
+    const r = checkIntegrity(w.tests, w.hardened, { ...w.freeze, contractOracle: '' }, ORACLE);
     assert.equal(r.status, 'VIOLATED');
     assert.equal(r.contractChanged, true);
   });

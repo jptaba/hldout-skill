@@ -20,9 +20,10 @@ process.env.AUT_BASE_URL ??= profile.baseURL;
 process.env.AUT_API_BASE_URL ??= profile.apiBaseURL ?? profile.baseURL;
 
 export default defineConfig({
-  // Each story's tests: output/<profile>/<KEY>/3-tests/ (the journeys they import are not tests).
+  // Each story's tests as they run: the hardener's copy, output/<profile>/<KEY>/4-hardening/ (the frozen draft in
+  // 3-tests/ never runs; the journeys the tests import are not tests).
   testDir: cfg.outputDir ?? 'output',
-  testMatch: '**/3-tests/**/*.spec.ts',
+  testMatch: '**/4-hardening/**/*.spec.ts',
   outputDir: path.join(runDir, 'artifacts'),
   fullyParallel: true,
   // Records the tests share through seed.shared are removed once, when the run is over.

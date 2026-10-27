@@ -1,7 +1,7 @@
 /**
  * Held-out test fixtures (scaffolded by the heldout-evaluator skill — AUT-agnostic).
  *
- *  - `data`    : output/<profile>/<KEY>/3-tests/test-data.json (beside the spec), with ${env:NAME} placeholders resolved (keep secrets in .env).
+ *  - `data`    : the test-data.json beside the spec (output/<profile>/<KEY>/4-hardening/ when the tests run), with ${env:NAME} placeholders resolved (keep secrets in .env).
  *  - `journey` : wraps each Given / When / Then step in a test.step(). Captures an ARIA snapshot of the page
  *                after every step when HELDOUT_CAPTURE=1 (hardening tier 3) and always on step failure
  *                (triage evidence). Snapshots land in <run dir>/snapshots/<SCN-ID>/.
@@ -698,7 +698,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
   },
 
   data: async ({}, use, testInfo) => {
-    // The spec and its data sit side by side: output/<profile>/<KEY>/3-tests/{<key>.spec.ts, test-data.json}.
+    // The spec and its data sit side by side: output/<profile>/<KEY>/4-hardening/{<key>.spec.ts, test-data.json}.
     const file = path.join(path.dirname(testInfo.file), 'test-data.json');
     const raw = fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Json) : {};
     await use(resolveEnv(raw) as TestData);

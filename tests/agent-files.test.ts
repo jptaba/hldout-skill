@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { AGENT_FILES, SKILL_DIR } from '../.github/scripts/core/config';
+import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
 import { ROLES, toolProblems } from '../.github/scripts/core/roles';
 import { COMMANDS, loadCommand } from '../.github/scripts/heldout';
 
@@ -113,6 +114,27 @@ describe('agent files', () => {
     const early = toolProblems(bridge, read(bridge).replace(/^(model:.*)$/m, '$1\n---x: 1\nmcpServers: {a: 1}'));
     assert.ok(early.some((p) => p.includes('isn\'t one "key: value" (---x')), early.join('\n'));
     assert.ok(early.some((p) => p.includes('unknown frontmatter key mcpServers')), 'the lines after it are still read');
+  });
+
+  it('each subagent names only the phase folders of its inputs and its own output (specs/001-phase-separation)', () => {
+    const allowed: Record<string, string[]> = {
+      'heldout-contract-extractor': ['1-requirement', '2-contract'],
+      'heldout-contract-reviewer': ['1-requirement', '2-contract'],
+      'heldout-test-author': ['2-contract', '3-tests'],
+      // The hardener is told the draft in 3-tests/ stays as frozen; it works in its own folder.
+      'heldout-hardener': ['2-contract', '3-tests', '4-hardening'],
+      'heldout-triager': ['2-contract', '4-hardening', '5-run', '6-triage'],
+    };
+    // Every phase folder named in the agent files, SKILL.md and the references is one of the layout's, with or without "/".
+    const docs = [...fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => path.join(REPO, '.github', 'agents', f)),
+      path.join(SKILL_DIR, 'SKILL.md'), ...fs.readdirSync(path.join(SKILL_DIR, 'references')).map((f) => path.join(SKILL_DIR, 'references', f))];
+    const unknown = docs.flatMap((f) => [...fs.readFileSync(f, 'utf8').matchAll(/\b[1-9]-(?:requirement|contract|tests|hardening|evidence|runs?|triage|verdict)\b/g)]
+      .map((m) => m[0]).filter((n) => !(PHASE_FOLDERS as readonly string[]).includes(n)).map((n) => `${f}: ${n}`));
+    assert.deepEqual(unknown, []);
+    for (const [name, folders] of Object.entries(allowed)) {
+      const named = [...new Set(fs.readFileSync(path.join(REPO, `.github/agents/${name}.agent.md`), 'utf8').match(/\b[1-7]-[a-z]+(?=\/)/g) ?? [])];
+      assert.deepEqual(named.filter((f) => !folders.includes(f)), [], `${name} names folders outside its phase's inputs and output`);
+    }
   });
 
   it('each Copilot agent lists its model with fallbacks; each Claude Code bridge names one model', () => {

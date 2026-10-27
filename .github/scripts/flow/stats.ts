@@ -46,7 +46,8 @@ export function storyStats(dir: string, profile: string, key: string): StoryStat
   const all = (name: string) => events.filter((e) => e.event === name);
   const notes = all('note');
   const text = (e: HistoryEvent) => String(e.text ?? e.remark ?? '');
-  const runsDir = path.join(dir, PHASE_FOLDERS[4]);
+  const [, , , HARDENING, RUN, TRIAGE] = PHASE_FOLDERS;
+  const runsDir = path.join(dir, RUN);
   const runs = listRuns(runsDir);
   const lastEval = runs.filter((r) => !NON_EVAL_RUN.test(r)).at(-1);
   const isEval = (e: HistoryEvent) => typeof e.run === 'string' && !NON_EVAL_RUN.test(e.run);
@@ -56,7 +57,7 @@ export function storyStats(dir: string, profile: string, key: string): StoryStat
     const file = runFile({ runs: runsDir }, lastEval);
     try { failed = readRunRecord(file).entries.filter((e) => e.status === 'failed').length; } catch { unreadable.push(rel(file)); }
   }
-  const probes = readProbes({ evidence: path.join(dir, PHASE_FOLDERS[3]) });
+  const probes = readProbes({ hardened: path.join(dir, HARDENING), triage: path.join(dir, TRIAGE) });
   return {
     profile, key, runs, failed, unreadable,
     scriptDefects: all('decided').filter((e) => e.category === 'SCRIPT_DEFECT').reduce((n, e) => n + (Array.isArray(e.tests) ? e.tests.length : 1), 0),
@@ -101,7 +102,7 @@ export function statsTable(stories: StoryStats[]): string[] {
   return [
     '| Story | Runs | Failed (last eval) | Script defects | Amend / refreeze | Reviews | Probes harden / triage | Minutes req / tests / harden / triage / total | Stray | Tool gaps | Subagents |',
     '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
-    ...stories.map((s) => `| ${several ? `${s.profile}/` : ''}${s.key} | ${s.runs.length} | ${s.failed ?? (s.unreadable.length ? '?' : '-')} | ${s.scriptDefects} | ${s.amendments} / ${s.refreezes} | ${s.reviews} | ${s.probes.harden ?? 0} / ${s.probes.triage ?? 0} | ${PHASES.map((k) => t(s.times[k])).join(' / ')} | ${s.stray.length} | ${s.gaps.length} | ${cost(s)} |`),
+    ...stories.map((s) => `| ${several ? `${s.profile}/` : ''}${s.key} | ${s.runs.length} | ${s.failed ?? (s.unreadable.length ? '?' : '-')} | ${s.scriptDefects} | ${s.amendments} / ${s.refreezes} | ${s.reviews} | ${s.probes.hardening ?? 0} / ${s.probes.triage ?? 0} | ${PHASES.map((k) => t(s.times[k])).join(' / ')} | ${s.stray.length} | ${s.gaps.length} | ${cost(s)} |`),
   ];
 }
 

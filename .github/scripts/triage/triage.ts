@@ -1,6 +1,6 @@
 /**
  * Phase 5 — Triage failures: SCRIPT defect vs APPLICATION defect (vs environment / flaky / unknown). Every run's record
- * (5-runs/NN-label.json, written by `heldout run`) already holds each failure's evidence and an automatic
+ * (5-run/NN-label.json, written by `heldout run`) already holds each failure's evidence and an automatic
  * classification; triage is where the decisions are confirmed.
  *
  *   heldout triage <KEY> [--run 02-eval]
@@ -11,8 +11,8 @@
  *
  *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
  *        --rationale "..." [--evidence "P7 …"] [--action "..."] [--title "..."] [--any-reading [SCN-a,SCN-b]]
- *        → records the evaluator's *confirmed* classification after live re-investigation, in the run's record. The
- *        probes the evidence names (Pn) must be in the story's probe log; their reports are kept in 4-evidence/.
+ *        → records the evaluator's *confirmed* classification after live re-investigation, in 6-triage/decisions.json.
+ *        The probes the evidence names (Pn) must be in the story's probe logs; their reports are kept in their phase's folder.
  *        --any-reading: the test is tagged @assumes or @needs-clarification, but the failure holds whichever way the
  *        open question is answered (the rationale says why): it is reported as a defect, not as a question for the owner.
  *        With ids, only those tests of the call are marked (the others stay questions for the owner).
@@ -77,8 +77,8 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
 
 /** Where a run's triage report and its starting chains go: views and working files, in the scratch area. */
 const placesOf = (p: StoryPaths, run: string) => ({
-  report: path.join(p.work.runs, `triage-${run}.md`),
-  chains: path.join(p.work.evidence, 'chains', run),
+  report: path.join(p.work.triage, `triage-${run}.md`),
+  chains: path.join(p.work.triage, 'chains', run),
 });
 
 /** Write the run's triage report (a view: rendered again whenever a decision is recorded). */

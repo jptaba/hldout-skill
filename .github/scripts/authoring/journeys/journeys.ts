@@ -213,10 +213,10 @@ function harvest(cfg: HeldoutConfig, key: string, profile: string, p: ReturnType
   if (last?.finalRun === verdict.finalRun && apply) throw new Error(`Already harvested for ${verdict.finalRun} → ${last.registry}`);
 
   const jp = journeyPaths(cfg, profile);
-  const specs = specFiles(p.tests);
+  const specs = specFiles(p.hardened);
   const usedFiles = journeysUsedBy(cfg, profile, specs);
   const broken = new Set(lintJourneys(usedFiles, contract, jp.base).filter((f) => f.level === 'error').map((f) => f.message.split(' ')[0]));
-  const scenarios = readSuite(p.tests, contract).scenarios;
+  const scenarios = readSuite(p.hardened, contract).scenarios;
   const use = journeyUse(journeys, specs, scenarios);
   const requires = observedRequires(journeys, specs, scenarios.filter((s) => passed.has(s.id)));
   const at = new Date().toISOString();

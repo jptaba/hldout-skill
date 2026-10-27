@@ -24,13 +24,14 @@ Two folders in your project hold the work:
 ```
 journeys/fixtures/<domain>.ts   reusable journeys, UI and API, one file per area of the app (products.ts, favorites.ts…)
 journeys/registry.yml           each journey's id and file, what it touches, what must run before it, which story proved it
-output/<app>/<KEY>/             the record of one story, one folder per question a reviewer asks, in order:
+output/<app>/<KEY>/             the record of one story, one folder per phase, each keeping only what the next ones read:
   1-requirement/  story.md  linked/  transcripts/                  what was asked
   2-contract/     contract.json  review.json                       what we took it to mean, and its independent review
-  3-tests/        <key>.spec.ts  test-data.json  freeze.json  hardening.md   how it was tested
-  4-evidence/     probes.jsonl  P7.md  05-eval-SCN-012.png         what was seen in the application
-  5-runs/         01-harden.json  05-eval.json                     one record per run: its tests, evidence and decisions
-  6-verdict/      verdict.md  verdict.json                         what we recommend
+  3-tests/        <key>.spec.ts  test-data.json  freeze.json       how it is tested: the draft, as frozen
+  4-hardening/    <key>.spec.ts  hardening.md  P7.md               the tests made to work, and what showed how
+  5-run/          05-eval.json                                     what ran: its tests and the evidence of failures
+  6-triage/       decisions.json  P12.md                           why each failure failed, reproduced live
+  7-verdict/      verdict.md  verdict.json  05-eval-SCN-012.png    what we recommend
   history.jsonl                                                    every step that changed the story, in order
 ```
 

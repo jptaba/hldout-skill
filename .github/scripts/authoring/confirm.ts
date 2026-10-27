@@ -6,7 +6,7 @@
  *
  *   heldout confirm KEY --file journeys/fixtures/cart.ts [--file …] --evidence P7
  *
- * The evidence is the probe that showed it (Pn: its report is kept in the story's 4-evidence/), or the run.
+ * The evidence is the probe that showed it (Pn: its report is kept in the story's 4-hardening/), or the run.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -180,6 +180,12 @@ export function withoutMarks(src: string): { out: string; removed: number; left:
   return { out, removed, left: marks.length - removed };
 }
 
+/** Whether a file is inside a folder (a name that only starts with two dots, `..x.ts`, is inside). */
+export function inFolder(dir: string, file: string): boolean {
+  const r = path.relative(dir, file);
+  return Boolean(r) && !path.isAbsolute(r) && r.split(/[\\/]/)[0] !== '..';
+}
+
 export const spec: CommandSpec = {
   name: 'confirm', group: 'Hardening', usage: 'KEY --file <spec or journey file>… --evidence Pn',
   about: 'remove the TODO(harden) marks of guesses the probe showed were right, in one go',
@@ -199,6 +205,8 @@ export function run({ _, flags }: Args): void {
   for (const f of files) {
     const file = path.resolve(ROOT, f);
     if (!file.startsWith(ROOT) || !file.endsWith('.ts') || !fs.existsSync(file)) throw new Error(`${f} is not a .ts file of this project`);
+    // The draft stays as frozen: hardening confirms guesses in its own copy.
+    if (inFolder(p.tests, file)) throw new Error(`${f} is the frozen draft: confirm the guess in the hardened copy, ${rel(p.hardened)}/${path.basename(file)}`);
     const { out, removed: marks, left } = withoutMarks(fs.readFileSync(file, 'utf8'));
     if (!marks && !left) { console.log(`• ${rel(file)}: no TODO(harden) mark`); continue; }
     if (left) console.log(`⚠ ${rel(file)}: ${left} TODO(harden) outside a comment (in code or a string) left as it is — edit it by hand`);

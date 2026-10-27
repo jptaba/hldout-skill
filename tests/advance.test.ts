@@ -83,7 +83,7 @@ describe('guesses left in a journey that is new with the story, settled by the r
 describe('which runs are evaluations', () => {
   it('never a hardening, reproduction or repair run, and never a run of some of the tests', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'runs-'));
-    // A run is its record, 5-runs/NN-label.json, which says how it was made.
+    // A run is its record, 5-run/NN-label.json, which says how it was made.
     const run = (name: string, meta: object = {}) => fs.writeFileSync(path.join(dir, `${name}.json`), JSON.stringify({ meta }));
     run('01-harden', { grep: null });
     run('02-eval', { grep: null });

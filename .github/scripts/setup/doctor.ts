@@ -151,7 +151,8 @@ export async function run({ flags }: Args): Promise<void> {
   // ---- secrets referenced by the stories ----------------------------------------------------------
   if (cfg) {
     const outDir = path.resolve(ROOT, cfg.outputDir);
-    const testDataFiles = listStories(cfg).map((s) => ({ key: s.key, file: evalPaths({ outputDir: cfg.outputDir, autId: s.profile }, s.key).testData })).filter((s) => fs.existsSync(s.file));
+    // Both copies of each story's test data: the draft's and the hardener's (which may reference more).
+    const testDataFiles = listStories(cfg).flatMap((s) => { const p = evalPaths({ outputDir: cfg.outputDir, autId: s.profile }, s.key); return [p.testData, p.hardenedData].map((file) => ({ key: s.key, file })); }).filter((s) => fs.existsSync(s.file));
     const missing = new Map<string, string[]>();
     for (const { key, file } of testDataFiles) {
       for (const m of fs.readFileSync(file, 'utf8').matchAll(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g)) if (!process.env[m[1]]) missing.set(m[1], [...(missing.get(m[1]) ?? []), key]);

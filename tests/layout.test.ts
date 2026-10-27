@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { moveStrayFiles, strayFiles } from '../.github/scripts/core/paths';
+import { PHASE_FOLDERS, moveStrayFiles, strayFiles } from '../.github/scripts/core/paths';
 import { COMMANDS } from '../.github/scripts/heldout';
 
 const DIR = path.join(import.meta.dirname, '..', '.github', 'scripts');
@@ -65,10 +65,12 @@ describe('the scripts layout', () => {
   });
 
   it('names the story folders in core/paths.ts only', () => {
-    // A phase folder's name in a string, outside comments: everything else asks core/paths.ts for the folder.
+    // A phase folder's name in a string, outside comments: everything else asks core/paths.ts for the folder. Any
+    // "<digit>-<word>" name counts, so an old or a new folder name is caught alike.
+    const names = new RegExp(`['"\`][^'"\`\\n]*\\b(?:${PHASE_FOLDERS.join('|')}|[1-9]-(?:evidence|runs|verdict))\\b`);
     const named = files.filter((f) => f !== 'core/paths.ts').flatMap((f) => fs.readFileSync(path.join(DIR, f), 'utf8')
       .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').split('\n')
-      .flatMap((line, i) => (/['"`][^'"`\n]*\b[1-6]-(?:requirement|contract|tests|evidence|runs|verdict)\b/.test(line) ? [`${f}:${i + 1}`] : [])));
+      .flatMap((line, i) => (names.test(line) ? [`${f}:${i + 1}`] : [])));
     assert.deepEqual(named, []);
   });
 
@@ -84,17 +86,20 @@ describe('the story record', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-stray-'));
     const p = { base: path.join(root, 'KEY'), work: { stray: path.join(root, 'scratch', 'stray') } };
     const kept = ['history.jsonl', '1-requirement/story.md', '1-requirement/linked/page.md', '2-contract/contract.json', '3-tests/key.spec.ts',
-      '3-tests/freeze.json', '4-evidence/probes.jsonl', '4-evidence/P12.md', '4-evidence/05-eval-SCN-001.png', '5-runs/05-eval.json', '6-verdict/verdict.md'];
-    const stray = ['3-tests/login.steps.json', '5-runs/05-eval/results.json', 'gaps.json', '4-evidence/notes.txt'];
+      '3-tests/freeze.json', '4-hardening/key.spec.ts', '4-hardening/hardening.md', '4-hardening/probes.jsonl', '4-hardening/P2.md',
+      '5-run/05-eval.json', '6-triage/decisions.json', '6-triage/probes.jsonl', '6-triage/P12.md', '7-verdict/verdict.md', '7-verdict/05-eval-SCN-001.png'];
+    // Each phase keeps its own files only: the hardening log is not the draft's, a screenshot is the verdict's.
+    const stray = ['3-tests/login.steps.json', '3-tests/hardening.md', '5-run/05-eval/results.json', 'gaps.json', '6-triage/notes.txt', '6-triage/SCN-1.png', '6-triage/repro.chain.json'];
     for (const f of [...kept, ...stray]) { fs.mkdirSync(path.dirname(path.join(p.base, f)), { recursive: true }); fs.writeFileSync(path.join(p.base, f), 'x'); }
     const found = strayFiles(p);
     assert.deepEqual(found.map((s) => s.file), [...stray].sort());
-    assert.match(found.find((s) => s.file === '3-tests/login.steps.json')!.home, /scratch area's 4-evidence/);
-    assert.match(found.find((s) => s.file === '5-runs/05-eval/results.json')!.home, /raw output/);
+    assert.match(found.find((s) => s.file === '3-tests/login.steps.json')!.home, /scratch area's 4-hardening/);
+    assert.match(found.find((s) => s.file === '6-triage/repro.chain.json')!.home, /scratch area's 6-triage/);
+    assert.match(found.find((s) => s.file === '5-run/05-eval/results.json')!.home, /raw output/);
     assert.deepEqual(moveStrayFiles(p), [...stray].sort());
     assert.deepEqual(strayFiles(p), []);
-    assert.ok(fs.existsSync(path.join(p.work.stray, '5-runs/05-eval/results.json')));
-    assert.ok(!fs.existsSync(path.join(p.base, '5-runs/05-eval')), 'the emptied folder goes too');
+    assert.ok(fs.existsSync(path.join(p.work.stray, '5-run/05-eval/results.json')));
+    assert.ok(!fs.existsSync(path.join(p.base, '5-run/05-eval')), 'the emptied folder goes too');
     for (const f of kept) assert.ok(fs.existsSync(path.join(p.base, f)), f);
     fs.rmSync(root, { recursive: true, force: true });
   });

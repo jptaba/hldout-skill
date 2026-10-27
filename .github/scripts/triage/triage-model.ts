@@ -1,6 +1,7 @@
 /** The run record and triage data model, and repeat merging (unit tested). The command lives in triage/triage.ts. */
 import fs from 'node:fs';
 import path from 'node:path';
+import { decisionsFor } from '../core/paths';
 import type { ApiExchange, AutoClassification, Category, ParsedError } from './classify';
 
 export interface TriageEntry {
@@ -68,20 +69,39 @@ export interface RunMeta {
 }
 
 /**
- * The record of one run (5-runs/NN-label.json): how it was made, what its seeding did, and every test — one line for
- * a test that passed, the evidence of the failure and its classification for one that didn't, and, once the triager
- * has confirmed it, the decision. Everything after the run (triage, the verdict, the review of an evaluation) reads
- * this file, never the raw output.
+ * The record of one run (5-run/NN-label.json): how it was made, what its seeding did, and every test — one line for
+ * a test that passed, the evidence of the failure and its classification for one that didn't. The triager's
+ * decisions are its own file (6-triage/decisions.json, by run and test), read back into the entries' `final`: the run
+ * record stays as the run wrote it. Everything after the run reads these files, never the raw output.
  */
 export interface RunRecord extends TriageReport { meta: RunMeta; seed?: SeedSummary }
 
-export function readRunRecord(file: string): RunRecord {
-  return JSON.parse(fs.readFileSync(file, 'utf8')) as RunRecord;
+type Decisions = Record<string, Record<string, NonNullable<TriageEntry['final']>>>;
+function readDecisions(file: string): Decisions {
+  if (!fs.existsSync(file)) return {};
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')) as Decisions; } catch (e) {
+    throw new Error(`${file} can't be read (${(e as Error).message}): mend it from version control, or record the decisions again with heldout triage --set`);
+  }
 }
 
+export function readRunRecord(file: string): RunRecord {
+  const record = JSON.parse(fs.readFileSync(file, 'utf8')) as RunRecord;
+  const decided = readDecisions(decisionsFor(file))[record.run] ?? {};
+  return { ...record, entries: record.entries.map((e) => (decided[e.scenario] ? { ...e, final: decided[e.scenario] } : e)) };
+}
+
+/** Writes the run's record without the decisions, and the decisions to the triage phase's file. */
 export function writeRunRecord(file: string, record: RunRecord): void {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(record, null, 2)}\n`);
+  fs.writeFileSync(file, `${JSON.stringify({ ...record, entries: record.entries.map(({ final: _, ...e }) => e) }, null, 2)}\n`);
+  const finals = Object.fromEntries(record.entries.filter((e) => e.final).map((e) => [e.scenario, e.final!]));
+  const dfile = decisionsFor(file);
+  const all = readDecisions(dfile);
+  if (!Object.keys(finals).length && !all[record.run]) return;
+  const next = { ...all, [record.run]: finals };
+  if (!Object.keys(finals).length) delete next[record.run];
+  fs.mkdirSync(path.dirname(dfile), { recursive: true });
+  fs.writeFileSync(dfile, `${JSON.stringify(next, null, 2)}\n`);
 }
 
 /** The failures of a run that have no confirmed decision yet. */

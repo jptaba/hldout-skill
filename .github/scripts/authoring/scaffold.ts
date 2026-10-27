@@ -9,7 +9,6 @@
  *                       test stub per criterion with its "// from" source and tags. Stubs are TODO(test): the lint
  *                       refuses them until implemented, and a criterion may need several tests (one @type each).
  *   test-data.json      the values the specs read via `data`; the contract's test-user secret as ${env:NAME}
- *   hardening.md        a template the hardener fills in
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -61,19 +60,6 @@ export function run({ _, flags }: Args): void {
     writeFile(p.testData, `${JSON.stringify(secret ? { password: `\${env:${secret}}` } : {}, null, 2)}\n`);
     console.log(`✔ created ${rel(p.testData)}${secret ? ` (password → \${env:${secret}})` : ''} — add the values your tests need`);
     if (secret && !process.env[secret]) console.log(`• next: set ${secret}. For accounts the tests create themselves: npm run heldout -- secret ${secret} --generate. For an existing account, add ${secret}=… to .env.`);
-  }
-
-  if (!fs.existsSync(p.hardeningLog)) {
-    // The layout of references/hardening.md §5, so the hardener fills it in rather than rewriting it.
-    writeFile(p.hardeningLog, [
-      `# Hardening log — ${key}`, '**Tiers used:** ', `**AUT profile:** ${cfg.autId} — ${cfg.aut.baseURL}${cfg.aut.apiBaseURL && cfg.aut.apiBaseURL !== cfg.aut.baseURL ? ` · ${cfg.aut.apiBaseURL}` : ''} · **Date:**  · **Draft frozen:** ${rel(p.freeze)}`, '',
-      '## UI locators', '| Test(s) | Element | Draft locator | Hardened locator | Verified (probe) | Evidence |', '| --- | --- | --- | --- | --- | --- |',
-      '## API mechanics', '| Item | Verified | Evidence |', '| --- | --- | --- |',
-      '## Journeys (reused, fixed, added)', '| Journey | Change | Why | Evidence |', '| --- | --- | --- | --- |',
-      '## Mechanics changed (non-locator)', '',
-      '## Observed deviations (assertions intentionally left unchanged)', '| Test | Requirement says | AUT shows | Evidence |', '| --- | --- | --- | --- |', '',
-    ].join('\n'));
-    console.log(`✔ created ${rel(p.hardeningLog)} — a template: fill it in while hardening (the verdict quotes its "Tiers used" line)`);
   }
 
   const discover = toDiscover(c);

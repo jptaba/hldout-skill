@@ -19,7 +19,7 @@
  *       --vars-from again. A --var value is logged as given: a secret goes in as ${env:NAME})
  *       [--save qid="POST /messages:id"]...   keep a field of the last JSON answer the page got for that call (the id of
  *       what the walk created), logged with the probe for a later walk or chain (--vars-from Pn)
- *   With --key the walk is logged as the story's next probe (P1, P2…: 4-evidence/probes.jsonl) and its full report
+ *   With --key the walk is logged as the story's next probe (P1, P2…: probes.jsonl of the phase it is made in, 4-hardening/ or 6-triage/) and its full report
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200), and
  *                          a "request" step that much of its answer

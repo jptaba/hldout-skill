@@ -24,7 +24,8 @@ export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   console.log(`Preflight ${key} → AUT profile "${cfg.autId}" (${cfg.aut.name})`);
-  const findings = lintEvaluation(cfg, key, { allowUnhardened: Boolean(flags['allow-unhardened']) });
+  // The author's mark is about the draft: lint the draft, also when a frozen one is being revised.
+  const findings = lintEvaluation(cfg, key, { allowUnhardened: Boolean(flags['allow-unhardened']), draft: Boolean(flags['draft-finished']) });
   printFindings(findings);
   let healthy = true;
   if (!flags['no-health']) {

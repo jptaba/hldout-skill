@@ -6,10 +6,10 @@ import type { TriageEntry, TriageReport } from '../.github/scripts/triage/triage
 
 const ROOT = path.resolve('some-project');
 const RUN = {
-  dir: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '5-runs'),
-  chains: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '4-evidence', 'chains', '02-eval'),
+  dir: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '6-triage'),
+  chains: path.join(ROOT, '.heldout', 'shop', 'ABC-1', '6-triage', 'chains', '02-eval'),
 };
-const ART = '.heldout/shop/ABC-1/5-runs/02-eval/artifacts';
+const ART = '.heldout/shop/ABC-1/5-run/02-eval/artifacts';
 
 function failure(scenario: string, o: { ac?: string; url?: string; status?: number; body?: unknown; locator?: string; headline?: string; final?: TriageEntry['final'] } = {}): TriageEntry {
   return {
@@ -72,7 +72,7 @@ describe('the triage report', () => {
     assert.match(second, /- Like SCN-001 \(group 1\)/);
     assert.match(second, /response body: as SCN-001/);
     assert.doesNotMatch(second, /\*\*Auto:/);
-    assert.match(second, /- Evidence: test-failed-1\.png, trace\.zip, error-context\.md in \[this folder\]\(02-eval\/artifacts\/SCN-002\/\)/);
+    assert.match(second, /- Evidence: test-failed-1\.png, trace\.zip, error-context\.md in \[this folder\]\(\.\.\/5-run\/02-eval\/artifacts\/SCN-002\/\)/, 'the report sits in the triage phase\'s scratch, the run\'s raw output in the run\'s');
     assert.match(third, /- Requirement refs: AC-1/, 'another status is another group, written in full');
   });
 

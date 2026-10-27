@@ -13,7 +13,7 @@ guess sensibly and mark it; the hardener discovers it after the freeze.
 Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` prints the story's folder,
 `output/<profile>/KEY/`):
 - `2-contract/contract.json` (reviewed): your only source of WHAT is expected — criteria, outcomes, rules, error model,
-  endpoints, gaps and how each was resolved. `1-requirement/` holds the sources it quotes. You write in `3-tests/`.
+  endpoints, gaps and how each was resolved, each quoted from its source. You write in `3-tests/`.
 - The application's journeys, `journeys/fixtures/<domain>.ts`: the reusable HOW, one file per area of the application.
   They hold no expected value. `npm run heldout -- journeys KEY` lists them, with what each requires (from
   `journeys/registry.yml`).

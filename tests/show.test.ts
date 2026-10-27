@@ -17,14 +17,14 @@ function project(): string {
     defaultAut: 'shop', auts: { shop: { name: 'Shop', baseURL: 'https://shop.test/', accounts: { existing: [{ username: 'admin@shop.test', password: '${env:ADMIN_PW}', role: 'admin', shared: true }] } } },
   }));
   const story = path.join(root, 'output', 'shop', 'ABC-1');
-  fs.mkdirSync(path.join(story, '5-runs'), { recursive: true });
+  fs.mkdirSync(path.join(story, '5-run'), { recursive: true });
   fs.mkdirSync(path.join(story, '2-contract'), { recursive: true });
   fs.writeFileSync(path.join(story, '2-contract', 'contract.json'), JSON.stringify({
     key: 'ABC-1', title: 'Search', acceptanceCriteria: [{ id: 'AC-1', layer: 'api', text: 'finds', outcomes: ['200'], source: 'story.md#L3', quote: 'finds' }, { id: 'AC-2', layer: 'ui', text: 'sorts', outcomes: ['sorted'], source: 'story.md#L4', quote: 'sorts' }],
     rules: [], errorModel: [], endpoints: [], gaps: [{ id: 'G1', element: 'the route', kind: 'mechanics', required: false, affects: ['AC-2'], tried: [], resolution: 'open' }], coverage: [], sourcesRead: [],
   }));
   const entry = (scenario: string, status: string, extra = {}) => ({ scenario, title: `${scenario}: x`, file: 'a.spec.ts', status, tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: { attempts: 1 }, ...extra });
-  fs.writeFileSync(path.join(story, '5-runs', '01-eval.json'), JSON.stringify({
+  fs.writeFileSync(path.join(story, '5-run', '01-eval.json'), JSON.stringify({
     key: 'ABC-1', run: '01-eval', generatedAt: 'now', summary: { total: 2, passed: 1, failed: 1, flaky: 0, skipped: 0 },
     entries: [entry('SCN-001', 'passed'), entry('SCN-002', 'failed', { error: { headline: '[REQ AC-1] finds' }, auto: { category: 'APPLICATION_DEFECT', confidence: 'high', signals: [], next: '' } })],
     meta: { label: 'eval', startedAt: '2026-10-01T10:00:00Z', grep: null, skill: 'abc' },
