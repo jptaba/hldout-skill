@@ -20,7 +20,8 @@
  *
  * Accounts that only the application's sign-up page can make (no API for it): the form, found with heldout inspect, and
  * how to read the new account's id:
- *   heldout accounts --aut <profile> --sign-up-json '<inspect steps>' --sign-up-path register.htm --sign-up-done "<locator>"
+ *   heldout accounts --aut <profile> --sign-up-steps signup.json | --sign-up-json '<inspect steps>' --sign-up-path register.htm
+ *       --sign-up-done "<locator>"   (steps in a file: JSON on the command line doesn't survive npm on Windows)
  *       --password-env APP_USER_PASSWORD [--username 'hldout-${uid}'] [--lookup "GET services/login/${username}/${password}" --lookup-id id]
  *   In the steps, ${var:…} is the new user name and ${env:…} / ${vault:…} the password.
  *

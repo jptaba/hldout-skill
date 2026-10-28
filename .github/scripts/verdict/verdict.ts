@@ -74,6 +74,14 @@ export function repairedDefects(decisions: Decisions, finalRun: string, now: Pic
     .filter(([, d]) => d.category === 'SCRIPT_DEFECT').map(([scenario, d]) => ({ run: r, scenario, d, now: now.find((x) => x.scenario === scenario)?.status ?? 'n/a' })));
 }
 
+/**
+ * The test of a finding whose requests the verdict writes out: the first that sent any. The others fail the same way,
+ * and writing each one's calls out again was most of a large verdict; their requests stay in the run's record.
+ */
+export function reproducedBy<T extends { evidence: Pick<TriageEntry['evidence'], 'api' | 'apiSequence' | 'preSequence'> }>(group: T[]): T {
+  return group.find((x) => x.evidence.api || x.evidence.apiSequence?.length || x.evidence.preSequence?.length) ?? group[0];
+}
+
 /** Every run of the story, in order, as its history recorded it (the last line of a run name wins). */
 export function runsOfHistory(file: string): { run: string; grep?: string; stats?: { passed?: number; failed?: number; flaky?: number } }[] {
   const byName = new Map<string, { run: string; grep?: string; stats?: { passed?: number; failed?: number; flaky?: number } }>();
@@ -301,7 +309,8 @@ export function run({ _, flags }: Args): void {
         `**Preconditions the test seeded** (tag \`${e.evidence.seed?.tag}\`; recreate equivalent data before reproducing):`, '',
         ...seededOf(e).map((r) => `- ${esc(r.label)}: \`${esc(short(r.created ?? '-', 160))}\` · cleanup: ${r.cleanup ?? 'pending'}${r.error ? ` (${esc(r.error)})` : ''}`), ''] : []),
       '**Manually (the test\'s steps):**', '', ...stepsOf(e.scenario).map((st, n) => `${n + 1}. ${st}`), '',
-      ...g.flatMap((x) => apiReproduction(x)),
+      ...apiReproduction(reproducedBy(g)),
+      ...(g.length > 1 && apiReproduction(reproducedBy(g)).length ? [`The other ${g.length - 1} test(s) of this finding fail the same way; each one's requests are in the run's record, ${rel(runFile(p, finalRun))}.`, ''] : []),
       '**Automated re-run of the failing test(s):**', '', '```bash', ...g.map((x) => rerunCommand(key, x.scenario)), '```', '',
       '#### Evidence', '',
       ...(!api && keptScreenshot(e) ? [`![${e.scenario} at the moment of failure](${link(keptScreenshot(e))})`, ''] : []),

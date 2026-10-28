@@ -134,7 +134,7 @@ export function run({ _, flags }: Args): void {
       run: runName, tests: entries.map((e) => e.scenario), category, ...(decision.severity ? { severity: decision.severity } : {}),
       ...(anyReading ? { anyReading: marked.length ? marked : true } : {}), ...(decision.evidence ? { evidence: decision.evidence } : {}),
     });
-    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(file)}`);
+    console.log(`✔ ${entries.map((e) => e.scenario).join(', ')} confirmed as ${category}${decision.severity ? ` (${decision.severity})` : ''}${decision.title ? ` — "${decision.title}"` : ''} in ${rel(p.decisions)}`);
     return;
   }
 

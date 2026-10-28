@@ -38,8 +38,11 @@ one gated commit (guardrail tier: agent files and the skill's references).
   tool and digest line only (`core/probe-log.ts`)
 - [x] T012 [US2] Scratch: no agent reads another phase's; the whole area goes when the story completes (as before)
 - [x] T013 [US2] Tests: superseded runs moved, logs trimmed, runs counted from the history, compact record
-- [ ] T013c [US2] If the round misses SC-001: the verdict's own size (PB-2's verdict.md was 206 KB) is the next
-  lever; the kept draft and hardened copy are about 2 × 104 KB
+- [x] T013c [US2] Round 39's PB-2 missed SC-001 (1.4 MB, 67%): 168 KB of its 217 KB verdict were each failing
+  test's requests written out again. A finding writes out one test's requests (the first that sent any); the others
+  point to the run's record (`verdict/verdict.ts`, `reproducedBy`)
+- [x] T013d Round 39 follow-ups: `triage --set` names the decisions file it wrote; `accounts`' help names
+  `--sign-up-steps` (JSON on the command line doesn't survive npm on Windows)
 - [x] T013b [US2] The guide (`docs/heldout-evaluator.html`): its layout tree and the paths it explains, once the
   layout is final (docs only)
 

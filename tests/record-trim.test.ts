@@ -11,7 +11,7 @@ import { keepNamedProbes, readProbes, savedOf, trimProbeLogs } from '../.github/
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { evalPaths } from '../.github/scripts/core/paths';
 import { repairsTried } from '../.github/scripts/flow/advance';
-import { repairedDefects, runsOfHistory } from '../.github/scripts/verdict/verdict';
+import { repairedDefects, reproducedBy, runsOfHistory } from '../.github/scripts/verdict/verdict';
 import { nextRunNumber } from '../.github/scripts/run/run';
 
 const profile = `record-trim-${process.pid}`;
@@ -39,6 +39,15 @@ describe('after the verdict\'s tidy', () => {
     const d = { category: 'SCRIPT_DEFECT' as const, rationale: 'locator', failure: 'locator not found', confirmedAt: 'now' };
     const repaired = repairedDefects({ '02-eval': { 'SCN-2': d, 'SCN-3': { ...d, category: 'APPLICATION_DEFECT' } }, '03-rerun': { 'SCN-9': d } }, '03-rerun', [{ scenario: 'SCN-2', status: 'passed' }]);
     assert.deepEqual(repaired.map((r) => [r.run, r.scenario, r.d.failure, r.now]), [['02-eval', 'SCN-2', 'locator not found', 'passed']], 'earlier runs only, script defects only');
+  });
+
+  it('writes out the requests of one test per finding: the first that sent any', () => {
+    const call = { request: { method: 'GET', url: 'https://x.test/a' }, response: { status: 200, body: '' } } as never;
+    const page = { scenario: 'SCN-1', evidence: {} }, api = { scenario: 'SCN-2', evidence: { apiSequence: [call] } };
+    const pre = { scenario: 'SCN-3', evidence: { preSequence: [call] } };
+    assert.equal(reproducedBy([page, api, pre]).scenario, 'SCN-2');
+    assert.equal(reproducedBy([page, pre]).scenario, 'SCN-3', 'pre-steps alone are requests too');
+    assert.equal(reproducedBy([page]).scenario, 'SCN-1', 'a finding of pages only: its first test');
   });
 
   it('counts the repairs tried in a row from the history and the decisions', () => {
