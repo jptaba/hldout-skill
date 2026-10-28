@@ -11,7 +11,8 @@ import { keepNamedProbes, readProbes, savedOf, trimProbeLogs } from '../.github/
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { evalPaths } from '../.github/scripts/core/paths';
 import { repairsTried } from '../.github/scripts/flow/advance';
-import { repairedDefects, reproducedBy, runsOfHistory } from '../.github/scripts/verdict/verdict';
+import { dropUnshownScreenshots, repairedDefects, reproducedBy, runsOfHistory, showsScreenshot } from '../.github/scripts/verdict/verdict';
+import { contextCall } from '../.github/scripts/run/record';
 import { nextRunNumber } from '../.github/scripts/run/run';
 
 const profile = `record-trim-${process.pid}`;
@@ -50,6 +51,23 @@ describe('after the verdict\'s tidy', () => {
     assert.equal(reproducedBy([page]).scenario, 'SCN-1', 'a finding of pages only: its first test');
   });
 
+  it('keeps a screenshot for a page finding only, and the headers of the call a failure is about', () => {
+    assert.equal(showsScreenshot({ evidence: { attempts: 1, screenshot: 'a.png' } }), true);
+    assert.equal(showsScreenshot({ evidence: { attempts: 1, screenshot: 'a.png', api: { request: { method: 'GET', url: 'u' }, response: { status: 500 } } } }), false, 'its call is the evidence');
+    assert.equal(showsScreenshot({ evidence: { attempts: 1 } }), false);
+    const call = { request: { method: 'GET', url: 'u' }, response: { status: 302, headers: { date: 'today', 'Content-Type': 'text/html', location: '/x', connection: 'close' } } };
+    assert.deepEqual(contextCall(call).response.headers, { 'Content-Type': 'text/html', location: '/x' });
+    assert.deepEqual(contextCall({ request: call.request, response: { status: 200 } }).response, { status: 200 });
+  });
+
+  it('removes the screenshots an earlier verdict kept, and keeps the ones this one shows', () => {
+    const dir = path.join(p.base, 'shots');
+    fs.mkdirSync(dir, { recursive: true });
+    for (const f of ['02-eval-SCN-1.png', '02-eval-SCN-2.png', 'verdict.md']) fs.writeFileSync(path.join(dir, f), 'x');
+    dropUnshownScreenshots(dir, [path.join('out', '02-eval-SCN-1.png'), '']);
+    assert.deepEqual(fs.readdirSync(dir).sort(), ['02-eval-SCN-1.png', 'verdict.md'], 'a shown one stays even when its source is gone');
+  });
+
   it('counts the repairs tried in a row from the history and the decisions', () => {
     history({ event: 'run', run: '02-eval' }, { event: 'run', run: '03-repro', grep: 'SCN-1' }, { event: 'run', run: '04-rerun' }, { event: 'run', run: '05-rerun' });
     decide({ '02-eval': { 'SCN-1': { category: 'SCRIPT_DEFECT' } }, '04-rerun': { 'SCN-1': { category: 'SCRIPT_DEFECT' } }, '05-rerun': { 'SCN-2': { category: 'SCRIPT_DEFECT' } } });
@@ -60,7 +78,7 @@ describe('after the verdict\'s tidy', () => {
 
   it('keeps the report of a probe a kept text names, and says a trimmed probe was trimmed', () => {
     fs.mkdirSync(p.hardened, { recursive: true });
-    const probe = (id: string) => JSON.stringify({ id, at: 'now', phase: 'hardening', tool: 'api-probe', tier: 3, input: { chain: { steps: [] }, saved: { id: '7' } }, digest: ['d'], report: '' });
+    const probe = (id: string) => JSON.stringify({ id, at: 'now', phase: 'hardening', tool: 'api-probe', tier: 3, input: { chain: { steps: [] }, saved: { id: '7' } }, digest: ['d', 'more'], report: '' });
     fs.writeFileSync(path.join(p.hardened, 'probes.jsonl'), `${probe('P1')}\n${probe('P2')}\n`);
     for (const id of ['P1', 'P2']) { fs.mkdirSync(path.join(p.work.hardening, 'probes'), { recursive: true }); fs.writeFileSync(path.join(p.work.hardening, 'probes', `${id}.md`), `# ${id}`); }
     assert.deepEqual(keepNamedProbes(p, ['| SCN-4 | the total | 12 | 13 | P2 |']), { kept: ['P2'], lost: [] });
@@ -69,6 +87,7 @@ describe('after the verdict\'s tidy', () => {
     assert.ok(fs.existsSync(path.join(p.hardened, 'P2.md')));
     assert.equal(trimProbeLogs(p), 1);
     assert.deepEqual(readProbes(p).map((e) => [e.id, e.input === undefined]), [['P1', true], ['P2', false]]);
+    assert.deepEqual(readProbes(p).map((e) => e.digest), [['d'], ['d']], 'a kept report holds the rest of a cited digest');
     assert.deepEqual(savedOf(cfg, 'ABC-1', 'P2'), { id: '7' });
     assert.throws(() => savedOf(cfg, 'ABC-1', 'P1'), /P1 was trimmed to its digest/);
   });

@@ -186,9 +186,9 @@ export function keepNamedProbes(p: ProbePaths, texts: string[]): { kept: string[
 }
 
 /**
- * At the story's end, each probe log keeps in full only the probes something cites (their report is kept beside it);
- * the others keep their id, tool and first digest line, so the ids and the counts stay, without the steps or chains
- * nobody reads again. Returns how many lines were trimmed.
+ * At the story's end, each probe log keeps the input only of the probes something cites (their report is kept beside
+ * it, so one digest line is enough); the others keep their id, tool and first digest line, so the ids and the counts
+ * stay, without the steps or chains nobody reads again. Returns how many uncited lines were trimmed.
  */
 export function trimProbeLogs(p: LogPaths): number {
   let trimmed = 0;
@@ -197,7 +197,9 @@ export function trimProbeLogs(p: LogPaths): number {
     if (!entries.length) continue;
     const dir = phase === 'hardening' ? p.hardened : p.triage;
     const out = entries.map((e) => {
-      if (fs.existsSync(path.join(dir, `${e.id}.md`)) || e.input === undefined) return e;
+      // A kept report holds everything the digest summarises: its first line stays for `show probes`.
+      if (fs.existsSync(path.join(dir, `${e.id}.md`))) return { ...e, digest: e.digest.slice(0, 1) };
+      if (e.input === undefined) return e;
       trimmed++;
       return { id: e.id, at: e.at, phase: e.phase, tool: e.tool, tier: e.tier, digest: e.digest.slice(0, 1), report: '' } as ProbeEntry;
     });

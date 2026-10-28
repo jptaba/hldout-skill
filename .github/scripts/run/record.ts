@@ -47,6 +47,15 @@ function journeyEndpoints(cfg: HeldoutConfig, specs: string[]): Endpoint[] {
   }));
 }
 
+/** The response headers that say what an answer is; the rest (dates, connection, caching) nothing reads. */
+const SAYS_WHAT = /^(content-type|location)$/i;
+
+/** A call that is context to a failure, not the call it is about: its answer's headers cut to the ones that matter. */
+export function contextCall(x: ApiExchange): ApiExchange {
+  if (!x.response?.headers) return x;
+  return { ...x, response: { ...x.response, headers: Object.fromEntries(Object.entries(x.response.headers).filter(([h]) => SAYS_WHAT.test(h))) } };
+}
+
 /**
  * An answer's body as the record keeps it: whole up to `limit` characters, otherwise its start, marked as cut. The
  * classification has already read the whole body; the record keeps what a person needs to see what came back.
@@ -146,9 +155,10 @@ export function digestRun(cfg: HeldoutConfig, key: string, runName: string, resu
         }
         // The record keeps the start of long answers: the exchange the failure is about at more length than the rest.
         // The other calls are context, the preconditions' calls more so: their answers are cut shorter.
-        if (entry.evidence.apiSequence) entry.evidence.apiSequence = entry.evidence.apiSequence.map((x) => bounded(x, x === entry.evidence.api ? 8000 : 600));
-        if (entry.evidence.api) entry.evidence.api = bounded(entry.evidence.api, 8000);
-        if (entry.evidence.preSequence) entry.evidence.preSequence = entry.evidence.preSequence.map((x) => bounded(x, 400));
+        const about = entry.evidence.api;
+        if (entry.evidence.apiSequence) entry.evidence.apiSequence = entry.evidence.apiSequence.map((x) => (x === about ? bounded(x, 8000) : contextCall(bounded(x, 600))));
+        if (about) entry.evidence.api = bounded(about, 8000);
+        if (entry.evidence.preSequence) entry.evidence.preSequence = entry.evidence.preSequence.map((x) => (x === about ? bounded(x, 400) : contextCall(bounded(x, 400))));
       }
       if (last?.status === 'skipped') entry.status = 'skipped';
       entries.push(entry);

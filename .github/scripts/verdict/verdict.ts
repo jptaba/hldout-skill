@@ -82,6 +82,18 @@ export function reproducedBy<T extends { evidence: Pick<TriageEntry['evidence'],
   return group.find((x) => x.evidence.api || x.evidence.apiSequence?.length || x.evidence.preSequence?.length) ?? group[0];
 }
 
+/** A finding about a page shows the page at its failure; one about an API call has its call as evidence, not a picture. */
+export function showsScreenshot(e: Pick<TriageEntry, 'evidence'>): boolean {
+  return !e.evidence.api && Boolean(e.evidence.screenshot);
+}
+
+/** Removes the screenshots in the verdict's folder that the verdict no longer shows (left by an earlier rendering). */
+export function dropUnshownScreenshots(dir: string, shown: string[]): void {
+  if (!fs.existsSync(dir)) return;
+  const keep = new Set(shown.filter(Boolean).map((f) => path.basename(f)));
+  for (const f of fs.readdirSync(dir)) if (f.endsWith('.png') && !keep.has(f)) fs.rmSync(path.join(dir, f));
+}
+
 /** Every run of the story, in order, as its history recorded it (the last line of a run name wins). */
 export function runsOfHistory(file: string): { run: string; grep?: string; stats?: { passed?: number; failed?: number; flaky?: number } }[] {
   const byName = new Map<string, { run: string; grep?: string; stats?: { passed?: number; failed?: number; flaky?: number } }>();
@@ -113,6 +125,7 @@ export function run({ _, flags }: Args): void {
   const kept = new Map<TriageEntry, string>();
   const verdictDir = path.dirname(p.verdictMd);
   const keptScreenshot = (e: TriageEntry): string => {
+    if (!showsScreenshot(e)) return '';
     if (kept.has(e)) return kept.get(e)!;
     const src = e.evidence.screenshot && path.join(ROOT, e.evidence.screenshot);
     const dest = path.join(verdictDir, `${finalRun}-${e.scenario}.png`);
@@ -313,7 +326,7 @@ export function run({ _, flags }: Args): void {
       ...(g.length > 1 && apiReproduction(reproducedBy(g)).length ? [`The other ${g.length - 1} test(s) of this finding fail the same way; each one's requests are in the run's record, ${rel(runFile(p, finalRun))}.`, ''] : []),
       '**Automated re-run of the failing test(s):**', '', '```bash', ...g.map((x) => rerunCommand(key, x.scenario)), '```', '',
       '#### Evidence', '',
-      ...(!api && keptScreenshot(e) ? [`![${e.scenario} at the moment of failure](${link(keptScreenshot(e))})`, ''] : []),
+      ...(keptScreenshot(e) ? [`![${e.scenario} at the moment of failure](${link(keptScreenshot(e))})`, ''] : []),
       ...[e.evidence.snapshotExcerpt && `- The page at the failure (its accessibility tree) is in the run's record: ${rel(runFile(p, finalRun))}, test ${e.scenario}`,
         e.evidence.trace && fs.existsSync(path.join(ROOT, e.evidence.trace)) && `- Step-by-step trace, while the run's raw output is kept: \`npx playwright show-trace ${e.evidence.trace}\``,
         f?.evidence && `- Live re-check by the evaluator: ${esc(f.evidence)}`].filter(Boolean) as string[], '',
@@ -502,6 +515,8 @@ export function run({ _, flags }: Args): void {
     verdictFile: rel(p.verdictMd),
   };
   writeFile(p.verdictJson, `${JSON.stringify(json, null, 2)}\n`);
+  // After rendering, not before: a screenshot this rendering shows may survive only here (the run's raw output is gone).
+  dropUnshownScreenshots(verdictDir, [...kept.values()]);
   recordEvent(p.history, 'verdict', {
     verdict, finalRun, integrity: integrity.status, summary: s, applicationDefects: json.applicationDefects.length,
     scriptDefectsRepaired: repaired.length, openQuestions: feature.openQuestions.length, uncoveredCriteria: json.uncoveredCriteria,
