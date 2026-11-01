@@ -313,8 +313,10 @@ export function matchEndpoint(endpoints: Endpoint[], method: string, pathname: s
   const full = norm(pathname);
   const base = norm(basePath);
   const candidates = [full, ...(base !== '/' && full.startsWith(`${base}/`) ? [full.slice(base.length)] : [])];
+  // A declared path that begins with a word may leave out its leading slash (a journey's `accounts/${id}`).
+  const rooted = (p: string) => (/^[/{:]/.test(p) ? p : `/${p}`);
   // A path that begins with a placeholder (`${accountPath}/amount/${amount}` reads as "{}/amount/{}") names its end
   // only: the placeholder stands for whatever path comes before.
-  const pattern = (p: string) => norm(p).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/^\\?\{[^}]*\\?\}(?=\/)/, '.+').replace(/\\?\{[^}]*\\?\}|:[A-Za-z_]+/g, '[^/]+');
+  const pattern = (p: string) => norm(rooted(p)).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/^\\?\{[^}]*\\?\}(?=\/)/, '.+').replace(/\\?\{[^}]*\\?\}|:[A-Za-z_]+/g, '[^/]+');
   return endpoints.find((e) => e.method === method.toUpperCase() && candidates.some((c) => new RegExp(`^${pattern(e.path)}$`).test(c)));
 }

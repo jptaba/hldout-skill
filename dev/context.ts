@@ -68,6 +68,7 @@ export function readAgent(agent: string, description: string, lines: string[]): 
   const items = new Map<string, { what: string; kind: Kind; chars: number; times: number }>();
   // The app writes a line per block of a message, each with the message's id and usage: a turn is an id.
   const seen = new Set<string>();
+  const answered = new Set<string>();
   for (const line of lines) {
     let m: { id?: string; role?: string; usage?: Record<string, number>; content?: unknown } | undefined;
     try { m = (JSON.parse(line) as { message?: typeof m }).message; } catch { continue; }
@@ -80,10 +81,12 @@ export function readAgent(agent: string, description: string, lines: string[]): 
     for (const c of Array.isArray(m?.content) ? m.content as Record<string, unknown>[] : []) {
       if (c.type === 'text' && m?.role === 'assistant') r.kinds.writing += String(c.text ?? '').length;
       if (c.type === 'tool_use') {
+        // The app can write a call and its result twice under one id: they entered the context once.
+        if (!uses.has(String(c.id))) r.kinds.writing += JSON.stringify(c.input ?? {}).length;
         uses.set(String(c.id), { name: String(c.name), input: (c.input ?? {}) as Record<string, unknown> });
-        r.kinds.writing += JSON.stringify(c.input ?? {}).length;
       }
-      if (c.type !== 'tool_result') continue;
+      if (c.type !== 'tool_result' || answered.has(String(c.tool_use_id))) continue;
+      answered.add(String(c.tool_use_id));
       const parts = Array.isArray(c.content) ? c.content as Record<string, unknown>[] : [{ type: 'text', text: c.content }];
       // An image's size in the transcript is its encoding, not what it costs: it is counted, not measured.
       r.images += parts.filter((x) => x.type === 'image').length;

@@ -25,6 +25,9 @@ Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` print
   `accounts.md` when the profile's accounts recipe is missing something the tests need.
 
 Do this:
+0. Start from `npm run heldout -- show KEY spec`, the outline, instead of opening the spec file: search the file for
+   `TODO(harden)`, and read only the ranges of the tests you are on (the marks are mostly in the journeys, and your
+   first harden run names the tests that need work). A suite of a hundred tests is more of a file than you can afford.
 1. `npm run heldout -- journeys KEY`: the journeys this story concerns, with their registry status (proven by earlier
    stories, changed since, not proven yet, stale) and what each requires. Probe the ones not proven in their current
    form; a proven journey is checked by your first harden run, and probed only if that run fails in it.

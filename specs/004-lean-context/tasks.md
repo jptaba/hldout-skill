@@ -23,7 +23,14 @@
 - [x] T007 FR-007: the failure screenshot in the fixtures, with `tests/record-trim.test.ts`
 - [x] T008 FR-008: the verdict keeps it (`verdict/verdict.ts`)
 
-## Phase 5: Proof
+## Phase 5: Round 41's fixes, before its next story
+
+- [x] T010 The report counts a call written twice once (`dev/context.ts`): the baseline was double-counted
+- [x] T011 The hardener starts from the outline, as a step: it read the file though its inputs said not to
+- [x] T012 A journey's path with no leading slash is a declared endpoint (`matchEndpoint`): 42 of PB-2's automatic classes
+  were false script defects
+
+## Phase 6: Proof
 
 - [ ] T009 A round from scratch on PB-2, TOOL-8 and PB-1; the report and the sizes against round 38's (SC-001 to SC-003,
   SC-005)

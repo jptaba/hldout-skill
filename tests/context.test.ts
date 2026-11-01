@@ -46,6 +46,14 @@ describe('context report', () => {
     assert.match(render(r, 5).join('\n'), /peak 2100 .*\n.*handoffs 200/);
   });
 
+  it('counts a call and its result once when the transcript has them twice', () => {
+    const call = use('a', 'Read', { file_path: 'output/shop/ABC-1/2-contract/contract.json' });
+    const r = readAgent('a', 'b', [call, call, result('a', 'x'.repeat(400)), result('a', 'x'.repeat(400))]);
+    assert.equal(r.kinds.handoffs, 100);
+    assert.equal(r.items[0].times, 1);
+    assert.equal(r.kinds.writing, Math.round(JSON.stringify({ file_path: 'output/shop/ABC-1/2-contract/contract.json' }).length / 4));
+  });
+
   it('counts an image and does not measure its encoding', () => {
     const r = readAgent('a', 'b', [use('a', 'Read', { file_path: 'x.png' }), result('a', [{ type: 'image', source: { data: 'x'.repeat(100000) } }])]);
     assert.equal(r.images, 1);

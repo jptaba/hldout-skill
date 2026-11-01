@@ -114,6 +114,15 @@ describe('helpers', () => {
     const tail = [{ method: 'GET', path: '{}/amount/{}' }];
     assert.ok(matchEndpoint(tail, 'GET', '/bank/accounts/12/transactions/amount/11.11'), 'a leading placeholder stands for the path before');
     assert.equal(matchEndpoint(tail, 'GET', '/bank/accounts/12/transactions/month/All'), undefined);
+    assert.ok(matchEndpoint([{ method: 'POST', path: 'transfer' }], 'POST', '/bank/services/transfer', '/bank/services'), 'a journey writes a path with no leading slash');
+    assert.ok(matchEndpoint([{ method: 'GET', path: 'accounts/{}' }], 'GET', '/bank/services/accounts/7', '/bank/services/'));
+    assert.equal(matchEndpoint([{ method: 'GET', path: 'accounts/{}' }], 'GET', '/other/accounts/7', '/bank/services'), undefined);
+    // Only a path that begins with a word gains a slash: nothing else declares more than it did.
+    assert.equal(matchEndpoint([{ method: 'GET', path: '/{tenant}/orders' }], 'GET', '/a/b/orders'), undefined);
+    assert.ok(matchEndpoint([{ method: 'GET', path: '/{tenant}/orders' }], 'GET', '/acme/orders'));
+    assert.equal(matchEndpoint([{ method: 'GET', path: '{}' }], 'GET', '/anything'), undefined);
+    assert.equal(matchEndpoint([{ method: 'GET', path: '{}' }], 'GET', '/bank/services/anything', '/bank/services'), undefined);
+    assert.equal(matchEndpoint([{ method: 'GET', path: '/api/room/{id}' }], 'GET', '//api/room/7'), undefined);
     assert.equal(matchEndpoint(eps, 'POST', '/api/room/7'), undefined);
     // A journey's call `/categories/tree/${id}` is recorded with an empty placeholder.
     assert.ok(matchEndpoint([{ method: 'GET', path: '/categories/tree/{}' }], 'GET', '/categories/tree/01m4pgegpst7e3hz78d3mzreh5'));
