@@ -31,7 +31,7 @@ import { citeProbes } from '../core/probe-log';
 import { evalPaths, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { CATEGORIES, type ApiExchange, type Category } from '../run/classify';
-import { renderTriageMd, replaySlug, signedIn } from './triage-report';
+import { failureGroups, placesOf, renderTriageMd, replaySlug, signedIn } from './triage-report';
 import { pendingOf, readRunRecord, signature, writeRunRecord, type RunRecord, type TriageEntry } from '../run/run-record';
 
 /**
@@ -74,12 +74,6 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   const namesRecords = /\/(\d+|[0-9A-Za-z-]{16,})(\/|\?|$)/.test(api.request.url) || Boolean(body && typeof body === 'object' && Object.keys(body).some((k) => /(^|_)id$|Id$/.test(k)));
   return { note: `${namesRecords ? 'The failing call names records by id, and the run\'s records may be gone: when the call answers "not found", add a setup step that makes each again (save its id) and put the saved ids in the call. Failures that need the same kind of record share one chain: each sign-in once, the record made once, then every failing call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
-
-/** Where a run's triage report and its starting chains go: views and working files, in the scratch area. */
-const placesOf = (p: StoryPaths, run: string) => ({
-  report: path.join(p.work.triage, `triage-${run}.md`),
-  chains: path.join(p.work.triage, 'chains', run),
-});
 
 /** Write the run's triage report (a view: rendered again whenever a decision is recorded). */
 function writeReport(p: StoryPaths, record: RunRecord): string {
@@ -201,12 +195,16 @@ export function run({ _, flags }: Args): void {
   const report = writeReport(p, record);
 
   console.log(`Triage ${key} / ${runName}: ${record.summary.passed}/${record.summary.total} passed, ${record.summary.failed} failed, ${record.summary.flaky} flaky\n`);
+  if (record.environmentNote) console.log(`⚠ Environment: ${record.environmentNote}\n`);
+  const groups = failureGroups(record);
   for (const e of triaged) {
     // A confirmed decision is what counts: show it, not the automatic suggestion it replaced.
     const shown = e.final ? `${e.final.category.padEnd(20)} ✔ confirmed  ` : `${e.auto!.category.padEnd(20)} (${e.auto!.confidence.padEnd(6)}) ⏳ pending `;
-    console.log(`  ${e.scenario.padEnd(10)} ${shown} ${e.error!.headline.slice(0, 80)}`);
+    const group = groups.findIndex((g) => g.includes(e)) + 1;
+    console.log(`  ${group ? `g${group}`.padEnd(4) : ''.padEnd(4)} ${e.scenario.padEnd(10)} ${shown} ${e.error?.headline.slice(0, 80) ?? ''}`);
   }
   console.log(`\n  report: ${rel(report)}${pendingEntries.length && fs.existsSync(chains) ? `\n  chains: ${rel(chains)}/` : ''}`);
+  if (groups.length) console.log(`  one group of failures at a time: npm run heldout -- show ${key} triage ${runName} --group <n> (1-${groups.length})`);
   // Failures an earlier run already confirmed, identically: say so, rather than asking for the investigation again.
   const earlier = carryFrom ? undefined : runs.filter((r) => r < runName && withDecisions(r)).at(-1);
   const earlierEntries = earlier ? readRunRecord(runFile(p, earlier)).entries : [];

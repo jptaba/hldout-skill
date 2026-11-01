@@ -78,14 +78,19 @@ When something *was* disclosed or changed, the severity follows that, not the st
 
 ## Confirming each failure (mandatory)
 
-1. Read the triage report (`.heldout/<profile>/KEY/6-triage/triage-<run>.md`): failing step, expected vs received, API exchanges, screenshot, snapshot, trace
-   (`npx playwright show-trace <the trace.zip in the test's evidence folder>`). When a run has many failures the
-   report opens with "Failures that look alike": the same criterion and the same call and status, or the same
-   locator. The first failure of a group is written out in full, the others show what differs from it. Start from
-   those groups, reproduce one failure of each, and decide yourself whether a group is one root cause: two groups
-   often share one (a page and the call behind it), and one group can hide two.
+1. Go through the failures one group at a time: `heldout triage` numbers the groups, and
+   `npm run heldout -- show KEY triage <run> --group <n>` prints one: failing step, expected vs received, API exchanges, and
+   where the screenshot, snapshot and trace are (`npx playwright show-trace <the trace.zip in the test's evidence folder>`).
+   A group is the same criterion and the same call and status, or the same locator. Its first failure is written out
+   in full, the others show what differs from it. Reproduce one failure of each group, and decide yourself whether a
+   group is one root cause: two groups often share one (a page and the call behind it), and one group can hide two.
+   Read what a failure needs and no more: the test with `show KEY spec --test SCN-n`, its criterion with
+   `show KEY contract --ac AC-n`, the field rules, errors, endpoints, variants, gaps and sign-in it touches with
+   `--rules`, `--errors`, `--endpoints`, `--variants`, `--gaps` and `--auth`, earlier probes with `show KEY probes` and
+   `show KEY probes --id P7`. The whole files repeat most of this; the whole report
+   (`.heldout/<profile>/KEY/6-triage/triage-<run>.md`) is for a person.
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json` (or build on an
-   earlier probe: `--from P4`, `api-probe --chain P7 --set …`; the hardening reference's "Compose probes" lists them);
+   earlier probe: `--from P4`, `api-probe --chain P7 --set …`; [probes.md](probes.md) lists them);
    replay API requests with `heldout api-probe`. Probe with `--key`: each probe is logged as the story's next one (`P7`), and the decision cites it (`--evidence P7`). Start from
    `.heldout/<profile>/KEY/6-triage/chains/<run>/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
    once. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is

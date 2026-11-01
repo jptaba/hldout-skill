@@ -21,7 +21,7 @@ Rounds start from scratch: a new round project, a fresh onboarding, freshly star
 
 | What | Why it matters |
 | --- | --- |
-| Measure the context each agent takes in, per round, and hand agents one test or failure group at a time | Round 40's test author, hardener and triager peaked at 130k–260k tokens; whole spec files, references and triage reports read several times were the largest part |
+| What the hardener and triager learn about an application, kept for the next story: routes, endpoints, answer shapes, quirks, confirmed defects, each citing the probe that proved it | Could spare repeated discovery probes (one hardener made 38 in round 40). After the freeze only: the contract, the test author and the contract reviewer never read it, or today's behaviour becomes the oracle. A known defect is still reproduced live. Measure with `dev/context.ts` on a second story of one application, once `specs/004-lean-context` has its round |
 | Tool gaps from rounds 39 and 40 | `seed.shared(() => seed.account())` silently loses the password, so the record can't sign in after a worker restart; an `api-probe` chain's `parallel` step reports every status but one answer body; a `request` step in an `inspect` walk can't carry a token kept in browser storage |
 | A test's "today" and the application's day | Twice a hardener or the orchestrator had to move a date helper to the application's UTC date by hand; the rule belongs in the test-authoring reference |
 | An assertion that matches a success as a refusal | PB-1's SCN-020.1 took the word LOAN in a successful answer as the "clear reason"; the reason's check should require a refusal first |

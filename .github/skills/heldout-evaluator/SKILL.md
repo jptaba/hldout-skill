@@ -92,7 +92,8 @@ More applications: `npm run heldout -- add-aut <id> --base-url <url>`, and give 
 application that already has journeys, `npm run heldout -- journeys --aut <id> --copy-from <profile>` starts it from
 those: copied as drafts, each marked `TODO(harden)`, proven by nothing until a story's passing tests prove them there.
 
-**Test accounts** (record the answer; never ask for or handle a password yourself):
+**Test accounts** (record the answer; never ask for or handle a password yourself; every way to set them up is in
+[accounts](references/accounts.md)):
 - *Existing, `.env`/CI:* `$H accounts --add-existing --username <user> --password-env APP_PASSWORD_1`, then tell the user to
   run `npm run heldout -- secret APP_PASSWORD_1 --ask` in a terminal of their own (hidden prompt), or to set it as a CI variable.
 - *Existing, Vault:* put `VAULT_ADDR` in `.env`; the user runs `vault login` once (or sets `VAULT_TOKEN` / AppRole). Then
@@ -187,7 +188,7 @@ Pick the first tier whose tools are actually available in this session (check yo
    locators, `--probe`, `--steps-json`, `--wait-for`), `heldout run KEY --label harden --capture`
    (snapshot after every step), and `heldout api-probe` for APIs (single calls or `--chain` sequences; status, timing, redacted body, type
    shape, `--login` token chaining, `--repeat`). Probes build on earlier ones (`--sign-in`, `--from Pn`, `--then`,
-   `--chain Pn --set`, `--pages`, `--where`, `--pick`, `--count`): no ad-hoc scripts (hardening reference: "Compose probes").
+   `--chain Pn --set`, `--pages`, `--where`, `--pick`, `--count`): no ad-hoc scripts ([probes](references/probes.md)).
 
 Verify every final locator with a probe (exactly one match, in the right state) and every API
 mechanic with `heldout api-probe`. Record the tiers you actually used in the hardening log

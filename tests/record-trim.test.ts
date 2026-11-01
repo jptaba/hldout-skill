@@ -11,8 +11,9 @@ import { keepNamedProbes, readProbes, savedOf, trimProbeLogs } from '../.github/
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { evalPaths } from '../.github/scripts/core/paths';
 import { repairsTried } from '../.github/scripts/flow/advance';
-import { dropUnshownScreenshots, repairedDefects, reproducedBy, runsOfHistory, showsScreenshot } from '../.github/scripts/verdict/verdict';
+import { dropUnshownScreenshots, keptScreenshotName, repairedDefects, reproducedBy, runsOfHistory, showsScreenshot } from '../.github/scripts/verdict/verdict';
 import { contextCall } from '../.github/scripts/run/record';
+import { failureScreenshot } from '../heldout-support/fixtures';
 import { nextRunNumber } from '../.github/scripts/run/run';
 
 const profile = `record-trim-${process.pid}`;
@@ -63,9 +64,30 @@ describe('after the verdict\'s tidy', () => {
   it('removes the screenshots an earlier verdict kept, and keeps the ones this one shows', () => {
     const dir = path.join(p.base, 'shots');
     fs.mkdirSync(dir, { recursive: true });
-    for (const f of ['02-eval-SCN-1.png', '02-eval-SCN-2.png', 'verdict.md']) fs.writeFileSync(path.join(dir, f), 'x');
-    dropUnshownScreenshots(dir, [path.join('out', '02-eval-SCN-1.png'), '']);
-    assert.deepEqual(fs.readdirSync(dir).sort(), ['02-eval-SCN-1.png', 'verdict.md'], 'a shown one stays even when its source is gone');
+    for (const f of ['02-eval-SCN-1.jpeg', '02-eval-SCN-2.png', '02-eval-SCN-3.jpeg', 'verdict.md']) fs.writeFileSync(path.join(dir, f), 'x');
+    dropUnshownScreenshots(dir, [path.join('out', '02-eval-SCN-1.jpeg'), '']);
+    assert.deepEqual(fs.readdirSync(dir).sort(), ['02-eval-SCN-1.jpeg', 'verdict.md'], 'a shown one stays even when its source is gone');
+  });
+
+  it('pictures a failed test\'s page compressed, and nothing else', async () => {
+    const attached: { name: string; path?: string; contentType?: string }[] = [];
+    const info = (status: string) => ({ status, expectedStatus: 'passed', outputPath: (f: string) => `out/${f}`, attach: async (name: string, o?: { path?: string; contentType?: string }) => { attached.push({ name, path: o?.path, contentType: o?.contentType }); } }) as never;
+    const shots: { path?: string; type?: string }[] = [];
+    const pageAt = (url: string) => ({ url: () => url, screenshot: async (o?: { path?: string; type?: string }) => { shots.push({ path: o?.path, type: o?.type }); return Buffer.from('x'); } }) as never;
+    await failureScreenshot(pageAt('https://x.test/a'), info('passed'));
+    await failureScreenshot(pageAt('about:blank'), info('failed'));
+    assert.equal(shots.length, 0, 'a test that passed, or never left the blank page');
+    await failureScreenshot(pageAt('https://x.test/a'), info('failed'));
+    assert.deepEqual(shots, [{ path: 'out/failure.jpeg', type: 'jpeg' }]);
+    assert.deepEqual(attached, [{ name: 'screenshot', path: 'out/failure.jpeg', contentType: 'image/jpeg' }], 'by its file, under the name the record reads');
+    const closed = { url: () => 'https://x.test/a', screenshot: async () => { throw new Error('page closed'); } } as never;
+    await failureScreenshot(closed, info('timedOut'));
+    assert.equal(attached.length, 1, 'a page that can\'t be pictured leaves the failure as it is');
+  });
+
+  it('keeps a screenshot under its own extension', () => {
+    assert.equal(keptScreenshotName('02-eval', { scenario: 'SCN-1', evidence: { attempts: 1, screenshot: 'a/attachments/screenshot-abc.jpeg' } }), '02-eval-SCN-1.jpeg');
+    assert.equal(keptScreenshotName('02-eval', { scenario: 'SCN-1.2', evidence: { attempts: 1, screenshot: 'a/test-failed-1.png' } }), '02-eval-SCN-1.2.png');
   });
 
   it('counts the repairs tried in a row from the history and the decisions', () => {

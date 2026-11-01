@@ -23,7 +23,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page } from '@playwright/test';
+import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page, type TestInfo } from '@playwright/test';
 import { redact, redactHeaders, redactSnapshot } from '../.github/scripts/core/redact';
 import { closeOverlays, locateOn } from '../.github/scripts/probe/page';
 
@@ -193,7 +193,7 @@ interface AccountRecipe {
   signIn?: UiForm; signUp?: UiForm;
 }
 const accountRecipe = (): AccountRecipe | undefined => (process.env.AUT_ACCOUNTS ? JSON.parse(process.env.AUT_ACCOUNTS) as AccountRecipe : undefined);
-const NO_RECIPE = 'the AUT profile has no "accounts" recipe in heldout.config.json (how to create, sign in and delete a test account on this application; see references/data-and-journeys.md)';
+const NO_RECIPE = 'the AUT profile has no "accounts" recipe in heldout.config.json (how to create, sign in and delete a test account on this application; see references/accounts.md)';
 
 /** Fill ${env:NAME} and ${name} placeholders of a recipe value. */
 function fillRecipe(value: Json, vars: Record<string, unknown>): Json {
@@ -451,6 +451,24 @@ export async function removeSharedData(): Promise<void> {
   fs.writeFileSync(path.join(path.dirname(dir), 'shared-data.json'), `${JSON.stringify(report, null, 2)}\n`);
 }
 
+/**
+ * The page at a failure, as the record's `screenshot`: compressed, because the verdict keeps it and a lossless picture
+ * of a page is several times the size for the same reading. Attached by its file: the record reads a path, and an
+ * attached body would stay inside the run's results. A test that never left the blank page (an API test: `journey`
+ * takes `page`) has no picture to show, and a page that can't be pictured (closed, crashed) leaves the test's own
+ * failure as what the run reports.
+ */
+export async function failureScreenshot(page: Pick<Page, 'screenshot' | 'url'>, testInfo: Pick<TestInfo, 'status' | 'expectedStatus' | 'attach' | 'outputPath'>): Promise<void> {
+  if (testInfo.status === testInfo.expectedStatus) return;
+  let file: string | undefined;
+  try {
+    if (page.url() === 'about:blank') return;
+    file = testInfo.outputPath('failure.jpeg');
+    await page.screenshot({ path: file, type: 'jpeg', quality: 60, timeout: 5_000 });
+  } catch { return; }
+  await testInfo.attach('screenshot', { path: file, contentType: 'image/jpeg' });
+}
+
 export const test = base.extend<{ data: TestData; journey: Journey; api: Api; apiContext: APIRequestContext; seed: Seed; pace: void }>({
 
   // The profile's minTestIntervalMs: tests start at least that far apart, across workers and worker restarts, so a
@@ -469,7 +487,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
 
   // Paths resolve against the profile URL including its path prefix (see autUrl). A 429 page (rate limit) is the
   // environment, not the application: wait as told and load again, twice at most.
-  page: async ({ page }, use) => {
+  page: async ({ page }, use, testInfo) => {
     await blockThirdParty(page.context(), process.env.AUT_BLOCK_HOSTS);
     await dismissOverlays(page);
     const goto = page.goto.bind(page);
@@ -482,6 +500,7 @@ export const test = base.extend<{ data: TestData; journey: Journey; api: Api; ap
       return res;
     };
     await use(page);
+    await failureScreenshot(page, testInfo);
   },
 
   // Depends on `api` so the API client (used by cleanups) is torn down only after the seed teardown ran.

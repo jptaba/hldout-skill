@@ -93,6 +93,9 @@ const STEP_CALL = /\bjourney\.step\(\s*([`'"])((?:(?!\1)[^\\]|\\.)*)\1/g;
 
 const unescape = (s: string) => s.replace(/\\(['"`\\])/g, '$1');
 
+/** The tags of a test() call, from what comes before its body: `tag: [...]` or `tag: '@x'`. */
+const tagsOf = (head: string) => [...(head.match(/\btag:\s*\[([^\]]*)\]/)?.[1] ?? head.match(/\btag:\s*(['"`]@[^'"`]+['"`])/)?.[1] ?? '').matchAll(/['"`](@[^'"`]+)['"`]/g)].map((t) => t[1]);
+
 /** One spec file's scenarios and its comment lines. */
 function readSpec(file: string, into: Suite): void {
   const src = fs.readFileSync(file, 'utf8');
@@ -118,8 +121,7 @@ function readSpec(file: string, into: Suite): void {
     const end = calls[i + 1]?.index ?? src.length;
     // Tags: the { tag: [...] } (or tag: '@x') of this call, before its body starts.
     const head = src.slice(start, Math.min(end, src.indexOf('=>', start) === -1 ? end : src.indexOf('=>', start)));
-    const list = head.match(/\btag:\s*\[([^\]]*)\]/)?.[1] ?? head.match(/\btag:\s*(['"`]@[^'"`]+['"`])/)?.[1] ?? '';
-    const tags = [...list.matchAll(/['"`](@[^'"`]+)['"`]/g)].map((t) => t[1]);
+    const tags = tagsOf(head);
     // Sources: the "// from …" lines directly above the call (other comment lines in between are fine); and the
     // "// cases: …" line of a table whose variant tags come from its rows. Inside a loop the comment may sit above it.
     const sources: string[] = [];
@@ -211,6 +213,95 @@ export function readSuite(testsDir: string, contract?: RequirementContract): Sui
   suite.scenarios.forEach(fromTags);
   suite.scenarios.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
   return suite;
+}
+
+/** A part of a spec file, by its 1-based lines: a test's block or a top-level declaration. */
+export interface SpecRange { name: string; from: number; to: number }
+export interface SpecOutline { declarations: SpecRange[]; hooks: SpecRange[]; tests: (SpecRange & { title: string; tags: string[] })[] }
+
+/** A declaration of the file or of a describe body; deeper ones are a test's own. */
+const DECLARATION = /^(?: {2})?(?:export\s+)?(?:async\s+)?(?:function\*?|const|let|type|interface|class)\s+([A-Za-z_$][\w$]*)/;
+const HOOK = /^\s*(test\.(?:beforeEach|afterEach|beforeAll|afterAll|use))\(/;
+const LOOP = /^\s*for\s*(await\s*)?\(|\.(forEach|map)\(/;
+const indentOf = (line: string) => line.length - line.trimStart().length;
+/** A line that leaves a bracket or a list of arguments open: a closing line ends what it starts. */
+const leftOpen = (line: string) => /[{[(,]$/.test(line.replace(/\s*\/\/[^'"`]*$/, '').trimEnd());
+
+/** The last line (0-based) of the statement that starts at this line, by the closing line at its own indent. */
+function statementEnd(lines: string[], at: number): number {
+  if (!leftOpen(lines[at])) {
+    // Not left open, but it may go on on the lines indented below it (a sum, a chained call).
+    let end = at;
+    while (lines[end + 1]?.trim() && indentOf(lines[end + 1]) > indentOf(lines[at])) end++;
+    return end;
+  }
+  // A template literal's lines and a comment may sit at any indent: only a closing line, outside a literal, says anything.
+  const ticks = (line: string) => (line.match(/(?<!\\)`/g) ?? []).length;
+  let inLiteral = ticks(lines[at]) % 2 === 1;
+  for (let i = at + 1; i < lines.length; i++) {
+    const wasInLiteral = inLiteral;
+    if (ticks(lines[i]) % 2 === 1) inLiteral = !inLiteral;
+    if (wasInLiteral || !/^\s*[}\])]/.test(lines[i])) continue;
+    if (indentOf(lines[i]) < indentOf(lines[at])) return i - 1;
+    if (indentOf(lines[i]) === indentOf(lines[at]) && !leftOpen(lines[i])) return i;
+  }
+  return at;
+}
+
+/**
+ * Where everything is in a spec file, so an agent reads a test rather than the file. A test's block starts above its
+ * test() call, at the comments, rows and loop that belong to it (a blank line, the end of what comes before it or a
+ * hook ends them), and ends where its call, or the loop around it, does. A table's calls are one block.
+ */
+export function specOutline(file: string): SpecOutline {
+  const src = fs.readFileSync(file, 'utf8');
+  const lines = src.split(/\r?\n/);
+  const ranges = (pattern: RegExp) => lines.flatMap((line, i) => {
+    const name = line.match(pattern)?.[1];
+    return name ? [{ name, from: i + 1, to: statementEnd(lines, i) + 1 }] : [];
+  });
+  // An indented declaration is the file's only directly in a describe body: not a helper's local, and not a test's own
+  // (a block's rows are found by the walk below).
+  const describes = lines.flatMap((l, i) => (/^test\.describe\b/.test(l) ? [[i, statementEnd(lines, i)]] : []));
+  const insideTests = (at: number) => [...src.matchAll(TEST_CALL)].some((m) => { const l = lineAt(m.index ?? 0); return at > l && at <= statementEnd(lines, l); });
+  const theFiles = (at: number) => !/^\s/.test(lines[at]) || (describes.some(([from, to]) => at > from && at <= to) && !insideTests(at));
+  const lineAt = (index: number) => src.slice(0, index).split('\n').length - 1;
+  const starts = new Map<string, { title: string; tags: string[]; at: number; end: number }>();
+  let lastEnd = -1;
+  const floors = new Map<string, number>();
+  for (const m of src.matchAll(TEST_CALL)) {
+    const at = lineAt(m.index ?? 0);
+    const end = statementEnd(lines, at);
+    const known = starts.get(m[2]);
+    if (known) known.end = end;
+    else {
+      starts.set(m[2], { title: unescape(m[4]), tags: tagsOf(src.slice(m.index ?? 0, src.indexOf('=>', m.index ?? 0))), at, end });
+      floors.set(m[2], lastEnd);
+    }
+    lastEnd = Math.max(lastEnd, end);
+  }
+  const blocks = [...starts.entries()].map(([name, s]) => {
+    let from = s.at;
+    // Up through the comments, the rows and the loop above the call. An array's closing line takes its whole statement:
+    // its rows may span lines and close with a bracket of their own.
+    for (;;) {
+      const above = lines[from - 1];
+      if (from - 1 <= floors.get(name)! || !above?.trim() || /^\s*[})]/.test(above) || /\btest\.(describe|beforeEach|afterEach|beforeAll|afterAll|use)\b/.test(above)) break;
+      if (/^\s*\]/.test(above)) {
+        let open = from - 2;
+        while (open > floors.get(name)! && !(indentOf(lines[open]) === indentOf(above) && /\[$/.test(lines[open].trimEnd()))) open--;
+        if (open <= floors.get(name)!) break;
+        from = open;
+      } else from--;
+    }
+    const loop = lines.slice(from, s.at).findIndex((l) => LOOP.test(l));
+    return { name, ...s, from, end: loop === -1 ? s.end : Math.max(s.end, statementEnd(lines, from + loop)) };
+  });
+  return {
+    declarations: ranges(DECLARATION).filter((d) => theFiles(d.from - 1)),
+    hooks: ranges(HOOK),
+    tests: blocks.map((b) => ({ name: b.name, title: b.title, tags: b.tags, from: b.from + 1, to: b.end + 1 })),
+  };
 }
 
 /**

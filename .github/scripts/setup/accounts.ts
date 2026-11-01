@@ -177,7 +177,7 @@ export async function run({ flags }: Args): Promise<void> {
   }
 
   const recipe = cfg.aut.accounts;
-  if (!recipe) throw new Error(`auts.${cfg.autId} has no accounts yet — add existing ones (--add-existing) or save how tests create them (--from-chain); see references/data-and-journeys.md §4a`);
+  if (!recipe) throw new Error(`auts.${cfg.autId} has no accounts yet — add existing ones (--add-existing) or save how tests create them (--from-chain); see references/accounts.md`);
   if (!changed && !flags.check) { console.log(JSON.stringify(recipe, null, 2)); return; }
   // A setting that changes no call (how many accounts a test takes, keeping created accounts) needs no live check.
   if (!flags.check && ![chainFile, signInSteps, signUpSteps, lookup, resetCall, added].some(Boolean)) { console.log('  (not checked live: no sign-in or account call changed; heldout accounts --check signs each account in)'); return; }

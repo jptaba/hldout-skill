@@ -17,7 +17,9 @@ Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` print
 - The application's journeys, `journeys/fixtures/<domain>.ts`: the reusable HOW, one file per area of the application.
   They hold no expected value. `npm run heldout -- journeys KEY` lists them, with what each requires (from
   `journeys/registry.yml`).
-- `heldout-support/fixtures.ts`: `api`, `page`, `seed.*`, `seed.account()`, `signIn()`, `gotoPage`, `expectResponse`.
+- The fixtures (`api`, `page`, `seed.*`, `seed.account()`, `signIn()`, `gotoPage`, `expectResponse`): the tables in
+  `test-authoring.md` say what each does. Search `heldout-support/fixtures.ts` for a signature they don't give; don't
+  read the file.
 - `.github/skills/heldout-evaluator/references/test-authoring.md`, `journeys.md` and `data-and-journeys.md`: **read
   them first and follow them.**
 

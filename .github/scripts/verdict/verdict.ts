@@ -87,11 +87,14 @@ export function showsScreenshot(e: Pick<TriageEntry, 'evidence'>): boolean {
   return !e.evidence.api && Boolean(e.evidence.screenshot);
 }
 
+/** A kept screenshot's name in the verdict's folder, in the format it was taken in. */
+export const keptScreenshotName = (run: string, e: Pick<TriageEntry, 'scenario' | 'evidence'>) => `${run}-${e.scenario}${path.extname(e.evidence.screenshot ?? '')}`;
+
 /** Removes the screenshots in the verdict's folder that the verdict no longer shows (left by an earlier rendering). */
 export function dropUnshownScreenshots(dir: string, shown: string[]): void {
   if (!fs.existsSync(dir)) return;
   const keep = new Set(shown.filter(Boolean).map((f) => path.basename(f)));
-  for (const f of fs.readdirSync(dir)) if (f.endsWith('.png') && !keep.has(f)) fs.rmSync(path.join(dir, f));
+  for (const f of fs.readdirSync(dir)) if (/\.(png|jpe?g)$/i.test(f) && !keep.has(f)) fs.rmSync(path.join(dir, f));
 }
 
 /** Every run of the story, in order, as its history recorded it (the last line of a run name wins). */
@@ -128,7 +131,7 @@ export function run({ _, flags }: Args): void {
     if (!showsScreenshot(e)) return '';
     if (kept.has(e)) return kept.get(e)!;
     const src = e.evidence.screenshot && path.join(ROOT, e.evidence.screenshot);
-    const dest = path.join(verdictDir, `${finalRun}-${e.scenario}.png`);
+    const dest = path.join(verdictDir, keptScreenshotName(finalRun, e));
     if (src && fs.existsSync(src)) { fs.mkdirSync(verdictDir, { recursive: true }); fs.copyFileSync(src, dest); }
     kept.set(e, fs.existsSync(dest) ? rel(dest) : '');
     return kept.get(e)!;

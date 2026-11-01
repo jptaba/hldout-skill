@@ -2,32 +2,38 @@
  * Read a story's record — or the project's profile — without writing a script: each view prints what an agent or a
  * person looks for, and --json the same as data.
  *
- *   heldout show KEY contract [--ac AC-1,AC-7] [--gaps [open|mechanics|oracle]] [--endpoints] [--rules] [--errors] [--variants] [--md]
+ *   heldout show KEY contract [--ac AC-1,AC-7] [--gaps [open|mechanics|oracle]] [--endpoints] [--rules] [--errors] [--variants] [--auth] [--md]
+ *                                               (--auth: how users sign in, and the contract's test data)
  *   heldout show config [--aut <profile>]       the profile: URLs, accounts (roles, shared, perTest; secrets as their
  *                                               references), workers, pacing, data prefix
  *   heldout show KEY run [NN-label] [--failed] [--test SCN-x]    a run's record (the latest run by default)
  *   heldout show KEY triage [NN-label] [--pending] [--test SCN-x]   classes and decisions (the latest evaluation run)
+ *   heldout show KEY triage [NN-label] --group N  one group of "Failures that look alike", as the triage report has it
+ *   heldout show KEY spec [--test SCN-x]        the tests as they stand (hardened, or the draft before that): where each
+ *                                               test and declaration is; with --test, that test's numbered lines
  *   heldout show KEY probes [--id P7] [--phase harden|triage]   the probe log
  *   heldout show KEY history                    every step that changed the story, in order
  *   … --json                                    the same, as JSON
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { baseScenarioId, specFiles, specOutline } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
-import { rel } from '../core/files';
+import { rel, ROOT } from '../core/files';
 import { readHistory } from '../core/history';
-import { evalPaths, evalRunsOf, listRuns, movedRunNote, phaseDirs, runFile } from '../core/paths';
+import { currentTests, evalPaths, evalRunsOf, listRuns, movedRunNote, phaseDirs, runFile } from '../core/paths';
 import { readProbes } from '../core/probe-log';
 import { readContract } from '../contract/contract-model';
 import { renderContract } from '../contract/contract-render';
 import { readReview } from '../contract/evidence';
 import { pendingOf, readRunRecord, type TriageEntry } from '../run/run-record';
+import { failureGroups, placesOf, renderTriageMd, sectionsOf } from '../triage/triage-report';
 
 export const spec: CommandSpec = {
-  name: 'show', group: 'Report', usage: 'KEY contract|run|triage|probes|history [...] | config [--aut id]   [--json]', words: 3,
-  about: 'read a story\'s record or the profile: parts of the contract, a run, the decisions, the probes, the history',
-  flags: ['ac', 'aut', 'endpoints', 'errors', 'failed', 'gaps', 'id', 'json', 'md', 'pending', 'phase', 'rules', 'test', 'variants'],
+  name: 'show', group: 'Report', usage: 'KEY contract|run|triage|spec|probes|history [...] | config [--aut id]   [--json]', words: 3,
+  about: 'read a story\'s record or the profile: parts of the contract, a run, a failure group, a test, the decisions, the probes, the history',
+  flags: ['ac', 'aut', 'auth', 'endpoints', 'errors', 'failed', 'gaps', 'group', 'id', 'json', 'md', 'pending', 'phase', 'rules', 'test', 'variants'],
 };
 
 const print = (json: boolean, data: unknown, text: () => string[]) => console.log(json ? JSON.stringify(data, null, 2) : text().join('\n'));
@@ -64,7 +70,7 @@ export function run({ _, flags }: Args): void {
     if (flags.md) { const review = readReview(p.review); console.log(renderContract(c, review, Boolean(review))); return; }
     const acs = flagStr(flags, 'ac')?.split(',').map((x) => x.trim());
     const gaps = flags.gaps === undefined ? undefined : c.gaps.filter((g) => flags.gaps === true || (flags.gaps === 'open' ? g.resolution === 'open' : g.kind === flags.gaps));
-    const parts = { acs: Boolean(acs), gaps: Boolean(gaps), endpoints: Boolean(flags.endpoints), rules: Boolean(flags.rules), errors: Boolean(flags.errors), variants: Boolean(flags.variants) };
+    const parts = { acs: Boolean(acs), gaps: Boolean(gaps), endpoints: Boolean(flags.endpoints), rules: Boolean(flags.rules), errors: Boolean(flags.errors), variants: Boolean(flags.variants), auth: Boolean(flags.auth) };
     const all = !Object.values(parts).some(Boolean);
     const data = {
       key: c.key, title: c.title,
@@ -74,6 +80,7 @@ export function run({ _, flags }: Args): void {
       ...(all || parts.rules ? { rules: c.rules } : {}),
       ...(all || parts.errors ? { errorModel: c.errorModel } : {}),
       ...(all || parts.variants ? { variants: c.variants ?? [] } : {}),
+      ...(all || parts.auth ? { auth: c.auth, testData: c.testData } : {}),
     };
     print(json, data, () => [
       `${c.key}: ${c.title}`,
@@ -83,6 +90,8 @@ export function run({ _, flags }: Args): void {
       ...(data.endpoints?.length ? ['\nEndpoints', ...data.endpoints.map((e) => `  ${e.method} ${e.path}${e.auth ? ` · auth ${e.auth}` : ''}${e.success ? ` · ${e.success}` : ''} (${e.source})`)] : []),
       ...(data.gaps?.length ? ['\nGaps', ...data.gaps.map((g) => `  ${g.id} ${g.kind}${g.required ? ' required' : ''} · ${g.resolution}${g.value ? `: ${g.value}` : ''} · ${g.element} → ${g.affects.join(', ')}`)] : []),
       ...(data.variants?.length ? ['\nVariants', ...data.variants.map((v) => `  ${v.key}: ${v.values.map((x) => x.id).join(', ')} → ${v.appliesTo.join(', ')}`)] : []),
+      ...(data.auth ? [`\nAuth\n  ${data.auth.mechanism}${data.auth.credentials ? ` · ${data.auth.credentials}` : ''} (${data.auth.source})`] : []),
+      ...(data.testData ? [`\nTest data\n  ${data.testData.strategy}${data.testData.constraints?.length ? ` · ${data.testData.constraints.join('; ')}` : ''}${data.testData.cleanup ? ` · cleanup: ${data.testData.cleanup}` : ''}${data.testData.source ? ` (${data.testData.source})` : ''}`] : []),
     ]);
     return;
   }
@@ -92,6 +101,16 @@ export function run({ _, flags }: Args): void {
     const name = _[2] ?? (what === 'triage' ? evalRunsOf(p.runs).at(-1) : runs.at(-1));
     if (!name || !fs.existsSync(runFile(p, name))) throw new Error(`No run ${name ?? ''} of ${key} (runs: ${runs.join(', ') || 'none'})${movedRunNote(p, name)}`);
     const r = readRunRecord(runFile(p, name));
+    const group = flagStr(flags, 'group');
+    if (what === 'triage' && group) {
+      const groups = failureGroups(r);
+      const g = groups[Number(group) - 1];
+      if (!g) throw new Error(`${name} has no group ${group} (${groups.length ? `groups: 1-${groups.length}` : 'it has no failures'})`);
+      // Rendered from the project's folder: its evidence links are then paths to read from here.
+      const report = sectionsOf(renderTriageMd(r, { dir: ROOT, chains: placesOf(p, name).chains }), g);
+      print(json, { run: name, group: Number(group), of: groups.length, tests: g.map((e) => e.scenario), environmentNote: r.environmentNote, report }, () => [`Group ${group} of ${groups.length}, ${name}: ${g.map((e) => e.scenario).join(', ')}`, ...(r.environmentNote ? [`⚠ Environment: ${r.environmentNote}`] : []), '', report]);
+      return;
+    }
     const test = flagStr(flags, 'test');
     if (test) {
       const e = r.entries.filter((x) => x.scenario === test || x.scenario.startsWith(`${test}.`));
@@ -108,6 +127,33 @@ export function run({ _, flags }: Args): void {
       ...pick.map(line),
       ...(what === 'triage' ? [`  ${pendingOf(r).length} pending · \`heldout show ${key} ${what} ${name} --test SCN-x\` for one test's evidence`] : []),
     ]);
+    return;
+  }
+
+  if (what === 'spec') {
+    const dir = currentTests(p);
+    if (!specFiles(dir).length) throw new Error(`No tests of ${key} yet (${rel(dir)})`);
+    const outlines = specFiles(dir).map((file) => ({ file: rel(file), source: file, ...specOutline(file) }));
+    const where = (parts: { name: string; from: number; to: number }[]) => parts.map((d) => `${d.name} ${d.from}-${d.to}`).join(', ');
+    const test = flagStr(flags, 'test');
+    if (test) {
+      const id = baseScenarioId(test);
+      const hit = outlines.find((o) => o.tests.some((t) => t.name === id));
+      const block = hit?.tests.find((t) => t.name === id);
+      if (!hit || !block) throw new Error(`${test} is not in ${rel(dir)} (have: ${outlines.flatMap((o) => o.tests.map((t) => t.name)).join(', ')})`);
+      const lines = fs.readFileSync(hit.source, 'utf8').split(/\r?\n/).slice(block.from - 1, block.to);
+      const code = lines.join('\n');
+      const used = hit.declarations.filter((d) => new RegExp(`(^|[^\\w$.])${d.name.replace(/\$/g, '\\$')}\\b`).test(code));
+      print(json, { file: hit.file, ...block, used, hooks: hit.hooks, code }, () => [`${hit.file}:${block.from}-${block.to}`,
+        ...lines.map((l, i) => `${String(block.from + i).padStart(5)}  ${l}`),
+        ...(used.length ? ['', `Declared in the file: ${where(used)}`] : []),
+        ...(hit.hooks.length ? [`Hooks in the file: ${where(hit.hooks)}`] : [])]);
+      return;
+    }
+    print(json, outlines.map(({ source: _source, ...o }) => o), () => outlines.flatMap((o) => [o.file,
+      ...(o.declarations.length ? [`  declared: ${where(o.declarations)}`] : []),
+      ...(o.hooks.length ? [`  hooks: ${where(o.hooks)}`] : []),
+      ...o.tests.map((t) => `  ${t.name.padEnd(9)} ${`${t.from}-${t.to}`.padEnd(10)} ${t.tags.join(' ')} ${one(t.title, 90)}`)]));
     return;
   }
 
@@ -130,5 +176,5 @@ export function run({ _, flags }: Args): void {
     print(json, events, () => events.length ? events.map((e) => `  ${e.at.slice(0, 16).replace('T', ' ')}  ${e.event.padEnd(16)} ${one(Object.fromEntries(Object.entries(e).filter(([k]) => !skip.has(k))), 150)}`) : [`No history for ${key} yet.`]);
     return;
   }
-  throw new Error(`Show what? heldout show ${key} contract|run|triage|probes|history, or heldout show config`);
+  throw new Error(`Show what? heldout show ${key} contract|run|triage|spec|probes|history, or heldout show config`);
 }

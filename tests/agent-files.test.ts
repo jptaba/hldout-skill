@@ -21,6 +21,19 @@ function frontmatter(file: string): Record<string, string> {
 }
 
 describe('agent files', () => {
+  it('sends each agent to the part it needs, not a whole handoff or a reference of another phase', () => {
+    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    const triager = read('heldout-triager.agent.md'), hardener = read('heldout-hardener.agent.md'), author = read('heldout-test-author.agent.md');
+    for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md']) assert.ok(triager.includes(view), view);
+    for (const whole of ['references/hardening.md', '2-contract/contract.json', 'probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!triager.includes(whole), whole);
+    assert.ok(hardener.includes('show KEY spec'));
+    assert.ok(!/accounts\.md/.test(author), 'setting up accounts is not the author\'s');
+    const references = path.join(SKILL_DIR, 'references');
+    for (const f of ['probes.md', 'accounts.md']) assert.ok(fs.existsSync(path.join(references, f)), f);
+    assert.ok(!fs.readFileSync(path.join(references, 'hardening.md'), 'utf8').includes('| An earlier chain with one value changed |'), 'the table lives in probes.md alone');
+    assert.ok(!fs.readFileSync(path.join(references, 'data-and-journeys.md'), 'utf8').includes('--add-existing'), 'the recipe lives in accounts.md alone');
+  });
+
   it('every agent file and bridge init ships exists', () => {
     for (const f of AGENT_FILES) assert.ok(fs.existsSync(path.join(REPO, f)), f);
     for (const f of COPILOT) assert.ok(AGENT_FILES.includes(bridgeOf(f)), `${f} has a Claude Code bridge`);

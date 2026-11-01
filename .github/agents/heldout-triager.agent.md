@@ -13,13 +13,17 @@ to you.
 
 Inputs, for story KEY and its run (given in your task; `npm run heldout -- status KEY` prints the story's folder,
 `output/<profile>/KEY/`, and its scratch area, `.heldout/<profile>/KEY/`):
-- `5-run/<run>.json`: the run's record — every test, and for each failure its error, failing step, page snapshot,
-  API exchanges, seed ledger and automatic class. The raw output (traces, screenshots) is in the scratch area's
-  `5-run/<run>/` while it is kept.
-- `2-contract/contract.json`, the tests as they ran (`4-hardening/*.spec.ts`, with the hardener's log beside them) and
-  the journeys they import (`journeys/fixtures/<domain>.ts`; what each requires is in `journeys/registry.yml`).
+- The run's failures, one group at a time: `npm run heldout -- show KEY triage <run> --group <n>`; one test's whole
+  evidence (its page snapshot, every call, its seed ledger): `show KEY run <run> --test SCN-n`. The raw output (traces,
+  screenshots) is in the scratch area's `5-run/<run>/` while it is kept.
+- The test of a failure as it ran: `show KEY spec --test SCN-n` (the data it reads: `4-hardening/test-data.json`).
+- The requirement, your oracle: `show KEY contract --ac AC-n`, then what the failure touches: `--rules`, `--errors`,
+  `--endpoints`, `--variants`, `--gaps`, `--auth` (one flag or several).
+- The probes so far: `show KEY probes`, `show KEY probes --id P7`. The hardener's log is `4-hardening/hardening.md`, and
+  the journeys are in `journeys/fixtures/<domain>.ts` (search for the one a test calls and read that range).
+- Read the part you are working on, once; don't read a whole spec, contract, probe log or report.
 - `.github/skills/heldout-evaluator/references/triage.md`: **the categories, the decision tree and the commands.
-  Read it first and follow it.**
+  Read it first and follow it.** `probes.md` beside it: how to build on a probe and what the inspector does.
 
 Your output is the triage phase's: your decisions go to `6-triage/decisions.json` (through `triage --set`), and the
 reports of the probes they cite to `6-triage/`. Probe before your last decision: once every failure is decided and
@@ -28,8 +32,8 @@ one is a script defect, a new probe counts as the repair's (hardening's).
 Do this:
 1. `npm run heldout -- triage KEY --run <run>`; for a re-run add `--carry-from auto` (decisions carry over only for
    identical failure signatures; anything new must be investigated).
-2. For each failure without a confirmed decision, read the triage report (`triage` prints where: the scratch area's
-   `6-triage/triage-<run>.md`), then reproduce it live: UI steps in the first
+2. For each group with a failure without a confirmed decision (`triage` prints which group each is in), read the group
+   (`show KEY triage <run> --group <n>`), then reproduce it live: UI steps in the first
    browser tier available to you or with `heldout inspect --steps-json`, API calls with `heldout api-probe`. Each probe
    made with `--key` is logged as the story's next probe and prints its id (`P7`): the decision cites it
    (`--evidence "P7 P8: …"`, one quoted value), and its report is then kept in `6-triage/`; one nobody cites is not. On a shared sandbox, check its own settings or health page before blaming the
@@ -42,7 +46,7 @@ Do this:
    when the application can't delete what a replay makes): add the control call, check whose token the call
    takes, and run it with `heldout api-probe --chain`. To vary a probe you already made, compose instead of writing a
    new file: `api-probe --chain P7 --set 2.json.qty=0`, `inspect --from P4:5 --then '<step>'`, `inspect --sign-in
-   <role>`, and `--pages`/`--where`/`--pick`/`--count` for lists (hardening reference: "Compose probes").
+   <role>`, and `--pages`/`--where`/`--pick`/`--count` for lists (`probes.md`).
    Failures with one root cause take one call: `--set SCN-008,SCN-009` (a table's base id, `SCN-007`, covers all its
    failing rows).
    Failures with one root cause share the same `--title`. A failed test tagged `@assumes:G<n>` or

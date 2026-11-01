@@ -47,7 +47,8 @@ export default defineConfig({
     headless: process.env.HELDOUT_HEADED ? false : (cfg.run?.headless ?? true),
     actionTimeout: cfg.run?.actionTimeoutMs ?? 10_000,
     trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    // A failure's picture is taken by the page fixture (heldout-support/fixtures.ts): this option can't compress it.
+    screenshot: 'off',
     video: 'off',
   },
   // A test tagged @irreversible changes the application for good (locks an account, sends a real e-mail): it runs once

@@ -4,6 +4,7 @@
  */
 import path from 'node:path';
 import { ROOT } from '../core/files';
+import type { StoryPaths } from '../core/paths';
 import { pageText } from '../core/redact';
 import type { ApiExchange } from '../run/classify';
 import { maskVolatile, type TriageEntry, type TriageReport } from '../run/run-record';
@@ -33,6 +34,25 @@ export function likeness(e: TriageEntry): string {
   return `${e.requirementRefs.join(', ') || '-'} · ${e.layer === 'api' || !e.layer ? '' : `${e.layer}: `}${what}`;
 }
 
+/** Where a run's triage report and its starting chains go: views and working files, in the scratch area. */
+export const placesOf = (p: Pick<StoryPaths, 'work'>, run: string) => ({
+  report: path.join(p.work.triage, `triage-${run}.md`),
+  chains: path.join(p.work.triage, 'chains', run),
+});
+
+/** A run's failures in their groups, in the order the report numbers them (from 1). */
+export function failureGroups(r: Pick<TriageReport, 'entries'>): TriageEntry[][] {
+  const groups = new Map<string, TriageEntry[]>();
+  for (const e of r.entries.filter((x) => x.error)) groups.set(likeness(e), [...(groups.get(likeness(e)) ?? []), e]);
+  return [...groups.values()];
+}
+
+/** The sections of a rendered report that write out these failures, as the report has them. */
+export function sectionsOf(md: string, entries: Pick<TriageEntry, 'title'>[]): string {
+  const headings = new Set(entries.map((e) => `## ${e.title}`));
+  return md.split(/^(?=## )/m).filter((s) => headings.has(s.split('\n', 1)[0].trimEnd())).join('').trimEnd();
+}
+
 /** The call that made the state a failed read-back looked at: the last call before it that changed something. */
 function callBefore(e: TriageEntry): ApiExchange | undefined {
   const api = e.evidence.api; const seq = e.evidence.apiSequence ?? [];
@@ -59,12 +79,11 @@ export function renderTriageMd(r: TriageReport, places: TriageReportPlaces, root
     ...r.entries.filter((e) => e.status !== 'passed' || e.auto).map((e) => `| ${e.scenario} | ${e.testType ?? '-'} | ${e.requirementRefs.join(', ')} | ${e.status} | ${e.auto?.category ?? '-'} | ${e.auto?.confidence ?? '-'} | ${e.final ? `**${e.final.category}**` : e.auto ? '⏳ pending' : '-'} |`), '',
     ...(r.entries.some((e) => e.status === 'passed' && !e.auto) ? [`Passed (${r.entries.filter((e) => e.status === 'passed' && !e.auto).length}): ${r.entries.filter((e) => e.status === 'passed' && !e.auto).map((e) => e.scenario).join(', ')}`, ''] : [])];
   const failed = r.entries.filter((x) => x.error);
-  const groups = new Map<string, TriageEntry[]>();
-  for (const e of failed) groups.set(likeness(e), [...(groups.get(likeness(e)) ?? []), e]);
-  if (failed.length > groups.size) out.push(`## Failures that look alike (${failed.length} failures, ${groups.size} groups)`, '',
+  const groups = failureGroups(r);
+  if (failed.length > groups.length) out.push(`## Failures that look alike (${failed.length} failures, ${groups.length} groups)`, '',
     'The same criterion and the same call and status (or the same locator). Read the first of a group in full; the others show what differs. Whether a group is one root cause is yours to decide.', '',
     '| # | Criteria · what failed | Tests |', '| --- | --- | --- |',
-    ...[...groups].map(([k, g], i) => `| ${i + 1} | ${k.replace(/\|/g, '/')} | ${g.map((e) => e.scenario).join(', ')} |`), '');
+    ...groups.map((g, i) => `| ${i + 1} | ${likeness(g[0]).replace(/\|/g, '/')} | ${g.map((e) => e.scenario).join(', ')} |`), '');
   // A test's screenshot, trace and page snapshot sit in one folder: the folder once, then the files in it.
   const evidenceLine = (e: TriageEntry) => {
     const files = [e.evidence.screenshot, e.evidence.trace, e.evidence.errorContext].filter((f): f is string => Boolean(f));
@@ -78,7 +97,7 @@ export function renderTriageMd(r: TriageReport, places: TriageReportPlaces, root
   const matcher = (e: TriageEntry) => (e.error?.matcher ? ` (${e.error.matcher})` : '');
   const before = (e: TriageEntry) => { const c = callBefore(e); return c ? [`  - the call before it: \`${c.request.method} ${c.request.url}\` → **${c.response.status}**${c.request.body ? ` · body \`${short(c.request.body, 200)}\`` : ''}`] : []; };
   const told = new Map<string, string>();
-  for (const [n, g] of [...groups.values()].entries()) for (const e of g) {
+  for (const [n, g] of groups.entries()) for (const e of g) {
     const api = e.evidence.api; const first = g[0]; const firstApi = first.evidence.api;
     // A decision already written out for an earlier failure is named, not repeated.
     const decision = e.final ? `${e.final.category}|${e.final.severity ?? ''}|${e.final.rationale}|${e.final.action ?? ''}` : '';

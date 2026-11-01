@@ -148,7 +148,7 @@ export function run({ _, flags }: Args): void {
   console.log(`✔ created ${rel(specFile)} — ${c.acceptanceCriteria.length} test stub(s), ${c.endpoints.length} endpoint helper(s)`);
   if (accounts) console.log(`• accounts: seed.account() uses the "${cfg.autId}" profile's recipe — no seeding code needed for test users${creates ? '' : ` (${existing} existing account(s), shared with later runs: each test leaves the data it changed as it found it)`}`);
   else if (/\b(creat|regist|sign ?up)\w*\b[^.]*\b(user|account|customer)/i.test(JSON.stringify([c.testData, c.auth]))) {
-    console.log(`• the tests make their own accounts: once hardening has found how (create, sign in, delete), save it as auts.${cfg.autId}.accounts in heldout.config.json — then seed.account() does it for this and every later story (references/data-and-journeys.md)`);
+    console.log(`• the tests make their own accounts: once hardening has found how (create, sign in, delete), save it as auts.${cfg.autId}.accounts in heldout.config.json — then seed.account() does it for this and every later story (references/accounts.md)`);
   }
   console.log(`\nNext: the journeys you can call (heldout journeys ${key}); write the tests, then: heldout lint ${key} --allow-unhardened`);
 }
