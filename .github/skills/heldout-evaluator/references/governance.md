@@ -52,7 +52,7 @@ Everything an evaluation did is in its story folder, `output/<profile>/<KEY>/`, 
 
 | Control | What it does | Where |
 | --- | --- | --- |
-| Held-out isolation | The tests come from the requirement only; nothing probes the application for a story before its draft is frozen | probe commands refuse before `3-tests/freeze.json`; the test author has no browser |
+| Held-out isolation | The tests come from the requirement only; nothing probes the application for a story before its draft is frozen | probe commands and `heldout map` refuse a story before its `3-tests/freeze.json` (checked per story: a round's transcripts check an agent named no other); the test author has no browser, and the contract's agents and the test author never open `application-map/` |
 | WHAT vs HOW | Hardening changes how a test works, never what it expects | `heldout integrity` (freeze, audited amendments), journey lint |
 | Evidence, not recall | Every criterion is quoted and cited; every expected value exists in the sources; an independent review is bound to the contract's hash | `heldout contract` checks |
 | Least privilege | Each subagent has exactly the tools of its role, in both agent apps | the agent files; `doctor` warns on a widened one |

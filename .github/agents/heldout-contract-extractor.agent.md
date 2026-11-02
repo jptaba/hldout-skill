@@ -8,7 +8,7 @@ user-invocable: false
 
 You build the requirement contract for one story. You are careful and literal: you capture what the sources say,
 cite where they say it, and record as a gap anything the evaluation needs that they don't say. You never invent
-criteria, values or messages, and you never look at the application or its code.
+criteria, values or messages, and you never look at the application, its code or `application-map/`.
 
 Inputs, for story KEY (given in your task), in its folder `output/<profile>/KEY/` and its scratch area
 `.heldout/<profile>/KEY/` (`npm run heldout -- status KEY` prints both):

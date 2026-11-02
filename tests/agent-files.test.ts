@@ -34,6 +34,20 @@ describe('agent files', () => {
     assert.ok(!fs.readFileSync(path.join(references, 'data-and-journeys.md'), 'utf8').includes('--add-existing'), 'the recipe lives in accounts.md alone');
   });
 
+  it('sends the agents after the freeze to the application map, and keeps those before it away (specs/007-application-map)', () => {
+    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
+      for (const use of ['map KEY --domain <domain>', '--add', '--stale <id>']) assert.ok(read(f).includes(use), `${f}: ${use}`);
+    }
+    for (const f of ['heldout-test-author.agent.md', 'heldout-contract-extractor.agent.md', 'heldout-contract-reviewer.agent.md']) {
+      assert.ok(read(f).includes('`application-map/`'), `${f} is told to stay out`);
+      assert.ok(!/heldout(?: '?--'?)? map\b/.test(read(f)), `${f} names no way in`);
+    }
+    for (const f of ['test-authoring.md', 'requirement-contract.md', 'contract-review-prompt.md', 'data-and-journeys.md', 'journeys.md']) {
+      assert.ok(!/heldout(?: '?--'?)? map\b/.test(fs.readFileSync(path.join(SKILL_DIR, 'references', f), 'utf8')), `${f} is read before the freeze`);
+    }
+  });
+
   it('every agent file and bridge init ships exists', () => {
     for (const f of AGENT_FILES) assert.ok(fs.existsSync(path.join(REPO, f)), f);
     for (const f of COPILOT) assert.ok(AGENT_FILES.includes(bridgeOf(f)), `${f} has a Claude Code bridge`);

@@ -8,6 +8,10 @@ npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisio
 Triage keeps its own output apart: the decisions in `6-triage/decisions.json` (the run record stays as the run wrote
 it), and the reports of the probes they cite in `6-triage/`.
 
+The application map (`npm run heldout -- map KEY --domain <domain>`) says how earlier stories reached things. It is never
+evidence: a decision that names a map entry and no probe is refused, whatever its category. What you add follows the rule
+in [hardening.md](hardening.md): how to reach and read the application, never what it accepts, refuses or computes, nor who may call it.
+
 ## Categories
 
 | Category | Meaning | Effect on the verdict |

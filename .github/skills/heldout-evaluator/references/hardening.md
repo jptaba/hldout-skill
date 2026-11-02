@@ -35,6 +35,15 @@ that later stories will need (opening a page and waiting for it, creating and de
 an exported function with a `/** doc comment */` in its domain's file, called from the test. The harvest after the
 verdict records in `journeys/registry.yml` what the passing tests proved; never edit that file yourself.
 
+What you learned that no journey can hold (an answer's shape, the call a page makes, a wait it needs) goes in the
+application map: `npm run heldout -- map KEY --domain <domain> --add "<how it works>" --evidence P7`. Write it so it holds
+in another environment and for another story: `{id}` for a record, no value a run made, no secret. It says how to reach
+and read the application (a route, a call, an answer's format, a wait), never what it accepts, refuses or computes, nor
+who may call it: a requirement could judge those, so they belong in your log or the triager's decision, and a reader of the map would take
+them as settled. Nobody reads the map before a freeze, or today's behaviour would become the oracle. It is a starting
+point, so a guess confirmed or a gap resolved still cites this story's probe or run; `--evidence` that names an entry
+alone is refused.
+
 ## 1. Choose the tier
 
 | Tier | When | UI inspection | API inspection | Verification |

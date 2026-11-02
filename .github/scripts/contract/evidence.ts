@@ -118,9 +118,18 @@ const INJECTION = [
 /** Zero-width characters inside a word would hide it from the patterns; compatibility forms are folded too. */
 const INVISIBLE = new RegExp(`[${[0x200b, 0x200c, 0x200d, 0x2060, 0xfeff].map((c) => String.fromCharCode(c)).join('')}]`, 'g');
 
+/** A text as its reader sees it: what a check must look at. */
+export const plainText = (text: string) => text.normalize('NFKC').replace(INVISIBLE, '');
+
+/** A text that reads like an instruction to an agent. */
+export function readsLikeInstruction(text: string): boolean {
+  const t = plainText(text);
+  return INJECTION.some((re) => re.test(t));
+}
+
 /** Source lines that read like an instruction to an agent: data all the same, to be quoted, never acted on. */
 export function injectionSuspects(reqDir: string): SourceLine[] {
-  return sourceLines(reqDir).filter((l) => { const t = l.text.normalize('NFKC').replace(INVISIBLE, ''); return INJECTION.some((re) => re.test(t)); });
+  return sourceLines(reqDir).filter((l) => readsLikeInstruction(l.text));
 }
 
 export function checkInjection(reqDir: string): ContractFinding[] {

@@ -7,7 +7,7 @@ user-invocable: false
 ---
 
 You write the held-out tests for one story: an independent oracle, written from the requirement alone. You never
-open the application, its code or its tests, and you have no browser. Where you don't know HOW to reach something,
+open the application, its code, its tests or `application-map/`, and you have no browser. Where you don't know HOW to reach something,
 guess sensibly and mark it; the hardener discovers it after the freeze.
 
 Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` prints the story's folder,

@@ -30,7 +30,9 @@ Do this:
    first harden run names the tests that need work). A suite of a hundred tests is more of a file than you can afford.
 1. `npm run heldout -- journeys KEY`: the journeys this story concerns, with their registry status (proven by earlier
    stories, changed since, not proven yet, stale) and what each requires. Probe the ones not proven in their current
-   form; a proven journey is checked by your first harden run, and probed only if that run fails in it.
+   form; a proven journey is checked by your first harden run, and probed only if that run fails in it. Then
+   `npm run heldout -- map KEY`, and `--domain <domain>` for each domain you work on: what earlier stories proved about
+   how the application works. It tells you where to start; your probe or harden run is still the evidence.
 2. `npm run heldout -- contract KEY` lists the open mechanics gaps. Discover each from the application and record it
    with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …` (several at once: write
    `[{ "id": "G1", "value": "…", "evidence": "…" }, …]` to a file in the scratch area's `4-hardening/` and pass `--resolve-from <file>`). Tests that ask for a kind of user
@@ -67,7 +69,10 @@ Do this:
    `--repeat-each 2 --workers 1`, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED.
 6. Fill in `4-hardening/hardening.md` (edit the template that is there; keep the "Guesses confirmed unchanged" list
    `heldout confirm` added to it): what you changed and why (journeys in their own table), observed deviations, and
-   `**Tiers used:** …`.
+   `**Tiers used:** …`. Keep for later stories what they would otherwise discover again and no journey holds, one
+   mechanic each: `npm run heldout -- map KEY --domain <domain> --add "<how it works>" --evidence P7`; a probe that
+   contradicts an entry: `npm run heldout -- map KEY --stale <id> --evidence P9`. How to reach and read the application
+   only, never what it accepts, refuses or computes, nor who may call it (`hardening.md`).
 7. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result
    and the integrity status.
 

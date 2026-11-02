@@ -19,11 +19,12 @@ Jira story (title, description, acceptance criteria) + the screenshots they show
   → journey registry: the journeys the passing tests proved, for the next story (never what the app answers)
 ```
 
-Two folders in your project hold the work:
+Three folders in your project hold the work:
 
 ```
 journeys/fixtures/<domain>.ts   reusable journeys, UI and API, one file per area of the app (products.ts, favorites.ts…)
 journeys/registry.yml           each journey's id and file, what it touches, what must run before it, which story proved it
+application-map/<app>/          how the app works, as probes proved it, one file per area; read only after a story's freeze
 output/<app>/<KEY>/             the record of one story, one folder per phase, each keeping only what the next ones read:
   1-requirement/  story.md  linked/  transcripts/                  what was asked
   2-contract/     contract.json  review.json                       what we took it to mean, and its independent review
@@ -115,7 +116,7 @@ took its current folders, so the paths it prints are the earlier ones.
 
 It pulls the skill, replaces the project's copy of the skill and its scripts, refreshes every file it copied (configs,
 fixtures, subagents and bridges) unless you changed it since, and installs any new dependency. It never touches your
-config, `.env`, `journeys/` or `output/`. It works the same for a project that has already been pushed to its own
+config, `.env`, `journeys/`, `application-map/` or `output/`. It works the same for a project that has already been pushed to its own
 repository and cloned somewhere else: anyone with a clone of the skill runs setup in their clone of the project. The
 project records which skill commit it has (`.github/skills/heldout-evaluator/SOURCE.json`: the skill's remote and
 commit, never a path on someone's machine); `doctor` shows it, and the copied files you changed, which updates leave

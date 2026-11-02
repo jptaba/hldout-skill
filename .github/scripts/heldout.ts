@@ -34,6 +34,7 @@ export const COMMANDS: Record<string, string> = {
   confirm: 'hardening/confirm.ts',
   'api-probe': 'probe/api-probe.ts',
   'mcp-probe': 'probe/mcp-probe.ts',
+  map: 'probe/map.ts',
   run: 'run/run.ts',
   triage: 'triage/triage.ts',
   trace: 'probe/trace.ts',

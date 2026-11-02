@@ -165,7 +165,7 @@ The owner's later answer to an open question enters the next evaluation: a revis
 | 5 | **Triage** | **Delegate** to the `heldout-triager` subagent ("Triage run NN-eval of KEY"). It auto-classifies, **reproduces each failure live** and records each decision with evidence; it never edits the tests or the journeys. Send the script defects it confirms to the `heldout-hardener` ("Repair these script defects for KEY: …"), re-run everything (`$H run KEY --label rerun`) and triage again (the triager uses `--carry-from auto`). At most 3 cycles in a row. The triager starts from the report's groups of failures that look alike and from the run's `all.chain.json` (in the scratch area); a failure on an assumed reading that is wrong under every reading is recorded with `--any-reading` | `6-triage/decisions.json`, the cited live reports in `6-triage/` — [triage](references/triage.md) |
 | 6 | **Verdict** | Render the recommendation with traceability, reproduction and evidence | `$H verdict KEY` → `7-verdict/verdict.md`, `7-verdict/verdict.json` — [verdict-and-publish](references/verdict-and-publish.md) |
 | 7 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else. Part of the evaluation, with no confirmation; a project that wants a person to publish sets `jira.publish` to `"manual"`, and `advance` then leaves this step out | `$H publish KEY` |
-| 8 | **Journey registry** | Record in `journeys/registry.yml` the journeys this story's passing tests used (this story as their proof, and what ran before each), and the stale marks. Journeys only failing tests used are left out. Preview, then apply; commit `registry.yml` with the journey files and the story's output. After merging other people's work, `$H journeys --check` lints every journey and lists possible duplicates; a merge conflict in `registry.yml` is settled by `$H journeys --resolve` | `$H journeys KEY --harvest` → `--harvest --apply` → `journeys/registry.yml` — [journeys](references/journeys.md) |
+| 8 | **Journey registry** | Record in `journeys/registry.yml` the journeys this story's passing tests used (this story as their proof, and what ran before each), and the stale marks. Journeys only failing tests used are left out. Preview, then apply; commit `registry.yml` with the journey files, `application-map/` and the story's output. After merging other people's work, `$H journeys --check` lints every journey and lists possible duplicates; a merge conflict in `registry.yml` is settled by `$H journeys --resolve` | `$H journeys KEY --harvest` → `--harvest --apply` → `journeys/registry.yml` — [journeys](references/journeys.md) |
 
 Work through the phases in order and do not skip the freeze. **You orchestrate:** each subagent runs in a fresh
 context, works from the files on disk and the scripts, and replies with a summary; `$H advance KEY` runs the steps
@@ -262,6 +262,9 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
 journeys/                                   ← shared by every story on the application (grows story by story)
   fixtures/<domain>.ts                      ← the journeys of one area, UI and API (phases 2–3)
   registry.yml                              ← ids, what each touches and requires, who proved it (phase 8)
+
+application-map/<profile>/<domain>.jsonl    ← how the application works, as probes proved it (committed): read and
+                                              written after a freeze only, through `heldout map` (phases 3 and 5)
 
 output/<profile>/KEY/                       ← the record of one story (committed): one folder per phase, each holding
                                               only what that phase hands the later ones

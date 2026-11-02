@@ -21,6 +21,8 @@ Inputs, for story KEY and its run (given in your task; `npm run heldout -- statu
   `--endpoints`, `--variants`, `--gaps`, `--auth` (one flag or several).
 - The probes so far: `show KEY probes`, `show KEY probes --id P7`. The hardener's log is `4-hardening/hardening.md`, and
   the journeys are in `journeys/fixtures/<domain>.ts` (search for the one a test calls and read that range).
+- What earlier stories proved about how the application works: `npm run heldout -- map KEY`, then `--domain <domain>`.
+  It tells you how to reach something, never what is a defect: every failure is still reproduced live.
 - Read the part you are working on, once; don't read a whole spec, contract, probe log or report.
 - `.github/skills/heldout-evaluator/references/triage.md`: **the categories, the decision tree and the commands.
   Read it first and follow it.** `probes.md` beside it: how to build on a probe and what the inspector does.
@@ -53,7 +55,11 @@ Do this:
    `@needs-clarification` whose failure is wrong whichever way the gap is answered takes `--any-reading` (reference:
    "Tests tagged"); without it the verdict reports the failure as a question for the owner. Genuine ambiguity is NEEDS_INVESTIGATION with a
    clarification note.
-4. Reply with a summary per failure: category, severity, the evidence, and for each SCRIPT_DEFECT what is wrong with
+4. Keep for later stories what your probes showed about how the application works and neither a journey nor the map
+   holds: `npm run heldout -- map KEY --domain <domain> --add "<how it works>" --evidence P7`, one mechanic each, never
+   what it accepts, refuses or computes, nor who may call it. A probe that contradicts an entry:
+   `npm run heldout -- map KEY --stale <id> --evidence P9`.
+5. Reply with a summary per failure: category, severity, the evidence, and for each SCRIPT_DEFECT what is wrong with
    the mechanics and where (the test, or the journey it calls), so the hardener can repair it.
 
 Never edit the tests or the journeys, never change a shared sandbox's settings, and never create or change Jira

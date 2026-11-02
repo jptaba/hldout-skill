@@ -172,6 +172,12 @@ export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir' | 'auts'>, p
   return { base, fixtures: path.join(base, 'fixtures'), registry: path.join(base, 'registry.yml') };
 }
 
+/**
+ * What hardeners and triagers proved about how an application works, one file per domain (probe/app-map.ts). Apart from
+ * the journeys and the story records on purpose: those the test author may read, this nobody reads before a freeze.
+ */
+export const appMapDir = (cfg: Pick<HeldoutConfig, 'autId'>) => path.resolve(ROOT, 'application-map', cfg.autId);
+
 /** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
 export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;
 

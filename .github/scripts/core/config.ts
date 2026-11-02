@@ -38,7 +38,7 @@ export const AGENT_FILES: string[] = [
 /** What a project keeps out of git: secrets, the scratch area and bulky local run artifacts (the record stays tracked). */
 export const GITIGNORE = ['.env', 'node_modules/', 'test-results/', 'playwright-report/', `${SCRATCH_DIR}/`, `output/*/*/${PHASE_FOLDERS[4]}/*/html/`, `output/*/*/${PHASE_FOLDERS[4]}/*/artifacts/`, '*.trace.zip', '.playwright-mcp/', '.claude/settings.local.json'];
 /** How git merges a story's append-only logs (history, probes): two branches that each added lines keep both. */
-export const GITATTRIBUTES = ['output/**/*.jsonl merge=union'];
+export const GITATTRIBUTES = ['output/**/*.jsonl merge=union', 'application-map/**/*.jsonl merge=union'];
 
 /** Add the lines a project's dot-file doesn't have yet (init, and update when a version adds one). */
 function ensureLines(name: string, wanted: string[], why: string, say: (mark: string, msg: string) => void): void {

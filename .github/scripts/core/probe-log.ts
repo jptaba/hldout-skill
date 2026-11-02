@@ -11,7 +11,7 @@ import path from 'node:path';
 import { assertIssueKey } from './config';
 import { readJson, rel, writeFile } from './files';
 import { recordEvent } from './history';
-import { decisionsFor, evalPaths, evalRunsOf, phaseDirs, runFile, type ProbingPhase, type StoryPaths } from './paths';
+import { decisionsFor, evalPaths, evalRunsOf, listRuns, phaseDirs, runFile, type ProbingPhase, type StoryPaths } from './paths';
 import type { HeldoutConfig } from './profile';
 
 export interface ProbeEntry {
@@ -36,6 +36,7 @@ const logOf = (p: LogPaths, phase: ProbingPhase) => path.join(phase === 'hardeni
 const scratchReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).work, 'probes', `${id}.md`);
 const keptReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).kept, `${id}.md`);
 export const PROBE_ID = /\bP[1-9]\d*\b/g;
+const MAP_ENTRY = /\bM[0-9a-f]{6}\b/;
 const TRIMMED = (id: string) => `${id} was trimmed to its digest when the story's record was tidied for the verdict (nothing cited it): probe again`;
 
 function readLog(file: string): ProbeEntry[] {
@@ -66,7 +67,7 @@ export function tableRows(report: string, sections: string[]): string[] {
  * (--key) is refused until `3-tests/freeze.json` exists, whatever tools the caller has. The refusal is a `note` of kind
  * `isolation` in the story's history. A probe for no story (setting a profile up) is not about a story, and stays open.
  */
-export function requireFrozen(cfg: HeldoutConfig, key: string | undefined, tool: ProbeEntry['tool']): void {
+export function requireFrozen(cfg: HeldoutConfig, key: string | undefined, tool: ProbeEntry['tool'] | 'map'): void {
   if (!key) return;
   const p = evalPaths(cfg, assertIssueKey(key));
   if (fs.existsSync(p.freeze)) return;
@@ -116,24 +117,40 @@ export function deliverProbe(cfg: HeldoutConfig, key: string | undefined, o: { t
 /**
  * The probes a piece of evidence cites (P7, "P7, P9 and run 04-eval"): each must be in a log, and its full report is
  * kept in its phase's folder from now on. Returns the ids cited. Text without a probe id (a run, a proven journey) is
- * evidence too, and passes as it is.
+ * evidence too, and passes as it is, unless it rests on an application map entry. Everything is checked before a report
+ * is copied: a refused citation leaves nothing behind.
  */
 export function citeProbes(cfg: HeldoutConfig, key: string, evidence: string): string[] {
+  refuseEvidenceOnTheMap(cfg, key, evidence);
   const p = evalPaths(cfg, key);
   const ids = [...new Set(evidence.match(PROBE_ID) ?? [])];
   if (!ids.length) return [];
   const probes = readProbes(p);
-  for (const id of ids) {
+  const copies = ids.flatMap((id) => {
     const probe = probes.find((x) => x.id === id);
     if (!probe) throw new Error(`${id} is not in the story's probe logs (probes: ${probes.map((x) => x.id).join(', ') || 'none yet'}). Nothing was written.`);
     const kept = keptReport(p, probe.phase, id);
-    if (fs.existsSync(kept)) continue;
+    if (fs.existsSync(kept)) return [];
     const scratch = scratchReport(p, probe.phase, id);
     if (!fs.existsSync(scratch)) throw new Error(`The report of ${id} is gone from the scratch area (${rel(scratch)}): probe again and cite the new id. Nothing was written.`);
-    fs.copyFileSync(scratch, kept);
-  }
+    return [[scratch, kept] as const];
+  });
+  for (const [from, to] of copies) fs.copyFileSync(from, to);
   return ids;
 }
+
+/** Evidence that names an application map entry and neither a probe nor a run of this story: what an earlier story saw proves nothing here. */
+export function refuseEvidenceOnTheMap(cfg: HeldoutConfig, key: string, evidence: string): void {
+  if (!MAP_ENTRY.test(evidence) || evidence.match(PROBE_ID) || listRuns(evalPaths(cfg, key).runs).some((r) => evidence.includes(r))) return;
+  throw new Error(`${evidence.match(MAP_ENTRY)![0]} is what an earlier story saw, not evidence for this one: cite this story's probe (P7) or run. Nothing was written.`);
+}
+
+/**
+ * A triager's decision that names a map entry, in its evidence or its rationale, with no probe in its evidence (where
+ * citeProbes checks it exists): a failure is reproduced live, whatever an earlier story saw.
+ */
+export const decisionRestsOnTheMap = (evidence: string, rationale: string): boolean =>
+  (MAP_ENTRY.test(evidence) || MAP_ENTRY.test(rationale)) && !evidence.match(PROBE_ID);
 
 /** Probe ids the logs hold more than once (two branches that each made a P7, merged). */
 export function duplicateProbeIds(p: LogPaths): string[] {

@@ -27,7 +27,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { recordEvent } from '../core/history';
-import { citeProbes } from '../core/probe-log';
+import { citeProbes, decisionRestsOnTheMap } from '../core/probe-log';
 import { evalPaths, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { CATEGORIES, type ApiExchange, type Category } from '../run/classify';
@@ -111,6 +111,8 @@ export function run({ _, flags }: Args): void {
     if (!CATEGORIES.includes(category)) throw new Error(`--category must be one of ${CATEGORIES.join(', ')}`);
     const rationale = flagStr(flags, 'rationale');
     if (!rationale) throw new Error('--rationale is required (explain the evidence).');
+    // A failure is reproduced live, whatever an earlier story's map entry says, and either way it could be decided.
+    if (decisionRestsOnTheMap(flagStr(flags, 'evidence') ?? '', rationale)) throw new Error('A decision rests on this story\'s own reproduction: it names an application map entry and --evidence names no probe. Reproduce the failure and cite the probe (P7). Nothing was written.');
     // The live reproduction a decision rests on is a probe (Pn): its report is kept in the story's evidence.
     if (flagStr(flags, 'evidence')) citeProbes(cfg, key, flagStr(flags, 'evidence')!);
     const decision = { category, severity: flagStr(flags, 'severity'), title: flagStr(flags, 'title'), rationale,

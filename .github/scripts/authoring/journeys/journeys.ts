@@ -28,6 +28,7 @@ import { assertIssueKey, loadConfig } from '../../core/config';
 import { readJson, rel, writeFile } from '../../core/files';
 import { lastEvent, recordEvent } from '../../core/history';
 import { evalPaths, journeyPaths } from '../../core/paths';
+import { refuseEvidenceOnTheMap } from '../../core/probe-log';
 import type { HeldoutConfig } from '../../core/profile';
 import { readContract, type RequirementContract } from '../../contract/contract-model';
 import {
@@ -106,6 +107,7 @@ export function run({ _, flags }: Args): void {
     if (!journeys.some((j) => j.id === id)) throw new Error(`No journey "${id}" in ${rel(jp.fixtures)}/. Ids are listed by: ${H} journeys ${key} --all`);
     const evidence = flagStr(flags, 'evidence');
     if (!evidence) throw new Error('--stale needs --evidence "<what failed, e.g. the probe report>"');
+    refuseEvidenceOnTheMap(cfg, key, evidence);
     staged.stale = [...staged.stale.filter((s) => s.id !== id), { id, evidence, at: new Date().toISOString() }];
     writeFile(stagedFile, `${JSON.stringify(staged, null, 2)}\n`);
     console.log(`✔ ${id} will be marked stale by the harvest. Fix the journey (or replace it) in ${rel(jp.fixtures)}/.`);
