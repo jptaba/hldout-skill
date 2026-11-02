@@ -7,16 +7,36 @@
  *   - A finding is real when it is a best (or tied-best) match of some defect, or hits two keywords of one: a single
  *     generic keyword ("transfer") on a shared criterion is not enough to clear a finding nothing else explains.
  *
- * A key numbers a story's criteria its own way and a contract its own, so a defect can be reported missed because the
- * numbers differ. Keywords alone can't settle that: they are generic, and without the criterion a defect would be
- * "found" by findings about something else. So a miss stays a miss, and `toCheck` names the finding a person should
- * read against it; the score never counts on it.
+ * A key says which part of the story a defect breaks, and the contract which criteria cite that part
+ * (`criteriaOfStoryText`), so the criteria compared are this contract's whatever their numbers. Keywords alone can't
+ * replace that: they are generic, and without the criterion a defect would be "found" by findings about something
+ * else. A miss stays a miss, and `toCheck` names the finding a person should read against it; the score never counts
+ * on it.
  */
 export interface Matchable { criteria: string[]; words: string; about?: string }
 export interface Expected { criteria: string[]; keywords: string[] }
 
 const hits = (words: string, keywords: string[]) => keywords.filter((k) => words.toLowerCase().includes(k.toLowerCase())).length;
 const shares = (a: string[], b: string[]) => a.some((c) => b.includes(c));
+
+export interface ContractCriterion { id: string; quote?: string; source?: string }
+
+const plain = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+
+/**
+ * The criteria of this evaluation's contract that a defect's part of the story belongs to: those that quote it, else
+ * those whose cited line holds it (a contract may quote a line in part). A key is written against the story, and each
+ * contract numbers the story its own way. No criterion means the contract doesn't cite that part of the story.
+ * @param lineOf the text of a criterion's cited line, from its `source` ("story.md#L21")
+ */
+export function criteriaOfStoryText(storyText: string[], criteria: ContractCriterion[], lineOf: (source: string) => string): string[] {
+  return [...new Set(storyText.flatMap((text) => {
+    const t = plain(text);
+    const quoting = criteria.filter((c) => plain(c.quote ?? '').includes(t));
+    const found = quoting.length ? quoting : criteria.filter((c) => c.source && plain(lineOf(c.source)).includes(t));
+    return found.map((c) => c.id);
+  }))];
+}
 
 /** For each defect the index of its best finding (or -1), and the indexes of the findings no defect explains. */
 export function matchDefects(defects: Expected[], findings: Matchable[]): { best: number[]; unmatched: number[] } {
@@ -37,6 +57,21 @@ export function matchDefects(defects: Expected[], findings: Matchable[]): { best
   });
   const unmatched = findings.map((_, i) => i).filter((i) => !real(i));
   return { best, unmatched };
+}
+
+/** A finding as the matcher reads it: its tests' titles as they ran say what a table's rows are about, its declaration doesn't. */
+export function matchableOf(finding: { title: string; criteria: string[]; tests?: string[]; expected?: string | null; actual?: string | null; rationale?: string | null }, titleOf: (test: string) => string | undefined): Matchable {
+  const join = (parts: (string | null | undefined)[]) => parts.filter(Boolean).join(' ').toLowerCase();
+  const about = join([finding.title, ...(finding.tests ?? []).map(titleOf)]);
+  return { criteria: finding.criteria, words: join([about, finding.expected, finding.actual, finding.rationale]), about };
+}
+
+/** What the scorecard says of a defect it couldn't pair with a finding. */
+export function missedText(d: { criteria: string[] }, check?: { id: string; title: string }, question?: { test: string; restsOn: string[] }): string {
+  const asked = question && `surfaced as a reading the app contradicts (${question.test}, rests on ${question.restsOn.join(', ')}): a question for the owner, not a defect`;
+  if (!check && asked) return `❔ ${asked}`;
+  const why = d.criteria.length ? '' : ': the contract cites no criterion for this part of the story';
+  return `❌ missed${why}${check ? `; read ${check.id} by hand (${check.title})` : ''}${asked ? `; also ${asked}` : ''}`;
 }
 
 /** The keywords a text says, from a word's start ("date" not in "validated"), a keyword inside another counted once. */

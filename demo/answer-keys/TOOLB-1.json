@@ -1,8 +1,8 @@
 { "key": "TOOLB-1", "aut": "toolshop-rc", "writtenAt": "2026-09-26 (before evaluation); D2 and D3 added 2026-10-11 after round 32 found them on the environment's current build (\"v5.0 with bugs\") and they were checked against the live application",
   "defects": [
-    { "id": "D1", "criteria": ["AC-6"], "origin": "embedded", "keywords": ["per_page", "12", "9", "page"], "description": "9 products per page, not 12" },
-    { "id": "D2", "criteria": ["AC-4"], "origin": "genuine (found by round 32)", "keywords": ["Price (Low - High)", "descending", "price,desc", "sort"], "description": "the web shop's \"Price (Low - High)\" option carries the value price,desc and lists the products by descending price (the API sorts correctly)" },
-    { "id": "D3", "criteria": ["AC-3"], "origin": "genuine (found by round 32)", "keywords": ["There are no products found", "0 products found", "message", "without matches"], "description": "a web-shop search without matches shows \"0 products found for '<term>'\" instead of \"There are no products found.\"" }
+    { "id": "D1", "storyText": ["paginated with 12 products per page"], "criteria": ["AC-6"], "origin": "embedded", "keywords": ["per_page", "12", "9", "page"], "description": "9 products per page, not 12" },
+    { "id": "D2", "storyText": ["lists the products by ascending price"], "criteria": ["AC-4"], "origin": "genuine (found by round 32)", "keywords": ["Price (Low - High)", "descending", "price,desc", "sort"], "description": "the web shop's \"Price (Low - High)\" option carries the value price,desc and lists the products by descending price (the API sorts correctly)" },
+    { "id": "D3", "storyText": ["A search without matches"], "criteria": ["AC-3"], "origin": "genuine (found by round 32)", "keywords": ["There are no products found", "0 products found", "message", "without matches"], "description": "a web-shop search without matches shows \"0 products found for '<term>'\" instead of \"There are no products found.\"" }
   ],
   "expectedVerdict": "FAIL",
   "seededScriptDefects": [],

@@ -300,14 +300,14 @@ two loosely written stories that go deep into the application, each needing a ch
 shop and the API — stocking a product line as an administrator, from category and brand to a customer's cart (TOOL-8),
 and a customer's question from the contact form through an administrator's answer to its status (TOOL-9) —
 and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2). Each has a machine-readable
-answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/), each pinned by its hash). `npx tsx dev/score.ts` scores the stories in `output/`
+answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/), each pinned by its hash; which part of the story each defect breaks was added later, [ADR 0005](docs/adr/0005-answer-keys-name-the-story-text.md)). `npx tsx dev/score.ts` scores the stories in `output/`
 against them → [demo/SCORECARD.md](demo/SCORECARD.md); `--from <project>` scores a round run in a project of its own.
 The scorecard in the repository opens with round 32 (rounds 34 and 35 follow at its end): one onboarding, then the first nine stories one at a time in the same project,
 unattended. Nine of nine verdicts were as the keys say, 12 of the 13 keyed defects were found and the thirteenth was
 raised as a question for the story's owner, with no false positive. The two deep stories (TOOL-8, TOOL-9) were last
 run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
 Round 35 took the skill to a second application, ParaBank, with three stories (PB-1 to PB-3) whose answer keys an
-independent author wrote and nobody changed: 2 of 3 verdicts as keyed, 16 of 17 defects found, and 2 findings the
+independent author wrote and nobody changed for that round: 2 of 3 verdicts as keyed, 16 of 17 defects found, and 2 findings the
 keys do not list. Round 36 pointed round 34's project at Toolshop started locally, a newer build than the public
 demo: after one repair of two locators, the same two verdicts and 8 of 8 defects.
 Both applications can be started on your own machine for a round and thrown away after it:

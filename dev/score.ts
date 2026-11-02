@@ -20,13 +20,13 @@ import path from 'node:path';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
 import { readRunRecord } from '../.github/scripts/run/run-record';
 import { KEYS_DIR, pinProblems, readPins } from './answer-keys';
-import { matchDefects, toCheck } from './score-match';
+import { criteriaOfStoryText, matchableOf, matchDefects, missedText, toCheck, type ContractCriterion } from './score-match';
 
 interface Key {
   /** The file it was read from (the pin is by file). */
   file: string;
   key: string; aut: string; expectedVerdict: string;
-  defects: { id: string; criteria: string[]; origin: string; keywords: string[]; description: string }[];
+  defects: { id: string; storyText: string[]; criteria: string[]; origin: string; keywords: string[]; description: string }[];
   seededScriptDefects: { id: string; keywords: string[]; description: string }[];
   traps?: string[]; expectations?: string[];
 }
@@ -67,7 +67,7 @@ let totals = { expected: 0, tp: 0, asked: 0, toRead: 0, fp: 0, confirmed: 0, aut
 
 for (const k of keys) {
   const base = storyDir(k.key) ?? path.join(ROOT, 'output', k.aut, k.key);
-  const [, , , , RUNS, , VERDICT] = PHASE_FOLDERS;
+  const [REQUIREMENT, CONTRACT, , , RUNS, , VERDICT] = PHASE_FOLDERS;
   const vFile = path.join(base, VERDICT, 'verdict.json');
   if (!fs.existsSync(vFile)) { rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | _not evaluated_ | | | |`); continue; }
   const v = JSON.parse(fs.readFileSync(vFile, 'utf8')) as Verdict;
@@ -79,13 +79,24 @@ for (const k of keys) {
   // The tests' titles as they ran: a table's rows say what each case is ("someone not signed in"), its declaration doesn't.
   const finalRecord = path.join(base, RUNS, `${v.finalRun}.json`);
   const titles = new Map(v.finalRun && fs.existsSync(finalRecord) ? readRunRecord(finalRecord).entries.map((e) => [e.scenario, e.title]) : []);
-  const matchable = confirmed.map((x) => ({ criteria: x.criteria, words: text(x.title, x.expected, x.actual, x.rationale),
-    about: text(x.title, ...(x.tests ?? []).map((t) => titles.get(t))) }));
-  const { best, unmatched } = matchDefects(k.defects, matchable);
-  const defectResults = k.defects.map((d, i) => {
+  const matchable = confirmed.map((x) => matchableOf(x, (t) => titles.get(t)));
+  // A defect's criteria in this contract's numbering, from the part of the story its key names.
+  const requirementDir = path.join(base, REQUIREMENT);
+  const contractFile = path.join(base, CONTRACT, 'contract.json');
+  const contract = fs.existsSync(contractFile) ? JSON.parse(fs.readFileSync(contractFile, 'utf8')) as { acceptanceCriteria: ContractCriterion[] } : { acceptanceCriteria: [] };
+  const lineOf = (source: string): string => {
+    const [file, at] = source.split('#L');
+    const full = path.join(requirementDir, file);
+    if (!fs.existsSync(full)) return '';
+    const [from, to = from] = (at ?? '').split(/-L?/).map(Number);
+    return fs.readFileSync(full, 'utf8').split(/\r?\n/).slice(from - 1, to).join(' ');
+  };
+  const defects = k.defects.map((d) => ({ ...d, criteria: criteriaOfStoryText(d.storyText, contract.acceptanceCriteria, lineOf) }));
+  const { best, unmatched } = matchDefects(defects, matchable);
+  const defectResults = defects.map((d, i) => {
     const f = best[i] >= 0 ? confirmed[best[i]] : undefined;
     const q = f ? undefined : (v.contradictedReadings ?? []).find((x) => x.criteria.some((c) => d.criteria.includes(c)) && hit(text(x.title, x.expected, x.actual, x.rationale), d.keywords));
-    // What a missed defect may be under another criterion number: named for a person, never counted (dev/score-match.ts).
+    // What a missed defect may be, if the contract split the story another way: named for a person, never counted (dev/score-match.ts).
     const at = f ? -1 : toCheck(d, matchable);
     return { d, f, q, check: at >= 0 ? confirmed[at] : undefined };
   });
@@ -118,7 +129,7 @@ for (const k of keys) {
   details.push(`## ${k.key} (${k.aut})`, '',
     `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed · key \`${k.file}\` sha256:${(pins.get(k.file) ?? '?').slice(0, 12)}`, '',
     ...(k.defects.length ? ['| Expected defect | Criteria | Origin | Matched finding |', '| --- | --- | --- | --- |',
-      ...defectResults.map(({ d, f, q, check }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : check ? `❌ missed under the key's criteria; read ${check.id} by hand (${check.title}), its criteria may be numbered differently${q ? `; also surfaced as a question for the owner (${q.test})` : ''}` : q ? `❔ surfaced as a reading the app contradicts (${q.test}, rests on ${q.restsOn.join(', ')}): a question for the owner, not a defect` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
+      ...defectResults.map(({ d, f, q, check }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : missedText(d, check, q)} |`), ''] : ['_No defects expected._', '']),
     ...(fps.length ? ['**False positives (confirmed findings not in the answer key):**', '', ...fps.map((f) => `- ❌ ${f.id}: ${f.title} (${f.criteria.join(', ')})${named.has(f) ? ', named above beside a missed defect: read it by hand' : ''}`), ''] : ['False positives: none ✅', '']),
     ...(judged.length ? ['| Test | Run | Auto triage | Confirmed | |', '| --- | --- | --- | --- | --- |',
       ...judged.map((e) => `| ${e.scenario} | \`${e.run}\` | ${e.auto!.category} | ${e.final!.category} | ${e.auto!.category === e.final!.category ? '✅' : abstained.includes(e) ? "➖ abstained (needed investigation)" : "❌ wrong"} |`), ''] : []),
@@ -127,7 +138,7 @@ for (const k of keys) {
 
 const md = [
   '# Held-out evaluator — scorecard', '',
-  `Generated ${new Date().toISOString()} by \`dev/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation)${from ? `, for the evaluations in ${from}` : ''}.`, '',
+  `Generated ${new Date().toISOString()} by \`dev/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation; their \`storyText\` was added later, docs/adr/0005)${from ? `, for the evaluations in ${from}` : ''}.`, '',
   '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |',
   '| --- | --- | --- | --- | --- | --- | --- |', ...rows,
   `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''}${totals.toRead ? ` · ${totals.toRead} missed to read by hand` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',

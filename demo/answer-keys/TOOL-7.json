@@ -1,7 +1,7 @@
 { "key": "TOOL-7", "aut": "toolshop", "writtenAt": "2026-10-10 (before evaluation)", "expectedVerdict": "FAIL",
   "format": "the description requires every criterion to be validated for three user types (guest, customer, administrator), and AC-6 also for three data sets (Hammer, Hand Saw, Wrench)",
   "defects": [
-    { "id": "D1", "criteria": ["AC-5"], "origin": "genuine", "keywords": ["403", "404", "another customer", "invoice"], "description": "a customer reading another customer's invoice gets 404, not the required 403 (administrator 200 and guest 401 are as required)" }
+    { "id": "D1", "storyText": ["Reading one invoice that belongs to another customer"], "criteria": ["AC-5"], "origin": "genuine", "keywords": ["403", "404", "another customer", "invoice"], "description": "a customer reading another customer's invoice gets 404, not the required 403 (administrator 200 and guest 401 are as required)" }
   ],
   "seededScriptDefects": [],
   "expectedCoverage": {
