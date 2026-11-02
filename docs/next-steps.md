@@ -9,18 +9,35 @@ Rounds start from scratch: a new round project, a fresh onboarding, freshly star
 
 | What | Where |
 | --- | --- |
-| The record's size. Round 40 against round 38, in real bytes: PB-2 53% (1,913 of 3,582 KB), TOOL-8 42% (1,289 of 3,045), PB-1 82% (1,106 of 1,346), with every verdict and keyed defect as expected. Target: at most 50% each. Page screenshots are the largest part left (418–570 KB a story) | `specs/003-lean-record` SC-001 |
-| What agents read: not halved (`specs/001-phase-separation` SC-002). The hardener still peaks at 170k–260k tokens | see "Measure the context" below |
+| The record's size. Round 41 against round 38, in real bytes: PB-2 54% (1,932 of 3,582 KB, 121 tests), TOOL-8 40% (1,233 of 3,045), PB-1 53% (715 of 1,346). Targets: 50%, 50%, 70%. A compressed screenshot takes about 52 KB against 110 and reads well; PB-2's run record (626 KB) and triage (258 KB) are the largest parts left | `specs/004-lean-context` SC-005 |
+| What agents take in: below target, see the table under this one (`specs/004-lean-context` SC-001 to SC-003, `specs/001-phase-separation` SC-002) | `npx tsx dev/context.ts <subagents folder> --filter r41` |
 | The stories round 38 did not reach | `specs/001-phase-separation` T016 |
 | The Playwright tools reach the hardener and triager through `mcp__playwright__*` in a session started in the project | round 38 ran the agents from the skill repository |
 | A live Jira Data Center rendering of what the skill posts | |
 | The opt-in pre-commit hook through POSIX sh, and a live Vault | Git for Windows' sh is proven |
 | Whether GitHub Copilot reports each subagent's cost (Claude Code does) | `note --usage` |
 
+What agents took in, in thousands of tokens, rounds 38 → 40 → 41 (handoffs are estimated from characters; a peak also holds the model's thinking, which transcripts don't show; each round writes its own tests, PB-2 121 in round 41):
+
+| Agent, story | Handoffs | Peak |
+| --- | --- | --- |
+| Triager, PB-2 | 57 → 58 → 46 | 176 → 190 → 174 |
+| Triager, TOOL-8 | 32 → 53 → 22 | 140 → 189 → 116 |
+| Triager, PB-1 | 26 → 41 → 26 | 95 → 159 → 106 |
+| Hardener, PB-2 | 47 → 34 → 50 | 210 → 205 → 254 |
+| Hardener, TOOL-8 | 25 → 26 → 32 | 219 → 263 → 246 |
+| Hardener, PB-1 | 22 → 29 → 21 | 161 → 174 → 141 |
+
+The triagers use the views and fall. The hardeners read the outline and then most of the spec, in ranges: hardening seems to need it, so instructions alone won't halve it.
+
 ## Improvements
 
 | What | Why it matters |
 | --- | --- |
+| What a hardener needs of a large spec, and what else fills its context | PB-2's hardener still read 27k tokens of spec and peaked at 254k. Worth trying: the first harden run before any reading, `heldout status` (up to 7k tokens a call) shorter, and a look at what the peak holds beyond what the report can see |
+| The scorer matches findings by criterion number | Round 41's contracts numbered the criteria differently (10 for PB-2's 8 bullets), so it reported PB-2 9/11 with 4 false positives and TOOL-8 1/4 with 3; read by hand, every keyed defect was found in all three stories, with one real extra (PB-2's APP-11, no second account-number field in the API). One finding also counts for one defect only: PB-1's APP-2 covers D5 and D6. Guardrail tier |
+| `specOutline`'s two low findings | An odd backtick in a string or comment misleads a test's range; a top-level declaration holding a multi-line literal gets a one-line range |
+| Round 41's smaller gaps | `show contract` takes only the last of several `--ac`; `inspect --then` with a regex locator fails under Git Bash; `inspect --probe` doesn't expand `${var:name}`; step 0 of the hardener's file says "the tests you are on" where a mark can sit in a declaration, and no test keeps it a step; whether assistant text is also written twice in a transcript (`dev/context.ts`); an expected value taken from the application after a repair (PB-2's SCN-051.2 and SCN-055 now check the search against the API's own list) |
 | What the hardener and triager learn about an application, kept for the next story: routes, endpoints, answer shapes, quirks, confirmed defects, each citing the probe that proved it | Could spare repeated discovery probes (one hardener made 38 in round 40). After the freeze only: the contract, the test author and the contract reviewer never read it, or today's behaviour becomes the oracle. A known defect is still reproduced live. Measure with `dev/context.ts` on a second story of one application, once `specs/004-lean-context` has its round |
 | Tool gaps from rounds 39 and 40 | `seed.shared(() => seed.account())` silently loses the password, so the record can't sign in after a worker restart; an `api-probe` chain's `parallel` step reports every status but one answer body; a `request` step in an `inspect` walk can't carry a token kept in browser storage |
 | A test's "today" and the application's day | Twice a hardener or the orchestrator had to move a date helper to the application's UTC date by hand; the rule belongs in the test-authoring reference |
