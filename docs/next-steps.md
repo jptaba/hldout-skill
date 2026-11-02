@@ -28,6 +28,8 @@ What agents took in, in thousands of tokens, rounds 38 → 40 → 41 (handoffs a
 | Hardener, TOOL-8 | 25 → 26 → 32 | 219 → 263 → 246 |
 | Hardener, PB-1 | 22 → 29 → 21 | 161 → 174 → 141 |
 
+Test authors, their instructions and support files, rounds 38 → 41 (`specs/004-lean-context` SC-003, at least 30% less): TOOL-8 34 → 20, PB-2 32 → 25, PB-1 about 29 → 29 (round 38 has two PB-1 authors).
+
 The triagers use the views and fall. The hardeners read the outline and then most of the spec, in ranges: hardening seems to need it, so instructions alone won't halve it.
 
 ## Improvements
@@ -35,14 +37,13 @@ The triagers use the views and fall. The hardeners read the outline and then mos
 | What | Why it matters |
 | --- | --- |
 | What a hardener needs of a large spec, and what else fills its context | PB-2's hardener still read 27k tokens of spec and peaked at 254k. Worth trying: the first harden run before any reading, `heldout status` (up to 7k tokens a call) shorter, and a look at what the peak holds beyond what the report can see |
-| The scorer matches findings by criterion number | Round 41's contracts numbered the criteria differently (10 for PB-2's 8 bullets), so it reported PB-2 9/11 with 4 false positives and TOOL-8 1/4 with 3; read by hand, every keyed defect was found in all three stories, with one real extra (PB-2's APP-11, no second account-number field in the API). One finding also counts for one defect only: PB-1's APP-2 covers D5 and D6. Guardrail tier |
+| Answer keys anchored to the story's lines, not criterion numbers | A key can't say which criterion of a contract a defect belongs to, so round 41 scores PB-2 9/11 with 4 false positives and TOOL-8 1/4 with 3, though by hand every keyed defect was found (PB-2's APP-11, no second account-number field in the API, is a real extra). The scorecard now names the finding to read (`specs/005-scorer-by-meaning`); keywords alone flatter it (two reviews). Needs an ADR and new pins |
 | `specOutline`'s two low findings | An odd backtick in a string or comment misleads a test's range; a top-level declaration holding a multi-line literal gets a one-line range |
 | Round 41's smaller gaps | `show contract` takes only the last of several `--ac`; `inspect --then` with a regex locator fails under Git Bash; `inspect --probe` doesn't expand `${var:name}`; step 0 of the hardener's file says "the tests you are on" where a mark can sit in a declaration, and no test keeps it a step; whether assistant text is also written twice in a transcript (`dev/context.ts`); an expected value taken from the application after a repair (PB-2's SCN-051.2 and SCN-055 now check the search against the API's own list) |
 | What the hardener and triager learn about an application, kept for the next story: routes, endpoints, answer shapes, quirks, confirmed defects, each citing the probe that proved it | Could spare repeated discovery probes (one hardener made 38 in round 40). After the freeze only: the contract, the test author and the contract reviewer never read it, or today's behaviour becomes the oracle. A known defect is still reproduced live. Measure with `dev/context.ts` on a second story of one application, once `specs/004-lean-context` has its round |
 | Tool gaps from rounds 39 and 40 | `seed.shared(() => seed.account())` silently loses the password, so the record can't sign in after a worker restart; an `api-probe` chain's `parallel` step reports every status but one answer body; a `request` step in an `inspect` walk can't carry a token kept in browser storage |
 | A test's "today" and the application's day | Twice a hardener or the orchestrator had to move a date helper to the application's UTC date by hand; the rule belongs in the test-authoring reference |
 | An assertion that matches a success as a refusal | PB-1's SCN-020.1 took the word LOAN in a successful answer as the "clear reason"; the reason's check should require a refusal first |
-| `hardening/confirm.ts` and `core/probe-log.ts` in the guardrail tier | They enforce held-out rules (the frozen draft, no probe before the freeze) with one review |
 | The channel rule checked against TOOLB-1 | The rule's change for refusals has no live proof |
 | A reading assumed in the contract and contradicted by the application | PB-2's self-transfer (keyed D4) went to the owner because the contract assumed its plain reading; whether such a gap may let the triager confirm a defect is open |
 | Array fields in contracts | A field that holds a list can't be stated today |

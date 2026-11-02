@@ -41,6 +41,8 @@
         ".github/scripts/core/redact.ts",
         ".github/scripts/core/secrets.ts",
         ".github/scripts/hardening/integrity*.ts",
+        ".github/scripts/hardening/confirm.ts",
+        ".github/scripts/core/probe-log.ts",
         ".github/scripts/contract/contract-model.ts",
         ".github/scripts/contract/evidence.ts",
         "demo/answer-keys/**",

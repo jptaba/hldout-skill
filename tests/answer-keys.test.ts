@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { KEYS_DIR, keyFiles, keyHash, pinProblems, readPins } from '../dev/answer-keys';
-import { matchDefects } from '../dev/score-match';
+import { matchDefects, toCheck } from '../dev/score-match';
 
 const dirs: string[] = [];
 after(() => { for (const d of dirs) fs.rmSync(d, { recursive: true, force: true }); });
@@ -64,6 +64,31 @@ describe('scoring against a key', () => {
     assert.deepEqual(matchDefects([fraction, tie], findings).best, [0, 1]);
     assert.deepEqual(matchDefects([tie, fraction], findings).best, [1, 0], 'whatever the order of the key');
     assert.deepEqual(matchDefects([fraction, empty], findings).best, [0, 1], 'a strict best');
+  });
+
+  it('never counts a finding on another criterion, however many keywords it hits', () => {
+    const access = { criteria: ['AC-8'], keywords: ['another customer', 'not signed in', 'unauthenticated'] };
+    const renumbered = { criteria: ['AC-10'], words: 'another customer moves money while not signed in', about: 'the API answers another customer' };
+    assert.deepEqual(matchDefects([access], [renumbered]), { best: [-1], unmatched: [0] });
+  });
+
+  it('names the finding most about a missed defect, to read by hand', () => {
+    const access = { criteria: ['AC-8'], keywords: ['another customer', 'not signed in', 'unauthenticated'] };
+    const inPassing = { criteria: ['AC-3'], words: 'unlike another customer, who is not signed in', about: 'a fraction of a cent is accepted' };
+    const one = { criteria: ['AC-10'], words: '', about: 'another customer sees the activity' };
+    const two = { criteria: ['AC-10'], words: '', about: 'the API answers another customer and someone not signed in' };
+    assert.equal(toCheck(access, [inPassing, one, two]), 2);
+    assert.equal(toCheck(access, [inPassing]), -1, 'a rationale alone names nothing');
+    assert.equal(toCheck(access, []), -1);
+  });
+
+  it('counts a keyword inside another once, and none inside a longer word, for what it names', () => {
+    const pay = { criteria: ['AC-7'], keywords: ['bill pay', 'bill payment', 'over the balance'] };
+    const phrase = { criteria: ['AC-9'], words: '', about: 'a bill payment makes no sense' };
+    const both = { criteria: ['AC-9'], words: '', about: 'a bill payment over the balance' };
+    assert.equal(toCheck(pay, [phrase, both]), 1, 'the phrase is one keyword, the other finding has two');
+    const date = { criteria: ['AC-2'], keywords: ['date', 'one day early'] };
+    assert.equal(toCheck(date, [{ criteria: ['AC-3'], words: '', about: 'the amount is not validated' }]), -1);
   });
 
   it('counts a finding real when it is a best match or hits two keywords, not on one generic keyword', () => {

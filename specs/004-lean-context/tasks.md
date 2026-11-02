@@ -5,7 +5,7 @@
 ## Phase 1: The report
 
 - [x] T001 FR-001: `dev/context.ts`, with `tests/context.test.ts`
-- [ ] T002 The baseline of rounds 38 and 40 from the report, in `docs/next-steps.md`
+- [x] T002 The baseline of rounds 38 and 40 from the report, in `docs/next-steps.md`
 
 ## Phase 2: The views
 
@@ -32,5 +32,5 @@
 
 ## Phase 6: Proof
 
-- [ ] T009 A round from scratch on PB-2, TOOL-8 and PB-1; the report and the sizes against round 38's (SC-001 to SC-003,
-  SC-005)
+- [x] T009 A round from scratch on PB-2, TOOL-8 and PB-1; the report and the sizes against round 38's (round 41: SC-001
+  and SC-002 missed, SC-003 and SC-005 in part; see `docs/next-steps.md`)

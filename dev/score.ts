@@ -20,7 +20,7 @@ import path from 'node:path';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
 import { readRunRecord } from '../.github/scripts/run/run-record';
 import { KEYS_DIR, pinProblems, readPins } from './answer-keys';
-import { matchDefects } from './score-match';
+import { matchDefects, toCheck } from './score-match';
 
 interface Key {
   /** The file it was read from (the pin is by file). */
@@ -30,9 +30,9 @@ interface Key {
   seededScriptDefects: { id: string; keywords: string[]; description: string }[];
   traps?: string[]; expectations?: string[];
 }
-interface Finding { id: string; title: string; confirmed: boolean; criteria: string[]; expected: string | null; actual: string | null; rationale?: string | null }
+interface Finding { id: string; title: string; confirmed: boolean; criteria: string[]; tests?: string[]; expected: string | null; actual: string | null; rationale?: string | null }
 interface Reading { test: string; title: string; criteria: string[]; restsOn: string[]; expected: string | null; actual: string | null; rationale?: string | null }
-interface Verdict { verdict: string; applicationDefects: Finding[]; contradictedReadings?: Reading[]; summary: { total: number; passed: number; failed: number } }
+interface Verdict { verdict: string; finalRun?: string; applicationDefects: Finding[]; contradictedReadings?: Reading[]; summary: { total: number; passed: number; failed: number } }
 interface Entry { scenario: string; status: string; error?: { headline: string }; auto?: { category: string }; final?: { category: string; rationale: string; action?: string; title?: string } }
 
 const REPO = path.resolve(import.meta.dirname, '..');
@@ -63,7 +63,7 @@ const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : 'n/
 
 const rows: string[] = [];
 const details: string[] = [];
-let totals = { expected: 0, tp: 0, asked: 0, fp: 0, confirmed: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
+let totals = { expected: 0, tp: 0, asked: 0, toRead: 0, fp: 0, confirmed: 0, autoN: 0, autoAgree: 0, autoWrong: 0, verdictOk: 0, stories: 0 };
 
 for (const k of keys) {
   const base = storyDir(k.key) ?? path.join(ROOT, 'output', k.aut, k.key);
@@ -76,15 +76,24 @@ for (const k of keys) {
   // defects: match each expected defect to its best confirmed finding (dev/score-match.ts), else to a reading the
   // application contradicts (the evaluator surfaced it, as a question for the owner, because the requirement was
   // judged not to settle it: found, but not counted as a defect).
-  const { best, unmatched } = matchDefects(k.defects, confirmed.map((x) => ({ criteria: x.criteria, words: text(x.title, x.expected, x.actual, x.rationale) })));
+  // The tests' titles as they ran: a table's rows say what each case is ("someone not signed in"), its declaration doesn't.
+  const finalRecord = path.join(base, RUNS, `${v.finalRun}.json`);
+  const titles = new Map(v.finalRun && fs.existsSync(finalRecord) ? readRunRecord(finalRecord).entries.map((e) => [e.scenario, e.title]) : []);
+  const matchable = confirmed.map((x) => ({ criteria: x.criteria, words: text(x.title, x.expected, x.actual, x.rationale),
+    about: text(x.title, ...(x.tests ?? []).map((t) => titles.get(t))) }));
+  const { best, unmatched } = matchDefects(k.defects, matchable);
   const defectResults = k.defects.map((d, i) => {
     const f = best[i] >= 0 ? confirmed[best[i]] : undefined;
     const q = f ? undefined : (v.contradictedReadings ?? []).find((x) => x.criteria.some((c) => d.criteria.includes(c)) && hit(text(x.title, x.expected, x.actual, x.rationale), d.keywords));
-    return { d, f, q };
+    // What a missed defect may be under another criterion number: named for a person, never counted (dev/score-match.ts).
+    const at = f ? -1 : toCheck(d, matchable);
+    return { d, f, q, check: at >= 0 ? confirmed[at] : undefined };
   });
   const tp = defectResults.filter((r) => r.f).length;
   const asked = defectResults.filter((r) => r.q).length;
+  const toRead = defectResults.filter((r) => r.check).length;
   const fps = unmatched.map((i) => confirmed[i]);
+  const named = new Set(defectResults.map((r) => r.check));
 
   // runs: auto-triage agreement. (An answer key's seededScriptDefects belong to drafts planted by hand; the test author
   // writes its own draft, so there is nothing seeded to detect.)
@@ -101,16 +110,16 @@ for (const k of keys) {
   const wrong = judged.filter((e) => e.auto!.category !== e.final!.category && !abstained.includes(e));
 
   const verdictOk = v.verdict === k.expectedVerdict;
-  totals = { expected: totals.expected + k.defects.length, tp: totals.tp + tp, asked: totals.asked + asked, fp: totals.fp + fps.length, confirmed: totals.confirmed + confirmed.length,
+  totals = { expected: totals.expected + k.defects.length, tp: totals.tp + tp, asked: totals.asked + asked, toRead: totals.toRead + toRead, fp: totals.fp + fps.length, confirmed: totals.confirmed + confirmed.length,
     autoN: totals.autoN + judged.length, autoAgree: totals.autoAgree + agree.length, autoWrong: totals.autoWrong + wrong.length,
     verdictOk: totals.verdictOk + (verdictOk ? 1 : 0), stories: totals.stories + 1 };
 
-  rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | ${verdictOk ? '✅' : '❌'} ${v.verdict} | ${tp}/${k.defects.length} (${pct(tp, k.defects.length)})${asked ? ` + ${asked} as owner question` : ''} | ${fps.length} | ${agree.length}/${judged.length} (${pct(agree.length, judged.length)}) · abstained ${abstained.length} · wrong ${wrong.length} |`);
+  rows.push(`| ${k.key} | ${k.aut} | ${k.expectedVerdict} | ${verdictOk ? '✅' : '❌'} ${v.verdict} | ${tp}/${k.defects.length} (${pct(tp, k.defects.length)})${asked ? ` + ${asked} as owner question` : ''}${toRead ? ` · ${toRead} missed to read by hand` : ''} | ${fps.length} | ${agree.length}/${judged.length} (${pct(agree.length, judged.length)}) · abstained ${abstained.length} · wrong ${wrong.length} |`);
   details.push(`## ${k.key} (${k.aut})`, '',
     `Verdict: expected **${k.expectedVerdict}**, got **${v.verdict}** ${verdictOk ? '✅' : '❌'} · tests ${v.summary.passed}/${v.summary.total} passed · key \`${k.file}\` sha256:${(pins.get(k.file) ?? '?').slice(0, 12)}`, '',
     ...(k.defects.length ? ['| Expected defect | Criteria | Origin | Matched finding |', '| --- | --- | --- | --- |',
-      ...defectResults.map(({ d, f, q }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : q ? `❔ surfaced as a reading the app contradicts (${q.test}, rests on ${q.restsOn.join(', ')}): a question for the owner, not a defect` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
-    ...(fps.length ? ['**False positives (confirmed findings not in the answer key):**', '', ...fps.map((f) => `- ❌ ${f.id}: ${f.title} (${f.criteria.join(', ')})`), ''] : ['False positives: none ✅', '']),
+      ...defectResults.map(({ d, f, q, check }) => `| ${d.id} ${d.description} | ${d.criteria.join(', ')} | ${d.origin} | ${f ? `✅ ${f.id}: ${f.title}` : check ? `❌ missed under the key's criteria; read ${check.id} by hand (${check.title}), its criteria may be numbered differently${q ? `; also surfaced as a question for the owner (${q.test})` : ''}` : q ? `❔ surfaced as a reading the app contradicts (${q.test}, rests on ${q.restsOn.join(', ')}): a question for the owner, not a defect` : '❌ missed'} |`), ''] : ['_No defects expected._', '']),
+    ...(fps.length ? ['**False positives (confirmed findings not in the answer key):**', '', ...fps.map((f) => `- ❌ ${f.id}: ${f.title} (${f.criteria.join(', ')})${named.has(f) ? ', named above beside a missed defect: read it by hand' : ''}`), ''] : ['False positives: none ✅', '']),
     ...(judged.length ? ['| Test | Run | Auto triage | Confirmed | |', '| --- | --- | --- | --- | --- |',
       ...judged.map((e) => `| ${e.scenario} | \`${e.run}\` | ${e.auto!.category} | ${e.final!.category} | ${e.auto!.category === e.final!.category ? '✅' : abstained.includes(e) ? "➖ abstained (needed investigation)" : "❌ wrong"} |`), ''] : []),
     ...(k.traps?.length ? ['Traps in this AUT: ' + k.traps.map((t) => `_${t}_`).join('; '), ''] : []));
@@ -121,7 +130,7 @@ const md = [
   `Generated ${new Date().toISOString()} by \`dev/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation)${from ? `, for the evaluations in ${from}` : ''}.`, '',
   '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |',
   '| --- | --- | --- | --- | --- | --- | --- |', ...rows,
-  `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',
+  `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''}${totals.toRead ? ` · ${totals.toRead} missed to read by hand` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',
   // Per finding: one finding may cover two of a key's defects, and two findings one.
   `Precision: ${pct(totals.confirmed - totals.fp, totals.confirmed)} (${totals.confirmed - totals.fp} of ${totals.confirmed} confirmed findings are real).`, '',
   ...details,
