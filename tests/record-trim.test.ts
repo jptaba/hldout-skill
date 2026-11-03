@@ -2,12 +2,13 @@
  * What outlives the runs' records once the verdict is due (specs/001-phase-separation, US2): every run's result in the
  * history, the repairs in the decisions, run numbers never used twice, and the probes a kept text names.
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { keepNamedProbes, readProbes, savedOf, trimProbeLogs } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { evalPaths } from '../.github/scripts/core/paths';
@@ -40,8 +41,35 @@ describe('one run of a story at a time', () => {
   it('refuses while the lock is still empty: another run is just taking it', () => {
     fs.mkdirSync(path.dirname(lock), { recursive: true });
     fs.writeFileSync(lock, '');
-    assert.throws(() => lockRun(p, 'ABC-1'), /has just started/);
+    assert.throws(() => lockRun(p, 'ABC-1'), /has just started.*if no run is going, remove .*run\.lock/);
     fs.rmSync(lock);
+  });
+
+  it('says how to clear a lock whose process only looks alive', () => {
+    fs.mkdirSync(path.dirname(lock), { recursive: true });
+    fs.writeFileSync(lock, String(process.pid));
+    assert.throws(() => lockRun(p, 'ABC-1', process.pid + 1), /if no run is going, remove .*run\.lock/);
+    fs.rmSync(lock);
+  });
+
+  it('of several runs taking over a dead run\'s lock, one wins and the others are refused', async () => {
+    const dead = spawnSync(process.execPath, ['-e', 'process.stdout.write(String(process.pid))'], { encoding: 'utf8' }).stdout;
+    const tsx = path.join(import.meta.dirname, '..', 'node_modules', 'tsx', 'dist', 'cli.mjs');
+    const script = `import { lockRun } from ${JSON.stringify(pathToFileURL(path.join(import.meta.dirname, '..', '.github', 'scripts', 'run', 'run.ts')).href)};
+try { lockRun(${JSON.stringify({ work: p.work })}, 'ABC-1'); console.log('won'); await new Promise((r) => { process.stdin.on('end', r); process.stdin.resume(); }); } catch (e) { console.log(e.message); }`;
+    const file = path.join(os.tmpdir(), `lock-race-${process.pid}.mts`);
+    fs.writeFileSync(file, script);
+    fs.mkdirSync(path.dirname(lock), { recursive: true });
+    fs.writeFileSync(lock, dead);
+    try {
+      // A winner stays alive until all have answered: a late starter under load would otherwise find it gone.
+      const children = Array.from({ length: 4 }, () => spawn(process.execPath, [tsx, file], { stdio: ['pipe', 'pipe', 'inherit'] }));
+      const results = await Promise.all(children.map((c) => new Promise<string>((resolve) => { c.stdout.once('data', (d) => resolve(String(d).trim())); c.on('close', () => resolve('')); })));
+      for (const c of children) c.stdin.end();
+      await Promise.all(children.map((c) => new Promise((resolve) => { if (c.exitCode !== null) resolve(0); else c.on('close', resolve); })));
+      assert.equal(results.filter((r) => r === 'won').length, 1, results.join(', '));
+      for (const r of results.filter((x) => x !== 'won')) assert.match(r, /if no run is going, remove .*run\.lock/, 'a refusal, saying how to clear it');
+    } finally { fs.rmSync(file, { force: true }); fs.rmSync(lock, { force: true }); }
   });
 
   it('takes over the lock of a run that is gone', () => {

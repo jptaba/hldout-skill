@@ -85,6 +85,13 @@ describe('heldout show', () => {
     assert.doesNotMatch(r.stdout, /AC-1 \[api\]/);
     assert.match(r.stdout, /G1 mechanics · open/);
   });
+  it('takes several criteria, by commas or by repeating --ac', () => {
+    for (const args of [['--ac', 'AC-1,AC-2'], ['--ac', 'AC-1', '--ac', 'AC-2']]) {
+      const r = show(root, 'ABC-1', 'contract', ...args);
+      assert.match(r.stdout, /AC-1 \[api\]/, args.join(' '));
+      assert.match(r.stdout, /AC-2 \[ui\]/, args.join(' '));
+    }
+  });
   it('gives the profile with its secrets as references', () => {
     const r = show(root, 'config');
     assert.match(r.stdout, /existing admin@shop\.test \(admin\) shared password \$\{env:ADMIN_PW\}/);

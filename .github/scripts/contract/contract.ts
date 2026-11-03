@@ -21,7 +21,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SKILL_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { readHistory, recordChange, recordEvent } from '../core/history';
-import { citeProbes } from '../core/probe-log';
+import { citeProbes, refuseEvidenceOnTheMap } from '../core/probe-log';
 import { evalPaths } from '../core/paths';
 import { accountRoles, createsAccounts, type AccountRecipe } from '../core/profile';
 import { checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover } from './contract-model';
@@ -97,7 +97,9 @@ export async function run({ _, flags }: Args): Promise<void> {
       if (g.kind !== 'mechanics') throw new Error(`${g.id} is an oracle gap (WHAT is correct): it is never read off the application. Nothing was written.`);
       if (!r.value || !r.evidence) throw new Error(`${r.id} needs a "value" (what was found) and an "evidence" (the probe that shows it, Pn, or the proven journey and the run that used it). Nothing was written.`);
     }
-    for (const r of list) citeProbes(cfg, key, r.evidence);
+    // Each gap on its own evidence, then the probes of all at once: a refused one leaves no report kept for the others.
+    for (const r of list) refuseEvidenceOnTheMap(cfg, key, r.evidence);
+    citeProbes(cfg, key, list.map((r) => r.evidence).join(' '));
     for (const r of list) {
       const g = c.gaps.find((x) => x.id === r.id)!;
       Object.assign(g, { resolution: 'discovered-in-aut', value: r.value, evidence: r.evidence });

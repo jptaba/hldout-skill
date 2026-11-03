@@ -46,7 +46,7 @@ describe('the chain of a run\'s failing calls', () => {
     const c = allCallsChain([signIn], calls(65), 65, 87);
     assert.equal(c.steps.length, 41, 'the sign-ins and 40 calls');
     assert.equal(c.steps[0], signIn);
-    assert.match(c.note, /65 call\(s\), the first 40 here and 25 left out/);
+    assert.match(c.note, /65 call\(s\), the first 40 here and 25 left out \(call 40; call 41;/);
   });
 });
 

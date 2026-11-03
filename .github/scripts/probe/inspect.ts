@@ -39,6 +39,7 @@
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
  *   value, target, url = support ${env:NAME} and ${vault:path#field} (secrets), ${var:name} (from --var name=value, per-run
  *   data), ${text:N} (a text of N characters starting with the data prefix) and ${now} (the time)
+ *   A --probe's expression supports ${var:name} only: a locator's text can come back in the report, so no secret goes in.
  *   A "goto" step takes its address in "url" (a path or a full address).
  *   A "wait" step with a target waits until its first match is in the DOM; "url:/profile" waits for the address;
  *   alternatives "url:/account | url:/admin" wait for whichever comes first;
@@ -69,10 +70,12 @@ interface Candidate {
 
 const vars: Record<string, string> = {};
 /** ${env:NAME} (.env or the environment) and ${vault:path#field} (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
-const env = (s = '') => expandSecrets(s).replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+const env = (s = '') => fillVars(expandSecrets(s));
+/** Per-run values filled in, secret references left as references. */
+const fillVars = (s: string) => s.replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
 
-/** A step's target as the step table shows it: per-run values filled in, secret references left as references. */
-const labelOf = (s: Step) => (s.target ?? s.url ?? '').replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+/** A step's target as the step table shows it. */
+const labelOf = (s: Step) => fillVars(s.target ?? s.url ?? '');
 
 const locate = (page: Page, expr: string) => locateOn<Locator>(page, expr);
 
@@ -445,7 +448,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
       out.push('## Locator probes', '', '| expression | count | visible | text / value |', '| --- | --- | --- | --- |');
       for (const expr of probes) {
         try {
-          const loc = locate(page, expr);
+          const loc = locate(page, fillVars(expr));
           const count = await loc.count();
           const first = loc.first();
           const visible = count ? await first.isVisible() : false;

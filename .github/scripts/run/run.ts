@@ -137,17 +137,30 @@ const isAlive = (pid: number) => { try { process.kill(pid, 0); return true; } ca
 export function lockRun(p: Pick<StoryPaths, 'work'>, key: string, pid = process.pid): () => void {
   const file = lockOf(p);
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  // Created only if absent, for two runs started in one breath. Two taking over one dead run's lock can still both win:
-  // rare enough, as that needs a run cut off and two more started together.
-  const take = () => { try { fs.writeFileSync(file, String(pid), { flag: 'wx' }); return true; } catch (e) { if ((e as NodeJS.ErrnoException).code === 'EEXIST') return false; throw e; } };
-  if (!take()) {
-    const text = fs.readFileSync(file, 'utf8');
+  // A process id can be reused and a crash can leave the file empty: whoever is refused can always clear it.
+  const guard = `${file}.takeover`;
+  const way = `wait for it to end; if no run is going, remove ${rel(file)} and ${path.basename(guard)} if it is there`;
+  const started = new Error(`Another run of ${key} has just started: ${way}.`);
+  // Created only if absent, for two runs started in one breath.
+  // Windows answers EPERM for a file another process is removing.
+  const create = (f: string) => { try { fs.writeFileSync(f, String(pid), { flag: 'wx' }); return true; } catch (e) { if (['EEXIST', 'EPERM'].includes(String((e as NodeJS.ErrnoException).code))) return false; throw e; } };
+  const refuseIfHeld = () => {
+    let text: string;
+    try { text = fs.readFileSync(file, 'utf8'); } catch { throw started; }
     // Empty: the other run has created it and not written it yet.
-    if (!text) throw new Error(`Another run of ${key} has just started: wait for it to end.`);
+    if (!text) throw started;
     const held = Number(text);
-    if (held && isAlive(held)) throw new Error(`Another run of ${key} is still going (process ${held}): wait for it to end. Two at once would take one number and lose a record.`);
-    fs.rmSync(file, { force: true });
-    if (!take()) throw new Error(`Another run of ${key} has just started: wait for it to end.`);
+    if (held && isAlive(held)) throw new Error(`Another run of ${key} is still going (process ${held}): ${way}. Two at once would take one number and lose a record.`);
+  };
+  if (!create(file)) {
+    refuseIfHeld();
+    // A dead run's lock: one run at a time takes it over, and looks again once it may, as another may just have done it.
+    if (!create(guard)) throw started;
+    try {
+      refuseIfHeld();
+      try { fs.rmSync(file, { force: true }); } catch { throw started; }
+      if (!create(file)) throw started;
+    } finally { fs.rmSync(guard, { force: true }); }
   }
   return () => fs.rmSync(file, { force: true });
 }

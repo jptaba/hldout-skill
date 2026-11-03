@@ -100,7 +100,7 @@ const dig = (obj: unknown, dotted: string): unknown => {
  * "notContains": [{ "field": "token", "decode"?: "jwt", "value": "${env:PASSWORD}" }] checks a value does NOT appear
  * in a field (a leak check) without ever printing the value; a hit marks the step ✖.
  * "parallel": N sends the step N times at the same moment (reproducing a concurrency finding); every status is listed,
- * "expect" must hold for each, and "save" / "show" read the first answer.
+ * "expect" must hold for each, "save" / "show" read the first answer, and each other answer that differs is listed.
  */
 interface NotContains { field: string; decode?: 'jwt' | 'base64'; value: string }
 interface ChainStep { name?: string; method?: string; path: string; headers?: Record<string, string>; json?: unknown; form?: Record<string, string>; raw?: string; save?: Record<string, string>; expect?: number | number[]; expectBody?: Record<string, unknown>; setup?: boolean; show?: string[]; notContains?: NotContains[]; parallel?: number }
@@ -113,6 +113,15 @@ function decode(v: unknown, how?: string): unknown {
   if (how === 'jwt') { const [h, p, sig] = v.split('.'); return { header: parsed(b64(h ?? '')), payload: parsed(b64(p ?? '')), signature: sig ?? '' }; }
   return parsed(b64(v));
 }
+/** The answers of a "parallel" step that differ from its first, each once with how many gave it: why one of three was refused. */
+export function otherAnswers(all: { status: number; json?: unknown; text: string }[], limit: number): string[] {
+  const shown = (r: typeof all[number]) => (r.json !== undefined ? JSON.stringify(redact(r.json)) : pageText(r.text)).replace(/\s+/g, ' ').slice(0, limit).replace(/`/g, "'");
+  const counts = new Map<string, number>();
+  const seen = `${all[0]?.status} ${all[0] ? shown(all[0]) : ''}`;
+  for (const r of all.slice(1)) { const k = `${r.status} ${shown(r)}`; if (k !== seen) counts.set(k, (counts.get(k) ?? 0) + 1); }
+  return [...counts].map(([k, n]) => `   also ×${n}: \`${k}\``);
+}
+
 async function runChain(file: string, label: string, base: string, cfgName: string, chainBodyLimit: number, preset: Record<string, string> = {}): Promise<{ report: string; digest: string[]; chain: unknown; saved: Record<string, string> }> {
   const chain = JSON.parse(fs.readFileSync(file, 'utf8')) as { vars?: Record<string, unknown>; steps: ChainStep[] };
   const vars: Record<string, string> = { ...preset, uid: `${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 5)}` };
@@ -188,6 +197,7 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
       return `\`${f}\` = \`${JSON.stringify(redact(v))}\``;
     }).join(' · ')}`);
     else lines.push(`   \`${resp.replace(/\s+/g, ' ').slice(0, chainBodyLimit).replace(/`/g, "'")}\``);
+    lines.push(...otherAnswers(all, chainBodyLimit));
     if (checks.length) lines.push(`   ${checks.join(' · ')}`);
   }
   lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**`

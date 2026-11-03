@@ -18,7 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { baseScenarioId, specFiles, specOutline } from '../authoring/spec-model';
-import { flagStr, type Args, type CommandSpec } from '../core/cli';
+import { flagList, flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel, ROOT } from '../core/files';
 import { readHistory } from '../core/history';
@@ -68,7 +68,9 @@ export function run({ _, flags }: Args): void {
     const c = readContract(p.contract);
     if (!c) throw new Error(`No contract for ${key} yet (${rel(p.contract)})`);
     if (flags.md) { const review = readReview(p.review); console.log(renderContract(c, review, Boolean(review))); return; }
-    const acs = flagStr(flags, 'ac')?.split(',').map((x) => x.trim());
+    // --ac AC-1,AC-7 or --ac AC-1 --ac AC-7.
+    const asked = flagList(flags, 'ac').flatMap((x) => x.split(',')).map((x) => x.trim());
+    const acs = asked.length ? asked : undefined;
     const gaps = flags.gaps === undefined ? undefined : c.gaps.filter((g) => flags.gaps === true || (flags.gaps === 'open' ? g.resolution === 'open' : g.kind === flags.gaps));
     const parts = { acs: Boolean(acs), gaps: Boolean(gaps), endpoints: Boolean(flags.endpoints), rules: Boolean(flags.rules), errors: Boolean(flags.errors), variants: Boolean(flags.variants), auth: Boolean(flags.auth) };
     const all = !Object.values(parts).some(Boolean);
