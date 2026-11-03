@@ -7,8 +7,9 @@
  *        the folder defaults to the subagents of this project's latest session under ~/.claude/projects/;
  *        --filter matches the task's description
  *
- * Tokens are the app's own for context (at start, at peak); the kinds are estimated from characters (four to a token).
- * The model's thinking is in the peak and not in the kinds: the transcripts don't hold it.
+ * Tokens are the app's own for context (at start, at peak, added up over the turns); the kinds are estimated from
+ * characters (four to a token), which underestimates code: round 42's hardener had about 2.4 to a token. The model's
+ * thinking is in the peak and not in the kinds: the transcripts don't hold it, and its output is a small part of a peak.
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -19,7 +20,10 @@ export const KINDS = ['instructions', 'handoffs', 'support', 'probes', 'other', 
 export type Kind = typeof KINDS[number];
 
 export interface AgentContext {
-  agent: string; description: string; start: number; peak: number; turns: number; images: number;
+  agent: string; description: string; start: number; peak: number;
+  /** The context added up over the turns: what a session pays for, as each turn sends all it holds. */
+  sum: number;
+  turns: number; images: number;
   kinds: Record<Kind, number>;
   items: { what: string; kind: Kind; tokens: number; times: number }[];
 }
@@ -63,7 +67,7 @@ export function describeUse(use: ToolUse): { what: string; kind: Kind } {
 
 /** One subagent's transcript, as lines of JSON. A line that isn't JSON (a transcript cut off) is skipped. */
 export function readAgent(agent: string, description: string, lines: string[]): AgentContext {
-  const r: AgentContext = { agent, description, start: 0, peak: 0, turns: 0, images: 0, kinds: Object.fromEntries(KINDS.map((k) => [k, 0])) as Record<Kind, number>, items: [] };
+  const r: AgentContext = { agent, description, start: 0, peak: 0, sum: 0, turns: 0, images: 0, kinds: Object.fromEntries(KINDS.map((k) => [k, 0])) as Record<Kind, number>, items: [] };
   const uses = new Map<string, ToolUse>();
   const items = new Map<string, { what: string; kind: Kind; chars: number; times: number }>();
   // The app writes a line per block of a message, each with the message's id and usage: a turn is an id.
@@ -75,7 +79,7 @@ export function readAgent(agent: string, description: string, lines: string[]): 
     if (m?.usage) {
       const context = (m.usage.input_tokens ?? 0) + (m.usage.cache_read_input_tokens ?? 0) + (m.usage.cache_creation_input_tokens ?? 0);
       r.start ||= context; r.peak = Math.max(r.peak, context);
-      if (!m.id || !seen.has(m.id)) r.turns++;
+      if (!m.id || !seen.has(m.id)) { r.turns++; r.sum += context; }
       if (m.id) seen.add(m.id);
     }
     for (const c of Array.isArray(m?.content) ? m.content as Record<string, unknown>[] : []) {
@@ -116,7 +120,7 @@ export function latestSubagents(cwd = process.cwd(), home = os.homedir()): strin
 
 export function render(r: AgentContext, top: number): string[] {
   return [`## ${r.agent}: ${r.description}`,
-    `  start ${r.start} · peak ${r.peak} · ${r.turns} turns${r.images ? ` · ${r.images} images` : ''}`,
+    `  start ${r.start} · peak ${r.peak} · sum ${r.sum} · ${r.turns} turns${r.images ? ` · ${r.images} images` : ''}`,
     `  ${KINDS.map((k) => `${k} ${r.kinds[k]}`).join(' · ')}`,
     ...r.items.slice(0, top).map((x) => `  ${String(x.tokens).padStart(7)}  x${String(x.times).padEnd(3)} ${x.kind.padEnd(12)} ${x.what}`), ''];
 }

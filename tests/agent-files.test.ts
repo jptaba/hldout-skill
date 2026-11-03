@@ -27,6 +27,7 @@ describe('agent files', () => {
     for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md']) assert.ok(triager.includes(view), view);
     for (const whole of ['references/hardening.md', '2-contract/contract.json', 'probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!triager.includes(whole), whole);
     assert.ok(hardener.includes('show KEY spec'));
+    for (const session of ['show KEY spec --domain <domain>', 'A domain\'s session', 'The last session', 'never `--label harden`', 'step 5\'s rule on such records stands', 'the deviations you\n  observed', 'integrity KEY` (marks left']) assert.ok(hardener.includes(session), session);
     assert.ok(!/accounts\.md/.test(author), 'setting up accounts is not the author\'s');
     const references = path.join(SKILL_DIR, 'references');
     for (const f of ['probes.md', 'accounts.md']) assert.ok(fs.existsSync(path.join(references, f)), f);

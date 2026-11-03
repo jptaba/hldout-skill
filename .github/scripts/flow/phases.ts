@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { draftFinished } from '../authoring/draft';
 import { readFreeze } from '../hardening/integrity-check';
+import { stabilityProven } from '../hardening/sessions';
 import { journeysUsedBy } from '../authoring/journeys/registry';
 import { readJson, rel } from '../core/files';
 import { lastEvent, readHistory } from '../core/history';
@@ -52,6 +53,7 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const todo = ([hardenedSrc, journeySrc].join('\n').match(/TODO\(harden\)/g) ?? []).length;
   // The freeze writes the log's template: it counts once the hardener has filled in the tiers it used.
   const hardened = fs.existsSync(p.hardeningLog) && /^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'));
+  const stable = stabilityProven(p.history);
   const bound = fs.existsSync(p.base) ? cfg.autId : undefined;
   const frozen = Boolean(readFreeze(p.freeze));
   const finished = draftFinished(p);
@@ -62,7 +64,7 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
     // Once the draft is frozen, the author's "finished" mark has done its job (hardening may change the spec's HOW).
     { name: 'tests', folder: TESTS, done: specs.length > 0 && !/TODO\(test\)/.test(src) && (frozen || finished), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}${!frozen && !finished ? ' · not marked finished by its author' : ''}` : 'missing', next: `heldout-test-author subagent (from the contract, with the journeys: ${rel(p.tests)}/*.spec.ts; its last step marks the draft finished: ${H} lint ${key} --allow-unhardened --no-health --draft-finished)` },
     { name: 'freeze', folder: TESTS, done: frozen, detail: frozen ? 'draft frozen' : 'not frozen', next: `${H} integrity ${key} --snapshot` },
-    { name: 'harden', folder: HARDENING, done: hardenedSpecs.length > 0 && todo === 0 && hardened && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
+    { name: 'harden', folder: HARDENING, done: hardenedSpecs.length > 0 && todo === 0 && hardened && stable && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}${stable ? '' : ' · no stability run yet'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
     { name: 'run', folder: RUN, done: Boolean(lastEval), detail: lastEval ? `${lastEval}${meta?.stats ? `: ${meta.stats.expected} passed, ${meta.stats.unexpected} failed, ${meta.stats.flaky} flaky` : ''}` : 'no evaluation run', next: `${H} run ${key}` },
     { name: 'triage', folder: TRIAGE, done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: `heldout-triager subagent (${triage ? 'reproduces each pending failure live and records it' : `runs ${H} triage ${key}, then reproduces each failure live`})` },
     { name: 'verdict', folder: VERDICT, done: Boolean(verdict) && !verdictStale, detail: verdict ? `${verdict.verdict}${verdictStale ? ' (older than the last run)' : ''}` : 'none', next: `${H} verdict ${key}` },

@@ -9,8 +9,9 @@
  *   heldout show KEY run [NN-label] [--failed] [--test SCN-x]    a run's record (the latest run by default)
  *   heldout show KEY triage [NN-label] [--pending] [--test SCN-x]   classes and decisions (the latest evaluation run)
  *   heldout show KEY triage [NN-label] --group N  one group of "Failures that look alike", as the triage report has it
- *   heldout show KEY spec [--test SCN-x]        the tests as they stand (hardened, or the draft before that): where each
- *                                               test and declaration is; with --test, that test's numbered lines
+ *   heldout show KEY spec [--test SCN-x | --domain d]   the tests as they stand (hardened, or the draft before that): where
+ *                                               each test and declaration is; with --test, that test's numbered lines;
+ *                                               with --domain, only the tests that use that domain's journeys
  *   heldout show KEY probes [--id P7] [--phase harden|triage]   the probe log
  *   heldout show KEY history                    every step that changed the story, in order
  *   … --json                                    the same, as JSON
@@ -26,6 +27,7 @@ import { currentTests, evalPaths, evalRunsOf, listRuns, movedRunNote, phaseDirs,
 import { readProbes } from '../core/probe-log';
 import { readContract } from '../contract/contract-model';
 import { renderContract } from '../contract/contract-render';
+import { testsOfDomain } from '../hardening/sessions';
 import { readReview } from '../contract/evidence';
 import { pendingOf, readRunRecord, type TriageEntry } from '../run/run-record';
 import { failureGroups, placesOf, renderTriageMd, sectionsOf } from '../triage/triage-report';
@@ -33,7 +35,7 @@ import { failureGroups, placesOf, renderTriageMd, sectionsOf } from '../triage/t
 export const spec: CommandSpec = {
   name: 'show', group: 'Report', usage: 'KEY contract|run|triage|spec|probes|history [...] | config [--aut id]   [--json]', words: 3,
   about: 'read a story\'s record or the profile: parts of the contract, a run, a failure group, a test, the decisions, the probes, the history',
-  flags: ['ac', 'aut', 'auth', 'endpoints', 'errors', 'failed', 'gaps', 'group', 'id', 'json', 'md', 'pending', 'phase', 'rules', 'test', 'variants'],
+  flags: ['ac', 'aut', 'auth', 'domain', 'endpoints', 'errors', 'failed', 'gaps', 'group', 'id', 'json', 'md', 'pending', 'phase', 'rules', 'test', 'variants'],
 };
 
 const print = (json: boolean, data: unknown, text: () => string[]) => console.log(json ? JSON.stringify(data, null, 2) : text().join('\n'));
@@ -150,7 +152,12 @@ export function run({ _, flags }: Args): void {
         ...(hit.hooks.length ? [`Hooks in the file: ${where(hit.hooks)}`] : [])]);
       return;
     }
-    print(json, outlines.map(({ source: _source, ...o }) => o), () => outlines.flatMap((o) => [o.file,
+    const domain = flagStr(flags, 'domain');
+    if ('domain' in flags && !domain) throw new Error('--domain needs a domain: a file of the journeys\' fixtures, without .ts');
+    const inDomain = domain ? testsOfDomain(cfg, key, dir, domain) : undefined;
+    if (inDomain && !inDomain.size) throw new Error(`No test of ${key} uses the "${domain}" journeys`);
+    const shown = outlines.map((o) => ({ ...o, tests: inDomain ? o.tests.filter((t) => inDomain.has(baseScenarioId(t.name))) : o.tests }));
+    print(json, shown.map(({ source: _source, ...o }) => o), () => shown.flatMap((o) => [o.file,
       ...(o.declarations.length ? [`  declared: ${where(o.declarations)}`] : []),
       ...(o.hooks.length ? [`  hooks: ${where(o.hooks)}`] : []),
       ...o.tests.map((t) => `  ${t.name.padEnd(9)} ${`${t.from}-${t.to}`.padEnd(10)} ${t.tags.join(' ')} ${one(t.title, 90)}`)]));

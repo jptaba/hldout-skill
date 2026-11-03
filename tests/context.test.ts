@@ -40,6 +40,7 @@ describe('context report', () => {
       'not json: a transcript cut off',
     ]);
     assert.deepEqual([r.start, r.peak, r.turns], [1000, 2100, 2], 'a message written as several lines is one turn');
+    assert.equal(r.sum, 3100, 'each turn once');
     assert.equal(r.kinds.handoffs, 200);
     assert.ok(r.kinds.writing >= 130, 'its tool inputs and its text');
     assert.deepEqual(r.items[0], { what: 'output/shop/ABC-1/4-hardening/abc-1.spec.ts', kind: 'handoffs', tokens: 200, times: 2 });

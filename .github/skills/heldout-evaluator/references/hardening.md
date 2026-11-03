@@ -44,6 +44,14 @@ them as settled. Nobody reads the map before a freeze, or today's behaviour woul
 point, so a guess confirmed or a gap resolved still cites this story's probe or run; `--evidence` that names an entry
 alone is refused.
 
+## 0c. Sessions
+
+A session pays on every turn for all it has read, so a story with 20 or more guesses across two or more journey domains is
+hardened in parts: `heldout advance` names one session per domain holding guesses, those most tests use first, and a last
+session once none are left. A domain with guesses left comes round again, and the story isn't hardened until the last
+session's stability run. Sessions share what they found through the application map, the probe log and the hardening
+log, so write there what the next one needs: it starts from nothing else.
+
 ## 1. Choose the tier
 
 | Tier | When | UI inspection | API inspection | Verification |
@@ -208,7 +216,7 @@ only: never in a journey's comments, which the next story's test author reads be
 ## 4. Dry run, triage, integrity
 
 ```bash
-npm run heldout -- run KEY --label harden --capture   # TODO(harden) allowed for harden* labels
+npm run heldout -- run KEY --label harden --capture   # TODO(harden) allowed for harden* and probe* labels
 npm run heldout -- triage KEY                          # separates mechanics from deviations
 npm run heldout -- integrity KEY                       # PRESERVED (or AMENDED) and no TODO(harden)
 ```

@@ -76,6 +76,20 @@ Do this:
 7. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result
    and the integrity status.
 
+When your task names a session, a large story is being hardened a domain at a time (`hardening.md`, "Sessions"):
+- **A domain's session:** only that domain. Start from `npm run heldout -- show KEY spec --domain <domain>` and that
+  domain's file; read other journeys only where a call of this domain leads there. Do steps 1 to 4 for its journeys,
+  resolve the gaps your probes answer, and set up the profile's accounts when they are missing. Where a test makes no
+  records the application can't delete, you may try it with `--label probe --grep "<its id>"`, never `--label harden`;
+  step 5's rule on such records stands. Then put in `4-hardening/hardening.md` what you changed and the deviations you
+  observed, keep what the next session needs in the map (step 6), and run `npm run heldout -- integrity KEY` (marks left in
+  other domains are expected; a changed expectation is not). Reply. Leave `**Tiers used:**` and the stability run to the last session.
+- **The last session:** no guess is left in the journeys. Start from `npm run heldout -- map KEY`, its `--domain`s,
+  `show KEY probes`, `4-hardening/hardening.md` and step 1's `journeys KEY`. The domains your task names were probed by
+  their sessions, and a journey counts as proven only after the verdict, so your stability run checks those: probe only
+  a journey not proven in a domain no session covered. Do the spec's own marks, the open gaps and steps 5 to 7. Read a
+  test or a journey when a run sends you there; steps 3 and 4 apply to a journey a run shows wrong.
+
 When your task gives you confirmed script defects from triage, repair exactly those (mechanics only, in the test or the
 journey it calls), re-probe, check `npm run heldout -- integrity KEY` and reply with what you changed per defect. The
 main agent re-runs the suite.

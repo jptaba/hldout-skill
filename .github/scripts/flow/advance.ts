@@ -30,6 +30,7 @@ import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../contract/contract-model';
 import { checkReview, readReview } from '../contract/evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../hardening/fast-harden';
+import { hardeningSession, mayHardenWithoutHardener } from '../hardening/sessions';
 import { readDecisions, readRunRecord } from '../run/run-record';
 import { phasesOf } from './phases';
 
@@ -283,13 +284,15 @@ export function run({ _, flags }: Args): void {
 
     if (next.name === 'harden') {
       // Nothing to discover and no harden run yet: the stability run is the hardening, no subagent needed.
-      const known = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
+      const known = mayHardenWithoutHardener(p) ? knownMechanics(cfg, key) : undefined;
       if (known) {
         console.log(`\n• nothing left to discover that a run can't settle: ${known.use.size - known.fresh.size} journey(s) the tests call are proven as they are${known.fresh.size ? `, ${known.fresh.size} are new with this story` : ''} — proving stability without the hardener (a guess left in a test, or in a new journey's own acting statement, is settled by the run)`);
         const done = hardenFromRegistry(cfg, key, known, heldout);
         if (done === true && moved()) continue;
         return handOver('heldout-hardener', `Harden the tests for ${key}`, done === true ? next.detail : done);
       }
+      const session = hardeningSession(cfg, key);
+      if (session) return handOver('heldout-hardener', session.task, session.why);
       return handOver('heldout-hardener', `Harden the tests for ${key}`, listRuns(p.runs).length ? next.detail : 'the draft is frozen');
     }
 
