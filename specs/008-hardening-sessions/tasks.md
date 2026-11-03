@@ -6,4 +6,4 @@
 - [x] T002 US1.3: `show KEY spec --domain`, with tests
 - [x] T003 US1.6, FR-002: the hardener's file and reference
 - [x] T004 FR-004: the sum in `dev/context.ts`
-- [ ] T005 SC-001, SC-002: a round of PB-2 from scratch
+- [x] T005 SC-001, SC-002: round 43, PB-2 from scratch: SC-001 missed, SC-002 met (`docs/next-steps.md`)

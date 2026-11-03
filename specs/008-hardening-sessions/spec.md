@@ -1,6 +1,6 @@
 # Feature Specification: One hardening session per domain
 
-**Feature Branch**: `master` (constitution VI) | **Created**: 2026-11-03 | **Status**: Draft
+**Feature Branch**: `master` (constitution VI) | **Created**: 2026-11-03 | **Status**: Removed by `specs/010-hardener-reads-less`: round 43 missed SC-001 (largest peak 143k against 109k, sum 9.62M against 7.47M)
 
 **Input**: round 42's PB-2 hardener reached 114k of its 218k peak before its first real probe, by reading: the references,
 every journey file and the whole of the 96,000-character spec. Its output over the whole session is 51k tokens, so the earlier reading ("about 116k is thinking", `docs/next-steps.md`) was wrong: characters

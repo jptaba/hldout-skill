@@ -85,7 +85,7 @@ records the skill's remote and commit in `SOURCE.json`, never a local path).
 Setup also installs the dependencies and Chromium. `-Ci gitlab|github` (`--ci` in setup.sh) adds a regression pipeline. Unless flags give
 them, one visit of the start page fills in the profile: its id (from the host, or the title for localhost), name (page
 title), test-id attribute, API host (where the page's own API calls go) and `blockHosts` (ad/analytics networks).
-Cookie and welcome dialogs the app shows go in `overlays` (see references/hardening.md).
+Cookie and welcome dialogs the app shows go in `overlays` (see references/hardening-cases.md).
 
 More applications: `npm run heldout -- add-aut <id> --base-url <url>`, and give that profile its own journeys folder
 (`"journeysDir": "journeys-<id>"` in its profile). When the new profile is another environment or build of an

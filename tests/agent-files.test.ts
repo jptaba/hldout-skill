@@ -27,7 +27,15 @@ describe('agent files', () => {
     for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md']) assert.ok(triager.includes(view), view);
     for (const whole of ['references/hardening.md', '2-contract/contract.json', 'probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!triager.includes(whole), whole);
     assert.ok(hardener.includes('show KEY spec'));
-    for (const session of ['show KEY spec --domain <domain>', 'A domain\'s session', 'The last session', 'never `--label harden`', 'step 5\'s rule on such records stands', 'the deviations you\n  observed', 'integrity KEY` (marks left']) assert.ok(hardener.includes(session), session);
+    assert.match(hardener, /0\. Don't open the spec file\. Search it for `TODO\(harden\)` and `@irreversible`/);
+    for (const kept of ['-- show KEY spec` says where it is', 'searching `2-contract/contract.json` for the words of', 'with the same flags and `--grep`, the tests that failed on a mechanic and those that call a journey you changed', 'a call under test from a precondition']) assert.ok(hardener.includes(kept), kept);
+    for (const later of ['`hardening-cases.md` for the cases', '`journeys.md` when you add', '`accounts.md` when']) assert.ok(hardener.includes(later), later);
+    const procedure = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening.md'), 'utf8');
+    const cases = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening-cases.md'), 'utf8');
+    for (const section of ['Tier 2 in practice', 'Tier notes', 'Values the application takes as codes', 'Assertion-implementation bugs', 'Requirement revision']) {
+      assert.ok(procedure.includes(section), `hardening.md points to ${section}`);
+      assert.match(cases, new RegExp(`^## ${section}`, 'm'), `hardening-cases.md holds ${section}`);
+    }
     assert.ok(!/accounts\.md/.test(author), 'setting up accounts is not the author\'s');
     const references = path.join(SKILL_DIR, 'references');
     for (const f of ['probes.md', 'accounts.md']) assert.ok(fs.existsSync(path.join(references, f)), f);

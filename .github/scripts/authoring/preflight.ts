@@ -35,9 +35,6 @@ export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 
   }
 }
 
-/** The runs that may hold guesses: hardening's, and a session's trial of one test while other domains still hold theirs. Neither is an evaluation. */
-export const allowsGuesses = (label: string) => /^(harden|probe)/.test(label);
-
 export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnhardened?: boolean; draft?: boolean } = {}): Finding[] {
   const p = evalPaths(cfg, key);
   const out: Finding[] = [];

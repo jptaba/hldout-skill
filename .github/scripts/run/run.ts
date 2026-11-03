@@ -7,7 +7,7 @@
  *   --repeat-each N: stability check during hardening (exposes races that a single green run hides)
  *   --junit, --html: Playwright's JUnit file (for a CI server) and HTML report (for a person debugging), in the raw output
  *
- * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden* or probe*)
+ * Preflight (unless --skip-preflight): traceability lint (TODO(harden) allowed only for --label harden*)
  * and an AUT healthcheck (3 samples per URL) — an unreachable or degraded (slow) AUT aborts before any test runs.
  *
  * Each run is numbered and named NN-label, and leaves:
@@ -23,7 +23,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { journeysUsedBy } from '../authoring/journeys/registry';
-import { allowsGuesses, healthcheck, lintEvaluation, printFindings } from '../authoring/preflight';
+import { healthcheck, lintEvaluation, printFindings } from '../authoring/preflight';
 import { specFiles } from '../authoring/spec-model';
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
@@ -164,7 +164,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   let health: Awaited<ReturnType<typeof healthcheck>> = [];
   if (!flags['skip-preflight']) {
     console.log(`Preflight ${key} → AUT "${cfg.autId}" (${cfg.aut.name})`);
-    const findings = lintEvaluation(cfg, key, { allowUnhardened: allowsGuesses(label) });
+    const findings = lintEvaluation(cfg, key, { allowUnhardened: label.startsWith('harden') });
     printFindings(findings);
     health = await healthcheck(cfg);
     // --wait-healthy S: a shared sandbox restarting or rate-limiting us usually recovers within minutes; poll, don't fail.

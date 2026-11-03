@@ -3,6 +3,15 @@
 Goal: every locator, wait, navigation step and API mechanic works against the real AUT, in the tests and in the
 journeys they call, **without changing what the test expects**.
 
+[hardening-cases.md](hardening-cases.md) holds what only some stories need: read its section when you meet the case.
+
+| You meet | Section |
+| --- | --- |
+| `mcp__playwright__*` tools, or `heldout mcp-probe` | Tier 2 in practice |
+| Ads or banners in the way, a 429, a list you walk through, several agents at once | Tier notes |
+| A field sent as a code (0, 1, 2) | Values the application takes as codes |
+| An assertion whose code is wrong, or a revised requirement | Assertion-implementation bugs, Requirement revision |
+
 ## 0. Freeze
 
 ```bash
@@ -44,15 +53,6 @@ them as settled. Nobody reads the map before a freeze, or today's behaviour woul
 point, so a guess confirmed or a gap resolved still cites this story's probe or run; `--evidence` that names an entry
 alone is refused.
 
-## 0c. Sessions
-
-A session pays on every turn for all it has read, so a story with 20 or more guesses across two or more journey domains is
-hardened in parts: `heldout advance` names one session per domain holding guesses, those most tests use first, and a last
-session once none are left. A domain with guesses left comes round again, and the story isn't hardened until the last
-session's stability run. Sessions share what they found through the application map, the probe log and the hardening
-log, so write there what the next one needs: it starts from nothing else. In the last session, a journey of a domain a
-session covered is checked by the stability run, not probed again, though the registry still says it isn't proven.
-
 ## 1. Choose the tier
 
 | Tier | When | UI inspection | API inspection | Verification |
@@ -61,10 +61,13 @@ session covered is checked by the stability run, not probed again, though the re
 | 2 Playwright MCP | `mcp__playwright__*` present | `browser_navigate` → `browser_snapshot` → `browser_click`/`browser_type` | `browser_network_requests` | tier-3 probe |
 | 3 bundled | always | `heldout inspect --key KEY [--url path] [--steps steps.json] [--wait-for "<loc>"]` (logged as the story's next probe, `Pn`), `heldout run KEY --label harden --capture` | `heldout api-probe --key KEY METHOD path [--data …] [--login …]` | `heldout inspect --probe "<expr>"` (exactly 1 match); `heldout api-probe` status/shape |
 
+If a tier's tools are missing or fail, fall to the next one and say so in the log. Never report a
+tier you did not use.
+
 ## 1a. Complete the contract's mechanics
 
 `heldout contract KEY` lists the open **mechanics** gaps ("to discover from the application"): a route, a label, an
-endpoint or request field the story doesn't name. Discover each one with the tiers below (the page, and the API calls
+endpoint or request field the story doesn't name. Discover each one with the tiers above (the page, and the API calls
 it makes), then record it. Don't go looking for an API document on the application: the only API definition the
 evaluation knows is one the requirement contains (e.g. an excerpt on a linked Confluence page).
 
@@ -75,8 +78,9 @@ npm run heldout -- contract KEY --resolve G1 --value "JSON body {userName, passw
 This sets `"resolution": "discovered-in-aut"`, `value` and `evidence`, and adds `{ "where": "aut" }` to `tried`.
 When the gap is how to make a test account (create, sign in, delete, the sign-in form), also write it as the profile's
 accounts recipe ([accounts.md](accounts.md)) and switch the spec to `seed.account()`: every later
-story on this application reuses it. Calls the story itself tests (its registration, its sign-in) stay direct; a
-step that only needs "a registered user" switches to `seed.account()`. A journey that only repeats the recipe's create
+story on this application reuses it. Search the tests for the journey's calls, with a few lines around each. Calls the story
+itself tests (its registration, its sign-in) stay direct; a step that only needs "a registered user" switches to
+`seed.account()`. A journey that only repeats the recipe's create
 call is then removed, or kept for tests that need other fields, with its summary saying so. `contract --resolve` refuses
 oracle gaps. It's mechanics only, so the review stays valid. Then add what the gap unlocks by hand, if anything: the
 endpoint with `"source": "G<n>"`, the AC's `endpoints`, `requestFields`, `envelope`, `entryPoint`. These fields are
@@ -105,91 +109,39 @@ A mechanics gap the application gives no answer to (the endpoint a criterion nee
 route of it answers 404) stays open: don't record "nothing found" as its answer. Log it as an observed deviation, with
 the probe; the tests that depend on it end BLOCKED or fail on the criterion that owns the missing piece.
 
-## 1b. Tier notes
+## 2. Work from the marks
 
-Third-party ads, analytics or consent banners that inject text or overlays make tests flaky and are not the AUT: list
-their hosts in the profile's `blockHosts` (`heldout.config.json`). The fixtures and `heldout inspect` abort those
-requests. A `--repeat-each` run exposes this kind of noise.
+Most guesses are in the journeys, and a journey says what it needs. Open a test only for a mark in it, when a run or
+probe sends you there, or to tell a call under test from a precondition (1a): `npm run heldout -- show KEY spec --test SCN-n`
+prints one, and `show KEY spec` lists where each test and declaration is, for a mark in a declaration. A session pays on every turn for all it has read, and a large
+spec is most of what a hardener can afford.
 
-The application's own banners and dialogs (a cookie consent, a welcome dialog, a newsletter pop-up) can't be blocked:
-list the button that closes each in the profile's `overlays`, e.g.
-`["getByRole('button', { name: 'dismiss cookie message' })"]`. The tests, the UI sign-in and `heldout inspect` click it
-whenever it appears (Playwright's `addLocatorHandler`), so no step has to dismiss it.
+A journey doesn't say which of its words the requirement names, so **before you change the words of a guessed label or
+value, search `2-contract/contract.json` for them** with your search tool. Words the requirement names stay, and the difference is an
+observed deviation: a test that passes after you changed them would hide it.
 
-A shared sandbox that answers 429 (rate limited) is the environment, not the application: triage says so, and `heldout run`
-prints the command that paces the tests on that host, e.g.
-`npm run heldout -- init --profile <id> --max-workers 1 --min-test-interval-ms 10000`.
-
-A journey that walks through the pages of a list is proven on the last page as well as the first: probe the "next"
-control there and read how the page marks the end (a `disabled` attribute, `aria-disabled`, or only a class on an
-element around it). A link styled as disabled still counts as enabled, and a walk that asks `isEnabled()` never stops.
-
-The Playwright MCP server is one browser per agent session. When several agents evaluate stories in parallel,
-they would drive the same page: use `heldout mcp-probe` (its own server per call) or tier 3 instead.
-
-If a tier's tools are missing or fail, fall to the next one and say so in the log. Never report a
-tier you did not use.
-
-### Tier 2 in practice (Playwright MCP)
-
-- **Loaded natively** (tools `mcp__playwright__browser_*` in your list): `browser_navigate` → `browser_wait_for`
-  (a readiness anchor) → `browser_snapshot` → act with `browser_click` / `browser_type` / `browser_select_option`
-  / `browser_handle_dialog`, using the `target` ref from the snapshot. Wait for what you will act on, not only for the
-  page: a heading can be there while the buttons still have no names, and a snapshot taken then shows them unnamed.
-  On a page that shows one record (a detail page with a form on it), wait for something the page loaded (the
-  record's text), not for the form: a form can be usable before its record has arrived, and a click made then sends
-  no call. A step that should have sent a call and sent none is a sign of this before it is a sign of a defect; the
-  same holds for an `inspect` walk and for the journey you write.
-  Before a step that clicks by role and name, wait for that text (the button's label). The server saves its snapshots wherever the
-  app started it, not in the story's folder: the walk is not evidence until you replay the steps that matter with
-  `heldout mcp-probe --key KEY` (below) or prove them with `heldout inspect --key KEY`: each is logged as the story's
-  next probe (`Pn`), the id you cite as evidence.
-- **Not loaded** (pending approval, CI, other hosts): drive the same server through the bundled stdio client.
-  Same tools, same snapshots, recorded as evidence:
-
-  ```bash
-  npm run heldout -- mcp-probe --key KEY --steps .heldout/<profile>/KEY/4-hardening/<walk>.steps.json
-  ```
-
-  Steps resolve elements by **role + accessible name** from the live MCP snapshot (`{"find": {"role": "button", "name": "Login"}}`),
-  and support `expect` / `expectAbsent` / `expectText` checks. Secrets come from `${env:NAME}` and are redacted
-  everywhere in the report; per-run data (a user created a moment ago) comes from `--var name=value` as
-  `${var:name}` and stays readable as evidence.
-- **Every MCP action returns the Playwright code it ran**, which is a free locator suggestion (e.g.
-  `page.locator('#table1').getByRole('columnheader', { name: 'Last Name' })`). Still verify it with a probe.
-- **SPAs:** after `browser_navigate`, always `browser_wait_for` a text that proves the page rendered. MCP can
-  snapshot before hydration and return an almost empty tree.
-- **Absence needs a ready page.** Never conclude "element X is not exposed" (e.g. an accessibility defect)
-  from a snapshot that may not have rendered. `heldout mcp-probe` enforces this: `expectAbsent` fails unless a wait
-  anchor was seen or the snapshot has substantial content. Pair every absence check with a positive control
-  on the same page (e.g. the other form fields *are* exposed).
-- Native MCP writes its snapshots under the agent app's working folder (`.playwright-mcp/`). When that is not the
-  project (a session opened in another folder), use `heldout mcp-probe`: its snapshots stay in a temporary folder of
-  its own and its report is the probe's (`Pn`).
-- Large snapshots are written to files (`[Snapshot](….yml)`). `heldout mcp-probe` reads them, keeps MCP output
-  in its own temp directory and deletes it when the walk ends. When MCP runs natively, add `.playwright-mcp/` to `.gitignore`.
-
-## 2. Walk each test
-
-Work from the outline, not the whole file: `npm run heldout -- show KEY spec` lists each test's and declaration's lines;
-read the range you are on with your file tool (`show KEY spec --test SCN-n` prints one test), and don't read a range twice.
-
-UI: perform the test's journey steps live, in order. At each step, snapshot the page, pick the most
+UI: walk the journey's steps live, in order. At each step, snapshot the page, pick the most
 resilient **unique** locator, probe it, replace the draft locator (in the test or the journey it calls) and remove
 `// TODO(harden)`.
 Fix mechanics the draft couldn't know: menus that must be opened first, asynchronous UI, iframes,
-dialogs, empty live regions that shadow `role=alert`, and so on.
+dialogs, empty live regions that shadow `role=alert`, and so on. Wait for what you will act on, not only for the
+page: a heading can be there while the buttons still have no names, and a snapshot taken then shows them unnamed.
+On a page that shows one record (a detail page with a form on it), wait for something the page loaded (the
+record's text), not for the form: a form can be usable before its record has arrived, and a click made then sends
+no call. A step that should have sent a call and sent none is a sign of this before it is a sign of a defect; the
+same holds for an `inspect` walk and for the journey you write.
+
+**Absence needs a ready page.** Never conclude "element X is not exposed" (e.g. an accessibility defect) from a snapshot
+that may not have rendered. Pair every absence check with a positive control on the same page (e.g. the other form
+fields *are* exposed).
 
 API: probe each declared endpoint with `heldout api-probe`. Verify the path, the auth mechanism (cookie
 vs header, token field), content type, and the body *shape* (`## Shape`). Fix plumbing only. Status
 codes and values come from the requirement, never from the probe. For a large answer, use
-`api-probe … --body-limit 200000`: the report clips bodies at 4000 characters by default. A shared host
-that answers 429 is rate-limiting you: the `api` fixture waits and retries (twice, as `Retry-After` says) and
-the preflight refuses to run while it happens. Page loads answered with 429 are retried the same way. For a host that
-bans bursts, set the profile's `maxWorkers` (e.g. 1) and `minTestIntervalMs` (e.g. 12000: tests start at least that
-far apart), and pace your probes. When the tests create their users (a sign-up recipe you have just saved), make the
-first hardening run with `--workers 1`: some applications refuse sign-ups sent at the same moment, and a run lost to
-that leaves its records behind all the same. Go to more workers once two sign-ups sent together are shown to work.
+`api-probe … --body-limit 200000`: the report clips bodies at 4000 characters by default. When the tests create their
+users (a sign-up recipe you have just saved), make the first hardening run with `--workers 1`: some applications refuse
+sign-ups sent at the same moment, and a run lost to that leaves its records behind all the same. Go to more workers once
+two sign-ups sent together are shown to work.
 
 ```bash
 # steps in a file (write it with your file tool: shell quoting mangles locators and regexes)
@@ -199,12 +151,6 @@ npm run heldout -- api-probe --key KEY GET api/orders --login '{"path":"api/auth
 
 Compose probes instead of writing scripts: [probes.md](probes.md) lists the options, and what the inspector shows and
 can do.
-
-**Values the application takes as codes.** When a value the tests name in words (an account type, a status, a
-category) turns out to be sent as a code (0, 1, 2), a test's "unknown" or "not allowed" value must be sent the way
-the valid ones are: a code outside the set, not the word passed through. An application often answers a value of the
-wrong form at once (a 404, a parsing error) and fails only on a value of the right form that it doesn't know. Map
-the test's unknown value to such a code in the journey, and say so in the log.
 
 ## 3. Observed deviations: do NOT "fix" these
 
@@ -217,7 +163,7 @@ only: never in a journey's comments, which the next story's test author reads be
 ## 4. Dry run, triage, integrity
 
 ```bash
-npm run heldout -- run KEY --label harden --capture   # TODO(harden) allowed for harden* and probe* labels
+npm run heldout -- run KEY --label harden --capture   # a dry run, not when the tests create records the application can't delete; TODO(harden) allowed for harden* labels
 npm run heldout -- triage KEY                          # separates mechanics from deviations
 npm run heldout -- integrity KEY                       # PRESERVED (or AMENDED) and no TODO(harden)
 ```
@@ -227,42 +173,14 @@ rate-limits, or when the tests create records the application can't delete (regi
 every repeat leaves another set behind on a shared environment, and keep every test that changes the application for good tagged `@irreversible`: it runs once, never
 retried or repeated. Narrow a dry run with `--grep "SCN-00[1-4]"` (a test tagged `@depends:` on them is not picked).
 
+The stability run is also where a mechanic no mark showed comes to light. After a repair, run again, with the same
+`--repeat-each` and `--workers`, the tests that failed on a mechanic and the tests that call a journey you changed
+(search for its name). The proof is the first run's passes plus these re-runs, as with a run made in parts. Where the
+records can't be deleted, that is instead of the whole suite, which would leave another set behind; and when too many tests
+call a changed journey to re-run them all, the evaluation run is their check, and the log says so.
+
 Fix only failures that triage calls SCRIPT_DEFECT (after checking). `[REQ]` failures matching an
 observed deviation are expected; leave them for the official run.
-
-### Assertion-implementation bugs → audited amendment
-
-Sometimes the *assertion code* is wrong even though the requirement is right, for example a `\b`
-regex against text rendered without separators. Fix it so it still requires exactly what the
-requirement says, then record it:
-
-```bash
-npm run heldout -- integrity KEY --amend "<file>: [REQ AC-3] <message>" --reason "<why the implementation was wrong; why the requirement is unchanged>"
-```
-
-The message alone is enough when only one spec has it. When the fix also changes what the assertion reads (another
-page, another call), say so in the reason: integrity tracks the assertion, not the request before it.
-Integrity becomes AMENDED and the verdict lists the amendment. Never use an amendment to align
-with AUT behaviour. An expected value computed from what the application answers about the property under test
-(its `last_page` when pages are checked) is such a bug: derive it from the requirement.
-
-The test: after the amendment, does the assertion still fail for every application that violates **its own**
-criterion, and pass for every one that meets it? Then it is an implementation fix. Typical cases: a regex stricter than
-the wording; one AC's assertion re-checking another AC's oracle (AC-9 "one message remains" asserting AC-7's exact
-message text — the text stays AC-7's check, AC-9 asserts only what AC-9 states). Loosening an assertion because the
-application answers differently is never one. Say in `--reason` if you noticed it while looking at the live app.
-
-### Requirement revision → audited re-freeze
-
-When `jira-fetch` reports a revision, rebuild and re-review the contract, draft the new tests
-(before touching the AUT), then:
-
-```bash
-npm run heldout -- integrity KEY --snapshot --reason "Requirement revision N: <what changed>"
-```
-
-The hashes of the draft it replaces and the changes it absorbed are kept in `3-tests/freeze.json` and shown in the
-verdict. The hardened copy is written over with the revised draft: harden it again.
 
 ## 5. Hardening log — `4-hardening/hardening.md`
 
