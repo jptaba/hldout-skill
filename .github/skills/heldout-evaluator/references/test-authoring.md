@@ -187,6 +187,7 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
    never just "not a success": `expectResponse(res, { status: '4xx' }, '[REQ AC-5] a customer's POST /brands is refused')`
    (`'2xx'` likewise for "is accepted" with no stated status). A 5xx answer is the application failing, not refusing, and that test, untagged, reports
    it as a defect. Which 4xx it is, and what the message must say, stay open questions when the story doesn't say.
+   A test of a refusal's reason first requires the refusal, so a word in a successful answer can't pass for the reason.
    When the form of the refusal is itself an open question in the contract (an error status, or a message in a
    successful answer), write two tests: one untagged, of what a refusal leaves behind under every reading (nothing
    created, nothing changed, and never a 5xx), and one `@needs-clarification`, of the 4xx status. On a page the split

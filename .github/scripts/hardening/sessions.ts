@@ -76,7 +76,7 @@ export function hardeningSession(cfg: HeldoutConfig, key: string): { task: strin
   const session = nextSession(key, planned, found);
   // Hardening reopened after a run for this reason: only the task reaches the session.
   const violated = lastEvent<{ status: string }>(p.history, 'integrity')?.status === 'VIOLATED';
-  return violated ? { ...session, task: `${session.task}. First: integrity is VIOLATED (${H} integrity ${key}): restore what the tests expect` } : session;
+  return violated ? { ...session, task: `${session.task}. First: integrity is VIOLATED (${H} integrity ${key}): restore what the tests expect, or report the assertion whose implementation is wrong` } : session;
 }
 
 /**

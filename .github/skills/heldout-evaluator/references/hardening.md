@@ -50,7 +50,8 @@ A session pays on every turn for all it has read, so a story with 20 or more gue
 hardened in parts: `heldout advance` names one session per domain holding guesses, those most tests use first, and a last
 session once none are left. A domain with guesses left comes round again, and the story isn't hardened until the last
 session's stability run. Sessions share what they found through the application map, the probe log and the hardening
-log, so write there what the next one needs: it starts from nothing else.
+log, so write there what the next one needs: it starts from nothing else. In the last session, a journey of a domain a
+session covered is checked by the stability run, not probed again, though the registry still says it isn't proven.
 
 ## 1. Choose the tier
 

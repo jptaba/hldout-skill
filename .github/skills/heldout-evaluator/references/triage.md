@@ -96,8 +96,8 @@ When something *was* disclosed or changed, the severity follows that, not the st
 2. **Reproduce live**: replay UI steps in your browser tier or with `heldout inspect --steps-json` (or build on an
    earlier probe: `--from P4`, `api-probe --chain P7 --set …`; [probes.md](probes.md) lists them);
    replay API requests with `heldout api-probe`. Probe with `--key`: each probe is logged as the story's next one (`P7`), and the decision cites it (`--evidence P7`). Start from
-   `.heldout/<profile>/KEY/6-triage/chains/<run>/all.chain.json` when several failures are API calls: it holds every distinct failing call of the run
-   once. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is
+   `.heldout/<profile>/KEY/6-triage/chains/<run>/all.chain.json` when several failures are API calls: it holds each distinct failing call of the run
+   once, up to 40, and its note says what it left out. A test that submits what a page doesn't offer (a value missing from a list, another user's record) is
    replayed with the inspector's own steps, never with a script of yours: `force` gives a control the value,
    `rewrite` changes fields of the page's next request, `request` makes a call in the middle of the walk; the report
    lists the requests it rewrote. For a leak finding,

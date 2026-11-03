@@ -127,10 +127,36 @@ export function nextRunNumber(p: Pick<StoryPaths, 'runs' | 'history' | 'work'>):
   return Math.max(0, ...names.map((r) => Number(r.split('-')[0])).filter(Number.isFinite)) + 1;
 }
 
+const lockOf = (p: Pick<StoryPaths, 'work'>) => path.join(p.work.base, 'run.lock');
+const isAlive = (pid: number) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+
+/**
+ * One run of a story at a time: two would take one number and one raw folder, and one would lose its record. A lock whose
+ * process is gone (a run cut off) is taken over. Returns how to let go of it.
+ */
+export function lockRun(p: Pick<StoryPaths, 'work'>, key: string, pid = process.pid): () => void {
+  const file = lockOf(p);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  // Created only if absent, for two runs started in one breath. Two taking over one dead run's lock can still both win:
+  // rare enough, as that needs a run cut off and two more started together.
+  const take = () => { try { fs.writeFileSync(file, String(pid), { flag: 'wx' }); return true; } catch (e) { if ((e as NodeJS.ErrnoException).code === 'EEXIST') return false; throw e; } };
+  if (!take()) {
+    const text = fs.readFileSync(file, 'utf8');
+    // Empty: the other run has created it and not written it yet.
+    if (!text) throw new Error(`Another run of ${key} has just started: wait for it to end.`);
+    const held = Number(text);
+    if (held && isAlive(held)) throw new Error(`Another run of ${key} is still going (process ${held}): wait for it to end. Two at once would take one number and lose a record.`);
+    fs.rmSync(file, { force: true });
+    if (!take()) throw new Error(`Another run of ${key} has just started: wait for it to end.`);
+  }
+  return () => fs.rmSync(file, { force: true });
+}
+
 export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key, aut: flagStr(flags, 'aut') });
   const p = evalPaths(cfg, key);
+  process.once('exit', lockRun(p, key));
   // What runs is the hardener's copy, made when the draft was frozen.
   if (!fs.existsSync(p.freeze) || !fs.existsSync(p.hardened)) throw new Error(`No frozen tests for ${key} (${rel(p.hardened)}/) — the draft is frozen first: heldout integrity ${key} --snapshot`);
   const label = (flagStr(flags, 'label') ?? 'eval').replace(/[^a-z0-9-]+/gi, '-').toLowerCase();

@@ -33,8 +33,10 @@ const MAX_TEXT = 400;
 const DOMAIN = /^[a-z][a-z0-9-]*$/;
 const RECORD_ID = /\b\d{5,}\b|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i;
 const CREDENTIAL = /\b(?:bearer|basic)\s+(?=[\w.~+/=-]*\d)[\w.~+/=-]{16,}|\beyJ[\w-]{10,}\./i;
-// "Accept" alone is a header, a mechanic; what the application accepts is for a requirement to judge.
-const JUDGEMENT = /\b(?:defect\w*|bug(?:s|gy)?|should(?:n['’]t)?|wrong\w*|incorrect\w*|violat\w*|broken|expected|fails? to|accept(?:s|ed)|refus\w*|reject\w*|(?:no|without)\s+(?:any\s+)?(?:sign-?in|log-?in|auth\w*|credentials?|cookies?|tokens?))\b/i;
+// "Accept" alone is a header, a mechanic; what the application accepts is for a requirement to judge. "No login step" is
+// about a walk, what a call or a page lets through is not. Only a step is excepted: a heuristic all the same, and the
+// agents' rule and a round's reading cover what it can't tell ("no sign-in step stands before it").
+const JUDGEMENT = /\b(?:defect\w*|bug(?:s|gy)?|should(?:n['’]t)?|wrong\w*|incorrect\w*|violat\w*|broken|expected|fails? to|accept(?:s|ed)|refus\w*|reject\w*|(?:no|without)\s+(?:any\s+)?(?:(?:sign-?in|log-?in)(?!\s+steps?\b)|auth\w*|credentials?|cookies?|tokens?))\b/i;
 
 const fileOf = (cfg: HeldoutConfig, domain: string) => path.join(appMapDir(cfg), `${domain}.jsonl`);
 const parsed = (line: string): MapEntry | undefined => {

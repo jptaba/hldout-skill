@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, it } from 'node:test';
+import { allCallsChain } from '../.github/scripts/triage/triage';
 import { likeness, renderTriageMd, short } from '../.github/scripts/triage/triage-report';
 import type { TriageEntry, TriageReport } from '../.github/scripts/run/run-record';
 
@@ -29,6 +30,24 @@ const passed = (scenario: string): TriageEntry => ({ scenario, title: scenario, 
 const report = (entries: TriageEntry[]): TriageReport => ({
   key: 'ABC-1', run: '02-eval', generatedAt: '2026-01-01T00:00:00.000Z', entries,
   summary: { total: entries.length, passed: entries.filter((e) => e.status === 'passed').length, failed: entries.filter((e) => e.status === 'failed').length, flaky: 0, skipped: 0 },
+});
+
+describe('the chain of a run\'s failing calls', () => {
+  const calls = (n: number) => Array.from({ length: n }, (_, i) => ({ name: `call ${i}`, method: 'GET', path: `/a/${i}` }));
+  const signIn = { name: 'sign in', setup: true, method: 'POST', path: '/login' };
+
+  it('holds them all up to its size, and says nothing is left out', () => {
+    const c = allCallsChain([signIn], calls(40), 40, 50);
+    assert.equal(c.steps.length, 41);
+    assert.doesNotMatch(c.note, /left out/);
+  });
+
+  it('starts a large story with the first 40 and says how many are left out', () => {
+    const c = allCallsChain([signIn], calls(65), 65, 87);
+    assert.equal(c.steps.length, 41, 'the sign-ins and 40 calls');
+    assert.equal(c.steps[0], signIn);
+    assert.match(c.note, /65 call\(s\), the first 40 here and 25 left out/);
+  });
 });
 
 describe('the triage report', () => {

@@ -2,6 +2,7 @@
  * What outlives the runs' records once the verdict is due (specs/001-phase-separation, US2): every run's result in the
  * history, the repairs in the decisions, run numbers never used twice, and the probes a kept text names.
  */
+import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -14,7 +15,7 @@ import { repairsTried } from '../.github/scripts/flow/advance';
 import { dropUnshownScreenshots, keptScreenshotName, repairedDefects, reproducedBy, runsOfHistory, showsScreenshot } from '../.github/scripts/verdict/verdict';
 import { contextCall } from '../.github/scripts/run/record';
 import { failureScreenshot } from '../heldout-support/fixtures';
-import { nextRunNumber } from '../.github/scripts/run/run';
+import { lockRun, nextRunNumber } from '../.github/scripts/run/run';
 
 const profile = `record-trim-${process.pid}`;
 const cfg = { outputDir: fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-trim-')), autId: profile } as unknown as HeldoutConfig;
@@ -23,6 +24,35 @@ after(() => { fs.rmSync(cfg.outputDir, { recursive: true, force: true }); fs.rmS
 const line = (o: object) => `${JSON.stringify({ at: 'now', skill: 'x', ...o })}\n`;
 const history = (...events: object[]) => { fs.mkdirSync(p.base, { recursive: true }); fs.writeFileSync(p.history, events.map(line).join('')); };
 const decide = (d: object) => { fs.mkdirSync(p.triage, { recursive: true }); fs.writeFileSync(p.decisions, JSON.stringify(d)); };
+
+describe('one run of a story at a time', () => {
+  const lock = path.join(p.work.base, 'run.lock');
+
+  it('refuses a second run while the first is alive, naming its process, and frees the story after', () => {
+    const release = lockRun(p, 'ABC-1');
+    assert.throws(() => lockRun(p, 'ABC-1', process.pid + 1), new RegExp(`Another run of ABC-1 is still going \\(process ${process.pid}\\)`));
+    assert.equal(fs.readFileSync(lock, 'utf8'), String(process.pid), 'the first keeps it');
+    release();
+    assert.ok(!fs.existsSync(lock));
+    lockRun(p, 'ABC-1')();
+  });
+
+  it('refuses while the lock is still empty: another run is just taking it', () => {
+    fs.mkdirSync(path.dirname(lock), { recursive: true });
+    fs.writeFileSync(lock, '');
+    assert.throws(() => lockRun(p, 'ABC-1'), /has just started/);
+    fs.rmSync(lock);
+  });
+
+  it('takes over the lock of a run that is gone', () => {
+    const child = spawnSync(process.execPath, ['-e', 'process.stdout.write(String(process.pid))'], { encoding: 'utf8' });
+    fs.mkdirSync(path.dirname(lock), { recursive: true });
+    fs.writeFileSync(lock, child.stdout);
+    const release = lockRun(p, 'ABC-1');
+    assert.equal(fs.readFileSync(lock, 'utf8'), String(process.pid));
+    release();
+  });
+});
 
 describe('after the verdict\'s tidy', () => {
   it('numbers the next run past every run the story had, whatever record is left', () => {

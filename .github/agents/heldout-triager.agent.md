@@ -44,7 +44,7 @@ Do this:
    `npm run heldout -- triage KEY --set SCN-n --category … [--severity …] --title … --rationale … --evidence …`.
    For a failure whose call was sent signed in, `triage` wrote a starting chain in the scratch area
    (`6-triage/chains/<run>/<scn>.chain.json`: the sign-ins, then the failing call), and one chain with every distinct
-   failing call of the run (`all.chain.json` beside them, signed in or not: the one to start from when failures share records, or
+   failing call of the run (`all.chain.json` beside them, signed in or not, up to 40 calls, its note says what it left out: the one to start from when failures share records, or
    when the application can't delete what a replay makes): add the control call, check whose token the call
    takes, and run it with `heldout api-probe --chain`. To vary a probe you already made, compose instead of writing a
    new file: `api-probe --chain P7 --set 2.json.qty=0`, `inspect --from P4:5 --then '<step>'`, `inspect --sign-in

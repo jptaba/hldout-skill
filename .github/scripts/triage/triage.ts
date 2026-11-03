@@ -75,6 +75,18 @@ function starterChain(cfg: HeldoutConfig, e: TriageEntry): { note: string; steps
   return { note: `${namesRecords ? 'The failing call names records by id, and the run\'s records may be gone: when the call answers "not found", add a setup step that makes each again (save its id) and put the saved ids in the call. Failures that need the same kind of record share one chain: each sign-in once, the record made once, then every failing call. ' : ''}Starting point written by heldout triage for ${e.scenario}: ${sender ? `the failing call carries the token of the user it was sent as (${api.request.as})` : 'check which user\'s token the failing call was sent with'}${body ? ', restore any value the evidence shows masked' : ''}, and add a control call that should succeed.`, steps };
 }
 
+/** The most calls a chain starts with: more than one reads. A large story's failures still get a start, and are told what it left out. */
+const MAX_CHAIN_CALLS = 40;
+
+/** The chain with every distinct failing call of a run, as far as one chain holds them. */
+export function allCallsChain(signIns: Record<string, unknown>[], calls: Record<string, unknown>[], withCalls: number, failures: number): { note: string; steps: Record<string, unknown>[] } {
+  const left = calls.length - MAX_CHAIN_CALLS;
+  return {
+    note: `Starting point written by heldout triage: the API calls of this run's failures in one chain. ${withCalls} of the ${failures} failures made an API call (the others are checks on a page: replay those with heldout inspect). Calls that differ only in the ids of the records they name are listed once, under the first test that made them: ${calls.length} call(s)${left > 0 ? `, the first ${MAX_CHAIN_CALLS} here and ${left} left out: \`show KEY triage <run> --group <n>\` has the others` : ''}. Where the failed check read a state back, the call that made the state is listed before it. The run's records may be gone: add setup steps that make each record once (save its id), put the saved ids in the calls, add a control call per root cause, and delete the calls you don't need.`,
+    steps: [...signIns, ...calls.slice(0, MAX_CHAIN_CALLS)],
+  };
+}
+
 /** Write the run's triage report (a view: rendered again whenever a decision is recorded). */
 function writeReport(p: StoryPaths, record: RunRecord): string {
   const places = placesOf(p, record.run);
@@ -192,7 +204,7 @@ export function run({ _, flags }: Args): void {
         (s.setup ? signIns : calls).push(s);
       }
     }
-    if (calls.length <= 40) writeFile(allFile, `${JSON.stringify({ note: `Starting point written by heldout triage: the API calls of this run's failures in one chain. ${pendingCalls.length} of the ${pendingEntries.length} failures made an API call (the others are checks on a page: replay those with heldout inspect). Calls that differ only in the ids of the records they name are listed once, under the first test that made them: ${calls.length} call(s). Where the failed check read a state back, the call that made the state is listed before it. The run's records may be gone: add setup steps that make each record once (save its id), put the saved ids in the calls, add a control call per root cause, and delete the calls you don't need.`, steps: [...signIns, ...calls] }, null, 2)}\n`);
+    writeFile(allFile, `${JSON.stringify(allCallsChain(signIns, calls, pendingCalls.length, pendingEntries.length), null, 2)}\n`);
   }
   const report = writeReport(p, record);
 
