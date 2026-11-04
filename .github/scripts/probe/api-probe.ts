@@ -37,9 +37,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { literalsOf, pageText, redact, redactHeaders, shapeOf } from '../core/redact';
+import { literalsOf, pageText, redact, redactField, redactHeaders, scrubNotes, scrubValues, shapeOf } from '../core/redact';
 import { expandGenerated, expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
-import { chainOfProbe, deliverProbe, looksSecret, requireFrozen, savedOf } from '../core/probe-log';
+import { chainOfProbe, deliverProbe, looksSecret, requireFrozen, savedOf, scrubsFromReport } from '../core/probe-log';
 
 /** ${env:NAME} and ${vault:path#field} (read at the start of the command) → their values. */
 const env = (s: string) => {
@@ -131,6 +131,21 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
   const typed: Record<string, unknown> = {};
   // The answer's field each value came from: `tok` saved from `token` is a token all the same.
   const fieldOf: Record<string, string> = {};
+  // What was saved that no log keeps, by name, and what no report shows, every value it had (a token is saved again after
+  // a refresh, and each of a parallel step's answers has its own). A report's text goes through `clean` before it is
+  // clipped or formatted, as a value cut in two can't be found afterwards.
+  const notKept = new Set<string>();
+  const secrets: Record<string, string[]> = {};
+  const clean = (t: string) => scrubValues(t, Object.values(secrets).flat());
+  // Value by value, so the answer stays JSON whatever is replaced, and `redact` still reads its fields afterwards.
+  const cleanJson = (v: unknown): unknown => (Array.isArray(v) ? v.map(cleanJson)
+    : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, cleanJson(x)]))
+      : typeof v === 'string' ? clean(v) : typeof v === 'number' && clean(String(v)) !== String(v) ? '***redacted***' : v);
+  const cleanAnswer = <T extends { json?: unknown; text: string; headers: Record<string, string> }>(x: T): T => ({
+    ...x, json: cleanJson(x.json), text: clean(x.text), headers: Object.fromEntries(Object.entries(x.headers).map(([k, v]) => [k, clean(v)])),
+  });
+  /** Every value a save holds: a list's or an object's too. */
+  const leaves = (v: unknown): string[] => (v === null || v === undefined ? [] : typeof v === 'object' ? Object.values(v).flatMap(leaves) : [String(v)]);
   const whole = (s: string) => s.match(/^\$\{([A-Za-z_][\w]*)\}$/)?.[1];
   const deep = (v: unknown): unknown => (typeof v === 'string' ? (whole(v) !== undefined && typed[whole(v)!] !== undefined ? typed[whole(v)!] : interp(v))
     : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
@@ -140,7 +155,7 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
   for (const [i, s] of chain.steps.entries()) {
     const method = (s.method ?? 'GET').toUpperCase();
     const url = resolveUrl(base, envPath(interpVars(s.path)));
-    const shownUrl = new URL(resolveUrl(base, maskEnv(interpVars(s.path))));
+    const shownUrl = new URL(resolveUrl(base, clean(maskEnv(interpVars(s.path)))));
     const headers: Record<string, string> = { Accept: 'application/json', ...(deep(s.headers ?? {}) as Record<string, string>) };
     let body: string | undefined;
     if (s.json !== undefined) { body = JSON.stringify(deep(s.json)); headers['Content-Type'] ??= 'application/json'; }
@@ -161,12 +176,19 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
     // it happened, since every later step that needs the value is then not sent.
     const missedSaves: string[] = [];
     for (const [name, dotted] of Object.entries(s.save ?? {})) {
+      // From every answer first: in a race the first may be the one that was refused.
+      for (const each of all.flatMap((answer) => leaves(dig(answer.json, dotted)))) {
+        if (looksSecret(name, each, dotted)) notKept.add(name);
+        if (scrubsFromReport(name, each, dotted)) (secrets[name] ??= []).push(each);
+      }
       const v = dig(r.json, dotted);
       if (v === undefined) { missedSaves.push(`${name} ← "${dotted}"`); continue; }
       vars[name] = String(v);
       fieldOf[name] = dotted;
       if (typeof v === 'number' || typeof v === 'boolean') typed[name] = v; else delete typed[name];
     }
+    const shown = all.map(cleanAnswer);
+    const d = shown[0];
     const exp = s.expect === undefined ? undefined : ([] as number[]).concat(s.expect);
     const checks = (s.notContains ?? []).map((c) => {
       const d = decode(dig(r.json, c.field), c.decode);
@@ -176,7 +198,7 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
       return `\`${c.field}\`${c.decode ? ` (${c.decode})` : ''} ${hits.length ? `✖ contains ${c.value} in: ${hits.join(', ')}` : `does not contain ${c.value} ✔`}`;
     });
     const bodyMisses = Object.entries(s.expectBody ?? {}).filter(([f, want]) => JSON.stringify(dig(r.json, f)) !== JSON.stringify(deep(want)))
-      .map(([f, want]) => `\`${f}\` ✖ expected ${JSON.stringify(redact(deep(want)))}, got ${JSON.stringify(redact(dig(r.json, f)))}`);
+      .map(([f, want]) => `\`${f}\` ✖ expected ${clean(JSON.stringify(redactField(f, deep(want))))}, got ${JSON.stringify(redactField(f, dig(d.json, f)))}`);
     if (s.expectBody && !bodyMisses.length) checks.push(`body ${Object.keys(s.expectBody).map((f) => `\`${f}\``).join(', ')} as expected ✔`);
     checks.push(...bodyMisses);
     if (missedSaves.length) checks.push(`save ✖ nothing at ${missedSaves.join(', ')} in the answer's body (paths are relative to the body, e.g. "id", "data.0.id")`);
@@ -188,31 +210,40 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
     const literals = literalsOf(s.json ?? s.form);
     try { shownBody = s.form ? new URLSearchParams(Object.entries(redact(Object.fromEntries(new URLSearchParams(body)), { keep: literals }) as Record<string, string>)).toString() : JSON.stringify(redact(JSON.parse(body ?? ''), { keep: literals })); } catch { /* raw */ }
     // An HTML error page on one line of a chain's report: what it says, not its markup.
-    const resp = r.json !== undefined ? JSON.stringify(redact(r.json)) : pageText(r.text);
-    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${shownBody.slice(0, 200)}\`` : ''}${copies > 1 ? ` ×${copies} at once` : ''} → **${copies > 1 ? all.map((x) => x.status).join(', ') : r.status}**${exp ? (!statusOk ? ` ✖ expected ${exp.join('/')}` : ok ? ' ✔' : ' ✔ status (✖ below)') : ''} (${r.ms} ms)`);
+    const resp = d.json !== undefined ? JSON.stringify(redact(d.json)) : pageText(d.text);
+    lines.push(`${i + 1}. ${s.setup ? '_(setup)_ ' : ''}${s.name ? `**${s.name}** — ` : ''}\`${method} ${shownUrl.pathname}${shownUrl.search}\`${body ? ` body \`${clean(shownBody).slice(0, 200)}\`` : ''}${copies > 1 ? ` ×${copies} at once` : ''} → **${copies > 1 ? all.map((x) => x.status).join(', ') : r.status}**${exp ? (!statusOk ? ` ✖ expected ${exp.join('/')}` : ok ? ' ✔' : ' ✔ status (✖ below)') : ''} (${r.ms} ms)`);
     // "show": the fields that matter as evidence (dotted paths; "data.length" counts arrays) — large bodies get truncated otherwise.
     // A redirect is its Location header: always show it (or its absence). "header:<name>" in show reads any header.
-    if (r.status >= 300 && r.status < 400) lines.push(`   \`Location\` = \`${r.headers.location ?? '(none)'}\``);
+    if (r.status >= 300 && r.status < 400) lines.push(`   \`Location\` = \`${d.headers.location ?? '(none)'}\``);
     if (s.show?.length) lines.push(`   ${s.show.map((f) => {
       const [field, how] = f.split('|');
-      if (field.startsWith('header:')) return `\`${f}\` = \`${JSON.stringify(redactHeaders({ [field.slice(7)]: r.headers[field.slice(7).toLowerCase()] ?? '(none)' })[field.slice(7)])}\``;
-      const v = field.endsWith('.length') ? (dig(r.json, field.slice(0, -7)) as unknown[] | undefined)?.length : decode(dig(r.json, field), how);
-      return `\`${f}\` = \`${JSON.stringify(redact(v))}\``;
+      if (field.startsWith('header:')) return `\`${f}\` = \`${JSON.stringify(redactHeaders({ [field.slice(7)]: d.headers[field.slice(7).toLowerCase()] ?? '(none)' })[field.slice(7)])}\``;
+      if (field.endsWith('.length')) return `\`${f}\` = \`${JSON.stringify((dig(d.json, field.slice(0, -7)) as unknown[] | undefined)?.length)}\``;
+      const raw = dig(d.json, field);
+      // A value already taken out has nothing left to decode, and a token's signature is what would rebuild it.
+      const decoded = raw === '***redacted***' ? raw : decode(raw, how);
+      const v = how === 'jwt' && decoded && typeof decoded === 'object' ? { ...decoded, signature: '***redacted***' } : decoded;
+      return `\`${f}\` = \`${JSON.stringify(redactField(field, v))}\``;
     }).join(' · ')}`);
     else lines.push(`   \`${resp.replace(/\s+/g, ' ').slice(0, chainBodyLimit).replace(/`/g, "'")}\``);
-    lines.push(...otherAnswers(all, chainBodyLimit));
+    lines.push(...otherAnswers(shown, chainBodyLimit));
     if (checks.length) lines.push(`   ${checks.join(' · ')}`);
   }
   // What the chain saved (ids it made), for a later chain or walk (--vars-from); a token or other secret is not kept,
   // and the report says which, as a later step that needs one would otherwise only find it has no value.
-  const secretLooking = Object.keys(fieldOf).filter((k) => looksSecret(k, vars[k], fieldOf[k]));
-  const saved = Object.fromEntries(Object.entries(vars).filter(([k, v]) => k !== 'uid' && !(k in (chain.vars ?? {})) && !looksSecret(k, v, fieldOf[k]) && v.length < 200));
-  if (secretLooking.length) lines.push('', `Not kept for --vars-from, as they look like secrets: ${secretLooking.join(', ')}. A later chain gets them by saving them again.`);
+  const secretValues = Object.values(secrets).flat();
+  // Under another name too, or inside a longer value (an address holding a token): the log keeps none of it.
+  for (const k of Object.keys(fieldOf)) if (scrubValues(vars[k], secretValues) !== vars[k]) notKept.add(k);
+  const saved = Object.fromEntries(Object.entries(vars).filter(([k, v]) => k !== 'uid' && !(k in (chain.vars ?? {})) && !notKept.has(k) && !looksSecret(k, v, fieldOf[k]) && v.length < 200));
+  const notes = [...(notKept.size ? [`Not kept for --vars-from, as they look like secrets: ${[...notKept].join(', ')}. A later chain gets them by saving them again.`] : []), ...scrubNotes(secrets)];
+  if (notes.length) lines.push('', ...notes);
   lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**`
     : chain.steps.some((s) => s.expect !== undefined || s.expectBody || s.notContains?.length) ? 'All expectations held.' : 'No expectation was declared: the statuses and bodies above are what the application answered, not a pass.', '');
-  const out = scrubEnv(lines.join('\n'), fs.readFileSync(file, 'utf8'));
-  // The digest: each call and its status, and whether the expectations held.
-  const digest = [...out.split('\n').filter((l) => /^\d+\. /.test(l)).map((l) => l.slice(0, 240)).slice(0, 40), ...(failed ? [`${failed} step(s) did not meet their expectation`] : [])];
+  // Once more over all of it: a step before the one that saved a value may have shown it.
+  const out = scrubEnv(clean(lines.join('\n')), fs.readFileSync(file, 'utf8'));
+  // The digest: each call and its status, whether the expectations held, and what was taken out, which a reader of it
+  // must know to read a `***redacted***` there.
+  const digest = [...out.split('\n').filter((l) => /^\d+\. /.test(l)).map((l) => l.slice(0, 240)).slice(0, 40), ...notes, ...(failed ? [`${failed} step(s) did not meet their expectation`] : [])];
   return { report: out, digest, chain, saved };
 }
 
@@ -288,13 +319,13 @@ export async function listView(flags: Args['flags'], first: unknown, fetchPage: 
   if (!items) {
     // An answer that is no list: --pick reads the body itself.
     if (wheres.length || flags.count) lines.push('the answer holds no list: --where and --count need one');
-    lines.push(...picks.map((p) => `${p} = ${JSON.stringify(redact(dig(first, p)))}`));
+    lines.push(...picks.map((p) => `${p} = ${JSON.stringify(redactField(p, dig(first, p)))}`));
     return lines;
   }
   const textOfField = (v: unknown) => (v !== null && typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''));
   const kept = items.filter((x) => wheres.every((w) => w.re.test(textOfField(dig(x, w.field)))));
   if (flags.count || wheres.length) lines.push(`count${wheres.length ? ` where ${wheres.map((w) => w.text).join(' and ')}` : ''}: ${kept.length} of ${items.length}`);
-  if (picks.length) for (const [i, x] of kept.slice(0, 200).entries()) lines.push(`${i + 1}. ${picks.map((p) => `${p} = ${JSON.stringify(redact(dig(x, p)))}`).join(' · ')}`);
+  if (picks.length) for (const [i, x] of kept.slice(0, 200).entries()) lines.push(`${i + 1}. ${picks.map((p) => `${p} = ${JSON.stringify(redactField(p, dig(x, p)))}`).join(' · ')}`);
   if (picks.length && kept.length > 200) lines.push(`… ${kept.length - 200} more`);
   return lines;
 }

@@ -53,12 +53,12 @@ import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, resolveUrl as autUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { pageText, redact, redactSnapshot, shapeOf } from '../core/redact';
+import { pageText, redact, redactSnapshot, scrubNotes, scrubValues, shapeOf } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { generatedId, siteOf } from './detect';
 import { composeSteps, walkInput, walkVars } from './compose';
 import { closeOverlays, locateOn } from './page';
-import { deliverProbe, looksSecret, requireFrozen, tableRows } from '../core/probe-log';
+import { deliverProbe, looksSecret, requireFrozen, scrubsFromReport, tableRows } from '../core/probe-log';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -271,6 +271,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   await closeOverlays(page, cfg.aut.overlays);
   const out: string[] = [];
   const saved: Record<string, string> = {};
+  const savedSecrets: Record<string, string[]> = {};
   try {
     // Until the page's own calls have settled (none in flight and none started for a moment; ≤10 s).
     const quiet = async () => { for (const until = Date.now() + 10_000; Date.now() < until && (inFlight > 0 || Date.now() - lastActivity < 700);) await page.waitForTimeout(100); };
@@ -335,7 +336,10 @@ export async function run({ flags, argv }: Args): Promise<void> {
       const value = answer && s.field.split('.').reduce<unknown>((v, k) => (v && typeof v === 'object' ? (v as Record<string, unknown>)[k] : undefined), answer.json);
       if (value === undefined || (value !== null && typeof value === 'object')) missed.push(`- ✖ ${s.text}: ${answer ? `no value at "${s.field}" in the answer` : `the page made no ${s.method} …${s.path} call with a JSON answer`}`);
       // As a chain's saved values: what is kept goes in the log and on to later walks.
-      else if (looksSecret(s.name, String(value), s.field)) missed.push(`- ✖ ${s.text}: looks like a secret, so it isn't kept`);
+      else if (looksSecret(s.name, String(value), s.field)) {
+        if (scrubsFromReport(s.name, String(value), s.field)) (savedSecrets[s.name] ??= []).push(String(value));
+        missed.push(`- ✖ ${s.text}: looks like a secret, so it isn't kept`);
+      }
       else saved[s.name] = String(value);
     }
     if (saves.length) out.push('## Saved (for --vars-from)', '', ...Object.entries(saved).map(([k, v]) => `- ${k} = \`${v}\``), ...missed, '');
@@ -489,10 +493,16 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const used = JSON.stringify([steps, argv]);
   const secrets = [...new Set([...[...used.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
     ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
-  const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), out.join('\n'));
+  // A secret --save found isn't kept in the report either, or in a saved value that holds it: a page's answer or a step
+  // may show it. Its value is known only now, so what was clipped before can leave its first part (spec 014's Assumptions).
+  const found = Object.values(savedSecrets).flat();
+  const holding = Object.keys(saved).filter((k) => scrubValues(saved[k], found) !== saved[k]);
+  for (const k of holding) delete saved[k];
+  const notes = [...(holding.length ? [`Not kept for --vars-from, as they hold a secret: ${holding.join(', ')}.`] : []), ...scrubNotes(savedSecrets)];
+  const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), scrubValues([...out, ...(notes.length ? ['', ...notes] : [])].join('\n'), found));
   deliverProbe(cfg, flagStr(flags, 'key'), {
     tool: 'inspect', tier: 3, report,
     input: walkInput({ url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for'), ...(Object.keys(saved).length ? { saved } : {}) }, given),
-    digest: [...tableRows(report, ['Setup steps', 'Locator probes', 'API calls the page made']), ...(Object.keys(saved).length ? [`saved: ${Object.entries(saved).map(([k, v]) => `${k}=${v}`).join(', ')}`] : [])],
+    digest: [...tableRows(report, ['Setup steps', 'Locator probes', 'API calls the page made']), ...(Object.keys(saved).length ? [`saved: ${Object.entries(saved).map(([k, v]) => `${k}=${v}`).join(', ')}`] : []), ...notes],
   });
 }

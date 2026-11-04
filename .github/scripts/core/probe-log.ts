@@ -13,6 +13,7 @@ import { readJson, rel, writeFile } from './files';
 import { recordEvent } from './history';
 import { decisionsFor, evalPaths, evalRunsOf, listRuns, phaseDirs, runFile, type ProbingPhase, type StoryPaths } from './paths';
 import type { HeldoutConfig } from './profile';
+import { isSecretField } from './redact';
 
 export interface ProbeEntry {
   id: string;
@@ -44,6 +45,18 @@ const MAP_ENTRY = /\bM[0-9a-f]{6}\b/;
  */
 export const looksSecret = (name: string, value: string, field = '') => !value.startsWith('${')
   && (/token|secret|pass|pwd|key|auth|cookie|sess|jwt|bearer|credential/i.test(`${name} ${field}`) || /^eyJ[\w-]{10,}\./.test(value));
+
+/**
+ * Whether a saved value is also taken out of the report. Leaving one out of the log costs little, but replacing it
+ * rewrites the evidence everywhere it appears, so this asks more: a field that holds a secret by name, or a value of a
+ * secret's shape under a name the wide check knows. `author` = `Jane Doe`, `issueKey` = `ABC-123`, `tokenExpires` = a
+ * date, `authorUrl` = an address and `authorId` = a UUID stay in the report; `apiKey` = a UUID doesn't.
+ */
+export const scrubsFromReport = (name: string, value: string, field = '') => !value.startsWith('${')
+  && !/^\d{4}-\d{2}-\d{2}([T ][\d:.]+(Z|[+-][\d:]+)?)?$/.test(value)
+  && (isSecretField(name) || isSecretField(field) || /^eyJ[\w-]{10,}\./.test(value)
+    || (looksSecret(name, value, field) && value.length >= 16 && !/\s/.test(value) && /\d/.test(value) && /[a-z]/i.test(value)
+      && !/^https?:\/\//i.test(value) && !/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(value)));
 const TRIMMED = (id: string) => `${id} was trimmed to its digest when the story's record was tidied for the verdict (nothing cited it): probe again`;
 
 function readLog(file: string): ProbeEntry[] {

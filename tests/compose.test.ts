@@ -86,7 +86,7 @@ describe('composed steps', () => {
   it('logs a --var as given, and inspect --save keeps no value that looks like a secret', () => {
     assert.deepEqual(walkInput({ steps: [] }, { keyword: 'shoes', author: 'a' }).vars, { keyword: 'shoes', author: 'a' });
     const src = fs.readFileSync(path.join(import.meta.dirname, '..', '.github', 'scripts', 'probe', 'inspect.ts'), 'utf8');
-    assert.match(src, /else if \(looksSecret\(s\.name, String\(value\), s\.field\)\) missed\.push/);
+    assert.match(src, /else if \(looksSecret\(s\.name, String\(value\), s\.field\)\) \{\s+if \(scrubsFromReport/);
   });
 
   it('starts a walk --from Pn with the --var values Pn was given, its own --var winning', () => {

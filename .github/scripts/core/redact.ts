@@ -6,7 +6,9 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { readZip, scrubZip } from './zip';
-const SECRET_KEY = /pass(word)?|token|secret|api[-_]?key|authorization|cookie|session/i;
+// It reads every report's evidence, so it names what holds a secret, not what merely speaks of one: `author`, `authorized`,
+// `authenticated`, `authType`, `assessment`, `passenger`, `credentialType` and a bare `key` (an issue's, a map's) stay readable.
+const SECRET_KEY = /(?<!com|by)pass(?!enger|port|ed\b|es\b|age|ive|ion)|token|secret|(?:api|access|private|signing|auth)[-_]?key|oauth|auth$|auth[-_]?code|authori[sz]ation|cookie|sess(?:ion|id|key)|(?:^|[-_.])sess(?:[-_]|$)|jwt|pwd|bearer|credentials?$/i;
 // Header NAMES that carry credentials (incl. misspellings like "Authorisation") and VALUES that look like credentials.
 const SECRET_HEADER = /auth|cookie|token|secret|api[-_]?key|session|password|credential/i;
 const SECRET_VALUE = /^\s*(basic|bearer|digest|token)\s+\S+/i;
@@ -31,14 +33,27 @@ export function redact(value: unknown, opts: RedactOptions = {}, depth = 0): unk
   if (typeof value === 'object' && typeof toJSON === 'function' && !(value instanceof Date)) return redact(toJSON.call(value), opts, depth + 1);
   if (Array.isArray(value)) return value.map((v) => redact(v, opts, depth + 1));
   if (typeof value === 'object') {
-    const hide = (k: string, v: unknown) => SECRET_KEY.test(k) && typeof v !== 'object' && !opts.keep?.has(v)
+    // A yes or no is no secret, and often the evidence itself.
+    const hide = (k: string, v: unknown) => SECRET_KEY.test(k) && typeof v !== 'object' && typeof v !== 'boolean' && !opts.keep?.has(v)
       && !(opts.testValues && typeof v === 'string' && v.length < 8);
     // In a test's requests, two different hidden values stay told apart (the right password and a wrong one): a tag
     // from a keyed hash whose key lives only in this process, so it says "same" or "different" and nothing else.
+    const hidden = (v: unknown) => (opts.testValues ? `***redacted:${tagOf(String(v))}***` : '***redacted***');
     return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .map(([k, v]) => [k, hide(k, v) ? (opts.testValues ? `***redacted:${tagOf(String(v))}***` : '***redacted***') : redact(v, opts, depth + 1)]));
+      // A list under a secret's name holds secrets (`tokens`, `cookies`, what `data.*.token` reads).
+      .map(([k, v]) => [k, Array.isArray(v) && SECRET_KEY.test(k) ? v.map((x) => (hide(k, x) ? hidden(x) : redact(x, opts, depth + 1))) : hide(k, v) ? hidden(v) : redact(v, opts, depth + 1)]));
   }
   return value;
+}
+
+/** Whether a field by this name holds a secret, by any segment of a dotted path. */
+export const isSecretField = (path: string) => path.split('.').some((k) => SECRET_KEY.test(k));
+
+/** A value read from a field by its path (`data.password`): redacted as it would be inside its object. */
+export function redactField(dotted: string, value: unknown): unknown {
+  // The field's own name, not a list's index or `*` after it (`tokens.0`).
+  const name = dotted.split('.').filter((k) => k !== '*' && !/^-?\d+$/.test(k)).at(-1) ?? dotted;
+  return (redact({ [name]: value }) as Record<string, unknown>)[name];
 }
 
 /** The literal values a request written by the evaluator contains (not ${env:…}/${vault:…} references): test values such
@@ -95,6 +110,34 @@ export function pageText(body: string): string {
  * (password textboxes, secret JSON keys, credential headers) still covers them.
  */
 export const safeToScrub = (v: string) => v.length >= 6 && !/^[A-Za-z]+$/.test(v) && !/^\d+$/.test(v);
+
+/** Whether replacing a value leaves the evidence whole: what is short or a plain word stays, unless it is long. */
+export const scrubbable = (v: string) => safeToScrub(v) || v.length >= 16;
+
+/** Every form a value takes on the way into a report: in an address, a form body, a JSON string, a table cell. */
+function formsOf(v: string): string[] {
+  const encoded = encodeURIComponent(v);
+  return [v, encoded, encoded.replace(/%[0-9A-F]{2}/g, (h) => h.toLowerCase()), encodeURI(v), new URLSearchParams({ x: v }).toString().slice(2),
+    JSON.stringify(v).slice(1, -1), v.replace(/&/g, '&amp;'), v.replace(/\|/g, '\\|'), v.replace(/\|/g, '/'), v.replace(/`/g, "'"), v.replace(/\s+/g, ' ')];
+}
+
+/**
+ * Takes values out of a text, each in every form, the longest first: one that starts another must not leave its rest.
+ * A form is replaced only if it would be as a value of its own, so none can rewrite ordinary text.
+ */
+export function scrubValues(text: string, values: string[]): string {
+  const forms = [...new Set(values.filter(scrubbable).flatMap(formsOf))].filter(scrubbable).sort((a, b) => b.length - a.length);
+  return forms.reduce((acc, v) => acc.split(v).join('***redacted***'), text);
+}
+
+/** What a report says of the saved values it took out, by name only, and of those it couldn't. */
+export function scrubNotes(saved: Record<string, string[]>): string[] {
+  const names = Object.keys(saved);
+  const taken = names.filter((k) => saved[k].some(scrubbable));
+  const left = names.filter((k) => saved[k].some((v) => !scrubbable(v)));
+  return [...(taken.length ? [`Taken out of this report wherever they appeared, as they look like secrets: ${taken.join(', ')}.`] : []),
+    ...(left.length ? [`Too short or plain to take out of this report: ${left.join(', ')}.`] : [])];
+}
 
 /**
  * Secret values to scrub: ONLY the env vars this story's test-data.json references (${env:NAME}) plus explicit
