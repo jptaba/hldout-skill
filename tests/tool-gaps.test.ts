@@ -12,6 +12,7 @@ import { after, describe, it } from 'node:test';
 import { literalOpenAfter, specOutline } from '../.github/scripts/authoring/spec-model';
 import { strongSecret } from '../.github/scripts/core/redact';
 import { otherAnswers } from '../.github/scripts/probe/api-probe';
+import { unfilledVar } from '../.github/scripts/probe/inspect';
 
 const DISPATCHER = path.join(import.meta.dirname, '..', '.github', 'scripts', 'heldout.ts');
 const TSX = path.join(import.meta.dirname, '..', 'node_modules', 'tsx', 'dist', 'cli.mjs');
@@ -91,7 +92,9 @@ describe('what an api-probe chain saves', () => {
       const code = await new Promise<number | null>((resolve) => { spawn(process.execPath, [TSX, DISPATCHER, 'api-probe', '--key', 'ABC-1', '--chain', 'c.chain.json'], { cwd: dir, stdio: 'ignore', env: { ...process.env, npm_lifecycle_event: '' } }).on('close', resolve); });
       assert.equal(code, 0);
       const log = fs.readFileSync(path.join(story, '4-hardening', 'probes.jsonl'), 'utf8');
-      assert.deepEqual((JSON.parse(log) as { input: { saved: unknown } }).input.saved, { order: '7' });
+      const entry = JSON.parse(log) as { input: { saved: unknown }; report: string };
+      assert.deepEqual(entry.input.saved, { order: '7' });
+      assert.match(fs.readFileSync(path.join(dir, entry.report), 'utf8'), /Not kept for --vars-from, as they look like secrets: tok, sessionid\./);
     } finally { server.close(); }
   });
 });
@@ -146,6 +149,15 @@ describe('the outline of a spec', () => {
     assert.equal(literalOpenAfter("const a = 'it`s';", false), false);
     assert.equal(literalOpenAfter('go(); // a ` here', false), false);
     assert.equal(literalOpenAfter('still \\` inside', true), true);
+  });
+});
+
+describe('inspect\'s steps', () => {
+  it('finds a value nobody gave, which a step refuses rather than types into the page', () => {
+    assert.equal(unfilledVar('hello ${var:name} and ${var:other}'), 'name');
+    assert.equal(unfilledVar('hello ${env:NAME}'), undefined);
+    assert.equal(unfilledVar('hello'), undefined);
+    assert.match(fs.readFileSync(path.join(import.meta.dirname, '..', '.github', 'scripts', 'probe', 'inspect.ts'), 'utf8'), /const left = unfilledVar\(filled\);\s+if \(left\) throw/);
   });
 });
 

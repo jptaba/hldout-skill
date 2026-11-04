@@ -70,9 +70,18 @@ interface Candidate {
 
 const vars: Record<string, string> = {};
 /** ${env:NAME} (.env or the environment) and ${vault:path#field} (secrets), ${var:name} from --var name=value (per-run data such as a user created a moment ago). */
-const env = (s = '') => fillVars(expandSecrets(s));
+const env = (s = '') => {
+  const filled = fillVars(expandSecrets(s));
+  // Typed into a page as it stands, it would make the walk's evidence wrong without a word.
+  const left = unfilledVar(filled);
+  if (left) throw new Error(`\${var:${left}} has no value: give it with --var or --vars-from (a value that looks like a secret isn't kept)`);
+  return filled;
+};
 /** Per-run values filled in, secret references left as references. */
 const fillVars = (s: string) => s.replace(/\$\{var:(\w+)\}/g, (m, n: string) => vars[n] ?? m);
+
+/** The first `${var:name}` a text still holds. */
+export const unfilledVar = (s: string) => /\$\{var:(\w+)\}/.exec(s)?.[1];
 
 /** A step's target as the step table shows it. */
 const labelOf = (s: Step) => fillVars(s.target ?? s.url ?? '');

@@ -131,7 +131,7 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
   const typed: Record<string, unknown> = {};
   // The answer's field each value came from: `tok` saved from `token` is a token all the same.
   const fieldOf: Record<string, string> = {};
-  const whole =(s: string) => s.match(/^\$\{([A-Za-z_][\w]*)\}$/)?.[1];
+  const whole = (s: string) => s.match(/^\$\{([A-Za-z_][\w]*)\}$/)?.[1];
   const deep = (v: unknown): unknown => (typeof v === 'string' ? (whole(v) !== undefined && typed[whole(v)!] !== undefined ? typed[whole(v)!] : interp(v))
     : Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : v);
   for (const [k, v] of Object.entries(chain.vars ?? {})) { if (typeof v === 'string') vars[k] = interp(v); else { vars[k] = String(v); typed[k] = v; } }
@@ -203,13 +203,16 @@ async function runChain(file: string, label: string, base: string, cfgName: stri
     lines.push(...otherAnswers(all, chainBodyLimit));
     if (checks.length) lines.push(`   ${checks.join(' · ')}`);
   }
+  // What the chain saved (ids it made), for a later chain or walk (--vars-from); a token or other secret is not kept,
+  // and the report says which, as a later step that needs one would otherwise only find it has no value.
+  const secretLooking = Object.keys(fieldOf).filter((k) => looksSecret(k, vars[k], fieldOf[k]));
+  const saved = Object.fromEntries(Object.entries(vars).filter(([k, v]) => k !== 'uid' && !(k in (chain.vars ?? {})) && !looksSecret(k, v, fieldOf[k]) && v.length < 200));
+  if (secretLooking.length) lines.push('', `Not kept for --vars-from, as they look like secrets: ${secretLooking.join(', ')}. A later chain gets them by saving them again.`);
   lines.push('', failed ? `**${failed} step(s) did not meet their expectation (status, expectBody or notContains).**`
     : chain.steps.some((s) => s.expect !== undefined || s.expectBody || s.notContains?.length) ? 'All expectations held.' : 'No expectation was declared: the statuses and bodies above are what the application answered, not a pass.', '');
   const out = scrubEnv(lines.join('\n'), fs.readFileSync(file, 'utf8'));
   // The digest: each call and its status, and whether the expectations held.
   const digest = [...out.split('\n').filter((l) => /^\d+\. /.test(l)).map((l) => l.slice(0, 240)).slice(0, 40), ...(failed ? [`${failed} step(s) did not meet their expectation`] : [])];
-  // What the chain saved (ids it made), for a later chain or walk (--vars-from); a token or other secret is not kept.
-  const saved = Object.fromEntries(Object.entries(vars).filter(([k, v]) => k !== 'uid' && !(k in (chain.vars ?? {})) && !looksSecret(k, v, fieldOf[k]) && v.length < 200));
   return { report: out, digest, chain, saved };
 }
 
