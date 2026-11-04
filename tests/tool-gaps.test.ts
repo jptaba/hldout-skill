@@ -1,12 +1,16 @@
 /**
  * Small tool gaps agents worked around in rounds (specs/011-round-44-gaps).
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
+import { literalOpenAfter, specOutline } from '../.github/scripts/authoring/spec-model';
+import { strongSecret } from '../.github/scripts/core/redact';
 import { otherAnswers } from '../.github/scripts/probe/api-probe';
 
 const DISPATCHER = path.join(import.meta.dirname, '..', '.github', 'scripts', 'heldout.ts');
@@ -69,6 +73,79 @@ describe('contract --resolve-from', () => {
     resolve([{ id: 'G1', value: 'a', evidence: 'P1' }, { id: 'G2', value: 'b', evidence: 'P1 and more' }]);
     assert.ok(fs.existsSync(kept));
     assert.deepEqual(contract().gaps.map((g) => g.resolution), ['discovered-in-aut', 'discovered-in-aut']);
+  });
+});
+
+describe('what an api-probe chain saves', () => {
+  it('logs neither a secret\'s name nor a harmless name on a secret\'s field', async () => {
+    const dir = fs.mkdtempSync(path.join(root, 'chain-'));
+    const server = http.createServer((_req, res) => { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ id: 7, token: strongSecret(), sessionid: strongSecret() })); });
+    await new Promise<void>((resolve) => { server.listen(0, '127.0.0.1', resolve); });
+    try {
+      const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
+      fs.writeFileSync(path.join(dir, 'heldout.config.json'), JSON.stringify({ defaultAut: 'shop', auts: { shop: { name: 'Shop', baseURL: base } } }));
+      const story = path.join(dir, 'output', 'shop', 'ABC-1');
+      fs.mkdirSync(path.join(story, '3-tests'), { recursive: true });
+      fs.writeFileSync(path.join(story, '3-tests', 'freeze.json'), '{"frozenAt":"2026-11-04"}');
+      fs.writeFileSync(path.join(dir, 'c.chain.json'), JSON.stringify({ steps: [{ method: 'GET', path: 'x', save: { order: 'id', tok: 'token', sessionid: 'sessionid' } }] }));
+      const code = await new Promise<number | null>((resolve) => { spawn(process.execPath, [TSX, DISPATCHER, 'api-probe', '--key', 'ABC-1', '--chain', 'c.chain.json'], { cwd: dir, stdio: 'ignore', env: { ...process.env, npm_lifecycle_event: '' } }).on('close', resolve); });
+      assert.equal(code, 0);
+      const log = fs.readFileSync(path.join(story, '4-hardening', 'probes.jsonl'), 'utf8');
+      assert.deepEqual((JSON.parse(log) as { input: { saved: unknown } }).input.saved, { order: '7' });
+    } finally { server.close(); }
+  });
+});
+
+describe('the outline of a spec', () => {
+  const outlineOf = (src: string) => { const f = path.join(root, 'outline.spec.ts'); fs.writeFileSync(f, src); return specOutline(f); };
+  it('isn\'t misled by a backtick in a string or a comment', () => {
+    const { tests } = outlineOf([
+      "test('SCN-001: one', async () => {",
+      '  const a = "it`s"; // and a ` here',
+      '  await go(a);',
+      '});',
+      '',
+      "test('SCN-002: two', async () => {",
+      '  await go(`b`);',
+      '});',
+    ].join('\n'));
+    assert.deepEqual(tests.map((t) => [t.name, t.from, t.to]), [['SCN-001', 1, 4], ['SCN-002', 6, 8]]);
+  });
+  it('gives a top-level declaration holding a multi-line literal all its lines, at any indent', () => {
+    const { declarations, tests } = outlineOf(['const TEXT = `first', 'second at the margin', '}', 'last`;', 'const OTHER = 1;', '', "test('SCN-001: one', async () => {", '  await go();', '});'].join('\n'));
+    assert.deepEqual(declarations.map((d) => [d.name, d.from, d.to]), [['TEXT', 1, 4], ['OTHER', 5, 5]]);
+    assert.deepEqual(tests.map((t) => [t.from, t.to]), [[7, 9]]);
+  });
+  it('still follows a call whose literal is one of its arguments', () => {
+    const { declarations } = outlineOf(['const R = make(`a', 'b`, {', '  c: 1,', '});', 'const S = 2;'].join('\n'));
+    assert.deepEqual(declarations.map((d) => [d.name, d.from, d.to]), [['R', 1, 4], ['S', 5, 5]]);
+  });
+  it('reads a bracket at the end of a literal\'s line as its text', () => {
+    const { declarations } = outlineOf(['const BODY = `{', '  "a": 1', '}`;', 'const S = 2;'].join('\n'));
+    assert.deepEqual(declarations.map((d) => [d.name, d.from, d.to]), [['BODY', 1, 3], ['S', 4, 4]]);
+  });
+  it('isn\'t misled by a backtick in a block comment, on one line or several', () => {
+    const { tests } = outlineOf([
+      "test('SCN-001: one', async () => {",
+      '  /* a ` tick */',
+      '  /**',
+      '   * another ` tick',
+      '   */',
+      '  await go();',
+      '});',
+    ].join('\n'));
+    assert.deepEqual(tests.map((t) => [t.from, t.to]), [[1, 7]]);
+  });
+  it('doesn\'t end a bracket early at a literal inside it', () => {
+    const { declarations } = outlineOf(['const R = {', '  a: `x', '  y`', '};', 'const S = 2;'].join('\n'));
+    assert.deepEqual(declarations.map((d) => [d.name, d.from, d.to]), [['R', 1, 4], ['S', 5, 5]]);
+  });
+  it('tells where a literal is open', () => {
+    assert.equal(literalOpenAfter('const a = `x', false), true);
+    assert.equal(literalOpenAfter('x` + `y`', true), false);
+    assert.equal(literalOpenAfter("const a = 'it`s';", false), false);
+    assert.equal(literalOpenAfter('go(); // a ` here', false), false);
+    assert.equal(literalOpenAfter('still \\` inside', true), true);
   });
 });
 

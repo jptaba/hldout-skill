@@ -282,6 +282,9 @@ lists them, the ones the story concerns first, with what each calls, what must r
   Never `waitForTimeout`.
 - Independent, parallel-safe tests. Each builds its own data (`unique()`).
 - Assert at the precision the requirement states, nothing more. Extra assertions create false defects.
+- A date compared with today takes today in the test's time zone or in UTC, unless the requirement names a zone: the two
+  differ for hours each day, and that isn't what the test is about. Where the requirement states the date, two places that
+  show it are compared with each other.
 - `test.only`, `test.fixme` and `.skip` are forbidden (lint error). An unimplemented feature is a failing test, not a
   skipped one.
 - **Native dialogs** (`alert`, `confirm`, `prompt`): the action that opens one does not return while it is open.

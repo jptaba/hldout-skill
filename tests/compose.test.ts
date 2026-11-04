@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { deliverProbe } from '../.github/scripts/core/probe-log';
+import { deliverProbe, looksSecret } from '../.github/scripts/core/probe-log';
 import type { AccountRecipe, HeldoutConfig } from '../.github/scripts/core/profile';
 import { expandGenerated, textOf } from '../.github/scripts/core/secrets';
 import { listView } from '../.github/scripts/probe/api-probe';
@@ -65,6 +65,28 @@ describe('composed steps', () => {
     quietly(() => deliverProbe(cfg, 'ABC-1', { tool: 'inspect', tier: 2, input: { url: '/admin', steps: [{ do: 'click', target: 'a' }, { do: 'click', target: 'b' }] }, report: '# walk', digest: [] }));
     assert.deepEqual(composeSteps(cfg, { key: 'ABC-1', from: 'P2:1' }), [{ do: 'goto', url: '/admin' }, { do: 'click', target: 'a' }]);
     assert.throws(() => composeSteps(cfg, { key: 'ABC-1', from: 'P7' }), /P7 is not a walk/);
+  });
+
+  it('takes what a chain saved over the walk it starts from, and its own --var over both, all kept for the next walk', () => {
+    const deliver = (input: unknown) => quietly(() => deliverProbe(cfg, 'ABC-7', { tool: 'api-probe', tier: 3, input, report: '# P', digest: [] }))!.id;
+    const walk = deliver({ steps: [], vars: { user: 'hldout-a', id: '1' } });
+    const chain = deliver({ chain: {}, saved: { id: '7', order: '9' } });
+    assert.deepEqual(walkVars(cfg, { key: 'ABC-7', from: walk, 'vars-from': chain, var: ['order=1'] }), { user: 'hldout-a', id: '7', order: '1' });
+    assert.throws(() => walkVars(cfg, { 'vars-from': chain }), /give the story with --key/);
+  });
+
+  it('tells a saved value that looks like a secret, by name or by what it is, from an ordinary one', () => {
+    for (const name of ['authToken', 'accesstoken', 'sessionId', 'session_id', 'pwd', 'password', 'apiKey', 'api-key', 'pass', 'jwt', 'clientSecret', 'authorization', 'JSESSIONID', 'PHPSESSID', 'oauth2', 'passphrase', 'privatekey']) assert.equal(looksSecret(name, 'abc'), true, name);
+    for (const name of ['id', 'orderId', 'customer', 'total', 'bookingId']) assert.equal(looksSecret(name, 'abc'), false, name);
+    assert.equal(looksSecret('answer', 'eyJhbGciOiJIUzI1.x.y'), true, 'a token under any name');
+    assert.equal(looksSecret('tok', 'opaque', 'data.token'), true, 'by the field it came from');
+    assert.equal(looksSecret('password', '${env:PW}'), false, 'a reference is no secret');
+  });
+
+  it('logs a --var as given, and inspect --save keeps no value that looks like a secret', () => {
+    assert.deepEqual(walkInput({ steps: [] }, { keyword: 'shoes', author: 'a' }).vars, { keyword: 'shoes', author: 'a' });
+    const src = fs.readFileSync(path.join(import.meta.dirname, '..', '.github', 'scripts', 'probe', 'inspect.ts'), 'utf8');
+    assert.match(src, /else if \(looksSecret\(s\.name, String\(value\), s\.field\)\) missed\.push/);
   });
 
   it('starts a walk --from Pn with the --var values Pn was given, its own --var winning', () => {

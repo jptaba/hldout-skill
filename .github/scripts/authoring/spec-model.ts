@@ -227,20 +227,49 @@ const indentOf = (line: string) => line.length - line.trimStart().length;
 /** A line that leaves a bracket or a list of arguments open: a closing line ends what it starts. */
 const leftOpen = (line: string) => /[{[(,]$/.test(line.replace(/\s*\/\/[^'"`]*$/, '').trimEnd());
 
+/**
+ * Whether a template literal is open after this line, given whether one was before it. A backtick in a string or a
+ * comment says nothing, nor does one on a line of a block comment (which starts with its `*`). A regex holding a quote
+ * hides the rest of its line, as a line this reads no further.
+ */
+export function literalOpenAfter(line: string, open: boolean): boolean {
+  let quote = open ? '`' : '';
+  const inBlock = !open && /^\s*\*/.test(line);
+  const closes = line.indexOf('*/');
+  if (inBlock && closes === -1) return false;
+  for (let i = inBlock ? closes + 2 : 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '\\') { i++; continue; }
+    if (quote) { if (c === quote) quote = ''; continue; }
+    if (c === '/' && line[i + 1] === '/') break;
+    if (c === '/' && line[i + 1] === '*') {
+      const end = line.indexOf('*/', i + 2);
+      if (end === -1) break;
+      i = end + 1;
+      continue;
+    }
+    if (c === '\'' || c === '"' || c === '`') quote = c;
+  }
+  return quote === '`';
+}
+
 /** The last line (0-based) of the statement that starts at this line, by the closing line at its own indent. */
 function statementEnd(lines: string[], at: number): number {
-  if (!leftOpen(lines[at])) {
+  const opensLiteral = literalOpenAfter(lines[at], false);
+  // A bracket at the end of a line that ends inside a literal is the literal's text.
+  if (!opensLiteral && !leftOpen(lines[at])) {
     // Not left open, but it may go on on the lines indented below it (a sum, a chained call).
     let end = at;
     while (lines[end + 1]?.trim() && indentOf(lines[end + 1]) > indentOf(lines[at])) end++;
     return end;
   }
   // A template literal's lines and a comment may sit at any indent: only a closing line, outside a literal, says anything.
-  const ticks = (line: string) => (line.match(/(?<!\\)`/g) ?? []).length;
-  let inLiteral = ticks(lines[at]) % 2 === 1;
+  let inLiteral = opensLiteral;
   for (let i = at + 1; i < lines.length; i++) {
     const wasInLiteral = inLiteral;
-    if (ticks(lines[i]) % 2 === 1) inLiteral = !inLiteral;
+    inLiteral = literalOpenAfter(lines[i], inLiteral);
+    // A statement that opens with a literal ends where the literal closes, unless that line leaves something open.
+    if (opensLiteral && wasInLiteral && !inLiteral && !leftOpen(lines[i])) return i;
     if (wasInLiteral || !/^\s*[}\])]/.test(lines[i])) continue;
     if (indentOf(lines[i]) < indentOf(lines[at])) return i - 1;
     if (indentOf(lines[i]) === indentOf(lines[at]) && !leftOpen(lines[i])) return i;

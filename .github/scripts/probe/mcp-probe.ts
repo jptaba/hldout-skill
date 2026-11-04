@@ -10,7 +10,8 @@
  *   written to the scratch area; cite it as Pn. Without --key the report is printed.
  *       [--var name=value]...   per-run data for ${var:name} (e.g. a user created seconds earlier) — shown in the report;
  *                               ${env:NAME} values are secrets and are redacted everywhere in the report. A walk
- *                               --from Pn starts with Pn's values (its steps name them); --var wins over them.
+ *                               --from Pn starts with Pn's values (its steps name them); --vars-from Pn adds what chain
+ *                               Pn saved, over them; --var wins over both.
  *                               A value is logged as given: a secret goes in as ${env:NAME}
  *
  * Step forms (element resolution is by ROLE + ACCESSIBLE NAME from the live MCP snapshot → ref):
@@ -68,13 +69,13 @@ const yamlOf = (text: string) => text.match(/```yaml\r?\n([\s\S]*?)```/)?.[1] ??
 export const spec: CommandSpec = {
   name: 'mcp-probe', group: 'Hardening', usage: '--key KEY --steps steps.json [--var name=value]…   (logged as the story\'s next probe, Pn)',
   about: 'tier 2: drive the Playwright MCP server over stdio',
-  flags: ['aut', 'browser', 'from', 'headed', 'key', 'steps', 'steps-json', 'then', 'var'], words: 0,
+  flags: ['aut', 'browser', 'from', 'headed', 'key', 'steps', 'steps-json', 'then', 'var', 'vars-from'], words: 0,
 };
 
 export async function run({ flags, argv }: Args): Promise<void> {
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
-  Object.assign(vars, walkVars(cfg, flags));
   requireFrozen(cfg, flagStr(flags, 'key'), 'mcp-probe');
+  Object.assign(vars, walkVars(cfg, flags));
   const steps = composeSteps(cfg, flags) as Step[];
   await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);
   // MCP writes large snapshots/screenshots to its output dir — keep that out of the project.

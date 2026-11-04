@@ -12,7 +12,7 @@ Every question a script would answer has an option:
 | A walk as a signed-in user | `inspect --sign-in <role or user name>`: the profile's recorded UI sign-in of an existing account, in front of your steps |
 | An earlier walk again, or its start | `inspect` / `mcp-probe --from P4` (its steps) or `--from P4:5` (its first 5), then `--then '<step>'` (repeatable) or `--steps <file>` (repeatable, in order) |
 | An earlier chain with one value changed | `api-probe --chain P7 --set 2.json.country=AT --set 2.expect=422` (step number, dotted field, a JSON or text value) |
-| The ids an earlier chain or walk made, in a later chain or walk (to check or clean them up) | `api-probe --chain cleanup.json --vars-from P7` (`${name}`), `inspect --vars-from P7` (`${var:name}`): what P7 saved. A walk saves with `inspect --save qid="POST /messages:id"` (a field of the answer the page got) |
+| The ids an earlier chain or walk made, in a later chain or walk (to check or clean them up) | `api-probe --chain cleanup.json --vars-from P7` (`${name}`), `inspect --vars-from P7` or `mcp-probe --vars-from P7` (`${var:name}`): what P7 saved. A walk saves with `inspect --save qid="POST /messages:id"` (a field of the answer the page got) |
 | Every page of a list | `api-probe GET products --pages page` (stops at an empty page or `last_page`) or `--pages page=1..5` |
 | Some items of a list, or how many | `--where 'category.name~^Hand'` (repeatable), `--pick price` (repeatable), `--count` |
 | A text of exact length, or the time | `${text:256}` (starts with the profile's data prefix), `${now}`: in a path, a body or a chain value |
@@ -43,4 +43,5 @@ application that keeps its token in the browser's storage, the call is sent with
 sign-in for those).
 
 Under Git Bash, pass paths without a leading `/` (`--url cart`, `api/room`): MSYS rewrites `/…` arguments into Windows
-paths.
+paths. A regex with a backslash doesn't survive `--then` there: put the step in a `--steps` file, with the backslash
+doubled, as the file is JSON.

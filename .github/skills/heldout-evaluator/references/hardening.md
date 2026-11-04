@@ -138,8 +138,9 @@ fields *are* exposed).
 API: probe each declared endpoint with `heldout api-probe`. Verify the path, the auth mechanism (cookie
 vs header, token field), content type, and the body *shape* (`## Shape`). Fix plumbing only. Status
 codes and values come from the requirement, never from the probe. For a large answer, use
-`api-probe … --body-limit 200000`: the report clips bodies at 4000 characters by default. When the tests create their
-users (a sign-up recipe you have just saved), make the first hardening run with `--workers 1`: some applications refuse
+`api-probe … --body-limit 200000`: the report clips bodies at 4000 characters by default. A journey reads a date in the
+zone the answer gives it in: one that a probe shows is midnight UTC is read in UTC, not the test's zone. When the tests
+create their users (a sign-up recipe you have just saved), make the first hardening run with `--workers 1`: some applications refuse
 sign-ups sent at the same moment, and a run lost to that leaves its records behind all the same. Go to more workers once
 two sign-ups sent together are shown to work.
 

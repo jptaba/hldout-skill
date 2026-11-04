@@ -14,9 +14,9 @@
  *                                 value; the value of a password field or a secret-named one left out)
  *       [--wait-for "<locator>"]   after the steps, wait until an element is in the DOM (SPAs); network idle is always awaited (≤10 s)
  *       [--var name=value]... [--vars-from P7] [--screenshot shot.png] [--headed] [--no-snapshot]
- *       (--vars-from: the values api-probe chain P7 saved, the ids it made, as ${var:name}; --var wins over them. A walk
- *       --from Pn starts with Pn's --var values too, since its steps name them; not with its --vars-from ones: give
- *       --vars-from again. A --var value is logged as given: a secret goes in as ${env:NAME})
+ *       (--vars-from: the values api-probe chain P7 saved, the ids it made, as ${var:name}. A walk --from Pn starts with the
+ *       values Pn had, since its steps name them; --vars-from goes over those and --var over both. A --var value is logged
+ *       as given: a secret goes in as ${env:NAME}. --save keeps no value that looks like a secret)
  *       [--save qid="POST /messages:id"]...   keep a field of the last JSON answer the page got for that call (the id of
  *       what the walk created), logged with the probe for a later walk or chain (--vars-from Pn)
  *   With --key the walk is logged as the story's next probe (P1, P2…: probes.jsonl of the phase it is made in, 4-hardening/ or 6-triage/) and its full report
@@ -58,7 +58,7 @@ import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/
 import { generatedId, siteOf } from './detect';
 import { composeSteps, walkInput, walkVars } from './compose';
 import { closeOverlays, locateOn } from './page';
-import { deliverProbe, requireFrozen, savedOf, tableRows } from '../core/probe-log';
+import { deliverProbe, looksSecret, requireFrozen, tableRows } from '../core/probe-log';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -190,13 +190,7 @@ export const spec: CommandSpec = {
 export async function run({ flags, argv }: Args): Promise<void> {
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
   requireFrozen(cfg, flagStr(flags, 'key'), 'inspect');
-  // The values an earlier chain saved first (--vars-from P7), then --var: the later one wins.
-  const from = flagStr(flags, 'vars-from');
-  if (from) {
-    if (!flagStr(flags, 'key')) throw new Error('--vars-from Pn names a probe of a story: give the story with --key');
-    Object.assign(vars, savedOf(cfg, flagStr(flags, 'key')!, from));
-  }
-  // The walk's own values (--var, over those of the walk it starts from) win over a chain's saved ones.
+  // The walk it starts from, then what a chain saved (--vars-from P7), then --var: the later one wins.
   const given = walkVars(cfg, flags);
   Object.assign(vars, given);
   const testIdAttr = cfg.aut.testIdAttribute ?? 'data-testid';
@@ -331,6 +325,8 @@ export async function run({ flags, argv }: Args): Promise<void> {
       const answer = answers.filter((a) => a.method === s.method && a.path.endsWith(s.path)).at(-1);
       const value = answer && s.field.split('.').reduce<unknown>((v, k) => (v && typeof v === 'object' ? (v as Record<string, unknown>)[k] : undefined), answer.json);
       if (value === undefined || (value !== null && typeof value === 'object')) missed.push(`- ✖ ${s.text}: ${answer ? `no value at "${s.field}" in the answer` : `the page made no ${s.method} …${s.path} call with a JSON answer`}`);
+      // As a chain's saved values: what is kept goes in the log and on to later walks.
+      else if (looksSecret(s.name, String(value), s.field)) missed.push(`- ✖ ${s.text}: looks like a secret, so it isn't kept`);
       else saved[s.name] = String(value);
     }
     if (saves.length) out.push('## Saved (for --vars-from)', '', ...Object.entries(saved).map(([k, v]) => `- ${k} = \`${v}\``), ...missed, '');

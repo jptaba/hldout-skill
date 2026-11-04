@@ -37,6 +37,13 @@ const scratchReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.j
 const keptReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).kept, `${id}.md`);
 export const PROBE_ID = /\bP[1-9]\d*\b/g;
 const MAP_ENTRY = /\bM[0-9a-f]{6}\b/;
+/**
+ * A saved value no log may keep: by the name it is saved under, the field it came from, or what it is. Wide on purpose
+ * (`keyword` and `author` count too): a value wrongly left out is said and can be given again, and one wrongly kept can't
+ * be taken back. A reference to a secret is no secret.
+ */
+export const looksSecret = (name: string, value: string, field = '') => !value.startsWith('${')
+  && (/token|secret|pass|pwd|key|auth|cookie|sess|jwt|bearer|credential/i.test(`${name} ${field}`) || /^eyJ[\w-]{10,}\./.test(value));
 const TRIMMED = (id: string) => `${id} was trimmed to its digest when the story's record was tidied for the verdict (nothing cited it): probe again`;
 
 function readLog(file: string): ProbeEntry[] {
