@@ -45,7 +45,7 @@ Evidence comes from the failure-time ARIA snapshot, the `[REQ …]` assertion me
 | Element not found, target text **present** in the snapshot (other role/name) | SCRIPT_DEFECT |
 | Element not found, text absent | NEEDS_INVESTIGATION |
 | Text assertion on an element with **empty** text | NEEDS_INVESTIGATION (probably the wrong element) |
-| Regex expectation matches once `\b`/anchors are relaxed | SCRIPT_DEFECT (over-strict implementation → amend) |
+| Regex expectation matches once `\b`/anchors are relaxed | SCRIPT_DEFECT (over-strict implementation → the hardener fixes and proposes an amendment) |
 | `[REQ]` failed on a located element / declared endpoint with a different value | APPLICATION_DEFECT (high) |
 
 **A shared public sandbox is not only the application.** Anyone can change its settings: a demo's admin page may switch
@@ -116,7 +116,7 @@ Did the app reach the state the previous steps should have produced?
         ├─ Present but the locator didn't match, or the test called an undeclared endpoint → SCRIPT_DEFECT
         ├─ Absent although the requirement names it (or not exposed with the required name) → APPLICATION_DEFECT
         └─ Present → does its observed value/behaviour equal the requirement's (verbatim)?
-                ├─ Equal (the assertion compared wrongly) → SCRIPT_DEFECT (fix + audited amendment)
+                ├─ Equal (the assertion compared wrongly) → SCRIPT_DEFECT (fix + proposed amendment, reviewed)
                 └─ Different → APPLICATION_DEFECT
 ```
 
@@ -148,8 +148,26 @@ workaround or limited scope. **Minor** means wording, contract nuance or cosmeti
    such a run is never the evaluation, whatever comes of it. A shared journey that was repaired needs nothing done in
    the registry: it reads "changed since proven" until the harvest of a passing story proves the new code; only a
    journey that was replaced by another is marked stale.
-2. `heldout integrity KEY` must stay PRESERVED or AMENDED.
-3. Re-run the **full** suite (`heldout run KEY --label rerun`), then `heldout triage KEY --carry-from auto`.
+2. `heldout integrity KEY` must stay PRESERVED or AMENDED. An assertion whose implementation was wrong is fixed by
+   the hardener and proposed for an amendment; a fresh triager decides it (below) before the re-run.
+3. `advance --rerun` re-runs the **full** suite; the triage then starts with `heldout triage KEY --carry-from auto`.
    Decisions carry over only for identical signatures (assertion, expected, received, locator, API
    method+status). Anything new must be investigated.
 4. Stop after 3 cycles in a row. Anything left unexplained stays NEEDS_INVESTIGATION.
+
+## Reviewing a proposed amendment
+
+The hardener that fixed an assertion's implementation proposes the amendment; you decide it, in a fresh context, and
+it never decides its own. `heldout integrity KEY` lists each changed assertion as frozen and as it is now, marked
+"amendment proposed". Judge it against its criterion (`heldout show KEY contract --ac AC-n`), not against the
+application:
+
+- Amend when the changed assertion still fails for every application that violates **its own** criterion, and
+  passes for every one that meets it: a regex stricter than the wording; one AC's assertion re-checking another AC's
+  oracle. `heldout integrity KEY --amend "<assertion>" --reason "<why the implementation was wrong; why the
+  requirement is unchanged>"`.
+- Reject when the change lets through an application the criterion would refuse, checks less than the criterion
+  says, or was made because the application answers differently: `heldout integrity KEY --reject "<assertion>"
+  --reason "<what the change no longer requires>"`. The hardener then restores the assertion as the draft has it.
+
+A probe is no evidence for either: what the application does never makes an assertion right.

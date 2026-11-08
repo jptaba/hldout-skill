@@ -72,16 +72,17 @@ the test's unknown value to such a code in the journey, and say so in the log.
 
 Sometimes the *assertion code* is wrong even though the requirement is right, for example a `\b`
 regex against text rendered without separators. Fix it so it still requires exactly what the
-requirement says, then record it:
+requirement says, then propose the amendment:
 
 ```bash
-npm run heldout -- integrity KEY --amend "<file>: [REQ AC-3] <message>" --reason "<why the implementation was wrong; why the requirement is unchanged>"
+npm run heldout -- integrity KEY --propose "<file>: [REQ AC-3] <message>" --reason "<why the implementation was wrong; why the requirement is unchanged>"
 ```
 
 The message alone is enough when only one spec has it. When the fix also changes what the assertion reads (another
 page, another call), say so in the reason: integrity tracks the assertion, not the request before it.
-Integrity becomes AMENDED and the verdict lists the amendment. Never use an amendment to align
-with AUT behaviour. An expected value computed from what the application answers about the property under test
+A fresh triager then judges it against the contract (`advance` hands it over) and amends it, when integrity becomes
+AMENDED and the verdict lists the amendment, or rejects it, when you restore the assertion as the draft has it. You
+never run `--amend` yourself. Never use an amendment to align with AUT behaviour. An expected value computed from what the application answers about the property under test
 (its `last_page` when pages are checked) is such a bug: derive it from the requirement.
 
 The test: after the amendment, does the assertion still fail for every application that violates **its own**

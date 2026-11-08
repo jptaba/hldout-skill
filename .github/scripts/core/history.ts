@@ -10,7 +10,7 @@ import path from 'node:path';
 import { SCRIPTS_DIR } from './config';
 
 export type HistoryEventName =
-  | 'fetched' | 'revised' | 'contract-checked' | 'review-bound' | 'draft-finished' | 'frozen' | 'refrozen' | 'amended' | 'integrity'
+  | 'fetched' | 'revised' | 'contract-checked' | 'review-bound' | 'draft-finished' | 'frozen' | 'refrozen' | 'amend-proposed' | 'amend-rejected' | 'amended' | 'integrity'
   | 'run' | 'triaged' | 'decided' | 'verdict' | 'published' | 'harvested' | 'map-entry' | 'note' | 'stray-moved' | 'record-trimmed' | 'pruned';
 
 export interface HistoryEvent { at: string; event: HistoryEventName; skill: string; command?: string; [field: string]: unknown }

@@ -64,7 +64,7 @@ Do this:
    `@needs-clarification`, so the verdict reports it; nobody is asked), and anything in the contract you could not
    express as a test.
 
-Never run the tests against the application and never freeze the draft: the main agent freezes it. Never change what
+Never run the tests against the application and never freeze the draft: `heldout advance` freezes it. Never change what
 an existing journey does for its other callers; when it lacks something, give it an optional parameter that leaves
 every existing call as it was, or add a new journey.
 

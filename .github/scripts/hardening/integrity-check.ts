@@ -12,7 +12,11 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { storyJourneys } from '../authoring/journeys/registry';
 import { specFiles } from '../authoring/spec-model';
+import { oracleDigest, readContract } from '../contract/contract-model';
+import { evalPaths } from '../core/paths';
+import type { HeldoutConfig } from '../core/profile';
 
 const sha256 = (s: string) => createHash('sha256').update(s.replace(/\r\n/g, '\n')).digest('hex');
 
@@ -205,4 +209,29 @@ export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Fr
     result.status = 'AMENDED';
   }
   return result;
+}
+
+/** The story's integrity as `heldout integrity KEY` checks it, without recording or printing anything. */
+export function storyIntegrity(cfg: HeldoutConfig, key: string): IntegrityResult {
+  const p = evalPaths(cfg, key);
+  const contract = readContract(p.contract);
+  if (!contract) throw new Error(`No requirement contract for ${key}`);
+  return checkIntegrity(p.tests, p.hardened, readFreeze(p.freeze), oracleDigest(contract), storyJourneys(cfg, cfg.autId, specFiles(p.hardened)));
+}
+
+/**
+ * Where a changed assertion stands in its review. The agent that fixed it proposes the amendment; another one, in a
+ * fresh context, amends or rejects it; whoever proposes never approves. Bound to the assertion's text as it is now: a
+ * rejection stands for that text (`integrity --propose` refuses it again), a new change to it is a new proposal, and
+ * one nobody proposed is `none`.
+ */
+export type AmendmentReview = 'proposed' | 'rejected' | 'none';
+export function amendmentReviews(changed: IntegrityResult['changed'], history: { event: string; [k: string]: unknown }[]): Map<string, AmendmentReview> {
+  const out = new Map<string, AmendmentReview>();
+  for (const c of changed) {
+    // The draft too, as an amendment is matched: a re-freeze that changed the draft starts the review anew.
+    const last = history.filter((e) => (e.event === 'amend-proposed' || e.event === 'amend-rejected') && e.assertion === c.assertion && e.draft === c.draft && e.current === c.current).at(-1);
+    out.set(c.assertion, last?.event === 'amend-proposed' ? 'proposed' : last?.event === 'amend-rejected' ? 'rejected' : 'none');
+  }
+  return out;
 }

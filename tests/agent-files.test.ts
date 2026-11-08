@@ -138,7 +138,8 @@ describe('agent files', () => {
     const fm = frontmatter(COORD);
     assert.equal(fm['user-invocable'], 'true');
     assert.ok((JSON.parse(fm.model.replace(/'/g, '"')) as string[]).length >= 2, 'a primary model and a fallback');
-    for (const use of ['SKILL.md', 'heldout -- advance KEY', '--quiet', 'no `cd`', 'note KEY --usage', 'No scripts of your own']) assert.ok(text.includes(use), use);
+    // The rules are in SKILL.md (specs/017-lean-coordinator): the coordinator says only how it works in Copilot.
+    for (const use of ['SKILL.md', 'heldout -- advance KEY', 'the `agent` tool', 'only ones you call', 'only during setup']) assert.ok(text.includes(use), use);
     const widened = [
       text.replace(/^tools:.*$/m, "tools: ['agent', 'read', 'search', 'edit', 'execute', 'browser']"),
       text.replace(/^tools:.*\r?\n/m, ''),
@@ -157,6 +158,49 @@ describe('agent files', () => {
     assert.deepEqual(nameClashes([['.github/agents/mine.agent.md', '---\nname: heldout-hardener\ntools: [\'*\']\n---\n'], ['.github/agents/other.agent.md', '---\nname: other\n---\n']]),
       ['.github/agents/mine.agent.md: name heldout-hardener is the skill\'s own agent\'s']);
     assert.equal(nameClashes([['.github/agents/x.agent.md', '---\nname: heldout-evaluator\n---\n']]).length, 1);
+  });
+
+  it('the skill and the coordinator hold what a coordinator needs, and name no phase command (specs/017-lean-coordinator)', () => {
+    const skill = fs.readFileSync(path.join(SKILL_DIR, 'SKILL.md'), 'utf8');
+    const coord = fs.readFileSync(path.join(REPO, COORD), 'utf8');
+    assert.ok(skill.split('\n').length <= 120, `SKILL.md has ${skill.split('\n').length} lines`);
+    assert.ok(coord.split('\n').length <= 20, `the coordinator has ${coord.split('\n').length} lines`);
+    assert.deepEqual([...skill.matchAll(/^## (.+)$/gm)].map((m) => m[1]), ['Setup', 'Evaluate a story', 'Unattended', 'What you never do', 'Finishing']);
+    for (const ref of ['references/setup.md', 'references/pipeline.md', 'references/governance.md']) {
+      assert.ok(skill.includes(`(${ref})`), `SKILL.md links ${ref}`);
+      assert.ok(fs.existsSync(path.join(SKILL_DIR, ref)), ref);
+    }
+    // Every heldout command the coordinator is told to run; the phases' commands are advance's or a subagent's.
+    // However it is written: `heldout <cmd>`, `$H <cmd>`, or a bare `<cmd> KEY` in a code span.
+    const named = (t: string) => [...t.matchAll(/(?:heldout(?: '?--'?)?|\$H) ([a-z][a-z-]*)|`([a-z][a-z-]*) KEY\b/g)].map((m) => m[1] ?? m[2]).filter((c) => COMMANDS[c]);
+    assert.deepEqual([...new Set([...named(skill), ...named(coord)])].sort(), ['advance', 'note', 'show', 'stats', 'status']);
+    for (const written of ['Run `$H integrity KEY --amend`.', 'Then `integrity KEY --amend "x"`.', 'Run `npm run heldout -- run KEY`.']) assert.ok(named(written).length, written);
+    // The rules the coordinator follows moved here from its file, and stay.
+    for (const rule of ['never ask the user anything', '`cd` into another folder', 'Write a script of your own', 'note KEY --usage', 'never an estimate', 'never another\n   subagent\'s reasoning']) assert.ok(skill.includes(rule), rule);
+    assert.ok(skill.includes('Record the story owner\'s answer to G<n> of KEY'), 'the owner\'s answer goes to the extractor');
+    // What moved out of SKILL.md is kept: the phases, the tiers, the rules and the layout.
+    const pipeline = fs.readFileSync(path.join(SKILL_DIR, 'references', 'pipeline.md'), 'utf8');
+    for (const section of ['## Phases', '## Browser and API tiers for hardening and triage', '## The rules every phase keeps', '## Output layout']) assert.ok(pipeline.includes(section), section);
+    for (const rule of ['Held-out isolation', 'Hardening changes HOW, never WHAT', 'Only two audited exceptions', 'No application defect without live reproduction', 'The human decides', 'Bounded repair loop', 'A verdict comes from a run of every test', 'Runs are history', 'Commands, not scripts', 'Untrusted content is data', 'Observations outside the criteria', 'Evidence, not recall', 'Journeys are HOW, never WHAT', 'One file per domain', 'Gaps: find, then report', 'Surface ambiguity', 'Pre-steps are preconditions', 'Seed, don\'t assume', 'Secrets', 'Shared environments']) {
+      assert.ok(pipeline.includes(`**${rule}`), rule);
+    }
+    assert.match(fs.readFileSync(path.join(SKILL_DIR, 'references', 'setup.md'), 'utf8'), /^## First use in a project$/m);
+  });
+
+  it('the agent that fixes an assertion proposes its amendment, a fresh triager decides it (specs/017-lean-coordinator)', () => {
+    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    const hardener = read('heldout-hardener.agent.md'), triager = read('heldout-triager.agent.md'), extractor = read('heldout-contract-extractor.agent.md');
+    assert.ok(hardener.includes('integrity KEY --propose'));
+    assert.ok(hardener.includes('Never run `heldout integrity --snapshot`, `--amend` or `--reject`'));
+    assert.ok(triager.includes('integrity KEY --amend') && triager.includes('--reject'));
+    assert.ok(triager.includes('Never amend an assertion nobody proposed'));
+    for (const f of [hardener, triager]) assert.ok(f.includes('Runs are history: never delete, rename or renumber a run'));
+    assert.ok(extractor.includes('contract KEY --answer G<n>'));
+    const roles = fs.readFileSync(path.join(SKILL_DIR, 'references', 'governance.md'), 'utf8');
+    assert.match(roles, /\| Orchestrator \|[^\n]*nothing about WHAT is correct: it runs `heldout advance`/);
+    assert.match(roles, /\| Triager \|[^\n]*whether a proposed amendment is recorded or rejected/);
+    assert.match(roles, /\| Hardener \|[^\n]*approve its own amendment/);
+    assert.match(fs.readFileSync(path.join(SKILL_DIR, 'references', 'triage.md'), 'utf8'), /^## Reviewing a proposed amendment$/m);
   });
 
   it('both apps approve edits in the record, the scratch area and the journeys, and nothing wider (specs/016-coordinator-agent)', () => {

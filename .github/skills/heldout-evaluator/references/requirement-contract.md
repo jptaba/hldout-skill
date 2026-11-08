@@ -34,7 +34,7 @@ heldout contract KEY --allow-unreviewed   # anchoring + coverage + literals; the
 heldout contract KEY                      # clean, including the review
 ```
 
-Delegate the two steps to subagents, as the coordinator delegates every phase (SKILL.md, "Who coordinates"): the
+Delegate the two steps to subagents, as the coordinator delegates every phase (SKILL.md): the
 builder and the reviewer must not share context. `heldout-contract-extractor` gets "Build the requirement contract for
 KEY", then `heldout-contract-reviewer` "Review the requirement contract for KEY". In an app without subagents, use a
 fresh chat with the same prompt and the instructions in `.github/agents/heldout-contract-extractor.agent.md` /

@@ -311,7 +311,7 @@ export function classify(e: ParsedError, ctx: ClassifyContext = {}): AutoClassif
     if (loose) {
       signals.push(`The received text DOES contain the expected content when the pattern is relaxed (${loose}) — the assertion is stricter than the requirement.`);
       return { category: 'SCRIPT_DEFECT', confidence: 'medium', signals,
-        next: 'Fix the assertion implementation (e.g. drop word boundaries/anchors) without changing what it requires; record it with integrity.ts --amend, then re-run.' };
+        next: 'Fix the assertion implementation (e.g. drop word boundaries/anchors) without changing what it requires; propose its amendment (heldout integrity KEY --propose), which a fresh triager reviews, then re-run.' };
     }
     if (e.expected !== undefined && norm(e.expected) === norm(e.received)) {
       signals.push('Expected and received differ only by whitespace/case/quoting.');
