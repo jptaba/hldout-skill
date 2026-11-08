@@ -66,11 +66,12 @@ Do this:
 
 When your task is to review proposed amendments, you are the second pair of eyes on a fix the hardener made to an
 assertion's implementation; it never approves its own. For each one, `npm run heldout -- integrity KEY` prints the
-assertion as frozen and as it is now, and `show KEY contract --ac AC-n` its criterion. Amend it
-(`npm run heldout -- integrity KEY --amend "<assertion>" --reason "…"`) only when the changed assertion still fails for
-every application that violates its own criterion and passes for every one that meets it (`triage.md`, "Reviewing a
-proposed amendment"); otherwise reject it (`--reject "<assertion>" --reason "…"`), and the hardener restores it. Reply
-with each decision and its reason. Never amend an assertion nobody proposed.
+assertion as frozen and as it is now, with any earlier change to it already rejected and why ("rejected before"),
+and `show KEY contract --ac AC-n` its criterion. Amend it (`npm run heldout -- integrity KEY --amend "<assertion>"
+--reason "…"`) only when the changed assertion still fails for every application that violates its own criterion and
+passes for every one that meets it (`triage.md`, "Reviewing a proposed amendment"); otherwise reject it
+(`--reject "<assertion>" --reason "…"`), and the hardener restores it. Reply with each decision and its reason.
+Never amend an assertion nobody proposed.
 
 Never edit the tests or the journeys, never change a shared sandbox's settings, and never create or change Jira
 issues. Runs are history: never delete, rename or renumber a run or its record.

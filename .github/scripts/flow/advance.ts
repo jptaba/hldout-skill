@@ -31,7 +31,7 @@ import { checkContract, notEvaluable, openQuestions, readContract, type Requirem
 import { checkReview, readReview } from '../contract/evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../hardening/fast-harden';
 import { amendmentReviews, storyIntegrity, type AmendmentReview, type IntegrityResult } from '../hardening/integrity-check';
-import { readDecisions, readRunRecord } from '../run/run-record';
+import { readDecisions, readRunRecord, type TriageEntry } from '../run/run-record';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -64,6 +64,16 @@ export function integrityHandover(key: string, changed: IntegrityResult['changed
   if (where('proposed')) return { agent: 'heldout-triager', task: `Review the proposed amendment(s) for ${key}: ${where('proposed')}`, why: 'in a fresh context, against the contract' };
   if (where('rejected')) return { agent: 'heldout-hardener', task: `Restore the assertion(s) of ${key} whose amendment the triager rejected: ${where('rejected')} (${H} integrity ${key})` };
   return { agent: 'heldout-hardener', task: `Integrity is not preserved for ${key}: restore what the tests expect, or fix an assertion whose implementation is wrong and propose its amendment (${H} integrity ${key})` };
+}
+
+/**
+ * The confirmed script defects of the last evaluation run, while the repair loop has a cycle left: a repair is under
+ * way, and what follows it is a re-run (`advance --rerun`), not the verdict.
+ */
+export function repairDue(p: Pick<ReturnType<typeof evalPaths>, 'runs' | 'history' | 'decisions'>): TriageEntry[] {
+  const evalRuns = evalRunsOf(p.runs);
+  if (!evalRuns.length || repairsTried(p) > MAX_REPAIRS) return [];
+  return readRunRecord(runFile(p, evalRuns.at(-1)!)).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT');
 }
 
 /** What the tests stand on: which scenarios use which journey, and the journeys that are new with this story. */
@@ -307,7 +317,8 @@ export function run({ _, flags }: Args): void {
       // the hardener for anything else.
       if (next.blockedBy === 'integrity') {
         if (heldout('integrity', key) === 0 && moved()) continue;
-        return integrityTo();
+        // A proposal made during a repair, picked up by a plain `advance` (a new session): the re-run still follows.
+        return integrityTo(repairDue(p).length ? ' --rerun' : '');
       }
       // Nothing to discover and no harden run yet: the stability run is the hardening, no subagent needed.
       const known = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
@@ -339,8 +350,8 @@ export function run({ _, flags }: Args): void {
     if (next.name === 'verdict') {
       // Confirmed script defects are repaired and the suite run again before the verdict, at most three times.
       const evalRuns = evalRunsOf(p.runs);
-      const scriptDefects = evalRuns.length ? readRunRecord(runFile(p, evalRuns.at(-1)!)).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT') : [];
-      if (scriptDefects.length && repairsTried(p) <= MAX_REPAIRS) {
+      const scriptDefects = repairDue(p);
+      if (scriptDefects.length) {
         console.log(`\n■ Next: the heldout-hardener subagent — ${scriptDefects.length} confirmed script defect(s) in ${evalRuns.at(-1)}`);
         console.log(`  Task: "Repair these script defects for ${key}: ${scriptDefects.map((e) => `${e.scenario} (${(e.final?.rationale ?? '').slice(0, 100)})`).join('; ')}"`);
         console.log(`  Then: ${H} advance ${key} --rerun`);

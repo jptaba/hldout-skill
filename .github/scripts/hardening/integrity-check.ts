@@ -211,6 +211,15 @@ export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Fr
   return result;
 }
 
+/**
+ * The rejections an assertion had before, for other texts than its current one, oldest first: a re-proposal goes to a
+ * fresh triager, who should see what was refused already and why, not judge it as if it were the first.
+ */
+export function earlierRejections(c: IntegrityResult['changed'][number], history: { event: string; [k: string]: unknown }[]): { current: string; reason: string }[] {
+  return history.filter((e) => e.event === 'amend-rejected' && e.assertion === c.assertion && e.draft === c.draft && e.current !== c.current)
+    .map((e) => ({ current: String(e.current), reason: String(e.reason ?? '') }));
+}
+
 /** The story's integrity as `heldout integrity KEY` checks it, without recording or printing anything. */
 export function storyIntegrity(cfg: HeldoutConfig, key: string): IntegrityResult {
   const p = evalPaths(cfg, key);

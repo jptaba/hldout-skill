@@ -25,7 +25,7 @@ import { storyJourneys } from '../authoring/journeys/registry';
 import { typeErrors } from '../authoring/preflight';
 import { specFiles } from '../authoring/spec-model';
 import { oracleDigest, readContract } from '../contract/contract-model';
-import { amendmentReviews, checkIntegrity as checkWith, copyDraft, draftOf, readFreeze, revisionOf, writeFreeze, type Freeze } from './integrity-check';
+import { amendmentReviews, copyDraft, draftOf, earlierRejections, readFreeze, revisionOf, storyIntegrity, writeFreeze, type Freeze } from './integrity-check';
 
 export const spec: CommandSpec = {
   name: 'integrity', group: 'Tests', usage: 'KEY [--snapshot [--reason …] | --propose|--amend|--reject "<assertion>" --reason …]',
@@ -55,7 +55,8 @@ export function run({ _, flags }: Args): void {
   const oracle = oracleDigest(contract);
   const journeys = (dir: string) => storyJourneys(cfg, cfg.autId, specFiles(dir));
   const freeze = readFreeze(p.freeze);
-  const checkIntegrity = () => checkWith(p.tests, p.hardened, freeze, oracle, journeys(p.hardened));
+  // The same check advance makes (storyIntegrity), so the two can't drift apart.
+  const checkIntegrity = () => storyIntegrity(cfg, key);
 
   if (flags.snapshot) {
     // What gets frozen must compile: a broken draft would be frozen and then "repaired" outside the audit.
@@ -135,9 +136,13 @@ export function run({ _, flags }: Args): void {
   for (const f of r.files) console.log(`  ${f.file}: ${f.draftAssertions} REQ assertions in draft → ${f.currentAssertions} now`);
   for (const x of r.draftChanged) console.log(`  ✖ the frozen draft changed: ${rel(p.tests)}/${x} — the draft stays as frozen; hardening edits ${rel(p.hardened)}/`);
   for (const x of r.removed) console.log(`  ✖ removed:  ${x}`);
-  const reviews = amendmentReviews(r.changed, readHistory(p.history));
+  const events = readHistory(p.history);
+  const reviews = amendmentReviews(r.changed, events);
   const state = { proposed: ' (amendment proposed: a fresh triager reviews it)', rejected: ' (amendment rejected: restore it)', none: '' };
-  for (const x of r.changed) console.log(`  ✖ changed:  ${x.assertion}${state[reviews.get(x.assertion) ?? 'none']}\n      draft:   ${x.draft}\n      current: ${x.current}`);
+  for (const x of r.changed) {
+    console.log(`  ✖ changed:  ${x.assertion}${state[reviews.get(x.assertion) ?? 'none']}\n      draft:   ${x.draft}\n      current: ${x.current}`);
+    for (const e of earlierRejections(x, events)) console.log(`      rejected before: ${e.current} — ${e.reason}`);
+  }
   for (const x of r.constantsChanged) console.log(`  ✖ @req-constants block changed in ${x}`);
   if (r.contractChanged) console.log('  ✖ requirement contract oracle (ACs / outcomes / rules / error model / oracle gaps) changed since the freeze — only a requirement revision justifies that (re-freeze with --reason)');
   for (const x of r.amended) console.log(`  ✎ amended:  ${x.assertion} — ${x.reason}`);

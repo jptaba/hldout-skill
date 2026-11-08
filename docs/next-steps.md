@@ -9,7 +9,7 @@ Rounds start from scratch: a new round project, a fresh onboarding, freshly star
 
 | What | Where |
 | --- | --- |
-| The lean coordinator and the shipped approvals: one story of a fresh round, run end to end in a session started in the round project, reaches its verdict from the 97-line SKILL.md; the permission denials it meets are counted; an amendment, if one comes up, goes hardener → triager | `specs/016-coordinator-agent` SC-002, `specs/017-lean-coordinator` SC-003 |
+| The lean coordinator and the shipped approvals: one story of a fresh round, run end to end in a session started in the round project, reaches its verdict from the lean SKILL.md (at most 120 lines); the permission denials it meets are counted; an amendment, if one comes up, goes hardener → triager | `specs/016-coordinator-agent` SC-002, `specs/017-lean-coordinator` SC-003 |
 | The record's size. Round 41 against round 38, in real bytes: PB-2 54% (1,932 of 3,582 KB, 121 tests), TOOL-8 40% (1,233 of 3,045), PB-1 53% (715 of 1,346). Targets: 50%, 50%, 70%. A compressed screenshot takes about 52 KB against 110 and reads well; PB-2's run record (626 KB) and triage (258 KB) are the largest parts left | `specs/004-lean-context` SC-005 |
 | What agents take in: below target, see the table under this one (`specs/004-lean-context` SC-001 to SC-003, `specs/001-phase-separation` SC-002) | `npx tsx dev/context.ts <subagents folder> --filter r41` |
 | The stories round 38 did not reach | `specs/001-phase-separation` T016 |

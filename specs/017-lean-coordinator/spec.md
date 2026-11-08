@@ -64,6 +64,22 @@ decision about WHAT a test checks, which governance.md says the orchestrator nev
 - **SC-002**: SKILL.md at most 120 lines; the coordinator agent at most 20 lines.
 - **SC-003**: A round shows an evaluation reaching its verdict from the lean skill (with `specs/016` SC-002).
 
+## Follow-up from the reviews
+
+The last reviews of the first commit left five low findings, and the review of their fixes one more; each is fixed,
+with a test where it is behaviour:
+
+1. A proposal made during a repair and picked up by a plain `advance` keeps `--rerun` in its `Then:` (a helper,
+   `repairDue`, says a repair is under way; the verdict branch uses it too).
+2. `docs/next-steps.md` names no line count that can drift.
+3. The Unattended row reads "down or degraded" again.
+4. `heldout integrity` checks through `storyIntegrity`, the same function `advance` uses.
+5. `heldout integrity KEY` shows, under a changed assertion, its earlier rejected changes and their reasons
+   ("rejected before"), and the triager is told to weigh them: a proposal that brings back what a rejection refused
+   is rejected for the same reason.
+6. The repair loop's bound, now inside `repairDue`, has a test of its own (three repairs in a row allow one more,
+   four end it).
+
 ## Assumptions
 
 - A subagent's identity is not checked by the commands: who runs `--amend` is fixed by the agent files, as today.

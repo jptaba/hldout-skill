@@ -4,9 +4,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { integrityHandover } from '../.github/scripts/flow/advance';
+import { integrityHandover, repairDue } from '../.github/scripts/flow/advance';
 import { readHistory } from '../.github/scripts/core/history';
-import { amendmentReviews, draftOf, writeFreeze } from '../.github/scripts/hardening/integrity-check';
+import { amendmentReviews, draftOf, earlierRejections, writeFreeze } from '../.github/scripts/hardening/integrity-check';
 import { oracleDigest, type RequirementContract } from '../.github/scripts/contract/contract-model';
 import { evalPaths } from '../.github/scripts/core/paths';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
@@ -27,6 +27,11 @@ describe('where a changed assertion stands in its review', () => {
     assert.equal(amendmentReviews(changed, [ev('amend-proposed', '.toBeVisible()')]).get(A), 'none');
     assert.equal(amendmentReviews(changed, [ev('amend-proposed'), ev('amend-rejected', '.toBeVisible()')]).get(A), 'proposed');
     assert.equal(amendmentReviews(changed, [ev('amend-rejected', changed[0].current, '.toHaveText(REQ.OLD)')]).get(A), 'none', 'a re-freeze changed the draft: reviewed anew');
+  });
+  it('lists the rejections of other texts of the assertion, not of this one or of an older draft', () => {
+    const rejected = (current: string, draft = changed[0].draft) => ({ ...ev('amend-rejected', current, draft), reason: `no: ${current}` });
+    assert.deepEqual(earlierRejections(changed[0], [rejected('.toBeVisible()'), rejected(changed[0].current), rejected('.toBeAttached()', '.toHaveText(REQ.OLD)')]),
+      [{ current: '.toBeVisible()', reason: 'no: .toBeVisible()' }]);
   });
 });
 
@@ -69,10 +74,47 @@ describe('a story hardened but not preserved waits on its integrity, not on the 
   });
   it('advance checks integrity again there and routes by the review, on both paths', () => {
     const src = fs.readFileSync(path.join(import.meta.dirname, '..', '.github', 'scripts', 'flow', 'advance.ts'), 'utf8');
-    assert.match(src, /if \(next\.blockedBy === 'integrity'\) \{\s*if \(heldout\('integrity', key\) === 0 && moved\(\)\) continue;\s*return integrityTo\(\);/);
+    assert.match(src, /if \(next\.blockedBy === 'integrity'\) \{\s*if \(heldout\('integrity', key\) === 0 && moved\(\)\) continue;[^\n]*\n[^\n]*\n\s*return integrityTo\(repairDue\(p\)\.length \? ' --rerun' : ''\);/);
     assert.match(src, /if \(heldout\('integrity', key\) !== 0\) return integrityTo\(' --rerun'\);/);
     assert.match(src, /if \(heldout\('integrity', key\) !== 0\) return integrityTo\(\);\s*heldout\('run', key, '--label', 'eval'/);
     assert.match(src, /const h = integrityHandover\(key, storyIntegrity\(cfg, key\)\.changed, readHistory\(evalPaths\(cfg, key\)\.history\)\);/);
+  });
+});
+
+describe('a repair under way, so that what follows it is a re-run', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-repair-'));
+  const p = { runs: path.join(dir, '5-run'), history: path.join(dir, 'history.jsonl'), decisions: path.join(dir, 'decisions.json') };
+  after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const record = (run: string, category?: string) => fs.writeFileSync(path.join(p.runs, `${run}.json`), JSON.stringify({
+    key: 'ABC-1', run, generatedAt: 'now', meta: {}, summary: { total: 1, passed: 0, failed: 1, flaky: 0, skipped: 0 },
+    entries: [{ scenario: 'SCN-002', title: 'SCN-002: x', file: 'a.spec.ts', status: 'failed', tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: {}, ...(category ? { final: { category, title: 't', rationale: 'r', evidence: 'P1' } } : {}) }],
+  }));
+  it('is due when the last evaluation run has a confirmed script defect, and not before the first one', () => {
+    fs.mkdirSync(p.runs, { recursive: true });
+    assert.deepEqual(repairDue(p), [], 'no evaluation run yet: the first hardening');
+    record('01-harden', 'SCRIPT_DEFECT');
+    assert.deepEqual(repairDue(p), [], 'a harden run is not an evaluation');
+    record('02-eval', 'APPLICATION_DEFECT');
+    assert.deepEqual(repairDue(p), []);
+    record('03-eval', 'SCRIPT_DEFECT');
+    assert.deepEqual(repairDue(p).map((e) => e.scenario), ['SCN-002']);
+  });
+  it('is not due once three repairs in a row are spent: the loop is bounded', () => {
+    // Evaluation runs in the history, each ending in a confirmed script defect: the repairs tried in a row.
+    const tried = (runs: string[]) => {
+      fs.writeFileSync(p.history, runs.map((run) => JSON.stringify({ at: 'now', event: 'run', skill: 'x', run })).join('\n') + '\n');
+      fs.writeFileSync(p.decisions, JSON.stringify(Object.fromEntries(runs.map((r) => [r, { 'SCN-002': { category: 'SCRIPT_DEFECT' } }]))));
+      for (const r of runs) record(r, 'SCRIPT_DEFECT');
+    };
+    tried(['04-eval', '05-rerun', '06-rerun']);
+    assert.deepEqual(repairDue(p).map((e) => e.scenario), ['SCN-002'], 'three tried: one more is allowed');
+    tried(['04-eval', '05-rerun', '06-rerun', '07-rerun']);
+    assert.deepEqual(repairDue(p), [], 'four tried: on to the verdict');
+  });
+  it('is what both the verdict and the blocked hardening go by', () => {
+    const src = fs.readFileSync(path.join(import.meta.dirname, '..', '.github', 'scripts', 'flow', 'advance.ts'), 'utf8');
+    assert.match(src, /const scriptDefects = repairDue\(p\);\s*if \(scriptDefects\.length\) \{/);
+    assert.match(src, /if \(!evalRuns\.length \|\| repairsTried\(p\) > MAX_REPAIRS\) return \[\];/);
   });
 });
 
@@ -126,9 +168,22 @@ describe('heldout integrity --propose, --amend and --reject', () => {
     assert.match(again.stderr, /was rejected: restore the assertion/);
     assert.deepEqual(readHistory(history).map((e) => e.event).filter((e) => e !== 'integrity'), ['amend-proposed', 'amend-proposed', 'amended', 'amend-rejected']);
   });
-  it('takes a new proposal once the rejected assertion is changed again', () => {
+  it('takes a new proposal once the rejected assertion is changed again, and shows the reviewer the rejection', () => {
     fs.writeFileSync(path.join(story, '4-hardening', 'a.spec.ts'), SPEC('.toContainText(\'Hello\')', '.toHaveText(/Ada/)'));
     assert.equal(heldout('--propose', '[REQ AC-2] name shown', '--reason', REASON).status, 0);
-    assert.match(heldout().stdout, /\[REQ AC-2\] name shown \(amendment proposed/);
+    const out = heldout().stdout;
+    assert.match(out, /\[REQ AC-2\] name shown \(amendment proposed/);
+    assert.match(out, /rejected before: \.toContainText\('Ada'\) — containing the name is weaker than showing it/);
+  });
+  it('closes the hardening once the amended assertion stays and the rejected one is restored', () => {
+    const cfg = { autId: 'shop', outputDir: path.join(root, 'output'), aut: { name: 'Shop', baseURL: 'https://shop.test/' }, jira: {} } as unknown as HeldoutConfig;
+    fs.writeFileSync(path.join(story, '4-hardening', 'hardening.md'), '# Hardening log\n**Tiers used:** tier 3\n');
+    const harden = () => phasesOf(cfg, 'ABC-1').find((ph) => ph.name === 'harden')!;
+    assert.equal(harden().blockedBy, 'integrity', 'AC-2 still proposed');
+    fs.writeFileSync(path.join(story, '4-hardening', 'a.spec.ts'), SPEC('.toContainText(\'Hello\')', '.toHaveText(/\\bAda\\b/)'));
+    const r = heldout();
+    assert.equal(r.status, 0, r.stdout);
+    assert.match(r.stdout, /Held-out integrity: AMENDED/);
+    assert.deepEqual([harden().done, harden().blockedBy], [true, undefined]);
   });
 });

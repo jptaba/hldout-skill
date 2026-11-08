@@ -65,7 +65,7 @@ What is unclear or missing becomes part of the result, and the subagents and `ad
 | One reasonable reading exists | An assumption in the tests; the verdict lists it, and says so when the application contradicts it |
 | The story has no acceptance criteria | `advance` writes and publishes an INCONCLUSIVE verdict saying so |
 | An account, role or secret the tests need is missing and the application can't create it | Those tests end BLOCKED; the verdict names what is missing |
-| The application is down, or a failure stays unexplained after 3 repair cycles | ENVIRONMENT_ISSUE or NEEDS_INVESTIGATION; verdict INCONCLUSIVE |
+| The application is down or degraded, or a failure stays unexplained after 3 repair cycles | ENVIRONMENT_ISSUE or NEEDS_INVESTIGATION; verdict INCONCLUSIVE |
 | An assertion's implementation is wrong (not its expected value) | The hardener proposes an amendment, a fresh triager decides it; the verdict shows it |
 
 ## What you never do
