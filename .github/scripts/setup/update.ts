@@ -11,7 +11,7 @@
  *   .github/scripts                    its scripts (only the files it installed before are replaced or removed, so a
  *                                      project's own scripts there are never touched; it stops rather than overwrite one)
  *   workspace files                    playwright.config.ts, tsconfig.json, .env.example, heldout-support/fixtures.ts,
- *                                      the subagents (.github/agents/*.agent.md) and the Claude Code bridges
+ *                                      the coordinator and subagents (.github/agents/*.agent.md) and the Claude Code bridges
  *                                      (.claude/skills, .claude/agents: Claude Code reads only .claude/)
  * A workspace file is created when missing and refreshed unless the project changed it since it was copied
  * (SOURCE.json keeps the hash of each one written). Settings are merged into the project's own, keeping what it already
@@ -34,8 +34,8 @@ import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', '.env.example', 'heldout-support/fixtures.ts', 'heldout-support/shared-teardown.ts', ...AGENT_FILES];
 /** Settings merged into the project's own, from the same files in the skill repository. */
 const SETTINGS: [file: string, why: string][] = [
-  ['.claude/settings.json', 'Claude Code fallback models, also used by the subagents; the heldout command and the Playwright MCP browser run without an approval prompt'],
-  ['.vscode/settings.json', 'GitHub Copilot loads the skill and subagents from .github/ only, not the Claude Code bridges; the heldout command runs without an approval prompt'],
+  ['.claude/settings.json', 'Claude Code fallback models, also used by the subagents; the heldout command, the Playwright MCP browser and edits in output/, .heldout/ and the journeys run without an approval prompt'],
+  ['.vscode/settings.json', 'GitHub Copilot loads the skill and subagents from .github/ only, not the Claude Code bridges; the heldout command and edits in the .heldout/ scratch area run without an approval prompt'],
   [MCP_FILE, 'the Playwright MCP server, browser tier 2, for GitHub Copilot'],
 ];
 /** The regression pipeline (--ci), from the same paths in the skill repository. */

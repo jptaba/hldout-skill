@@ -6,7 +6,11 @@
   "permissions": {
     "allow": [
       "Bash(npm run heldout:*)",
-      "mcp__playwright"
+      "mcp__playwright",
+      "Edit(/output/**)",
+      "Edit(/.heldout/**)",
+      "Edit(/journeys/**)",
+      "Edit(/journeys-*/**)"
     ]
   }
 }

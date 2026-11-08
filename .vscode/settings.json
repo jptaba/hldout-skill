@@ -14,5 +14,8 @@
   },
   "chat.tools.terminal.autoApprove": {
     "/^npm(\\.cmd)? run heldout\\b/": true
+  },
+  "chat.tools.edits.autoApprove": {
+    "**/.heldout/**": true
   }
 }

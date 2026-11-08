@@ -7,7 +7,7 @@ import path from 'node:path';
 import { ROOT, rel } from './files';
 import { PHASE_FOLDERS, SCRATCH_DIR } from './paths';
 import { JIRA_MODES, dataPrefix, type HeldoutConfig, type JiraMode } from './profile';
-import { ROLES } from './roles';
+import { COORDINATOR, ROLES } from './roles';
 
 /** The skill's scripts (.github/scripts) and the skill itself (.github/skills/heldout-evaluator: SKILL.md, references). */
 export const SCRIPTS_DIR = path.resolve(import.meta.dirname, '..');
@@ -26,11 +26,12 @@ export const CONFIG_SCHEMA = path.join(SCRIPTS_DIR, 'heldout.config.schema.json'
  * The subagents, one per phase that needs a model (separate contexts by design: the reviewer never sees the builder's
  * reasoning, the test author never sees the application, the triager never wrote the tests), as GitHub Copilot custom
  * agents, the one source of their instructions, and the Claude Code bridges to them and to the skill (Claude Code reads
- * only .claude/). The main agent runs the scripts between them. Paths are the same in the skill repository and in a
- * project.
+ * only .claude/). The main agent runs the scripts between them: Copilot's coordinator agent, or Claude Code's main
+ * agent with the skill (no bridge for the coordinator). Paths are the same in the skill repository and in a project.
  */
 const SUBAGENTS = Object.keys(ROLES);
 export const AGENT_FILES: string[] = [
+  `.github/agents/${COORDINATOR}.agent.md`,
   ...SUBAGENTS.flatMap((a) => [`.github/agents/${a}.agent.md`, `.claude/agents/${a}.md`]),
   '.claude/skills/heldout-evaluator/SKILL.md',
 ];

@@ -22,6 +22,14 @@ export const ROLES = {
   'heldout-triager': { writes: 'edit', browser: true },
 } as const satisfies Record<string, Role>;
 
+/**
+ * GitHub Copilot's coordinator: the entry point a user picks, which runs `heldout advance` and hands each phase to its
+ * subagent. It may call those five agents only (`agents:`). Claude Code has no file for it: its main agent with the
+ * skill coordinates, since a main-thread agent there would replace Claude Code's own system prompt.
+ */
+export const COORDINATOR = 'heldout-evaluator';
+export const COORDINATOR_TOOLS = ['agent', 'read', 'search', 'edit', 'execute'];
+
 /** GitHub Copilot's `tools:` for a role. */
 export function copilotTools(role: Role): string[] {
   return ['read', 'search', 'edit', 'execute', ...(role.browser ? ['browser', 'playwright/*'] : [])];
@@ -61,18 +69,33 @@ const listOf = (value: string | undefined): string[] | undefined =>
 const same = (a: string[] | undefined, b: string[]) => JSON.stringify(a ? [...a].sort() : a) === JSON.stringify([...b].sort());
 
 /**
+ * Other agent files that take the name of a role or of the coordinator: Copilot calls agents by name, so one of them
+ * could run in a role's place. `files` are [path, content] pairs of the agent files that aren't the skill's own.
+ */
+export function nameClashes(files: [file: string, text: string][]): string[] {
+  const taken = [COORDINATOR, ...Object.keys(ROLES)];
+  return files.filter(([, text]) => taken.includes(frontmatter(text).fields.name ?? '')).map(([file, text]) => `${file}: name ${frontmatter(text).fields.name} is the skill's own agent's`);
+}
+
+/**
  * How an agent file's tools differ from its role: [] when they match. `file` is its path in the project
  * (`.github/agents/<name>.agent.md` or `.claude/agents/<name>.md`), `text` its content.
  */
 export function toolProblems(file: string, text: string): string[] {
   const name = /([\w-]+?)(?:\.agent)?\.md$/.exec(file)?.[1] ?? '';
-  const role: Role | undefined = (ROLES as Record<string, Role>)[name];
-  if (!role) return [`${file}: no role for ${name}`];
   const copilot = file.includes('.github/agents/');
+  const coordinator = name === COORDINATOR && copilot;
+  const role: Role | undefined = (ROLES as Record<string, Role>)[name];
+  if (!role && !coordinator) return [`${file}: no role for ${name}`];
   const { fields, problems } = frontmatter(text);
   const out = problems.map((p) => `${file}: ${p}`);
-  for (const key of Object.keys(fields)) if (!KEYS[copilot ? 'copilot' : 'claude'].includes(key)) out.push(`${file}: unknown frontmatter key ${key} (it may widen what the agent can do; only ${KEYS[copilot ? 'copilot' : 'claude'].join(', ')} are checked)`);
-  const want = copilot ? copilotTools(role) : claudeTools(role);
+  // Copilot calls an agent by its name:, not its file: a file whose name: differs would take another role's place.
+  if (fields.name !== name) out.push(`${file}: name ${fields.name ?? '(none)'} — it must be ${name}, its file's name`);
+  const keys = coordinator ? [...KEYS.copilot, 'agents'] : KEYS[copilot ? 'copilot' : 'claude'];
+  for (const key of Object.keys(fields)) if (!keys.includes(key)) out.push(`${file}: unknown frontmatter key ${key} (it may widen what the agent can do; only ${keys.join(', ')} are checked)`);
+  // The coordinator calls the phase agents only: another agent in its list would run outside the held-out roles.
+  if (coordinator && !same(listOf(fields.agents), Object.keys(ROLES))) out.push(`${file}: agents ${fields.agents ?? '(none: every agent)'} — the coordinator may call ${Object.keys(ROLES).join(', ')} only`);
+  const want = coordinator ? COORDINATOR_TOOLS : copilot ? copilotTools(role!) : claudeTools(role!);
   if (!same(listOf(fields.tools), want)) out.push(`${file}: tools ${fields.tools ?? '(none: every tool)'} — its role allows ${want.join(', ')}`);
   return out;
 }

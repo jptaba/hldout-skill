@@ -10,9 +10,13 @@ Works in any agent app that loads skills. The skill lives in `.github/skills/hel
 `.github/agents/*.agent.md` and the Playwright MCP server in `.vscode/mcp.json`; GitHub Copilot reads them there. Claude Code
 reads only `.claude/`, so `.claude/skills/heldout-evaluator/SKILL.md` and `.claude/agents/*.md` are short bridges that
 point here, and it reads MCP servers only from the root `.mcp.json`, which `init` and `update` write from
-`.vscode/mcp.json`. Tool names below such as `AskUserQuestion` (used during setup only) and the Agent tool are Claude Code's examples. In
-GitHub Copilot, ask the setup questions in the chat, run each subagent with Copilot's `agent` tool (or as a fresh chat
-with the agent's instructions), and pass `--quiet` to `heldout run` so it prints a digest.
+`.vscode/mcp.json`.
+
+**Who coordinates.** This file holds the rules, the setup and the phases; an agent coordinates by following it. In
+GitHub Copilot that is the `heldout-evaluator` agent (`.github/agents/heldout-evaluator.agent.md`, picked in the
+agents dropdown): its tools, the five agents it may call and its model are fixed there, with how it works in that app.
+In Claude Code it is the main agent with this skill, delegating with the Agent tool (`AskUserQuestion`, used during
+setup only, is its example of asking). Either way, run commands from the project's folder, the app's workspace.
 
 A **held-out test** is an independent oracle: written from the requirement alone, never from the
 application's code or its developers' tests, so it catches an implementation that drifted from what
@@ -66,10 +70,12 @@ repository (refreshed on later updates unless the project changed them):
   already has
 - the subagents in `.github/agents/` (contract extractor and reviewer, test author, hardener and triager, each with its
   model and fallbacks)
-- the Claude Code bridges in `.claude/`, its fallback models and the approval of the `heldout` command and the
-  Playwright MCP server (`.claude/settings.json`), so an evaluation isn't interrupted by approval prompts for them
+- the coordinator agent for Copilot, `.github/agents/heldout-evaluator.agent.md`
+- the Claude Code bridges in `.claude/`, its fallback models and the approval of the `heldout` command, the
+  Playwright MCP server and edits in `output/`, `.heldout/` and the journeys (`.claude/settings.json`), so an
+  evaluation isn't interrupted by approval prompts for them
 - `.vscode/settings.json`, so Copilot loads the skill and subagents from `.github/` only and runs the `heldout`
-  command without an approval prompt
+  command and edits in the `.heldout/` scratch area without an approval prompt
 
 Then, from the project's own copy of the scripts, `init` scaffolds, and never overwrites:
 
@@ -167,7 +173,7 @@ The owner's later answer to an open question enters the next evaluation: a revis
 | 7 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else. Part of the evaluation, with no confirmation; a project that wants a person to publish sets `jira.publish` to `"manual"`, and `advance` then leaves this step out | `$H publish KEY` |
 | 8 | **Journey registry** | Record in `journeys/registry.yml` the journeys this story's passing tests used (this story as their proof, and what ran before each), and the stale marks. Journeys only failing tests used are left out. Preview, then apply; commit `registry.yml` with the journey files, `application-map/` and the story's output. After merging other people's work, `$H journeys --check` lints every journey and lists possible duplicates; a merge conflict in `registry.yml` is settled by `$H journeys --resolve` | `$H journeys KEY --harvest` → `--harvest --apply` → `journeys/registry.yml` — [journeys](references/journeys.md) |
 
-Work through the phases in order and do not skip the freeze. **You orchestrate:** each subagent runs in a fresh
+Work through the phases in order and do not skip the freeze. **You coordinate:** each subagent runs in a fresh
 context, works from the files on disk and the scripts, and replies with a summary; `$H advance KEY` runs the steps
 between them (freeze, runs, verdict, publish, journey registry) and names the next subagent with its task. Keep the
 questions and missing pieces the subagents report for your closing summary; they are never a reason to pause. Give

@@ -6,6 +6,10 @@
  *        created in its mock Jira from demo/stories/<KEY>/ (story.md; ac-field.md as the criteria field; any other
  *        page as the Confluence page the story links by its title)
  *
+ * Run the round in the round project itself: open it in VS Code (GitHub Copilot: the heldout-evaluator agent) or
+ * start Claude Code there, so it is the workspace and the working directory. Driven from this repository, every edit
+ * and every `cd` into the project is outside the trusted folder and asks for approval, or is refused.
+ *
  * A round's numbers come from the shipped command, run in the round project: `npm run heldout -- stats [KEY]`.
  * The rounds folder comes from the environment, so the repository holds no machine path.
  */
@@ -51,7 +55,7 @@ function newRound(args: string[]): void {
   fs.mkdirSync(project, { recursive: true });
   sh('bash', [path.join(REPO, 'setup.sh').split(path.sep).join('/'), '--no-pull', ...opts], project);
   for (const key of stories) sh('npm', ['run', 'heldout', '--', 'new', key, ...storyArgs(key)], project);
-  console.log(`\n✔ round ${name}: ${project}${stories.length ? ` with ${stories.join(', ')} in its mock Jira` : ''}. Next: npm run heldout -- advance ${stories[0] ?? 'KEY'}`);
+  console.log(`\n✔ round ${name}: ${project}${stories.length ? ` with ${stories.join(', ')} in its mock Jira` : ''}. Next: open that folder in your agent app (not this repository) and ask for an evaluation of ${stories[0] ?? 'KEY'}`);
 }
 
 if (cmd === 'new') newRound(rest);

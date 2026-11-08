@@ -34,13 +34,10 @@ heldout contract KEY --allow-unreviewed   # anchoring + coverage + literals; the
 heldout contract KEY                      # clean, including the review
 ```
 
-Delegate the two steps to subagents: the builder and the reviewer must not share context. In Claude Code:
-
-- Agent tool, `subagent_type: "heldout-contract-extractor"`, prompt "Build the requirement contract for KEY".
-- Then `subagent_type: "heldout-contract-reviewer"`, prompt "Review the requirement contract for KEY".
-
-In GitHub Copilot, run each with the `agent` tool as the custom agent of that name. In other agent apps, use a fresh
-chat with the same prompt and the instructions in `.github/agents/heldout-contract-extractor.agent.md` /
+Delegate the two steps to subagents, as the coordinator delegates every phase (SKILL.md, "Who coordinates"): the
+builder and the reviewer must not share context. `heldout-contract-extractor` gets "Build the requirement contract for
+KEY", then `heldout-contract-reviewer` "Review the requirement contract for KEY". In an app without subagents, use a
+fresh chat with the same prompt and the instructions in `.github/agents/heldout-contract-extractor.agent.md` /
 `heldout-contract-reviewer.agent.md`.
 
 If the reviewer reports findings, send them back to the builder ("Fix the requirement contract for KEY: <findings>";

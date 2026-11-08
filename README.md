@@ -88,7 +88,8 @@ fixes it. Then:
 
 1. Reload VS Code once (or start a new Claude Code session), so the agent loads the Playwright MCP server and the
    subagents.
-2. Ask GitHub Copilot (agent mode) or Claude Code: **"Run a held-out evaluation of ABC-123"**.
+2. Ask GitHub Copilot (agent mode, with the `heldout-evaluator` agent picked in the agents dropdown) or Claude Code:
+   **"Run a held-out evaluation of ABC-123"**.
 
 **It runs unattended.** Questions are asked once, during setup (the application's address, Jira, test accounts). From
 the moment a story is fetched to its published verdict, the agent asks you nothing and waits for nothing: what the
@@ -97,10 +98,12 @@ owner, a story with no acceptance criteria gets an INCONCLUSIVE verdict that say
 or a secret the project doesn't have end BLOCKED, with what is missing named in the verdict. One command carries a
 story between the subagents: `npm run heldout -- advance ABC-123` runs every script step that comes next and names
 the subagent whose turn it is. The verdict is published to the story when it is ready; set `"publish": "manual"`
-under `jira` in `heldout.config.json` to publish it yourself. Setup pre-approves the `heldout` command for both agent apps
-(`permissions.allow` in `.claude/settings.json`, with the Playwright MCP server; `chat.tools.terminal.autoApprove` in
-`.vscode/settings.json`), so those run without an approval prompt; remove the entries to approve each one yourself.
-The prompts that remain are your agent app's own for file edits and other commands.
+under `jira` in `heldout.config.json` to publish it yourself. Setup pre-approves the `heldout` command and the file
+edits an evaluation makes (`permissions.allow` in `.claude/settings.json`: the Playwright MCP server too, and edits in
+`output/`, `.heldout/` and the journeys folders; `chat.tools.terminal.autoApprove` and, for the `.heldout/` scratch
+area, `chat.tools.edits.autoApprove` in `.vscode/settings.json`), so those run without an approval prompt; remove the
+entries to approve each one yourself.
+The prompts that remain are your agent app's own for other files and commands.
 
 ![A story end to end: one request in the chat, then advance and the subagents up to the published verdict](docs/media/end-to-end.gif)
 
@@ -133,14 +136,16 @@ so `init` adds short bridges there that point at `.github/`. Nothing is kept in 
 | What | File | GitHub Copilot (VS Code agent mode) | Claude Code |
 | --- | --- | --- | --- |
 | The skill | `.github/skills/heldout-evaluator/SKILL.md` | ✔ agent skill | via the bridge `.claude/skills/heldout-evaluator/SKILL.md` |
+| The coordinator | `.github/agents/heldout-evaluator.agent.md` | ✔ the custom agent you pick | the main agent with the skill |
 | The phase subagents | `.github/agents/*.agent.md` | ✔ custom agents | via the bridges `.claude/agents/*.md` |
 | Model fallbacks | `model:` in each `.agent.md` · `.claude/settings.json` | ✔ the `model:` list, tried in order | ✔ `fallbackModel` (also used by subagents) |
 | Copilot reads `.github/` only, not the bridges | `.vscode/settings.json` | ✔ | — |
 | Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` | ✔ `.mcp.json` (the only file it reads) |
 | The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) | ✔ (plain Node) |
 
-The main agent orchestrates: `heldout advance KEY` runs the commands between phases and names the next subagent with
-its task, and the agent hands each phase that needs a model to that subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
+One agent coordinates (in GitHub Copilot the `heldout-evaluator` agent, which may call the five phase subagents only;
+in Claude Code the main agent with the skill): `heldout advance KEY` runs the commands between phases and names the
+next subagent with its task, and the coordinator hands each phase that needs a model to that subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
 builder's reasoning, the test author has no browser and never sees the application, and the triager didn't write the
 tests it judges.
 

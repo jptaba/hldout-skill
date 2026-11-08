@@ -19,7 +19,7 @@ import { ROOT, fileHash, rel } from '../core/files';
 import { PHASE_FOLDERS, evalPaths, journeyPaths, listStories } from '../core/paths';
 import { accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, type HeldoutConfig } from '../core/profile';
 import { safeToScrub, secretForms } from '../core/redact';
-import { toolProblems } from '../core/roles';
+import { nameClashes, toolProblems } from '../core/roles';
 import { loadVaultSecrets, projectSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
 import { checkAccountRecipe, envNamesIn } from '../probe/accounts-recipe';
 import { appRootOf, describeCounts, discoverApp } from '../probe/detect';
@@ -114,6 +114,11 @@ export async function run({ flags }: Args): Promise<void> {
     if (wider.length) for (const p of wider) check('warn', 'subagents', p, `restore the skill's version: delete ${target}, then ${UPDATE_HINT} (update keeps a file this project changed)`);
     else check('ok', 'subagents', target);
   }
+  // The project's own agents may not take a skill agent's name: Copilot would call one of them in that role's place.
+  const agentsDir = path.join(ROOT, '.github', 'agents');
+  const others = (fs.existsSync(agentsDir) ? fs.readdirSync(agentsDir) : []).filter((f) => f.endsWith('.md'))
+    .map((f) => `.github/agents/${f}`).filter((f) => !AGENT_FILES.includes(f));
+  for (const p of nameClashes(others.map((f) => [f, fs.readFileSync(path.join(ROOT, f), 'utf8')]))) check('warn', 'subagents', p, 'rename that agent (its name: and its file)');
   // Playwright MCP (tier 2): .vscode/mcp.json for GitHub Copilot, the root .mcp.json for Claude Code.
   for (const [file, app, fix] of [[MCP_FILE, 'GitHub Copilot', UPDATE_HINT], [CLAUDE_MCP_FILE, 'Claude Code', `${H} init`]] as const) {
     const at = path.join(ROOT, file);

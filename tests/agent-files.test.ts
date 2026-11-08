@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { AGENT_FILES, SKILL_DIR } from '../.github/scripts/core/config';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
-import { ROLES, toolProblems } from '../.github/scripts/core/roles';
+import { COORDINATOR, ROLES, nameClashes, toolProblems } from '../.github/scripts/core/roles';
 import { COMMANDS, loadCommand } from '../.github/scripts/heldout';
 
 const REPO = path.resolve(import.meta.dirname, '..');
-const COPILOT = AGENT_FILES.filter((f) => f.startsWith('.github/agents/'));
+/** Copilot's coordinator: shipped, with no Claude Code bridge (its main agent with the skill coordinates there). */
+const COORD = `.github/agents/${COORDINATOR}.agent.md`;
+/** The phase subagents' Copilot files. */
+const COPILOT = AGENT_FILES.filter((f) => f.startsWith('.github/agents/') && f !== COORD);
 /** Maintainer-only agents, never shipped by init: dev-* ones, and the agent setup's reviewer (.agents/README.md). */
 const DEV = fs.readdirSync(path.join(REPO, '.github', 'agents')).filter((f) => f.startsWith('dev-') || f === 'code-reviewer.agent.md').map((f) => `.github/agents/${f}`);
 /** The Claude Code bridge of a Copilot agent file. */
@@ -65,7 +69,7 @@ describe('agent files', () => {
   it('no dev-only agent is shipped, and every agent in .github/agents is either shipped or dev-only', () => {
     assert.deepEqual(AGENT_FILES.filter((f) => path.basename(f).startsWith('dev-')), []);
     const all = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`);
-    assert.deepEqual(all.filter((f) => !COPILOT.includes(f) && !DEV.includes(f)), [], 'name a new agent dev-… (or make it part of the agent setup) or give it a role in core/roles.ts');
+    assert.deepEqual(all.filter((f) => !AGENT_FILES.includes(f) && !DEV.includes(f)), [], 'name a new agent dev-… (or make it part of the agent setup) or give it a role in core/roles.ts');
   });
 
   it('each Claude Code bridge carries the name and description of what it points at', () => {
@@ -93,7 +97,7 @@ describe('agent files', () => {
 
   it('every `heldout <command> --flag` the agents, SKILL.md and the references write exists', async () => {
     const refs = path.join(SKILL_DIR, 'references');
-    const docs = [...COPILOT.map((f) => path.join(REPO, f)), path.join(SKILL_DIR, 'SKILL.md'), ...fs.readdirSync(refs).filter((f) => f.endsWith('.md')).map((f) => path.join(refs, f))];
+    const docs = [...[COORD, ...COPILOT].map((f) => path.join(REPO, f)), path.join(SKILL_DIR, 'SKILL.md'), ...fs.readdirSync(refs).filter((f) => f.endsWith('.md')).map((f) => path.join(refs, f))];
     const problems: string[] = [];
     let checked = 0;
     for (const doc of docs) {
@@ -117,12 +121,60 @@ describe('agent files', () => {
   });
 
   it('each subagent\'s tools in both apps are exactly what its role allows (core/roles.ts)', () => {
-    const onDisk = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`).filter((f) => !DEV.includes(f));
+    const onDisk = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`).filter((f) => !DEV.includes(f) && f !== COORD);
     assert.deepEqual(Object.keys(ROLES).sort(), onDisk.map((f) => path.basename(f, '.agent.md')).sort());
     for (const f of [...COPILOT, ...COPILOT.map(bridgeOf)]) assert.deepEqual(toolProblems(f, fs.readFileSync(path.join(REPO, f), 'utf8')), [], f);
     // No role looks at the application before the freeze; the contract reviewer never edits what it judges.
     for (const [name, role] of Object.entries(ROLES)) assert.equal(role.browser, ['heldout-hardener', 'heldout-triager'].includes(name), name);
     assert.equal(ROLES['heldout-contract-reviewer'].writes, 'create');
+  });
+
+  it('Copilot\'s coordinator calls the phase agents only, with its own tools and no bridge (specs/016-coordinator-agent)', () => {
+    const text = fs.readFileSync(path.join(REPO, COORD), 'utf8');
+    assert.ok(AGENT_FILES.includes(COORD), 'shipped');
+    assert.deepEqual(toolProblems(COORD, text), []);
+    assert.ok(!fs.existsSync(path.join(REPO, bridgeOf(COORD))), 'no Claude Code bridge: its main agent with the skill coordinates');
+    assert.ok(!AGENT_FILES.includes(bridgeOf(COORD)));
+    const fm = frontmatter(COORD);
+    assert.equal(fm['user-invocable'], 'true');
+    assert.ok((JSON.parse(fm.model.replace(/'/g, '"')) as string[]).length >= 2, 'a primary model and a fallback');
+    for (const use of ['SKILL.md', 'heldout -- advance KEY', '--quiet', 'no `cd`', 'note KEY --usage', 'No scripts of your own']) assert.ok(text.includes(use), use);
+    const widened = [
+      text.replace(/^tools:.*$/m, "tools: ['agent', 'read', 'search', 'edit', 'execute', 'browser']"),
+      text.replace(/^tools:.*\r?\n/m, ''),
+      text.replace(/^agents:.*$/m, "agents: ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-test-author', 'heldout-hardener', 'heldout-triager', 'Explore']"),
+      text.replace(/^agents:.*$/m, "agents: ['*']"),
+      text.replace(/^agents:.*\r?\n/m, ''),
+      text.replace(/^name:/m, 'handoffs: x\nname:'),
+    ];
+    for (const t of widened) assert.ok(toolProblems(COORD, t).length >= 1, t.slice(0, 400));
+    // Another agent's file may not take the coordinator's keys or tools.
+    const author = '.github/agents/heldout-test-author.agent.md';
+    assert.ok(toolProblems(author, fs.readFileSync(path.join(REPO, author), 'utf8').replace(/^name:/m, "agents: ['heldout-hardener']\nname:")).length >= 1);
+    assert.ok(toolProblems(bridgeOf(COORD), '---\nname: heldout-evaluator\ntools: Read\n---\n').length >= 1, 'a Claude Code file for it has no role');
+    // Copilot calls agents by name: a file whose name: isn't its own, or another agent with a skill agent's name, is caught.
+    assert.ok(toolProblems(author, fs.readFileSync(path.join(REPO, author), 'utf8').replace(/^name:.*$/m, 'name: heldout-hardener')).some((p) => p.includes('must be heldout-test-author')));
+    assert.deepEqual(nameClashes([['.github/agents/mine.agent.md', '---\nname: heldout-hardener\ntools: [\'*\']\n---\n'], ['.github/agents/other.agent.md', '---\nname: other\n---\n']]),
+      ['.github/agents/mine.agent.md: name heldout-hardener is the skill\'s own agent\'s']);
+    assert.equal(nameClashes([['.github/agents/x.agent.md', '---\nname: heldout-evaluator\n---\n']]).length, 1);
+  });
+
+  it('both apps approve edits in the record, the scratch area and the journeys, and nothing wider (specs/016-coordinator-agent)', () => {
+    const json = (f: string) => JSON.parse(fs.readFileSync(path.join(REPO, f), 'utf8'));
+    const edits = (json('.claude/settings.json').permissions.allow as string[]).filter((r) => r.startsWith('Edit'));
+    assert.deepEqual(edits.sort(), ['Edit(/.heldout/**)', 'Edit(/journeys-*/**)', 'Edit(/journeys/**)', 'Edit(/output/**)']);
+    // Copilot already approves edits in the workspace, except dotfiles: only the scratch area is added, and its glob
+    // matches no file the repository tracks (the skill's own code among them).
+    const copilot = json('.vscode/settings.json')['chat.tools.edits.autoApprove'] as Record<string, boolean>;
+    assert.deepEqual(copilot, { '**/.heldout/**': true });
+    const tracked = spawnSync('git', ['-C', REPO, 'ls-files'], { encoding: 'utf8' }).stdout.split('\n').filter(Boolean);
+    assert.ok(tracked.length > 100);
+    assert.deepEqual(tracked.filter((f) => Object.keys(copilot).some((g) => path.matchesGlob(f, g))), []);
+    assert.ok(path.matchesGlob('.heldout/parabank/PB-1/4-hardening/x.md', '**/.heldout/**'));
+    // Claude Code's rules are anchored at the project root: none reaches a file the skill ships either.
+    const claude = edits.map((r) => r.slice('Edit(/'.length, -1));
+    assert.deepEqual(tracked.filter((f) => claude.some((g) => path.matchesGlob(f, g))), []);
+    assert.ok(path.matchesGlob('journeys-parabank/fixtures/accounts.ts', claude.find((g) => g.startsWith('journeys-'))!));
   });
 
   it('a widened tool list is caught, however it is written', () => {
