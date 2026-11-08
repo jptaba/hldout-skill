@@ -53,7 +53,7 @@ import fs from 'node:fs';
 import { chromium, selectors, type Locator, type Page } from '@playwright/test';
 import { flagList, flagStr, resolveUrl as autUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { pageText, redact, redactSnapshot, scrubNotes, scrubValues, shapeOf } from '../core/redact';
+import { pageText, redact, redactSnapshot, scrubNotes, scrubValues, secretForms, shapeOf } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { generatedId, siteOf } from './detect';
 import { composeSteps, walkInput, walkVars } from './compose';
@@ -499,7 +499,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const holding = Object.keys(saved).filter((k) => scrubValues(saved[k], found) !== saved[k]);
   for (const k of holding) delete saved[k];
   const notes = [...(holding.length ? [`Not kept for --vars-from, as they hold a secret: ${holding.join(', ')}.`] : []), ...scrubNotes(savedSecrets)];
-  const report = secrets.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), scrubValues([...out, ...(notes.length ? ['', ...notes] : [])].join('\n'), found));
+  const report = secretForms(secrets).reduce((acc, v) => acc.split(v).join('***redacted***'), scrubValues([...out, ...(notes.length ? ['', ...notes] : [])].join('\n'), found));
   deliverProbe(cfg, flagStr(flags, 'key'), {
     tool: 'inspect', tier: 3, report,
     input: walkInput({ url: flagStr(flags, 'url') ?? '', steps, probes: flagList(flags, 'probe'), ...(flagStr(flags, 'probes') ? { probesFile: fs.readFileSync(flagStr(flags, 'probes')!, 'utf8') } : {}), html: flagList(flags, 'html'), waitFor: flagStr(flags, 'wait-for'), ...(Object.keys(saved).length ? { saved } : {}) }, given),

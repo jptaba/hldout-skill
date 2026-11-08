@@ -21,7 +21,7 @@ import type { Args, CommandSpec } from '../core/cli';
 import { loadConfig, loadEnv } from '../core/config';
 import { ROOT } from '../core/files';
 import { PHASE_FOLDERS, evalPaths, listStories } from '../core/paths';
-import { safeToScrub } from '../core/redact';
+import { safeToScrub, secretForms } from '../core/redact';
 import { loadVaultSecrets, projectSecrets } from '../core/secrets';
 import { readZip } from '../core/zip';
 
@@ -105,7 +105,7 @@ export function precommitProblems(staged: { file: string; data: Buffer }[], secr
   const out = `${outputDir.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '')}/`;
   for (const { file, data } of staged) {
     if (file.startsWith(out) && data.length > MAX_RECORD_FILE) problems.push(`${file}: ${(data.length / 1024 / 1024).toFixed(1)} MB in the output folder — run artifacts belong in the scratch area (git-ignored); unstage it`);
-    for (const { where, text } of textsOf(file, data)) for (const [name] of secrets.filter(([, v]) => text.includes(v))) problems.push(`${where}: holds the value of ${name}`);
+    for (const { where, text } of textsOf(file, data)) for (const [name] of secrets.filter(([, v]) => secretForms([v]).some((f) => text.includes(f)))) problems.push(`${where}: holds the value of ${name}`);
   }
   return problems;
 }

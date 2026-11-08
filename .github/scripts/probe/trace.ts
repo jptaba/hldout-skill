@@ -18,7 +18,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
 import { currentTestData, evalPaths, listRuns, movedRunNote, runFile } from '../core/paths';
-import { pageText, redact, secretValuesFor } from '../core/redact';
+import { pageText, redact, redactForm, scrubValues, secretValuesFor } from '../core/redact';
 import { readZip, type ZipEntry } from '../core/zip';
 import { envNamesIn } from './accounts-recipe';
 
@@ -54,7 +54,8 @@ export function run({ _, flags }: Args): void {
   const zip = readZip(fs.readFileSync(file));
   if (!zip) throw new Error(`${rel(file)} could not be read`);
   const secrets = secretValuesFor(currentTestData(p), process.env, envNamesIn(cfg.aut.accounts).map((n) => process.env[n] ?? '').filter(Boolean)).values;
-  const mask = (s: string) => secrets.reduce((acc, v) => acc.split(v).join('***'), s);
+  // The known values first: a field's name would cut one at its `&` and leave the rest.
+  const mask = (s: string) => redactForm(scrubValues(s, secrets));
   const limit = Number(flagStr(flags, 'body-limit') ?? 600);
   const resource = (name?: string) => (name ? zip.find((e) => e.name === name)?.data.toString('utf8') : undefined);
   const body = (text?: string, mime = '') => {

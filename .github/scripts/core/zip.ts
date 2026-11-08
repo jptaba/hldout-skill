@@ -17,8 +17,12 @@ function crc32(buf: Buffer): number {
   return (c ^ 0xffffffff) >>> 0;
 }
 
-/** The archive's entries, unpacked; undefined when it isn't a plain zip this reader handles (zip64, encrypted, another method). */
+/** The archive's entries, unpacked; undefined when it isn't a plain zip this reader handles (zip64, encrypted, another method) or is damaged. */
 export function readZip(buf: Buffer): ZipEntry[] | undefined {
+  try { return unpack(buf); } catch { return undefined; }
+}
+
+function unpack(buf: Buffer): ZipEntry[] | undefined {
   // The end record is the last thing in the file, after an optional comment (at most 65535 bytes).
   let end = -1;
   for (let i = buf.length - 22; i >= Math.max(0, buf.length - 22 - 0xffff); i--) if (buf.readUInt32LE(i) === 0x06054b50) { end = i; break; }
@@ -73,14 +77,14 @@ function replaceBytes(buf: Buffer, find: Buffer, put: Buffer): Buffer {
 }
 
 /**
- * The archive with every secret value taken out of the files inside it (as it is written, URL-encoded and inside
- * JSON), and how many files held one. `changed` 0 means the archive needs no rewrite; undefined, that it could not
+ * The archive with the given texts (every form of a secret, the longest first: secretForms) taken out of the files
+ * inside it, and how many files held one. `changed` 0 means the archive needs no rewrite; undefined, that it could not
  * be read (the caller then decides what to do with it).
  */
-export function scrubZip(buf: Buffer, secrets: string[], mask = '***redacted***'): { zip: Buffer; changed: number } | undefined {
+export function scrubZip(buf: Buffer, secretForms: string[], mask = '***redacted***'): { zip: Buffer; changed: number } | undefined {
   const entries = readZip(buf);
   if (!entries) return undefined;
-  const forms = [...new Set(secrets.flatMap((s) => [s, encodeURIComponent(s), JSON.stringify(s).slice(1, -1)]))].filter(Boolean).sort((a, b) => b.length - a.length).map((s) => Buffer.from(s, 'utf8'));
+  const forms = secretForms.map((s) => Buffer.from(s, 'utf8'));
   const put = Buffer.from(mask, 'utf8'); let changed = 0;
   const clean = entries.map((e) => {
     const data = forms.reduce((d, f) => replaceBytes(d, f, put), e.data);

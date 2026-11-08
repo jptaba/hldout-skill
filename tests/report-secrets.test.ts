@@ -2,7 +2,7 @@
  * No saved secret in a report (specs/014-no-secret-in-a-report): what `redact` hides, what is scrubbed, and real chains
  * against a local server, read back from the report and the log.
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -12,6 +12,7 @@ import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { scrubsFromReport } from '../.github/scripts/core/probe-log';
 import { redact, redactField, scrubNotes, scrubValues } from '../.github/scripts/core/redact';
+import { writeZip } from '../.github/scripts/core/zip';
 
 const DISPATCHER = path.join(import.meta.dirname, '..', '.github', 'scripts', 'heldout.ts');
 const TSX = path.join(import.meta.dirname, '..', 'node_modules', 'tsx', 'dist', 'cli.mjs');
@@ -50,6 +51,67 @@ const absent = (r: { report: string; log: string; stdout: string }, value: strin
   assert.ok(!r.stdout.includes(value), `${why}: on stdout`);
 };
 const TOKEN = ['a1B2', 'c3D4'].join('-').repeat(4);
+
+describe('heldout trace', () => {
+  it('shows no known secret in any form, and hides a form field by its name', () => {
+    const dir = fs.mkdtempSync(path.join(root, 'trace-'));
+    const secret = ['Gen3rated', '!pw*@x'].join('');
+    const inForm = new URLSearchParams({ x: secret }).toString().slice(2);
+    fs.writeFileSync(path.join(dir, 'heldout.config.json'), JSON.stringify({ defaultAut: 'shop', auts: { shop: { name: 'Shop', baseURL: 'http://127.0.0.1:9/' } } }));
+    const story = path.join(dir, 'output', 'shop', 'ABC-1');
+    fs.mkdirSync(path.join(story, '5-run'), { recursive: true });
+    fs.mkdirSync(path.join(story, '3-tests'), { recursive: true });
+    fs.writeFileSync(path.join(story, '3-tests', 'test-data.json'), '{"password":"${env:SHOP_PW}"}');
+    const snapshot = (url: string, text: string, answer = '') => JSON.stringify({ type: 'resource-snapshot', snapshot: { request: { method: 'POST', url, postData: { text } }, response: { status: 200, content: { mimeType: 'text/plain', text: answer } } } });
+    const network = [
+      snapshot('http://app/login.htm', `username=ann&password=${inForm}&passenger=2&remember_token=true`),
+      snapshot(`http://app/login/ann/${encodeURIComponent(secret)}?author=jo&session_token=abc123`, 'pin=1&sessionId=def456', `echo ${inForm}`),
+    ].join('\n');
+    const console_ = JSON.stringify({ type: 'console', messageType: 'log', text: `sent ${inForm} GET http://x/?password=unknown1` });
+    const steps = [JSON.stringify({ type: 'before', callId: '1', title: `page.goto(http://app/login?token=unknown2&p=${inForm})` }),
+      JSON.stringify({ type: 'after', callId: '1', error: { message: `refused ${inForm} at http://x/?token=unknown3` } })].join('\n');
+    fs.writeFileSync(path.join(dir, 'trace.zip'), writeZip([{ name: '0.network', data: Buffer.from(network) }, { name: '0.trace', data: Buffer.from(console_) }, { name: 'test.trace', data: Buffer.from(steps) }]));
+    fs.writeFileSync(path.join(story, '5-run', '01-eval.json'), JSON.stringify({ entries: [{ scenario: 'SCN-001', status: 'failed', evidence: { trace: 'trace.zip' } }] }));
+    const heldout = (...args: string[]) => spawnSync(process.execPath, [TSX, DISPATCHER, ...args], { cwd: dir, encoding: 'utf8', env: { ...process.env, SHOP_PW: secret, npm_lifecycle_event: '' } });
+    const r = heldout('trace', 'ABC-1', 'SCN-001', '--network', '--console', '--steps');
+    assert.equal(r.status, 0, r.stderr);
+    for (const form of [secret, inForm, encodeURIComponent(secret), 'abc123', 'def456', 'unknown1', 'unknown2', 'unknown3']) assert.ok(!r.stdout.includes(form), `${form} stays out`);
+    assert.match(r.stdout, /username=ann&password=\*\*\*redacted\*\*\*&passenger=2&remember_token=true/);
+    assert.match(r.stdout, /\/login\/ann\/\*\*\*redacted\*\*\*\?author=jo&session_token=\*\*\*redacted\*\*\*/);
+    assert.match(r.stdout, /sent \*\*\*redacted\*\*\*/);
+    assert.match(r.stdout, /refused \*\*\*redacted\*\*\*/);
+  });
+
+  it('leaves nothing of a value a field\'s name would cut', () => {
+    const dir = fs.mkdtempSync(path.join(root, 'trace-cut-'));
+    const secret = ['Ab1&cd9', '#x y!z@w*'].join('');
+    fs.writeFileSync(path.join(dir, 'heldout.config.json'), JSON.stringify({ defaultAut: 'shop', auts: { shop: { name: 'Shop', baseURL: 'http://127.0.0.1:9/' } } }));
+    const story = path.join(dir, 'output', 'shop', 'ABC-1');
+    fs.mkdirSync(path.join(story, '5-run'), { recursive: true });
+    fs.mkdirSync(path.join(story, '3-tests'), { recursive: true });
+    fs.writeFileSync(path.join(story, '3-tests', 'test-data.json'), '{"password":"${env:SHOP_PW}"}');
+    const call = JSON.stringify({ type: 'resource-snapshot', snapshot: { request: { method: 'POST', url: `http://app/in?password=${secret}`, postData: { text: `password=${secret}` } }, response: { status: 200, content: { mimeType: 'text/plain', text: `password=${secret}` } } } });
+    fs.writeFileSync(path.join(dir, 'trace.zip'), writeZip([{ name: '0.network', data: Buffer.from(call) }]));
+    fs.writeFileSync(path.join(story, '5-run', '01-eval.json'), JSON.stringify({ entries: [{ scenario: 'SCN-001', status: 'failed', evidence: { trace: 'trace.zip' } }] }));
+    const r = spawnSync(process.execPath, [TSX, DISPATCHER, 'trace', 'ABC-1', 'SCN-001', '--network'], { cwd: dir, encoding: 'utf8', env: { ...process.env, SHOP_PW: secret, npm_lifecycle_event: '' } });
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(!/cd9|y!z/.test(r.stdout), r.stdout);
+  });
+
+  it('heldout scrub clears what its check finds', () => {
+    const dir = fs.mkdtempSync(path.join(root, 'scrub-'));
+    const secret = ['Gen3rated', '!pw*@x'].join('');
+    fs.writeFileSync(path.join(dir, 'heldout.config.json'), JSON.stringify({ defaultAut: 'shop', auts: { shop: { name: 'Shop', baseURL: 'http://127.0.0.1:9/' } } }));
+    const story = path.join(dir, 'output', 'shop', 'ABC-1');
+    fs.mkdirSync(path.join(story, '3-tests'), { recursive: true });
+    fs.writeFileSync(path.join(story, '3-tests', 'test-data.json'), '{"password":"${env:SHOP_PW}"}');
+    fs.writeFileSync(path.join(story, 'history.jsonl'), `${JSON.stringify({ sent: `password=${new URLSearchParams({ x: secret }).toString().slice(2)}` })}\n`);
+    const heldout = (...args: string[]) => spawnSync(process.execPath, [TSX, DISPATCHER, ...args], { cwd: dir, encoding: 'utf8', env: { ...process.env, SHOP_PW: secret, npm_lifecycle_event: '' } });
+    assert.equal(heldout('scrub', 'ABC-1', '--check').status, 1);
+    assert.equal(heldout('scrub', 'ABC-1').status, 0);
+    assert.equal(heldout('scrub', 'ABC-1', '--check').status, 0);
+  });
+});
 
 describe('redact', () => {
   it('hides what holds a secret', () => {

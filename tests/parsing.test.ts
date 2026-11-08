@@ -455,6 +455,117 @@ describe('run artifact scrubbing', () => {
     fs.writeFileSync(path.join(dir, 'broken.zip'), 'not a zip p@ss W0rd!');
     assert.equal(scrubDir(dir, ['p@ss W0rd!']).files, 0);
   });
+  it('knows a secret as a form body writes it, in text, in an archive and when only checking', async () => {
+    const { findSecrets, scrubDir } = await import('../.github/scripts/core/redact');
+    const { readZip, writeZip } = await import('../.github/scripts/core/zip');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scrub-form-'));
+    const secret = ['p/ss', 'W0rd!'].join(' ');
+    // As a form writes it, as an address does, and with the hex in lower case.
+    for (const form of ['p%2Fss+W0rd%21', 'p%2Fss%20W0rd!', 'p%2fss+W0rd%21', 'p%2fss%20W0rd!']) {
+      fs.writeFileSync(path.join(dir, 'request.txt'), `username=ann&password=${form}`);
+      fs.writeFileSync(path.join(dir, 'trace.zip'), writeZip([{ name: 'trace.network', data: Buffer.from(`{"postData":{"text":"username=ann&password=${form}"}}`) }]));
+      assert.equal(findSecrets(dir, [secret]).length, 2, 'the check sees it in both');
+      assert.equal(scrubDir(dir, [secret]).files, 2);
+      assert.equal(fs.readFileSync(path.join(dir, 'request.txt'), 'utf8'), 'username=ann&password=***redacted***');
+      assert.equal(readZip(fs.readFileSync(path.join(dir, 'trace.zip')))![0].data.toString(), '{"postData":{"text":"username=ann&password=***redacted***"}}');
+      assert.deepEqual(findSecrets(dir, [secret]), []);
+    }
+    fs.rmSync(path.join(dir, 'request.txt'));
+    fs.rmSync(path.join(dir, 'trace.zip'));
+    // A strict encoder's `%2A` and `%21`, with `+` for a space; `*` is in what a generated password holds.
+    const strict = 'Ab%2Ac%40d%21e+f';
+    // A trace keeps a JSON body as a string inside JSON.
+    const quoted = 'Ab"c\\9xy';
+    fs.writeFileSync(path.join(dir, 'trace.zip'), writeZip([
+      { name: 'a.network', data: Buffer.from(JSON.stringify({ postData: { text: JSON.stringify({ pw: quoted }) } })) },
+      { name: 'b.network', data: Buffer.from(`password=${strict}`) }]));
+    assert.equal(findSecrets(dir, ['Ab*c@d!e f', quoted]).length, 2);
+    assert.equal(scrubDir(dir, ['Ab*c@d!e f', quoted]).files, 1);
+    assert.deepEqual(findSecrets(dir, ['Ab*c@d!e f', quoted]), []);
+    fs.rmSync(path.join(dir, 'trace.zip'));
+    // The HTML report's archive, and a run's attachment.
+    const form = 'p%2Fss+W0rd%21';
+    fs.writeFileSync(path.join(dir, 'index.html'), `<script>window.report = "data:application/zip;base64,${writeZip([{ name: 'report.json', data: Buffer.from(`password=${form}`) }]).toString('base64')}";</script>`);
+    fs.writeFileSync(path.join(dir, 'results.json'), JSON.stringify({ attachments: [{ contentType: 'text/plain', body: Buffer.from(`sent ${form}`).toString('base64') }] }));
+    assert.deepEqual(findSecrets(dir, [secret]).map((h) => path.basename(h)).sort(), ['index.html › report.json', 'results.json']);
+    assert.equal(scrubDir(dir, [secret]).files, 2);
+    assert.deepEqual(findSecrets(dir, [secret]), []);
+    // What the check reads, the scrub clears; the log's lines stay JSON.
+    fs.writeFileSync(path.join(dir, 'probes.jsonl'), `${JSON.stringify({ sent: `password=${form}` })}\n`);
+    fs.writeFileSync(path.join(dir, 'call.http'), `password=${form}`);
+    fs.writeFileSync(path.join(dir, 'page.html'), `<p>${form}</p>`);
+    assert.equal(findSecrets(dir, [secret]).length, 3);
+    assert.equal(scrubDir(dir, [secret]).files, 3);
+    assert.deepEqual(findSecrets(dir, [secret]), []);
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(dir, 'probes.jsonl'), 'utf8')), { sent: 'password=***redacted***' });
+    // A base64 body wherever the check sees one, whatever its type, in a file that doesn't parse too.
+    const b64 = Buffer.from(`password=${form}`).toString('base64');
+    fs.writeFileSync(path.join(dir, 'results.json'), `{"attachments":[{"contentType":"application/x-www-form-urlencoded","body":"${b64}"}]`);
+    fs.writeFileSync(path.join(dir, 'other.jsonl'), `{"body": "${b64}"}\n`);
+    fs.writeFileSync(path.join(dir, 'page.html'), `<p>"body":"${b64}"</p>`);
+    assert.equal(findSecrets(dir, [secret]).length, 3);
+    assert.equal(scrubDir(dir, [secret]).files, 3);
+    assert.deepEqual(findSecrets(dir, [secret]), []);
+    assert.equal(Buffer.from(JSON.parse(fs.readFileSync(path.join(dir, 'other.jsonl'), 'utf8')).body, 'base64').toString(), 'password=***redacted***');
+  });
+  it('leaves the base64 of a page\'s archive to the archive\'s scrub, and a damaged archive as it is', async () => {
+    const { findSecrets, scrubDir } = await import('../.github/scripts/core/redact');
+    const { readZip, writeZip } = await import('../.github/scripts/core/zip');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scrub-page-'));
+    const packed = writeZip([{ name: 'report.json', data: Buffer.from('{"title":"a report"}') }]).toString('base64');
+    const inBase64 = packed.slice(10, 18); // A secret that happens to read as a run of the archive's base64.
+    const page = `<script>r = "data:application/zip;base64,${packed}";</script>`;
+    fs.writeFileSync(path.join(dir, 'index.html'), page);
+    assert.deepEqual(findSecrets(dir, [inBase64]), []);
+    assert.equal(scrubDir(dir, [inBase64]).files, 0);
+    assert.equal(fs.readFileSync(path.join(dir, 'index.html'), 'utf8'), page);
+    // A central directory that points outside the file.
+    const damaged = writeZip([{ name: 'a.txt', data: Buffer.from('x') }]);
+    damaged.writeUInt32LE(0xfffffff0, damaged.length - 6);
+    assert.equal(readZip(damaged), undefined);
+    fs.writeFileSync(path.join(dir, 'index.html'), `"data:application/zip;base64,${damaged.toString('base64')}"`);
+    fs.writeFileSync(path.join(dir, 'trace.zip'), damaged);
+    assert.deepEqual(findSecrets(dir, ['Abc-123']), []);
+    assert.equal(scrubDir(dir, ['Abc-123']).files, 0);
+  });
+  it('never takes a form weaker than the value for it', async () => {
+    const { secretForms } = await import('../.github/scripts/core/redact');
+    assert.deepEqual(secretForms(['a     b']).filter((f) => f.length < 6), [], 'the spaces collapsed are ordinary text');
+    assert.ok(secretForms(['abc']).includes('abc'), 'a short value a probe knows is still itself');
+    assert.ok(secretForms(['a@b']).includes('a%40b'), 'and in an address');
+  });
+  it('hides a form field by its name, wherever an address or a text has it', async () => {
+    const { redactForm } = await import('../.github/scripts/core/redact');
+    const hidden = '***redacted***';
+    for (const [text, want] of [
+      ['username=ann&password=x1&passenger=2', `username=ann&password=${hidden}&passenger=2`],
+      ['https://tokens.app/page=2?author=jo', 'https://tokens.app/page=2?author=jo'],
+      ['http://app/a;jsessionid=ABC?orderId=1&y=2', `http://app/a;jsessionid=${hidden}?orderId=1&y=2`],
+      ['http://x/?password=ab?cd', `http://x/?password=${hidden}`],
+      ['password=ab;cd&x=1', `password=${hidden}&x=1`],
+      ['password=ab#cd', `password=${hidden}`],
+      ['session=abc; path=/', `session=${hidden} path=/`],
+      ['password="hunter 2" ok', `password=${hidden} ok`],
+      ["token='abc def' ok", `token=${hidden} ok`],
+      ['{"log":"token=\\"abc123\\""}', `{"log":"token=${hidden}"}`],
+      ['user%5Bauth%5D=y1&credentials%5B%5D=y2&user%5Bname%5D=z', `user%5Bauth%5D=${hidden}&credentials%5B%5D=${hidden}&user%5Bname%5D=z`],
+      ['a=1,password=x1', `a=1,password=${hidden}`],
+      ['user:password=x1', `user:password=${hidden}`],
+      ['?redirect=token=abc', `?redirect=token=${hidden}`],
+      ['if (token==null) fail; token===undefined; token!=x', 'if (token==null) fail; token===undefined; token!=x'],
+      ["locator('input[data-token=abc]')", `locator('input[data-token=${hidden}]')`],
+      ['page.goto(http://app/login?password=abc)', `page.goto(http://app/login?password=${hidden})`],
+      ['http://token.app/cb#state=abc', 'http://token.app/cb#state=abc'],
+      ['http://app/cb?x=1#access_token=abc', `http://app/cb?x=1#access_token=${hidden}`],
+      ['http://app/x?next=/login?password=abc', `http://app/x?next=/login?password=${hidden}`],
+      ['http://app/p=1?password=abc', `http://app/p=1?password=${hidden}`],
+      ['a=1;password=x', `a=1;password=${hidden}`],
+      ['a=1\npassword=x', `a=1\npassword=${hidden}`],
+      ['credentials[]=x&user[auth]=y&user[name]=z', `credentials[]=${hidden}&user[auth]=${hidden}&user[name]=z`],
+      ['remember_token=true&token=', 'remember_token=true&token='],
+      ['{"body":"a=1&password=x1","url":"http://x/?token=y2"}', `{"body":"a=1&password=${hidden}","url":"http://x/?token=${hidden}"}`],
+    ]) assert.equal(redactForm(text), want, text);
+  });
 });
 
 describe('form-encoded reproductions', () => {

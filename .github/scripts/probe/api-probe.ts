@@ -37,7 +37,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { flagList, flagStr, resolveUrl, type Args, type CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
-import { literalsOf, pageText, redact, redactField, redactHeaders, scrubNotes, scrubValues, shapeOf } from '../core/redact';
+import { literalsOf, pageText, redact, redactField, redactHeaders, scrubNotes, scrubValues, secretForms, shapeOf } from '../core/redact';
 import { expandGenerated, expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { chainOfProbe, deliverProbe, looksSecret, requireFrozen, savedOf, scrubsFromReport } from '../core/probe-log';
 
@@ -59,7 +59,7 @@ function scrubEnv(report: string, input: string): string {
     // A secret typed into the command as its value (a password an application takes in the path) is caught by what
     // the environment holds under a secret's name.
     ...Object.entries(process.env).filter(([name, v]) => /PASS|SECRET|TOKEN|KEY/i.test(name) && v && v.length >= 6).map(([, v]) => v!)];
-  return values.flatMap((v) => [v, encodeURIComponent(v)]).reduce((acc, v) => acc.split(v).join('***redacted***'), report);
+  return secretForms(values).reduce((acc, v) => acc.split(v).join('***redacted***'), report);
 }
 
 interface Login { method?: string; path: string; data?: unknown; extract: string; as: string }

@@ -60,6 +60,12 @@ describe('heldout precommit', () => {
     assert.match(precommit(root).stderr, /trace\.zip › network\.txt: holds the value of SHOP_PASSWORD/);
   });
 
+  it('knows a secret as a form body writes it', () => {
+    const value = ['Gen3rated', '!x@y'].join('');
+    const inForm = new URLSearchParams({ x: value }).toString().slice(2);
+    assert.deepEqual(precommitProblems([{ file: 'notes.txt', data: Buffer.from(`password=${inForm}`) }], [['SHOP_PW', value]]), ['notes.txt: holds the value of SHOP_PW']);
+  });
+
   it('refuses a file over 1 MB in the output folder, and nowhere else', () => {
     const big = 'x'.repeat(MAX_RECORD_FILE + 1);
     assert.deepEqual(precommitProblems([{ file: 'docs/big.txt', data: Buffer.from(big) }], []), []);

@@ -83,7 +83,7 @@ export function shapeOf(value: unknown, depth = 0): unknown {
  */
 export function redactSnapshot(yaml: string, secretValues: string[] = []): string {
   let out = yaml;
-  for (const v of secretValues.filter((x) => x && x.length >= 3)) out = out.split(v).join('***redacted***');
+  for (const v of secretForms(secretValues.filter((x) => x && x.length >= 3))) out = out.split(v).join('***redacted***');
   return out.replace(/^(\s*- textbox "[^"]*(?:pass(?:word|code)?|pin|secret|token)[^"]*"[^:\n]*):\s*\S.*$/gim, '$1: ***redacted***');
 }
 
@@ -116,19 +116,56 @@ export const scrubbable = (v: string) => safeToScrub(v) || v.length >= 16;
 
 /** Every form a value takes on the way into a report: in an address, a form body, a JSON string, a table cell. */
 function formsOf(v: string): string[] {
-  const encoded = encodeURIComponent(v);
-  return [v, encoded, encoded.replace(/%[0-9A-F]{2}/g, (h) => h.toLowerCase()), encodeURI(v), new URLSearchParams({ x: v }).toString().slice(2),
-    JSON.stringify(v).slice(1, -1), v.replace(/&/g, '&amp;'), v.replace(/\|/g, '\\|'), v.replace(/\|/g, '/'), v.replace(/`/g, "'"), v.replace(/\s+/g, ' ')];
+  // Writers differ on the symbols a generated password holds: an address keeps `!` and `*`, a form encodes `!`, strict
+  // encoders both, and a space can be `+` in any of them.
+  const uri = encodeURIComponent(v);
+  const percent = [uri, encodeURI(v), new URLSearchParams({ x: v }).toString().slice(2), uri.replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)];
+  const encoded = percent.flatMap((e) => [e, e.replace(/%20/g, '+')]);
+  // A trace keeps a JSON body as a string inside JSON: escaped twice.
+  const inJson = JSON.stringify(v).slice(1, -1);
+  return [...encoded, ...encoded.map((e) => e.replace(/%[0-9A-F]{2}/g, (h) => h.toLowerCase())),
+    inJson, JSON.stringify(inJson).slice(1, -1), v.replace(/&/g, '&amp;'), v.replace(/\|/g, '\\|'), v.replace(/\|/g, '/'), v.replace(/`/g, "'"), v.replace(/\s+/g, ' ')];
 }
 
 /**
- * Takes values out of a text, each in every form, the longest first: one that starts another must not leave its rest.
- * A form is replaced only if it would be as a value of its own, so none can rewrite ordinary text.
+ * Every form of these values, the longest first: one that starts another must not leave its rest. A form is kept only
+ * if it would be replaced as a value of its own or is percent-encoded, so none can rewrite ordinary text; the value
+ * itself always is.
  */
+export const secretForms = (values: string[]) => [...new Set(values.flatMap((v) => [v, ...formsOf(v).filter((f) => scrubbable(f) || /%[0-9A-Fa-f]{2}/.test(f))]))].filter(Boolean).sort((a, b) => b.length - a.length);
+
+/** Takes values out of a text, each in every form. */
 export function scrubValues(text: string, values: string[]): string {
-  const forms = [...new Set(values.filter(scrubbable).flatMap(formsOf))].filter(scrubbable).sort((a, b) => b.length - a.length);
-  return forms.reduce((acc, v) => acc.split(v).join('***redacted***'), text);
+  return secretForms(values.filter(scrubbable)).reduce((acc, v) => acc.split(v).join('***redacted***'), text);
 }
+
+/**
+ * A form body or an address's query, also inside other text: a field that holds a secret is hidden by its name, as
+ * `redact` does in JSON. A field starts after a query's or a fragment's mark, a separator, a space or a quote, so what
+ * is in an address's path is never a name. A harmless field's value is read on, for a field inside it; a secret one's
+ * runs to the end of its quotes, or to what ends a field (`?`, `#` and `;` only when a field follows, as a value can
+ * hold them), leaving what closes around it (a step's `)`, a selector's `]`).
+ */
+export function redactForm(text: string): string {
+  const field = /(?<=^|[?&;#\s"',=:])([^=&?#;/:\s"',!<>]+)=(?!=)/g;
+  const value = /\\"(?:(?!\\")[\s\S])*\\"|"(?:[^"\\]|\\.)*"|'[^']*'|(?:[^&\s"'?#;]|[?#;](?![^=&\s"'?#;]*=))*/y;
+  let out = ''; let done = 0;
+  for (let m = field.exec(text); m; m = field.exec(text)) {
+    if (!m[1].split(/[[\].]|%5[BD]/i).some((part) => SECRET_KEY.test(part))) continue;
+    value.lastIndex = field.lastIndex;
+    const whole = value.exec(text)?.[0] ?? '';
+    if (/^(?:true|false|""|'')?$/.test(whole)) continue;
+    const closing = /^["'\\]/.test(whole) ? '' : /[)\]]*$/.exec(whole)![0];
+    out += `${text.slice(done, field.lastIndex)}***redacted***${closing}`;
+    done = field.lastIndex + whole.length;
+    field.lastIndex = done;
+  }
+  return out + text.slice(done);
+}
+
+/** The HTML report packs its data as an archive inside the page: splits a page's text from those (at odd places). */
+const ARCHIVE_HEAD = 'data:application/zip;base64,';
+const pageParts = (page: string) => page.split(/(data:application\/zip;base64,[A-Za-z0-9+/=]+)/);
 
 /** What a report says of the saved values it took out, by name only, and of those it couldn't. */
 export function scrubNotes(saved: Record<string, string[]>): string[] {
@@ -154,10 +191,17 @@ export function secretValuesFor(testDataFile: string | undefined, env: NodeJS.Pr
   return { values, weak };
 }
 
-const TEXT_ARTIFACT = /\.(md|ya?ml|txt|xml|json|log)$/i;
-const scrubText = (s: string, secrets: string[]) => redactSnapshot(secrets.reduce((acc, v) => acc.split(v).join('***redacted***'), s));
+const TEXT_ARTIFACT = /\.(md|ya?ml|txt|xml|json|jsonl|log|http)$/i;
+const scrubText = (s: string, forms: string[]) => redactSnapshot(forms.reduce((acc, v) => acc.split(v).join('***redacted***'), s));
+/** A base64 body in a run's record (a Playwright attachment): the scrub and the check read the same ones. */
+const BASE64_BODY = /("body":\s*")([A-Za-z0-9+/=]{8,})(")/g;
+/** A text and the base64 bodies in it, cleaned; a body is rewritten only if it held something. */
+const scrubWithBodies = (s: string, forms: string[]) => scrubText(s, forms).replace(BASE64_BODY, (whole, head: string, b64: string, tail: string) => {
+  const text = Buffer.from(b64, 'base64').toString('utf8');
+  const clean = scrubText(text, forms);
+  return clean === text ? whole : head + Buffer.from(clean, 'utf8').toString('base64') + tail;
+});
 
-/** Scrub secret values from every text artifact under `dir` (incl. base64 attachment bodies in results.json). */
 /**
  * Run artifacts (stack traces, junit, results) name files by their absolute path, which carries the machine's user
  * and folder names into committed evidence: make them relative to the project ("./output/…").
@@ -180,52 +224,34 @@ export function relativizePaths(dir: string, root: string): { files: number } {
   return { files };
 }
 
+/** Scrub secret values from every text artifact under `dir`, the base64 bodies in them, and the archives. */
 export function scrubDir(dir: string, secrets: string[]): { files: number } {
   let files = 0;
   if (!fs.existsSync(dir)) return { files };
+  const forms = secretForms(secrets);
   for (const rel of fs.readdirSync(dir, { recursive: true, encoding: 'utf8' })) {
     const file = path.join(dir, rel);
     // A trace archive records every request the browser made: a password an application takes in an address or a
     // form is in it. Its files are scrubbed in place; an archive that can't be read is left as it is.
     if (/\.zip$/i.test(file) && secrets.length && fs.statSync(file).isFile()) {
-      const scrubbed = scrubZip(fs.readFileSync(file), secrets);
+      const scrubbed = scrubZip(fs.readFileSync(file), forms);
       if (scrubbed?.changed) { fs.writeFileSync(file, scrubbed.zip); files++; }
       continue;
     }
     // The HTML report packs its data as an archive inside the page: the same scrub, on that archive.
     if (/\.html$/i.test(file) && secrets.length && fs.statSync(file).isFile()) {
-      const page = fs.readFileSync(file, 'utf8'); let changed = false;
-      const clean = page.replace(/(data:application\/zip;base64,)([A-Za-z0-9+/=]+)/g, (whole, head: string, b64: string) => {
-        const scrubbed = scrubZip(Buffer.from(b64, 'base64'), secrets);
-        if (!scrubbed?.changed) return whole;
-        changed = true;
-        return head + scrubbed.zip.toString('base64');
-      });
-      if (changed) { fs.writeFileSync(file, clean); files++; }
+      const page = fs.readFileSync(file, 'utf8');
+      const clean = pageParts(page).map((part, i) => {
+        if (!(i % 2)) return scrubWithBodies(part, forms);
+        const scrubbed = scrubZip(Buffer.from(part.slice(ARCHIVE_HEAD.length), 'base64'), forms);
+        return scrubbed?.changed ? ARCHIVE_HEAD + scrubbed.zip.toString('base64') : part;
+      }).join('');
+      if (clean !== page) { fs.writeFileSync(file, clean); files++; }
       continue;
     }
     if (!TEXT_ARTIFACT.test(file) || !fs.statSync(file).isFile()) continue;
     const before = fs.readFileSync(file, 'utf8');
-    let after = scrubText(before, secrets);
-    if (path.basename(file) === 'results.json') {
-      try {
-        const json = JSON.parse(after) as unknown;
-        let changed = false;
-        const walk = (v: unknown): void => {
-          if (Array.isArray(v)) { v.forEach(walk); return; }
-          if (!v || typeof v !== 'object') return;
-          const o = v as Record<string, unknown>;
-          if (typeof o.body === 'string' && typeof o.contentType === 'string' && /text|json|yaml|markdown/.test(o.contentType)) {
-            const text = Buffer.from(o.body, 'base64').toString('utf8');
-            const clean = scrubText(text, secrets);
-            if (clean !== text) { o.body = Buffer.from(clean, 'utf8').toString('base64'); changed = true; }
-          }
-          Object.values(o).forEach(walk);
-        };
-        walk(json);
-        if (changed) after = JSON.stringify(json, null, 2);
-      } catch { /* keep the plain-text scrub */ }
-    }
+    const after = scrubWithBodies(before, forms);
     if (after !== before) { fs.writeFileSync(file, after); files++; }
   }
   return { files };
@@ -238,7 +264,8 @@ export function scrubDir(dir: string, secrets: string[]): { files: number } {
 export function findSecrets(dir: string, secrets: string[]): string[] {
   const hits: string[] = [];
   if (!fs.existsSync(dir) || !secrets.length) return hits;
-  const has = (s: string) => secrets.some((v) => s.includes(v));
+  const forms = secretForms(secrets);
+  const has = (s: string) => forms.some((v) => s.includes(v));
   for (const rel of fs.readdirSync(dir, { recursive: true, encoding: 'utf8' })) {
     const file = path.join(dir, rel);
     if (!fs.statSync(file).isFile()) continue;
@@ -246,9 +273,12 @@ export function findSecrets(dir: string, secrets: string[]): string[] {
       for (const e of readZip(fs.readFileSync(file)) ?? []) if (has(e.data.toString('utf8'))) hits.push(`${file} › ${e.name}`);
       continue;
     }
-    if (!TEXT_ARTIFACT.test(file) && !/\.(html|jsonl|http)$/i.test(file)) continue;
-    const text = fs.readFileSync(file, 'utf8');
-    const decoded = [...text.matchAll(/"body":\s*"([A-Za-z0-9+/=]{8,})"/g)].map((m) => Buffer.from(m[1], 'base64').toString('utf8')).join('\n');
+    const html = /\.html$/i.test(file);
+    if (!TEXT_ARTIFACT.test(file) && !html) continue;
+    const parts = html ? pageParts(fs.readFileSync(file, 'utf8')) : [fs.readFileSync(file, 'utf8')];
+    for (const part of parts.filter((_, i) => i % 2)) for (const e of readZip(Buffer.from(part.slice(ARCHIVE_HEAD.length), 'base64')) ?? []) if (has(e.data.toString('utf8'))) hits.push(`${file} › ${e.name}`);
+    const text = parts.filter((_, i) => !(i % 2)).join('\n');
+    const decoded = [...text.matchAll(BASE64_BODY)].map((m) => Buffer.from(m[2], 'base64').toString('utf8')).join('\n');
     if (has(text) || has(decoded)) hits.push(file);
   }
   return hits;

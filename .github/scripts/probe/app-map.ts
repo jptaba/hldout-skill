@@ -13,7 +13,7 @@ import { recordEvent } from '../core/history';
 import { appMapDir, currentTestData, evalPaths } from '../core/paths';
 import { citeProbes, PROBE_ID, readProbes, requireFrozen } from '../core/probe-log';
 import type { HeldoutConfig } from '../core/profile';
-import { safeToScrub } from '../core/redact';
+import { safeToScrub, secretForms } from '../core/redact';
 import { projectSecrets } from '../core/secrets';
 import { envNamesIn } from './accounts-recipe';
 
@@ -77,7 +77,7 @@ function citedProbes(cfg: HeldoutConfig, key: string, evidence: string | undefin
 
 const holds = (text: string, value: string) => {
   if (value.length < 3) return false;
-  if (safeToScrub(value)) return text.includes(value);
+  if (safeToScrub(value)) return secretForms([value]).some((form) => text.includes(form));
   // A short or all-letter secret could be an ordinary word's part: only the whole word counts.
   return new RegExp(`(?<![\\w])${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w])`).test(text);
 };

@@ -18,7 +18,7 @@ import { AGENT_FILES, PLAYWRIGHT_MCP, SKILL_DIR, UPDATE_HINT, loadConfig, loadEn
 import { ROOT, fileHash, rel } from '../core/files';
 import { PHASE_FOLDERS, evalPaths, journeyPaths, listStories } from '../core/paths';
 import { accountRoles, createsAccounts, dataPrefix, existingAccountWorkers, type HeldoutConfig } from '../core/profile';
-import { safeToScrub } from '../core/redact';
+import { safeToScrub, secretForms } from '../core/redact';
 import { toolProblems } from '../core/roles';
 import { loadVaultSecrets, projectSecrets, vaultRefsIn, vaultSettings } from '../core/secrets';
 import { checkAccountRecipe, envNamesIn } from '../probe/accounts-recipe';
@@ -143,7 +143,7 @@ export async function run({ flags }: Args): Promise<void> {
     if (!secrets.length) return leaks;
     for (const f of files) {
       const text = read(f);
-      for (const [name, v] of secrets) if (text.includes(v)) leaks.set(name, [...(leaks.get(name) ?? []), f]);
+      for (const [name, v] of secrets) if (secretForms([v]).some((form) => text.includes(form))) leaks.set(name, [...(leaks.get(name) ?? []), f]);
     }
     return leaks;
   }
