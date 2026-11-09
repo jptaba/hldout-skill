@@ -173,10 +173,22 @@ export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir' | 'auts'>, p
 }
 
 /**
- * What hardeners and triagers proved about how an application works, one file per domain (probe/app-map.ts). Apart from
- * the journeys and the story records on purpose: those the test author may read, this nobody reads before a freeze.
+ * What hardeners and triagers proved about how an application works, one file per domain (probe/app-map.ts), and what is
+ * known of the application (app.yml). Apart from the journeys and the story records on purpose: those the test author
+ * may read; of this folder only the overview in app.yml is read before a freeze, through `heldout map --overview`.
  */
 export const appMapDir = (cfg: Pick<HeldoutConfig, 'autId'>) => path.resolve(ROOT, 'application-map', cfg.autId);
+
+/**
+ * The ids of the overview entries and rules the profile's knowledge holds (app.yml, probe/app-knowledge.ts): a text
+ * that names one rests on that knowledge. Only ids the store holds count, so a story's "B1a2b3c" is just its value.
+ */
+export function knowledgeIds(cfg: Pick<HeldoutConfig, 'autId'>): string[] {
+  const file = knowledgeFile(cfg);
+  return fs.existsSync(file) ? [...new Set([...fs.readFileSync(file, 'utf8').matchAll(/"id"\s*:\s*"([OB][0-9a-f]{6})"/g)].map((m) => m[1]))] : [];
+}
+/** What the application is and what is known of its business, one file per application (probe/app-knowledge.ts). */
+export const knowledgeFile = (cfg: Pick<HeldoutConfig, 'autId'>) => path.join(appMapDir(cfg), 'app.yml');
 
 /** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
 export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;

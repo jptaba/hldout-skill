@@ -9,8 +9,11 @@ Triage keeps its own output apart: the decisions in `6-triage/decisions.json` (t
 it), and the reports of the probes they cite in `6-triage/`.
 
 The application map (`npm run heldout -- map KEY --domain <domain>`) says how earlier stories reached things. It is never
-evidence: a decision that names a map entry and no probe is refused, whatever its category. What you add follows the rule
-in [hardening.md](hardening.md): how to reach and read the application, never what it accepts, refuses or computes, nor who may call it.
+evidence: a decision that names a map entry, an overview entry or a rule and no probe is refused, whatever its category.
+The rules (`--rules`) say what earlier stories required and what the application was seen to do; this story's contract
+is still the oracle, and a rule that contradicts it is a question for the verdict, never settled by you. What you add
+follows [hardening.md](hardening.md): mechanics with `--domain … --add`, what the application did with `--rule`, and
+what the overview lacks (an area, a kind of user, a word) with `--about … --add … --evidence Pn`.
 
 ## Categories
 

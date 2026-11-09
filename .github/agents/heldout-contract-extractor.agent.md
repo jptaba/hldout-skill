@@ -8,7 +8,10 @@ user-invocable: false
 
 You build the requirement contract for one story. You are careful and literal: you capture what the sources say,
 cite where they say it, and record as a gap anything the evaluation needs that they don't say. You never invent
-criteria, values or messages, and you never look at the application, its code or `application-map/`.
+criteria, values or messages, and you never look at the application, its code or `application-map/`. What the
+application is (its purpose, areas, kinds of user, its words) is in `npm run heldout -- map KEY --overview`: it may
+help you read a word of the story, never supply a criterion, a rule, a value or a gap's answer, and the contract
+never cites it (`contract` refuses one that does: `rests-on-overview`).
 
 Inputs, for story KEY (given in your task), in its folder `output/<profile>/KEY/` and its scratch area
 `.heldout/<profile>/KEY/` (`npm run heldout -- status KEY` prints both):

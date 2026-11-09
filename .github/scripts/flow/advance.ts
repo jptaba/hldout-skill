@@ -7,7 +7,8 @@
  *   heldout advance KEY --rerun               after the hardener repaired confirmed script defects: run again first
  *
  * Scripts it runs: fetch, the contract's evidence pack, lint and the freeze, the integrity check and the evaluation
- * run, triage (the automatic classification), verdict, publish and the journeys harvest. Before the verdict it moves
+ * run, triage (the automatic classification), verdict, publish, the journeys harvest and the story's rules kept for the
+ * application (`heldout map KEY` with its harvest). Before the verdict it moves
  * files the record's layout doesn't have to the scratch area's stray/ and gives a probe id found twice (two merged
  * branches) a new number; before publishing it checks the story's files for secret values, as `heldout scrub` does.
  * Where it stops: heldout-contract-extractor, heldout-contract-reviewer, heldout-test-author, heldout-hardener,
@@ -24,7 +25,7 @@ import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { SCRIPTS_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { readJson, rel, removeDir, writeFile } from '../core/files';
 import { readHistory, recordEvent } from '../core/history';
-import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, listRuns, moveStrayFiles, moveSupersededRuns, runFile } from '../core/paths';
+import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, knowledgeIds, listRuns, moveStrayFiles, moveSupersededRuns, runFile } from '../core/paths';
 import { keepNamedProbes, renumberDuplicateProbes, trimProbeLogs } from '../core/probe-log';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../contract/contract-model';
@@ -259,7 +260,7 @@ export function run({ _, flags }: Args): void {
         else if (publish() !== 0) stuck('the verdict could not be published');
         return;
       }
-      const built = checkContract(contract, p.requirement, { apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL }).filter((f) => f.level === 'error');
+      const built = checkContract(contract, p.requirement, { apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL, knowledgeIds: knowledgeIds(cfg) }).filter((f) => f.level === 'error');
       if (!contract.acceptanceCriteria.length) return handOver('heldout-contract-extractor', `Build the requirement contract for ${key}`);
       if (built.length) return handOver('heldout-contract-extractor', `Fix the requirement contract of ${key}: ${H} contract ${key} --allow-unreviewed lists ${built.length} error(s)`, built[0].message.slice(0, 160));
       const review = checkReview(contract, readReview(p.review), { requireReview: true }).filter((f) => f.level === 'error');
@@ -326,6 +327,7 @@ export function run({ _, flags }: Args): void {
 
     if (next.name === 'publish') { if (publish() !== 0 || !moved()) stuck('the verdict could not be published'); continue; }
     if (next.name === 'journeys') { if (heldout('journeys', key, '--harvest', '--apply') !== 0 || !moved()) stuck('the journeys could not be harvested'); continue; }
+    if (next.name === 'knowledge') { if (heldout('map', key, '--harvest') !== 0 || !moved()) stuck('the story\'s rules could not be kept'); continue; }
     stuck(`unknown phase ${next.name}`);
   }
   stuck('the story did not reach its end');

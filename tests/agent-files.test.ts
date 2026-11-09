@@ -47,14 +47,20 @@ describe('agent files', () => {
     assert.ok(!fs.readFileSync(path.join(references, 'data-and-journeys.md'), 'utf8').includes('--add-existing'), 'the recipe lives in accounts.md alone');
   });
 
-  it('sends the agents after the freeze to the application map, and keeps those before it away (specs/007-application-map)', () => {
+  it('sends the agents after the freeze to the application map and its rules, and those before it to the overview alone (specs/007-application-map, specs/017-application-knowledge)', () => {
     const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
     for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
-      for (const use of ['map KEY --domain <domain>', '--add', '--stale <id>']) assert.ok(read(f).includes(use), `${f}: ${use}`);
+      for (const use of ['map KEY --domain <domain>', '--add', '--stale <id>', '--overview', '--rules', 'map KEY --rule "', 'map KEY --about area|user|term --add']) assert.ok(read(f).includes(use), `${f}: ${use}`);
     }
     for (const f of ['heldout-test-author.agent.md', 'heldout-contract-extractor.agent.md', 'heldout-contract-reviewer.agent.md']) {
-      assert.ok(read(f).includes('`application-map/`'), `${f} is told to stay out`);
-      assert.ok(!/heldout(?: '?--'?)? map\b/.test(read(f)), `${f} names no way in`);
+      assert.ok(read(f).includes('`application-map/`'), `${f} is told to stay out of the files`);
+      const uses = [...read(f).matchAll(/heldout(?: '?--'?)? map\b[^`\n]*/g)].map((m) => m[0]);
+      assert.deepEqual(uses, ['heldout -- map KEY --overview'], `${f} names the overview and no other way in`);
+      assert.match(read(f), /never (?:give|supply|gives|supplies)[^.]*(?:value|criterion)/, `${f} is told the overview is no oracle`);
+    }
+    assert.match(read('heldout-evaluator.agent.md'), /map --survey/, 'the coordinator writes the overview at setup');
+    for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
+      assert.match(read(f), /required rule[^.]*(?:leaves it as it is|stays)/, `${f}: a probe never retires a required rule`);
     }
     for (const f of ['test-authoring.md', 'requirement-contract.md', 'contract-review-prompt.md', 'data-and-journeys.md', 'journeys.md']) {
       assert.ok(!/heldout(?: '?--'?)? map\b/.test(fs.readFileSync(path.join(SKILL_DIR, 'references', f), 'utf8')), `${f} is read before the freeze`);

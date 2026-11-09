@@ -22,7 +22,7 @@ import { SKILL_DIR, assertIssueKey, loadConfig } from '../core/config';
 import { rel, writeFile } from '../core/files';
 import { readHistory, recordChange, recordEvent } from '../core/history';
 import { citeProbes, refuseEvidenceOnTheMap } from '../core/probe-log';
-import { evalPaths } from '../core/paths';
+import { evalPaths, knowledgeIds } from '../core/paths';
 import { accountRoles, createsAccounts, type AccountRecipe } from '../core/profile';
 import { checkContract, openQuestions, readContract, requirementFiles, skeletonContract, toDiscover } from './contract-model';
 import { renderContract } from './contract-render';
@@ -131,7 +131,7 @@ export async function run({ _, flags }: Args): Promise<void> {
     writeFile(file, `${JSON.stringify(c, null, 2)}\n`);
     console.log(`✔ ${g.id} → ${g.resolution}: ${value}${gapFlag === 'answer' ? '\n  The oracle changed: have the heldout-contract-reviewer subagent review the contract again.' : ''}\n`);
   }
-  const findings = checkContract(c, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL });
+  const findings = checkContract(c, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL, knowledgeIds: knowledgeIds(cfg) });
   if (flags['review-prompt']) {
     // A review certifies a finished contract: an empty or ungrounded one goes back to the builder first.
     const blocking = findings.filter((f) => f.level === 'error');

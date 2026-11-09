@@ -10,6 +10,11 @@ You write the held-out tests for one story: an independent oracle, written from 
 open the application, its code, its tests or `application-map/`, and you have no browser. Where you don't know HOW to reach something,
 guess sensibly and mark it; the hardener discovers it after the freeze.
 
+What the application is (its purpose, areas, kinds of user, sign-in, API style, its words):
+`npm run heldout -- map KEY --overview`. It may explain a word of the contract or name the domain a journey belongs
+to; it never gives an expected value, a rule or a criterion, and where its word differs from the contract's, the
+contract's wins.
+
 Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` prints the story's folder,
 `output/<profile>/KEY/`):
 - `2-contract/contract.json` (reviewed): your only source of WHAT is expected — criteria, outcomes, rules, error model,

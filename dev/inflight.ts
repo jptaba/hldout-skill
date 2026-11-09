@@ -30,7 +30,7 @@ const INLINE: [string, RegExp][] = [
 
 const BEFORE_FREEZE = /contract-extractor|contract-reviewer|test-author/;
 // The dispatcher form (outside quotes), or a Playwright MCP browser tool.
-const PROBE = /\bheldout\s+(?:'--'\s+|--\s+|""\s+)?(?:inspect|api-probe|mcp-probe)\b|^mcp__playwright__browser_/;
+const PROBE = /\bheldout\s+(?:'--'\s+|--\s+|""\s+)?(?:inspect|api-probe|mcp-probe|map\s+(?:[^|;&]*\s)?--survey)\b|^mcp__playwright__browser_/;
 const PROBE_SCRIPT = /scripts[\\/]probe[\\/](?:inspect|api-probe|mcp-probe)\.ts/;
 // tsx or node in any form a shell reaches them by: node.exe, npx.cmd tsx, tsx@4, a quoted full path.
 const RUNNER = /(?:^|[^\w.-])(?:tsx|node)(?:@[\w.^~-]+|\.exe|\.cmd)?(?![\w-])/;

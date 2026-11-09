@@ -99,6 +99,33 @@ describe('requirement contract', () => {
     for (const code of ['quote-not-found', 'no-outcome', 'endpoint-undeclared', 'source-unread']) assert.ok(f.includes(code), code);
   });
 
+  it('refuses a contract that rests on the application\'s overview or knowledge (specs/017-application-knowledge)', () => {
+    const dir = fixture();
+    const known = { knowledgeIds: ['O1a2b3c', 'B9f8e7d'] };
+    for (const named of ['as O1a2b3c says', 'B9f8e7d', 'application-map/shop/app.yml', 'npm run heldout -- map ABC-9 --overview']) {
+      const c = goodContract(dir);
+      c.rules[0].text = `name is 1-40 characters (${named})`;
+      assert.ok(codes(checkContract(c, dir, known)).includes('rests-on-overview'), named);
+    }
+    assert.ok(!codes(checkContract(goodContract(dir), dir, known)).includes('rests-on-overview'));
+  });
+
+  it('lets a story write a value shaped like a knowledge id, or name a folder, in its own words', () => {
+    const dir = fixture();
+    const c = goodContract(dir);
+    c.rules[0].text = 'name is 1-40 characters (booking B123456, order O204511)';
+    c.acceptanceCriteria[0].quote = 'see application-map/ in app.yml';
+    c.rules.push({ id: 'R2', text: 'the settings live in app.yml', source: 'story.md#L9' });
+    assert.ok(!codes(checkContract(c, dir, { knowledgeIds: ['O1a2b3c'] })).includes('rests-on-overview'));
+  });
+
+  it('lets a mechanics gap resolved after the freeze name the knowledge beside its probe', () => {
+    const dir = fixture();
+    const c = goodContract(dir);
+    c.gaps[0].evidence = 'P7, as O1a2b3c says (heldout map ABC-9 --domain cart)';
+    assert.ok(!codes(checkContract(c, dir, { knowledgeIds: ['O1a2b3c'] })).includes('rests-on-overview'));
+  });
+
   it('never lets expected behaviour be discovered from the AUT, and enforces the ladder', () => {
     const dir = fixture();
     const c = goodContract(dir);

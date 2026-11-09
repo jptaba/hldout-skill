@@ -53,6 +53,15 @@ them as settled. Nobody reads the map before a freeze, or today's behaviour woul
 point, so a guess confirmed or a gap resolved still cites this story's probe or run; `--evidence` that names an entry
 alone is refused.
 
+What the application was seen to accept, refuse or compute is an observed rule, kept apart from the mechanics:
+`npm run heldout -- map KEY --rule "<what it did>" --domain <domain> --evidence P7`. It says what happened, never that
+it is right or wrong, and it is read after a freeze only (`--rules`, beside the rules earlier stories' requirements
+gave). A required rule this story's contract replaces (its rule or the owner's answer says the rule changes) is
+marked stale citing that item: `--stale <id> --evidence R2`; one it only contradicts stays beside it, for the verdict
+to put to the owner. The overview (`--overview`) is what every agent reads, the test author too: add to it only what the application
+is (an area, a kind of user, a word and its meaning: `--about area|user|term --add "…" --evidence P7`), never a
+figure, a quote or a rule.
+
 ## 1. Choose the tier
 
 | Tier | When | UI inspection | API inspection | Verification |

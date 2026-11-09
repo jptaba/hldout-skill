@@ -25,6 +25,8 @@ Three folders in your project hold the work:
 journeys/fixtures/<domain>.ts   reusable journeys, UI and API, one file per area of the app (products.ts, favorites.ts…)
 journeys/registry.yml           each journey's id and file, what it touches, what must run before it, which story proved it
 application-map/<app>/          how the app works, as probes proved it, one file per area; read only after a story's freeze
+application-map/<app>/app.yml   what the app is (an overview written at setup, read by every agent) and its business
+                                rules (from judged stories and from probes, read only after a story's freeze)
 output/<app>/<KEY>/             the record of one story, one folder per phase, each keeping only what the next ones read:
   1-requirement/  story.md  linked/  transcripts/                  what was asked
   2-contract/     contract.json  review.json                       what we took it to mean, and its independent review
@@ -195,6 +197,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` · `contract KEY --review-bind` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review); binds the reviewer's review to the contract's hash |
 | `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
 | `journeys KEY` · `journeys KEY --harvest --apply` · `journeys --check` · `journeys --resolve` | the app's journeys for this story; record in the registry what passing tests proved; lint them all and find duplicates (after merging); settle a merge conflict in `registry.yml` |
+| `map --survey` · `map --about <part> --add "…"` · `map KEY --overview` · `map KEY --rules` · `map KEY --harvest` | what a person sees of the app before signing in, as material for its overview; write the overview at setup; read it (any agent, any time); the business rules after a freeze; keep a judged story's rules (`advance` does) |
 | `journeys --aut <id> --copy-from <profile>` | start an application's journeys from a related one's (another environment or build of the same product): copied as drafts, marked to be probed, proven by nothing until a story passes on them |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3); with `--key`, each probe is logged as the story's next `Pn` and cited by that id |
 | `inspect --sign-in <role>` · `--from P4[:k]` · `--then '<step>'` · `api-probe --chain P7 --set 2.json.qty=0` · `--pages` `--where` `--pick` `--count` | build a probe on earlier ones (signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items) instead of writing a script |

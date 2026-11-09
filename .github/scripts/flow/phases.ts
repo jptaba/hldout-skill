@@ -10,7 +10,7 @@ import { readFreeze } from '../hardening/integrity-check';
 import { journeysUsedBy } from '../authoring/journeys/registry';
 import { readJson, rel } from '../core/files';
 import { lastEvent, readHistory } from '../core/history';
-import { PHASE_FOLDERS, evalPaths, evalRunsOf, runFile } from '../core/paths';
+import { PHASE_FOLDERS, evalPaths, evalRunsOf, knowledgeIds, runFile } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { checkContract, readContract } from '../contract/contract-model';
 import { checkReview, readReview } from '../contract/evidence';
@@ -31,7 +31,7 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const contract = readContract(p.contract);
   // cfg is resolved for the story's own profile folder (its API origin grounds the paths its sources state under it).
   const profile = cfg.aut;
-  const contractErrors = contract && fs.existsSync(p.requirement) ? [...checkContract(contract, p.requirement, { apiBaseURL: profile.apiBaseURL ?? profile.baseURL }), ...checkReview(contract, readReview(p.review), { requireReview: true })].filter((f) => f.level === 'error').length : 0;
+  const contractErrors = contract && fs.existsSync(p.requirement) ? [...checkContract(contract, p.requirement, { apiBaseURL: profile.apiBaseURL ?? profile.baseURL, knowledgeIds: knowledgeIds(cfg) }), ...checkReview(contract, readReview(p.review), { requireReview: true })].filter((f) => f.level === 'error').length : 0;
   const evalRuns = evalRunsOf(p.runs);
   const lastEval = evalRuns.at(-1);
   const record = lastEval ? readRunRecord(runFile(p, lastEval)) : undefined;
@@ -42,6 +42,7 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const pending = record ? pendingOf(record).length : failures;
   const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string; generatedAt?: string }>(p.verdictJson) : undefined;
   const harvested = lastEvent<{ finalRun: string; proven: string[] }>(p.history, 'harvested');
+  const rulesKept = lastEvent<{ finalRun: string; added: number; known: number }>(p.history, 'rules-harvested');
   // Stale when a later evaluation run exists than the one the verdict judged (by run name: file times change with a
   // clone or a copy, the recorded final run does not).
   const verdictStale = Boolean(verdict && lastEval && verdict.finalRun && verdict.finalRun < lastEval);
@@ -68,5 +69,7 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
     { name: 'verdict', folder: VERDICT, done: Boolean(verdict) && !verdictStale, detail: verdict ? `${verdict.verdict}${verdictStale ? ' (older than the last run)' : ''}` : 'none', next: `${H} verdict ${key}` },
     { name: 'publish', folder: VERDICT, done: Boolean(published) && (!verdict || published!.verdict === verdict.verdict) && !verdictStale, detail: published ? `${published.verdict} at ${published.at.slice(0, 16)}` : 'not published', next: `${H} publish ${key}` },
     { name: 'journeys', folder: VERDICT, done: Boolean(harvested) && harvested!.finalRun === verdict?.finalRun, detail: harvested ? `${harvested.proven.length} journey(s) recorded in the registry${harvested.finalRun === verdict?.finalRun ? '' : ` (from ${harvested.finalRun}, an older run)`}` : 'not harvested', next: `${H} journeys ${key} --harvest --apply` },
+    // The story's requirement, kept as the application's business rules for the next stories (read after their freeze).
+    { name: 'knowledge', folder: VERDICT, done: Boolean(rulesKept) && rulesKept!.finalRun === (verdict?.finalRun ?? '-'), detail: rulesKept ? `${rulesKept.added} rule(s) kept, ${rulesKept.known} known already${rulesKept.finalRun === (verdict?.finalRun ?? '-') ? '' : ' (from an older verdict)'}` : 'rules not kept', next: `${H} map ${key} --harvest` },
   ];
 }

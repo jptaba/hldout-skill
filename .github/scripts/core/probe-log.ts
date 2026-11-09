@@ -11,7 +11,7 @@ import path from 'node:path';
 import { assertIssueKey } from './config';
 import { readJson, rel, writeFile } from './files';
 import { recordEvent } from './history';
-import { decisionsFor, evalPaths, evalRunsOf, listRuns, phaseDirs, runFile, type ProbingPhase, type StoryPaths } from './paths';
+import { decisionsFor, evalPaths, evalRunsOf, knowledgeIds, listRuns, phaseDirs, runFile, type ProbingPhase, type StoryPaths } from './paths';
 import type { HeldoutConfig } from './profile';
 import { isSecretField } from './redact';
 
@@ -38,6 +38,11 @@ const scratchReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.j
 const keptReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).kept, `${id}.md`);
 export const PROBE_ID = /\bP[1-9]\d*\b/g;
 const MAP_ENTRY = /\bM[0-9a-f]{6}\b/;
+/**
+ * The map entry (M…), or the overview entry or rule the profile's knowledge holds (O…, B…), a text names: never a
+ * story's evidence alone. Knowledge ids count only when the store holds them, so a record's "B12345a" is not one.
+ */
+const namedEntry = (text: string, known: string[]) => text.match(MAP_ENTRY)?.[0] ?? known.find((id) => new RegExp(`\\b${id}\\b`).test(text));
 /**
  * A saved value no log may keep: by the name it is saved under, the field it came from, or what it is. Wide on purpose
  * (`keyword` and `author` count too): a value wrongly left out is said in the report and can be given again, and one
@@ -161,16 +166,17 @@ export function citeProbes(cfg: HeldoutConfig, key: string, evidence: string): s
 
 /** Evidence that names an application map entry and neither a probe nor a run of this story: what an earlier story saw proves nothing here. */
 export function refuseEvidenceOnTheMap(cfg: HeldoutConfig, key: string, evidence: string): void {
-  if (!MAP_ENTRY.test(evidence) || evidence.match(PROBE_ID) || listRuns(evalPaths(cfg, key).runs).some((r) => evidence.includes(r))) return;
-  throw new Error(`${evidence.match(MAP_ENTRY)![0]} is what an earlier story saw, not evidence for this one: cite this story's probe (P7) or run. Nothing was written.`);
+  const named = namedEntry(evidence, knowledgeIds(cfg));
+  if (!named || evidence.match(PROBE_ID) || listRuns(evalPaths(cfg, key).runs).some((r) => evidence.includes(r))) return;
+  throw new Error(`${named} is what an earlier story saw or was told, not evidence for this one: cite this story's probe (P7) or run. Nothing was written.`);
 }
 
 /**
  * A triager's decision that names a map entry, in its evidence or its rationale, with no probe in its evidence (where
  * citeProbes checks it exists): a failure is reproduced live, whatever an earlier story saw.
  */
-export const decisionRestsOnTheMap = (evidence: string, rationale: string): boolean =>
-  (MAP_ENTRY.test(evidence) || MAP_ENTRY.test(rationale)) && !evidence.match(PROBE_ID);
+export const decisionRestsOnTheMap = (evidence: string, rationale: string, known: string[] = []): boolean =>
+  Boolean(namedEntry(evidence, known) || namedEntry(rationale, known)) && !evidence.match(PROBE_ID);
 
 /** Probe ids the logs hold more than once (two branches that each made a P7, merged). */
 export function duplicateProbeIds(p: LogPaths): string[] {

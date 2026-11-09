@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { resolveUrl } from '../core/cli';
 import { ROOT, rel } from '../core/files';
-import { currentTests, evalPaths, journeyPaths, strayFiles } from '../core/paths';
+import { currentTests, evalPaths, journeyPaths, knowledgeIds, strayFiles } from '../core/paths';
 import { duplicateProbeIds } from '../core/probe-log';
 import { accountRoles, type HeldoutConfig } from '../core/profile';
 import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from '../contract/contract-model';
@@ -71,7 +71,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   }
 
   // By preflight time the user has been asked; open gaps must be surfaced in the specs instead.
-  for (const x of checkContract(contract, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL })) {
+  for (const x of checkContract(contract, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL, knowledgeIds: knowledgeIds(cfg) })) {
     // An assumed oracle value that the specs already surface as "// ASSUMPTION: G<n>" needs no further warning.
     const gap = x.code === 'oracle-assumed' ? x.message.match(/^(G\d+):/)?.[1] : undefined;
     if (gap && f.assumptions.some((a) => a.startsWith(gap))) continue;

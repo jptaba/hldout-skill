@@ -26,6 +26,9 @@ describe('inflight: a probe of the application', () => {
       assert.ok(probes(c), c);
     }
     assert.ok(probes(undefined, 'mcp__playwright__browser_navigate'));
+    // The survey looks at the application too (specs/017-application-knowledge); reading the overview does not.
+    for (const c of ['npm run heldout -- map --survey', 'npm run heldout -- map --aut other --survey']) assert.ok(probes(c), c);
+    assert.ok(!probes('npm run heldout -- map ABC-1 --overview'));
   });
 
   it('does not count reading, searching or describing them', () => {

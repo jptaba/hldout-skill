@@ -31,12 +31,12 @@ export interface MapEntry {
 
 const MAX_TEXT = 400;
 const DOMAIN = /^[a-z][a-z0-9-]*$/;
-const RECORD_ID = /\b\d{5,}\b|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i;
-const CREDENTIAL = /\b(?:bearer|basic)\s+(?=[\w.~+/=-]*\d)[\w.~+/=-]{16,}|\beyJ[\w-]{10,}\./i;
+export const RECORD_ID = /\b\d{5,}\b|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i;
+export const CREDENTIAL = /\b(?:bearer|basic)\s+(?=[\w.~+/=-]*\d)[\w.~+/=-]{16,}|\beyJ[\w-]{10,}\./i;
 // "Accept" alone is a header, a mechanic; what the application accepts is for a requirement to judge. "No login step" is
 // about a walk, what a call or a page lets through is not. Only a step is excepted: a heuristic all the same, and the
 // agents' rule and a round's reading cover what it can't tell ("no sign-in step stands before it").
-const JUDGEMENT = /\b(?:defect\w*|bug(?:s|gy)?|should(?:n['’]t)?|wrong\w*|incorrect\w*|violat\w*|broken|expected|fails? to|accept(?:s|ed)|refus\w*|reject\w*|(?:no|without)\s+(?:any\s+)?(?:(?:sign-?in|log-?in)(?!\s+steps?\b)|auth\w*|credentials?|cookies?|tokens?))\b/i;
+export const JUDGEMENT = /\b(?:defect\w*|bug(?:s|gy)?|should(?:n['’]t)?|wrong\w*|incorrect\w*|violat\w*|broken|expected|fails? to|accept(?:s|ed)|refus\w*|reject\w*|(?:no|without)\s+(?:any\s+)?(?:(?:sign-?in|log-?in)(?!\s+steps?\b)|auth\w*|credentials?|cookies?|tokens?))\b/i;
 
 const fileOf = (cfg: HeldoutConfig, domain: string) => path.join(appMapDir(cfg), `${domain}.jsonl`);
 const parsed = (line: string): MapEntry | undefined => {
@@ -64,18 +64,18 @@ function domainsOf(cfg: HeldoutConfig): string[] {
   return fs.readdirSync(dir).filter((f) => f.endsWith('.jsonl')).map((f) => f.replace(/\.jsonl$/, '')).sort();
 }
 
-function assertDomain(domain: string): void {
+export function assertDomain(domain: string): void {
   if (!DOMAIN.test(domain)) throw new Error(`"${domain}" is not a domain: a word like the journeys' file names (cart, user-accounts)`);
 }
 
 /** The probes evidence cites, at least one, each in this story's logs; their reports are kept in the record. */
-function citedProbes(cfg: HeldoutConfig, key: string, evidence: string | undefined): string[] {
+export function citedProbes(cfg: HeldoutConfig, key: string, evidence: string | undefined): string[] {
   const ids = evidence ? citeProbes(cfg, key, evidence) : [];
   if (!ids.length) throw new Error('--evidence must cite a probe of this story (P7): an entry is what a probe proved. Nothing was written.');
   return ids;
 }
 
-const holds = (text: string, value: string) => {
+export const holds = (text: string, value: string) => {
   if (value.length < 3) return false;
   if (safeToScrub(value)) return secretForms([value]).some((form) => text.includes(form));
   // A short or all-letter secret could be an ordinary word's part: only the whole word counts.
@@ -94,13 +94,14 @@ export function whyNotAnEntry(text: string, secrets: string[] = [], made: string
 }
 
 /**
- * Where a story's secrets are referenced: its tests, its probes and the profile's accounts. A username is no secret, and
- * often an ordinary word that a route holds too.
+ * Where a story's secrets are referenced: its tests, its probes and the profile's accounts (the accounts alone with no
+ * story, at onboarding). A username is no secret, and often an ordinary word that a route holds too.
  */
-export function secretSources(cfg: HeldoutConfig, key: string): unknown[] {
+export function secretSources(cfg: HeldoutConfig, key?: string): unknown[] {
+  const accounts = JSON.parse(JSON.stringify(cfg.aut?.accounts ?? {}, (k, v: unknown) => (k === 'username' ? undefined : v))) as unknown;
+  if (!key) return [accounts];
   const p = evalPaths(cfg, key);
   const data = currentTestData(p);
-  const accounts = JSON.parse(JSON.stringify(cfg.aut?.accounts ?? {}, (k, v: unknown) => (k === 'username' ? undefined : v))) as unknown;
   return [fs.existsSync(data) ? fs.readFileSync(data, 'utf8') : '', readProbes(p).map((e) => e.input), accounts];
 }
 
@@ -108,13 +109,13 @@ export function secretSources(cfg: HeldoutConfig, key: string): unknown[] {
  * The secret values an entry must not hold: those the sources reference, and what the project calls a secret, vault
  * values the command loaded included. A refusal rewrites nothing, so a value too weak to scrub counts too.
  */
-function secretsFor(cfg: HeldoutConfig, key: string): string[] {
+export function secretsFor(cfg: HeldoutConfig, key?: string): string[] {
   const named = envNamesIn(secretSources(cfg, key)).map((n) => process.env[n]).filter((v): v is string => !!v);
   return [...named, ...projectSecrets().map(([, value]) => value)];
 }
 
 /** What the cited probes saved (the ids a chain made). */
-function madeBy(cfg: HeldoutConfig, key: string, probes: string[]): string[] {
+export function madeBy(cfg: HeldoutConfig, key: string, probes: string[]): string[] {
   return readProbes(evalPaths(cfg, key)).filter((e) => probes.includes(e.id))
     .flatMap((e) => Object.values((e.input as { saved?: Record<string, unknown> } | undefined)?.saved ?? {}).map(String));
 }

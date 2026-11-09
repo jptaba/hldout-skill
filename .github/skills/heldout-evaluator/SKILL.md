@@ -116,6 +116,16 @@ Jira: `JIRA_MODE=mock` (default) or `datacenter` (Jira and Confluence Data Cente
 the acceptance-criteria custom field. See
 [references/jira.md](references/jira.md). Tell the user to restart their agent app (Claude Code, GitHub Copilot…) once so the Playwright MCP server and the subagents load.
 
+**The application's overview**, last, for each profile (`--aut <id>` for another one): `$H map --survey` prints what a
+person sees before signing in (the start page's headings and links, the sign-in form's fields, the calls the pages
+make, the API's own description when it serves one); it signs in nowhere and writes nothing. From it, write what the
+application is, one entry each: `$H map --about <part> --add "…"`, with the parts `purpose`, `area` (each area, named
+as its journeys' domain will be), `user` (each kind of user), `sign-in`, `api` (its style and base path) and `term` (a
+word of the application and its meaning). Every agent reads it (`$H map --overview`), the contract's and the test
+author too, so it says what the application is and never what it does: the command refuses a figure, a quoted text, a
+rule or a judgement. It lives in `application-map/<profile>/app.yml`, committed; `$H status` says when a profile has
+none.
+
 ## Pipeline
 
 `H="npm run heldout --"`. In Windows PowerShell, quote the dashes (`npm run heldout '--' …`): PowerShell drops a bare
@@ -123,7 +133,7 @@ the acceptance-criteria custom field. See
 
 **Drive a story with `$H advance KEY`.** It runs every script step that comes next (fetch, the evidence pack, lint and
 the freeze, the integrity check and the evaluation run, the automatic triage, the verdict, publish, the journey
-registry) and stops where a subagent has work to do, printing the subagent, its task and the command that follows:
+registry, the story's rules kept for the application) and stops where a subagent has work to do, printing the subagent, its task and the command that follows:
 
 ```
 ■ Next: the heldout-test-author subagent — from the reviewed contract, without a browser
@@ -172,6 +182,7 @@ The owner's later answer to an open question enters the next evaluation: a revis
 | 6 | **Verdict** | Render the recommendation with traceability, reproduction and evidence | `$H verdict KEY` → `7-verdict/verdict.md`, `7-verdict/verdict.json` — [verdict-and-publish](references/verdict-and-publish.md) |
 | 7 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else. Part of the evaluation, with no confirmation; a project that wants a person to publish sets `jira.publish` to `"manual"`, and `advance` then leaves this step out | `$H publish KEY` |
 | 8 | **Journey registry** | Record in `journeys/registry.yml` the journeys this story's passing tests used (this story as their proof, and what ran before each), and the stale marks. Journeys only failing tests used are left out. Preview, then apply; commit `registry.yml` with the journey files, `application-map/` and the story's output. After merging other people's work, `$H journeys --check` lints every journey and lists possible duplicates; a merge conflict in `registry.yml` is settled by `$H journeys --resolve` | `$H journeys KEY --harvest` → `--harvest --apply` → `journeys/registry.yml` — [journeys](references/journeys.md) |
+| 9 | **Knowledge** | Keep the judged story's requirement for the next stories: its contract's rules and the gaps its owner answered become the application's required rules (assumed and open gaps don't), read by later hardeners and triagers after their freeze; what is left out is said | `$H map KEY --harvest` → `application-map/<profile>/app.yml` |
 
 Work through the phases in order and do not skip the freeze. **You coordinate:** each subagent runs in a fresh
 context, works from the files on disk and the scripts, and replies with a summary; `$H advance KEY` runs the steps
@@ -204,7 +215,9 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
 
 - **Held-out isolation.** Derive tests only from the story (title, description, acceptance criteria, the screenshots
   they show, the Confluence pages they link) and black-box
-  observation of the AUT. Never read the AUT's source, its tests or its fixtures.
+  observation of the AUT. Never read the AUT's source, its tests or its fixtures. Before a story's freeze, the only
+  thing of the application map its agents read is the overview (`$H map KEY --overview`): what it is and its words,
+  never an expected value, a rule or a criterion; a contract that names it fails (`rests-on-overview`).
 - **Hardening changes HOW, never WHAT.** Locators, waits, navigation and API plumbing may change.
   Expected values, `[REQ …]` assertions and the `@req-constants` block may not. `[REQ AC-n strict]`
   also freezes the locator, for accessibility and other requirements where the locator *is* the
@@ -271,6 +284,9 @@ journeys/                                   ← shared by every story on the app
 
 application-map/<profile>/<domain>.jsonl    ← how the application works, as probes proved it (committed): read and
                                               written after a freeze only, through `heldout map` (phases 3 and 5)
+application-map/<profile>/app.yml           ← what the application is (overview: every agent, from setup on) and its
+                                              business rules (required by judged stories, observed by probes: after a
+                                              freeze only), through `heldout map` (setup, phases 3, 5 and 9)
 
 output/<profile>/KEY/                       ← the record of one story (committed): one folder per phase, each holding
                                               only what that phase hands the later ones

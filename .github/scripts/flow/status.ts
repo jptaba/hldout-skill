@@ -12,6 +12,7 @@ import type { Args, CommandSpec } from '../core/cli';
 import { loadConfig } from '../core/config';
 import { ROOT, rel } from '../core/files';
 import { evalPaths, listStories, strayFiles } from '../core/paths';
+import { hasOverview } from '../probe/app-knowledge';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -23,6 +24,13 @@ export const spec: CommandSpec = {
 };
 
 export function run({ _ }: Args): void {
+  // What the application is, for every agent: written at onboarding, so its absence is said wherever a session starts.
+  const all = loadConfig();
+  for (const id of _[0] ? [loadConfig({ key: _[0] }).autId] : Object.keys(all.auts)) {
+    if (hasOverview({ autId: id })) continue;
+    const aut = id === all.defaultAut ? '' : ` --aut ${id}`;
+    console.log(`• ${all.auts[id].name ?? id} has no overview yet (what the application is, for every agent): ${H} map${aut} --survey, then map${aut} --about <part> --add "…"`);
+  }
   const stories = listStories(loadConfig()).sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
   const keys = _[0] ? [{ key: _[0], profile: undefined as string | undefined }] : stories;
   if (!keys.length) {

@@ -248,7 +248,7 @@ describe('the commands', () => {
       [['--stale', '--evidence', 'P1'], /--stale needs an entry/],
       [['--stale', '', '--evidence', 'P1'], /--stale needs an entry/],
       [['--domain', 'cart', '--add', 'x', '--stale', 'M1a2b3c', '--evidence', 'P1'], /one at a time/],
-      [['--domain', 'cart', '--evidence', 'P1'], /goes with --add or --stale/],
+      [['--domain', 'cart', '--evidence', 'P1'], /goes with --add, --rule or --stale/],
       [['--domain'], /--domain needs a domain/],
       [['--domain', ''], /--domain needs a domain/],
       [['--domain', 'cart', '--add', 'one', '--add', 'two', '--evidence', 'P1'], /--add once per call/],

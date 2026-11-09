@@ -21,8 +21,10 @@ Inputs, for story KEY and its run (given in your task; `npm run heldout -- statu
   `--endpoints`, `--variants`, `--gaps`, `--auth` (one flag or several).
 - The probes so far: `show KEY probes`, `show KEY probes --id P7`. The hardener's log is `4-hardening/hardening.md`, and
   the journeys are in `journeys/fixtures/<domain>.ts` (search for the one a test calls and read that range).
-- What earlier stories proved about how the application works: `npm run heldout -- map KEY`, then `--domain <domain>`.
-  It tells you how to reach something, never what is a defect: every failure is still reproduced live.
+- What earlier stories proved about how the application works: `npm run heldout -- map KEY`, then `--domain <domain>`;
+  what the application is, `--overview`; what is known of its business, `--rules` (required by an earlier story, or
+  observed). They tell you how to reach something and what to look at, never what is a defect: this story's contract
+  is the oracle, and every failure is still reproduced live.
 - Read the part you are working on, once; don't read a whole spec, contract, probe log or report.
 - `.github/skills/heldout-evaluator/references/triage.md`: **the categories, the decision tree and the commands.
   Read it first and follow it.** `probes.md` beside it: how to build on a probe and what the inspector does.
@@ -57,8 +59,12 @@ Do this:
    clarification note.
 4. Keep for later stories what your probes showed about how the application works and neither a journey nor the map
    holds: `npm run heldout -- map KEY --domain <domain> --add "<how it works>" --evidence P7`, one mechanic each, never
-   what it accepts, refuses or computes, nor who may call it. A probe that contradicts an entry:
-   `npm run heldout -- map KEY --stale <id> --evidence P9`.
+   what it accepts, refuses or computes, nor who may call it. What it was seen to accept, refuse or compute is an
+   observed rule, never a judgement: `npm run heldout -- map KEY --rule "<what it did>" --domain <domain> --evidence P7`.
+   An area, a kind of user or a word of the application the overview lacks:
+   `npm run heldout -- map KEY --about area|user|term --add "<what it is>" --evidence P7` (no figure, quote or rule).
+   A probe that contradicts an entry or an observed rule: `npm run heldout -- map KEY --stale <id> --evidence P9`. One
+   that contradicts a required rule leaves it as it is: what was asked is never settled by what the application does.
 5. Reply with a summary per failure: category, severity, the evidence, and for each SCRIPT_DEFECT what is wrong with
    the mechanics and where (the test, or the journey it calls), so the hardener can repair it.
 
