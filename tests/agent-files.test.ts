@@ -201,6 +201,26 @@ describe('agent files', () => {
     assert.equal(nameClashes([['.github/agents/x.agent.md', '---\nname: heldout-evaluator\n---\n']]).length, 1);
   });
 
+  it('the agent that fixes an assertion proposes its amendment, a fresh triager decides it (specs/019-amendment-review)', () => {
+    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    const hardener = read('heldout-hardener.agent.md'), triager = read('heldout-triager.agent.md');
+    assert.ok(hardener.includes('integrity KEY --propose'));
+    assert.ok(hardener.includes('Never run `heldout integrity --snapshot`, `--amend` or `--reject`'));
+    assert.ok(triager.includes('integrity KEY --amend') && triager.includes('--reject'));
+    assert.ok(triager.includes('Never amend an assertion nobody proposed'));
+    const roles = fs.readFileSync(path.join(SKILL_DIR, 'references', 'governance.md'), 'utf8');
+    assert.match(roles, /\| Orchestrator \|[^\n]*nothing about WHAT is correct: it runs `heldout advance`/);
+    assert.match(roles, /\| Triager \|[^\n]*whether a proposed amendment is recorded or rejected/);
+    assert.match(roles, /\| Hardener \|[^\n]*approve its own amendment/);
+    assert.match(fs.readFileSync(path.join(SKILL_DIR, 'references', 'triage.md'), 'utf8'), /^## Reviewing a proposed amendment$/m);
+    // The coordinator decides nothing about an amendment: neither file tells it to run one.
+    const skill = fs.readFileSync(path.join(SKILL_DIR, 'SKILL.md'), 'utf8');
+    for (const text of [skill, fs.readFileSync(path.join(REPO, COORD), 'utf8'), fs.readFileSync(path.join(SKILL_DIR, 'references', 'phases.md'), 'utf8')]) {
+      assert.ok(!/you\*{0,2} decide on/i.test(text) && !/decide on the audited amendment yourself/.test(text));
+    }
+    assert.ok(skill.includes('Whoever\n    proposes never approves'));
+  });
+
   it('both apps approve edits in the record, the scratch area and the journeys, and nothing wider (specs/016-coordinator-agent)', () => {
     const json = (f: string) => JSON.parse(fs.readFileSync(path.join(REPO, f), 'utf8'));
     const edits = (json('.claude/settings.json').permissions.allow as string[]).filter((r) => r.startsWith('Edit'));

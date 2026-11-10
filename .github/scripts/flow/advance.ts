@@ -31,7 +31,8 @@ import type { HeldoutConfig } from '../core/profile';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../contract/contract-model';
 import { checkReview, readReview } from '../contract/evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../hardening/fast-harden';
-import { readDecisions, readRunRecord } from '../run/run-record';
+import { amendmentReviews, storyIntegrity, type AmendmentReview, type IntegrityResult } from '../hardening/integrity-check';
+import { readDecisions, readRunRecord, type TriageEntry } from '../run/run-record';
 import { phasesOf } from './phases';
 
 const H = 'npm run heldout --';
@@ -51,6 +52,29 @@ export function repairsTried(p: Pick<ReturnType<typeof evalPaths>, 'history' | '
     n++;
   }
   return n;
+}
+
+/**
+ * Who takes a story whose integrity is not preserved. A proposed amendment goes to a fresh triager, who judges it
+ * against the contract (the hardener that fixed it never approves it); a rejected one, or a change nobody proposed,
+ * goes back to the hardener.
+ */
+export function integrityHandover(key: string, changed: IntegrityResult['changed'], history: { event: string; [k: string]: unknown }[]): { agent: string; task: string; why?: string } {
+  const reviews = amendmentReviews(changed, history);
+  const where = (s: AmendmentReview) => changed.filter((c) => reviews.get(c.assertion) === s).map((c) => `"${c.assertion}"`).join(', ');
+  if (where('proposed')) return { agent: 'heldout-triager', task: `Review the proposed amendment(s) for ${key}: ${where('proposed')}`, why: 'in a fresh context, against the contract' };
+  if (where('rejected')) return { agent: 'heldout-hardener', task: `Restore the assertion(s) of ${key} whose amendment the triager rejected: ${where('rejected')} (${H} integrity ${key})` };
+  return { agent: 'heldout-hardener', task: `Integrity is not preserved for ${key}: restore what the tests expect, or fix an assertion whose implementation is wrong and propose its amendment (${H} integrity ${key})` };
+}
+
+/**
+ * The confirmed script defects of the last evaluation run, while the repair loop has a cycle left: a repair is under
+ * way, and what follows it is a re-run (`advance --rerun`), not the verdict.
+ */
+export function repairDue(p: Pick<ReturnType<typeof evalPaths>, 'runs' | 'history' | 'decisions'>): TriageEntry[] {
+  const evalRuns = evalRunsOf(p.runs);
+  if (!evalRuns.length || repairsTried(p) > MAX_REPAIRS) return [];
+  return readRunRecord(runFile(p, evalRuns.at(-1)!)).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT');
 }
 
 /** What the tests stand on: which scenarios use which journey, and the journeys that are new with this story. */
@@ -184,10 +208,16 @@ export function run({ _, flags }: Args): void {
     return spawnSync(process.execPath, [...process.execArgv, path.join(SCRIPTS_DIR, 'heldout.ts'), ...args], { stdio: 'inherit' }).status ?? 1;
   };
   /** Stop for a subagent: who, its task, and how to go on afterwards. */
-  const handOver = (agent: string, task: string, why?: string) => {
+  const handOver = (agent: string, task: string, why?: string, then = '') => {
     console.log(`\n■ Next: the ${agent} subagent${why ? ` — ${why}` : ''}`);
     console.log(`  Task: "${task}"`);
-    console.log(`  Then: ${H} advance ${key}`);
+    console.log(`  Then: ${H} advance ${key}${then}`);
+  };
+  /** Integrity not preserved: the triager reviews a proposed amendment, the hardener takes anything else. */
+  const integrityTo = (then = '') => {
+    const cfg = loadConfig({ key, aut });
+    const h = integrityHandover(key, storyIntegrity(cfg, key).changed, readHistory(evalPaths(cfg, key).history));
+    handOver(h.agent, h.task, h.why, then);
   };
   const stuck = (what: string) => { throw new Error(`${what} — see the output above; fix it, then: ${H} advance ${key}`); };
   /** No secret value goes out with the verdict: checked, scrubbed if one is found, and checked again. */
@@ -223,7 +253,7 @@ export function run({ _, flags }: Args): void {
     const sp = evalPaths(cfg, key);
     if (!evalRunsOf(sp.runs).length) throw new Error(`--rerun follows a repair after an evaluation run; ${key} has none yet: ${H} advance ${key}`);
     if (repairsTried(sp) > MAX_REPAIRS) console.log(`• ${MAX_REPAIRS} evaluation runs in a row ended in confirmed script defects: the repair loop is bounded, so no further re-run — going on to the verdict`);
-    else { if (heldout('integrity', key) !== 0) stuck('integrity is not preserved after the repair'); heldout('run', key, '--label', 'rerun', '--quiet'); }
+    else { if (heldout('integrity', key) !== 0) return integrityTo(' --rerun'); heldout('run', key, '--label', 'rerun', '--quiet'); }
   }
 
   for (let step = 0; step < 16; step++) {
@@ -283,6 +313,14 @@ export function run({ _, flags }: Args): void {
     }
 
     if (next.name === 'harden') {
+      // Hardened, and only integrity keeps the phase open. Checked again first: an amendment or a restore since the
+      // last check records no integrity event of its own. Still not preserved: the triager for a proposed amendment,
+      // the hardener for anything else.
+      if (next.blockedBy === 'integrity') {
+        if (heldout('integrity', key) === 0 && moved()) continue;
+        // A proposal made during a repair, picked up by a plain `advance` (a new session): the re-run still follows.
+        return integrityTo(repairDue(p).length ? ' --rerun' : '');
+      }
       // Nothing to discover and no harden run yet: the stability run is the hardening, no subagent needed.
       const known = listRuns(p.runs).length ? undefined : knownMechanics(cfg, key);
       if (known) {
@@ -295,7 +333,7 @@ export function run({ _, flags }: Args): void {
     }
 
     if (next.name === 'run') {
-      if (heldout('integrity', key) !== 0) return handOver('heldout-hardener', `Integrity is not preserved for ${key}: restore what the tests expect, or report the assertion whose implementation is wrong (${H} integrity ${key})`);
+      if (heldout('integrity', key) !== 0) return integrityTo();
       heldout('run', key, '--label', 'eval', '--quiet');
       if (!moved()) stuck('the evaluation run did not start (preflight)');
       continue;
@@ -313,8 +351,8 @@ export function run({ _, flags }: Args): void {
     if (next.name === 'verdict') {
       // Confirmed script defects are repaired and the suite run again before the verdict, at most three times.
       const evalRuns = evalRunsOf(p.runs);
-      const scriptDefects = evalRuns.length ? readRunRecord(runFile(p, evalRuns.at(-1)!)).entries.filter((e) => e.status !== 'passed' && e.final?.category === 'SCRIPT_DEFECT') : [];
-      if (scriptDefects.length && repairsTried(p) <= MAX_REPAIRS) {
+      const scriptDefects = repairDue(p);
+      if (scriptDefects.length) {
         console.log(`\n■ Next: the heldout-hardener subagent — ${scriptDefects.length} confirmed script defect(s) in ${evalRuns.at(-1)}`);
         console.log(`  Task: "Repair these script defects for ${key}: ${scriptDefects.map((e) => `${e.scenario} (${(e.final?.rationale ?? '').slice(0, 100)})`).join('; ')}"`);
         console.log(`  Then: ${H} advance ${key} --rerun`);

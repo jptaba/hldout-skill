@@ -9,6 +9,7 @@ Rounds start from scratch: a new round project, a fresh onboarding, freshly star
 
 | What | Where |
 | --- | --- |
+| An amendment going hardener → triager in a round where one comes up; and, still open in code, an approved amendment that survives a re-freeze and applies again to the same texts without a new review | `specs/019-amendment-review` SC-002 and Assumptions |
 | The record's size. Round 41 against round 38, in real bytes: PB-2 54% (1,932 of 3,582 KB, 121 tests), TOOL-8 40% (1,233 of 3,045), PB-1 53% (715 of 1,346). Targets: 50%, 50%, 70%. A compressed screenshot takes about 52 KB against 110 and reads well; PB-2's run record (626 KB) and triage (258 KB) are the largest parts left | `specs/004-lean-context` SC-005 |
 | What agents take in: below target, see the table under this one (`specs/004-lean-context` SC-001 to SC-003, `specs/001-phase-separation` SC-002) | `npx tsx dev/context.ts <subagents folder> --filter r41` |
 | The stories round 38 did not reach | `specs/001-phase-separation` T016 |

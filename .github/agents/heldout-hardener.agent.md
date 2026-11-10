@@ -71,7 +71,7 @@ Do this:
    too many for a shared environment). This run is also your first look at the tests: make no separate trial run before
    it when the tests create records the application can't delete. A hardening run makes no retries (a retry would
    hide what the repeats are there to show). `npm run heldout -- run KEY --label harden --repeat-each 3 --workers 2` (on a rate-limited host,
-   or when the tests create records the application can't delete: the profile's recipe has no `delete`, or a probe shows none, `--repeat-each 2 --workers 1`, as the reference says; after a repair, run again, with the same flags and `--grep`, the tests that failed on a mechanic and those that call a journey you changed, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED.
+   or when the tests create records the application can't delete: the profile's recipe has no `delete`, or a probe shows none, `--repeat-each 2 --workers 1`, as the reference says; after a repair, run again, with the same flags and `--grep`, the tests that failed on a mechanic and those that call a journey you changed, as the reference says; `@irreversible` tests run once; a run whose tests take existing accounts uses no more workers than there are accounts of the scarcest role, whatever `--workers` says, and that is expected). Then `npm run heldout -- integrity KEY` must say PRESERVED, or list as changed only assertions you proposed.
 6. Fill in `4-hardening/hardening.md` (edit the template that is there; keep the "Guesses confirmed unchanged" list
    `heldout confirm` added to it): what you changed and why (journeys in their own table), observed deviations, and
    `**Tiers used:** …`. Keep for later stories what they would otherwise discover again and no journey holds, one
@@ -90,12 +90,15 @@ Do this:
    application and its meaning), one line each, for the main agent's closing summary. A person adds it between stories.
 
 When your task gives you confirmed script defects from triage, repair exactly those (mechanics only, in the test or the
-journey it calls), re-probe, check `npm run heldout -- integrity KEY` and reply with what you changed per defect. The
-main agent re-runs the suite.
+journey it calls), re-probe, check `npm run heldout -- integrity KEY` and reply with what you changed per defect.
+`advance --rerun` runs the suite again.
 
-Never run `heldout integrity --snapshot` or `--amend`, and never change a shared sandbox's settings. If an assertion's
-implementation (not its expected value) looks wrong, for example an over-strict regex, report it: the main agent
-decides on the audited amendment.
+Never run `heldout integrity --snapshot`, `--amend` or `--reject`, and never change a shared sandbox's settings. If an
+assertion's implementation (not its expected value) is wrong, for example an over-strict regex, fix it so it still
+requires exactly what the requirement says and propose the amendment:
+`npm run heldout -- integrity KEY --propose "<assertion>" --reason "…"` (`hardening-cases.md`). A fresh triager
+decides it; you never approve it. When your task says the triager rejected one, restore that assertion as the
+draft has it.
 
 A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
 this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.

@@ -10,7 +10,7 @@ record that shows what happened, and how the controls map to the NIST AI Risk Ma
 | --- | --- | --- |
 | Story owner | the person who owns the Jira story | what is correct: answers the open questions the verdict puts to them, accepts or rejects each finding |
 | Evaluation owner | the person who runs the evaluator for a team | which stories are evaluated, which environment, whether a verdict is published (`jira.publish`), the project's settings |
-| Orchestrator | the main agent session (Opus in GitHub Copilot or Claude Code) | nothing about WHAT is correct: it runs the phases, the commands between them, and hands work to the subagents |
+| Orchestrator | the main agent session (Opus in GitHub Copilot or Claude Code) | nothing about WHAT is correct: it runs `heldout advance`, which runs the script steps, and hands each other step to the subagent it names |
 | Subagents | one fresh context per phase | their phase's output only, within their role (below) |
 
 What each subagent may do is fixed by the skill, in both agent apps' files (`.github/agents/`, `.claude/agents/`);
@@ -21,8 +21,8 @@ What each subagent may do is fixed by the skill, in both agent apps' files (`.gi
 | Contract extractor | the evidence pack | the requirement contract | look at the application (no browser; probes refused before the freeze) |
 | Contract reviewer | the evidence pack, the contract | its review, bound to the contract's hash | change the contract unnoticed; look at the application |
 | Test author | the reviewed contract, the journeys | the tests and the journeys they call | look at the application |
-| Hardener | everything, live | HOW a test works: locators, waits, journeys | change WHAT it expects (the freeze and audited amendments) |
-| Triager | the runs, live | its decisions and evidence | edit the tests or the journeys (the freeze shows it) |
+| Hardener | everything, live | HOW a test works: locators, waits, journeys; a proposed amendment of an assertion's implementation | change WHAT it expects, or approve its own amendment (the freeze and audited amendments) |
+| Triager | the runs, live | its decisions and evidence; whether a proposed amendment is recorded or rejected | edit the tests or the journeys (the freeze shows it) |
 
 ## Decisions that stay with a person
 

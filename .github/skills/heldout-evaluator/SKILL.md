@@ -91,8 +91,9 @@ What is yours to decide between the subagents:
 - **Contract.** Send the reviewer's findings back to the builder and review again, in a fresh context, until
   `$H contract KEY` is clean; after 3 rounds, what is still disputed becomes an open question. Don't ask the user the
   open oracle questions it lists: they go to the tests and the verdict.
-- **Hardening.** Check `$H integrity KEY` yourself afterwards. When the hardener reports an over-strict assertion
-  implementation, you decide on `$H integrity KEY --amend`.
+- **Hardening.** `advance` checks integrity afterwards. When the hardener fixed an assertion's implementation and
+  proposed its amendment, `advance` names the `heldout-triager` to review it in a fresh context: you decide nothing
+  about it.
 - **Triage.** Send the script defects the triager confirms to the `heldout-hardener` ("Repair these script defects for
   KEY: …"), re-run everything (`$H run KEY --label rerun`) and triage again. At most 3 cycles in a row.
 - **Publish** is part of the evaluation, with no confirmation; a project that wants a person to publish sets
@@ -114,7 +115,7 @@ go-ahead. Whatever is unclear or missing becomes part of the result:
 | The story has no acceptance criteria | `advance` writes an INCONCLUSIVE verdict saying so, and publishes it |
 | An account, role or secret the tests need is missing and the application can't create it | Those tests end BLOCKED; the verdict names what is missing |
 | The application is down or degraded, or a failure stays unexplained after 3 repair cycles | ENVIRONMENT_ISSUE or NEEDS_INVESTIGATION; verdict INCONCLUSIVE |
-| An assertion's implementation is wrong (not its expected value) | You decide on the audited amendment yourself; the verdict shows it |
+| An assertion's implementation is wrong (not its expected value) | The hardener proposes an amendment, a fresh triager decides it; the verdict shows it |
 
 The owner's later answer to an open question enters the next evaluation: a revised story is fetched again, or
 `$H contract KEY --answer G<n> --value "…" --by "<who>"` records it (then a fresh review).
@@ -166,7 +167,10 @@ Non-negotiable, for every agent:
   requirement. If the AUT contradicts the requirement, keep the assertion and log an *observed
   deviation*.
 - **Only two audited exceptions:**
-  - `heldout integrity --amend` fixes a buggy assertion *implementation* (e.g. an over-strict regex).
+  - an amendment fixes a buggy assertion *implementation* (e.g. an over-strict regex): the hardener that fixed it
+    proposes it (`heldout integrity --propose`), and a fresh triager, judging it against the contract, records it
+    (`heldout integrity --amend`) or rejects it (`--reject`, and the hardener restores the assertion). Whoever
+    proposes never approves.
   - `heldout integrity --snapshot --reason` re-freezes after a **requirement revision**.
   Both are logged and shown in the verdict. Anything else makes integrity VIOLATED and the verdict INCONCLUSIVE.
 - **No application defect without live reproduction.** The automatic triage is a hypothesis.

@@ -1293,7 +1293,7 @@ test('SCN-005: Adding to favourites in the web shop', { tag: ['@AC-5', '@type:in
       </svg>
     </div>
   </figure>
-  <p>There are only two audited exceptions, and both are listed in the verdict. <code>integrity --amend</code> fixes a buggy assertion <i>implementation</i>, such as an over-strict regular expression. <code>integrity --snapshot --reason</code> re-freezes after the requirement itself was revised.</p>
+  <p>There are only two audited exceptions, and both are listed in the verdict. An amendment fixes a buggy assertion <i>implementation</i>, such as an over-strict regular expression: the hardener that fixed it proposes it (<code>integrity --propose</code>), and a fresh triager records it (<code>integrity --amend</code>) or rejects it; whoever proposes never approves. <code>integrity --snapshot --reason</code> re-freezes after the requirement itself was revised.</p>
   <p>Journeys are not frozen, because they hold no expected values. The freeze records a hash of each journey in the files the draft uses (in <code>3-tests/freeze.json</code>; comments don't count), the verdict lists the journeys that changed after it, and a <code>[REQ …]</code> assertion inside a journey file is a violation: it would escape the freeze.</p>
   <div class="plain">
     <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>In plain English</div>

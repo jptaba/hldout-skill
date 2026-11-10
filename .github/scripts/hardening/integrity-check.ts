@@ -12,7 +12,11 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { storyJourneys } from '../authoring/journeys/registry';
 import { specFiles } from '../authoring/spec-model';
+import { oracleDigest, readContract } from '../contract/contract-model';
+import { evalPaths } from '../core/paths';
+import type { HeldoutConfig } from '../core/profile';
 
 const sha256 = (s: string) => createHash('sha256').update(s.replace(/\r\n/g, '\n')).digest('hex');
 
@@ -205,4 +209,48 @@ export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Fr
     result.status = 'AMENDED';
   }
   return result;
+}
+
+/**
+ * The history since the draft was last frozen. A proposal or a rejection judged an assertion against the criterion as
+ * it was then; a re-freeze follows a requirement revision, which may change that criterion even where the assertion's
+ * text stays, so the review starts anew.
+ */
+function sinceFreeze<T extends { event: string }>(history: T[]): T[] {
+  const events = history.map((e) => e.event);
+  return history.slice(Math.max(events.lastIndexOf('frozen'), events.lastIndexOf('refrozen')) + 1);
+}
+
+/**
+ * The rejections an assertion had before, for other texts than its current one, oldest first: a re-proposal goes to a
+ * fresh triager, who should see what was refused already and why, not judge it as if it were the first.
+ */
+export function earlierRejections(c: IntegrityResult['changed'][number], history: { event: string; [k: string]: unknown }[]): { current: string; reason: string }[] {
+  return sinceFreeze(history).filter((e) => e.event === 'amend-rejected' && e.assertion === c.assertion && e.draft === c.draft && e.current !== c.current)
+    .map((e) => ({ current: String(e.current), reason: String(e.reason ?? '') }));
+}
+
+/** The story's integrity as `heldout integrity KEY` checks it, without recording or printing anything. */
+export function storyIntegrity(cfg: HeldoutConfig, key: string): IntegrityResult {
+  const p = evalPaths(cfg, key);
+  const contract = readContract(p.contract);
+  if (!contract) throw new Error(`No requirement contract for ${key}`);
+  return checkIntegrity(p.tests, p.hardened, readFreeze(p.freeze), oracleDigest(contract), storyJourneys(cfg, cfg.autId, specFiles(p.hardened)));
+}
+
+/**
+ * Where a changed assertion stands in its review. The agent that fixed it proposes the amendment; another one, in a
+ * fresh context, amends or rejects it; whoever proposes never approves. Bound to the assertion's text as it is now: a
+ * rejection stands for that text (`integrity --propose` refuses it again), a new change to it is a new proposal, and
+ * one nobody proposed is `none`.
+ */
+export type AmendmentReview = 'proposed' | 'rejected' | 'none';
+export function amendmentReviews(changed: IntegrityResult['changed'], history: { event: string; [k: string]: unknown }[]): Map<string, AmendmentReview> {
+  const out = new Map<string, AmendmentReview>();
+  for (const c of changed) {
+    // The draft too, as an amendment is matched; and only since the last freeze (sinceFreeze).
+    const last = sinceFreeze(history).filter((e) => (e.event === 'amend-proposed' || e.event === 'amend-rejected') && e.assertion === c.assertion && e.draft === c.draft && e.current === c.current).at(-1);
+    out.set(c.assertion, last?.event === 'amend-proposed' ? 'proposed' : last?.event === 'amend-rejected' ? 'rejected' : 'none');
+  }
+  return out;
 }
