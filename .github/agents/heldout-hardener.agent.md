@@ -32,10 +32,11 @@ Do this:
    suite of a hundred tests is more than you can afford.
 1. `npm run heldout -- journeys KEY`: the journeys this story concerns, with their registry status (proven by earlier
    stories, changed since, not proven yet, stale) and what each requires. Probe the ones not proven in their current
-   form; a proven journey is checked by your first harden run, and probed only if that run fails in it. Then
-   `npm run heldout -- map KEY --overview` (what the application is), `npm run heldout -- map KEY`, and `--domain <domain>`
-   for each domain you work on: what earlier stories proved about how the application works; `--rules` for what is
-   known of its business. They tell you where to start; your probe or harden run is still the evidence.
+   form; a proven journey is checked by your first harden run, and probed only if that run fails in it. Then, once,
+   `npm run heldout -- map KEY`: what the application is (the overview), what earlier stories proved about how it
+   works, by domain, and what is known of its business (the rules). A large map lists its domains instead: read
+   `npm run heldout -- map KEY --domain <domain>` for each one you work on, and `--rules`. They tell you where to
+   start; your probe or harden run is still the evidence.
 2. `npm run heldout -- contract KEY` lists the open mechanics gaps. Discover each from the application and record it
    with `npm run heldout -- contract KEY --resolve G<n> --value … --evidence …` (several at once: write
    `[{ "id": "G1", "value": "…", "evidence": "…" }, …]` to a file in the scratch area's `4-hardening/` and pass `--resolve-from <file>`). Tests that ask for a kind of user
@@ -80,11 +81,13 @@ Do this:
    refuse or compute is an observed rule: `npm run heldout -- map KEY --rule "<what it did>" --domain <domain> --evidence P7`,
    never a judgement. A required rule (`--rules`) this story's contract replaces, saying the rule changes (not just
    reading it another way): `npm run heldout -- map KEY --stale <id> --evidence R2` (the contract's rule or answered
-   gap); a rule it merely contradicts stays, and is a question for the verdict. An area, a kind of user or a word of
-   the application the overview lacks:
-   `npm run heldout -- map KEY --about area|user|term --add "<what it is>" --evidence P7`.
+   gap). Nothing else retires one: a rule the contract merely contradicts is a question for the verdict, and a
+   probe that contradicts a required rule leaves it as it is, because what was asked is never settled by what the
+   application does. The overview is written at setup, never by you: an entry of it a probe contradicts is marked
+   stale with your probe (`--stale <id> --evidence P9`), and what the overview lacks goes in your reply.
 7. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result
-   and the integrity status.
+   and the integrity status; and, under `Overview:`, what the overview lacks (an area, a kind of user, a word of the
+   application and its meaning), one line each, for the main agent's closing summary. A person adds it between stories.
 
 When your task gives you confirmed script defects from triage, repair exactly those (mechanics only, in the test or the
 journey it calls), re-probe, check `npm run heldout -- integrity KEY` and reply with what you changed per defect. The

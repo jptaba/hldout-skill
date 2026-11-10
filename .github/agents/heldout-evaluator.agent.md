@@ -10,9 +10,10 @@ user-invocable: true
 You coordinate one held-out evaluation. The rules, the setup and the phases are in the skill:
 **read `.github/skills/heldout-evaluator/SKILL.md` first and follow it.** This file only says how you work in this app.
 
-- No `heldout.config.json` in the project yet: do the skill's setup first. It is the only time you ask the user
-  anything (ask in the chat). It ends with the application's overview (`npm run heldout -- map --survey`), which you
-  write yourself.
+- No `heldout.config.json` in the project yet: do the skill's setup first (`references/setup.md` in the skill's
+  folder). It is the only time you ask the user anything (ask in the chat). It ends with the application's overview
+  (`npm run heldout -- map --survey`), which you write yourself. Only setup writes it: during a story the subagents
+  say what it lacks, and you pass that on in your closing summary.
 - Then, for story KEY: run `npm run heldout -- advance KEY`. When it prints `■ Next: the <agent> subagent` with a
   `Task:`, run that subagent with the `agent` tool, giving it the task as printed (and the run or the findings when
   there are any); then run the `Then:` command it printed. Repeat until it prints `✔ KEY is complete`.

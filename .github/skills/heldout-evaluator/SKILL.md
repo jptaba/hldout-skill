@@ -1,22 +1,15 @@
 ---
 name: heldout-evaluator
-description: Held-out acceptance evaluation of a Jira story against any web application or API (AUT-agnostic). Fetches the story's title, description and acceptance criteria from Jira Data Center (or the file-based mock), with the screenshots they show and the Confluence pages they link, turns them into a reviewed requirement contract, writes independent Playwright TypeScript UI and API tests from the requirement only (each tied to its acceptance criteria, its requirement source and a test type: functional, negative, boundary, security, idempotency, concurrency, composition, integration, contract or accessibility) on top of reusable journeys per application domain, hardens them against the live AUT (tier 1 IDE browser tool, tier 2 Playwright MCP, tier 3 bundled inspector/API probe), runs them, triages every failure as a script defect or an application defect, and writes a verdict markdown with a full traceability matrix, reproduction steps and evidence that is published back to the Jira story for a human to review. Use when the user asks to evaluate, verify or accept a Jira story/ticket, to create held-out or independent acceptance tests, or for a test verdict on a story.
+description: Held-out acceptance evaluation of a Jira story against any web application or API (AUT-agnostic). Fetches the story from Jira Data Center (or the file-based mock) with the screenshots it shows and the Confluence pages it links, turns it into a reviewed requirement contract, writes independent Playwright TypeScript UI and API tests from the requirement only (each tied to its acceptance criteria, its source and a test type) on reusable journeys per application domain, hardens them against the live application (IDE browser tool, Playwright MCP, or the bundled inspector and API probe), runs them, triages every failure as a script defect or an application defect, and writes a verdict with a traceability matrix, reproduction steps and evidence, published back to the Jira story for a person to review. Use when the user asks to evaluate, verify or accept a Jira story or ticket, to create held-out or independent acceptance tests, or for a test verdict on a story.
 ---
 
 # Held-out Evaluator
 
-Works in any agent app that loads skills. The skill lives in `.github/skills/heldout-evaluator/`, its scripts (the
-`heldout` command, `npm run heldout`) in `.github/scripts/`, the phase subagents in
-`.github/agents/*.agent.md` and the Playwright MCP server in `.vscode/mcp.json`; GitHub Copilot reads them there. Claude Code
-reads only `.claude/`, so `.claude/skills/heldout-evaluator/SKILL.md` and `.claude/agents/*.md` are short bridges that
-point here, and it reads MCP servers only from the root `.mcp.json`, which `init` and `update` write from
-`.vscode/mcp.json`.
-
-**Who coordinates.** This file holds the rules, the setup and the phases; an agent coordinates by following it. In
-GitHub Copilot that is the `heldout-evaluator` agent (`.github/agents/heldout-evaluator.agent.md`, picked in the
-agents dropdown): its tools, the five agents it may call and its model are fixed there, with how it works in that app.
-In Claude Code it is the main agent with this skill, delegating with the Agent tool (`AskUserQuestion`, used during
-setup only, is its example of asking). Either way, run commands from the project's folder, the app's workspace.
+Works in GitHub Copilot in VS Code, in Claude Code and in any agent app that loads skills. The skill lives in
+`.github/skills/heldout-evaluator/`, its scripts (the `heldout` command, `npm run heldout`) in `.github/scripts/` and
+the phase subagents in `.github/agents/*.agent.md`. `.claude/skills/heldout-evaluator/SKILL.md` and
+`.claude/agents/*.md` are short bridges for Claude Code that point here. The Playwright MCP server is configured in
+`.vscode/mcp.json` and in the root `.mcp.json`, the same servers in both, written by `init` and `update`.
 
 A **held-out test** is an independent oracle: written from the requirement alone, never from the
 application's code or its developers' tests, so it catches an implementation that drifted from what
@@ -36,97 +29,32 @@ itself and the project's **journeys** (`journeys/`: the reusable HOW of the appl
 `fixtures/`, mapped by `registry.yml`). **Nothing in this skill may name, assume or special-case a particular application.** The skill
 never files issues: it reports findings with evidence, and a person decides what is a defect.
 
-## Setup (first use in a project, about 2 minutes)
+## Who coordinates
 
-If `heldout.config.json` is missing, set the project up before anything else:
+This file holds the rules and the loop; an agent coordinates by following it. In GitHub Copilot that is the
+`heldout-evaluator` agent (`.github/agents/heldout-evaluator.agent.md`, picked in the agents dropdown): its tools,
+the five agents it may call and its model are fixed there, with how it works in that app. In Claude Code it is the
+main agent with this skill, delegating with the Agent tool (`AskUserQuestion`, used during setup only, is its example
+of asking). Either way, run commands from the project's folder, the app's workspace.
 
-1. Ask the user, in one `AskUserQuestion` call, for anything you can't infer. Setup is the only time questions are
-   asked: once a story is fetched, the evaluation runs to its published verdict without the user (see "Unattended"
-   below), so settle here everything a story may need.
-   - the web app URL
-   - the API URL (if different)
-   - Jira: mock (nothing to connect to) or your Jira Data Center (its URL; the user puts a personal access token in
-     `.env` with `npm run heldout -- secret JIRA_PAT --ask`)
-   - test accounts: the tests create their own / existing accounts with passwords in `.env` or CI variables /
-     existing accounts in HashiCorp Vault / none needed; and, when the application has kinds of user a person must
-     create (an administrator), an account of each kind
-   - with a real Jira: whether each verdict is published to its story automatically (the default) or left for a
-     person to publish (`"publish": "manual"` under `jira` in `heldout.config.json`)
-2. Run setup from the user's clone of the skill (ask where it is if you don't know; usually `$HOME/heldout-skill`), in
-   the project's folder:
+**You coordinate; the subagents do the phases.** Each subagent runs in a fresh context, works from the files on disk
+and the scripts, and replies with a summary; `$H advance KEY` runs the steps between them and names the next subagent
+with its task. Give each one the story KEY, and the run or findings when there are any; never pass one subagent's
+reasoning to another. Keep the questions and missing pieces the subagents report for your closing summary; they are
+never a reason to pause. When a subagent hands back and your app reports what it cost (tokens, time), record it under
+the subagent's name: `$H note KEY --usage "<agent> tokens=<n> minutes=<m>"`. Only figures the app reported: leave out
+what it didn't, and never record an estimate. If your app can't run subagents, do the subagent's work yourself in the
+same order, following its instructions in `.github/agents/<name>.agent.md`.
+Self-tests for the skill's own logic: `npm run test:skill`.
 
-```bash
-& "$HOME/heldout-skill/setup.ps1" -BaseUrl <url> [--api-base-url <url>] [--name "<app>"] [--jira mock|datacenter] [--jira-url <url>]   # PowerShell
-"$HOME/heldout-skill/setup.sh" --base-url <url> [--api-base-url <url>] [--name "<app>"] [--jira mock|datacenter] [--jira-url <url>]   # bash, zsh
-```
+## Setup
 
-Setup pulls the clone, checks Node, runs the skill's `init --install` and then `doctor` (every problem comes with the
-command that fixes it). `init`, started from the clone, first runs its `update`, which copies, as they are in the skill
-repository (refreshed on later updates unless the project changed them):
+If `heldout.config.json` is missing, set the project up before anything else, following
+[references/setup.md](references/setup.md): the one question to ask, the setup command, test accounts, Jira, what
+GitHub Copilot and Claude Code each need to run an evaluation, and the application's overview, which setup writes.
+Setup is the only time the user is asked anything. `$H status` says when a profile has no overview yet.
 
-- the skill into `.github/skills/heldout-evaluator/` and its scripts into `.github/scripts/`
-- `playwright.config.ts`, `heldout-support/fixtures.ts`, `tsconfig.json` and `.env.example`
-- the Playwright MCP server (tier 2) into `.vscode/mcp.json` and the root `.mcp.json`, added to any servers the project
-  already has
-- the subagents in `.github/agents/` (contract extractor and reviewer, test author, hardener and triager, each with its
-  model and fallbacks)
-- the coordinator agent for Copilot, `.github/agents/heldout-evaluator.agent.md`
-- the Claude Code bridges in `.claude/`, its fallback models and the approval of the `heldout` command, the
-  Playwright MCP server and edits in `output/`, `.heldout/` and the journeys (`.claude/settings.json`), so an
-  evaluation isn't interrupted by approval prompts for them
-- `.vscode/settings.json`, so Copilot loads the skill and subagents from `.github/` only and runs the `heldout`
-  command and edits in the `.heldout/` scratch area without an approval prompt
-
-Then, from the project's own copy of the scripts, `init` scaffolds, and never overwrites:
-
-- `heldout.config.json` (with a JSON schema for editor help)
-- `.env`
-- the `heldout` npm script and dev dependencies
-- `.gitignore` entries
-- `mock-jira/`, `output/` (one folder per application profile, one per story under it) and `journeys/fixtures/`
-
-A later skill version: the same setup command, without the URL, in the project's folder (on any machine; the project
-records the skill's remote and commit in `SOURCE.json`, never a local path).
-
-Setup also installs the dependencies and Chromium. `-Ci gitlab|github` (`--ci` in setup.sh) adds a regression pipeline. Unless flags give
-them, one visit of the start page fills in the profile: its id (from the host, or the title for localhost), name (page
-title), test-id attribute, API host (where the page's own API calls go) and `blockHosts` (ad/analytics networks).
-Cookie and welcome dialogs the app shows go in `overlays` (see references/hardening-cases.md).
-
-More applications: `npm run heldout -- add-aut <id> --base-url <url>`, and give that profile its own journeys folder
-(`"journeysDir": "journeys-<id>"` in its profile). When the new profile is another environment or build of an
-application that already has journeys, `npm run heldout -- journeys --aut <id> --copy-from <profile>` starts it from
-those: copied as drafts, each marked `TODO(harden)`, proven by nothing until a story's passing tests prove them there.
-
-**Test accounts** (record the answer; never ask for or handle a password yourself; every way to set them up is in
-[accounts](references/accounts.md)):
-- *Existing, `.env`/CI:* `$H accounts --add-existing --username <user> --password-env APP_PASSWORD_1`, then tell the user to
-  run `npm run heldout -- secret APP_PASSWORD_1 --ask` in a terminal of their own (hidden prompt), or to set it as a CI variable.
-- *Existing, Vault:* put `VAULT_ADDR` in `.env`; the user runs `vault login` once (or sets `VAULT_TOKEN` / AppRole). Then
-  `$H accounts --add-existing --username-vault <path#field> --password-vault <path#field>`.
-- *Created by the tests:* nothing now; the recipe is saved while hardening the first story that needs users (from the
-  API probe chain, or from the sign-up page when the app has no API for it: `$H accounts --sign-up-json …`).
-Repeat `--add-existing` for more accounts: each parallel worker needs its own, and runs use no more workers than
-there are accounts (of the scarcest role, when accounts have roles: `--role admin`). An account that only acts on
-other records, such as the one administrator, takes `--shared`: it serves every worker and sets no limit, provided the
-application keeps an earlier sign-in valid when the account signs in again. `$H accounts --check` (and `doctor`) signs each one in. Existing accounts are shared with later runs:
-when tests change them, save the call that restores one while hardening (`$H accounts --reset "METHOD path"`).
-
-Jira: `JIRA_MODE=mock` (default) or `datacenter` (Jira and Confluence Data Center, `JIRA_PAT`); `doctor --jira` finds
-the acceptance-criteria custom field. See
-[references/jira.md](references/jira.md). Tell the user to restart their agent app (Claude Code, GitHub Copilot…) once so the Playwright MCP server and the subagents load.
-
-**The application's overview**, last, for each profile (`--aut <id>` for another one): `$H map --survey` prints what a
-person sees before signing in (the start page's headings and links, the sign-in form's fields, the calls the pages
-make, the API's own description when it serves one); it signs in nowhere and writes nothing. From it, write what the
-application is, one entry each: `$H map --about <part> --add "…"`, with the parts `purpose`, `area` (each area, named
-as its journeys' domain will be), `user` (each kind of user), `sign-in`, `api` (its style and base path) and `term` (a
-word of the application and its meaning). Every agent reads it (`$H map --overview`), the contract's and the test
-author too, so it says what the application is and never what it does: the command refuses a figure, a quoted text, a
-rule or a judgement. It lives in `application-map/<profile>/app.yml`, committed; `$H status` says when a profile has
-none.
-
-## Pipeline
+## The loop
 
 `H="npm run heldout --"`. In Windows PowerShell, quote the dashes (`npm run heldout '--' …`): PowerShell drops a bare
 `--`, and npm then keeps the command's flags for itself (`heldout` stops with this hint when it notices). Every command takes the issue key. `$H status [KEY]` shows where a story is and the next command.
@@ -141,23 +69,43 @@ registry, the story's rules kept for the application) and stops where a subagent
   Then: npm run heldout -- advance KEY
 ```
 
-When a draft leaves nothing to discover (every journey its tests call is proven in the registry as it is and holds no
-`TODO(harden)`), `advance` does the hardening itself: it runs the tests twice, and when each one passes or fails on a
-requirement assertion alone, it records the mechanics gaps as answered by those journeys, writes the hardening log and
-goes on to the evaluation run. A guess left in a test (a locator built from a text the requirement gives) is settled
-by that run: its test passed both times, on a line that acts on or expects what it locates. So is a journey that is
-new with the story, when the new ones are fewer than the proven ones and every test that uses one passed both times;
-a guess in it counts only on a statement of the journey itself that clicks, fills or waits for what it locates. A
-guess in a branch, a path or field of an API call, a value a journey returns, a constant or a helper of the file all
-go to the hardener, and so does anything else in that run (a locator that no longer matches, a failed precondition,
-a flaky test).
-
 Run that subagent with that task, then the `Then:` command, until it prints `✔ KEY is complete`. It reads where the
-story is from the files on disk, so a new session picks a story up with the same command. The table below is what it
-runs, and what to run by hand when a step needs a closer look.
+story is from the files on disk, so a new session picks a story up with the same command. Work through the phases in
+order and do not skip the freeze:
 
-**Unattended.** From the fetch to the published verdict, never stop to ask the user anything, and never wait for an
-answer or a go-ahead. Whatever is unclear or missing becomes part of the result:
+| # | Phase | Who does it | Output (in `output/<profile>/KEY/`) |
+| --- | --- | --- | --- |
+| 1 | Fetch | `advance` | `1-requirement/` |
+| 1b | Contract | `heldout-contract-extractor`, then `heldout-contract-reviewer` in a fresh context | `2-contract/` |
+| 2 | Write the tests | `heldout-test-author`, with no browser | `3-tests/`, `journeys/fixtures/<domain>.ts` |
+| 3 | Freeze + harden | `advance` freezes; `heldout-hardener` (or `advance`, when a draft leaves nothing to discover) | `3-tests/freeze.json`, `4-hardening/` |
+| 4 | Run | `advance` | `5-run/` |
+| 5 | Triage | `heldout-triager`; `heldout-hardener` repairs what it confirms | `6-triage/` |
+| 6 | Verdict | `advance` | `7-verdict/` |
+| 7 | Publish | `advance` | the story's comment, attachment and label |
+| 8 | Journey registry | `advance` | `journeys/registry.yml` |
+| 9 | Knowledge | `advance` | `application-map/<profile>/app.yml` |
+
+What is yours to decide between the subagents:
+
+- **Contract.** Send the reviewer's findings back to the builder and review again, in a fresh context, until
+  `$H contract KEY` is clean; after 3 rounds, what is still disputed becomes an open question. Don't ask the user the
+  open oracle questions it lists: they go to the tests and the verdict.
+- **Hardening.** Check `$H integrity KEY` yourself afterwards. When the hardener reports an over-strict assertion
+  implementation, you decide on `$H integrity KEY --amend`.
+- **Triage.** Send the script defects the triager confirms to the `heldout-hardener` ("Repair these script defects for
+  KEY: …"), re-run everything (`$H run KEY --label rerun`) and triage again. At most 3 cycles in a row.
+- **Publish** is part of the evaluation, with no confirmation; a project that wants a person to publish sets
+  `jira.publish` to `"manual"`, and `advance` then leaves this step out.
+- **Afterwards**, commit `registry.yml` with the journey files, `application-map/` and the story's output.
+
+Each phase step by step, with its commands and what to run by hand when a step needs a closer look:
+[references/phases.md](references/phases.md).
+
+## Unattended
+
+From the fetch to the published verdict, never stop to ask the user anything, and never wait for an answer or a
+go-ahead. Whatever is unclear or missing becomes part of the result:
 
 | What comes up | Where it goes |
 | --- | --- |
@@ -171,28 +119,19 @@ answer or a go-ahead. Whatever is unclear or missing becomes part of the result:
 The owner's later answer to an open question enters the next evaluation: a revised story is fetched again, or
 `$H contract KEY --answer G<n> --value "…" --by "<who>"` records it (then a fresh review).
 
-| # | Phase | You do | Command / output |
-| --- | --- | --- | --- |
-| 1 | **Fetch** | Pull the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (comments and other attachments are not requirement), into the folder of its AUT profile. A re-fetch detects requirement revisions | `$H fetch KEY [--aut <profile>]` → `1-requirement/` (+ `CHANGES.md`, `revisions/`) |
-| 1b | **Contract** | `$H contract KEY --pack`, then **delegate** the building to the `heldout-contract-extractor` subagent. From the evidence pack alone it writes: each AC verbatim with cited lines; rules, endpoints, error cases, auth and test data; **gaps**, each either *mechanics* (HOW: left open, discovered in phase 3) or *oracle* (WHAT: found in the requirement, otherwise left open or assumed for the verdict to report); and a coverage ledger for every source line. Then delegate an **independent review** to the `heldout-contract-reviewer` subagent, in a fresh context. Send findings back to the builder and re-review until `$H contract KEY` is clean (after 3 rounds, what is still disputed becomes an open question). **Don't ask the user** the open oracle questions it lists: they go to the tests and the verdict | `2-contract/contract.json`, `2-contract/review.json` — [requirement-contract](references/requirement-contract.md) |
-| 2 | **Write the tests** | **Delegate** to the `heldout-test-author` subagent ("Write the tests for KEY"). With no browser and from the reviewed contract alone, it runs `$H scaffold KEY`, lists the application's journeys (`$H journeys KEY`) and writes the Playwright TS tests: one user journey each, tagged with its `@AC-n`, one `@type` (what it truly proves) and a `// from` source, written in two passes: one test per criterion first, then round the test types per criterion for what the requirement implies; the steps call journeys, adding the missing ones to their domain's file (`journeys/fixtures/<domain>.ts`); every data precondition seeded; every expectation in the test (`expectResponse(…, '[REQ AC-n] …')`, `[REQ AC-n]` messages, `@req-constants`); guessed mechanics marked `// TODO(harden)`; lint clean (`--allow-unhardened`), and as its last command the draft marked finished (`lint KEY … --draft-finished`): `advance` freezes only a draft with that mark, so one whose author was cut off goes back to the test author. The open questions it returns are already in the tests (`// OPEN-QUESTION:`, `@needs-clarification`) and reach the verdict; nobody is asked | `3-tests/<key>.spec.ts`, `3-tests/test-data.json`, `journeys/fixtures/<domain>.ts` — [test-authoring](references/test-authoring.md), [journeys](references/journeys.md), [data-and-journeys](references/data-and-journeys.md) |
-| 3 | **Freeze + harden** | **You** freeze the draft together with the contract's oracle (and a hash of each journey it uses): `$H integrity KEY --snapshot`. The draft stays as frozen in `3-tests/`; the hardener gets its own copy in `4-hardening/`, the tests that run. Then **delegate** to the `heldout-hardener` subagent ("Harden the tests for KEY"). It makes the mechanics work against the live AUT with the browser and API tiers, in the tests and the journeys they call, resolves the open mechanics gaps (`discovered-in-aut`, which changes no reviewed content), saves an accounts recipe when the story needs users, and proves stability with `$H run KEY --label harden --repeat-each 3 --workers 2`. Check `$H integrity KEY` yourself afterwards. When it reports an over-strict assertion implementation, **you** decide on `$H integrity KEY --amend` | `3-tests/freeze.json`, `4-hardening/` (the hardened tests, `hardening.md`, the probes it cites) — [hardening](references/hardening.md) |
-| 4 | **Run** | **You** run the full suite. Preflight (lint, contract and review, journeys, 3-sample healthcheck) runs automatically; a down or **degraded** AUT aborts the run (`--allow-degraded` overrides) | `$H run KEY --label eval` → `5-run/NN-eval.json` |
-| 5 | **Triage** | **Delegate** to the `heldout-triager` subagent ("Triage run NN-eval of KEY"). It auto-classifies, **reproduces each failure live** and records each decision with evidence; it never edits the tests or the journeys. Send the script defects it confirms to the `heldout-hardener` ("Repair these script defects for KEY: …"), re-run everything (`$H run KEY --label rerun`) and triage again (the triager uses `--carry-from auto`). At most 3 cycles in a row. The triager starts from the report's groups of failures that look alike and from the run's `all.chain.json` (in the scratch area); a failure on an assumed reading that is wrong under every reading is recorded with `--any-reading` | `6-triage/decisions.json`, the cited live reports in `6-triage/` — [triage](references/triage.md) |
-| 6 | **Verdict** | Render the recommendation with traceability, reproduction and evidence | `$H verdict KEY` → `7-verdict/verdict.md`, `7-verdict/verdict.json` — [verdict-and-publish](references/verdict-and-publish.md) |
-| 7 | **Publish** | Attach the verdict, post a summary comment, set a label. Nothing else. Part of the evaluation, with no confirmation; a project that wants a person to publish sets `jira.publish` to `"manual"`, and `advance` then leaves this step out | `$H publish KEY` |
-| 8 | **Journey registry** | Record in `journeys/registry.yml` the journeys this story's passing tests used (this story as their proof, and what ran before each), and the stale marks. Journeys only failing tests used are left out. Preview, then apply; commit `registry.yml` with the journey files, `application-map/` and the story's output. After merging other people's work, `$H journeys --check` lints every journey and lists possible duplicates; a merge conflict in `registry.yml` is settled by `$H journeys --resolve` | `$H journeys KEY --harvest` → `--harvest --apply` → `journeys/registry.yml` — [journeys](references/journeys.md) |
-| 9 | **Knowledge** | Keep the judged story's requirement for the next stories: its contract's rules and the gaps its owner answered become the application's required rules (assumed and open gaps don't), read by later hardeners and triagers after their freeze; what is left out is said | `$H map KEY --harvest` → `application-map/<profile>/app.yml` |
+## What is known of the application
 
-Work through the phases in order and do not skip the freeze. **You coordinate:** each subagent runs in a fresh
-context, works from the files on disk and the scripts, and replies with a summary; `$H advance KEY` runs the steps
-between them (freeze, runs, verdict, publish, journey registry) and names the next subagent with its task. Keep the
-questions and missing pieces the subagents report for your closing summary; they are never a reason to pause. Give
-each one the story KEY, and the run or findings when there are any. When a subagent hands back and your app reports
-what it cost (tokens, time), record it under the subagent's name: `$H note KEY --usage "<agent> tokens=<n> minutes=<m>"`.
-Only figures the app reported: leave out what it didn't, and never record an estimate. If your app can't run subagents, do the subagent's work yourself in the same order, following its
-instructions in `.github/agents/<name>.agent.md`.
-Self-tests for the skill's own logic: `npm run test:skill`.
+Kept between stories, in the project, and read through the `heldout` command only:
+
+| What | Written by | Read by |
+| --- | --- | --- |
+| **The overview**: what the application is (its purpose, areas, kinds of user, sign-in, API style, words). Never what it does | setup only: `$H map --about <part> --add "…"` | every agent, before the freeze too: `$H map KEY --overview` |
+| **The map**: how the application works, one mechanic an entry, each citing the probe that showed it | the hardener and the triager | the hardener and the triager, after the freeze |
+| **The rules**: what judged stories required (kept by `advance`), and what the application was seen to do (observed, citing a probe) | `advance`; the hardener and the triager | the hardener and the triager, after the freeze |
+| **The journeys**: the reusable HOW, one file per domain | the test author and the hardener | every agent that writes or runs tests |
+
+After a freeze, `$H map KEY` prints the overview, the map and the rules in one read. None of it is an oracle or
+evidence: the story's contract says what is correct, and a probe says what the application does.
 
 ## Browser and API tiers for hardening and triage
 
@@ -200,7 +139,7 @@ Pick the first tier whose tools are actually available in this session (check yo
 
 1. **Tier 1 — IDE browser tool**: the browser-control tools the host IDE exposes (an integrated
    browser, or a browser extension the agent drives, such as `mcp__claude-in-chrome__*`).
-2. **Tier 2 — Playwright MCP** (`mcp__playwright__browser_*`), configured by `.vscode/mcp.json` (Copilot) and the root `.mcp.json` (Claude Code). If the tools are not loaded natively (pending approval, CI), drive the same server with `heldout mcp-probe` (bundled stdio client). Always wait for a readiness anchor on SPAs, and never conclude absence from an unrendered snapshot.
+2. **Tier 2 — Playwright MCP** (`mcp__playwright__browser_*`), configured in `.vscode/mcp.json` and the root `.mcp.json`. If the tools are not loaded natively (pending approval, CI), drive the same server with `heldout mcp-probe` (bundled stdio client). Always wait for a readiness anchor on SPAs, and never conclude absence from an unrendered snapshot.
 3. **Tier 3 — bundled tools** (always available): `heldout inspect` (ARIA snapshot, ranked unique
    locators, `--probe`, `--steps-json`, `--wait-for`), `heldout run KEY --label harden --capture`
    (snapshot after every step), and `heldout api-probe` for APIs (single calls or `--chain` sequences; status, timing, redacted body, type
@@ -211,13 +150,16 @@ Verify every final locator with a probe (exactly one match, in the right state) 
 mechanic with `heldout api-probe`. Record the tiers you actually used in the hardening log
 (`**Tiers used:** …`).
 
-## Non-negotiable guardrails
+## Guardrails
+
+Non-negotiable, for every agent:
 
 - **Held-out isolation.** Derive tests only from the story (title, description, acceptance criteria, the screenshots
   they show, the Confluence pages they link) and black-box
   observation of the AUT. Never read the AUT's source, its tests or its fixtures. Before a story's freeze, the only
   thing of the application map its agents read is the overview (`$H map KEY --overview`): what it is and its words,
-  never an expected value, a rule or a criterion; a contract that names it fails (`rests-on-overview`).
+  never an expected value, a rule or a criterion; a contract that names it fails (`rests-on-overview`). The overview
+  has one writer, setup: a story's agents never add to it.
 - **Hardening changes HOW, never WHAT.** Locators, waits, navigation and API plumbing may change.
   Expected values, `[REQ …]` assertions and the `@req-constants` block may not. `[REQ AC-n strict]`
   also freezes the locator, for accessibility and other requirements where the locator *is* the
@@ -275,47 +217,11 @@ mechanic with `heldout api-probe`. Record the tiers you actually used in the har
   user names, slugs), and keep traffic modest. Every name starts with the profile's data prefix (`hldout` unless the
   app's rules need another: `init --profile <id> --data-prefix <prefix>`), so test data is easy to find and sweep.
 
-## Output layout
+## Output
 
-```
-journeys/                                   ← shared by every story on the application (grows story by story)
-  fixtures/<domain>.ts                      ← the journeys of one area, UI and API (phases 2–3)
-  registry.yml                              ← ids, what each touches and requires, who proved it (phase 8)
-
-application-map/<profile>/<domain>.jsonl    ← how the application works, as probes proved it (committed): read and
-                                              written after a freeze only, through `heldout map` (phases 3 and 5)
-application-map/<profile>/app.yml           ← what the application is (overview: every agent, from setup on) and its
-                                              business rules (required by judged stories, observed by probes: after a
-                                              freeze only), through `heldout map` (setup, phases 3, 5 and 9)
-
-output/<profile>/KEY/                       ← the record of one story (committed): one folder per phase, each holding
-                                              only what that phase hands the later ones
-  1-requirement/  story.md linked/ transcripts/ (CHANGES.md revisions/ after a revision)   ← fetch (phase 1)
-  2-contract/     contract.json review.json                              ← extractor, reviewer (phase 1b)
-  3-tests/        <key>.spec.ts test-data.json (the draft, as frozen) freeze.json (its hashes)   ← test author (phase 2)
-  4-hardening/    <key>.spec.ts test-data.json (the copy that runs) hardening.md probes.jsonl Pn.md (the cited ones)
-                                                                          ← hardener (phase 3)
-  5-run/          NN-label.json, one record per run: how it ran, every test, each failure's evidence   ← run (phase 4)
-  6-triage/       decisions.json probes.jsonl Pn.md (the cited ones)     ← triager (phase 5)
-  7-verdict/      verdict.md verdict.json, the screenshots it shows       ← verdict (phase 6)
-  history.jsonl                                                           ← every step that changed the story
-
-.heldout/<profile>/KEY/                     ← scratch and views (git-ignored), the same folder names
-  2-contract/evidence-pack.md contract.md   4-hardening/ (step files, probe reports)   6-triage/ (triage-NN-label.md,
-  chains/<run>/, probe reports)   7-verdict/journeys-staged.json
-  5-run/NN-label/ (the raw output: Playwright's JSON, the failures' traces and screenshots; JUnit and HTML report with
-  --junit, --html; only the last two runs and any run still in triage)
-  stray/                                    ← files that were in the record but are no part of it, moved by advance
-```
-
-The record holds only the files above. `$H lint KEY` and `$H status KEY` warn about any other file and say where it
-belongs; `$H advance KEY` moves such files to the scratch area's `stray/` before the verdict (a `stray-moved` line in
-the history) and checks the story's files for secret values before publishing. The scratch area is removed once the
-story is complete, unless the config sets `"keepScratch": true`.
-
-`$H status KEY` prints each phase beside its folder, and both roots. Everything the phases decide without leaving a file (the draft
-marked finished, the verdict published, the journeys harvested), and every run, check and decision, is a line of
-`history.jsonl`.
+One folder per phase in the story's record, `output/<profile>/KEY/` (committed), and the same names in its scratch
+area, `.heldout/<profile>/KEY/` (git-ignored, removed when the story is complete). `$H status KEY` prints each phase
+beside its folder; where every file belongs is in [references/layout.md](references/layout.md).
 
 ## Finishing
 
@@ -329,5 +235,7 @@ Tell the user:
 - the open questions for the story's owner, and anything that was missing (an account, a role, a secret) with the
   tests it blocked: this summary and the verdict are where they are raised
 - the tool gaps the subagents reported (`Tool gap:` in their replies; `$H show KEY history` lists the `note` lines)
+- what the subagents said the overview lacks (`Overview:` in their replies), for a person to add between stories
+  with `$H map --about <part> --add "…"`
 - the story's numbers: `$H stats KEY` (runs, repairs, review rounds, probes, minutes per phase, subagent cost)
 - where `verdict.md` and the Jira comment/attachment ended up

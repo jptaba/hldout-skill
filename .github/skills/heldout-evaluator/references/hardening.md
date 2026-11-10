@@ -58,9 +58,12 @@ What the application was seen to accept, refuse or compute is an observed rule, 
 it is right or wrong, and it is read after a freeze only (`--rules`, beside the rules earlier stories' requirements
 gave). A required rule this story's contract replaces (its rule or the owner's answer says the rule changes) is
 marked stale citing that item: `--stale <id> --evidence R2`; one it only contradicts stays beside it, for the verdict
-to put to the owner. The overview (`--overview`) is what every agent reads, the test author too: add to it only what the application
-is (an area, a kind of user, a word and its meaning: `--about area|user|term --add "…" --evidence P7`), never a
-figure, a quote or a rule.
+to put to the owner. A probe never retires a required rule.
+
+The overview (the first part of `npm run heldout -- map KEY`) is what every agent reads, the contract's agents and the
+test author too, so it has one writer: setup, with no story open. An entry of it your probe contradicts is marked stale
+(`--stale <id> --evidence P9`); what it is missing (an area, a kind of user, a word of the application and its
+meaning) goes in your reply, and a person adds it between stories.
 
 ## 1. Choose the tier
 

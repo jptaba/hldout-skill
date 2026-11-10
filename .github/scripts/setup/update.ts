@@ -15,9 +15,10 @@
  *                                      (.claude/skills, .claude/agents: Claude Code reads only .claude/)
  * A workspace file is created when missing and refreshed unless the project changed it since it was copied
  * (SOURCE.json keeps the hash of each one written). Settings are merged into the project's own, keeping what it already
- * has and removing nothing: .claude/settings.json (Claude Code fallback models, the heldout command pre-approved),.vscode/settings.json (Copilot reads
- * .github/ only, so it doesn't load the bridges too) and .vscode/mcp.json (the Playwright MCP server, browser tier 2),
- * whose servers also go into the root .mcp.json for Claude Code, which reads only that file.
+ * has and removing nothing: .claude/settings.json (Claude Code fallback models, the heldout command pre-approved),
+ * .vscode/settings.json (GitHub Copilot would read the bridges in .claude/ as well as .github/: it is told to load the
+ * skill and subagents from .github/ alone) and .vscode/mcp.json (the Playwright MCP server, browser tier 2), whose
+ * servers also go into the root .mcp.json: the one file Claude Code reads them from, and one a Copilot session reads too.
  * --ci [gitlab|github] adds the regression pipeline (default: from the git remote).
  * Run inside a project (its own copy of the scripts), it checks the files and says how to update them. SOURCE.json is
  * committed with the project, so it records the skill's remote and commit, never a path on this machine.
@@ -35,7 +36,7 @@ const WORKSPACE_FILES = ['playwright.config.ts', 'tsconfig.json', '.env.example'
 /** Settings merged into the project's own, from the same files in the skill repository. */
 const SETTINGS: [file: string, why: string][] = [
   ['.claude/settings.json', 'Claude Code fallback models, also used by the subagents; the heldout command, the Playwright MCP browser and edits in output/, .heldout/ and the journeys run without an approval prompt'],
-  ['.vscode/settings.json', 'GitHub Copilot loads the skill and subagents from .github/ only, not the Claude Code bridges; the heldout command and edits in the .heldout/ scratch area run without an approval prompt'],
+  ['.vscode/settings.json', 'GitHub Copilot loads the skill and subagents from .github/ and not the Claude Code bridges as well; the heldout command and edits in the .heldout/ scratch area run without an approval prompt'],
   [MCP_FILE, 'the Playwright MCP server, browser tier 2, for GitHub Copilot'],
 ];
 /** The regression pipeline (--ci), from the same paths in the skill repository. */

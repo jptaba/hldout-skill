@@ -2,7 +2,8 @@
  * What an application is, and what is known of its business: application-map/<profile>/app.yml, beside the domain map
  * (specs/017-application-knowledge). Two parts, two kinds of reader:
  * - the overview (purpose, areas, kinds of user, sign-in, API, terms): every agent reads it, before a story's freeze
- *   too, so it holds the application's words and shape and never an expected value, a rule or a message;
+ *   too, so it holds the application's words and shape and never an expected value, a rule or a message, and is
+ *   written at setup only (specs/018-lean-skill-one-writer);
  * - the rules, required by an earlier story's requirement or observed in the application: read after the freeze only,
  *   as the domain map is. Neither is ever evidence for a story: that is its own contract, probe or run.
  * One entry per line in YAML flow style (a JSON object), so two branches merge by keeping both sides' lines.
@@ -23,7 +24,7 @@ import { assertDomain, citedProbes, CREDENTIAL, holds, JUDGEMENT, madeBy, RECORD
 export const PARTS = ['purpose', 'area', 'user', 'sign-in', 'api', 'term'] as const;
 export type Part = typeof PARTS[number];
 interface Stale { at: string; story: string; evidence: string[] }
-export interface OverviewEntry { id: string; part: Part; text: string; by: string; probes?: string[]; at: string; stale?: Stale }
+export interface OverviewEntry { id: string; part: Part; text: string; at: string; stale?: Stale }
 export interface RuleEntry { id: string; kind: 'required' | 'observed'; text: string; domain?: string; story: string; source: string[]; at: string; stale?: Stale }
 
 const MAX_OVERVIEW = 300;
@@ -52,7 +53,7 @@ const HEADER = [
 
 const isStale = (s: unknown) => s === undefined || (typeof s === 'object' && s !== null && Array.isArray((s as Stale).evidence));
 function asOverview(e: Record<string, unknown>): OverviewEntry | undefined {
-  return typeof e.id === 'string' && OVERVIEW_ID.test(e.id) && PARTS.includes(e.part as Part) && typeof e.text === 'string' && typeof e.by === 'string' && typeof e.at === 'string' && isStale(e.stale) ? e as unknown as OverviewEntry : undefined;
+  return typeof e.id === 'string' && OVERVIEW_ID.test(e.id) && PARTS.includes(e.part as Part) && typeof e.text === 'string' && typeof e.at === 'string' && isStale(e.stale) ? e as unknown as OverviewEntry : undefined;
 }
 function asRule(e: Record<string, unknown>): RuleEntry | undefined {
   return typeof e.id === 'string' && RULE_ID.test(e.id) && (e.kind === 'required' || e.kind === 'observed') && typeof e.text === 'string' && typeof e.story === 'string' && Array.isArray(e.source) && typeof e.at === 'string' && isStale(e.stale) ? e as unknown as RuleEntry : undefined;
@@ -99,11 +100,11 @@ const clean = (raw: string) => plainText(raw).replace(/\s+/g, ' ').trim();
 const secretIn = (text: string, secrets: string[]) => secrets.some((v) => holds(text, v)) || CREDENTIAL.test(text);
 
 /** Why a text can't be in the overview, if so: it says what the application is, never what it does with a value. */
-export function whyNotOverview(text: string, secrets: string[] = [], made: string[] = []): string | undefined {
+export function whyNotOverview(text: string, secrets: string[] = []): string | undefined {
   if (!text) return 'it is empty';
   if (text.length > MAX_OVERVIEW) return `it has ${text.length} characters, and an overview entry at most ${MAX_OVERVIEW}: one thing each`;
   if (secretIn(text, secrets)) return 'it holds a secret value, or a word that is one: write its reference, ${env:NAME}, or reword';
-  if (RECORD_ID.test(text) || made.some((v) => holds(text, v))) return 'it names a record, which means nothing to the next story';
+  if (RECORD_ID.test(text)) return 'it names a record, which means nothing to the next story';
   if (FIGURE.test(text) || FIGURE_WORDS.test(text)) return 'it holds a figure: the overview says what the application is, never a number, an amount or a limit it works with';
   if (QUOTED.test(text)) return 'it quotes the application (a message, a label): say what the thing is in your own words, without quotes';
   if (RULE_WORDS.test(text)) return 'it states a rule (what is required, allowed or limited): rules are read after a freeze only, heldout map KEY --rule';
@@ -135,7 +136,7 @@ function whyNotRequiredRule(text: string, secrets: string[]): string | undefined
 /**
  * A story of the profile between its fetch and its freeze (and with no verdict), if any. Held-out: while its contract
  * or tests are being written, what those agents read stays as it was and nobody looks at the application for setup
- * either, so the overview grows then only by a frozen story's probe. Setup is before any story, or between stories.
+ * either. Setup is before any story, or between stories.
  */
 export function draftingStory(cfg: HeldoutConfig): string | undefined {
   return listStories(cfg).find((s) => s.profile === cfg.autId && !fs.existsSync(evalPaths(cfg, s.key).freeze) && !fs.existsSync(evalPaths(cfg, s.key).verdictJson))?.key;
@@ -146,28 +147,25 @@ export const readOverview = (cfg: Pick<HeldoutConfig, 'autId'>): OverviewEntry[]
 export const hasOverview = (cfg: Pick<HeldoutConfig, 'autId'>): boolean => readOverview(cfg).length > 0;
 
 /**
- * An overview entry: at onboarding with no story (by "onboarding"), or by a frozen story's hardener or triager citing the
- * probe that showed it. Checked before the citation, which keeps a probe's report: a refused entry leaves nothing behind.
+ * An overview entry, written at setup: before a story or between stories, never by a story (specs/018). What every
+ * agent reads before a freeze has one writer, at one time, so a story's agents only mark an entry stale. An entry a
+ * probe marked stale is restored by saying it again: a person decides it holds after all, and is told whose mark
+ * they overrode (`restored`, which the file doesn't keep).
  */
-export function addOverview(cfg: HeldoutConfig, key: string | undefined, part: string, raw: string, evidence?: string): OverviewEntry {
-  if (key) requireFrozen(cfg, assertIssueKey(key), 'map');
+export function addOverview(cfg: HeldoutConfig, part: string, raw: string): OverviewEntry & { restored?: Stale } {
   if (!PARTS.includes(part as Part)) throw new Error(`"${part}" is not a part of the overview: ${PARTS.join(', ')}. Nothing was written.`);
-  if (!key && evidence !== undefined) throw new Error('--evidence goes with a story\'s key: at onboarding the overview cites nothing. Nothing was written.');
-  const drafting = key ? undefined : draftingStory(cfg);
-  if (drafting) throw new Error(`${drafting} is between its fetch and its freeze: the overview changes then only with a frozen story's probe (heldout map KEY --about … --add "…" --evidence Pn). Nothing was written.`);
+  const drafting = draftingStory(cfg);
+  if (drafting) throw new Error(`${drafting} is between its fetch and its freeze: the overview is written at setup, before a story or between stories, and stays as it is while a contract or tests are written from it. Nothing was written.`);
   const text = clean(raw);
-  const why = whyNotOverview(text, secretsFor(cfg, key), key ? madeBy(cfg, key, evidence?.match(PROBE_ID) ?? []) : []);
+  const why = whyNotOverview(text, secretsFor(cfg));
   if (why) throw new Error(`Not an overview entry: ${why}. Nothing was written.`);
   const store = readStore(cfg);
   const id = idOf('O', part, text);
   const same = store.overview.find((e) => e.id === id);
-  if (same) throw new Error(`${id} says this already${same.stale ? ', and is stale: say what holds now' : ''}. Nothing was written.`);
-  if (store.unread.length) writeStore(cfg, store);
-  const probes = key ? citedProbes(cfg, key, evidence) : undefined;
-  const entry: OverviewEntry = { id, part: part as Part, text, by: key ?? 'onboarding', ...(probes ? { probes } : {}), at: new Date().toISOString() };
-  writeStore(cfg, { ...store, overview: [...store.overview, entry] });
-  if (key) recordEvent(evalPaths(cfg, key).history, 'knowledge-entry', { id, part, probes });
-  return entry;
+  if (same && !same.stale) throw new Error(`${id} says this already. Nothing was written.`);
+  const entry: OverviewEntry = { id, part: part as Part, text, at: new Date().toISOString() };
+  writeStore(cfg, { ...store, overview: [...store.overview.filter((e) => e.id !== id), entry] });
+  return same?.stale ? { ...entry, restored: same.stale } : entry;
 }
 
 /** The rules nothing has contradicted, all or one domain's: after the story's freeze only. */
@@ -263,6 +261,9 @@ export function markKnowledgeStale(cfg: HeldoutConfig, key: string, id: string, 
     const contract = readContract(evalPaths(cfg, key).contract);
     cited = [...new Set(evidence?.match(/\b[RG]\d+\b/g) ?? [])].filter((i) => contract && ((contract.rules ?? []).some((r) => r.id === i) || contract.gaps.some((g) => g.id === i && g.resolution === 'provided-by-user')));
     if (!cited.length) throw new Error(`${id} is required by ${entry.story}: only this story's requirement that replaces it retires it, its contract's rule (R2) or its owner's answer (G3) as --evidence. A probe that contradicts it is a question for the verdict. Nothing was written.`);
+    // As the harvest: a requirement counts as the evaluation read it, in a contract its review accepted as it is now.
+    const unreviewed = contract ? checkReview(contract, readReview(evalPaths(cfg, key).review), { requireReview: true }).filter((f) => f.level === 'error') : [];
+    if (unreviewed.length) throw new Error(`${id} is required by ${entry.story}, and ${key}'s contract is not reviewed clean as it is now (${unreviewed[0].code}): only a reviewed requirement retires a rule. Nothing was written.`);
   } else {
     cited = citeProbes(cfg, key, evidence ?? '');
     if (!cited.length) throw new Error('--evidence must cite a probe of this story (P7). Nothing was written.');

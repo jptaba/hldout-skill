@@ -132,8 +132,10 @@ then runs the steps above.
 
 ## Using it in GitHub Copilot or Claude Code
 
-The skill and its subagents live in `.github/`, where GitHub Copilot reads them. Claude Code reads only `.claude/`,
-so `init` adds short bridges there that point at `.github/`. Nothing is kept in two places.
+The skill and its subagents live in `.github/`, where GitHub Copilot reads them. Claude Code reads its skills and
+agents from `.claude/`, so `init` adds short bridges there that point at `.github/`. Nothing is kept in two places.
+What each app needs for an evaluation (which agent to pick, the model, the approvals) is in the skill's
+`references/setup.md`, "The two apps".
 
 | What | File | GitHub Copilot (VS Code agent mode) | Claude Code |
 | --- | --- | --- | --- |
@@ -141,8 +143,8 @@ so `init` adds short bridges there that point at `.github/`. Nothing is kept in 
 | The coordinator | `.github/agents/heldout-evaluator.agent.md` | ✔ the custom agent you pick | the main agent with the skill |
 | The phase subagents | `.github/agents/*.agent.md` | ✔ custom agents | via the bridges `.claude/agents/*.md` |
 | Model fallbacks | `model:` in each `.agent.md` · `.claude/settings.json` | ✔ the `model:` list, tried in order | ✔ `fallbackModel` (also used by subagents) |
-| Copilot reads `.github/` only, not the bridges | `.vscode/settings.json` | ✔ | — |
-| Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` | ✔ `.mcp.json` (the only file it reads) |
+| Copilot loads the skill and subagents from `.github/`, and not the bridges as well | `.vscode/settings.json` | ✔ | — |
+| Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` (a Copilot session also reads `.mcp.json`) | ✔ `.mcp.json` (the only file it reads them from) |
 | The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) | ✔ (plain Node) |
 
 One agent coordinates (in GitHub Copilot the `heldout-evaluator` agent, which may call the five phase subagents only;
@@ -197,7 +199,7 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` · `contract KEY --review-bind` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review); binds the reviewer's review to the contract's hash |
 | `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
 | `journeys KEY` · `journeys KEY --harvest --apply` · `journeys --check` · `journeys --resolve` | the app's journeys for this story; record in the registry what passing tests proved; lint them all and find duplicates (after merging); settle a merge conflict in `registry.yml` |
-| `map --survey` · `map --about <part> --add "…"` · `map KEY --overview` · `map KEY --rules` · `map KEY --harvest` | what a person sees of the app before signing in, as material for its overview; write the overview at setup; read it (any agent, any time); the business rules after a freeze; keep a judged story's rules (`advance` does) |
+| `map --survey` · `map --about <part> --add "…"` · `map KEY --overview` · `map KEY` · `map KEY --rules` · `map KEY --harvest` | what a person sees of the app before signing in, as material for its overview; write the overview (at setup only: before a story or between stories); read it (any agent, any time); after a freeze, everything known of the app in one read (the overview, the map by domain, the rules); the business rules alone; keep a judged story's rules (`advance` does) |
 | `journeys --aut <id> --copy-from <profile>` | start an application's journeys from a related one's (another environment or build of the same product): copied as drafts, marked to be probed, proven by nothing until a story passes on them |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3); with `--key`, each probe is logged as the story's next `Pn` and cited by that id |
 | `inspect --sign-in <role>` · `--from P4[:k]` · `--then '<step>'` · `api-probe --chain P7 --set 2.json.qty=0` · `--pages` `--where` `--pick` `--count` | build a probe on earlier ones (signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items) instead of writing a script |

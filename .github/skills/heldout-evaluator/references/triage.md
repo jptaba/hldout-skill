@@ -8,12 +8,13 @@ npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisio
 Triage keeps its own output apart: the decisions in `6-triage/decisions.json` (the run record stays as the run wrote
 it), and the reports of the probes they cite in `6-triage/`.
 
-The application map (`npm run heldout -- map KEY --domain <domain>`) says how earlier stories reached things. It is never
-evidence: a decision that names a map entry, an overview entry or a rule and no probe is refused, whatever its category.
-The rules (`--rules`) say what earlier stories required and what the application was seen to do; this story's contract
-is still the oracle, and a rule that contradicts it is a question for the verdict, never settled by you. What you add
-follows [hardening.md](hardening.md): mechanics with `--domain … --add`, what the application did with `--rule`, and
-what the overview lacks (an area, a kind of user, a word) with `--about … --add … --evidence Pn`.
+The application map (`npm run heldout -- map KEY`) says what the application is, how earlier stories reached things and
+what is known of its business. It is never evidence: a decision that names a map entry, an overview entry or a rule and
+no probe is refused, whatever its category. The rules say what earlier stories required and what the application was
+seen to do; this story's contract is still the oracle, and a rule that contradicts it is a question for the verdict,
+never settled by you. What you add follows [hardening.md](hardening.md): mechanics with `--domain … --add`, what the
+application did with `--rule`. The overview is written at setup only: an entry your probe contradicts is marked
+`--stale`, and what it is missing goes in your reply.
 
 ## Categories
 

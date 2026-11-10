@@ -10,7 +10,7 @@ YAML flow style (a JSON object, which is YAML), so `.gitattributes` merges it by
 needed. Reading keeps one entry per id (the stale copy wins); a line that doesn't parse is refused on the next write,
 for a person to mend. Ids come from the text (`O` + 6 hex for the overview, `B` + 6 hex for a rule), as map entries do.
 
-- Overview entry: `id, part (purpose | area | user | sign-in | api | term), text, by (onboarding | KEY), probes?, at, stale?`
+- Overview entry: `id, part (purpose | area | user | sign-in | api | term), text, at, stale?`
 - Rule entry: `id, kind (required | observed), text, domain?, story, source (contract items or probes), at, stale?`
 
 ## Commands (`heldout map`, `probe/map.ts`; store in `probe/app-knowledge.ts`, survey in `probe/survey.ts`)
@@ -20,7 +20,7 @@ for a person to mend. Ids come from the text (`O` + 6 hex for the overview, `B` 
 | `map --survey [--aut id]` | no key | prints what a person sees before signing in; writes nothing |
 | `map [KEY] --overview [--aut id]` | allowed | the overview, headed as context, never evidence |
 | `map --about <part> --add "…" [--aut id]` | no key | onboarding writes the overview |
-| `map KEY --about <part> --add "…" --evidence Pn` | refused | a hardener or triager adds what it learned |
+| `map KEY --about <part> --add "…" --evidence Pn` | refused | a hardener or triager adds what it learned (removed by `specs/018-lean-skill-one-writer`: refused after a freeze too) |
 | `map KEY --rules [--domain d]` | refused | the rules, required or observed |
 | `map KEY --rule "…" [--domain d] --evidence Pn` | refused | an observed rule |
 | `map KEY --harvest` | refused | the contract's rules and owner-answered gaps; `advance` runs it after the journeys |
@@ -35,9 +35,10 @@ the requirement's own text: only secrets, instructions and length (600) are chec
 
 - `citeProbes` and `decisionRestsOnTheMap` treat `O…` and `B…` ids as map entries: never evidence alone.
 - `checkContract` reports `rests-on-overview` when a contract names the overview (an `O…` id, `application-map/`,
-  `app.yml`, `heldout map`).
+  `heldout map`).
 - Agent files: the contract's agents and the test author name `heldout map KEY --overview` and nothing else of the map;
-  the hardener and the triager the rules and the overview's `--about`. `tests/agent-files.test.ts` checks both.
+  the hardener and the triager the rules (the overview's `--about` with a story was removed by
+  `specs/018-lean-skill-one-writer`). `tests/agent-files.test.ts` checks both.
 - Constitution I ("works from the reviewed contract only and never sees the application") still holds: the contract
   stays the only source of WHAT; the overview, like the journeys, is no view of the application's behaviour.
 

@@ -21,10 +21,11 @@ Inputs, for story KEY and its run (given in your task; `npm run heldout -- statu
   `--endpoints`, `--variants`, `--gaps`, `--auth` (one flag or several).
 - The probes so far: `show KEY probes`, `show KEY probes --id P7`. The hardener's log is `4-hardening/hardening.md`, and
   the journeys are in `journeys/fixtures/<domain>.ts` (search for the one a test calls and read that range).
-- What earlier stories proved about how the application works: `npm run heldout -- map KEY`, then `--domain <domain>`;
-  what the application is, `--overview`; what is known of its business, `--rules` (required by an earlier story, or
-  observed). They tell you how to reach something and what to look at, never what is a defect: this story's contract
-  is the oracle, and every failure is still reproduced live.
+- What is known of the application, in one read: `npm run heldout -- map KEY` prints what it is (the overview), what
+  earlier stories proved about how it works, by domain, and what is known of its business (the rules: required by an
+  earlier story, or observed). A large map lists its domains instead: `npm run heldout -- map KEY --domain <domain>`
+  for the one a failure is in, and `--rules`. They tell you how to reach something and what to look at, never what is
+  a defect: this story's contract is the oracle, and every failure is still reproduced live.
 - Read the part you are working on, once; don't read a whole spec, contract, probe log or report.
 - `.github/skills/heldout-evaluator/references/triage.md`: **the categories, the decision tree and the commands.
   Read it first and follow it.** `probes.md` beside it: how to build on a probe and what the inspector does.
@@ -61,12 +62,14 @@ Do this:
    holds: `npm run heldout -- map KEY --domain <domain> --add "<how it works>" --evidence P7`, one mechanic each, never
    what it accepts, refuses or computes, nor who may call it. What it was seen to accept, refuse or compute is an
    observed rule, never a judgement: `npm run heldout -- map KEY --rule "<what it did>" --domain <domain> --evidence P7`.
-   An area, a kind of user or a word of the application the overview lacks:
-   `npm run heldout -- map KEY --about area|user|term --add "<what it is>" --evidence P7` (no figure, quote or rule).
-   A probe that contradicts an entry or an observed rule: `npm run heldout -- map KEY --stale <id> --evidence P9`. One
-   that contradicts a required rule leaves it as it is: what was asked is never settled by what the application does.
+   A probe that contradicts an entry, an overview entry or an observed rule:
+   `npm run heldout -- map KEY --stale <id> --evidence P9`.
+   A probe that contradicts a required rule leaves it as it is: what was asked is never settled by what the
+   application does. The overview is written at setup, never by you: what the overview lacks goes in your reply.
 5. Reply with a summary per failure: category, severity, the evidence, and for each SCRIPT_DEFECT what is wrong with
-   the mechanics and where (the test, or the journey it calls), so the hardener can repair it.
+   the mechanics and where (the test, or the journey it calls), so the hardener can repair it; and, under
+   `Overview:`, what the overview lacks (an area, a kind of user, a word of the application and its meaning), one
+   line each, for the main agent's closing summary. A person adds it between stories.
 
 Never edit the tests or the journeys, never change a shared sandbox's settings, and never create or change Jira
 issues.

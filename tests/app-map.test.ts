@@ -241,6 +241,73 @@ describe('the commands', () => {
     assert.match(heldout('map', 'ABC-1', '--domain', 'orders').stdout, /No entries for orders\. Domains with entries: cart\./);
   });
 
+  it('prints every entry by domain with no flag, and only the domains once the map is large', () => {
+    const small = heldout('map', 'ABC-1').stdout;
+    assert.match(small, /Shop has no overview yet\.\n/);
+    assert.doesNotMatch(small, /--about/, 'a story\'s agent is not told how to write the overview');
+    assert.match(small, /cart\n {2}M1a2b3c {2}a line answers plain text {2}\(ABC-0 P4, 2026-11-03\)/);
+    assert.match(small, /No rules yet\./);
+    const file = path.join(root, 'application-map', 'shop', 'orders.jsonl');
+    fs.writeFileSync(file, Array.from({ length: 40 }, (_, i) => JSON.stringify({ ...seeded, id: `M${(i + 1).toString(16).padStart(6, '0')}`, domain: 'orders', text: `an order shows its line ${i + 1}` })).join('\n'));
+    try {
+      const large = heldout('map', 'ABC-1').stdout;
+      assert.match(large, /cart \(1\)\norders \(40\)\n\nRead one: heldout map ABC-1 --domain <domain>/);
+      assert.doesNotMatch(large, /an order shows its line/);
+    } finally { fs.rmSync(file); }
+  });
+
+  it('prints the overview and the rules with the entries, and counts the rules towards a large map', () => {
+    const dir = path.join(root, 'application-map', 'shop');
+    const orders = (n: number) => fs.writeFileSync(path.join(dir, 'orders.jsonl'), Array.from({ length: n }, (_, i) => JSON.stringify({ ...seeded, id: `M${(i + 1).toString(16).padStart(6, '0')}`, domain: 'orders', text: `an order shows its line ${i + 1}` })).join('\n'));
+    fs.writeFileSync(path.join(dir, 'app.yml'), [
+      'schema: 1', 'overview:', `- ${JSON.stringify({ id: 'O1a2b3c', part: 'purpose', text: 'an online shop for garden tools', at: '2026-11-03T00:00:00.000Z' })}`,
+      'rules:', `- ${JSON.stringify({ id: 'B1a2b3c', kind: 'observed', text: 'an empty cart answers an empty list', domain: 'cart', story: 'ABC-0', source: ['P4'], at: '2026-11-03T00:00:00.000Z' })}`, '',
+    ].join('\n'));
+    const overview = /What Shop is\. Context for the application's words and shape[^\n]*\n\npurpose\n {2}O1a2b3c {2}an online shop for garden tools/;
+    const rule = /B1a2b3c {2}observed in ABC-0 P4 {2}\[cart\] {2}an empty cart answers an empty list/;
+    try {
+      // 1 entry of cart, 38 of orders and 1 rule: 40, the most that prints whole.
+      orders(38);
+      const whole = heldout('map', 'ABC-1').stdout;
+      assert.match(whole, overview);
+      assert.match(whole, /an order shows its line 38/);
+      assert.match(whole, /What is known of this application's business: required by an earlier story's requirement, or observed/);
+      assert.match(whole, rule);
+      assert.doesNotMatch(whole, /No rules yet|Read one:/);
+      // One entry more, and the rule that makes it 41 is counted: the domains and the rules' count, with what reads each.
+      orders(39);
+      const large = heldout('map', 'ABC-1').stdout;
+      assert.match(large, overview);
+      assert.match(large, /cart \(1\)\norders \(39\)\n\nRead one: heldout map ABC-1 --domain <domain>/);
+      assert.match(large, /\nRules: 1 \(heldout map ABC-1 --rules\)/);
+      assert.doesNotMatch(large, /an order shows its line/);
+      assert.doesNotMatch(large, rule);
+    } finally { fs.rmSync(path.join(dir, 'orders.jsonl'), { force: true }); fs.rmSync(path.join(dir, 'app.yml'), { force: true }); }
+  });
+
+  it('tells the person who writes a stale overview entry again whose mark they override', () => {
+    const file = path.join(root, 'application-map', 'shop', 'app.yml');
+    try {
+      const first = heldout('map', '--about', 'purpose', '--add', 'an online shop for garden tools');
+      assert.match(first.stdout, /^✔ O[0-9a-f]{6} in the overview \(purpose\)\n$/, first.stderr);
+      const line = fs.readFileSync(file, 'utf8').split('\n').find((l) => l.startsWith('- {"id":"O'))!;
+      fs.appendFileSync(file, `- ${JSON.stringify({ ...JSON.parse(line.slice(2)), stale: { at: '2999-01-01T00:00:00.000Z', story: 'ABC-1', evidence: ['P3'] } })}\n`);
+      assert.match(heldout('map', '--overview').stdout, /Shop has no overview yet/);
+      const again = heldout('map', '--about', 'purpose', '--add', 'an online shop for garden tools');
+      assert.match(again.stdout, /^✔ O[0-9a-f]{6} in the overview \(purpose\), restored: ABC-1 had marked it stale \(P3\)\n$/, again.stderr);
+      assert.match(heldout('map', '--overview').stdout, /an online shop for garden tools/);
+    } finally { fs.rmSync(file, { force: true }); }
+  });
+
+  it('never tells a story\'s agent how to write an overview that isn\'t there', () => {
+    for (const r of [heldout('map', 'ABC-1', '--overview'), heldout('status', 'ABC-1')]) {
+      assert.equal(r.status, 0, r.stderr);
+      assert.match(r.stdout, /Shop has no overview yet/);
+      assert.doesNotMatch(r.stdout, /--about|--survey/, 'setup writes the overview, between stories');
+    }
+    assert.match(heldout('map', '--overview').stdout, /Shop has no overview yet\. At setup: [^\n]*map --about <part> --add/);
+  });
+
   it('refuses a flag left empty or two actions at once, instead of reading', () => {
     for (const [args, says] of [
       [['--domain', 'cart', '--add', '--evidence', 'P1'], /--add needs the mechanic/],

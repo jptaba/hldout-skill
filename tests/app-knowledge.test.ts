@@ -69,20 +69,21 @@ after(() => {
 });
 
 describe('the overview', () => {
-  it('is written at onboarding with no story, and read with no freeze', () => {
+  it('is written at setup with no story, and read with no freeze', () => {
     assert.equal(hasOverview(cfg), false);
-    const e = addOverview(cfg, undefined, 'purpose', '  an online shop\n for garden tools ');
-    assert.deepEqual([e.part, e.text, e.by], ['purpose', 'an online shop for garden tools', 'onboarding']);
+    const e = addOverview(cfg, 'purpose', '  an online shop\n for garden tools ');
+    // Setup is the only writer, so an entry names none.
+    assert.deepEqual(Object.keys(e).sort(), ['at', 'id', 'part', 'text']);
+    assert.deepEqual([e.part, e.text], ['purpose', 'an online shop for garden tools']);
     assert.match(e.id, /^O[0-9a-f]{6}$/);
-    addOverview(cfg, undefined, 'term', 'basket: the lines a customer is about to order');
+    addOverview(cfg, 'term', 'basket: the lines a customer is about to order');
     assert.deepEqual(readOverview(cfg).map((x) => x.part), ['purpose', 'term']);
     assert.ok(hasOverview(cfg));
-    assert.throws(() => addOverview(cfg, undefined, 'purpose', 'an online shop for garden tools'), /says this already/);
+    assert.throws(() => addOverview(cfg, 'purpose', 'an online shop for garden tools'), /says this already/);
   });
 
-  it('refuses a part it doesn\'t have, and evidence at onboarding', () => {
-    assert.throws(() => addOverview(cfg, undefined, 'rules', 'x'), /not a part of the overview/);
-    assert.throws(() => addOverview(cfg, undefined, 'area', 'cart', 'P1'), /--evidence goes with a story/);
+  it('refuses a part it doesn\'t have', () => {
+    assert.throws(() => addOverview(cfg, 'rules', 'x'), /not a part of the overview/);
   });
 
   it('holds what the application is, never a figure, a quote, a rule or a judgement', () => {
@@ -118,31 +119,20 @@ describe('the overview', () => {
   it('refuses a secret, as the map does', () => {
     const strong = strongSecret();
     process.env.APP_KNOWLEDGE_TEST_ACCOUNT = strong;
-    try { assert.throws(() => addOverview(cfg, undefined, 'sign-in', `sign in with ${strong}`), /secret value/); } finally { delete process.env.APP_KNOWLEDGE_TEST_ACCOUNT; }
+    try { assert.throws(() => addOverview(cfg, 'sign-in', `sign in with ${strong}`), /secret value/); } finally { delete process.env.APP_KNOWLEDGE_TEST_ACCOUNT; }
   });
 
-  it('takes a frozen story\'s entry only with this story\'s probe, and keeps the probe\'s report', () => {
-    const q = evalPaths(cfg, 'ABC-3');
-    fs.mkdirSync(q.base, { recursive: true });
-    assert.throws(() => addOverview(cfg, 'ABC-3', 'area', 'the reports area', 'P1'), /map refused: the draft of ABC-3 is not frozen/);
-    assert.throws(() => addOverview(cfg, 'ABC-1', 'area', 'the reports area', undefined), /must cite a probe/);
-    const id = probe(cfg, 'ABC-1');
-    const e = addOverview(cfg, 'ABC-1', 'area', 'the reports area', id);
-    assert.deepEqual([e.by, e.probes], ['ABC-1', [id]]);
-    assert.ok(fs.existsSync(path.join(evalPaths(cfg, 'ABC-1').hardened, `${id}.md`)));
-    assert.ok(readHistory(evalPaths(cfg, 'ABC-1').history).some((x) => x.event === 'knowledge-entry' && x.id === e.id));
-  });
-
-  it('changes at onboarding only while no story is between its fetch and its freeze', () => {
+  it('changes only while no story is between its fetch and its freeze', () => {
     // ABC-3 was fetched and is not frozen: its contract and tests are being written from what the overview says now.
-    assert.throws(() => addOverview(cfg, undefined, 'area', 'the gift cards'), /ABC-3 is between its fetch and its freeze/);
+    fs.mkdirSync(evalPaths(cfg, 'ABC-3').base, { recursive: true });
+    assert.throws(() => addOverview(cfg, 'area', 'the gift cards'), /ABC-3 is between its fetch and its freeze/);
     fs.rmSync(evalPaths(cfg, 'ABC-3').base, { recursive: true });
-    addOverview(cfg, undefined, 'area', 'the gift cards');
+    addOverview(cfg, 'area', 'the gift cards');
   });
 
   it('keeps each application\'s overview apart', () => {
     assert.deepEqual(readOverview(other), []);
-    addOverview(other, undefined, 'purpose', 'a ticket desk');
+    addOverview(other, 'purpose', 'a ticket desk');
     assert.ok(!readOverview(cfg).some((e) => e.text === 'a ticket desk'));
   });
 });
@@ -230,7 +220,7 @@ describe('the rules', () => {
 
 describe('stale knowledge', () => {
   it('hides an overview entry or an observed rule a probe contradicts, and keeps it in the file', () => {
-    const o = addOverview(cfg, undefined, 'user', 'customers and administrators');
+    const o = addOverview(cfg, 'user', 'customers and administrators');
     const r = addObservedRule(cfg, 'ABC-1', 'stock', 'an item out of stock shows no add button', probe(cfg, 'ABC-1'));
     assert.throws(() => markKnowledgeStale(cfg, 'ABC-1', o.id, undefined), /must cite a probe/);
     assert.throws(() => markKnowledgeStale(cfg, 'ABC-1', 'O000000', 'P1'), /not in this application's knowledge/);
@@ -239,6 +229,18 @@ describe('stale knowledge', () => {
     assert.ok(!readRules(cfg, 'ABC-1').some((e) => e.id === r.id));
     assert.ok(readStore(cfg).overview.find((e) => e.id === o.id)?.stale);
     assert.throws(() => markKnowledgeStale(cfg, 'ABC-1', o.id, probe(cfg, 'ABC-1')), /stale already/);
+  });
+
+  it('reads a stale overview entry again when setup writes the same text again', () => {
+    const stale = readStore(cfg).overview.find((e) => e.text === 'customers and administrators')!;
+    assert.ok(stale.stale);
+    const again = addOverview(cfg, 'user', 'customers and administrators');
+    assert.equal(again.id, stale.id);
+    assert.deepEqual(again.restored, stale.stale, 'whose mark was overridden is returned, for the person to be told');
+    assert.ok(!('restored' in readStore(cfg).overview.find((e) => e.id === stale.id)!), 'and not kept in the file');
+    assert.equal(readOverview(cfg).find((e) => e.id === stale.id)?.stale, undefined);
+    assert.equal(readStore(cfg).overview.filter((e) => e.id === stale.id).length, 1, 'one line for the entry, the live one');
+    assert.throws(() => addOverview(cfg, 'user', 'customers and administrators'), /says this already/);
   });
 
   it('lets a later story\'s requirement replace a required rule, by its contract item', () => {
@@ -265,8 +267,16 @@ describe('stale knowledge', () => {
     assert.ok(readRules(cfg, 'ABC-5').some((x) => x.id === old.id));
   });
 
+  it('keeps a required rule when the contract that would retire it is not reviewed clean', () => {
+    // ABC-8's contract has an R1 and no review: what nobody accepted retires nothing.
+    const rule = readRules(cfg, 'ABC-8').find((x) => x.text === 'a cart holds at most ten lines')!;
+    assert.equal(rule.story, 'ABC-5');
+    assert.throws(() => markKnowledgeStale(cfg, 'ABC-8', rule.id, 'R1'), /ABC-8's contract is not reviewed clean as it is now \(not-reviewed\)/);
+    assert.ok(readRules(cfg, 'ABC-8').some((x) => x.id === rule.id));
+  });
+
   it('after a merge that left a live copy beside a stale one, the stale one wins', () => {
-    const o = addOverview(cfg, undefined, 'area', 'the wish list');
+    const o = addOverview(cfg, 'area', 'the wish list');
     const live = fs.readFileSync(knowledgeFile(cfg), 'utf8').split('\n').find((l) => l.includes(o.id))!;
     markKnowledgeStale(cfg, 'ABC-1', o.id, probe(cfg, 'ABC-1'));
     fs.appendFileSync(knowledgeFile(cfg), `${live}\n`);
@@ -278,13 +288,12 @@ describe('stale knowledge', () => {
     const kept = fs.readFileSync(file, 'utf8');
     fs.appendFileSync(file, '<<<<<<< HEAD\n');
     try {
-      assert.throws(() => addOverview(cfg, undefined, 'area', 'the loyalty points'), /can't read/);
+      assert.throws(() => addOverview(cfg, 'area', 'the loyalty points'), /can't read/);
       assert.ok(readOverview(cfg).length > 0, 'reading still works');
       // A write that can't happen keeps no probe's report either.
       const id = probe(cfg, 'ABC-1');
       const report = path.join(evalPaths(cfg, 'ABC-1').hardened, `${id}.md`);
       assert.throws(() => addObservedRule(cfg, 'ABC-1', 'cart', 'a wish shows its date', id), /can't read/);
-      assert.throws(() => addOverview(cfg, 'ABC-1', 'area', 'the loyalty points', id), /can't read/);
       const observed = readStore(cfg).rules.find((r) => r.kind === 'observed' && !r.stale)!;
       assert.throws(() => markKnowledgeStale(cfg, 'ABC-1', observed.id, id), /can't read/);
       assert.ok(!fs.existsSync(report), 'no report was kept');
@@ -303,7 +312,7 @@ describe('stale knowledge', () => {
     const file = knowledgeFile(cfg);
     const kept = fs.readFileSync(file, 'utf8');
     try {
-      fs.appendFileSync(file, '- { "id" : "Oabc123", "part": "term", "text": "x", "by": "onboarding", "at": "2026-11-08" }\n');
+      fs.appendFileSync(file, '- { "id" : "Oabc123", "part": "term", "text": "x", "at": "2026-11-08" }\n');
       assert.ok(knowledgeIds(cfg).includes('Oabc123'));
     } finally { fs.writeFileSync(file, kept); }
   });
@@ -412,8 +421,8 @@ describe('the commands', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('writes the overview at onboarding, and a story not frozen reads it but nothing else', () => {
-    assert.match(heldout('status').stdout, /Shop has no overview yet/);
+  it('writes the overview at setup, and a story not frozen reads it but nothing else', () => {
+    assert.match(heldout('status').stdout, /Shop has no overview yet[^\n]*map --survey, then map --about <part> --add/);
     const w = heldout('map', '--about', 'purpose', '--add', 'an online shop for garden tools');
     assert.equal(w.status, 0, w.stderr);
     // The story is fetched once the overview is there: its agents read it as it stands, and it doesn't change under them.
@@ -425,11 +434,35 @@ describe('the commands', () => {
     assert.match(r.stdout, /never evidence: a value, a rule or a criterion comes from the story alone/);
     assert.match(r.stdout, /purpose\n {2}O[0-9a-f]{6} {2}an online shop for garden tools/);
     assert.doesNotMatch(heldout('status').stdout, /no overview yet/);
-    for (const args of [['--rules'], ['--about', 'term', '--add', 'x', '--evidence', 'P1'], ['--harvest'], ['--rule', 'x', '--evidence', 'P1']]) {
+    for (const args of [['--rules'], ['--about', 'term', '--add', 'x'], ['--harvest'], ['--rule', 'x', '--evidence', 'P1']]) {
       const refused = heldout('map', 'ABC-2', ...args);
       assert.notEqual(refused.status, 0, args.join(' '));
       assert.match(refused.stderr, /map refused: the draft of ABC-2 is not frozen/, args.join(' '));
     }
+  });
+
+  it('takes no overview entry from a story, frozen or not: its agents mark stale and say what is missing', () => {
+    const tests = path.join(root, 'output', 'shop', 'ABC-9', '3-tests');
+    fs.mkdirSync(tests, { recursive: true });
+    fs.writeFileSync(path.join(tests, 'freeze.json'), '{}');
+    const before = heldout('map', 'ABC-9', '--overview').stdout;
+    for (const args of [['--about', 'term', '--add', 'a rake: a garden tool'], ['--about', 'term', '--add', 'a rake: a garden tool', '--evidence', 'P1']]) {
+      const refused = heldout('map', 'ABC-9', ...args);
+      assert.notEqual(refused.status, 0, args.join(' '));
+      assert.match(refused.stderr, /--about takes no story: the overview is written at setup/, args.join(' '));
+      assert.match(refused.stderr, /in your reply, under `Overview:`/, args.join(' '));
+      assert.doesNotMatch(refused.stderr, /map --about|--add/, 'the refusal shows no command that writes the overview');
+    }
+    assert.equal(heldout('map', 'ABC-9', '--overview').stdout, before);
+  });
+
+  it('prints all a frozen story\'s agents may read in one call: the overview, the map and the rules', () => {
+    const r = heldout('map', 'ABC-9');
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /What Shop is\. Context for the application's words and shape/);
+    assert.match(r.stdout, /purpose\n {2}O[0-9a-f]{6} {2}an online shop for garden tools/);
+    assert.match(r.stdout, /The application map has no entries yet\./);
+    assert.match(r.stdout, /No rules yet\./);
   });
 
   it('refuses what doesn\'t go together, and a survey for a story', () => {

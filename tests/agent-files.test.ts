@@ -50,7 +50,11 @@ describe('agent files', () => {
   it('sends the agents after the freeze to the application map and its rules, and those before it to the overview alone (specs/007-application-map, specs/017-application-knowledge)', () => {
     const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
     for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
-      for (const use of ['map KEY --domain <domain>', '--add', '--stale <id>', '--overview', '--rules', 'map KEY --rule "', 'map KEY --about area|user|term --add']) assert.ok(read(f).includes(use), `${f}: ${use}`);
+      // One command reads all of it (specs/018-lean-skill-one-writer); the parts are for a map too large to print whole.
+      for (const use of ['heldout -- map KEY`', 'map KEY --domain <domain>', '--add', '--stale <id>', '--rules', 'map KEY --rule "']) assert.ok(read(f).includes(use), `${f}: ${use}`);
+      // The overview has one writer, setup: a story's agent marks an entry stale and says what is missing.
+      assert.ok(!read(f).includes('--about'), `${f} names no way to add to the overview`);
+      assert.match(read(f), /overview lacks[^.]*reply/, `${f} reports what the overview lacks`);
     }
     for (const f of ['heldout-test-author.agent.md', 'heldout-contract-extractor.agent.md', 'heldout-contract-reviewer.agent.md']) {
       assert.ok(read(f).includes('`application-map/`'), `${f} is told to stay out of the files`);
@@ -60,8 +64,11 @@ describe('agent files', () => {
     }
     assert.match(read('heldout-evaluator.agent.md'), /map --survey/, 'the coordinator writes the overview at setup');
     for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
-      assert.match(read(f), /required rule[^.]*(?:leaves it as it is|stays)/, `${f}: a probe never retires a required rule`);
+      assert.match(read(f), /probe that contradicts a required rule[^.]*(?:leaves it as it is|stays)/, `${f}: a probe never retires a required rule`);
     }
+    const skill = fs.readFileSync(path.join(SKILL_DIR, 'SKILL.md'), 'utf8');
+    assert.match(skill, /overview lacks[^.]*map --about <part> --add/, 'the closing summary hands what is missing to a person');
+    for (const f of ['hardening.md', 'triage.md']) assert.ok(!fs.readFileSync(path.join(SKILL_DIR, 'references', f), 'utf8').includes('--about'), `${f} names no way to add to the overview`);
     for (const f of ['test-authoring.md', 'requirement-contract.md', 'contract-review-prompt.md', 'data-and-journeys.md', 'journeys.md']) {
       assert.ok(!/heldout(?: '?--'?)? map\b/.test(fs.readFileSync(path.join(SKILL_DIR, 'references', f), 'utf8')), `${f} is read before the freeze`);
     }
@@ -90,6 +97,35 @@ describe('agent files', () => {
       assert.equal(claude.description, agent.description, f);
       assert.ok(fs.readFileSync(path.join(REPO, bridgeOf(f)), 'utf8').includes(f), `${bridgeOf(f)} points at ${f}`);
     }
+  });
+
+  it('the skill and its agents fit what both apps load (specs/018-lean-skill-one-writer)', () => {
+    // GitHub Copilot and Claude Code: a skill's name is its folder's, its description at most 1024 characters.
+    const skill = frontmatter(path.relative(REPO, path.join(SKILL_DIR, 'SKILL.md')));
+    assert.equal(skill.name, path.basename(SKILL_DIR));
+    assert.match(skill.name, /^[a-z0-9-]{1,64}$/);
+    assert.ok(skill.description.length > 0 && skill.description.length <= 1024, `the description has ${skill.description.length} characters`);
+    // The bridge is a skill of its own to the app that loads it: its name is its own folder's too.
+    const bridges = path.join(REPO, '.claude', 'skills');
+    const pointing = fs.readdirSync(bridges).filter((d) => fs.readFileSync(path.join(bridges, d, 'SKILL.md'), 'utf8').includes('.github/skills/heldout-evaluator/SKILL.md'));
+    assert.deepEqual(pointing, [skill.name]);
+    assert.equal(frontmatter(`.claude/skills/${pointing[0]}/SKILL.md`).name, pointing[0]);
+    // A Copilot agent's body is cut at 30,000 characters.
+    for (const f of [COORD, ...COPILOT]) {
+      const body = fs.readFileSync(path.join(REPO, f), 'utf8').replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+      assert.ok(body.length <= 30_000, `${f}: ${body.length} characters`);
+    }
+    // The coordinator reads SKILL.md every evaluation: it holds the loop and the rules, and names where the rest is.
+    const file = path.join(SKILL_DIR, 'SKILL.md');
+    assert.ok(fs.statSync(file).size <= 24_000, `SKILL.md has ${fs.statSync(file).size} bytes`);
+    const text = fs.readFileSync(file, 'utf8');
+    for (const ref of ['setup.md', 'phases.md', 'layout.md']) {
+      assert.ok(fs.existsSync(path.join(SKILL_DIR, 'references', ref)), ref);
+      assert.ok(text.includes(`references/${ref}`), `SKILL.md names references/${ref}`);
+    }
+    for (const kept of ['## Who coordinates', '## Unattended', '## Guardrails', '## Finishing']) assert.ok(text.includes(kept), kept);
+    const setup = fs.readFileSync(path.join(SKILL_DIR, 'references', 'setup.md'), 'utf8');
+    for (const says of ['GitHub Copilot', 'Claude Code', '.vscode/mcp.json', '.mcp.json', 'map --survey', 'Opus']) assert.ok(setup.includes(says), `setup.md: ${says}`);
   });
 
   it('each evaluation agent has the no-scripts rule and reports a tool gap', () => {
