@@ -125,7 +125,7 @@ describe('agent files', () => {
     }
     for (const kept of ['## Who coordinates', '## Unattended', '## Guardrails', '## Finishing']) assert.ok(text.includes(kept), kept);
     const setup = fs.readFileSync(path.join(SKILL_DIR, 'references', 'setup.md'), 'utf8');
-    for (const says of ['GitHub Copilot', 'Claude Code', '.vscode/mcp.json', '.mcp.json', 'map --survey', 'Opus']) assert.ok(setup.includes(says), `setup.md: ${says}`);
+    for (const says of ['GitHub Copilot', 'Claude Code', '.vscode/mcp.json', '.mcp.json', 'map --survey', 'Opus', 'Manual', 'Assisted', 'Allow all', 'never yours']) assert.ok(setup.includes(says), `setup.md: ${says}`);
   });
 
   it('each evaluation agent has the no-scripts rule and reports a tool gap', () => {

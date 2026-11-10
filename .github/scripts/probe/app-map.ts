@@ -95,7 +95,7 @@ export function whyNotAnEntry(text: string, secrets: string[] = [], made: string
 
 /**
  * Where a story's secrets are referenced: its tests, its probes and the profile's accounts (the accounts alone with no
- * story, at onboarding). A username is no secret, and often an ordinary word that a route holds too.
+ * story, at setup). A username is no secret, and often an ordinary word that a route holds too.
  */
 export function secretSources(cfg: HeldoutConfig, key?: string): unknown[] {
   const accounts = JSON.parse(JSON.stringify(cfg.aut?.accounts ?? {}, (k, v: unknown) => (k === 'username' ? undefined : v))) as unknown;

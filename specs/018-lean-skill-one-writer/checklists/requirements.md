@@ -34,6 +34,6 @@
 - House style (as specs 007, 016 and 017): the spec names the project's own commands and files (`heldout map`,
   SKILL.md), since they are what the users of this skill see; code is left to the change.
 - Who writes the overview was recommended to the owner on 2026-11-09 and not confirmed: the spec takes the
-  recommendation (setup only; a story's agents mark stale), and says what it gives up in its assumptions and the
-  design document.
+  recommendation (setup only; a story's agents mark stale), and says what it gives up in its assumptions and in
+  `docs/next-steps.md`.
 - SC-002 and SC-003 are open by design: rounds are paused, and GitHub Copilot is not run here.

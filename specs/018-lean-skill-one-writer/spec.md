@@ -94,7 +94,9 @@ written by a story's agents while another story is drafted.
   characters and its `name` is its folder's; an agent file's body at most 30,000 characters; a tool name an app
   doesn't know is ignored; a subagent whose model is above the session model's tier doesn't run; a Copilot session
   reads the root `.mcp.json` and VS Code passes `.vscode/mcp.json` on; a session's permission level is Manual by
-  default (`chat.permissions.default`), with Assisted and Allow all above it.
+  default (`chat.permissions.default`); Allow all runs every call without asking; Assisted lets a model judge each
+  call, asks for the ones it doesn't approve and is not offered in every kind of session; an organization's policy
+  can disable a level (the last three read again on 2026-11-10).
 - Not confirmed from the documentation, and left as they are: the model names in the agents' `model` lists, the
   `browser` entry in their `tools`, whether `chat.tools.edits.autoApprove` applies in every Copilot session kind, and
   what an app does with two agents or skills of one name when it reads both `.github/` and `.claude/`.

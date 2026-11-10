@@ -275,6 +275,18 @@ describe('stale knowledge', () => {
     assert.ok(readRules(cfg, 'ABC-8').some((x) => x.id === rule.id));
   });
 
+  it('keeps a required rule when the contract was changed after its review', () => {
+    // The review accepted another version: a rule written into the contract afterwards was accepted by nobody.
+    judged(cfg, 'ABC-12', [{ id: 'R1', text: 'a cart holds at most twenty lines' }]);
+    const rule = readRules(cfg, 'ABC-12').find((x) => x.text === 'a cart holds at most ten lines')!;
+    const file = evalPaths(cfg, 'ABC-12').contract;
+    const contract = JSON.parse(fs.readFileSync(file, 'utf8'));
+    contract.rules[0].text = 'a cart holds at most thirty lines';
+    fs.writeFileSync(file, JSON.stringify(contract));
+    assert.throws(() => markKnowledgeStale(cfg, 'ABC-12', rule.id, 'R1'), /ABC-12's contract is not reviewed clean as it is now \(review-stale\)/);
+    assert.ok(readRules(cfg, 'ABC-12').some((x) => x.id === rule.id));
+  });
+
   it('after a merge that left a live copy beside a stale one, the stale one wins', () => {
     const o = addOverview(cfg, 'area', 'the wish list');
     const live = fs.readFileSync(knowledgeFile(cfg), 'utf8').split('\n').find((l) => l.includes(o.id))!;
