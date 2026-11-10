@@ -40,7 +40,7 @@ decision about WHAT a test checks, which governance.md says the orchestrator nev
    the change against the contract and runs `integrity KEY --amend … --reason …` or
    `integrity KEY --reject … --reason …`. A rejected proposal sends the hardener to restore the assertion; a change
    nobody proposed sends the hardener as today. A rejection stands for the text it judged: `--propose` refuses the
-   same change again, and a re-freeze that changed the draft starts the review anew.
+   same change again, and a re-freeze (a requirement revision) starts the review anew.
 3. **Given** no pending proposal for an assertion's current text, **Then** `integrity --amend` refuses it.
 
 ### User Story 3 - The phase agents carry their own commands (Priority: P2)
@@ -79,6 +79,10 @@ with a test where it is behaviour:
    is rejected for the same reason.
 6. The repair loop's bound, now inside `repairDue`, has a test of its own (three repairs in a row allow one more,
    four end it).
+7. A proposal or a rejection counts only since the last freeze: a re-freeze after a requirement revision may change
+   the criterion even where the assertion's draft text stays, so the review state and the "rejected before" list
+   start anew; triage.md says a rejection's reason is weighed while it still holds against the criterion.
+8. The repair tests each run on their own.
 
 ## Assumptions
 

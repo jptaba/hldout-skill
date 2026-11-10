@@ -33,6 +33,17 @@ describe('where a changed assertion stands in its review', () => {
     assert.deepEqual(earlierRejections(changed[0], [rejected('.toBeVisible()'), rejected(changed[0].current), rejected('.toBeAttached()', '.toHaveText(REQ.OLD)')]),
       [{ current: '.toBeVisible()', reason: 'no: .toBeVisible()' }]);
   });
+  it('starts anew after a re-freeze, even where the assertion\'s draft text stayed: the criterion may have changed', () => {
+    const refrozen = { event: 'refrozen' };
+    const rejected = { ...ev('amend-rejected'), reason: 'weaker' };
+    assert.equal(amendmentReviews(changed, [ev('amend-proposed'), rejected]).get(A), 'rejected');
+    assert.equal(amendmentReviews(changed, [ev('amend-proposed'), rejected, refrozen]).get(A), 'none');
+    assert.equal(amendmentReviews(changed, [rejected, refrozen, ev('amend-proposed')]).get(A), 'proposed');
+    assert.equal(amendmentReviews(changed, [{ event: 'frozen' }, ev('amend-proposed')]).get(A), 'proposed', 'the first freeze comes before any review');
+    const other = { ...ev('amend-rejected', '.toBeVisible()'), reason: 'weaker' };
+    assert.equal(earlierRejections(changed[0], [other]).length, 1);
+    assert.deepEqual(earlierRejections(changed[0], [other, refrozen]), []);
+  });
 });
 
 describe('advance, when integrity is not preserved', () => {
@@ -84,13 +95,14 @@ describe('a story hardened but not preserved waits on its integrity, not on the 
 describe('a repair under way, so that what follows it is a re-run', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-repair-'));
   const p = { runs: path.join(dir, '5-run'), history: path.join(dir, 'history.jsonl'), decisions: path.join(dir, 'decisions.json') };
+  // Each test writes the runs it reads: either runs on its own (a name filter).
+  before(() => fs.mkdirSync(p.runs, { recursive: true }));
   after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const record = (run: string, category?: string) => fs.writeFileSync(path.join(p.runs, `${run}.json`), JSON.stringify({
     key: 'ABC-1', run, generatedAt: 'now', meta: {}, summary: { total: 1, passed: 0, failed: 1, flaky: 0, skipped: 0 },
     entries: [{ scenario: 'SCN-002', title: 'SCN-002: x', file: 'a.spec.ts', status: 'failed', tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: {}, ...(category ? { final: { category, title: 't', rationale: 'r', evidence: 'P1' } } : {}) }],
   }));
   it('is due when the last evaluation run has a confirmed script defect, and not before the first one', () => {
-    fs.mkdirSync(p.runs, { recursive: true });
     assert.deepEqual(repairDue(p), [], 'no evaluation run yet: the first hardening');
     record('01-harden', 'SCRIPT_DEFECT');
     assert.deepEqual(repairDue(p), [], 'a harden run is not an evaluation');

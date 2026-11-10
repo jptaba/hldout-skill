@@ -160,7 +160,8 @@ workaround or limited scope. **Minor** means wording, contract nuance or cosmeti
 The hardener that fixed an assertion's implementation proposes the amendment; you decide it, in a fresh context, and
 it never decides its own. `heldout integrity KEY` lists each changed assertion as frozen and as it is now, marked
 "amendment proposed", and under it any earlier change to it that was rejected, with the reason ("rejected before").
-Weigh those: a new proposal that brings back what a rejection refused is rejected for the same reason. Judge it
+Weigh those: a new proposal that brings back what a rejection refused is rejected for the same reason, while that
+reason still holds against the criterion (a re-freeze after a requirement revision clears the list). Judge it
 against its criterion (`heldout show KEY contract --ac AC-n`), not against the application:
 
 - Amend when the changed assertion still fails for every application that violates **its own** criterion, and
