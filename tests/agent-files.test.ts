@@ -3,9 +3,11 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { AGENT_FILES, SKILL_DIR } from '../.github/scripts/core/config';
+import { AGENT_FILES, SKILL_DIR, otherAppFile } from '../.github/scripts/core/config';
 import { PHASE_FOLDERS } from '../.github/scripts/core/paths';
+import { claudeAgentFile, copilotAgentFile, type RoleName } from '../.github/scripts/core/agent-text';
 import { COORDINATOR, ROLES, nameClashes, toolProblems } from '../.github/scripts/core/roles';
+import { drifted } from '../dev/agents';
 import { COMMANDS, loadCommand } from '../.github/scripts/heldout';
 
 const REPO = path.resolve(import.meta.dirname, '..');
@@ -23,10 +25,21 @@ function frontmatter(file: string): Record<string, string> {
   assert.ok(m, `${file} has no frontmatter`);
   return Object.fromEntries(m[1].split(/\r?\n/).map((l) => /^([\w-]+):\s*(.*)$/.exec(l)).filter((x) => x !== null).map((x) => [x[1], x[2]]));
 }
+/** A subagent's brief in the skill: its procedure, printed by `heldout brief` (specs/020-brief-per-role). */
+const briefOf = (f: string) => path.join(SKILL_DIR, 'briefs', `${path.basename(f).replace(/(\.agent)?\.md$/, '')}.md`);
+const BRIEFS = COPILOT.map(briefOf);
+/**
+ * All a subagent is told: its file (who it is, its limits) and its brief (what to do). The sentences these tests pin
+ * were in the file alone before the brief; an agent of the kit or the coordinator has its file only.
+ */
+const told = (f: string) => {
+  const file = fs.readFileSync(path.join(REPO, '.github', 'agents', path.basename(f)), 'utf8');
+  return fs.existsSync(briefOf(f)) ? `${file}\n${fs.readFileSync(briefOf(f), 'utf8')}` : file;
+};
 
 describe('agent files', () => {
   it('sends each agent to the part it needs, not a whole handoff or a reference of another phase', () => {
-    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    const read = told;
     const triager = read('heldout-triager.agent.md'), hardener = read('heldout-hardener.agent.md'), author = read('heldout-test-author.agent.md');
     for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md']) assert.ok(triager.includes(view), view);
     for (const whole of ['references/hardening.md', '2-contract/contract.json', 'probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!triager.includes(whole), whole);
@@ -48,7 +61,7 @@ describe('agent files', () => {
   });
 
   it('sends the agents after the freeze to the application map and its rules, and those before it to the overview alone (specs/007-application-map, specs/017-application-knowledge)', () => {
-    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    const read = told;
     for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
       // One command reads all of it (specs/018-lean-skill-one-writer); the parts are for a map too large to print whole.
       for (const use of ['heldout -- map KEY`', 'map KEY --domain <domain>', '--add', '--stale <id>', '--rules', 'map KEY --rule "']) assert.ok(read(f).includes(use), `${f}: ${use}`);
@@ -95,8 +108,50 @@ describe('agent files', () => {
       const claude = frontmatter(bridgeOf(f));
       assert.equal(claude.name, agent.name, f);
       assert.equal(claude.description, agent.description, f);
-      assert.ok(fs.readFileSync(path.join(REPO, bridgeOf(f)), 'utf8').includes(f), `${bridgeOf(f)} points at ${f}`);
+      // A subagent's two files have one body, written from one definition; an agent of the kit points at its file.
+      const body = (file: string) => fs.readFileSync(path.join(REPO, file), 'utf8').replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+      if (COPILOT.includes(f)) assert.equal(body(bridgeOf(f)), body(f), `${bridgeOf(f)} has the body of ${f}`);
+      else assert.ok(body(bridgeOf(f)).includes(f), `${bridgeOf(f)} points at ${f}`);
     }
+  });
+
+  it('each subagent\'s files are what one definition writes: a role, its limits and the brief to start with (specs/020-brief-per-role)', () => {
+    for (const name of Object.keys(ROLES) as RoleName[]) {
+      const disk = (f: string) => fs.readFileSync(path.join(REPO, f), 'utf8').replace(/\r\n/g, '\n');
+      assert.equal(disk(`.github/agents/${name}.agent.md`), copilotAgentFile(name), `${name}: npx tsx dev/agents.ts --write`);
+      assert.equal(disk(`.claude/agents/${name}.md`), claudeAgentFile(name), `${name}: npx tsx dev/agents.ts --write`);
+      const file = copilotAgentFile(name);
+      assert.ok(file.split('\n').length <= 25, `${name} has ${file.split('\n').length} lines`);
+      assert.ok(file.includes(`npm run heldout -- brief KEY --role ${name}`), `${name} starts with its brief`);
+      assert.ok(fs.existsSync(briefOf(name)), `the skill has ${name}'s brief`);
+      assert.ok(!fs.readFileSync(briefOf(name), 'utf8').startsWith('---'), `${name}'s brief is a procedure, with no frontmatter`);
+      // The limits are in the file itself: a brief that fails to print removes none.
+      assert.match(file, /\nNever |\. Never |never open/, name);
+    }
+    const limits: Record<RoleName, string[]> = {
+      'heldout-contract-extractor': ['Never look at the application, its code or `application-map/`', 'Never invent criteria', 'Never write the review'],
+      'heldout-contract-reviewer': ['Never open the\napplication, its code, `application-map/` or the test files', 'never modify the contract'],
+      'heldout-test-author': ['Never open the application, its code, its tests or `application-map/`', 'never freeze the\ndraft', 'never edit `journeys/registry.yml`'],
+      'heldout-hardener': ['Never change WHAT a test expects', 'never resolve an oracle gap', 'Never run `heldout integrity --snapshot`,\n`--amend` or `--reject`'],
+      'heldout-triager': ['Never edit the tests or the journeys', 'Never amend an assertion nobody proposed', 'never create or\nchange Jira issues'],
+    };
+    for (const [name, kept] of Object.entries(limits)) for (const limit of kept) assert.ok(copilotAgentFile(name as RoleName).includes(limit), `${name}: ${limit}`);
+    assert.deepEqual(drifted(), []);
+    // Nothing shipped still calls a subagent's Claude Code file a pointer at its Copilot one, and a project that
+    // changed one is told the other app's file doesn't read it.
+    const skill = fs.readFileSync(path.join(SKILL_DIR, 'SKILL.md'), 'utf8'), setup = fs.readFileSync(path.join(SKILL_DIR, 'references', 'setup.md'), 'utf8');
+    assert.match(skill, /each `\.claude\/agents\/\*\.md` has the body of its Copilot file/);
+    for (const text of [skill, setup]) assert.ok(!/`\.claude\/agents\/[^\n]*(?:bridges?[^\n]*point|point at the same files)/.test(text));
+    assert.ok(setup.includes('change both'));
+    // Only a subagent has a file in each app: the coordinator (Copilot only), the skill's bridge and a project's own
+    // files have no counterpart to name.
+    for (const name of Object.keys(ROLES)) {
+      assert.equal(otherAppFile(`.github/agents/${name}.agent.md`), `.claude/agents/${name}.md`);
+      assert.equal(otherAppFile(`.claude/agents/${name}.md`), `.github/agents/${name}.agent.md`);
+    }
+    for (const f of [COORD, bridgeOf(COORD), '.claude/skills/heldout-evaluator/SKILL.md', '.github/agents/mine.agent.md', 'playwright.config.ts']) assert.equal(otherAppFile(f), undefined, f);
+    assert.deepEqual(AGENT_FILES.filter((f) => otherAppFile(f)).length, Object.keys(ROLES).length * 2);
+    assert.match(fs.readFileSync(path.join(REPO, '.github', 'scripts', 'setup', 'update.ts'), 'utf8'), /otherAppFile\(file\) \? `; \$\{otherAppFile\(file\)\}, the same agent's file for the other agent app, doesn't read this one/);
   });
 
   it('the skill and its agents fit what both apps load (specs/018-lean-skill-one-writer)', () => {
@@ -130,7 +185,9 @@ describe('agent files', () => {
 
   it('each evaluation agent has the no-scripts rule and reports a tool gap', () => {
     for (const f of COPILOT) {
-      const text = fs.readFileSync(path.join(REPO, f), 'utf8');
+      const text = told(f);
+      // In the file itself too, with the limits: it holds without the brief.
+      assert.match(fs.readFileSync(path.join(REPO, f), 'utf8'), /No scripts of your own/, f);
       assert.match(text, /No scripts of your own/, f);
       assert.match(text, /Tool gap: /, f);
       assert.match(text, /note KEY --tool-gap/, f);
@@ -139,7 +196,7 @@ describe('agent files', () => {
 
   it('every `heldout <command> --flag` the agents, SKILL.md and the references write exists', async () => {
     const refs = path.join(SKILL_DIR, 'references');
-    const docs = [...[COORD, ...COPILOT].map((f) => path.join(REPO, f)), path.join(SKILL_DIR, 'SKILL.md'), ...fs.readdirSync(refs).filter((f) => f.endsWith('.md')).map((f) => path.join(refs, f))];
+    const docs = [...[COORD, ...COPILOT].map((f) => path.join(REPO, f)), ...BRIEFS, path.join(SKILL_DIR, 'SKILL.md'), ...fs.readdirSync(refs).filter((f) => f.endsWith('.md')).map((f) => path.join(refs, f))];
     const problems: string[] = [];
     let checked = 0;
     for (const doc of docs) {
@@ -202,7 +259,7 @@ describe('agent files', () => {
   });
 
   it('the agent that fixes an assertion proposes its amendment, a fresh triager decides it (specs/019-amendment-review)', () => {
-    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
+    const read = told;
     const hardener = read('heldout-hardener.agent.md'), triager = read('heldout-triager.agent.md');
     assert.ok(hardener.includes('integrity KEY --propose'));
     assert.ok(hardener.includes('Never run `heldout integrity --snapshot`, `--amend` or `--reject`'));
@@ -219,6 +276,8 @@ describe('agent files', () => {
       assert.ok(!/you\*{0,2} decide on/i.test(text) && !/decide on the audited amendment yourself/.test(text));
     }
     assert.ok(skill.includes('Whoever\n    proposes never approves'));
+    // Nor to record one: the coordinator's file and the phases name no `--amend` (SKILL.md names it in its guardrail).
+    for (const f of [path.join(REPO, COORD), path.join(SKILL_DIR, 'references', 'phases.md')]) assert.ok(!fs.readFileSync(f, 'utf8').includes('--amend'), f);
   });
 
   it('both apps approve edits in the record, the scratch area and the journeys, and nothing wider (specs/016-coordinator-agent)', () => {
@@ -276,13 +335,13 @@ describe('agent files', () => {
       'heldout-triager': ['2-contract', '4-hardening', '5-run', '6-triage'],
     };
     // Every phase folder named in the agent files, SKILL.md and the references is one of the layout's, with or without "/".
-    const docs = [...fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => path.join(REPO, '.github', 'agents', f)),
+    const docs = [...fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => path.join(REPO, '.github', 'agents', f)), ...BRIEFS,
       path.join(SKILL_DIR, 'SKILL.md'), ...fs.readdirSync(path.join(SKILL_DIR, 'references')).map((f) => path.join(SKILL_DIR, 'references', f))];
     const unknown = docs.flatMap((f) => [...fs.readFileSync(f, 'utf8').matchAll(/\b[1-9]-(?:requirement|contract|tests|hardening|evidence|runs?|triage|verdict)\b/g)]
       .map((m) => m[0]).filter((n) => !(PHASE_FOLDERS as readonly string[]).includes(n)).map((n) => `${f}: ${n}`));
     assert.deepEqual(unknown, []);
     for (const [name, folders] of Object.entries(allowed)) {
-      const named = [...new Set(fs.readFileSync(path.join(REPO, `.github/agents/${name}.agent.md`), 'utf8').match(/\b[1-7]-[a-z]+(?=\/)/g) ?? [])];
+      const named = [...new Set(told(`${name}.agent.md`).match(/\b[1-7]-[a-z]+(?=\/)/g) ?? [])];
       assert.deepEqual(named.filter((f) => !folders.includes(f)), [], `${name} names folders outside its phase's inputs and output`);
     }
   });

@@ -5,5 +5,17 @@ tools: Read, Grep, Glob, Write, Edit, Bash
 model: opus
 ---
 
-Your instructions are in `.github/agents/heldout-test-author.agent.md`. Read that file first and follow its body
-exactly. Its frontmatter configures GitHub Copilot and does not apply here.
+You write the held-out tests for one story: an independent oracle, written from the requirement alone. Where you
+don't know HOW to reach something, guess sensibly and mark it; the hardener discovers it after the freeze.
+
+Never open the application, its code, its tests or `application-map/`: you have no browser, and the reviewed
+contract is your only source of WHAT is expected. Never run the tests against the application and never freeze the
+draft. Never put an expected value, a `[REQ …]` message or an `expectResponse` in a journey, never change what an
+existing journey does for its other callers, and never edit `journeys/registry.yml`.
+
+Start with `npm run heldout -- brief KEY --role heldout-test-author` (KEY is the story in your task) and
+follow what it prints: the story's folders, where it stands, what the application is, and your procedure, step by
+step. In Windows PowerShell write `npm run heldout '--' brief …` (quoted dashes): PowerShell drops a bare `--`.
+
+No scripts of your own (`node -e`, `python`, `.mjs`/`.cjs`, JSON built by code), and files written and changed with
+your file tools only, never with a shell redirection or `sed`.

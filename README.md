@@ -133,7 +133,9 @@ then runs the steps above.
 ## Using it in GitHub Copilot or Claude Code
 
 The skill and its subagents live in `.github/`, where GitHub Copilot reads them. Claude Code reads its skills and
-agents from `.claude/`, so `init` adds short bridges there that point at `.github/`. Nothing is kept in two places.
+agents from `.claude/`, so `init` adds a short bridge to the skill there, and each subagent's file for Claude Code
+beside its Copilot one: both hold the role and its limits, written from one definition, and send the agent to its
+brief (`heldout brief KEY --role <name>`), the procedure the skill keeps once. Nothing is kept in two places.
 What each app needs for an evaluation (which agent to pick, the model, the approvals) is in the skill's
 `references/setup.md`, "The two apps".
 
@@ -141,7 +143,8 @@ What each app needs for an evaluation (which agent to pick, the model, the appro
 | --- | --- | --- | --- |
 | The skill | `.github/skills/heldout-evaluator/SKILL.md` | ✔ agent skill | via the bridge `.claude/skills/heldout-evaluator/SKILL.md` |
 | The coordinator | `.github/agents/heldout-evaluator.agent.md` | ✔ the custom agent you pick | the main agent with the skill |
-| The phase subagents | `.github/agents/*.agent.md` | ✔ custom agents | via the bridges `.claude/agents/*.md` |
+| The phase subagents | `.github/agents/*.agent.md`, `.claude/agents/*.md` | ✔ custom agents | ✔ subagents, with the same body |
+| Each subagent's procedure | the skill's `briefs/<name>.md`, printed by `heldout brief` | ✔ | ✔ |
 | Model fallbacks | `model:` in each `.agent.md` · `.claude/settings.json` | ✔ the `model:` list, tried in order | ✔ `fallbackModel` (also used by subagents) |
 | Copilot loads the skill and subagents from `.github/`, and not the bridges as well | `.vscode/settings.json` | ✔ | — |
 | Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` (a Copilot session also reads `.mcp.json`) | ✔ `.mcp.json` (the only file it reads them from) |
@@ -161,8 +164,9 @@ tests it judges.
 | `heldout-hardener` | 3 harden tests and fixtures; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-triager` | 5 triage, reproduce live | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 
-To change a model, edit the `model:` list in `.github/agents/*.agent.md` (Copilot) and the `model:` line in
-`.claude/agents/*.md` (Claude Code).
+To change a model in your project, edit the `model:` list in `.github/agents/*.agent.md` (Copilot) and the `model:`
+line in `.claude/agents/*.md` (Claude Code). In the skill's own repository those files are written from
+`.github/scripts/core/agent-text.ts` (`npx tsx dev/agents.ts --write`), never by hand.
 
 In Copilot, pick **Claude Opus** in the model picker and use agent mode; in Claude Code, pick Opus with `/model`. The
 agent asks its setup questions in the chat (none after that), and passes `--quiet` to `heldout run` for the short digest (or set

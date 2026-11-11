@@ -27,7 +27,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { flagStr, type Args, type CommandSpec, type Flags } from '../core/cli';
-import { AGENT_FILES, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitattributes, ensureGitignore } from '../core/config';
+import { AGENT_FILES, SCRIPTS_DIR, SKILL_DIR, UPDATE_HINT, ensureGitattributes, ensureGitignore, otherAppFile } from '../core/config';
 import { ROOT, fileHash, rel } from '../core/files';
 import { MCP_FILE, mcpServersIn, writeClaudeCodeMcp } from './mcp-config';
 
@@ -128,7 +128,8 @@ function syncWorkspaceFiles(info: SourceInfo): void {
     };
     if (!fs.existsSync(dest)) { write('created'); continue; }
     if (info.files[file] === undefined) say('•', `keep    ${file} (the project's own)`);
-    else if (fileHash(dest) !== info.files[file]) say('⚠', `kept ${file} (changed in this project) — compare it with ${path.join(SOURCE_ROOT, file)}`);
+    // A subagent's two files each hold their own body: a project's change to one no longer reaches the other app.
+    else if (fileHash(dest) !== info.files[file]) say('⚠', `kept ${file} (changed in this project) — compare it with ${path.join(SOURCE_ROOT, file)}${otherAppFile(file) ? `; ${otherAppFile(file)}, the same agent's file for the other agent app, doesn't read this one, so make the change there too` : ''}`);
     else if (normalised(fs.readFileSync(dest, 'utf8')) === normalised(want)) say('•', `keep    ${file}`);
     else write('refreshed');
   }

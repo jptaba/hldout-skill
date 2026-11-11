@@ -93,7 +93,7 @@ once, so the Playwright MCP server and the subagents load. Then, for an evaluati
 | | GitHub Copilot in VS Code | Claude Code |
 | --- | --- | --- |
 | Who coordinates | the `heldout-evaluator` agent: pick it in the chat's agents dropdown, then ask for an evaluation of a story | the main agent; the skill loads when an evaluation is asked for |
-| The skill and the subagents | `.github/skills/heldout-evaluator/`, `.github/agents/*.agent.md` | the bridges in `.claude/skills/` and `.claude/agents/`, which point at the same files |
+| The skill and the subagents | `.github/skills/heldout-evaluator/`, `.github/agents/*.agent.md` | the bridge in `.claude/skills/`, which points at the skill, and `.claude/agents/*.md`, each with the body of its Copilot file (a subagent's file you change for your project: change both) |
 | Model | pick Opus in the model picker. Each agent file lists Opus first, with fallbacks; a subagent whose model is above the session model's tier doesn't run on it | each bridge names `opus`; `.claude/settings.json` holds the fallback |
 | Playwright MCP server (tier 2) | `.vscode/mcp.json`, which VS Code passes on to the session; a Copilot session also reads the root `.mcp.json`. Start or trust the server when VS Code asks | the root `.mcp.json`; approve the project's server when Claude Code asks |
 | Approvals | `.vscode/settings.json` approves the `heldout` command (`chat.tools.terminal.autoApprove`) and edits in the scratch area. Every other call (the browser's tools, the MCP server's, an edit elsewhere) follows the session's permission level, which is Manual unless `chat.permissions.default` says otherwise: it asks. For a run nobody watches, the user picks another level in the chat's permissions picker: Allow all runs every call without asking; Assisted, where the session offers it, lets a model judge each call and still asks for the ones it doesn't approve. An organization's policy can disable a level | `.claude/settings.json` approves the `heldout` command, the Playwright MCP server and edits in `output/`, `.heldout/` and the journeys |
@@ -103,7 +103,8 @@ waits at a prompt has not failed; `npm run heldout -- advance KEY` picks the sto
 
 When an app doesn't offer the `heldout-evaluator` agent, a subagent or the browser tools: `npm run heldout -- doctor`
 checks the agent files and the MCP configuration and prints the command that mends each. If your app can't run
-subagents at all, do each subagent's work yourself in the same order, following `.github/agents/<name>.agent.md`.
+subagents at all, do each subagent's work yourself in the same order, within the limits in
+`.github/agents/<name>.agent.md` and following its brief (`npm run heldout -- brief KEY --role <name>`).
 
 ## The application's overview
 

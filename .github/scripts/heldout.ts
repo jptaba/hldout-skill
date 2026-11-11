@@ -23,6 +23,7 @@ export const COMMANDS: Record<string, string> = {
   precommit: 'setup/precommit.ts',
   status: 'flow/status.ts',
   advance: 'flow/advance.ts',
+  brief: 'flow/brief.ts',
   new: 'fetch/mock/new.ts',
   fetch: 'fetch/fetch.ts',
   contract: 'contract/contract.ts',

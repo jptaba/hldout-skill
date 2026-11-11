@@ -7,8 +7,9 @@ description: Held-out acceptance evaluation of a Jira story against any web appl
 
 Works in GitHub Copilot in VS Code, in Claude Code and in any agent app that loads skills. The skill lives in
 `.github/skills/heldout-evaluator/`, its scripts (the `heldout` command, `npm run heldout`) in `.github/scripts/` and
-the phase subagents in `.github/agents/*.agent.md`. `.claude/skills/heldout-evaluator/SKILL.md` and
-`.claude/agents/*.md` are short bridges for Claude Code that point here. The Playwright MCP server is configured in
+the phase subagents in `.github/agents/*.agent.md`. For Claude Code, `.claude/skills/heldout-evaluator/SKILL.md` is a
+short bridge that points here, and each `.claude/agents/*.md` has the body of its Copilot file: the role and its
+limits, with the procedure in the role's brief (`$H brief KEY --role <name>`). The Playwright MCP server is configured in
 `.vscode/mcp.json` and in the root `.mcp.json`, the same servers in both, written by `init` and `update`.
 
 A **held-out test** is an independent oracle: written from the requirement alone, never from the
@@ -44,7 +45,8 @@ reasoning to another. Keep the questions and missing pieces the subagents report
 never a reason to pause. When a subagent hands back and your app reports what it cost (tokens, time), record it under
 the subagent's name: `$H note KEY --usage "<agent> tokens=<n> minutes=<m>"`. Only figures the app reported: leave out
 what it didn't, and never record an estimate. If your app can't run subagents, do the subagent's work yourself in the
-same order, following its instructions in `.github/agents/<name>.agent.md`.
+same order, within the limits in `.github/agents/<name>.agent.md` and following its brief
+(`$H brief KEY --role <name>`).
 Self-tests for the skill's own logic: `npm run test:skill`.
 
 ## Setup

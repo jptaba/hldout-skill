@@ -37,8 +37,8 @@ heldout contract KEY                      # clean, including the review
 Delegate the two steps to subagents, as the coordinator delegates every phase (SKILL.md, "Who coordinates"): the
 builder and the reviewer must not share context. `heldout-contract-extractor` gets "Build the requirement contract for
 KEY", then `heldout-contract-reviewer` "Review the requirement contract for KEY". In an app without subagents, use a
-fresh chat with the same prompt and the instructions in `.github/agents/heldout-contract-extractor.agent.md` /
-`heldout-contract-reviewer.agent.md`.
+fresh chat with the same prompt and each one's brief (`heldout brief KEY --role heldout-contract-extractor`, then
+`--role heldout-contract-reviewer`).
 
 If the reviewer reports findings, send them back to the builder ("Fix the requirement contract for KEY: <findings>";
 continue the same builder when your app can, since it already knows the sources, and likewise the same reviewer for

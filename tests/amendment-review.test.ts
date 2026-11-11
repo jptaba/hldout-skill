@@ -12,7 +12,7 @@ import { evalPaths } from '../.github/scripts/core/paths';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { phasesOf } from '../.github/scripts/flow/phases';
 
-// specs/017-lean-coordinator US2: the hardener proposes an amendment, a fresh triager amends or rejects it.
+// specs/019-amendment-review US1: the hardener proposes an amendment, a fresh triager amends or rejects it.
 const A = 'a.spec.ts: [REQ AC-1] message shown';
 const changed = [{ assertion: A, draft: '.toHaveText(REQ.MSG)', current: '.toContainText(REQ.MSG)' }];
 const ev = (event: string, current = changed[0].current, draft = changed[0].draft) => ({ event, assertion: A, draft, current });

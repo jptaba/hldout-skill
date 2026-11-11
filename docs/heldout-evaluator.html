@@ -945,12 +945,13 @@ test('SCN-002: Adding a product
   <p>Run the same setup without the address, in the project's folder: it pulls the skill and updates the project. That works for a project that has already been pushed to its own repository and cloned somewhere else: anyone with a clone of the skill runs setup in their clone of the project. The project records which skill it has in <code>.github/skills/heldout-evaluator/SOURCE.json</code>, the skill's remote and commit, never a path on someone's machine, and <code>doctor</code> shows it. Files the project changed since they were copied are kept as they are, and <code>doctor</code> lists them.</p>
 
   <h3>Using it in GitHub Copilot or Claude Code</h3>
-  <p>The skill and its subagents live in <code>.github/</code>, where GitHub Copilot reads them. Claude Code reads only <code>.claude/</code>, so <code>init</code> adds short bridges there that point at <code>.github/</code>. Nothing is kept in two places.</p>
+  <p>The skill and its subagents live in <code>.github/</code>, where GitHub Copilot reads them. Claude Code reads only <code>.claude/</code>, so <code>init</code> adds a short bridge to the skill there, and each subagent's file for Claude Code beside its Copilot one. Both hold the role and its limits, written from one definition, and send the agent to its brief (<code>heldout brief KEY --role &lt;name&gt;</code>), the procedure the skill keeps once. Nothing is kept in two places.</p>
   <div class="tbl"><table>
     <thead><tr><th>What</th><th>File</th><th>GitHub Copilot</th><th>Claude Code</th></tr></thead>
     <tbody>
       <tr><td>The skill</td><td><code>.github/skills/heldout-evaluator/</code></td><td>✔ agent skill</td><td>via the bridge <code>.claude/skills/heldout-evaluator/SKILL.md</code></td></tr>
-      <tr><td>The phase subagents</td><td><code>.github/agents/*.agent.md</code></td><td>✔ custom agents</td><td>via the bridges <code>.claude/agents/*.md</code></td></tr>
+      <tr><td>The phase subagents</td><td><code>.github/agents/*.agent.md</code>, <code>.claude/agents/*.md</code></td><td>✔ custom agents</td><td>✔ subagents, with the same body</td></tr>
+      <tr><td>Each subagent's procedure</td><td>the skill's <code>briefs/&lt;name&gt;.md</code>, printed by <code>heldout brief</code></td><td>✔</td><td>✔</td></tr>
       <tr><td>Model fallbacks</td><td><code>model:</code> in each <code>.agent.md</code> · <code>.claude/settings.json</code></td><td>✔ the <code>model:</code> list, tried in order</td><td>✔ <code>fallbackModel</code>, also used by subagents</td></tr>
       <tr><td>Copilot reads <code>.github/</code> only</td><td><code>.vscode/settings.json</code></td><td>✔</td><td>—</td></tr>
       <tr><td>Playwright MCP server</td><td><code>.vscode/mcp.json</code>, and the root <code>.mcp.json</code> made from it</td><td>✔ <code>.vscode/mcp.json</code></td><td>✔ <code>.mcp.json</code>, the only file it reads</td></tr>
@@ -1957,7 +1958,7 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
 │   ├── skills/heldout-evaluator/   <span class="c">the skill: SKILL.md, references/</span>
 │   ├── scripts/                    <span class="c">the heldout command (npm run heldout) and its library</span>
 │   └── agents/*.agent.md           <span class="c">the phase subagents: contract, review, tests, hardening, triage</span>
-├── .claude/                        <span class="c">Claude Code bridges to .github/, settings.json (fallback models)</span>
+├── .claude/                        <span class="c">Claude Code: the skill's bridge, the subagents' files, settings.json (fallback models)</span>
 ├── .vscode/settings.json           <span class="c">Copilot reads the skill and subagents from .github/ only</span>
 ├── heldout.config.json             <span class="c">application profiles, accounts recipes (committed, no secrets)</span>
 ├── .env                            <span class="c">secrets (git-ignored)</span>

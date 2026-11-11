@@ -25,9 +25,10 @@ export const CONFIG_SCHEMA = path.join(SCRIPTS_DIR, 'heldout.config.schema.json'
 /**
  * The subagents, one per phase that needs a model (separate contexts by design: the reviewer never sees the builder's
  * reasoning, the test author never sees the application, the triager never wrote the tests), as GitHub Copilot custom
- * agents, the one source of their instructions, and the Claude Code bridges to them and to the skill (Claude Code reads
- * only .claude/). The main agent runs the scripts between them: Copilot's coordinator agent, or Claude Code's main
- * agent with the skill (no bridge for the coordinator). Paths are the same in the skill repository and in a project.
+ * agents and as Claude Code subagents with the same body (the role and its limits, core/agent-text.ts; the procedure
+ * is the skill's brief), and the Claude Code bridge to the skill (Claude Code reads only .claude/). The main agent runs
+ * the scripts between them: Copilot's coordinator agent, or Claude Code's main agent with the skill (no file for the
+ * coordinator there). Paths are the same in the skill repository and in a project.
  */
 const SUBAGENTS = Object.keys(ROLES);
 export const AGENT_FILES: string[] = [
@@ -35,6 +36,20 @@ export const AGENT_FILES: string[] = [
   ...SUBAGENTS.flatMap((a) => [`.github/agents/${a}.agent.md`, `.claude/agents/${a}.md`]),
   '.claude/skills/heldout-evaluator/SKILL.md',
 ];
+
+/**
+ * A subagent's file in the other agent app, for one of its two files; undefined for any other file. Each holds its
+ * own body, so a project that changes one is told where the other is. The coordinator has a Copilot file only.
+ */
+export function otherAppFile(file: string): string | undefined {
+  const f = file.split(path.sep).join('/');
+  for (const a of SUBAGENTS) {
+    const [copilot, claude] = [`.github/agents/${a}.agent.md`, `.claude/agents/${a}.md`];
+    if (f === copilot) return claude;
+    if (f === claude) return copilot;
+  }
+  return undefined;
+}
 
 /** What a project keeps out of git: secrets, the scratch area and bulky local run artifacts (the record stays tracked). */
 export const GITIGNORE = ['.env', 'node_modules/', 'test-results/', 'playwright-report/', `${SCRATCH_DIR}/`, `output/*/*/${PHASE_FOLDERS[4]}/*/html/`, `output/*/*/${PHASE_FOLDERS[4]}/*/artifacts/`, '*.trace.zip', '.playwright-mcp/', '.claude/settings.local.json'];
