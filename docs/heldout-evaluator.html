@@ -360,7 +360,6 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   <a href="#publish">Publishing to Jira</a>
   <a href="#ci">CI regression runs</a>
   <div class="grp">Reference</div>
-  <a href="#evidence">Does it work?</a>
   <a href="#reference">Commands and layout</a>
 </nav>
 
@@ -368,7 +367,7 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
 <!-- ============ HERO ============ -->
 <div class="hero">
   <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Held-out Evaluator"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg>
-  <div class="kicker">The complete guide</div>
+  <div class="kicker">The complete guide · it describes the flow before the 2026-11 redesign (docs/optimization-plan.md) and is written again when that is done</div>
   <h1>The <em>held-out</em> evaluator</h1>
   <p class="lede">An AI agent skill for GitHub Copilot or Claude Code that takes one Jira story, writes independent acceptance tests from the requirement alone, runs them against the live application, and hands a person an evidence-backed recommendation: does the app do what the story asked for?</p>
   <div class="rail" aria-label="Pipeline">
@@ -376,8 +375,6 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 60
   </div>
   <div class="stats">
     <div class="stat"><b>~1 min</b><span>from an empty folder to a checked setup</span></div>
-    <div class="stat"><b>12 / 12</b><span>planted defects found in blind evaluations</span></div>
-    <div class="stat"><b>6 apps</b><span>onboarded end to end in 22 rounds, with no app-specific code</span></div>
     <div class="stat"><b>230</b><span>self-tests guarding the skill's own logic</span></div>
   </div>
 </div>
@@ -800,7 +797,7 @@ export async function missingCategoryId(api: Api, seed: Seed): Promise&lt;string
       hash: "dba2480cdcfc"</pre></div>
 
   <h3>One criterion, traced</h3>
-  <p>TOOL-4 (favourites for signed-in customers), from round 28. AC-2 says a duplicate is <i>rejected</i>; the story never says how. The status comes from the Confluence page the story links, and the contract records exactly where.</p>
+  <p>TOOL-4 (favourites for signed-in customers). AC-2 says a duplicate is <i>rejected</i>; the story never says how. The status comes from the Confluence page the story links, and the contract records exactly where.</p>
   <div class="grid three">
     <div class="code"><div class="hd">1 · sources (evidence pack)</div><pre>story.md L24
 - AC-2: Adding a product that is
@@ -875,7 +872,7 @@ test('SCN-002: Adding a product
   </figure>
 
   <h3>Stories in any shape</h3>
-  <p>No parser reads the story: a model does, and the scripts check what it wrote. So the shape of a story matters little. Three stories written to be awkward on purpose (rounds 29 and 30) show what happens to each shape:</p>
+  <p>No parser reads the story: a model does, and the scripts check what it wrote. So the shape of a story matters little. Three stories written to be awkward on purpose show what happens to each shape:</p>
   <div class="tbl"><table>
     <thead><tr><th>The story</th><th>What the evaluator does with it</th><th>Result</th></tr></thead>
     <tbody>
@@ -1735,192 +1732,6 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
   <p>Known, confirmed findings carry over by signature. Any <b>new</b> failure stays unconfirmed, so the pipeline reports INCONCLUSIVE and asks a person to investigate with the skill. CI never classifies a new defect by itself. Secrets come from masked CI variables of the same names, or from Vault through <code>VAULT_TOKEN</code> or AppRole. The story's record (the run's record and the verdict among it), the run's raw output and the JUnit results are kept as job artifacts.</p>
 </section>
 
-<!-- ============ EVIDENCE ============ -->
-<section id="evidence" class="reveal">
-  <div class="kicker">Reference</div>
-  <h2>Does it work?</h2>
-  <p class="lede">The skill was tested the way it tests applications: blind, against answer keys written in advance by a separate author.</p>
-  <div class="grid three">
-    <div class="card"><h4>Blind evaluations</h4><p>Nine stories on three apps with planted defects. A fresh agent with only the skill and the story evaluated each one.</p><p><span class="badge b-pass">8 / 9 verdicts as expected</span> <span class="badge b-pass">12 / 12 defects found</span></p></div>
-    <div class="card"><h4>Onboarding rounds</h4><p>Thirty-six rounds, most of them from an empty folder to a published verdict, on six apps. Every hiccup was fixed in the skill before the next round. The repository keeps the stories of two of them, Toolshop and ParaBank; both can be started on your own machine for a round.</p></div>
-    <div class="card"><h4>Robustness checks</h4><p>Tampered assertions, an app that's down or degraded, rate limiting, a broken pre-step and malformed input. None produced a false defect.</p></div>
-  </div>
-  <div class="tbl"><table>
-    <thead><tr><th>Round</th><th>Story and app</th><th>What it exercised</th><th>Result</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td>DQ-2 · DemoQA</td><td>first onboarding; accounts created by the tests</td><td><span class="badge b-pass">PASS</span> 21/21</td></tr>
-      <tr><td>2</td><td>DQ-2 · DemoQA</td><td>install from a git clone; skill update; accounts recipe</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 21/21</td></tr>
-      <tr><td>3</td><td>AE-1 · Automation Exercise</td><td>an ad-heavy app; a product-owner comment; clarifications</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> as the key</td></tr>
-      <tr><td>4</td><td>DQ-3 · DemoQA</td><td>the FAIL path; audited amendments</td><td><span class="badge b-fail">FAIL</span> 2/2 defects</td></tr>
-      <tr><td>5</td><td>AE-3 · Automation Exercise</td><td>a form specified by an image mock-up</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14</td></tr>
-      <tr><td>6</td><td>DQ-2 · DemoQA</td><td>existing accounts from .env and a real HashiCorp Vault</td><td><span class="badge b-pass">PASS</span> 21/21, no password in any artifact</td></tr>
-      <tr><td>7</td><td>CL-3 · Contact List App</td><td>users created and deleted; UI sign-in checked in a browser</td><td><span class="badge b-pass">PASS</span> 20/20, as the key</td></tr>
-      <tr><td>8</td><td>TOOL-4 · Toolshop</td><td>API on another host; users kept by design; two users in one test</td><td><span class="badge b-pass">PASS</span> 11/11, as the key</td></tr>
-      <tr><td>9</td><td>JS-2 · OWASP Juice Shop (local Docker)</td><td>a sign-up that needs a lookup first; cookie and welcome overlays; a basket-privacy defect</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
-      <tr><td>10</td><td>PB-4 · ParaBank (rate-limited demo)</td><td>users only on the sign-up page; a 429 mid-run; a "shall" nobody can observe</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 11/11, as the key</td></tr>
-      <tr><td>11</td><td>DQ-2 · DemoQA, from the published repository</td><td>a page address as the base URL; a strict password policy; a contract fixed after review</td><td><span class="badge b-pass">PASS</span> 21/21, as the key</td></tr>
-      <tr><td>12</td><td>AE-1 · Automation Exercise</td><td>an ad script mistaken for the API; a PO comment replacing a criterion; an open question tested literally</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> as the key</td></tr>
-      <tr><td>13</td><td>DQ-3 · DemoQA</td><td>the FAIL path: a redirect without Location, a misspelled message, a PO path correction</td><td><span class="badge b-fail">FAIL</span> 2/2 defects, as the key</td></tr>
-      <tr><td>14</td><td>AE-3 · Automation Exercise</td><td>an image mock-up; native confirm dialogs; three non-required open questions</td><td><span class="badge b-pass">PASS</span> 15/15, as the key</td></tr>
-      <tr><td>15</td><td>DQ-2 · DemoQA</td><td>existing accounts only (.env and Vault); the user id from the page's own API call; a reset keeps shared accounts clean; confirmed from a fresh onboarding</td><td><span class="badge b-pass">PASS</span> 21/21 ×2, as the key</td></tr>
-      <tr><td>16</td><td>CL-3 · Contact List</td><td>run three times from a fresh onboarding to confirm each fix; a review loophole closed</td><td><span class="badge b-pass">PASS</span> 20/20 ×3, as the key</td></tr>
-      <tr><td>17</td><td>TOOL-4 · Toolshop</td><td>ACs in a custom field, a PO comment changing a status; test data named <code>hldout-…</code>; confirmed from a fresh onboarding</td><td><span class="badge b-pass">PASS</span> 11/11 ×2, as the key</td></tr>
-      <tr><td>18</td><td>JS-2 · Juice Shop (Docker)</td><td>the FAIL path; overlays found by <code>init</code>; a too-short password kept readable in the reproduction; confirmed from a fresh onboarding</td><td><span class="badge b-fail">FAIL</span> 2/2 defects ×2, as the key</td></tr>
-      <tr><td>19</td><td>PB-4 · ParaBank (shared demo)</td><td>a rate limit, then the demo's settings changed by someone else: web payments not recorded; traced to the demo's admin page, not reported as defects</td><td><span class="badge b-inc">INCONCLUSIVE</span> environment; re-run pending</td></tr>
-      <tr><td>20</td><td>CL-4 · Contact List</td><td>security criteria written as Gherkin with two users; a PATCH hands a contact to another user; confirmed from a fresh onboarding</td><td><span class="badge b-fail">FAIL</span> 1/1 defect ×2, as the key</td></tr>
-      <tr><td>21</td><td>JS-3 · Juice Shop (throw-away container)</td><td>every test type in one story: functional, negative, boundary, security, idempotency, concurrency, composition, integration, contract, accessibility; a race reproduced with simultaneous requests; confirmed from a fresh onboarding</td><td><span class="badge b-fail">FAIL</span> 4/4 defects ×2, as the key</td></tr>
-      <tr><td>22</td><td>TOOL-1, TOOL-2, TOOL-3 · Toolshop</td><td>three stories in one project, each starting from what the earlier ones proved about driving the app</td><td><span class="badge b-fail">FAIL</span> ×3, verdicts as the key; 3 defects reported as owner questions instead</td></tr>
-      <tr><td>23</td><td>TOOL-1, TOOL-2 · Toolshop</td><td>first rounds with each phase in its own subagent (contract extractor and reviewer, test author, hardener, triager), each from a fresh onboarding</td><td><span class="badge b-fail">FAIL</span> 2/2 and 1/1 defects, as the key, 0 false positives</td></tr>
-      <tr><td>24</td><td>TOOL-4 · Toolshop</td><td>an update of an existing project, then a story whose API definition is only on a linked Confluence page</td><td><span class="badge b-pass">PASS</span> 13/13, as the key</td></tr>
-      <tr><td>25</td><td>TOOL-3 · Toolshop</td><td>fresh onboarding; a story whose sources contradict each other, read as a question for the owner</td><td><span class="badge b-fail">FAIL</span> as the key, 0 false positives</td></tr>
-      <tr><td>26</td><td>TOOL-4 · Toolshop</td><td>an update, then the story again on top of steps proven by earlier stories (2 reused)</td><td><span class="badge b-pass">PASS</span> 15/15, as the key</td></tr>
-      <tr><td>27</td><td>TOOL-1, TOOL-2, TOOL-4 · Toolshop</td><td>fresh onboarding, an update between stories, three stories in one project: reusable steps and the accounts recipe carried from story to story (<a href="#journeys-life">measured</a>)</td><td><span class="badge b-fail">FAIL</span> 2/2, <span class="badge b-fail">FAIL</span> 1/1, <span class="badge b-pass">PASS</span> 15/15, all as the key, 0 false positives</td></tr>
-      <tr><td>28</td><td>TOOL-4 · Toolshop</td><td>journeys grouped by domain with a registry, and the setup script; run twice from a fresh setup to confirm the fixes the first run surfaced</td><td><span class="badge b-pass">PASS</span> 17/17 and 15/15, as the key</td></tr>
-      <tr><td>29</td><td>TOOL-5, TOOL-6 · Toolshop</td><td>stories in awkward shapes: criteria as informal bullets with no AC field; a long linked API reference with endpoints the story never uses and a status that lives only behind a non-Confluence link</td><td><span class="badge b-fail">FAIL</span> 1/1 and <span class="badge b-pww">PASS WITH WARNINGS</span>, both as the key, 0 false positives</td></tr>
-      <tr><td>30</td><td>TOOL-7 · Toolshop</td><td>"validate every criterion for each user type" and one criterion for three data sets: variants in the contract, the setup coverage lint, accounts with roles; all 24 setups tested</td><td><span class="badge b-fail">FAIL</span> 1/1, as the key, 0 false positives</td></tr>
-      <tr><td>31</td><td>TOOL-6 and a story with no criteria · Toolshop</td><td>unattended, driven by <code>advance</code>: no question asked from the fetch to the published verdict; the missing status reported as an open question, the story without criteria reported as not evaluable</td><td><span class="badge b-pww">PASS WITH WARNINGS</span> 14/14, as the key; <span class="badge b-inc">INCONCLUSIVE</span> for the story without criteria</td></tr>
-      <tr><td>32</td><td>All nine demo stories · Toolshop and its release-candidate environment</td><td>one onboarding, then the stories one at a time in the same project, unattended; what each story showed was fixed in the skill and applied to the project before the next one started</td><td>9/9 verdicts as the keys, 12 of 13 keyed defects found and 1 raised as an owner question, 0 false positives</td></tr>
-      <tr><td>33</td><td>TOOL-8 and TOOL-9 · Toolshop</td><td>fresh setup; two loosely written stories whose checks need a chain of dependent data, four and five levels deep, over the web shop, the admin area and the API</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 5 of 6 defects found and 1 raised as an owner question, 0 false positives</td></tr>
-      <tr><td>34</td><td>TOOL-8 and TOOL-9 · Toolshop</td><td>the same two stories from a fresh setup, after the changes round 33 led to</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 8 of 8 defects found, 0 false positives</td></tr>
-      <tr><td>35</td><td>PB-1, PB-2 and PB-3 · ParaBank</td><td>a second application, started locally for the round; stories and answer keys by an independent author, the keys left as written (later, each defect also named the part of the story it breaks)</td><td>2 of 3 verdicts as the keys (<span class="badge b-fail">FAIL</span> ×2, and a PASS where the key says PASS WITH WARNINGS), 16 of 17 defects found, 2 findings the keys do not list</td></tr>
-      <tr><td>36</td><td>TOOL-8, TOOL-9 and a new TOOL-10 · Toolshop</td><td>round 34's project pointed at the application started locally, a newer build than the public demo; one repair of two locators</td><td><span class="badge b-fail">FAIL</span> ×2 as the keys, 8 of 8 defects found, 0 false positives; TOOL-10 (no key) <span class="badge b-pass">PASS</span></td></tr>
-    </tbody>
-  </table></div>
-
-  <h3>Round 32: nine stories in one project</h3>
-  <p>The latest round is the closest to how a team would use the skill: set a project up once, then evaluate story after story in it. Each story started from the journeys the earlier ones had proven.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Story</th><th>What it is</th><th>Verdict</th><th>Tests</th><th>Against the answer key</th></tr></thead>
-    <tbody>
-      <tr><td>TOOL-1</td><td>catalogue search, sort, filter</td><td><span class="badge b-fail">FAIL</span></td><td>12 / 20</td><td>2 of 2 defects</td></tr>
-      <tr><td>TOOL-2</td><td>registration, sign-in, lockout</td><td><span class="badge b-fail">FAIL</span></td><td>17 / 19</td><td>1 of 1</td></tr>
-      <tr><td>TOOL-3</td><td>guest cart; two criteria contradict each other</td><td><span class="badge b-fail">FAIL</span></td><td>17 / 20</td><td>1 of 2, the other raised as a question for the owner</td></tr>
-      <tr><td>TOOL-4</td><td>favourites for signed-in customers</td><td><span class="badge b-pass">PASS</span></td><td>14 / 14</td><td>no defect expected, none reported</td></tr>
-      <tr><td>TOOL-5</td><td>informal bullets, no criteria field</td><td><span class="badge b-fail">FAIL</span></td><td>12 / 14</td><td>1 of 1</td></tr>
-      <tr><td>TOOL-6</td><td>a status behind a link that is not read</td><td><span class="badge b-pww">PASS WITH WARNINGS</span></td><td>13 / 13</td><td>the open question, as expected</td></tr>
-      <tr><td>TOOL-7</td><td>every criterion for three user types</td><td><span class="badge b-fail">FAIL</span></td><td>24 / 25</td><td>1 of 1, all 24 setups tested</td></tr>
-      <tr><td>TOOLB-1</td><td>TOOL-1's criteria on the release candidate</td><td><span class="badge b-fail">FAIL</span></td><td>12 / 21</td><td>3 of 3 (two of them new: see below)</td></tr>
-      <tr><td>TOOLB-2</td><td>TOOL-3's criteria on the release candidate, which has no cart API</td><td><span class="badge b-fail">FAIL</span></td><td>1 / 16, 11 of them blocked</td><td>3 of 3</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">Two of TOOLB-1's three defects were not in its answer key. The key was written in September; the release-candidate environment has moved to another build since, on which the web shop's "Price (Low - High)" sorts downwards and a search without matches shows a different message. Both were checked against the live application and added to the key. Against the key as first written they would count as two false positives.</p>
-  <p>What the round changed in the skill, each fix made after the story that showed the need:</p>
-  <ul class="clean">
-    <li><b><code>heldout confirm</code></b> removes the marks of the guesses a probe showed were right, one command per file. Before it, a hardener spent most of its edits deleting 25 comments one at a time.</li>
-    <li><b>Rules restate their lines.</b> Two of the first three contracts lost a fix-and-review cycle to a rule that added a consequence the story doesn't state. The extractor is now told so, and the six later contracts passed their first review.</li>
-    <li><b>The evidence pack names the test users the project already has</b>, so a story with signed-in users no longer records "how to sign in" as a gap.</li>
-    <li><b>Data the application can't delete is found before it is made.</b> TOOL-7 needs an invoice of each customer; its tests take one the account already has and place an order only when there is none. The round placed no order, where earlier rounds left about a dozen each.</li>
-    <li><b><code>journeys --copy-from</code></b> starts a second environment's journeys from the first one's, as drafts marked to be probed. TOOLB-2 reused 21 cart journeys that way, and the hardener corrected the ones the other build does differently (hash routes, no cart API).</li>
-    <li><b>Smaller ones:</b> a sign-in that lands different kinds of users in different places, a fixed-time wait and a probes file in the inspector, lint that ignores comments, shared records counted once in the run summary, clearer messages from the probes and from triage, and a PowerShell note in every agent file.</li>
-  </ul>
-  <h3>Round 33: two stories that go deep</h3>
-  <p>Two stories written the way a product owner writes them, with no numbered criteria and no statuses, where a check needs a chain of data before it can start. They ran one at a time from a fresh setup, web shop and API together.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Story</th><th>The chain of data</th><th>Verdict</th><th>Tests</th><th>Against the answer key</th></tr></thead>
-    <tbody>
-      <tr><td>TOOL-8<br>Stocking a new product line</td><td>category → sub-category → brand → product under both → the shop's search, filters and product page → a cart line; removal refused while something is in use, so cleanup runs in reverse</td><td><span class="badge b-fail">FAIL</span></td><td>32 / 48</td><td>2 of 3 defects, the third raised as a question for the owner</td></tr>
-      <tr><td>TOOL-9<br>Customer questions</td><td>customer → question → administrator's answer → status → what the owner, another customer and a visitor may see</td><td><span class="badge b-fail">FAIL</span></td><td>21 / 26</td><td>3 of 3</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">What the evaluator found: anyone, signed in or not, can create and change categories, brands and products through the API (only deleting is protected); a customer can change the status of their own question, and another customer can write into it; the API takes a message shorter than the 50 characters the form insists on. One finding was not in TOOL-8's key and was added to it after the triage showed it with control calls: the shop's search misses a product whose name holds a hyphen followed by a digit. The defect raised as a question, a 500 where the story asks for a refusal that says what is wrong, led to the first change below. Questions sent to the shop can't be deleted: the round left about forty on the shared demo.</p>
-  <ul class="clean">
-    <li><b>A refusal with no stated status is a client error.</b> The test for "is refused" had asserted only "not a success", which a 500 satisfies. The authoring rule now asks for a 4xx, and <code>expectResponse(res, { status: '4xx' }, …)</code> says it in one line. TOOL-9, written after the change, used it.</li>
-    <li><b>One administrator no longer holds a run to one worker.</b> Both stories need the administrator in almost every test, and each parallel worker used to need an account of its own. An account that only acts on other records can now be marked as shared (<code>accounts --add-existing … --shared</code>). TOOL-8's 48 tests took 550 seconds on one worker and 199 on two, with the same 32 passes and 16 failures.</li>
-    <li><b>A false "script defect" is gone.</b> The automatic triage did not recognise a call such as <code>GET /categories/tree/&lt;id&gt;</code> as one of the story's endpoints when a journey declared it, and blamed the test. Six of TOOL-8's failures were mislabelled that way before a person-level check; now they are classified as what they are.</li>
-    <li><b>A long run says how far it is</b>, once a minute. TOOL-8's hardening run was silent for 25 minutes.</li>
-    <li><b>Guidance learned the hard way:</b> a journey that finds records through the application's own search is proven with a name shaped like the tests' names; a shared record is recognised by a short marker at the start of its text, because lists cut texts off and page; with records that can't be deleted, a hardening run makes no retries; and a refusal that answers 200 with nothing disclosed is confirmed as a minor defect.</li>
-  </ul>
-  <p class="small">These were the most expensive evaluations so far: the hardener had 81 guessed mechanics to settle for TOOL-8 (59 of them right as drafted) and took 45 minutes. The next story on the same pages starts from 49 proven journeys.</p>
-
-  <h3>What the runs asked for next</h3>
-  <p>After round 33, the cost of every agent across rounds 32 and 33 was laid beside what it had spent its time on. Six changes followed; TOOL-8 was then evaluated a second time to check them, and found a fourth defect on the way (the admin form says nothing when the brand or the category is not chosen).</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>What the runs showed</th><th>What changed</th><th>Checked by</th></tr></thead>
-    <tbody>
-      <tr><td>Each of 48 tests built and removed its own chain of four dependent records: 179 records a run</td><td><code>seed.shared</code>: a chain that tests only look at is made once per parallel worker and removed when the run is over. Its undo is a list of calls, so the record survives the worker restart that follows every failed test</td><td>TOOL-8 again: 2 shared chains where the first version of the feature made 24, and 55 tests in 204 seconds</td></tr>
-      <tr><td>A story whose tests need only the administrator was held to the number of customer accounts, and the reverse</td><td>Only the roles a story's tests take limit its workers</td><td>unit tests</td></tr>
-      <tr><td>In seven of nine re-evaluated stories the hardener was called for one to three marks, all on locators built from a text the requirement gives</td><td>A guess left in a test is settled by the test's own run: it passed each time, on a line that acts on or expects what it locates. Guesses in journeys, in failing tests or in "is not shown" checks still go to the hardener</td><td>not yet: no story has gone through it</td></tr>
-      <tr><td>Retries in a hardening run sent every failing test's requests twice and hid what the repeats are there to show</td><td>Hardening runs make no retries</td><td>TOOL-8 again</td></tr>
-      <tr><td>Triagers rebuilt each signed-in failure by hand, and the evidence named the read-back call, not the one that should have been refused</td><td>The evidence records which test user sent each call; a failed "refused" check points to the call that changed something; triage writes a starting chain with that user's sign-in</td><td>TOOL-8 again: the chain for a customer's accepted change carries the second customer's token</td></tr>
-      <tr><td>A defect was lost because "is refused" was asserted as "not a success" (round 33)</td><td>Already in place: a refusal with no stated status is a client error</td><td>TOOL-8 again: the 500 is now reported as a defect, 4 of 4 found</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">Smaller ones from the same review: the evidence pack says when a project already has test users, so a story doesn't raise sign-in as a gap; a source that names only paths states no endpoint; every agent is told to read a file the tools wrote before writing to it, which had cost a round trip in most runs.</p>
-
-  <h3>Round 34: the two deep stories again, from a fresh setup</h3>
-  <p>The changes above were then checked the way a new project would meet them: a fresh setup, one onboarding, TOOL-8 and then TOOL-9, each fixed before the next step went on.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Story</th><th>Verdict</th><th>Tests</th><th>Against the answer key</th></tr></thead>
-    <tbody>
-      <tr><td>TOOL-8</td><td><span class="badge b-fail">FAIL</span></td><td>23 / 41</td><td>4 of 4 after the first change below (2 of 4 before it, the other two raised as questions). The fourth is a loose match: the key describes a brand that is not chosen, the round tested one that was deleted</td></tr>
-      <tr><td>TOOL-9</td><td><span class="badge b-fail">FAIL</span></td><td>27 / 31</td><td>4 of 4. The read that answers 200 with an empty body was part of the first defect in the key; the round reported it as a minor finding of its own, and the key now lists it that way</td></tr>
-    </tbody>
-  </table></div>
-  <ul class="clean">
-    <li><b>A server error is never a reading of a requirement.</b> TOOL-8's author had tagged the "product without an existing brand" tests as resting on an assumption (which of two meanings "without" has). The application answered 500, and the verdict filed that under questions for the owner. A confirmed failure on such a test now stays a defect when it does not depend on the reading: automatically for a 5xx answer, and when the triager says so (<code>triage --set … --any-reading</code>) for the rest.</li>
-    <li><b>A test that takes two users of a kind gets a worker to itself.</b> TOOL-9's tests ask for "a customer" and "another customer"; the project has two. The evaluation run started two workers and six tests were blocked for want of a second account. The run now counts how often a kind of user is asked for under different names and limits the workers by that; the re-run had no blocked test.</li>
-    <li><b>A draft is frozen only when its author says it is finished.</b> An author cut off by a limit in an earlier run had left half a draft that the next step froze. The author's last command now marks the draft, and the mark holds only for the file as it is at that moment.</li>
-    <li><b>A shared record is read-only.</b> A test that sends a change or a delete at a record makes that record its own, even when the request must be refused: an application that wrongly accepts it would otherwise alter what every later test relies on.</li>
-    <li><b>Smaller ones:</b> the evidence pack names the header a signed-in call sends, so no story records it as a gap; values the story names without listing ("a subject from the list") have a stated place among the gaps; two journeys that share only a nameless locator are no longer reported as duplicates; the inspector shows more of a request body on demand and waits up to a minute; a readiness wait is on data the page loaded, not on a form that can be used before its record arrives; the starting chain for a replay says what to do when the run's records are gone.</li>
-  </ul>
-  <p class="small">What worked as written this time: shared test data (2 chains in TOOL-8 despite 54 worker restarts), the "sent as" line in the evidence, and the starting chains, which TOOL-9's triager ran unchanged. Questions sent to the shop can't be deleted: this round left roughly ninety on the shared demo, all beginning with "hldout", until its next data reset.</p>
-
-  <h3>Round 35: a second application, and keys nobody on the project wrote</h3>
-  <p>Every change since round 31 had come from one application, and two of its answer keys had been corrected after runs. Round 35 removed both supports. The application is ParaBank, a demo bank: its pages are rendered on the server, a visitor signs in with a session cookie, its API asks for no credentials at all, users can only be made on the sign-up page, and nothing can be deleted. It ran in a local container started for the round and removed after it. The three stories and their answer keys were written beforehand by an independent author who saw nothing of the evaluator, and the keys were left exactly as written.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Story</th><th>How it is written</th><th>Key</th><th>Verdict</th><th>Tests</th><th>Against the answer key</th></tr></thead>
-    <tbody>
-      <tr><td>PB-1<br>Opening an account</td><td>nine numbered criteria</td><td><span class="badge b-fail">FAIL</span></td><td><span class="badge b-fail">FAIL</span></td><td>19 / 41</td><td>5 of 6 defects, the sixth raised as a question</td></tr>
-      <tr><td>PB-2<br>Transfers, bill payments, history</td><td>loose bullets, no numbers</td><td><span class="badge b-fail">FAIL</span></td><td><span class="badge b-fail">FAIL</span></td><td>46 / 103</td><td>11 of 11 defects, and 2 findings the key does not list</td></tr>
-      <tr><td>PB-3<br>Signing up, in and out</td><td>scenarios without numbers</td><td><span class="badge b-pww">PASS WITH WARNINGS</span></td><td><span class="badge b-pass">PASS</span></td><td>29 / 29</td><td>no defect keyed, none reported</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">Where the round and the keys differ. PB-1's sixth defect is a server error on an account type the application does not know: the tests sent the unknown type as a word where the application takes a number, got an immediate "not found", and the evaluator could only ask whether a bare status is a clear reason. PB-2's two extra findings are behaviour the triager reproduced: one (anyone can read another customer's history) is described in the key inside another defect, the other (a request without an amount answers a server error) is not in the key. PB-3's key expects warnings for things the story leaves open outside its scenarios; the evaluator listed three questions of its own and, because none of them blocks a criterion, said PASS.</p>
-  <ul class="clean">
-    <li><b>What needed no change.</b> The hardener found out how test users are made on a sign-up page, how their id is looked up and how they sign in, and saved it in the profile; every later test and story used it. Of the 88 guesses the authors marked in the first two stories, three needed a change. The change of round 34 held: PB-1's and PB-2's triagers marked 23 failures on assumed readings as wrong under every reading, with the reason, and they were reported as defects.</li>
-    <li><b>"Is shown" now means visible.</b> A check that a message says why passed on an error paragraph the page keeps hidden while it showed a success. The hardener caught it; the authoring rule now asks for visibility first.</li>
-    <li><b>An unknown value is sent in the form the valid ones take.</b> The miss in PB-1: when values turn out to be codes, the test's unknown value becomes a code outside the set.</li>
-    <li><b>Shared records survive a failed test.</b> A record tests only read was made again after every failure, because the runner starts a new worker then: 24 copies of one customer in a hardening run, none of them deletable. Such records are now kept in the run's folder, a test user among them, with its password stored as a reference and never as the value.</li>
-    <li><b>Sign-up, the first time.</b> Two sign-ups sent at the same moment were refused, and a failed sign-up only said that something was not visible. The first run with a new sign-up recipe now uses one worker, and the error quotes what the page answered.</li>
-    <li><b>Two findings were called script defects.</b> The automatic triage did not recognise a declared call whose path begins with a placeholder. The triager overruled it; the match is fixed.</li>
-    <li><b>A password in an address.</b> This API takes the password in the path of its sign-in call. A probe typed with the value, not the reference, wrote it to a report. The probe now masks any value the environment holds under a secret's name.</li>
-    <li><b>The inspector replays what a page's script won't send.</b> Three agents needed a one-off script to submit a value a form does not offer. New steps: <code>force</code> gives a control such a value, <code>rewrite</code> changes fields of the page's next request, <code>request</code> makes a call in the middle of a walk. A step that changes the address now says where it landed.</li>
-    <li><b>One chain for a run's failures.</b> Triage writes every distinct failing call into one starting chain, signed in or not: 12 calls for PB-2's 42 API failures.</li>
-    <li><b>Guidance the stories asked for:</b> a refusal whose form is itself an open question gets two tests, on a page as through the API; a criterion beside a list of values holds for each of them, with no assumption; an API description the story only mentions is read for paths and fields while hardening, never for expected values; a message given by its meaning is matched on the story's own words.</li>
-  </ul>
-  <p class="small">The run without a hardener, checked on a real story: a second draft of PB-3 built on the proven journeys left two guesses. One sat in a journey the author added, so the hardener was still called, for about 100,000 tokens and two guesses that were right. Replayed from the same frozen draft with that journey proven, the guess left in the test was settled by the test's own run and the story went to its evaluation with no hardener. A guess in a new journey still calls one.</p>
-  <p class="small">Hardening cost the most where the application was new: 65 tool calls and about 194,000 tokens for PB-1, then 51 and 29 for the two stories that followed on its journeys.</p>
-
-  <h3>After round 35: the open list, and a round on a local Toolshop</h3>
-  <p>What round 35 left open was worked through one item at a time, each checked by a run before the next. Then round 34's project, with its proven journeys, was pointed at Toolshop started on the same machine (round 36), which turned out to be a newer build than the public demo.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>What was open or went wrong</th><th>What changed</th><th>Checked by</th></tr></thead>
-    <tbody>
-      <tr><td>A verdict from four tests. The hardener checked a repair with a run of the four repaired tests; that run was taken for the story's latest evaluation, the repair limit (counted over every evaluation run the story ever had) allowed no further run, and the verdict read PASS while four confirmed defects sat in the run before</td><td>A run of some of the tests is never an evaluation, whatever its label. The repair loop counts repairs in a row</td><td>TOOL-9 on the local build: the full re-run gave FAIL with the four defects of the public demo</td></tr>
-      <tr><td>An application that takes a password in an address left it readable in every browser trace of a run (44 of 44) and in the HTML report</td><td>After a run, known secrets are taken out of the files inside each trace archive and out of the report's own archive</td><td>scrubbed copies hold none and pass an archive check; a run's stored artifacts scrubbed in place. Not yet opened in the trace viewer</td></tr>
-      <tr><td>The triage report for 57 failures was 115 KB, mostly one error page's markup and near-identical sections</td><td>Failures that look alike are grouped at the top, the first of a group is written out and the others as what differs, an error page is shown as what it says</td><td>PB-2 triaged again from nothing: read whole in two reads, 25 groups became 8 root causes, no trace opened, 11 of 11 defects</td></tr>
-      <tr><td>The inspector's new steps and the one chain per run had only been tried by hand</td><td>From their first use by a triager: the chain lists the call that made a state before the check that read it and carries the headers that shape an answer; a rewritten request is reported with the old and the new value</td><td>PB-1 triaged again from nothing with them, and no script of the triager's own</td></tr>
-      <tr><td>A PASS with questions for the owner looked like a clean PASS</td><td>The verdict stays PASS when no criterion waits on a question; its first line and the summary on the story now count the questions</td><td>PB-3's verdict</td></tr>
-      <tr><td>The application under a project changed (two controls lost their labels between builds)</td><td>Nothing: four tests failed on a journey's precondition, triage called them script defects, the hardener changed two locators in about twenty tool calls</td><td>TOOL-8 and TOOL-9 on the local build: the verdicts and the 8 defects of the public demo</td></tr>
-      <tr><td>One new one-line journey sent a whole story to the hardener</td><td>A run now settles a narrow case: a few new journeys beside proven ones, a guess on a journey's own statement that clicks, fills or waits</td><td>TOOL-10, written to try it, did not meet the rule: its author wrote all five guesses as locators a journey returns. The hardener found two of them wrong, one a paging stop no run would have exercised. The rule stays as narrow as it is</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">Smaller ones from the same work: a confirmed decision carries over when only a counter in a test's own data shifted between runs; a word in a link's address no longer counts as a text the page shows; <code>--any-reading</code> can name some tests of one decision; a journey that walks through the pages of a list is proven on the last page too. Both demo applications can be started locally for a round and thrown away after it (<code>demo/RUNNING-LOCALLY.md</code> in the repository).</p>
-
-  <h3>The same nine stories, a second time</h3>
-  <p>The round was then repeated in the same project, with every journey of the first pass in the registry, to look for what could still be better. The verdicts were the same nine. One finding changed: TOOL-1's empty-search defect was reported as a question for the owner, because that contract had recorded "all products" as an assumption and every test of the criterion carried it. That became the first change below.</p>
-  <ul class="clean">
-    <li><b>A criterion can no longer lose its defect to an assumption unnoticed.</b> A test tagged as resting on an assumption reports a failure as a question. When every test of a criterion carries such a tag, the lint now says so (<code>only-assumed-tests</code>), and the authoring rule asks for one untagged test of what holds under every reading ("an empty search returns products at all").</li>
-    <li><b>No hardener when there is nothing to harden.</b> When a draft marks no guess and every journey its tests call is proven in the registry, <code>advance</code> runs the tests twice itself. If each passes, or fails on a requirement assertion alone, it records the mechanics gaps as answered by those journeys and goes on. TOOL-6 and TOOL-7 went from frozen draft to evaluation run that way; the hardener is still called the moment a proven journey doesn't hold.</li>
-    <li><b>The reviewer no longer rejects an assumption for being unstated</b>, which every assumption is. And the reference no longer contradicts itself on whether a page compared with the API is a UI or an end-to-end criterion: that one sentence had cost TOOL-6 a second review in three separate runs.</li>
-    <li><b>The inspector notes what the page announces after each step</b> (alerts, toasts), and a <code>probe</code> step counts a locator at that point of the walk. Four hardeners and triagers had lost a walk to a message that was gone by the end of it.</li>
-    <li><b>Less typing for the agents:</b> several gaps recorded in one call (<code>contract --resolve-from</code>), ready-to-paste imports in the journey listing, a replay command beside each failing API call in the triage report, a list projection in a chain's <code>show</code> (<code>data.*.price</code>), and a clipped listing's <code>per_page</code> and <code>total</code> shown first.</li>
-    <li><b>A new journey that repeats the calls of an existing one</b> is now flagged in the story's own lint, where the author fixes it, and not only in the project-wide check.</li>
-  </ul>
-  <p class="small">With the journeys proven, the second pass was also cheaper where a hardener still ran: TOOL-1's needed 19 tool calls where the first pass took 47.</p>
-  <p class="small">The evaluations of these rounds, and the full test report with every defect the rounds found in the skill and how it was fixed, are in the repository history: tag <code>blind-round-evaluations</code> and the commits before the move to a single application.</p>
-</section>
-
 <!-- ============ REFERENCE ============ -->
 <section id="reference" class="reveal">
   <div class="kicker">Reference</div>
@@ -1994,8 +1805,8 @@ npm run heldout -- run TOOL-1 --label repro --grep "SCN-010:"</pre></div>
 
 <footer>
   Held-out Evaluator · an AI agent skill · the complete guide.<br>
-  GIF versions of the replays for READMEs and slides: <a href="media/onboarding.gif">onboarding.gif</a>, <a href="media/end-to-end.gif">end-to-end.gif</a>.<br>
-  Recordings and excerpts come from the evaluator's own test rounds on a public demo application, Practice Software Testing (Toolshop); later rounds also ran on ParaBank and on local instances of both.
+  A GIF version of the onboarding replay for READMEs and slides: <a href="media/onboarding.gif">onboarding.gif</a>.<br>
+  Recordings and excerpts show a public demo application, Practice Software Testing (Toolshop).
 </footer>
 </main>
 </div>

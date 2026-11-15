@@ -107,12 +107,6 @@ area, `chat.tools.edits.autoApprove` in `.vscode/settings.json`), so those run w
 entries to approve each one yourself.
 The prompts that remain are your agent app's own for other files and commands.
 
-![A story end to end: one request in the chat, then advance and the subagents up to the published verdict](docs/media/end-to-end.gif)
-
-The recording is TOOL-6 on Practice Software Testing: the `heldout` output as it was printed, each subagent's work
-shortened to a summary of its report, a little over nine minutes in real time. It was recorded before a story's record
-took its current folders, so the paths it prints are the earlier ones.
-
 **Update:** the same command without the address, in the project's folder:
 
 ```powershell
@@ -310,20 +304,10 @@ invoice access to be validated for every user type and data set (TOOL-7, which n
 two loosely written stories that go deep into the application, each needing a chain of dependent data over the web
 shop and the API — stocking a product line as an administrator, from category and brand to a customer's cart (TOOL-8),
 and a customer's question from the contact form through an administrator's answer to its status (TOOL-9) —
-and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2). Each has a machine-readable
-answer key written before any evaluation ([demo/answer-keys/](demo/answer-keys/), each pinned by its hash; which part of the story each defect breaks was added later). `npx tsx dev/score.ts` scores the stories in `output/`
-against them → [demo/SCORECARD.md](demo/SCORECARD.md); `--from <project>` scores a round run in a project of its own.
-The scorecard in the repository opens with round 32 (rounds 34 and 35 follow at its end): one onboarding, then the first nine stories one at a time in the same project,
-unattended. Nine of nine verdicts were as the keys say, 12 of the 13 keyed defects were found and the thirteenth was
-raised as a question for the story's owner, with no false positive. The two deep stories (TOOL-8, TOOL-9) were last
-run in round 34, from a fresh setup: both verdicts as the keys say, 8 of 8 keyed defects found, no false positive.
-Round 35 took the skill to a second application, ParaBank, with three stories (PB-1 to PB-3) whose answer keys an
-independent author wrote and nobody changed for that round: 2 of 3 verdicts as keyed, 16 of 17 defects found, and 2 findings the
-keys do not list. Round 36 pointed round 34's project at Toolshop started locally, a newer build than the public
-demo: after one repair of two locators, the same two verdicts and 8 of 8 defects.
-Both applications can be started on your own machine for a round and thrown away after it:
-[demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md), which also shows how a round is made (`dev/round.ts new`) and
-measured (`heldout stats` for runs, repairs, probes, minutes and subagent cost per story; `dev/inflight.ts` for the scripts
-the agents wrote on the fly). What comes next is in [docs/next-steps.md](docs/next-steps.md).
-Earlier rounds on other applications are kept in the repository history (tag `blind-round-evaluations`, and the
-commits before this one).
+and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2).
+The application can be started on your own machine and thrown away afterwards:
+[demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md).
+
+The evaluator is being redesigned from its goal: [docs/optimization-plan.md](docs/optimization-plan.md) has the plan
+and its progress, and the results of earlier test rounds are in git history only. What else is open is in
+[docs/next-steps.md](docs/next-steps.md).
