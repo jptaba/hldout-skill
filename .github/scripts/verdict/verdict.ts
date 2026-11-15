@@ -275,9 +275,31 @@ export function run({ _, flags }: Args): void {
     NO_DRAFT: '⚠️ NO_DRAFT — no frozen draft to compare',
   }[integrity.status];
 
+  // The first screen answers the reader's questions and nothing else: the verdict, each finding in a line, what the
+  // owner must answer, what was not tested. The findings in full follow; everything else is the record, below them.
+  const ownerQuestions = [...feature.openQuestions.filter((q) => !infoQuestions.includes(q)), ...(contradicted.length ? [`${contradicted.length} failing test(s) rest on a reading the story doesn't settle: see "Readings the application contradicts"`] : [])];
+  const notTested = [
+    ...uncovered.map((a) => `${a.id} has no test: ${a.text}`),
+    ...untestedSetups.map((u) => `${u.criterion} was not tested for ${u.setup}`),
+    ...unverifiedNfrs.map((n) => `${n.id} (not verified by a test): ${n.text}`),
+    ...(s.skipped ? [`${s.skipped} test(s) did not run`] : []),
+    ...other.map((e) => `${e.scenario} failed for a reason that is not the application's (${cat(e)}${e.final ? '' : ', unconfirmed'}): ${e.requirementRefs.join(', ')} is not judged by it`),
+  ];
   const md: string[] = [
     `# Held-out Evaluation Verdict — ${key}`, '',
     `> **Verdict: ${BADGE[verdict]}** — ${reason}`, '',
+    `**Story:** [${key}](${story.url ?? '#'}) — ${esc(story.summary ?? feature.title)} · **Tests:** ${s.passed} of ${s.total} passed · a recommendation: a person decides, and nothing has been raised in Jira.`, '',
+    `**Findings (${groups.size}):**${groups.size ? '' : ' none: the application did what the story states in every test that ran.'}`, '',
+    ...[...groups].map(([title, g]) => `- **${appIds.get(g[0])}** · ${[...new Set(g.flatMap((e) => e.requirementRefs))].join(', ')} · ${g[0].final?.severity ?? 'unconfirmed'} · ${esc(g[0].final ? title : `${title} (unconfirmed)`)}`),
+    ...(groups.size ? [''] : []),
+    `**Questions for the story's owner (${ownerQuestions.length}):**${ownerQuestions.length ? '' : ' none.'}`, '',
+    ...ownerQuestions.map((q) => `- ${esc(q)}`), ...(ownerQuestions.length ? [''] : []),
+    `**Not tested (${notTested.length}):**${notTested.length ? '' : ' nothing: every criterion has a test that ran.'}`, '',
+    ...notTested.map((n) => `- ${esc(n)}`), ...(notTested.length ? [''] : []),
+  ];
+  const record: string[] = [
+    '---', '', '# The record', '',
+    'Everything below is what the verdict rests on, for whoever wants to check it.', '',
     '| | |', '| --- | --- |',
     `| Story | [${key}](${story.url ?? '#'}) — ${esc(story.summary ?? feature.title)} |`,
     `| Application under test | ${esc(cfg.aut.name)} (profile \`${cfg.autId}\`) — UI ${cfg.aut.baseURL}${cfg.aut.apiBaseURL && cfg.aut.apiBaseURL !== cfg.aut.baseURL ? ` · API ${cfg.aut.apiBaseURL}` : ''} |`,
@@ -292,19 +314,7 @@ export function run({ _, flags }: Args): void {
     `| Generated | ${new Date().toISOString()} |`, '',
   ];
 
-  md.push('> This verdict is the evaluator\'s **recommendation**. Each finding below has requirement traceability, reproduction steps and evidence, so a reviewer can confirm or reject it. Nothing has been raised in Jira; the only Jira activity is this report and a summary comment on the story.', '');
-
-  if (appDefects.length) {
-    md.push('## Findings summary', '', '| ID | Suggested severity | Criteria | Test type | Finding | Tests | Reviewer decision |', '| --- | --- | --- | --- | --- | --- | --- |');
-    for (const [title, g] of groups) {
-      const f = g[0].final;
-      md.push(`| ${appIds.get(g[0])} | ${f?.severity ?? 'TBD'} | ${[...new Set(g.flatMap((e) => e.requirementRefs))].join(', ')} | ${[...new Set(g.map(typeOf))].join(', ')} | ${esc(f ? title : `${title} (unconfirmed)`)} | ${g.map((e) => e.scenario).join(', ')} | ☐ confirm · ☐ reject · ☐ clarify |`);
-    }
-    md.push('');
-  }
-
-  md.push(`## Findings: suspected application defects (${groups.size} root cause(s), ${appDefects.length} failing test(s))`, '');
-  if (!appDefects.length) md.push('_None — the application behaved as the requirement specifies in every executed scenario._', '');
+  if (appDefects.length) md.push(`## The findings in full (${groups.size} root cause(s), ${appDefects.length} failing test(s))`, '');
   for (const [title, g] of groups) {
     const e = g[0];
     const f = e.final;
@@ -337,6 +347,7 @@ export function run({ _, flags }: Args): void {
       '**Reviewer decision:** ☐ Confirm as defect · ☐ Not a defect (explain) · ☐ Requirement needs clarification', '');
   }
 
+  md.push(...record);
   md.push(`## Script defects found and repaired (${repaired.length})`, '');
   if (!repaired.length) md.push('_None confirmed with triage (other mechanics fixed during hardening are in the hardening log)._', '');
   else {

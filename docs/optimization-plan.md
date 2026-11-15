@@ -20,7 +20,7 @@ Work resumes from the first step here that is not done. A gate's figures go besi
 | 1.2 Failures grouped by cause before triage | already in the build: the triage report groups failures by criterion, call and status, and one decision takes a group. Nothing added |
 | 1.3 Mechanical replay of API failure groups | built (`triage --replay`, run by `advance`): a sure API failure whose calls were not sent signed in is sent again outside the test, twice, and confirmed on the same answer; not yet measured. Signed-in calls still go to the triager: the record keeps no token |
 | 1.4 A brief per role, printed by the tool | |
-| 1.5 The one-screen verdict | |
+| 1.5 The one-screen verdict | built: the verdict, each finding in a line, the owner's questions and what was not tested come first; the findings in full follow; the rest is "The record" below. Checked on round 47's TOOL-3 rendered again |
 | 1.6 One knowledge store per application | |
 | 1 Gate | |
 | 2 The oracle as data, and its gate | |

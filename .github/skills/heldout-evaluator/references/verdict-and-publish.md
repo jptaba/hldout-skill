@@ -20,11 +20,12 @@ where everything passed needs no triage by hand; the verdict triages it itself.
 
 ## What `verdict.md` contains (written for a reviewer)
 
-1. **Header**: verdict and reason, story, AUT profile, final run, counts, integrity (with amendment
-   and re-freeze counts), tiers used.
-2. **Findings summary**: ID, suggested severity, criteria, **test type**, finding, tests, and a
-   reviewer-decision checkbox.
-3. **Each finding** (grouped by root cause):
+1. **The first screen**, which answers the reader's questions and holds nothing else: the verdict and its reason,
+   each finding in a line (id, criteria, severity, what is wrong), the questions for the story's owner, and what was
+   not tested.
+2. **The record** starts below the findings: the story, AUT profile, final run, counts, integrity (with
+   amendment and re-freeze counts), tiers used, and items 4 to 9.
+3. **Each finding** (grouped by root cause), right after the first screen:
    - requirement text and **source**
    - test type and layer
    - expected → actual per failing test
