@@ -1,0 +1,13 @@
+{
+  "key": "SHOP-4",
+  "size": "medium",
+  "clean": ["PASS", "PASS_WITH_WARNINGS"],
+  "faults": [
+    { "id": "F09", "storyText": ["A message without a subject is refused with 422 and `{\"subject\": [\"The subject field is required.\"]}`"], "seen": "a message without a subject is refused with \"The selected subject is invalid.\" instead of \"The subject field is required.\"" },
+    { "id": "F10", "storyText": ["From then on the message shows the new status", "one of NEW, IN_PROGRESS or RESOLVED, and gets `{\"success\": true}`"], "seen": "setting RESOLVED answers {\"success\": true} but the message then shows IN_PROGRESS (admin detail after reload, customer's My messages, GET /messages/{id})" },
+    { "id": "F11", "storyText": ["Without signing in the list is refused with 401 and \"Unauthorized\""], "seen": "GET /messages without a token answers 200 with an empty page instead of 401" }
+  ],
+  "traps": [
+    { "kind": "figure-twice", "storyText": ["A message may be up to 255 characters", "A message text of 250 characters is accepted; a longer one is refused"], "expected": "raised as a question for the owner (250 or 255); a refusal of 251-255 characters is not reported as a defect" }
+  ]
+}

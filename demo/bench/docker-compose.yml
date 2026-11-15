@@ -1,0 +1,40 @@
+# The benchmark's application: Practice Software Testing (Toolshop), from its owner's prebuilt images.
+# Its API is published on 8092, not on 8091 where the web shop expects it: the fault proxy (dev/bench/proxy.ts)
+# listens on 8091 and forwards to 8092, so every call of the web shop and of the tests passes through it.
+# No cron service: nothing resets the data in the middle of a run.
+services:
+  laravel-api:
+    image: testsmith/practice-software-testing-sprint5-api
+    environment:
+      - "PHP_OPCACHE_VALIDATE_TIMESTAMPS=1"
+      - "DB_PORT=3306"
+      - "DB_HOST=mariadb"
+      - "host=localhost"
+      - "DISABLE_LOGGING=false"
+    volumes:
+      - laravel-app-code:/var/www
+
+  angular-ui:
+    image: testsmith/practice-software-testing-sprint5-ui
+    ports:
+      - 4200:4200
+    command: >
+      bash -c "ng serve --host 0.0.0.0 --port 4200"
+
+  web:
+    image: testsmith/practice-software-testing-web
+    ports:
+      - 8092:80
+    depends_on:
+      - laravel-api
+
+  mariadb:
+    image: yobasystems/alpine-mariadb:10.6.11
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: toolshop
+
+volumes:
+  laravel-app-code:

@@ -27,7 +27,7 @@ so it stays short. Security rules are in `SECURITY.md`.
 - **File tools only:** change files with Edit/Write, never with `sed`, heredocs or scripts that patch files.
 - **What ships** to adopters (`init`/`update`): `.github/skills/heldout-evaluator/`, `.github/scripts/` and the files
   `SHIPPED` in `setup/update.ts` lists. Everything else here is maintainer-only (`tests/repo-boundary.test.ts`): the
-  developer tools in `dev/`, the demo stories and answer keys in `demo/`.
+  developer tools in `dev/`, the benchmark's stories, keys and application in `demo/`.
 - **Secrets:** probes and tests reference secrets as `${env:NAME}` or `${vault:path#field}`, never their values; the
   evaluator redacts and scrubs what it writes.
 
@@ -44,15 +44,14 @@ so it stays short. Security rules are in `SECURITY.md`.
 - They name commands, never script files, and folders by phase (`4-hardening/`), never paths built from a profile.
 - Every `heldout <command> --flag` they write must exist (`tests/agent-files.test.ts`).
 - The held-out rules (who may see what: the test author never sees the application, the evaluator never reads an
-  answer key; WHAT vs HOW) are not weakened. Their detail is in the skill's references; answer keys are
+  answer key; WHAT vs HOW) are not weakened. Their detail is in the skill's references; the benchmark's keys are
   maintainer-only (`demo/`).
 
 ## Testing
 - New behaviour ships with tests; a bug fix with a regression test that fails without the fix.
   Never declare done on a red suite.
-- A round (`dev/round.ts`) proves agent-facing changes; unit tests alone don't.
+- The benchmark (`dev/bench.ts`) proves agent-facing changes; unit tests alone don't.
 
 ## Never
 - Weaken, skip or delete a test to go green.
-- Change an answer key in `demo/answer-keys/` without its new pin (`npx tsx dev/answer-keys.ts --pin`, in the same
-  commit).
+- Change a story, its key (`demo/bench/keys/`) or a fault to make a benchmark score better.

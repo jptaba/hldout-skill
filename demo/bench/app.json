@@ -1,0 +1,14 @@
+{
+  "name": "Toolshop",
+  "baseUrl": "http://localhost:4200/",
+  "apiBaseUrl": "http://localhost:8091",
+  "upstream": "http://localhost:8092",
+  "composeProject": "bench",
+  "freshData": ["docker", "exec", "bench-laravel-api-1", "php", "artisan", "migrate:fresh", "--seed", "--force"],
+  "passwordEnv": "BENCH_APP_PASSWORD",
+  "accounts": [
+    { "username": "admin@practicesoftwaretesting.com", "role": "admin", "shared": true },
+    { "username": "customer@practicesoftwaretesting.com", "role": "customer" },
+    { "username": "customer2@practicesoftwaretesting.com", "role": "customer" }
+  ]
+}

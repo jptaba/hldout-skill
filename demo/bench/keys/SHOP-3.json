@@ -1,0 +1,13 @@
+{
+  "key": "SHOP-3",
+  "size": "medium",
+  "clean": ["PASS", "PASS_WITH_WARNINGS"],
+  "faults": [
+    { "id": "F06", "storyText": ["Any quantity from 1 to 99 can be added at once, and any quantity from 1 to 99 can be set for a line"], "seen": "adding or setting a quantity of exactly 99 is refused with 422 \"The quantity field must not be greater than 98.\" (also as an error toast in the shop)" },
+    { "id": "F07", "storyText": ["A quantity below 1 is refused with 422 and \"The quantity field must be at least 1.\"", "After a refusal the line keeps the quantity it had"], "seen": "PUT /carts/{id}/product/quantity with quantity 0 answers 200 and the line's quantity becomes 1" },
+    { "id": "F08", "storyText": ["a 15% discount applies", "a line \"Discount (15%)\" with the amount", "reports `additional_discount_percentage` 15"], "seen": "a cart with a rental and a non-rental product shows \"Discount (10%)\" and GET /carts/{id} reports 10" }
+  ],
+  "traps": [
+    { "kind": "no-oracle", "storyText": ["When a product cannot be added, the shop shows an appropriate message"], "expected": "raised as a question for the owner (which products are limited and what the message is); not reported as a defect" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "key": "SHOP-2",
+  "size": "small",
+  "clean": ["PASS"],
+  "faults": [
+    { "id": "F04", "storyText": ["or 409 with \"Duplicate Entry\" when the product already is their favourite", "Then the message \"Product already in your favorites list.\" appears"], "seen": "adding a product that already is a favourite answers 201 and the shop says \"Product added to your favorites list.\"" },
+    { "id": "F05", "storyText": ["And it is still gone after I reload the page", "the answer is 204 No Content and GET /favorites no longer lists it"], "seen": "removing a favourite answers 204 but the favourite is still listed (on My favorites right after the click)" }
+  ],
+  "traps": []
+}

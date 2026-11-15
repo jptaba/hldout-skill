@@ -1,0 +1,11 @@
+{
+  "key": "SHOP-1",
+  "size": "small",
+  "clean": ["PASS"],
+  "faults": [
+    { "id": "F01", "storyText": ["both limits belong to the range: a product that costs exactly the minimum or exactly the maximum is listed too"], "seen": "a product priced exactly at the range's maximum (e.g. 12.18 with between=price,10.07,12.18) is missing; total drops from 5 to 4" },
+    { "id": "F02", "storyText": ["each page continues where the previous one stopped, so paging through all pages shows every matching product exactly once"], "seen": "with a price range set, page 2 and later show the products of page 1 again (current_page 1)" },
+    { "id": "F03", "storyText": ["price high to low the most expensive first"], "seen": "sorting by price high to low lists the cheapest product first" }
+  ],
+  "traps": []
+}

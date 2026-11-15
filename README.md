@@ -292,20 +292,14 @@ This repository tests the skill on one application, [Practice Software Testing](
 authentication (`/totp/setup`, `/totp/verify`). One application is enough to exercise UI tests, API tests and
 signed-in journeys.
 
-Running a story needs `TS_USER_PASSWORD` in `.env`, the password of the accounts the tests create
-(`npm run heldout -- secret TS_USER_PASSWORD --generate`).
-
-**Stories to try.** [demo/stories/](demo/stories/) holds eleven Toolshop stories: catalogue search, sorting and category
-filter (TOOL-1), customer registration, sign-in and account protection (TOOL-2), a shopping cart for guests (TOOL-3),
-favourites for signed-in customers, with its API defined on a linked Confluence page (TOOL-4), three stories in awkward
-shapes — shop by brand as informal bullets with no AC field (TOOL-5), a category tree whose linked API reference is
-mostly about other things and whose one missing status sits behind a non-Confluence link (TOOL-6), and account and
-invoice access to be validated for every user type and data set (TOOL-7, which needs existing accounts with roles) —
-two loosely written stories that go deep into the application, each needing a chain of dependent data over the web
-shop and the API — stocking a product line as an administrator, from category and brand to a customer's cart (TOOL-8),
-and a customer's question from the contact form through an administrator's answer to its status (TOOL-9) —
-and release-candidate checks that repeat TOOL-1 and TOOL-3 on a release-candidate environment (TOOLB-1, TOOLB-2).
-The application can be started on your own machine and thrown away afterwards:
+**The benchmark.** The application runs on your machine behind a proxy that switches known faults on
+([dev/bench/faults.ts](dev/bench/faults.ts)), so what an evaluation should find is known exactly.
+[demo/stories/](demo/stories/) holds five stories written by an author who had not read the evaluator: price range,
+sorting and paging (SHOP-1), favourites (SHOP-2), cart quantities and discounts (SHOP-3), contact messages and their
+handling by an administrator (SHOP-4), and checkout, payment and invoices with its rules on a linked page (SHOP-5).
+Each has a key ([demo/bench/keys/](demo/bench/keys/)): the faults that break it, the text of the story each one
+contradicts, and the traps in its wording. `npx tsx dev/bench.ts` makes a project, evaluates a story with nobody
+watching, keeps what it cost, and scores the verdict by running the tests again with each fault alone:
 [demo/RUNNING-LOCALLY.md](demo/RUNNING-LOCALLY.md).
 
 The evaluator is being redesigned from its goal: [docs/optimization-plan.md](docs/optimization-plan.md) has the plan

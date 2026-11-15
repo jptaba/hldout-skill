@@ -11,11 +11,11 @@ Work resumes from the first step here that is not done. A gate's figures go besi
 | Step | State |
 | --- | --- |
 | 0.1 Clean slate: scorecard, round history, the guide's and README's results, the old end-to-end recording | done |
-| 0.2 The benchmark's tools: the application with switchable faults, a headless run with its cost, an exact score | |
-| 0.3 New stories and their keys, by an author who has not read the evaluator; the old stories and keys removed | |
+| 0.2 The benchmark's tools: the application with switchable faults, a headless run with its cost, an exact score | done: `dev/bench.ts`, `dev/bench/`, `demo/bench/` |
+| 0.3 New stories and their keys, by an author who has not read the evaluator; the old stories and keys removed | done: SHOP-1 to SHOP-5, 14 faults; the web-shop side of the stories was written from the application's source, not seen in a browser |
 | 0.4 Baseline: every story once, two stories three times (the noise band) | |
 | 0.5 Gate: a deliberately broken build scores visibly worse | |
-| 0.6 The owner's GitHub Copilot checklist, written; run by the owner | |
+| 0.6 The owner's GitHub Copilot checklist, written; run by the owner | written: `docs/copilot-checklist.md`; not yet run |
 | 1.1 Check budget and "fewest checks that could falsify" | |
 | 1.2 Failures grouped by cause before triage | |
 | 1.3 Mechanical replay of API failure groups | |

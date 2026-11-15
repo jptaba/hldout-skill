@@ -1,0 +1,13 @@
+{
+  "key": "SHOP-5",
+  "size": "large",
+  "clean": ["PASS", "PASS_WITH_WARNINGS"],
+  "faults": [
+    { "id": "F12", "storyText": ["`account_number`: digits only", "or 422 with an error per wrong field"], "seen": "POST /payment/check for bank-transfer with an account number containing letters answers 200 \"Payment was successful\"" },
+    { "id": "F13", "storyText": ["places the order and answers 201 Created with the new invoice"], "seen": "POST /invoices answers 200 instead of 201 (the order itself is placed)" },
+    { "id": "F14", "storyText": ["The invoice total is the subtotal minus these discounts", "Total = subtotal − combined discount − eco-friendly discount"], "seen": "an invoice with an eco-friendly discount shows a total that leaves it out (e.g. 38.51 instead of 36.58) in GET /invoices/{id} and its detail page, while the list shows 36.58" }
+  ],
+  "traps": [
+    { "kind": "contradiction", "storyText": ["When more than half of the items are eco-friendly", "when at least half of the items (counted by quantity) have CO2 rating A or B"], "expected": "raised as a question for the owner; no eco-friendly discount at exactly half is not reported as a defect" }
+  ]
+}

@@ -18,7 +18,7 @@ describe('what ships and what is maintainer-only', () => {
     for (const f of maintainer) assert.ok(fs.existsSync(path.join(REPO, f)), `${f} exists`);
     assert.deepEqual(maintainer.filter(shippedBy), []);
     const devAndDemo = [...list('dev'), ...list('demo')];
-    assert.ok(devAndDemo.includes('dev/score.ts') && devAndDemo.includes('demo/answer-keys/HASHES'));
+    assert.ok(devAndDemo.includes('dev/bench/score.ts') && devAndDemo.includes('demo/bench/keys/SHOP-1.json'));
     assert.deepEqual(devAndDemo.filter(shippedBy), []);
     assert.deepEqual(list('demo').filter((f) => f.endsWith('.ts')), [], 'code lives in dev/, data in demo/');
   });

@@ -25,7 +25,7 @@ function story(lines: string[]): string {
 describe('untrusted content', () => {
   it('flags none of the demo stories (the bar before it ships)', () => {
     const dirs = fs.readdirSync(STORIES).map((d) => path.join(STORIES, d)).filter((d) => fs.existsSync(path.join(d, 'story.md')));
-    assert.ok(dirs.length >= 14, `only ${dirs.length} demo stories found`);
+    assert.ok(dirs.length >= 5, `only ${dirs.length} demo stories found`);
     for (const d of dirs) assert.deepEqual(injectionSuspects(d).map((l) => l.text), [], d);
   });
 
