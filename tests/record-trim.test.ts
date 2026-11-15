@@ -1,5 +1,5 @@
 /**
- * What outlives the runs' records once the verdict is due (specs/001-phase-separation, US2): every run's result in the
+ * What outlives the runs' records once the verdict is due: every run's result in the
  * history, the repairs in the decisions, run numbers never used twice, and the probes a kept text names.
  */
 import { spawn, spawnSync } from 'node:child_process';

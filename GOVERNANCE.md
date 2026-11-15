@@ -6,16 +6,16 @@ waiting. This file is the same in every project that uses the agent setup; the p
 costs: `.agents/policy/guardrails.md`.
 
 ## Roles
-- **Owner:** the one person named by `owner` in `.agents/config.json` (mirrored in `.github/CODEOWNERS`).
+- **Owner:** the contact named by `owner` in `.agents/config.json` (mirrored in `.github/CODEOWNERS`). A contact, not
+  an approver: with `gate: "agent"`, no change waits for the owner.
 - **Implementer:** an agent or a person working under a contract. Never approves its own change.
 - **Reviewer:** the `code-reviewer` agent, in a fresh context, with no tool that writes files. Its only write is its
   verdict, recorded by `agentctl review` for the exact staged tree.
 - **Gatekeeper:** set by `gate` in `.agents/config.json`.
-  - `"agent"`: the maintainer agent, on the owner's behalf. It restates each change in its own words and names what
-    was not checked (the `Gate:` trailer); the hook accepts that only with the independent reviews the change's tier
-    needs on record, so no change passes on its author's word alone.
-  - `"human"`: a person named in `approvers` reads the packet and approves (`Approved-by:`). Agents never write that
-    trailer.
+  - `"agent"`: the maintainer agent restates each change in its own words and names what was
+    not checked (the `Gate:` trailer); the hook accepts that with the proof, and the reviews the change's tier needs,
+    on record.
+  - `"human"`: a person named in `approvers` reads the packet and approves (`Approved-by:`). Optional.
 - **What is checked, and what is declared.** Locally, proof, contracts and reviews are recorded by the exact tree's
   hash, and the hooks check them. In CI, each pushed commit's trailers are checked for consistency with its own tree
   and contract, and the proof runs again on the final tree; trailers written by hand and consistent with the commit
@@ -24,9 +24,9 @@ costs: `.agents/policy/guardrails.md`.
   cryptography.
 
 ## Change control
-- A change implements a **contract**: a spec (a project on Spec Kit: `specs/<feature>/spec.md`), a plan section, a
-  finding, or a file in `docs/contracts/` (the `contract` skill). Its SHA-256 is bound into the evidence; a packet
-  against another version of the contract is stale.
+- A change implements a **contract**: a plan section, a finding, or a file in `docs/contracts/` (the `contract`
+  skill). Its SHA-256 is bound into the evidence; a packet against another version of the contract is stale.
+- A review that requests changes vetoes its tree, in any tier that needs reviews; a changed tree needs new reviews.
 - **Tiers** (`tiers` in `.agents/config.json`) decide what a change needs, by the files it touches: whether it needs
   proof, how many independent reviews and from how many models, whether it passes the gate, whether it names a
   contract. The strictest tier any file falls in applies.

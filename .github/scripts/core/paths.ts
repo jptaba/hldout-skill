@@ -7,7 +7,7 @@ import { ROOT, readJson } from './files';
 import type { HeldoutConfig } from './profile';
 
 /**
- * The phase folders of a story, one per producer, in the order the phases run (specs/001-phase-separation): each
+ * The phase folders of a story, one per producer, in the order the phases run: each
  * holds only what that phase hands the later ones. The kept record (output/<profile>/<KEY>/) and the scratch area
  * (.heldout/<profile>/<KEY>/) use the same names.
  */

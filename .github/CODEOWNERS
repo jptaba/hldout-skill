@@ -1,2 +1,2 @@
-# One named owner. The maintainer agent acts as gatekeeper on the owner's behalf (GOVERNANCE.md).
+# One named owner, the project's contact. The gatekeeper is set in .agents/config.json (GOVERNANCE.md).
 * @jptaba

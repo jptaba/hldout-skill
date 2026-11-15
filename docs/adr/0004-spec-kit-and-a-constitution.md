@@ -1,6 +1,6 @@
 # ADR 0004 — Spec Kit for every change, under a constitution
 
-- Status: accepted
+- Status: superseded by ADR 0006 (2026-11-10)
 - Date: 2026-10-26
 
 ## Context

@@ -1,5 +1,5 @@
 /**
- * No saved secret in a report (specs/014-no-secret-in-a-report): what `redact` hides, what is scrubbed, and real chains
+ * No saved secret in a report: what `redact` hides, what is scrubbed, and real chains
  * against a local server, read back from the report and the log.
  */
 import { spawn, spawnSync } from 'node:child_process';

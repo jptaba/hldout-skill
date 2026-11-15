@@ -47,10 +47,10 @@ describe('agent files', () => {
     assert.ok(!fs.readFileSync(path.join(references, 'data-and-journeys.md'), 'utf8').includes('--add-existing'), 'the recipe lives in accounts.md alone');
   });
 
-  it('sends the agents after the freeze to the application map and its rules, and those before it to the overview alone (specs/007-application-map, specs/017-application-knowledge)', () => {
+  it('sends the agents after the freeze to the application map and its rules, and those before it to the overview alone', () => {
     const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
     for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
-      // One command reads all of it (specs/018-lean-skill-one-writer); the parts are for a map too large to print whole.
+      // One command reads all of it; the parts are for a map too large to print whole.
       for (const use of ['heldout -- map KEY`', 'map KEY --domain <domain>', '--add', '--stale <id>', '--rules', 'map KEY --rule "']) assert.ok(read(f).includes(use), `${f}: ${use}`);
       // The overview has one writer, setup: a story's agent marks an entry stale and says what is missing.
       assert.ok(!read(f).includes('--about'), `${f} names no way to add to the overview`);
@@ -99,7 +99,7 @@ describe('agent files', () => {
     }
   });
 
-  it('the skill and its agents fit what both apps load (specs/018-lean-skill-one-writer)', () => {
+  it('the skill and its agents fit what both apps load', () => {
     // GitHub Copilot and Claude Code: a skill's name is its folder's, its description at most 1024 characters.
     const skill = frontmatter(path.relative(REPO, path.join(SKILL_DIR, 'SKILL.md')));
     assert.equal(skill.name, path.basename(SKILL_DIR));
@@ -171,7 +171,7 @@ describe('agent files', () => {
     assert.equal(ROLES['heldout-contract-reviewer'].writes, 'create');
   });
 
-  it('Copilot\'s coordinator calls the phase agents only, with its own tools and no bridge (specs/016-coordinator-agent)', () => {
+  it('Copilot\'s coordinator calls the phase agents only, with its own tools and no bridge', () => {
     const text = fs.readFileSync(path.join(REPO, COORD), 'utf8');
     assert.ok(AGENT_FILES.includes(COORD), 'shipped');
     assert.deepEqual(toolProblems(COORD, text), []);
@@ -201,7 +201,7 @@ describe('agent files', () => {
     assert.equal(nameClashes([['.github/agents/x.agent.md', '---\nname: heldout-evaluator\n---\n']]).length, 1);
   });
 
-  it('both apps approve edits in the record, the scratch area and the journeys, and nothing wider (specs/016-coordinator-agent)', () => {
+  it('both apps approve edits in the record, the scratch area and the journeys, and nothing wider', () => {
     const json = (f: string) => JSON.parse(fs.readFileSync(path.join(REPO, f), 'utf8'));
     const edits = (json('.claude/settings.json').permissions.allow as string[]).filter((r) => r.startsWith('Edit'));
     assert.deepEqual(edits.sort(), ['Edit(/.heldout/**)', 'Edit(/journeys-*/**)', 'Edit(/journeys/**)', 'Edit(/output/**)']);
@@ -246,7 +246,7 @@ describe('agent files', () => {
     assert.ok(early.some((p) => p.includes('unknown frontmatter key mcpServers')), 'the lines after it are still read');
   });
 
-  it('each subagent names only the phase folders of its inputs and its own output (specs/001-phase-separation)', () => {
+  it('each subagent names only the phase folders of its inputs and its own output', () => {
     const allowed: Record<string, string[]> = {
       'heldout-contract-extractor': ['1-requirement', '2-contract'],
       'heldout-contract-reviewer': ['1-requirement', '2-contract'],

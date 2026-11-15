@@ -494,7 +494,7 @@ export async function run({ flags, argv }: Args): Promise<void> {
   const secrets = [...new Set([...[...used.matchAll(/\$\{(?:env|vault):[^}]+\}/g)].map((m) => expandSecrets(m[0])).filter((v) => !v.startsWith('${')),
     ...Object.values(loadedVaultSecrets())].filter((v) => v.length >= 3))];
   // A secret --save found isn't kept in the report either, or in a saved value that holds it: a page's answer or a step
-  // may show it. Its value is known only now, so what was clipped before can leave its first part (spec 014's Assumptions).
+  // may show it. Its value is known only now, so what was clipped before can leave its first part.
   const found = Object.values(savedSecrets).flat();
   const holding = Object.keys(saved).filter((k) => scrubValues(saved[k], found) !== saved[k]);
   for (const k of holding) delete saved[k];

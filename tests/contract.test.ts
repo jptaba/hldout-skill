@@ -99,7 +99,7 @@ describe('requirement contract', () => {
     for (const code of ['quote-not-found', 'no-outcome', 'endpoint-undeclared', 'source-unread']) assert.ok(f.includes(code), code);
   });
 
-  it('refuses a contract that rests on the application\'s overview or knowledge (specs/017-application-knowledge)', () => {
+  it('refuses a contract that rests on the application\'s overview or knowledge', () => {
     const dir = fixture();
     const known = { knowledgeIds: ['O1a2b3c', 'B9f8e7d'] };
     for (const named of ['as O1a2b3c says', 'B9f8e7d', 'application-map/shop/app.yml', 'npm run heldout -- map ABC-9 --overview']) {

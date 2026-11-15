@@ -6,7 +6,6 @@
     { "name": "tests", "run": "npm run test:skill" }
   ],
   "gate": "agent",
-  "approvers": ["@jptaba"],
   "branchPolicy": "proof",
   "maxFileBytes": 1048576,
   "packet": ".agents/runs/packet.md",
@@ -17,7 +16,6 @@
       "name": "guardrail",
       "match": [
         ".agents/**",
-        ".specify/**",
         ".githooks/**",
         ".github/agents/**",
         ".github/skills/**",
@@ -57,7 +55,7 @@
         "dev/score*.ts",
         "tests/answer-keys.test.ts"
       ],
-      "proof": true, "reviews": 2, "models": 1, "gate": true, "contract": true
+      "proof": true, "reviews": 1, "models": 1, "gate": true, "contract": true
     },
     {
       "name": "docs",
@@ -67,7 +65,7 @@
     {
       "name": "code",
       "match": ["**"],
-      "proof": true, "reviews": 1, "gate": true, "contract": true
+      "proof": true, "reviews": 0, "gate": true, "contract": true
     }
   ]
 }

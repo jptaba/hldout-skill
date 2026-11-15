@@ -1,6 +1,6 @@
 # ADR 0002 — The agent setup, with the maintainer agent as gatekeeper
 
-- Status: accepted
+- Status: accepted; the tiers' review counts amended by ADR 0006 (2026-11-15)
 - Date: 2026-10-18
 
 ## Context

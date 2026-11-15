@@ -1,6 +1,6 @@
 /**
- * What a person sees of an application before signing in, as the material for its overview
- * (specs/017-application-knowledge): the start page's title, headings and links, the sign-in form's fields (labels and
+ * What a person sees of an application before signing in, as the material for its overview:
+ * the start page's title, headings and links, the sign-in form's fields (labels and
  * kinds, never a value), the calls the page makes to its API, and the API's own description when it serves one. It
  * signs in nowhere and only reads: every HTTP request that would change something (a page's script posting) is
  * aborted, service workers are blocked, a WebSocket is never connected, and a sign-in link that signs in by itself is

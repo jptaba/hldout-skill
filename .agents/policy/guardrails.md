@@ -14,7 +14,7 @@ CI runs the proof again and audits every commit a push or pull request brings.
 | A proof of something other than what is staged | Refused | `verify` refuses unstaged or untracked files, and fails if a step rewrote the tree | checked | none |
 | A contract changed after it was proven, or unreadable | Block | commit-msg recomputes the section's hash from the version being committed | checked | < 0.1 s |
 | Too few approving reviews, or too few models | Block | commit-msg (ledger, by tree hash) | checked | < 0.1 s |
-| A review that requested changes | Blocks that tree for good: asking again can't overturn it, only a changed tree can (a BLOCKED review lapses once a proof is recorded after it) | commit-msg (ledger) | checked | none |
+| A review that requested changes (in a tier that needs reviews) | Blocks that tree for good: asking again can't overturn it, only a changed tree can (a BLOCKED review lapses once a proof is recorded after it) | commit-msg (ledger) | checked | none |
 | An approval without a passing proof for the same tree | Refused | `agentctl review` | checked | none |
 | A review of one tree used for another | Impossible | reviews are recorded by tree hash; restaging needs new reviews | checked | none |
 | A pushed commit whose trailers are missing, malformed, or for another tree or contract version | Fails CI | `agentctl ci --audit`: each commit's `Proof` and `Review` trailers must name its own tree, its `Contract` hash its own version of the section | checked | CI time |

@@ -1,9 +1,9 @@
 /**
- * What an application is, and what is known of its business: application-map/<profile>/app.yml, beside the domain map
- * (specs/017-application-knowledge). Two parts, two kinds of reader:
+ * What an application is, and what is known of its business: application-map/<profile>/app.yml, beside the domain map.
+ * Two parts, two kinds of reader:
  * - the overview (purpose, areas, kinds of user, sign-in, API, terms): every agent reads it, before a story's freeze
  *   too, so it holds the application's words and shape and never an expected value, a rule or a message, and is
- *   written at setup only (specs/018-lean-skill-one-writer);
+ *   written at setup only;
  * - the rules, required by an earlier story's requirement or observed in the application: read after the freeze only,
  *   as the domain map is. Neither is ever evidence for a story: that is its own contract, probe or run.
  * One entry per line in YAML flow style (a JSON object), so two branches merge by keeping both sides' lines.
@@ -147,7 +147,7 @@ export const readOverview = (cfg: Pick<HeldoutConfig, 'autId'>): OverviewEntry[]
 export const hasOverview = (cfg: Pick<HeldoutConfig, 'autId'>): boolean => readOverview(cfg).length > 0;
 
 /**
- * An overview entry, written at setup: before a story or between stories, never by a story (specs/018). What every
+ * An overview entry, written at setup: before a story or between stories, never by a story. What every
  * agent reads before a freeze has one writer, at one time, so a story's agents only mark an entry stale. An entry a
  * probe marked stale is restored by saying it again: a person decides it holds after all, and is told whose mark
  * they overrode (`restored`, which the file doesn't keep).

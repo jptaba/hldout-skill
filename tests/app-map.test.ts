@@ -1,6 +1,5 @@
 /**
- * The application map: what a probe proved, kept per application and domain, refused before a story's freeze
- * (specs/007-application-map).
+ * The application map: what a probe proved, kept per application and domain, refused before a story's freeze.
  */
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';

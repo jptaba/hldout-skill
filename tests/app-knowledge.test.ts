@@ -1,5 +1,5 @@
 /**
- * What an application is and what is known of its business (specs/017-application-knowledge): the overview every
+ * What an application is and what is known of its business: the overview every
  * agent reads, the rules read after a freeze, the survey that gives the overview its material.
  */
 import { spawnSync } from 'node:child_process';

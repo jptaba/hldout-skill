@@ -1,9 +1,8 @@
 # AGENTS.md
 
 The rules of this project for any agent: the held-out evaluator skill. Every agent app loads this file each session,
-so it stays short. With `.agents/config.json` (owner, proof steps, tiers, gate) and the constitution
-(`.specify/memory/constitution.md`, the principles these rules detail) it is all that is project-specific in the agent
-setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` are the same in any project.
+so it stays short. With `.agents/config.json` (contact, proof steps, tiers, gate) it is all that is project-specific in
+the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` are the same in any project.
 
 ## Build and test
 - Install: `npm ci` (Node 20.11+). Typecheck: `npm run typecheck`. Tests: `npm run test:skill`.
@@ -11,13 +10,14 @@ setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` a
 - Hooks, once per clone: `git config core.hooksPath .githooks`.
 
 ## How a change is made
-- A change starts with `/speckit-specify` (ADR 0004); its spec is the contract. A follow-up may name a section of an
-  existing spec: a heading or table row (`--contract "specs/<feature>/tasks.md#Phase 3"`).
-- `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; two independent ones for guardrail files) →
+- A change starts with its contract (ADR 0006): one screen in `docs/contracts/NNNN-<name>.md` (the `contract`
+  skill), or a section of a plan that says the same: a heading or table row (`--contract "docs/next-steps.md#<row>"`).
+- `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; one review, for guardrail files only) →
   `pr-packet` (the commit carries the `Gate:` restatement; the hooks add the record). `agentctl status` says what the
-  staged change still needs. Docs-only changes need neither proof nor review.
+  staged change still needs. Other code needs proof but no review; docs-only changes need neither.
 - Commit and push at each green point: small, focused commits on `master`.
-- What is still open is in `docs/next-steps.md`; finished plans and contracts are not kept (git history has them).
+- What is still open is in `docs/next-steps.md`; finished plans and contracts are not kept (git history has them):
+  a change removes the contract of the one before it.
 
 ## Models
 - Every agent runs on Opus (Copilot lists start with Claude Opus; Claude Code bridges say `opus`). Sonnet is only a
@@ -27,6 +27,8 @@ setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` a
 
 ## Rules of this project
 - **Greenfield:** no backward-compatibility shims, deprecated aliases or migration code.
+- **Lean:** contracts, plans, prompts and instruction files carry only what the change needs; one fact lives in one
+  place and is referenced, not copied.
 - **AUT-agnostic:** the skill never names an application, its routes, fields or values. Demo applications appear only
   under `demo/` and in docs about rounds.
 - **Agent-agnostic:** "Opus" for the model; GitHub Copilot and Claude Code named together where the app matters.
@@ -49,12 +51,14 @@ setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` a
 
 ## Agent and skill files (`.github/agents/`, `.github/skills/`)
 - They name commands, never script files, and folders by phase (`4-hardening/`), never paths built from a profile.
-  Spec Kit's vendored `speckit-*` skills, pinned and unedited, are exempt (ADR 0004).
 - Every `heldout <command> --flag` they write must exist (`tests/agent-files.test.ts`).
-- A held-out rule (who may see what; WHAT vs HOW) is a guardrail: its change needs two reviews.
+- A held-out rule (who may see what: the test author never sees the application, the evaluator never reads an answer
+  key; WHAT vs HOW) is a guardrail: its change needs a review. The access rules' detail is in the skill's
+  references; answer keys are maintainer-only (`demo/`, "Never").
 
 ## Testing
-- New behaviour ships with tests; a bug fix with a regression test. Never declare done on a red suite.
+- New behaviour ships with tests; a bug fix with a regression test that fails without the fix.
+  Never declare done on a red suite.
 - A round (`dev/round.ts`) proves agent-facing changes; unit tests alone don't.
 
 ## Review flags (for any reviewer)
@@ -63,8 +67,8 @@ held-out rule, a command or flag an agent file names that doesn't exist, an `age
 convincing reason.
 
 ## Never
-- Commit with `--no-verify`, approve your own diff, or write an `Approved-by:` trailer.
+- Commit with `--no-verify`, or approve your own diff.
 - Weaken, skip or delete a test to go green.
 - Change an answer key in `demo/answer-keys/` without an ADR and its new pin (`npx tsx dev/answer-keys.ts --pin`, in
-  the same commit; guardrail tier: two reviews). The proof catches a missing pin; the reviewers check for the ADR.
+  the same commit; guardrail tier: a review). The proof catches a missing pin; the reviewer checks for the ADR.
 - Add a dependency the contract doesn't name.

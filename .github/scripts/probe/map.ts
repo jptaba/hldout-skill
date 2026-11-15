@@ -2,7 +2,7 @@
  * The application map: what earlier stories proved about how this application works, by domain, and what is known of
  * the application itself (application-map/<profile>/app.yml): an overview every agent reads, and business rules read
  * after a story's freeze. Everything but the overview, the survey and the setup's overview entries is refused
- * before the story's freeze, and the overview is written with no story (specs/018-lean-skill-one-writer).
+ * before the story's freeze, and the overview is written with no story.
  *
  *   heldout map --survey [--aut id]                          what a person sees before signing in (writes nothing)
  *   heldout map [KEY] --overview [--aut id]                  what the application is: every agent, any time

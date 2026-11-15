@@ -3,7 +3,7 @@
 This file is the same in every project that uses the agent setup; project-specific security rules are in `AGENTS.md`.
 
 ## Reporting
-Report a vulnerability to the owner (`owner` in `.agents/config.json`, mirrored in `.github/CODEOWNERS`) directly,
+Report a vulnerability to the contact (`owner` in `.agents/config.json`, mirrored in `.github/CODEOWNERS`) directly,
 not in a public issue.
 
 ## Secrets

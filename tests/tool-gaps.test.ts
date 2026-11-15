@@ -1,5 +1,5 @@
 /**
- * Small tool gaps agents worked around in rounds (specs/011-round-44-gaps).
+ * Small tool gaps agents worked around in rounds (round 44).
  */
 import { spawn, spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
