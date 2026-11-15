@@ -6,7 +6,7 @@
  *   npx tsx dev/answer-keys.ts            check every key against its pin (exit 1 on a mismatch)
  *   npx tsx dev/answer-keys.ts --pin      write the pins for the keys as they are now
  *
- * Changing a key is a guardrail change (AGENTS.md); its new pin goes in the same commit.
+ * Changing a key needs its new pin (AGENTS.md), in the same commit.
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs';

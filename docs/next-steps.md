@@ -1,7 +1,7 @@
 # Next steps
 
 What is still open, most important first. Finished work is in git history and the guide
-([heldout-evaluator.html](heldout-evaluator.html)); a change starts with its contract (AGENTS.md). A `specs/NNN-…`
+([heldout-evaluator.html](heldout-evaluator.html)). A `specs/NNN-…`
 named below is the spec of a finished change: Spec Kit and its specs were removed on 2026-11-10, and git
 history has them (the last commit with them is `83bf0c2`).
 
