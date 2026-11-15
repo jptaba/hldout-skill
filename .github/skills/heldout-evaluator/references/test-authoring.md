@@ -7,25 +7,39 @@ truly proves) and the requirement source it comes from. Its steps call the appli
 ([journeys.md](journeys.md)); every expectation stays in the test.
 
 `heldout scaffold KEY` writes a head start: the imports, the `ASSUMPTION` / `OPEN-QUESTION` lines of the contract's
-gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`): the first
-pass below. `heldout journeys KEY` lists the journeys you can call.
+gaps, an empty `@req-constants` block, typed endpoint helpers and one stub per criterion (`TODO(test)`): the plain case
+below. `heldout journeys KEY` lists the journeys you can call.
 
-## Two passes: every criterion first, then round the test types
+## The fewest tests that could prove each criterion false
 
-1. **First pass: one test per criterion.** Write, for each AC in the contract's order, the test of the criterion as it
-   is stated: its own journey and outcomes. Its type is what the AC is about (a refusal is `negative`, a limit is
-   `boundary`, an ordinary outcome `functional`). When this pass is done, every AC is covered once.
-2. **Second pass: round robin over the types.** Go round the criteria again, and for each one go through the taxonomy
-   below in its order and ask: *does this AC's wording state or clearly imply this type, and has no test of this AC that
-   type yet*? Add a test for each yes: the limits it names (`boundary`), its refusals (`negative`), who
-   may do it (`security`), what happens when it is sent again (`idempotency`) or at the same moment (`concurrency`), its
-   hand-offs to other ACs (`composition`), UI and API agreeing (`integration`), the answer's shape (`contract`), labels
-   and keyboard (`accessibility`). One more test per round; the next AC; repeat until a full round adds nothing.
-3. **Stop at the requirement.** A type the AC doesn't state or clearly imply is not a test: leave it out. When it
-   matters (no criterion says what deleting another customer's record must answer), name it in your reply as a
-   question for the owner; it may go in the spec as an `// OPEN-QUESTION:` without a gap id, and the verdict lists it
-   for the owner's information. Only the contract's own gaps (`G<n>`), which the reviewer checked, can hold up
-   acceptance. The second pass adds depth to what the story asks for, never new expectations.
+A test exists because something the criterion states could be wrong in the application, never because a test type
+has no test yet. Every test costs a hardening, a run and, when it fails, a triage; ten tests that fail for one cause
+tell the reader what one does. For each AC, in the contract's order, write:
+
+1. **Its plain case:** the criterion as it is stated, its own journey and outcomes.
+2. **Each limit it states:** one table of cases with a row on the limit and a row just past it, and a row for each
+   value the story itself names. One table, never a test per value.
+3. **Each kind of refusal it states:** one test per kind; a table when the story lists several values that are
+   refused the same way.
+4. **What its wording states beyond those**, one test each and only when the wording states or clearly implies it:
+   who may do it, the request sent again or at the same moment, a hand-off to another AC, the page and the API
+   agreeing, the answer's shape, labels and keyboard.
+
+The `@type:` is the label of a test that exists for one of these reasons (a refusal is `negative`, a limit
+`boundary`, an ordinary outcome `functional`); the taxonomy below is not a list to work through.
+
+**The budget: at most 4 tests for a criterion, a table of cases counting as one, and at most 6 rows in a table.**
+Before a fifth, ask what it could show that the four cannot. The same rule at another endpoint, one more invalid
+value of the same kind, the same refusal for another user of the same kind show nothing new: they are a row of a
+table that exists, or nothing. A criterion that truly states more (five refusals, each with its own message) gets
+them, with the reason on a line of the spec: `// BUDGET: AC-3 states five refusals, each with its own message`.
+Without that line the lint warns (`over-budget`).
+
+**Stop at the requirement.** What the AC doesn't state or clearly imply is not a test: leave it out. When it
+matters (no criterion says what deleting another customer's record must answer), name it in your reply as a
+question for the owner; it may go in the spec as an `// OPEN-QUESTION:` without a gap id, and the verdict lists it
+for the owner's information. Only the contract's own gaps (`G<n>`), which the reviewer checked, can hold up
+acceptance.
 
 ## Choosing the type: what the test truly proves
 
@@ -147,11 +161,11 @@ controls in front of it (TLS, gateway rate limits, a WAF) are `nonFunctional` un
 
 ## Rules for what to test
 
-1. **Cover every AC**, first once each, then with the types the requirement implies (the two passes above): limits need
-   `boundary`; "requires a token" needs `security`; "retries are safe" needs `idempotency`; "only one", a stock, a
-   balance or a unique name under simultaneous use needs `concurrency`; ACs that hand data to each other need one
-   `composition` test; field labels or WCAG need `accessibility`; a schema needs `contract`. Add a type only when the requirement states or clearly
-   implies it: an unstated expectation is a gap.
+1. **Cover every AC** with the fewest tests that could prove it false (above): a stated limit is a `boundary` table;
+   "requires a token" a `security` test; "retries are safe" an `idempotency` test; "only one", a stock, a balance or
+   a unique name under simultaneous use a `concurrency` test; ACs that hand data to each other one `composition`
+   test; field labels or WCAG `accessibility`; a schema `contract`. Only what the requirement states or clearly
+   implies: an unstated expectation is a gap.
    **A rule or criterion that names the channels** a feature works in ("in the web application and through the API":
    the contract's `R<n>`, or the criteria it reaches) governs every criterion it reaches, its refusals included: each
    channel gets its own test of each kind of refusal, in the matching `@layer`. The rule reaches every criterion of the

@@ -16,7 +16,7 @@ Work resumes from the first step here that is not done. A gate's figures go besi
 | 0.4 Baseline: every story once, two stories three times (the noise band) | |
 | 0.5 Gate: a deliberately broken build scores visibly worse | |
 | 0.6 The owner's GitHub Copilot checklist, written; run by the owner | written: `docs/copilot-checklist.md`; not yet run |
-| 1.1 Check budget and "fewest checks that could falsify" | |
+| 1.1 Check budget and "fewest checks that could falsify" | built (at most 4 tests a criterion, a table as one; lint `over-budget`); not yet measured. The records asked for in 5.5, read first (rounds 41, 42, 44: 26 findings of PB-1, PB-2, TOOL-8): every finding had a functional, negative, boundary or security test of its own criterion, except one in round 42 raised by two concurrency tests alone, which rounds 41 and 44 raised with boundary and negative tests too. One finding took up to 20 tests (security through the API) |
 | 1.2 Failures grouped by cause before triage | |
 | 1.3 Mechanical replay of API failure groups | |
 | 1.4 A brief per role, printed by the tool | |

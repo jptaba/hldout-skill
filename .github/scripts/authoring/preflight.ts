@@ -35,6 +35,15 @@ export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 
   }
 }
 
+/** The most tests a criterion gets without a stated reason (references/test-authoring.md, "The budget"). */
+export const CHECK_BUDGET = 4;
+
+/** The criteria with more tests than the budget and no `// BUDGET: AC-n …` line in the specs, each with its count. */
+export function overBudget(acs: string[], scenarios: Pick<Scenario, 'acs'>[], src: string): [string, number][] {
+  return acs.map((id): [string, number] => [id, scenarios.filter((s) => s.acs.includes(id)).length])
+    .filter(([id, n]) => n > CHECK_BUDGET && !new RegExp(`//\\s*BUDGET:\\s*${id}\\b`).test(src));
+}
+
 export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnhardened?: boolean; draft?: boolean } = {}): Finding[] {
   const p = evalPaths(cfg, key);
   const out: Finding[] = [];
@@ -100,6 +109,9 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any test`);
 
   const src = specs.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
+  // Every test costs a hardening, a run and a triage: past the budget, the spec says what the criterion states that
+  // needs more. A table of cases is one scenario here, however many rows it has.
+  for (const [id, n] of overBudget(f.acs.map((a) => a.id), f.scenarios, src)) warn('over-budget', `${id} has ${n} tests, more than ${CHECK_BUDGET} — keep the fewest that could prove it false (rows of an existing table, not more tests), or say what it states that needs more: // BUDGET: ${id} …`);
   const journeys = journeysUsedBy(cfg, cfg.autId, specs);
   const journeySrc = journeys.map((a) => fs.readFileSync(a, 'utf8'));
   // A control character in source (a "\b" that became a backspace through a shell edit) silently changes a regex.

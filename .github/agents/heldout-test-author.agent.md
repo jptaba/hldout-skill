@@ -31,9 +31,10 @@ Inputs, for story KEY (given in your task; `npm run heldout -- status KEY` print
 Do this:
 1. `npm run heldout -- scaffold KEY` (a spec skeleton, the test data and the gap lines), then
    `npm run heldout -- journeys KEY` (the journeys the story concerns).
-2. Decide the tests in two passes (reference: "Two passes"): first one test per criterion, the criterion as stated;
-   then go round the criteria again, through the test types in the taxonomy's order, adding a test for each type the
-   AC's wording states or clearly implies and no test covers yet, until a round adds nothing. Each test is one user
+2. Decide the tests (reference: "The fewest tests that could prove each criterion false"): per criterion its plain
+   case, one table for each limit it states, one test for each kind of refusal it states, and one for anything else
+   its wording states. At most 4 for a criterion, a table counting as one, unless a `// BUDGET: AC-n …` line says
+   what the criterion states that needs more. A test type is never a reason for a test. Each test is one user
    journey: `test('SCN-nnn: …', { tag: ['@AC-n', '@type:<t>', '@layer:<l>', '@P1'] }, …)` (one type: what its `[REQ]`
    assertions truly prove; the more specific one if it seems to fit two; two tests if it proves two things; see
    "Choosing the type") with a `// from <source>` line above it and one

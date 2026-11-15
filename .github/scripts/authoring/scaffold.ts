@@ -130,7 +130,7 @@ export function run({ _, flags }: Args): void {
     ...c.acceptanceCriteria.flatMap((ac, i) => [
       `  // from ${ac.source}`,
       // The test type is a judgement about the test you write (a refusal is negative, a limit is boundary…): no default.
-      `  // TODO(test) add '@type:<${TEST_TYPES.join('|')}>' (what this test truly proves); then go round the types for more tests of this criterion`,
+      `  // TODO(test) add '@type:<${TEST_TYPES.join('|')}>' (what this test truly proves); more tests of this criterion only for a limit, a refusal or something else it states (at most 4)`,
       `  test('SCN-${String(i + 1).padStart(3, '0')}: ${shortTitle(ac).replace(/'/g, "\\'")}', { tag: ['@${ac.id}', '@layer:${ac.layer}', '@P1'${open.some((g) => g.required && g.affects.includes(ac.id)) ? ", '@needs-clarification'" : ''}] }, async ({ ${ac.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`,
       `    // TODO(test) journey.step('Given …' / 'When …' / 'Then …') for each step; seed preconditions with seed.* (or a journey); assert with "[REQ ${ac.id}] …" messages${ac.layer !== 'ui' && c.endpoints.length ? ` (API answers: expectResponse(res, { status, body }, '[REQ ${ac.id}] <METHOD /path> …'))` : ''}`,
       ...(ac.outcomes.length ? [`    // Then: ${ac.outcomes.join(' · ')}`] : []),

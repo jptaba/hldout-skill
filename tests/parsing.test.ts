@@ -707,3 +707,13 @@ describe('accounts recipe from an api-probe chain', () => {
     assert.throws(() => recipeFromChain({ steps: [{ method: 'POST', path: 'users', json: { p: '${env:X}' } }] }), /a step saving "id"/);
   });
 });
+
+describe('the budget of tests per criterion', () => {
+  it('names a criterion with more tests than the budget, unless the spec says what needs more', async () => {
+    const { CHECK_BUDGET, overBudget } = await import('../.github/scripts/authoring/preflight');
+    const tests = (ac: string, n: number) => Array.from({ length: n }, () => ({ acs: [ac] }));
+    const scenarios = [...tests('AC-1', CHECK_BUDGET), ...tests('AC-2', CHECK_BUDGET + 1), ...tests('AC-3', CHECK_BUDGET + 3), { acs: ['AC-1', 'AC-12'] }];
+    assert.deepEqual(overBudget(['AC-1', 'AC-2', 'AC-3', 'AC-12'], scenarios, ''), [['AC-1', CHECK_BUDGET + 1], ['AC-2', CHECK_BUDGET + 1], ['AC-3', CHECK_BUDGET + 3]]);
+    assert.deepEqual(overBudget(['AC-1', 'AC-2', 'AC-3'], scenarios, '// BUDGET: AC-3 states seven refusals\n  //BUDGET: AC-12 is not AC-1'), [['AC-1', CHECK_BUDGET + 1], ['AC-2', CHECK_BUDGET + 1]]);
+  });
+});

@@ -236,9 +236,10 @@ specific one (higher in the table: a refused value just outside a limit is `boun
 things is split into two tests. The lint warns when a test's code doesn't match its type (a `concurrency` test that
 sends nothing at the same time, a `composition` that chains no other criterion).
 
-The tests are written in two passes: first one test per acceptance criterion, as it is stated; then round the criteria
-again, through the types below, adding a test for each type the criterion's wording states or clearly implies and no
-test covers yet. A type the story doesn't state or imply becomes a question, not a guessed test.
+A criterion gets the fewest tests that could prove it false: its plain case, a table for each limit it states, a test
+for each kind of refusal it states, and one for anything else its wording states; at most four, a table counting as
+one, unless the spec says what the criterion states that needs more. A type is the label of such a test, never a
+reason to add one, and what the story doesn't state or imply becomes a question, not a guessed test.
 
 | Type | What it proves |
 | --- | --- |

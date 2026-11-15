@@ -59,7 +59,10 @@ export function newRound(args: string[]): string {
   const at = opts.indexOf('--stories');
   const stories = at >= 0 ? opts.splice(at, 2)[1].split(',').map((s) => s.trim()).filter(Boolean) : [];
   fs.mkdirSync(project, { recursive: true });
-  sh('bash', [path.join(REPO, 'setup.sh').split(path.sep).join('/'), '--no-pull', ...opts], project);
+  // Another checkout of the skill (a worktree at an earlier commit) sets the project up when the environment names
+  // one: a build is then measured while the next one is being written here.
+  const skill = process.env.HELDOUT_SKILL_DIR ? path.resolve(process.env.HELDOUT_SKILL_DIR) : REPO;
+  sh('bash', [path.join(skill, 'setup.sh').split(path.sep).join('/'), '--no-pull', ...opts], project);
   for (const key of stories) sh('npm', ['run', 'heldout', '--', 'new', key, ...storyArgs(key)], project);
   console.log(`\n✔ round ${name}: ${project}${stories.length ? ` with ${stories.join(', ')} in its mock Jira` : ''}. Next: open that folder in your agent app (not this repository) and ask for an evaluation of ${stories[0] ?? 'KEY'}`);
   return project;
