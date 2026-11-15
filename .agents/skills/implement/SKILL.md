@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement exactly what a change contract names (a contract file or a plan section) and prove it with the project's proof steps. Use when building or fixing anything in this repository; ends at a proven, staged change ready for independent review, never at a commit you approved yourself.
+description: Implement exactly what a change contract names (a contract file or a plan section) and prove it with the project's proof steps. Use when building or fixing anything in this repository; ends at a proven, staged change ready for independent review.
 ---
 
 # Implement
@@ -20,5 +20,5 @@ description: Implement exactly what a change contract names (a contract file or 
    review: a new tree needs new reviews.
 6. **Then the gate** (the `pr-packet` skill): the commit carries the record and your restatement.
 
-Never: commit with `--no-verify`, approve your own diff, push a red tree, add a dependency the contract doesn't name,
+Never: commit with `--no-verify`, push a red tree, add a dependency the contract doesn't name,
 or widen the task beyond the contract.

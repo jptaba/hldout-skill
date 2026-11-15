@@ -20,7 +20,6 @@ CI runs the proof again and audits every commit a push or pull request brings.
 | A pushed commit whose trailers are missing, malformed, or for another tree or contract version | Fails CI | `agentctl ci --audit`: each commit's `Proof` and `Review` trailers must name its own tree, its `Contract` hash its own version of the section | checked | CI time |
 | A pushed commit made with `--no-verify` and hand-written trailers that are consistent with it | Not detected by the audit | the final tree's proof runs again in CI; the trailers themselves are declarations | declared | — |
 | The reviewer edits code | Prevented | the `code-reviewer` agent has no Write or Edit tool; its shell is read-only by instruction | tools + policy | none |
-| The author approves its own change | Policy, audited | reviews run in another context; reviewer and model are declared in the ledger and the trailers, not authenticated | declared | review time |
 | No restatement by the gatekeeper (`"gate": "agent"`), or no listed person's approval (`"gate": "human"`) | Block | commit-msg (`Gate:` / `Approved-by:` naming exactly one of `approvers`); CI | declared | none |
 | Hooks not installed | Warned | `verify` and `status` say so; CI audits whatever arrives | checked | none |
 | A damaged ledger line (it could have been a veto) | Block | `review` and the hooks refuse until it is repaired; `status` warns | checked | none |

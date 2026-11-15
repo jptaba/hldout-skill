@@ -8,7 +8,7 @@ costs: `.agents/policy/guardrails.md`.
 ## Roles
 - **Owner:** the contact named by `owner` in `.agents/config.json` (mirrored in `.github/CODEOWNERS`). A contact, not
   an approver: with `gate: "agent"`, no change waits for the owner.
-- **Implementer:** an agent or a person working under a contract. Never approves its own change.
+- **Implementer:** an agent or a person working under a contract.
 - **Reviewer:** the `code-reviewer` agent, in a fresh context, with no tool that writes files. Its only write is its
   verdict, recorded by `agentctl review` for the exact staged tree.
 - **Gatekeeper:** set by `gate` in `.agents/config.json`.
@@ -66,5 +66,5 @@ secret scanning, push protection); granting an app or a token scope. An agent pr
   audit; Manage → rollback, incidents.
 - **OWASP Top 10 for LLM and Agentic applications:** LLM01 prompt injection → external content is data, and every
   review claim cites a file, a line or an output; LLM02 sensitive information → the secret scan; LLM03 supply
-  chain → pinned dependencies, skills reviewed like packages; LLM06 excessive agency → a read-only reviewer, no
-  self-approval, tiered gates.
+  chain → pinned dependencies, skills reviewed like packages; LLM06 excessive agency → a read-only reviewer, tiered
+  gates.

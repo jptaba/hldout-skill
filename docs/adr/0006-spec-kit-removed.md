@@ -21,7 +21,8 @@ the commit already say.
   proof, independent review, the gate) and SECURITY.md (secrets, external content as data, least privilege,
   dependencies).
 - The gate is relaxed (2026-11-15): no approvers and no `Approved-by:` rule, the owner a contact only; guardrail files
-  need 1 review, other code none. `agentctl verify --contract` and the `Gate:` trailer stay.
+  need 1 review, other code none, and nothing bans approving your own change. `agentctl verify --contract` and the
+  `Gate:` trailer stay.
 
 ## Consequences
 - One tool fewer to keep pinned, and no exemption for vendored skills in the agent-file rules.

@@ -67,7 +67,7 @@ held-out rule, a command or flag an agent file names that doesn't exist, an `age
 convincing reason.
 
 ## Never
-- Commit with `--no-verify`, or approve your own diff.
+- Commit with `--no-verify`.
 - Weaken, skip or delete a test to go green.
 - Change an answer key in `demo/answer-keys/` without an ADR and its new pin (`npx tsx dev/answer-keys.ts --pin`, in
   the same commit; guardrail tier: a review). The proof catches a missing pin; the reviewer checks for the ADR.
