@@ -37,7 +37,7 @@ interface Entry { scenario: string; status: string; error?: { headline: string }
 
 const REPO = path.resolve(import.meta.dirname, '..');
 const keysDir = KEYS_DIR;
-// A score is measured against a pinned key: an edited one is refused (re-pin it, with its ADR, in the same commit).
+// A score is measured against a pinned key: an edited one is refused (re-pin it in the same commit).
 const unpinned = pinProblems();
 if (unpinned.length) throw new Error(`the answer keys don't match their pins (demo/answer-keys/HASHES):\n  ${unpinned.join('\n  ')}`);
 const pins = readPins();
@@ -138,7 +138,7 @@ for (const k of keys) {
 
 const md = [
   '# Held-out evaluator — scorecard', '',
-  `Generated ${new Date().toISOString()} by \`dev/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation; their \`storyText\` was added later, docs/adr/0005)${from ? `, for the evaluations in ${from}` : ''}.`, '',
+  `Generated ${new Date().toISOString()} by \`dev/score.ts\` from \`demo/answer-keys/*.json\` (written before each evaluation; their \`storyText\` was added later)${from ? `, for the evaluations in ${from}` : ''}.`, '',
   '| Story | AUT | Expected verdict | Actual verdict | Defects found (recall) | False positives | Auto-triage vs confirmed decision |',
   '| --- | --- | --- | --- | --- | --- | --- |', ...rows,
   `| **Total** | | | ${totals.verdictOk}/${totals.stories} verdicts | ${totals.tp}/${totals.expected} (${pct(totals.tp, totals.expected)})${totals.asked ? ` + ${totals.asked} as owner question` : ''}${totals.toRead ? ` · ${totals.toRead} missed to read by hand` : ''} | ${totals.fp} | ${totals.autoAgree}/${totals.autoN} (${pct(totals.autoAgree, totals.autoN)}) · wrong ${totals.autoWrong} |`, '',

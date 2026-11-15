@@ -13,8 +13,8 @@ const REPO = path.resolve(import.meta.dirname, '..');
 const COORD = `.github/agents/${COORDINATOR}.agent.md`;
 /** The phase subagents' Copilot files. */
 const COPILOT = AGENT_FILES.filter((f) => f.startsWith('.github/agents/') && f !== COORD);
-/** Maintainer-only agents, never shipped by init: dev-* ones, and the agent setup's reviewer (.agents/README.md). */
-const DEV = fs.readdirSync(path.join(REPO, '.github', 'agents')).filter((f) => f.startsWith('dev-') || f === 'code-reviewer.agent.md').map((f) => `.github/agents/${f}`);
+/** Maintainer-only agents, never shipped by init: the dev-* ones. */
+const DEV = fs.readdirSync(path.join(REPO, '.github', 'agents')).filter((f) => f.startsWith('dev-')).map((f) => `.github/agents/${f}`);
 /** The Claude Code bridge of a Copilot agent file. */
 const bridgeOf = (f: string) => f.replace('.github/agents/', '.claude/agents/').replace('.agent.md', '.md');
 /** The YAML frontmatter as raw `key: value` lines (values kept as written). */

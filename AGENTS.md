@@ -1,47 +1,38 @@
 # AGENTS.md
 
 The rules of this project for any agent: the held-out evaluator skill. Every agent app loads this file each session,
-so it stays short. With `.agents/config.json` (contact, proof steps, tiers, gate) it is all that is project-specific in
-the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECURITY.md` are the same in any project.
+so it stays short. Security rules are in `SECURITY.md`.
 
 ## Build and test
 - Install: `npm ci` (Node 20.11+). Typecheck: `npm run typecheck`. Tests: `npm run test:skill`.
-- Prove a change (both, bound to the staged tree): `node .agents/scripts/agentctl.mjs verify --contract <file>[#section]`.
-- Hooks, once per clone: `git config core.hooksPath .githooks`.
 
 ## How a change is made
-- A change starts with its contract (ADR 0006): one screen in `docs/contracts/NNNN-<name>.md` (the `contract`
-  skill), or a section of a plan that says the same: a heading or table row (`--contract "docs/next-steps.md#<row>"`).
-- `implement` → `agentctl verify` → the `code-reviewer` agent (a fresh context; one review, for guardrail files only) →
-  `pr-packet` (the commit carries the `Gate:` restatement; the hooks add the record). `agentctl status` says what the
-  staged change still needs. Other code needs proof but no review; docs-only changes need neither.
-- Commit and push at each green point: small, focused commits on `master`.
-- What is still open is in `docs/next-steps.md`; finished plans and contracts are not kept (git history has them):
-  a change removes the contract of the one before it.
+- Make the change, run typecheck and the tests, then commit (the `pr-packet` skill) and push: small, focused commits
+  on `master`. Nothing else stands between a green tree and a push: no hooks, no reviews, no trailers.
+- What is still open is in `docs/next-steps.md`; git history has what is finished.
 
 ## Models
 - Every agent runs on Opus (Copilot lists start with Claude Opus; Claude Code bridges say `opus`). Sonnet is only a
   fallback, for when Opus is unavailable; an agent that only did basic work (just running a command) could run on it,
-  and none of the current agents does. Independence between agents comes from separate contexts, not separate models
-  (ADR 0003).
+  and none of the current agents does. Independence between agents comes from separate contexts, not separate models.
 
 ## Rules of this project
 - **Greenfield:** no backward-compatibility shims, deprecated aliases or migration code.
-- **Lean:** contracts, plans, prompts and instruction files carry only what the change needs; one fact lives in one
-  place and is referenced, not copied.
+- **Lean:** plans, prompts and instruction files carry only what the change needs; one fact lives in one place and is
+  referenced, not copied.
 - **AUT-agnostic:** the skill never names an application, its routes, fields or values. Demo applications appear only
   under `demo/` and in docs about rounds.
 - **Agent-agnostic:** "Opus" for the model; GitHub Copilot and Claude Code named together where the app matters.
 - **No machine paths** (`D:/…`, `C:/Users/…`) in any repository file.
 - **File tools only:** change files with Edit/Write, never with `sed`, heredocs or scripts that patch files.
 - **What ships** to adopters (`init`/`update`): `.github/skills/heldout-evaluator/`, `.github/scripts/` and the files
-  `SHIPPED` in `setup/update.ts` lists. Everything else here, the agent setup included, is maintainer-only
-  (`tests/agent-kit.test.ts`): the developer tools in `dev/`, the demo stories and answer keys in `demo/`.
+  `SHIPPED` in `setup/update.ts` lists. Everything else here is maintainer-only (`tests/repo-boundary.test.ts`): the
+  developer tools in `dev/`, the demo stories and answer keys in `demo/`.
 - **Secrets:** probes and tests reference secrets as `${env:NAME}` or `${vault:path#field}`, never their values; the
   evaluator redacts and scrubs what it writes.
 
 ## Code (`.github/scripts/`, `tests/`)
-- Builtins with the `node:` prefix; no new runtime dependency without a contract naming it.
+- Builtins with the `node:` prefix; no new runtime dependency without a reason given in the commit.
 - A command module exports `spec` and `run`, reads only the flags its spec declares and documents them in its leading
   comment (`tests/dispatcher.test.ts`).
 - Scripts are grouped by phase, and imports follow the phases' order: core ← fetch ← contract ← authoring ← probe
@@ -52,23 +43,16 @@ the agent setup; the skills, the reviewer, `agentctl`, `GOVERNANCE.md` and `SECU
 ## Agent and skill files (`.github/agents/`, `.github/skills/`)
 - They name commands, never script files, and folders by phase (`4-hardening/`), never paths built from a profile.
 - Every `heldout <command> --flag` they write must exist (`tests/agent-files.test.ts`).
-- A held-out rule (who may see what: the test author never sees the application, the evaluator never reads an answer
-  key; WHAT vs HOW) is a guardrail: its change needs a review. The access rules' detail is in the skill's
-  references; answer keys are maintainer-only (`demo/`, "Never").
+- The held-out rules (who may see what: the test author never sees the application, the evaluator never reads an
+  answer key; WHAT vs HOW) are not weakened. Their detail is in the skill's references; answer keys are
+  maintainer-only (`demo/`).
 
 ## Testing
 - New behaviour ships with tests; a bug fix with a regression test that fails without the fix.
   Never declare done on a red suite.
 - A round (`dev/round.ts`) proves agent-facing changes; unit tests alone don't.
 
-## Review flags (for any reviewer)
-An application named inside the skill, an agent app named alone where both apply, a machine path, a weakened
-held-out rule, a command or flag an agent file names that doesn't exist, an `agentctl-allow-secret` marker without a
-convincing reason.
-
 ## Never
-- Commit with `--no-verify`.
 - Weaken, skip or delete a test to go green.
-- Change an answer key in `demo/answer-keys/` without an ADR and its new pin (`npx tsx dev/answer-keys.ts --pin`, in
-  the same commit; guardrail tier: a review). The proof catches a missing pin; the reviewer checks for the ADR.
-- Add a dependency the contract doesn't name.
+- Change an answer key in `demo/answer-keys/` without its new pin (`npx tsx dev/answer-keys.ts --pin`, in the same
+  commit).
