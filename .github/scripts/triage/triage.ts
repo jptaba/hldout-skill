@@ -9,6 +9,10 @@
  *   heldout triage <KEY> --carry-from <run|auto>
  *        → reuse confirmed decisions for failures with an identical signature ("auto" = latest earlier run with confirmations)
  *
+ *   heldout triage <KEY> --replay
+ *        → also send the calls of each sure API failure again outside the test, twice; one that gets the same answer
+ *        both times is reproduced and confirmed as an application defect with no agent (replay.ts says which qualify)
+ *
  *   heldout triage <KEY> --set SCN-002[,SCN-003…] (or SCN-007: every failing row of that outline) --category APPLICATION_DEFECT --severity Major \
  *        --rationale "..." [--evidence "P7 …"] [--action "..."] [--title "..."] [--any-reading [SCN-a,SCN-b]]
  *        → records the evaluator's *confirmed* classification after live re-investigation, in 6-triage/decisions.json.
@@ -31,7 +35,8 @@ import { citeProbes, decisionRestsOnTheMap } from '../core/probe-log';
 import { evalPaths, knowledgeIds, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { CATEGORIES, type ApiExchange, type Category } from '../run/classify';
-import { failureGroups, placesOf, renderTriageMd, replaySlug, signedIn } from './triage-report';
+import { replayPending } from './replay';
+import { failureGroups, likeness, placesOf, renderTriageMd, replaySlug, signedIn } from './triage-report';
 import { pendingOf, readRunRecord, signature, writeRunRecord, type RunRecord, type TriageEntry } from '../run/run-record';
 
 /**
@@ -95,12 +100,12 @@ function writeReport(p: StoryPaths, record: RunRecord): string {
 }
 
 export const spec: CommandSpec = {
-  name: 'triage', group: 'Run', usage: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto]',
+  name: 'triage', group: 'Run', usage: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto] [--replay]',
   about: 'classify failures; record confirmed decisions',
-  flags: ['action', 'any-reading', 'carry-from', 'category', 'evidence', 'rationale', 'run', 'set', 'severity', 'title'],
+  flags: ['action', 'any-reading', 'carry-from', 'category', 'evidence', 'rationale', 'replay', 'run', 'set', 'severity', 'title'],
 };
 
-export function run({ _, flags }: Args): void {
+export async function run({ _, flags }: Args): Promise<void> {
   const key = assertIssueKey(_[0]);
   const cfg = loadConfig({ key });
   const p = evalPaths(cfg, key);
@@ -170,6 +175,16 @@ export function run({ _, flags }: Args): void {
     automatic: triaged.reduce<Record<string, number>>((n, e) => ({ ...n, [e.auto!.category]: (n[e.auto!.category] ?? 0) + 1 }), {}),
     confirmed: triaged.filter((e) => e.final).length, ...(carryFrom ? { carriedFrom: carryFrom } : {}),
   });
+  // What a script can reproduce needs no agent: the calls of a sure API failure, sent again outside the test.
+  if (flags.replay) {
+    const { confirmed, left } = await replayPending(pendingOf(record), likeness);
+    for (const e of confirmed) console.log(`  ⟳ ${e.scenario}: the same answer outside the test, twice — confirmed as an application defect`);
+    if (confirmed.length) {
+      writeRunRecord(file, record);
+      recordEvent(p.history, 'decided', { run: runName, tests: confirmed.map((e) => e.scenario), category: 'APPLICATION_DEFECT', by: 'replay' });
+    }
+    if (left.length) console.log(`  not settled by a replay: ${left.map((l) => `${l.scenario} (${l.why})`).join('; ')}`);
+  }
   // A starting chain for the live replay of each failure whose call was sent signed in.
   const { chains } = placesOf(p, runName);
   const pendingEntries = pendingOf(record);

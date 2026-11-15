@@ -306,7 +306,7 @@ export function run({ _, flags }: Args): void {
       const lastEval = evalRuns.at(-1)!;
       // The automatic classification first (a re-run takes over the decisions confirmed for identical failures): the
       // triager starts from it.
-      if (!readHistory(p.history).some((e) => e.event === 'triaged' && e.run === lastEval)) { heldout('triage', key, '--run', lastEval, ...(evalRuns.length > 1 ? ['--carry-from', 'auto'] : [])); if (!moved()) return handOver('heldout-triager', `Triage run ${lastEval} of ${key}`); continue; }
+      if (!readHistory(p.history).some((e) => e.event === 'triaged' && e.run === lastEval)) { heldout('triage', key, '--run', lastEval, '--replay', ...(evalRuns.length > 1 ? ['--carry-from', 'auto'] : [])); if (!moved()) return handOver('heldout-triager', `Triage run ${lastEval} of ${key}`); continue; }
       return handOver('heldout-triager', `Triage run ${lastEval} of ${key}`, 'each failure reproduced live before it is called a defect');
     }
 

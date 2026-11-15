@@ -84,6 +84,15 @@ disclosed or changed pass. Confirm it as `APPLICATION_DEFECT` with severity Mino
 does not say so (a client can't tell "refused" from "empty"). Say in the rationale that the content checks passed.
 When something *was* disclosed or changed, the severity follows that, not the status.
 
+## What is already confirmed when you start
+
+`advance` runs `triage --replay`: for a failure the automatic pass is sure is an application defect (a requirement
+assertion on an API answer, high confidence, no assumption or open question behind the test, no call sent signed in),
+it sends the test's calls again outside the test, twice. The same answer both times is a live reproduction, and the
+failure is confirmed with that as its evidence. Leave those decisions as they are unless your own probes show the
+test's request was wrong; then record yours over it with `--set`. `triage` prints why each other failure was not
+settled that way.
+
 ## Confirming each failure (mandatory)
 
 1. Go through the failures one group at a time: `heldout triage` numbers the groups, and

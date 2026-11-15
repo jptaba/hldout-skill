@@ -170,7 +170,9 @@ Non-negotiable, for every agent:
   - `heldout integrity --snapshot --reason` re-freezes after a **requirement revision**.
   Both are logged and shown in the verdict. Anything else makes integrity VIOLATED and the verdict INCONCLUSIVE.
 - **No application defect without live reproduction.** The automatic triage is a hypothesis.
-  Reproduce in the browser or with `heldout api-probe` before `--set … APPLICATION_DEFECT`.
+  Reproduce in the browser or with `heldout api-probe` before `--set … APPLICATION_DEFECT`. A sure API failure
+  `advance` reproduces itself: it sends the test's calls again outside the test, twice, and the same answer both
+  times confirms it; the triager gets what that leaves.
 - **The human decides.** The verdict is a recommendation with evidence and a decision checkbox per
   finding. Never create, transition or assign Jira issues.
 - **Bounded repair loop.** At most 3 repair → full re-run cycles in a row. Whatever is still unexplained
