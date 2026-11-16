@@ -73,7 +73,10 @@ export function specFromChecks(c: RequirementContract, at: { key: string; fixtur
   for (const ac of c.acceptanceCriteria) for (const k of ac.checks ?? []) {
     const scn = `SCN-${String(++n).padStart(3, '0')}`;
     const rows = Boolean(k.rows?.length);
-    const rests = (k.restsOn ?? []).map((g) => (gaps.get(g)?.resolution === 'assumed' ? `'@assumes:${g}'` : "'@needs-clarification'"));
+    // Only what is correct can be unsettled: a gap about how the application is operated, or one the sources or
+    // the owner answered, leaves the check's failure a plain failure.
+    const rests = (k.restsOn ?? []).map((g) => gaps.get(g)).filter((g) => g?.kind === 'oracle' && (g.resolution === 'assumed' || g.resolution === 'open'))
+      .map((g) => (g!.resolution === 'assumed' ? `'@assumes:${g!.id}'` : "'@needs-clarification'"));
     const tags = [`'@${ac.id}'`, `'@type:${k.type}'`, `'@layer:${k.layer}'`, "'@P1'", ...new Set(rests)].join(', ');
     const pad = rows ? '  ' : '';
     const step = (kind: string, text: string, body: string[]) => [`${pad}    await journey.step('${kind} ${lit(text)}', async () => {`, ...body.map((b) => `${pad}      ${b}`), `${pad}    });`];

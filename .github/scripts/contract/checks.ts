@@ -111,7 +111,10 @@ export function checkChecks(c: RequirementContract, reqDir: string): ContractFin
       if (!['ui', 'api', 'e2e'].includes(k.layer)) err('check-shape', `${at}: layer is ui, api or e2e`);
       if (!Array.isArray(k.given) || !Array.isArray(k.when) || !k.when?.length) err('check-shape', `${at}: given and when are lists of steps in words, and when has at least one`);
       if (!Array.isArray(k.expect) || !k.expect.length) { err('check-shape', `${at} expects nothing`); continue; }
-      for (const g of k.restsOn ?? []) if (!gaps.has(g)) err('unknown-gap', `${at} rests on ${g}, which is not in gaps[]`);
+      for (const g of k.restsOn ?? []) {
+        if (!gaps.has(g)) err('unknown-gap', `${at} rests on ${g}, which is not in gaps[]`);
+        else if (gaps.get(g)!.kind !== 'oracle') err('rests-on-mechanics', `${at} rests on ${g}, a mechanics gap: restsOn names only oracle gaps (what is correct), never how a step is done`);
+      }
       // A value may also come from the gap the check rests on, once that gap has an answer or an assumption.
       const gapText = (k.restsOn ?? []).map((g) => gaps.get(g)?.value ?? '').join('\n');
       if ((k.rows?.length ?? 0) > ROW_BUDGET) err('over-budget', `${at} has ${k.rows!.length} rows, more than ${ROW_BUDGET}: a row on each limit, one just past it, and the values the story names`);

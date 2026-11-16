@@ -72,6 +72,8 @@ describe('the contract\'s checks', () => {
     assert.deepEqual(codes(contract([k], { gaps: [gap] })), []);
     assert.deepEqual(codes(contract([k], { gaps: [{ ...gap, value: undefined, resolution: 'open' }] })), ['ungrounded-value']);
     assert.deepEqual(codes(contract([k])), ['unknown-gap', 'ungrounded-value']);
+    // How a step is done never unsettles what is expected: a check rests on oracle gaps only.
+    assert.deepEqual(codes(contract([check({ restsOn: ['G1'] })], { gaps: [{ ...gap, kind: 'mechanics', resolution: 'open', value: undefined }] })), ['rests-on-mechanics']);
   });
 
   it('holds a criterion to its budget, and its ids and shape to the rules', () => {
@@ -126,6 +128,15 @@ describe('the spec generated from the checks', () => {
     assert.match(spec, /for \(const \[i, row\] of rowsOf\('C1\.2'\)\.entries\(\)\) \{\n {4}test\(`SCN-002\.\$\{i \+ 1\}: A quantity below 1 isn\\'t taken \(\$\{row\.label\}\)`, \{ tag: \['@AC-1', '@type:boundary', '@layer:ui', '@P1', '@assumes:G1'\] \}, async \(\{ page, api,/);
     assert.match(spec, /\/\/ from story\.md#L3\n {2}\/\/ check C1\.2/);
     assert.match(spec, /\/\/ ASSUMPTION: G1 — the status of a refusal: 401/);
+  });
+
+  it('tags a test as unsettled only for an oracle gap that is assumed or open', () => {
+    const tagsOf = (resolution: 'assumed' | 'open' | 'found-in-requirement', kind: 'oracle' | 'mechanics' = 'oracle') =>
+      /SCN-001[^\n]*tag: \[([^\]]*)\]/.exec(specFromChecks(contract([check({ restsOn: ['G1'] })], { gaps: [{ ...gap, kind, resolution }] }), at))![1];
+    assert.match(tagsOf('assumed'), /'@assumes:G1'$/);
+    assert.match(tagsOf('open'), /'@needs-clarification'$/);
+    assert.match(tagsOf('found-in-requirement'), /'@P1'$/);
+    assert.match(tagsOf('open', 'mechanics'), /'@P1'$/);
   });
 
   it('asserts every expectation by its id and states no expected value in code', () => {
