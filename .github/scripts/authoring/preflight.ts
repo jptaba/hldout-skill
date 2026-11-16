@@ -122,7 +122,9 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   }
   for (const ac of f.acs) {
     const covered = f.scenarios.some((s) => s.acs.includes(ac.id));
-    if (covered && !new RegExp(`\\[REQ [^\\]]*\\b${ac.id}\\b`).test(src)) err('ac-without-req-assertion', `${ac.id} has tests but no "[REQ ${ac.id}]" assertion in the spec — write the tag literally in each assertion message (a helper that builds it from a variable also hides the assertion from the integrity freeze)`);
+    // A spec generated from the contract's checks asserts by reference: expectCheck('C3.1.a', …) is AC-3's assertion.
+    const byReference = new RegExp(`\\bexpectCheck\\(\\s*['"\`]C${ac.id.replace(/^AC-/, '')}\\.\\d+\\.[a-z]['"\`]`).test(src);
+    if (covered && !byReference && !new RegExp(`\\[REQ [^\\]]*\\b${ac.id}\\b`).test(src)) err('ac-without-req-assertion', `${ac.id} has tests but no "[REQ ${ac.id}]" assertion in the spec — write the tag literally in each assertion message (a helper that builds it from a variable also hides the assertion from the integrity freeze)`);
   }
   const stubs = (src.match(/TODO\(test\)/g) ?? []).length;
   if (stubs) err('unfinished-scaffold', `${stubs} TODO(test) marker(s) from "heldout scaffold" remain in the spec — write the journeys and assertions`);

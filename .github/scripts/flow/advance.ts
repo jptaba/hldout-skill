@@ -28,6 +28,7 @@ import { readHistory, recordEvent } from '../core/history';
 import { NON_EVAL_RUN, evalPaths, evalRunsOf, journeyPaths, knowledgeIds, listRuns, moveStrayFiles, moveSupersededRuns, runFile } from '../core/paths';
 import { keepNamedProbes, renumberDuplicateProbes, trimProbeLogs } from '../core/probe-log';
 import type { HeldoutConfig } from '../core/profile';
+import { hasChecks } from '../contract/checks';
 import { checkContract, notEvaluable, openQuestions, readContract, type RequirementContract } from '../contract/contract-model';
 import { checkReview, readReview } from '../contract/evidence';
 import { guessesNotSettled, journeyGuessesNotSettled } from '../hardening/fast-harden';
@@ -263,12 +264,21 @@ export function run({ _, flags }: Args): void {
       const built = checkContract(contract, p.requirement, { apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL, knowledgeIds: knowledgeIds(cfg) }).filter((f) => f.level === 'error');
       if (!contract.acceptanceCriteria.length) return handOver('heldout-contract-extractor', `Build the requirement contract for ${key}`);
       if (built.length) return handOver('heldout-contract-extractor', `Fix the requirement contract of ${key}: ${H} contract ${key} --allow-unreviewed lists ${built.length} error(s)`, built[0].message.slice(0, 160));
+      // The tests are generated from the contract's checks: a contract without them is not finished.
+      if (!hasChecks(contract)) return handOver('heldout-contract-extractor', `Add the checks to the requirement contract of ${key}: for each criterion the fewest that could prove it false (references/requirement-contract.md, "Checks")`, 'the contract states the criteria and not yet what is tested');
       const review = checkReview(contract, readReview(p.review), { requireReview: true }).filter((f) => f.level === 'error');
       if (review.some((f) => f.code === 'not-reviewed' || f.code === 'review-stale')) return handOver('heldout-contract-reviewer', `Review the requirement contract of ${key}`, 'in a fresh context, from the evidence only');
       return handOver('heldout-contract-extractor', `Fix the reviewer's findings on the requirement contract of ${key} (${H} contract ${key} lists them); it is then reviewed again`, review[0]?.message.slice(0, 160));
     }
 
     if (next.name === 'tests') {
+      // A contract that holds its checks needs no author: the tests are generated from them, and what they expect
+      // stays in the contract.
+      const reviewed = readContract(p.contract);
+      if (reviewed && hasChecks(reviewed)) {
+        if (heldout('scaffold', key, '--force') !== 0 || heldout('lint', key, '--allow-unhardened', '--no-health', '--draft-finished') !== 0 || !moved()) stuck('the tests could not be generated from the contract\'s checks');
+        continue;
+      }
       // A spec that is there but not marked finished: its author was cut off (a session limit, a crash) before the end.
       const started = fs.existsSync(p.tests) && specFiles(p.tests).some((f) => !/TODO\(test\)/.test(fs.readFileSync(f, 'utf8')));
       return started

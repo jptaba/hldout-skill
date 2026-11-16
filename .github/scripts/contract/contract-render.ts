@@ -5,6 +5,20 @@
 import type { RequirementContract } from './contract-model';
 import type { ContractReview } from './evidence';
 
+const SAYS: Record<string, string> = { equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there' };
+const valueOf = (v: unknown) => (v === undefined ? '' : ` ${Array.isArray(v) ? v.join(', ') : typeof v === 'string' ? `"${v}"` : String(v)}`);
+
+/** A criterion's checks in plain words: what is done, what is expected and where the story says so. */
+export function checkLines(a: RequirementContract['acceptanceCriteria'][number]): string[] {
+  return (a.checks ?? []).flatMap((k) => [
+    `**${k.id} · ${a.id}: ${k.title}** _(${k.type}, ${k.layer}${k.restsOn?.length ? `, rests on ${k.restsOn.join(', ')}` : ''})_`, '',
+    ...k.given.map((s) => `- Given ${s}`), ...k.when.map((s) => `- When ${s}`),
+    ...k.expect.map((e) => `- Then ${e.what} ${SAYS[e.comparator] ?? e.comparator}${valueOf(e.value)} _(${e.id}, ${e.source})_`),
+    ...(k.rows ?? []).map((r) => `  - ${r.label}${r.values ? `: ${Object.entries(r.values).map(([n, v]) => `${n} ${String(v)}`).join(', ')}` : ''}${r.expect ? ` → ${Object.entries(r.expect).map(([id, v]) => `${id}${valueOf(v)}`).join(', ')}` : ''}`),
+    '',
+  ]);
+}
+
 export function renderContract(c: RequirementContract, review: ContractReview | undefined, reviewOk: boolean): string {
   const gapRow = (g: RequirementContract['gaps'][number]) =>
     `| ${g.id} | ${g.element} | ${g.kind} | ${g.required ? 'yes' : 'no'} | ${g.affects.join(', ')} | ${g.tried.map((t) => t.where).join(' → ')} | ${g.resolution}${g.value ? `: ${g.value}` : ''} |`;
@@ -17,6 +31,7 @@ export function renderContract(c: RequirementContract, review: ContractReview | 
     ...c.sourcesRead.map((s) => `| ${s.file} | ${s.contributes ?? ''} |`), '',
     '## Acceptance criteria', '', '| AC | Layer | Criterion | Observable outcomes | Source |', '| --- | --- | --- | --- | --- |',
     ...c.acceptanceCriteria.map((a) => `| ${a.id} | ${a.layer} | ${esc(a.text)} | ${esc(a.outcomes.join('; '))} | ${a.source} |`), '',
+    ...(c.acceptanceCriteria.some((a) => a.checks?.length) ? ['## What is tested', '', ...c.acceptanceCriteria.flatMap((a) => checkLines(a))] : []),
     ...(c.endpoints.length ? ['## Endpoints', '', '| Endpoint | Auth | Success | Source |', '| --- | --- | --- | --- |',
       ...c.endpoints.map((e) => `| ${e.method} ${e.path} | ${e.auth ?? ''} | ${esc(e.success ?? '')} | ${e.source} |`), ''] : []),
     ...(c.rules.length ? ['## Rules and boundaries', '', ...c.rules.map((r) => `- **${r.id}** ${r.text} _(${r.source})_`), ''] : []),

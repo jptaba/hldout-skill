@@ -17,7 +17,8 @@ import { assertIssueKey, loadConfig } from '../core/config';
 import { ROOT, rel, writeFile } from '../core/files';
 import { evalPaths, journeyPaths } from '../core/paths';
 import { createsAccounts } from '../core/profile';
-import { comboLabel, openQuestions, readContract, toDiscover, variantCombinations, type ContractAC, type ContractEndpoint } from '../contract/contract-model';
+import { checksOf, hasChecks, type Expectation } from '../contract/checks';
+import { comboLabel, openQuestions, readContract, toDiscover, variantCombinations, type ContractAC, type ContractEndpoint, type RequirementContract } from '../contract/contract-model';
 import { TEST_TYPES } from './spec-model';
 
 
@@ -39,6 +40,60 @@ const shortTitle = (ac: ContractAC) => {
   const title = scenario ? scenario[1].trim() : t;
   return title.length > 90 ? `${title.slice(0, 87).replace(/\s+\S*$/, '')}…` : title;
 };
+
+const COMPARATOR_WORDS: Record<Expectation['comparator'], string> = {
+  equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there',
+};
+const lit = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\s+/g, ' ').trim();
+const shown = (v: Expectation['value']) => (v === undefined ? '' : ` ${Array.isArray(v) ? v.join(', ') : String(v)}`);
+
+/**
+ * The whole spec of a story whose contract holds checks: one test per check (one per row of a check with rows), its
+ * steps in the contract's words, and each expectation asserted by reference. No expected value is written here:
+ * whoever makes the tests run fills in how each step is done and where each actual value is read, nothing else.
+ */
+export function specFromChecks(c: RequirementContract, at: { key: string; fixtures: string; journeys: string; journeysDir: string }): string {
+  const gaps = new Map(c.gaps.map((g) => [g.id, g]));
+  const lines: string[] = [
+    '/**',
+    ` * Held-out acceptance tests for ${at.key} — "${c.title}".`,
+    ' * Generated from the checks of the reviewed requirement contract (2-contract/contract.json), which holds what',
+    ' * each test expects: here, expectCheck(id, actual) names an expectation and never states it. The steps call the',
+    ` * journeys in ${at.journeysDir}/ (npm run heldout -- journeys ${at.key}).`,
+    ' */',
+    `import { test, expectCheck, rowsOf } from '${at.fixtures}';`,
+    `// Journeys: import { … } from '${at.journeys}/<domain>' (e.g. '${at.journeys}/products').`,
+    '',
+    ...c.gaps.filter((g) => g.resolution === 'assumed').map((g) => `// ASSUMPTION: ${g.id} — ${g.element}: ${g.value ?? ''}`),
+    ...openQuestions(c).map((g) => `// OPEN-QUESTION: ${g.id} — ${g.element}`),
+    '',
+    `test.describe('${lit(`${at.key} ${c.title}`)}', () => {`,
+  ];
+  let n = 0;
+  for (const ac of c.acceptanceCriteria) for (const k of ac.checks ?? []) {
+    const scn = `SCN-${String(++n).padStart(3, '0')}`;
+    const rows = Boolean(k.rows?.length);
+    const rests = (k.restsOn ?? []).map((g) => (gaps.get(g)?.resolution === 'assumed' ? `'@assumes:${g}'` : "'@needs-clarification'"));
+    const tags = [`'@${ac.id}'`, `'@type:${k.type}'`, `'@layer:${k.layer}'`, "'@P1'", ...new Set(rests)].join(', ');
+    const pad = rows ? '  ' : '';
+    const step = (kind: string, text: string, body: string[]) => [`${pad}    await journey.step('${kind} ${lit(text)}', async () => {`, ...body.map((b) => `${pad}      ${b}`), `${pad}    });`];
+    lines.push(`  // from ${[...new Set(k.expect.map((e) => e.source))].join(', ')}`, `  // check ${k.id}`);
+    if (rows) lines.push(`  for (const [i, row] of rowsOf('${k.id}').entries()) {`, `    test(\`${scn}.\${i + 1}: ${lit(k.title).replace(/`/g, "'")} (\${row.label})\`, { tag: [${tags}] }, async ({ ${k.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`);
+    else lines.push(`  test('${scn}: ${lit(k.title)}', { tag: [${tags}] }, async ({ ${k.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`);
+    for (const g of k.given) lines.push(...step('Given', g, [`// TODO(harden) reach this state${rows ? ' (this row\'s input: row.values)' : ''}: call a journey, or add one`]));
+    for (const w of k.when) lines.push(...step('When', w, [`// TODO(harden) do this${rows ? ' (this row\'s input: row.values)' : ''}: call a journey, or add one`]));
+    for (const e of k.expect) {
+      lines.push(...step('Then', `${e.what} ${COMPARATOR_WORDS[e.comparator]}${rows && k.rows!.some((r) => r.expect?.[e.id] !== undefined) ? ' what this row states' : shown(e.value)}`, [
+        `// TODO(harden) read ${lit(e.what)} from what the application answered or shows`,
+        'const actual: unknown = undefined;',
+        `expectCheck('${e.id}', actual${rows ? ', row' : ''});`,
+      ]));
+    }
+    lines.push(rows ? '    });' : '  });', ...(rows ? ['  }'] : []), '');
+  }
+  lines.push('});', '');
+  return lines.join('\n');
+}
 
 export const spec: CommandSpec = {
   name: 'scaffold', group: 'Tests', usage: 'KEY [--force]',
@@ -85,6 +140,11 @@ export function run({ _, flags }: Args): void {
       ? `  ${doc} ${name}: (${h.params.map((x) => `${x}: string | number`).join(', ')}) => \`${h.body}\`,`
       : `  ${doc} ${name}: '${p0}',`;
   });
+  if (hasChecks(c)) {
+    writeFile(specFile, specFromChecks(c, { key, fixtures: fixtures.startsWith('.') ? fixtures : `./${fixtures}`, journeys: journeysRel, journeysDir: rel(journeyPaths(cfg, cfg.autId).fixtures) }));
+    console.log(`✔ created ${rel(specFile)} — ${checksOf(c).length} check(s) of ${c.acceptanceCriteria.length} criteria as tests; what they expect stays in ${rel(p.contract)}`);
+    return;
+  }
   const hasUi = c.acceptanceCriteria.some((a) => a.layer !== 'api');
   // Test users are offered only when the story has signed-in users (stated auth, a protected endpoint, or roles to
   // check across); a guest-only story gets no account import or note.

@@ -114,7 +114,19 @@ export function reqAssertions(source: string): Map<string, string> {
   for (const m of source.matchAll(response)) add(m[4], m[1], `expectResponse ${m[2]}`);
   const poll = /expect\.poll\(((?:(?!expect[.(])[\s\S])*?)message:\s*(['"`])(\[REQ [^\]]+\](?:(?!\2)[^\\\n]|\\.)*)\2[\s\S]*?\}\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
   for (const m of source.matchAll(poll)) add(m[3], m[1], m[4]);
+  // expectCheck('C3.1.a', actual): the expected value is in the contract (frozen by its oracle digest); what is
+  // frozen here is that the expectation is still asserted. Where the actual value is read is mechanics.
+  for (const m of source.matchAll(/\bexpectCheck\(\s*(['"`])(C\d+\.\d+\.[a-z])\1\s*,/g)) add(`[CHECK ${m[2]}]`, '', 'expectCheck');
   return map;
+}
+
+/**
+ * In a spec that asserts by reference, the lines that state an expectation of their own (expect(…), expectResponse(…)):
+ * a value written in a test is one the review never saw and the freeze doesn't hold.
+ */
+export function ownExpectations(source: string): number[] {
+  if (!/\bexpectCheck\(/.test(source)) return [];
+  return source.split(/\r?\n/).map((l, i) => (/\bexpect(?:\.soft|\.poll)?\(|\bexpectResponse\(/.test(l.replace(/\/\/.*$/, '')) ? i + 1 : 0)).filter(Boolean);
 }
 
 export function reqConstants(source: string): string {
@@ -191,6 +203,12 @@ export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Fr
     }
     for (const k of c.keys()) if (!d.has(k)) result.added.push(`${relName}: ${k}`);
     if (reqConstants(draftSrc) !== reqConstants(curSrc)) result.constantsChanged.push(relName);
+    // A spec generated from the contract's checks expects nothing of its own: an expectation written into it after
+    // the freeze is a value nobody reviewed.
+    if (/\bexpectCheck\(/.test(draftSrc)) {
+      for (const k of c.keys()) if (!d.has(k)) result.changed.push({ assertion: `${relName}: ${k}`, draft: '(not in the frozen spec)', current: 'an expectation added after the freeze' });
+      for (const line of ownExpectations(curSrc)) result.changed.push({ assertion: `${relName}: line ${line}`, draft: '(the spec asserts by reference only)', current: 'an expectation written in the test: expected values live in the contract\'s checks' });
+    }
   }
   // A draft frozen without the contract oracle, or with a different one, no longer proves what was expected.
   if (freeze.contractOracle !== contractOracle) result.contractChanged = true;

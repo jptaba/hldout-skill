@@ -25,7 +25,7 @@ import { readHistory } from '../core/history';
 import { currentTests, evalPaths, evalRunsOf, listRuns, movedRunNote, phaseDirs, runFile } from '../core/paths';
 import { readProbes } from '../core/probe-log';
 import { readContract } from '../contract/contract-model';
-import { renderContract } from '../contract/contract-render';
+import { checkLines, renderContract } from '../contract/contract-render';
 import { readReview } from '../contract/evidence';
 import { pendingOf, readRunRecord, type TriageEntry } from '../run/run-record';
 import { failureGroups, placesOf, renderTriageMd, sectionsOf } from '../triage/triage-report';
@@ -86,7 +86,7 @@ export function run({ _, flags }: Args): void {
     };
     print(json, data, () => [
       `${c.key}: ${c.title}`,
-      ...(data.acceptanceCriteria ?? []).flatMap((a) => [`\n${a.id} [${a.layer}] ${a.text}`, ...a.outcomes.map((o) => `   → ${o}`), `   source ${a.source}${a.gaps?.length ? ` · gaps ${a.gaps.join(', ')}` : ''}${a.endpoints?.length ? ` · ${a.endpoints.join(', ')}` : ''}`]),
+      ...(data.acceptanceCriteria ?? []).flatMap((a) => [`\n${a.id} [${a.layer}] ${a.text}`, ...a.outcomes.map((o) => `   → ${o}`), `   source ${a.source}${a.gaps?.length ? ` · gaps ${a.gaps.join(', ')}` : ''}${a.endpoints?.length ? ` · ${a.endpoints.join(', ')}` : ''}`, ...checkLines(a).filter(Boolean).map((l) => `   ${l}`)]),
       ...(data.rules?.length ? ['\nRules', ...data.rules.map((r) => `  ${r.id} ${r.text} (${r.source})`)] : []),
       ...(data.errorModel?.length ? ['\nError model', ...data.errorModel.map((e) => `  ${e.id} ${e.case} → ${e.status ?? '-'} ${e.body ?? ''} (${e.source})`)] : []),
       ...(data.endpoints?.length ? ['\nEndpoints', ...data.endpoints.map((e) => `  ${e.method} ${e.path}${e.auth ? ` · auth ${e.auth}` : ''}${e.success ? ` · ${e.success}` : ''} (${e.source})`)] : []),

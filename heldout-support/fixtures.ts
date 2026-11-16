@@ -24,6 +24,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page, type TestInfo } from '@playwright/test';
+import { checksOf, type Check, type CheckRow } from '../.github/scripts/contract/checks';
 import { redact, redactHeaders, redactSnapshot } from '../.github/scripts/core/redact';
 import { closeOverlays, locateOn } from '../.github/scripts/probe/page';
 
@@ -383,6 +384,55 @@ export function expectResponse(res: ApiResponse, expected: { status: number | '2
   if (typeof expected.status === 'string') expect.soft(`${Math.floor(res.status / 100)}xx`, `${message} (expects a ${expected.status} status, got ${res.status})`).toBe(expected.status);
   else expect.soft(res.status, `${message} (expects status ${expected.status})`).toBe(expected.status);
   if ('body' in expected) expect.soft(res.body, `${message} (expects the body)`).toEqual(expected.body);
+}
+
+/** The story's contract, beside the folder of the test that is running (output/<profile>/<KEY>/2-contract/). */
+function checksOfStory(): { ac: string; check: Check }[] {
+  // The spec that called, from the stack: rowsOf runs while the tests are collected, before any test has started.
+  const spec = /((?:[A-Za-z]:)?[^\s():]*\.spec\.ts)/.exec((new Error().stack ?? '').replace(/file:\/\/\/?/g, '').split('\n').find((l) => /\.spec\.ts/.test(l)) ?? '')?.[1];
+  if (!spec) throw new Error('expectCheck and rowsOf are called from a story\'s spec file');
+  const file = path.resolve(path.dirname(decodeURIComponent(spec)), '..', '2-contract', 'contract.json');
+  if (!fs.existsSync(file)) throw new Error(`expectCheck: no requirement contract at ${file}`);
+  return checksOf(JSON.parse(fs.readFileSync(file, 'utf8')) as Parameters<typeof checksOf>[0]);
+}
+
+/** The rows of a check, for a test per row: `for (const [i, row] of rowsOf('C3.2').entries()) test(…)`. */
+export function rowsOf(checkId: string): CheckRow[] {
+  const found = checksOfStory().find((x) => x.check.id === checkId);
+  if (!found) throw new Error(`rowsOf: ${checkId} is not a check of the story's contract`);
+  return found.check.rows ?? [];
+}
+
+/**
+ * A requirement check by reference: what the application did (`actual`) against the expectation the reviewed
+ * contract holds under this id. The expected value is never written in a test: the contract is its only place.
+ * `row` is the row of a check with rows, whose own expected value, when it has one, takes the place of the check's.
+ */
+export function expectCheck(id: string, actual: unknown, row?: CheckRow): void {
+  const found = checksOfStory().find((x) => x.check.expect.some((e) => e.id === id));
+  if (!found) throw new Error(`expectCheck: ${id} is not an expectation of the story's contract`);
+  const e = found.check.expect.find((x) => x.id === id)!;
+  const value = row?.expect?.[id] ?? e.value;
+  const message = `[REQ ${found.ac}] ${found.check.title}${row ? ` (${row.label})` : ''}: ${e.what}`;
+  const text = typeof actual === 'string' ? actual : JSON.stringify(actual ?? '');
+  // A figure read off a page is text: "9" is the 9 the story states.
+  const num = (v: unknown) => (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : v);
+  switch (e.comparator) {
+    case 'equals': expect.soft(typeof value === 'number' ? num(actual) : actual, message).toEqual(value); break;
+    case 'contains':
+      if (Array.isArray(actual)) expect.soft(actual, message).toContain(value);
+      else expect.soft(text.toLowerCase(), message).toContain(String(value).toLowerCase());
+      break;
+    case 'matches': expect.soft(text, message).toMatch(new RegExp(String(value), 'i')); break;
+    case 'one-of': expect.soft(value, message).toContainEqual(typeof (value as unknown[])[0] === 'number' ? num(actual) : actual); break;
+    case 'at-least': expect.soft(num(actual), message).toBeGreaterThanOrEqual(Number(value)); break;
+    case 'at-most': expect.soft(num(actual), message).toBeLessThanOrEqual(Number(value)); break;
+    case 'status':
+      if (typeof value === 'string' && /^[1-5]xx$/.test(value)) expect.soft(`${Math.floor(Number(actual) / 100)}xx`, `${message} (expects a ${value} status, got ${text})`).toBe(value);
+      else expect.soft(num(actual), `${message} (expects status ${String(value)})`).toBe(Number(value));
+      break;
+    case 'absent': expect.soft(actual === undefined || actual === null || actual === false || actual === 0 || actual === '' || (Array.isArray(actual) && !actual.length), `${message} (expects nothing there, got ${text})`).toBe(true); break;
+  }
 }
 
 export function checkShape(value: unknown, schema: Record<string, ShapeRule>, label = 'value'): string[] {

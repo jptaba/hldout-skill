@@ -22,6 +22,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { checkChecks, type Check } from './checks';
 import { checkCoverage, checkInjection, checkLiterals, decodeEntities, parseRange, type CoverageEntry } from './evidence';
 
 export type Layer = 'ui' | 'api' | 'e2e';
@@ -48,6 +49,10 @@ export interface ContractAC {
   needsData?: boolean;
   /** Gap ids that affect this AC. */
   gaps?: string[];
+  /** What is tested and what is expected, as data: the fewest checks that could prove the criterion false (./checks.ts). */
+  checks?: Check[];
+  /** What the criterion states that needs more checks than the budget. */
+  budget?: string;
 }
 
 export interface ContractEndpoint {
@@ -391,7 +396,7 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   }
 
   // Evidence: nothing omitted (coverage ledger), nothing invented (literal grounding).
-  out.push(...checkCoverage(c, reqDir), ...checkLiterals(c, reqDir, { apiBaseURL: opts.apiBaseURL }));
+  out.push(...checkCoverage(c, reqDir), ...checkLiterals(c, reqDir, { apiBaseURL: opts.apiBaseURL }), ...checkChecks(c, reqDir));
   // Untrusted content: a source line that reads like an instruction to an agent is shown, never silently acted on.
   out.push(...checkInjection(reqDir));
   return out;
@@ -425,7 +430,8 @@ export function toDiscover(c: RequirementContract): Gap[] {
 export function oracleDigest(c: RequirementContract): string {
   // Expected behaviour only: correcting a citation (source line) is not a change of what the tests must prove.
   return JSON.stringify({
-    acs: (c.acceptanceCriteria ?? []).map((a) => ({ id: a.id, text: a.text, outcomes: a.outcomes })),
+    // A check's expected values are the oracle; a citation is not (as above).
+    acs: (c.acceptanceCriteria ?? []).map((a) => ({ id: a.id, text: a.text, outcomes: a.outcomes, ...(a.checks ? { checks: a.checks.map((k) => ({ ...k, expect: k.expect.map(({ source: _source, ...e }) => e) })) } : {}) })),
     rules: (c.rules ?? []).map((r) => ({ id: r.id, text: r.text })),
     errorModel: (c.errorModel ?? []).map((e) => ({ id: e.id, case: e.case, status: e.status ?? null, body: e.body ?? null })),
     oracleGaps: (c.gaps ?? []).filter((g) => g.kind === 'oracle').map((g) => ({ id: g.id, resolution: g.resolution, value: g.value ?? null })),

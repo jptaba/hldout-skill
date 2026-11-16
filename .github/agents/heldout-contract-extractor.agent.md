@@ -39,6 +39,9 @@ Do this:
    the question to the story's owner; nobody is asked during an evaluation) or, when the sources allow one reasonable
    reading, `assumed` with that reading stated. A story with no acceptance criteria at all gets one required open
    oracle gap ("what are the acceptance criteria?", affecting `*`) and no invented criteria.
+   Then give each criterion its `checks` (the reference's "Checks"): the fewest that could prove it false, each
+   with its steps in plain words and each expected value copied from the line it cites. The tests are generated
+   from them, so what you write here is all that will be tested and all a reader will see of the tests.
 3. Run `npm run heldout -- contract KEY --allow-unreviewed`. Fix every ✖ by correcting the contract to match the
    sources, never by loosening a value until the check passes. Repeat until there is no ✖ (⚠ warnings for open gaps
    and the missing review are expected).

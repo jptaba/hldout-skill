@@ -76,9 +76,9 @@ order and do not skip the freeze:
 | # | Phase | Who does it | Output (in `output/<profile>/KEY/`) |
 | --- | --- | --- | --- |
 | 1 | Fetch | `advance` | `1-requirement/` |
-| 1b | Contract | `heldout-contract-extractor`, then `heldout-contract-reviewer` in a fresh context | `2-contract/` |
-| 2 | Write the tests | `heldout-test-author`, with no browser | `3-tests/`, `journeys/fixtures/<domain>.ts` |
-| 3 | Freeze + harden | `advance` freezes; `heldout-hardener` (or `advance`, when a draft leaves nothing to discover) | `3-tests/freeze.json`, `4-hardening/` |
+| 1b | Contract, with its checks | `heldout-contract-extractor`, then `heldout-contract-reviewer` in a fresh context | `2-contract/` |
+| 2 | Generate the tests | `advance`, from the contract's checks: one test a check, every expectation by reference (`expectCheck`), no expected value in code | `3-tests/` |
+| 3 | Freeze + harden | `advance` freezes; `heldout-hardener` fills in how each step is done and where each actual value is read | `3-tests/freeze.json`, `4-hardening/`, `journeys/fixtures/<domain>.ts` |
 | 4 | Run | `advance` | `5-run/` |
 | 5 | Triage | `heldout-triager`; `heldout-hardener` repairs what it confirms | `6-triage/` |
 | 6 | Verdict | `advance` | `7-verdict/` |
@@ -160,11 +160,11 @@ Non-negotiable, for every agent:
   thing of the application map its agents read is the overview (`$H map KEY --overview`): what it is and its words,
   never an expected value, a rule or a criterion; a contract that names it fails (`rests-on-overview`). The overview
   has one writer, setup: a story's agents never add to it.
-- **Hardening changes HOW, never WHAT.** Locators, waits, navigation and API plumbing may change.
-  Expected values, `[REQ …]` assertions and the `@req-constants` block may not. `[REQ AC-n strict]`
-  also freezes the locator, for accessibility and other requirements where the locator *is* the
-  requirement. If the AUT contradicts the requirement, keep the assertion and log an *observed
-  deviation*.
+- **Hardening changes HOW, never WHAT.** What a test expects is in the contract's checks, reviewed and frozen
+  with it; a test names an expectation (`expectCheck('C3.1.a', actual)`) and never states one. The hardener writes
+  how each step is done and where each actual value is read. An expectation written in a test, or a contract
+  changed after the freeze, makes integrity VIOLATED. If the AUT contradicts the requirement, the check fails:
+  that is the finding; log an *observed deviation*.
 - **Only two audited exceptions:**
   - `heldout integrity --amend` fixes a buggy assertion *implementation* (e.g. an over-strict regex).
   - `heldout integrity --snapshot --reason` re-freezes after a **requirement revision**.

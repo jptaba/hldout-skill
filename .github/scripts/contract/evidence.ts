@@ -189,7 +189,7 @@ const NUMBER_WORDS: Record<string, number> = { zero: 0, one: 1, two: 2, three: 3
 export const decodeEntities = (s: string) => s.replace(/&(lt|gt|amp|quot|apos|nbsp|#39);/g, (_m, k: string) => ({ lt: '<', gt: '>', amp: '&', quot: '"', apos: "'", nbsp: ' ', '#39': "'" } as Record<string, string>)[k]);
 const norm = (s: string) => decodeEntities(s).toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[*_`]+/g, '').replace(/\s+/g, ' ');
 
-function numbersIn(text: string): Set<number> {
+export function numbersIn(text: string): Set<number> {
   const out = new Set<number>();
   for (const m of norm(text).matchAll(/(?<![\w.])(\d+(?:\.\d+)?)(?:st|nd|rd|th)?(?![\w.]*\d)/g)) out.add(Number(m[1]));
   for (const m of norm(text).matchAll(/\b([a-z]+)\b/g)) if (NUMBER_WORDS[m[1]] !== undefined) out.add(NUMBER_WORDS[m[1]]);
@@ -321,7 +321,7 @@ export const requirementEndpoints = (c: RequirementContract) => (c.endpoints ?? 
 export const reviewedContent = (c: RequirementContract) => {
   const oracle = oracleGapIds(c);
   return {
-    acceptanceCriteria: (c.acceptanceCriteria ?? []).map((a) => ({ id: a.id, text: a.text, quote: a.quote, source: a.source, layer: a.layer, outcomes: a.outcomes, gaps: (a.gaps ?? []).filter((g) => oracle.has(g)) })),
+    acceptanceCriteria: (c.acceptanceCriteria ?? []).map((a) => ({ id: a.id, text: a.text, quote: a.quote, source: a.source, layer: a.layer, outcomes: a.outcomes, gaps: (a.gaps ?? []).filter((g) => oracle.has(g)), ...(a.checks ? { checks: a.checks, budget: a.budget ?? null } : {}) })),
     rules: c.rules ?? [], errorModel: c.errorModel ?? [],
     gaps: (c.gaps ?? []).filter((g) => g.kind === 'oracle').map((g) => ({ id: g.id, element: g.element, kind: g.kind, required: g.required, affects: g.affects, resolution: g.resolution, value: g.value ?? null })),
     endpoints: requirementEndpoints(c).map((e) => ({ method: e.method, path: e.path, source: e.source, auth: e.auth ?? null, success: e.success ?? null })),

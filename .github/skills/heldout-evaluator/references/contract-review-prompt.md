@@ -27,6 +27,18 @@ Check each of these refs: {{REFS}}
   - `text` doesn't add, drop or change any condition.
   - Every entry in `outcomes` follows from the quote or from another cited source line, not from assumption or common sense.
   - `layer` (ui / api / e2e) matches what the criterion describes. "UI + API", or a UI action checked through the API, is `e2e`.
+  - Its `checks` are what will be tested, and all that will be: the tests are generated from them. Judge them as
+    part of the criterion (a fault in a check makes the AC `misread`, `unsupported` or `incomplete`; say which check):
+    - Each expected `value` is what its cited line states, for what `what` names. A script already confirmed the
+      value occurs in that line; you judge that it is the right value for that observation, and that `comparator`
+      doesn't weaken it (a `contains` or `matches` where the line gives the exact text; a `"4xx"` where it gives the status).
+    - The steps (`given`, `when`) are the criterion's own situation and action, in the sources' words, with nothing
+      of how the application is operated that the sources don't state.
+    - **Would the checks prove the criterion false?** `incomplete` when something the criterion states (its plain
+      case, a limit, a kind of refusal, who may do it) has no check, or a check would pass on an application that
+      does the opposite. More checks than the criterion needs are an observation, not a finding.
+    - A reader who doesn't read code can tell from `title`, the steps and `what` what is tested. Wording nobody
+      could follow is an observation.
 - **R-n** (rules) and **E-n** (error cases, by their `id`): the rule, status or message is stated at the cited source, with the same value.
 - **Gaps (G-n, oracle)**:
   - The missing element really is missing from the sources, or is resolved the way the gap says.

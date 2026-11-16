@@ -31,8 +31,10 @@ describe('agent files', () => {
     for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md']) assert.ok(triager.includes(view), view);
     for (const whole of ['references/hardening.md', '2-contract/contract.json', 'probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!triager.includes(whole), whole);
     assert.ok(hardener.includes('show KEY spec'));
-    assert.match(hardener, /0\. Don't open the spec file\. Search it for `TODO\(harden\)` and `@irreversible`/);
-    for (const kept of ['-- show KEY spec` says where it is', 'searching `2-contract/contract.json` for the words of', 'with the same flags and `--grep`, the tests that failed on a mechanic and those that call a journey you changed', 'a call under test from a precondition']) assert.ok(hardener.includes(kept), kept);
+    // The spec is generated from the contract's checks and holds only steps to fill in: the hardener reads it once.
+    assert.match(hardener, /0\. Read the spec in `4-hardening\/` once: every step in it is yours to fill in/);
+    assert.match(hardener, /Never write an expectation of your own in a test/);
+    for (const kept of ['searching `2-contract/contract.json` for the words of', 'with the same flags and `--grep`, the tests that failed on a mechanic and those that call a journey you changed']) assert.ok(hardener.includes(kept), kept);
     for (const later of ['`hardening-cases.md` for the cases', '`journeys.md` when you add', '`accounts.md` when']) assert.ok(hardener.includes(later), later);
     const procedure = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening.md'), 'utf8');
     const cases = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening-cases.md'), 'utf8');

@@ -23,7 +23,7 @@ Work resumes from the first step here that is not done. A gate's figures go besi
 | 1.5 The one-screen verdict | built: the verdict, each finding in a line, the owner's questions and what was not tested come first; the findings in full follow; the rest is "The record" below. Checked on round 47's TOOL-3 rendered again |
 | 1.6 One knowledge store per application | moved to phase 3: the store's reading rules go with decision 9, which that phase builds |
 | 1 Gate | to measure, at a minimum: one story with the phase 1 build (1.1, 1.3, 1.5) against its baseline run |
-| 2 The oracle as data, and its gate | |
+| 2 The oracle as data, and its gate | built, not yet measured. The checks live in the contract (`acceptanceCriteria[].checks`: steps in words, each expected value with its comparator and the line it cites), validated by `contract` (shape, ids, a budget of 4 a criterion and 6 rows, every value in its cited line or in the gap the check rests on), reviewed with their criterion, frozen with the contract's oracle. `advance` generates the spec from them and no test author runs; tests assert by `expectCheck(id, actual)`, and integrity refuses an expectation written in a test. The contract rendered for people has a "What is tested" section in plain words: the first form of the test catalogue (6.6). Tried by hand on SHOP-2's contract: generated, linted, two checks filled in and run. Not built: API checks run from a call description without a test (5.12), the record of where an actual value came from (6.5), the discrepancy record. Still in the tree though unused: the test author agent, its reference and the hand-written spec path (phase 5) |
 | 3 Three roles, and its gate | |
 | 4 A headless run, and its gate | |
 | 5 Delete, and its gate | |
