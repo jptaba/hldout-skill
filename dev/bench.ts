@@ -205,6 +205,8 @@ async function scoreStory(args: string[]): Promise<void> {
   const on = readJson<string[]>(path.join(benchDir(project), `${key}.on.json`));
   const findings: Finding[] = (verdict.applicationDefects ?? []).filter((d) => d.confirmed !== false).map((d) => ({ id: d.id, title: d.title, tests: d.tests ?? [] }));
   const questions: Finding[] = (verdict.contradictedReadings ?? []).map((q) => ({ id: q.test, title: q.title, tests: [q.test] }));
+  // What the evaluation left behind while a fault was on (a record a faulty delete kept) must not fail the clean run.
+  freshData();
   // The labels start with "harden": such a run is never taken for an evaluation, so the verdict stands as it is.
   await control([]);
   const failsClean = failing(project, key, 'harden-bench-clean');
