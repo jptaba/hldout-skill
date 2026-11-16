@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { ApiExchange } from '../.github/scripts/run/classify';
 import type { TriageEntry } from '../.github/scripts/run/run-record';
-import { replayOnce, replayPending, replayPlan, type Send } from '../.github/scripts/triage/replay';
+import { replayOnce, replayPending, replayPlan, sameBody, signInWith, type Send } from '../.github/scripts/triage/replay';
 
 const call = (method: string, url: string, status: number, body?: unknown, sent?: unknown, headers?: Record<string, string>): ApiExchange =>
   ({ request: { method, url: `http://app.test${url}`, ...(sent === undefined ? {} : { body: sent }), ...(headers ? { headers } : {}) }, response: { status, body } });
@@ -67,6 +67,39 @@ describe('the replay', () => {
     const other: Send = async ({ method }) => (method === 'POST' ? { status: 201, body: { id: '01hynewcart9' } } : { status: 404, body: { message: 'Gone for good' } });
     assert.match((await replayOnce(plan.calls.slice(0, 1).concat(plan.calls.slice(2)), other))!, /another body than in the run/);
     assert.match((await replayOnce(plan.calls, async () => ({ status: 500, body: undefined })))!, /POST \/carts answered 500, in the run 201/);
+  });
+
+  it('sends a signed-in call with a fresh sign-in of the user the record names, and leaves out the test\'s own sign-in', async () => {
+    const login = call('POST', '/users/login', 200, { access_token: '***redacted***' }, { email: 'jane@shop.test', password: '***redacted:1a2b***' });
+    const add = { ...call('POST', '/favorites', 201, { id: 'fav' }, { product_id: 'p1' }, { Authorization: '***redacted***' }) };
+    add.request.as = 'customer (customer) · jane@shop.test';
+    const e = failure({ scenario: 'SCN-006', error: { headline: '[REQ AC-5] adding the same product again is refused', reqTag: 'AC-5', expected: '409', received: '201', message: '' } },
+      { api: undefined, apiRelevantIndex: undefined, preSequence: [login, add], apiSequence: [add] });
+    assert.match(why(e)!, /signed in/, 'with no way to sign in');
+    const plan = replayPlan(e, '/users/login');
+    assert.ok('calls' in plan);
+    assert.deepEqual([plan.calls.length, plan.compareFrom], [2, 1], 'the sign-in is left out; every call of the test is compared');
+    const sent: { url: string; headers: Record<string, string>; body?: unknown }[] = [];
+    const send: Send = async (c) => { sent.push(c); return c.url.endsWith('/users/login') ? { status: 200, body: { access_token: 'tok-1' } } : { status: 201, body: { id: 'fav' } }; };
+    const signIn = signInWith({ existing: [{ username: 'jane@shop.test', password: '${env:PW}' }], token: { method: 'POST', path: '/users/login', body: { email: '${username}', password: '${password}' }, token: 'access_token' } },
+      'http://app.test', (s) => s.replace('${env:PW}', 'secret'), send)!;
+    const done = await replayPending([e], () => 'g', send, signIn);
+    assert.deepEqual(done.confirmed.map((x) => x.scenario), ['SCN-006']);
+    assert.deepEqual(sent[0], { method: 'POST', url: 'http://app.test/users/login', headers: {}, body: { email: 'jane@shop.test', password: 'secret' } });
+    assert.equal(sent.filter((c) => c.url.endsWith('/users/login')).length, 1, 'each account signs in once');
+    assert.equal(sent[1].headers.Authorization, 'Bearer tok-1');
+    assert.match(done.confirmed[0].final!.evidence!, /POST \/favorites → 201/);
+    // A user the profile doesn't hold (one the test made) can't be signed in again.
+    add.request.as = 'a new customer · hldout-1@example.com';
+    assert.match((await replayPending([e], () => 'g', send, signIn)).left[0].why, /could not be signed in again/);
+  });
+
+  it('compares an answer the record cut as far as the record goes', () => {
+    const cut = '{"current_page":1,"data":[{"id":"01M7K7WKV0G771RSQA98HWJZPH","name":"Combinati… [5120 more characters, cut in the run record]';
+    assert.equal(sameBody(cut, { current_page: 1, data: [{ id: '01N8AAAAAAAAAAAAAAAAAAAAAA', name: 'Combination Pliers', price: 14.15 }] }), true);
+    assert.equal(sameBody(cut, { current_page: 2, data: [] }), false);
+    assert.equal(sameBody({ message: 'gone' }, { message: 'gone' }), true);
+    assert.equal(sameBody({ message: 'gone' }, { message: 'Gone for good' }), false);
   });
 
   it('confirms only what answers the same twice, one title for failures that look alike', async () => {

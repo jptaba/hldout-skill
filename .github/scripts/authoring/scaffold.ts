@@ -42,7 +42,7 @@ const shortTitle = (ac: ContractAC) => {
 };
 
 const COMPARATOR_WORDS: Record<Expectation['comparator'], string> = {
-  equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there',
+  equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there', present: 'is there',
 };
 const lit = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\s+/g, ' ').trim();
 const shown = (v: Expectation['value']) => (v === undefined ? '' : ` ${Array.isArray(v) ? v.join(', ') : String(v)}`);

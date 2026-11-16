@@ -14,7 +14,7 @@ import path from 'node:path';
 import type { ContractFinding, Layer, RequirementContract } from './contract-model';
 import { numbersIn, parseRange } from './evidence';
 
-export const COMPARATORS = ['equals', 'contains', 'matches', 'one-of', 'at-least', 'at-most', 'status', 'absent'] as const;
+export const COMPARATORS = ['equals', 'contains', 'matches', 'one-of', 'at-least', 'at-most', 'status', 'absent', 'present'] as const;
 export type Comparator = typeof COMPARATORS[number];
 export const CHECK_TYPES = ['concurrency', 'idempotency', 'security', 'boundary', 'contract', 'composition', 'integration', 'accessibility', 'negative', 'functional'] as const;
 export type ExpectedValue = string | number | boolean | (string | number)[];
@@ -27,7 +27,8 @@ export interface Expectation {
   /**
    * equals, contains, at-least, at-most: against the value. matches: the value is a pattern of the story's own words.
    * one-of: the value is a list. status: the value is a status (204) or a class ("2xx", "4xx") for "is accepted" and
-   * "is refused" with no stated status. absent: what is observed must not be there; no value.
+   * "is refused" with no stated status. absent: what is observed must not be there; present: it must be there
+   * (the story says it is shown or listed and gives no text for it); neither takes a value.
    */
   comparator: Comparator;
   value?: ExpectedValue;
@@ -127,7 +128,9 @@ export function checkChecks(c: RequirementContract, reqDir: string): ContractFin
         ids.add(e.id);
         if (!e.what?.trim()) err('check-shape', `${where} doesn't say what is observed`);
         if (!COMPARATORS.includes(e.comparator)) { err('check-shape', `${where}: comparator is one of ${COMPARATORS.join(', ')}`); continue; }
-        if (e.comparator === 'absent' ? e.value !== undefined : e.value === undefined) err('check-shape', `${where}: ${e.comparator === 'absent' ? '"absent" takes no value' : 'no expected value'}`);
+        const bare = e.comparator === 'absent' || e.comparator === 'present';
+        if (bare ? e.value !== undefined : e.value === undefined) err('check-shape', `${where}: ${bare ? `"${e.comparator}" takes no value` : 'no expected value'}`);
+        if (e.comparator === 'present') continue;
         if (e.comparator === 'one-of' && !Array.isArray(e.value)) err('check-shape', `${where}: "one-of" takes a list of values`);
         if (e.comparator === 'absent') continue;
         const text = citedText(reqDir, e.source ?? '');

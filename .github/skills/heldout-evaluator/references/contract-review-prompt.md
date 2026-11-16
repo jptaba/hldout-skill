@@ -32,6 +32,8 @@ Check each of these refs: {{REFS}}
     - Each expected `value` is what its cited line states, for what `what` names. A script already confirmed the
       value occurs in that line; you judge that it is the right value for that observation, and that `comparator`
       doesn't weaken it (a `contains` or `matches` where the line gives the exact text; a `"4xx"` where it gives the status).
+      A value must be something the application can show or answer letter for letter: a phrase that describes it
+      ("its name and description", "the new favourite") is `misread`, and the check should say `present`.
     - The steps (`given`, `when`) are the criterion's own situation and action, in the sources' words, with nothing
       of how the application is operated that the sources don't state.
     - **Would the checks prove the criterion false?** `incomplete` when something the criterion states (its plain

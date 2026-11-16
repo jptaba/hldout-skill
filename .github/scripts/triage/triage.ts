@@ -35,7 +35,8 @@ import { citeProbes, decisionRestsOnTheMap } from '../core/probe-log';
 import { evalPaths, knowledgeIds, listRuns, runFile, type StoryPaths } from '../core/paths';
 import type { HeldoutConfig } from '../core/profile';
 import { CATEGORIES, type ApiExchange, type Category } from '../run/classify';
-import { replayPending } from './replay';
+import { expandSecrets } from '../core/secrets';
+import { httpSend, replayPending, signInWith } from './replay';
 import { failureGroups, likeness, placesOf, renderTriageMd, replaySlug, signedIn } from './triage-report';
 import { pendingOf, readRunRecord, signature, writeRunRecord, type RunRecord, type TriageEntry } from '../run/run-record';
 
@@ -177,7 +178,7 @@ export async function run({ _, flags }: Args): Promise<void> {
   });
   // What a script can reproduce needs no agent: the calls of a sure API failure, sent again outside the test.
   if (flags.replay) {
-    const { confirmed, left } = await replayPending(pendingOf(record), likeness);
+    const { confirmed, left } = await replayPending(pendingOf(record), likeness, httpSend, signInWith(cfg.aut.accounts, cfg.aut.apiBaseURL ?? cfg.aut.baseURL, expandSecrets));
     for (const e of confirmed) console.log(`  ⟳ ${e.scenario}: the same answer outside the test, twice — confirmed as an application defect`);
     if (confirmed.length) {
       writeRunRecord(file, record);

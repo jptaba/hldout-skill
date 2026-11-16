@@ -417,6 +417,7 @@ export function expectCheck(id: string, actual: unknown, row?: CheckRow): void {
   const text = typeof actual === 'string' ? actual : JSON.stringify(actual ?? '');
   // A figure read off a page is text: "9" is the 9 the story states.
   const num = (v: unknown) => (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : v);
+  const nothing = (v: unknown) => v === undefined || v === null || v === false || v === 0 || v === '' || (Array.isArray(v) && !v.length);
   switch (e.comparator) {
     case 'equals': expect.soft(typeof value === 'number' ? num(actual) : actual, message).toEqual(value); break;
     case 'contains':
@@ -431,7 +432,8 @@ export function expectCheck(id: string, actual: unknown, row?: CheckRow): void {
       if (typeof value === 'string' && /^[1-5]xx$/.test(value)) expect.soft(`${Math.floor(Number(actual) / 100)}xx`, `${message} (expects a ${value} status, got ${text})`).toBe(value);
       else expect.soft(num(actual), `${message} (expects status ${String(value)})`).toBe(Number(value));
       break;
-    case 'absent': expect.soft(actual === undefined || actual === null || actual === false || actual === 0 || actual === '' || (Array.isArray(actual) && !actual.length), `${message} (expects nothing there, got ${text})`).toBe(true); break;
+    case 'absent': expect.soft(nothing(actual), `${message} (expects nothing there, got ${text})`).toBe(true); break;
+    case 'present': expect.soft(nothing(actual), `${message} (expects it to be there, got ${text || 'nothing'})`).toBe(false); break;
   }
 }
 

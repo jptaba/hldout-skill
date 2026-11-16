@@ -110,7 +110,7 @@ code sees of the test.
 | `layer` | `ui`, `api` or `e2e`: where the check is made, as the criterion's wording gives it |
 | `given`, `when` | The starting state and the action, one step a line, as a person would do it by hand. The story's words; no route, locator, endpoint or field the story doesn't state (how a step is done is found later, against the application) |
 | `expect[]` | `{ "id", "what", "comparator", "value", "source" }`. `what` is what is observed, in the story's words ("the message shown", "the number of products listed"). `value` is copied from the line `source` cites, and `contract` refuses one that isn't there (`ungrounded-value`): a figure may be a number word in the line ("nine" for 9) |
-| · `comparator` | `equals`, `contains`, `at-least`, `at-most`; `matches` when the story gives a message's meaning and not its wording (the value is a pattern of the story's own words: `did not match`); `one-of` with a list; `status` with a status (`204`), or with `"4xx"` for "is refused" and `"2xx"` for "is accepted" when no status is stated; `absent` (no value) when what is observed must not be there |
+| · `comparator` | `equals`, `contains`, `at-least`, `at-most`; `matches` when the story gives a message's meaning and not its wording (the value is a pattern of the story's own words: `did not match`); `one-of` with a list; `status` with a status (`204`), or with `"4xx"` for "is refused" and `"2xx"` for "is accepted" when no status is stated; `absent` (no value) when what is observed must not be there; `present` (no value) when it must be there and the story gives no text for it |
 | `rows[]` | Variants of one check: `{ "label", "values"?: { "quantity": 0 }, "expect"?: { "C3.2.a": 422 } }`. The same steps with other input, and, where the story states it, another expected value for that row. A row on each limit, one just past it, and the values the story names; at most 6 |
 | `restsOn` | The ids of the **oracle** gaps the expected values rest on, and no others: never a mechanics gap (how a step is done doesn't unsettle what is expected). An assumed gap's value may then be the expected value, and a failure is reported as a question for the owner; an open gap makes the check a test of the literal reading. Most checks rest on nothing |
 
@@ -127,6 +127,17 @@ could be wrong in the application, never because a type has no check yet:
 At most 4 checks a criterion. The same rule at another endpoint, one more invalid value of the same kind, the same
 refusal for another user of the same kind show nothing new: they are a row, or nothing. A criterion that truly
 states more gets them, with the reason in its `budget`.
+
+**A value is what the application must show or answer, letter for letter, never the story's description of it.**
+"My favorites lists the product with its name and description" gives no text to compare: the checks are that the
+product's name is `present` in the list and its description is `present`, not `contains` "its name and
+description". "The answer is 201 Created with the new favourite": the status is 201, and the favourite is
+`present`. A value that only passes because the story's sentence holds it, and that no application would ever
+show, makes a test nobody can make pass.
+
+**After the freeze a check is corrected like the requirement it is part of:** the extractor fixes the contract,
+the reviewer reviews it again, and the draft is frozen again with the reason (`integrity KEY --snapshot --reason`).
+Never by an expectation in a test.
 
 What the story doesn't state is not an expected value. No stated status for a refusal: `status` `"4xx"`. No stated
 wording: `matches` on the story's own words, or an oracle gap. Something a check needs that no line states: a gap,
