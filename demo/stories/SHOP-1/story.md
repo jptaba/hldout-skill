@@ -12,7 +12,6 @@ What we expect:
 - Nine products per page; `total` and the number of pages count only the matching products.
 - Going to another page keeps the range and the order, and each page continues where the previous one stopped, so paging through all pages shows every matching product exactly once.
 - Price low to high puts the cheapest product first, price high to low the most expensive first; name A–Z and Z–A order alphabetically. The order applies to the whole result, not just to the page on screen.
-- Changing the range or the order starts again at the first page.
 - A range in which no product falls gives an empty overview with a no-results note, not an error.
 
 Out of scope: category, brand and eco-friendly filters, and the search box.

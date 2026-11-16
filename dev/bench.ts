@@ -60,7 +60,9 @@ export function costOf(results: AgentResult[]): Cost {
 export const band = (values: number[]): string => (values.length ? (Math.min(...values) === Math.max(...values) ? String(values[0]) : `${Math.min(...values)}–${Math.max(...values)}`) : '');
 
 async function control(on?: string[]): Promise<{ on: string[]; hits: Record<string, number> }> {
-  const r = await fetch(app.apiBaseUrl + CONTROL, on ? { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ on }) } : undefined);
+  const init = on ? { method: 'PUT', headers: { 'content-type': 'application/json', connection: 'close' }, body: JSON.stringify({ on }) } : { headers: { connection: 'close' } };
+  // After a long run the connection kept from the last call is gone: one more try on a new one.
+  const r = await fetch(app.apiBaseUrl + CONTROL, init).catch(() => fetch(app.apiBaseUrl + CONTROL, init));
   if (!r.ok) throw new Error(`the fault proxy answered ${r.status}: ${await r.text()}`);
   return await r.json() as { on: string[]; hits: Record<string, number> };
 }
