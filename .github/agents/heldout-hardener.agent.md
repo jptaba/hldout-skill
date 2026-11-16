@@ -88,9 +88,20 @@ Do this:
    probe that contradicts a required rule leaves it as it is, because what was asked is never settled by what the
    application does. The overview is written at setup, never by you: an entry of it a probe contradicts is marked
    stale with your probe (`--stale <id> --evidence P9`), and what the overview lacks goes in your reply.
-7. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result
-   and the integrity status; and, under `Overview:`, what the overview lacks (an area, a kind of user, a word of the
-   application and its meaning), one line each, for the main agent's closing summary. A person adds it between stories.
+7. Don't hand back yet: you know this application now, and a fresh agent would have to learn it again. Run
+   `npm run heldout -- advance KEY`. It checks integrity, runs every test once as the evaluation, classifies the
+   failures and reproduces by itself the API failures it can. When it then prints `■ Next: the heldout-triager
+   subagent`, you are that agent: follow `.github/agents/heldout-triager.agent.md` from its step 1, for the run it
+   names, in this same context (read `references/triage.md` first, as it says). The rule that changes with your
+   new hat: you never edit a test or a journey while triaging; a script defect you confirm is recorded as one, and
+   repaired in a task of its own. A failure of a test you wrote is as likely your mistake as the application's:
+   reproduce it by hand, outside the test, before you call it either. When `advance` names anything else, or says
+   the story is complete, stop there.
+8. Reply with a summary: gaps resolved, journeys reused, fixed and added, observed deviations, the stability result
+   and the integrity status; the triage, as the triager's reply is asked for (each failure's category, severity and
+   evidence, each script defect with what is wrong and where); and, under `Overview:`, what the overview lacks (an
+   area, a kind of user, a word of the application and its meaning), one line each, for the main agent's closing
+   summary. A person adds it between stories.
 
 When your task gives you confirmed script defects from triage, repair exactly those (mechanics only, in the test or the
 journey it calls), re-probe, check `npm run heldout -- integrity KEY` and reply with what you changed per defect. The

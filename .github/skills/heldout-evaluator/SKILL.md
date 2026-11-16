@@ -91,8 +91,10 @@ What is yours to decide between the subagents:
 - **Contract.** Send the reviewer's findings back to the builder and review again, in a fresh context, until
   `$H contract KEY` is clean; after 3 rounds, what is still disputed becomes an open question. Don't ask the user the
   open oracle questions it lists: they go to the tests and the verdict.
-- **Hardening.** Check `$H integrity KEY` yourself afterwards. When the hardener reports an over-strict assertion
-  implementation, you decide on `$H integrity KEY --amend`.
+- **Hardening.** The hardener goes on by itself once the tests run: it runs `advance` (integrity, the evaluation
+  run, the automatic triage and its replays) and triages what is left in the same context, as the triager would.
+  When it hands back, `$H advance KEY` says what comes next; the `heldout-triager` is asked only when a run's
+  failures are still undecided then (a re-run after a repair, a hardener cut off).
 - **Triage.** Send the script defects the triager confirms to the `heldout-hardener` ("Repair these script defects for
   KEY: …"), re-run everything (`$H run KEY --label rerun`) and triage again. At most 3 cycles in a row.
 - **Publish** is part of the evaluation, with no confirmation; a project that wants a person to publish sets
