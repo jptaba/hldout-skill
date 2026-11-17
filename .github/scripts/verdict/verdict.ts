@@ -270,8 +270,7 @@ export function run({ _, flags }: Args): void {
   const s = tri.summary;
   const integrityCell = {
     PRESERVED: `✅ PRESERVED — ${reqCount} requirement assertions identical to the pre-hardening draft`,
-    AMENDED: `✅ PRESERVED WITH ${integrity.amended.length} AUDITED AMENDMENT(S) — ${reqCount} requirement assertions; see "Assertion amendments"`,
-    VIOLATED: `❌ VIOLATED — ${integrity.changed.length + integrity.removed.length} requirement assertion(s) changed/removed without amendment${integrity.contractChanged ? '; expected outcomes in the requirement contract changed after the freeze' : ''}${integrity.journeyAssertions?.length ? `; ${integrity.journeyAssertions.length} requirement assertion(s) inside journeys, outside the freeze` : ''}`,
+    VIOLATED: `❌ VIOLATED — ${integrity.changed.length + integrity.removed.length} expectation(s) changed, removed or added after the freeze${integrity.contractChanged ? '; expected outcomes in the requirement contract changed after the freeze' : ''}${integrity.journeyAssertions?.length ? `; ${integrity.journeyAssertions.length} requirement assertion(s) inside journeys, outside the freeze` : ''}`,
     NO_DRAFT: '⚠️ NO_DRAFT — no frozen draft to compare',
   }[integrity.status];
 
@@ -353,12 +352,6 @@ export function run({ _, flags }: Args): void {
   else {
     md.push('| Found in run | Test | Symptom | Diagnosis | Fix applied | Final run |', '| --- | --- | --- | --- | --- | --- |',
       ...repaired.map(({ run, scenario, d, now }) => `| \`${run}\` | ${scenario} | ${esc(d.failure?.slice(0, 120) ?? '-')} | ${esc(d.rationale)} | ${esc(d.action ?? '-')} | ${now === 'passed' ? '✅ passed' : now} |`), '');
-  }
-
-  if (integrity.amended.length) {
-    md.push('## Assertion amendments (audited)', '', 'Fixes to how a requirement assertion was *implemented*. What it requires is unchanged. Each was approved with a reason before the official run.', '',
-      '| Assertion | Draft | Amended | Reason |', '| --- | --- | --- | --- |',
-      ...integrity.amended.map((a) => `| ${esc(a.assertion)} | \`${esc(a.draft)}\` | \`${esc(a.current)}\` | ${esc(a.reason)} |`), '');
   }
 
   md.push(...suspectSection(p.requirement));
@@ -505,7 +498,7 @@ export function run({ _, flags }: Args): void {
   writeFile(p.verdictMd, out);
   const json = {
     key, verdict, reason, finalRun, generatedAt: new Date().toISOString(), autId: cfg.autId, aut: cfg.aut, summary: s,
-    integrity: integrity.status, amendments: integrity.amended.length, journeys,
+    integrity: integrity.status, journeys,
     applicationDefects: [...groups.entries()].map(([title, g]) => ({
       id: appIds.get(g[0]), title: g[0].final ? title : g[0].title, testType: typeOf(g[0]), source: sourcesOf(g.map((x) => x.scenario)), confirmed: Boolean(g[0].final), severity: g[0].final?.severity ?? null,
       criteria: [...new Set(g.flatMap((e) => e.requirementRefs))], tests: g.map((e) => e.scenario),

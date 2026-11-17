@@ -49,7 +49,7 @@ Evidence comes from the failure-time ARIA snapshot, the `[REQ …]` assertion me
 | Element not found, target text **present** in the snapshot (other role/name) | SCRIPT_DEFECT |
 | Element not found, text absent | NEEDS_INVESTIGATION |
 | Text assertion on an element with **empty** text | NEEDS_INVESTIGATION (probably the wrong element) |
-| Regex expectation matches once `\b`/anchors are relaxed | SCRIPT_DEFECT (over-strict implementation → amend) |
+| The check's expectation is one no application could meet (a pattern stricter than the story's words) | SCRIPT_DEFECT, naming the check: it is corrected in the contract and reviewed again |
 | `[REQ]` failed on a located element / declared endpoint with a different value | APPLICATION_DEFECT (high) |
 
 **A shared public sandbox is not only the application.** Anyone can change its settings: a demo's admin page may switch
@@ -131,7 +131,7 @@ Did the app reach the state the previous steps should have produced?
         ├─ Present but the locator didn't match, or the test called an undeclared endpoint → SCRIPT_DEFECT
         ├─ Absent although the requirement names it (or not exposed with the required name) → APPLICATION_DEFECT
         └─ Present → does its observed value/behaviour equal the requirement's (verbatim)?
-                ├─ Equal (the assertion compared wrongly) → SCRIPT_DEFECT (fix + audited amendment)
+                ├─ Equal (the test read the wrong thing, or the check compares wrongly) → SCRIPT_DEFECT (the test is repaired, or the check corrected in the contract)
                 └─ Different → APPLICATION_DEFECT
 ```
 

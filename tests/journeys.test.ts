@@ -201,7 +201,7 @@ describe('journeys: which tests use them, and what runs before them', () => {
   it('the freeze records a hash per journey the story uses; a changed journey is listed, an assertion in one is a violation', () => {
     const used = storyJourneys(cfg, 'shop', [spec]);
     assert.equal(Object.keys(used.hashes).length, 5);
-    const freeze = { ...draftOf(tests, 'oracle', used), refreezes: [], amendments: [] };
+    const freeze = { ...draftOf(tests, 'oracle', used), refreezes: [] };
     assert.deepEqual(checkIntegrity(tests, tests, freeze, 'oracle', storyJourneys(cfg, 'shop', [spec])).journeysChanged, []);
     const file = path.join(root, 'journeys', 'fixtures', 'product.ts');
     const src = fs.readFileSync(file, 'utf8');

@@ -52,7 +52,7 @@ function project(profiles = ['shop']): string {
 const FULL = [
   { at: at(0), event: 'fetched' }, { at: at(5), event: 'review-bound' }, { at: at(15), event: 'draft-finished' },
   { at: at(16), event: 'frozen' }, { at: at(40), event: 'run', run: '01-harden' }, { at: at(46), event: 'run', run: '02-eval' },
-  { at: at(50), event: 'decided', category: 'SCRIPT_DEFECT', tests: ['SCN-002', 'SCN-003'] }, { at: at(52), event: 'amended' },
+  { at: at(50), event: 'decided', category: 'SCRIPT_DEFECT', tests: ['SCN-002', 'SCN-003'] },
   { at: at(53), event: 'note', kind: 'tool-gap', text: 'no command for X' }, { at: at(54), event: 'note', kind: 'remark', text: 'slow login' },
   { at: at(54), event: 'note', remark: 'P3 was in the probe log twice' }, { at: at(54), event: 'note', kind: 'isolation', text: 'inspect refused: not frozen' },
   { at: at(55), event: 'note', kind: 'usage', agent: 'heldout-hardener', tokens: 120000, minutes: 20.1 },
@@ -72,7 +72,7 @@ describe('heldout stats', () => {
     assert.deepEqual(storyStats(dir, 'shop', 'ABC-1').runs, ['01-harden', '02-eval']);
     assert.equal(s.failed, 1);
     assert.equal(s.scriptDefects, 2);
-    assert.deepEqual([s.amendments, s.reviews], [1, 1]);
+    assert.deepEqual([s.refreezes, s.reviews], [0, 1]);
     assert.deepEqual(s.times, { requirement: 5, tests: 10, harden: 30, triage: 14, total: 60 }, 'the eval run, not the harden run, ends hardening');
     assert.deepEqual(s.gaps, ['no command for X']);
     assert.deepEqual(s.refused, ['inspect refused: not frozen']);
@@ -88,8 +88,8 @@ describe('heldout stats', () => {
     fs.mkdirSync(path.join(root, 'output', 'shop', 'ABC-3'), { recursive: true }); // no history: not a story yet
     const all = heldout(root, 'stats');
     assert.equal(all.status, 0, all.stderr);
-    assert.match(all.stdout, /^\| ABC-1 \| 2 \| 1 \| 2 \| 1 \/ 0 \| 1 \| 1 \/ 1 \| 5m \/ 10m \/ 30m \/ 14m \/ 60m \| 0 \| 1 \| 200k tok \/ 24m \|$/m);
-    assert.match(all.stdout, /^\| ABC-2 \| 0 \| - \| 0 \| 0 \/ 0 \| 1 \| 0 \/ 0 \| 3m \/ - \/ - \/ - \/ 3m \| 0 \| 0 \| - \|$/m, 'a story still in its first phase');
+    assert.match(all.stdout, /^\| ABC-1 \| 2 \| 1 \| 2 \| 0 \| 1 \| 1 \/ 1 \| 5m \/ 10m \/ 30m \/ 14m \/ 60m \| 0 \| 1 \| 200k tok \/ 24m \|$/m);
+    assert.match(all.stdout, /^\| ABC-2 \| 0 \| - \| 0 \| 0 \| 1 \| 0 \/ 0 \| 3m \/ - \/ - \/ - \/ 3m \| 0 \| 0 \| - \|$/m, 'a story still in its first phase');
     assert.doesNotMatch(all.stdout, /ABC-3/);
     const one = heldout(root, 'stats', 'ABC-1');
     assert.match(one.stdout, /^Subagent heldout-hardener: 150000 tokens, 24 minutes$/m);
@@ -129,7 +129,7 @@ describe('heldout stats', () => {
     story(root, 'shop', 'ABC-2', [{ at: at(0), event: 'fetched' }, 'null', '[1]', '{ half'].map((e) => (typeof e === 'string' ? e : JSON.stringify(e))));
     const r = heldout(root, 'stats');
     assert.equal(r.status, 0, r.stderr);
-    assert.match(r.stdout, /^\| ABC-1 \| 2 \| \? \| 2 \| 1 \/ 0 \| 1 \| 1 \/ 0 \|/m, 'non-object probe lines skipped; the runs counted from the history');
+    assert.match(r.stdout, /^\| ABC-1 \| 2 \| \? \| 2 \| 0 \| 1 \| 1 \/ 0 \|/m, 'non-object probe lines skipped; the runs counted from the history');
     assert.match(r.stderr, /ABC-1: can't read .*02-eval\.json/);
     assert.match(r.stdout, /^\| ABC-2 \| 0 \|/m, 'a history with non-object lines still reads');
     assert.equal(readHistory(path.join(root, 'output', 'shop', 'ABC-2', 'history.jsonl')).length, 1);

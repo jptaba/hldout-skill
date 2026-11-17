@@ -2,7 +2,7 @@
 export type Verdict = 'PASS' | 'PASS_WITH_WARNINGS' | 'FAIL' | 'INCONCLUSIVE';
 
 export interface VerdictInputs {
-  integrity: 'PRESERVED' | 'AMENDED' | 'VIOLATED' | 'NO_DRAFT';
+  integrity: 'PRESERVED' | 'VIOLATED' | 'NO_DRAFT';
   confirmedAppDefects: { refs: string[] }[];
   failures: number;
   /** Of those, failures the evaluator confirmed as caused by the test environment (a rate limit, a misconfigured sandbox). */
@@ -32,7 +32,7 @@ export function holdsUnderAnyReading(f: { anyReading?: boolean; apiStatus?: numb
 
 export function decideVerdict(i: VerdictInputs): { verdict: Verdict; reason: string } {
   if (i.integrity === 'VIOLATED') {
-    return { verdict: 'INCONCLUSIVE', reason: 'Held-out integrity was violated — requirement assertions changed after the draft was frozen without an audited amendment, so results cannot be trusted.' };
+    return { verdict: 'INCONCLUSIVE', reason: 'Held-out integrity was violated — what the tests expect changed after the draft was frozen, so results cannot be trusted.' };
   }
   if (i.confirmedAppDefects.length) {
     const refs = [...new Set(i.confirmedAppDefects.flatMap((d) => d.refs))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));

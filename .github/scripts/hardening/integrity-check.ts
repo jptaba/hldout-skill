@@ -1,13 +1,9 @@
 /**
  * Held-out integrity: hardening/repair may change HOW a test drives the AUT (locators, waits, navigation),
- * never WHAT it expects. The test author's draft stays as frozen in 3-tests/ (freeze.json holds its hashes); the
- * hardener works on its copy in 4-hardening/. We compare every `[REQ …]` assertion and the `@req-constants` block
- * between the two, and refuse a draft that changed since the freeze.
- *
- * Amendments: an assertion whose *implementation* was wrong (e.g. an over-strict regex) may be fixed
- * only through an audited amendment (recorded in freeze.json by `heldout integrity --amend`),
- * which records draft → current text and a reason. Amendments are listed in the verdict. Any other
- * change is a violation.
+ * never WHAT it expects. The generated draft stays as frozen in 3-tests/ (freeze.json holds its hashes, and the
+ * contract's oracle, where the expected values are); the hardener works on its copy in 4-hardening/. Every
+ * expectation the draft names must still be asserted, none may be added, and the contract may not change: any of
+ * these is a violation. A check that was wrong is corrected in the contract, reviewed again and re-frozen.
  */
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -21,14 +17,13 @@ export interface StoryJourneys { files: string[]; hashes: Record<string, string>
 const NO_JOURNEYS: StoryJourneys = { files: [], hashes: {} };
 
 export interface IntegrityResult {
-  status: 'PRESERVED' | 'AMENDED' | 'VIOLATED' | 'NO_DRAFT';
+  status: 'PRESERVED' | 'VIOLATED' | 'NO_DRAFT';
   checkedAt: string;
   /** Draft files changed or gone since the freeze: the draft is the frozen record, never edited after it. */
   draftChanged: string[];
   files: { file: string; draftAssertions: number; currentAssertions: number }[];
   removed: string[];
   changed: { assertion: string; draft: string; current: string }[];
-  amended: Amendment[];
   added: string[];
   constantsChanged: string[];
   /** The requirement contract's oracle part (ACs, outcomes, rules, error model) changed since the freeze. */
@@ -40,7 +35,6 @@ export interface IntegrityResult {
   unhardenedMarkers: { file: string; line: number; text: string }[];
 }
 
-export interface Amendment { assertion: string; draft: string; current: string; reason: string; approvedAt: string }
 
 /** One frozen draft: the hashes of the specs as the author left them, the contract's oracle and the journeys they used. */
 export interface FrozenDraft {
@@ -63,8 +57,8 @@ export interface Refreeze {
   previous: FrozenDraft;
 }
 
-/** The story's freeze.json: the frozen draft, its re-freezes and the audited amendments. */
-export interface Freeze extends FrozenDraft { refreezes: Refreeze[]; amendments: Amendment[] }
+/** The story's freeze.json: the frozen draft and its re-freezes. */
+export interface Freeze extends FrozenDraft { refreezes: Refreeze[] }
 
 export function readFreeze(file: string): Freeze | undefined {
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Freeze) : undefined;
@@ -174,8 +168,7 @@ export function revisionOf(previous: Pick<FrozenDraft, 'assertions'>, testsDir: 
 }
 
 export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Freeze | undefined, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): IntegrityResult {
-  const result: IntegrityResult = { status: 'PRESERVED', checkedAt: new Date().toISOString(), draftChanged: [], files: [], removed: [], changed: [], amended: [], added: [], constantsChanged: [], unhardenedMarkers: [] };
-  const amendments = freeze?.amendments ?? [];
+  const result: IntegrityResult = { status: 'PRESERVED', checkedAt: new Date().toISOString(), draftChanged: [], files: [], removed: [], changed: [], added: [], constantsChanged: [], unhardenedMarkers: [] };
   for (const file of specFiles(hardenedDir)) {
     const src = fs.readFileSync(file, 'utf8');
     src.split(/\r?\n/).forEach((text, i) => {
@@ -194,12 +187,7 @@ export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Fr
     result.files.push({ file: relName, draftAssertions: d.size, currentAssertions: c.size });
     for (const [k, v] of d) {
       if (!c.has(k)) result.removed.push(`${relName}: ${k}`);
-      else if (c.get(k) !== v) {
-        const key = `${relName}: ${k}`;
-        const ok = amendments.find((a) => a.assertion === key && a.draft === v && a.current === c.get(k));
-        if (ok) result.amended.push(ok);
-        else result.changed.push({ assertion: key, draft: v, current: c.get(k)! });
-      }
+      else if (c.get(k) !== v) result.changed.push({ assertion: `${relName}: ${k}`, draft: v, current: c.get(k)! });
     }
     for (const k of c.keys()) if (!d.has(k)) result.added.push(`${relName}: ${k}`);
     if (reqConstants(draftSrc) !== reqConstants(curSrc)) result.constantsChanged.push(relName);
@@ -217,10 +205,5 @@ export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Fr
   result.journeysChanged = Object.keys(journeys.hashes).filter((id) => before[id] !== journeys.hashes[id]);
   result.journeyAssertions = journeys.files.flatMap((f) => [...reqAssertions(fs.readFileSync(f, 'utf8')).keys()].map((k) => `${path.basename(f)}: ${k}`));
   if (result.draftChanged.length || result.removed.length || result.changed.length || result.constantsChanged.length || result.contractChanged || result.journeyAssertions.length) result.status = 'VIOLATED';
-  else if (result.amended.length || amendments.length) {
-    // Amendments stay visible even after a re-freeze absorbed them into the draft.
-    for (const a of amendments) if (!result.amended.some((x) => x.assertion === a.assertion)) result.amended.push(a);
-    result.status = 'AMENDED';
-  }
   return result;
 }

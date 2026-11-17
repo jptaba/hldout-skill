@@ -218,7 +218,6 @@ describe('decideVerdict', () => {
     assert.equal(holdsUnderAnyReading({}), false);
   });
   it('clean → PASS', () => assert.equal(decideVerdict(base).verdict, 'PASS'));
-  it('amended integrity still allows PASS', () => assert.equal(decideVerdict({ ...base, integrity: 'AMENDED' }).verdict, 'PASS'));
 });
 
 describe('run artifacts name no local folders', () => {

@@ -10,7 +10,7 @@ journeys they call, **without changing what the test expects**.
 | `mcp__playwright__*` tools, or `heldout mcp-probe` | Tier 2 in practice |
 | Ads or banners in the way, a 429, a list you walk through, several agents at once | Tier notes |
 | A field sent as a code (0, 1, 2) | Values the application takes as codes |
-| An assertion whose code is wrong, or a revised requirement | Assertion-implementation bugs, Requirement revision |
+| A check that can't be right, or a revised requirement | A check that can't be right, Requirement revision |
 
 ## 0. Freeze
 

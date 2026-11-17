@@ -21,7 +21,7 @@ from its root.
   `1-requirement/`, `2-contract/` (contract and review), `3-tests/` (the frozen draft and `freeze.json`),
   `4-hardening/` (the hardened tests that ran, `hardening.md`, the probes it cites), `5-run/` (each run's record
   `NN-label.json`: its tests and evidence), `6-triage/` (`decisions.json`, the probes they cite), `7-verdict/`
-  (`verdict.json`, `verdict.md`), and `history.jsonl`: every run, check, freeze, amendment, decision and
+  (`verdict.json`, `verdict.md`), and `history.jsonl`: every run, check, freeze, decision and
   publication, in order — start there.
 - `<project>/journeys/`: the journeys the tests called (`fixtures/<domain>.ts`) and the registry the harvest wrote
   (`registry.yml`). A journey holding an expected value of the story is a held-out leak.
@@ -33,7 +33,7 @@ Do this:
    Note the verdict match, the faults found, raised as questions and missed, the false positives, the findings no
    fault explains, and a fault with no hits (the tests never reached it).
 2. Get the round's numbers: `npm run heldout -- stats KEY` run in the project (runs, failures, script defects,
-   amendments, review rounds, probes per phase, minutes per phase, stray files, tool gaps, subagent cost), and read
+   re-freezes, review rounds, probes per phase, minutes per phase, stray files, tool gaps, subagent cost), and read
    the record with `npm run heldout -- show KEY history|run|triage|probes` run in the project; never with a script of
    your own. When the round ran in Claude Code, `npx tsx dev/inflight.ts <its transcripts folder> --list` counts
    the scripts the agents wrote on the fly, per agent.
@@ -42,7 +42,7 @@ Do this:
      fly: a command the skill lacks, or an instruction that sent the agent elsewhere — a skill defect;
    - runs beyond the first harden and the first eval, and why each was needed;
    - each confirmed SCRIPT_DEFECT (a test the author or hardener got wrong), each NEEDS_INVESTIGATION or BLOCKED;
-   - integrity amendments and re-freezes, and their reasons;
+   - re-freezes, and their reasons;
    - contract review rounds and findings, gaps left `open` or `assumed`, and any oracle value that does not come from
      the sources (a held-out leak is the most serious finding there is);
    - each trap in the key: raised as a question, or fallen into (and where);

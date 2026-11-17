@@ -38,7 +38,7 @@ describe('agent files', () => {
     for (const later of ['`hardening-cases.md` for the cases', '`journeys.md` when you add', '`accounts.md` when']) assert.ok(hardener.includes(later), later);
     const procedure = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening.md'), 'utf8');
     const cases = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening-cases.md'), 'utf8');
-    for (const section of ['Tier 2 in practice', 'Tier notes', 'Values the application takes as codes', 'Assertion-implementation bugs', 'Requirement revision']) {
+    for (const section of ['Tier 2 in practice', 'Tier notes', 'Values the application takes as codes', 'A check that can\'t be right', 'Requirement revision']) {
       assert.ok(procedure.includes(section), `hardening.md points to ${section}`);
       assert.match(cases, new RegExp(`^## ${section}`, 'm'), `hardening-cases.md holds ${section}`);
     }

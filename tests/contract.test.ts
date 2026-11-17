@@ -203,7 +203,7 @@ describe('requirement contract', () => {
     fs.mkdirSync(path.join(dir, 'tests'));
     fs.writeFileSync(path.join(dir, 'tests', 'a.spec.ts'), "expect(r.status, '[REQ AC-1] created').toBe(201);\n");
     const c = goodContract(fixture());
-    const freeze = { ...draftOf(path.join(dir, 'tests'), oracleDigest(c)), refreezes: [], amendments: [] };
+    const freeze = { ...draftOf(path.join(dir, 'tests'), oracleDigest(c)), refreezes: [] };
     const mech = structuredClone(c);
     mech.testData = { strategy: 'changed' }; mech.acceptanceCriteria[0].entryPoint = '/x'; mech.endpoints[0].requestFields = ['name'];
     assert.equal(checkIntegrity(path.join(dir, 'tests'), path.join(dir, 'tests'), freeze, oracleDigest(mech)).status, 'PRESERVED');

@@ -45,7 +45,7 @@ export function evalPaths(cfg: Pick<HeldoutConfig, 'outputDir' | 'autId'>, key: 
     // 3 — how it is tested: the test author's draft, frozen as written
     tests: path.join(base, TESTS),
     testData: path.join(base, TESTS, 'test-data.json'),
-    /** The frozen draft's hashes, its re-freezes and the audited amendments (hardening/integrity-check.ts). */
+    /** The frozen draft's hashes, and its re-freezes (hardening/integrity-check.ts). */
     freeze: path.join(base, TESTS, 'freeze.json'),
     // 4 — how the tests were made to work: the hardener's copy of the draft, its log and the probes it cites
     hardened: path.join(base, HARDENING),

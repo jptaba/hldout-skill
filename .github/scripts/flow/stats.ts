@@ -4,8 +4,8 @@
  *
  *   heldout stats [KEY] [--aut <profile>]
  *
- * One row per story with a history: runs, failures in the last evaluation run, script defects repaired, amendments
- * and re-freezes, contract review rounds, probes while hardening and triaging, minutes per phase, stray files, tool
+ * One row per story with a history: runs, failures in the last evaluation run, script defects repaired,
+ * re-freezes, contract review rounds, probes while hardening and triaging, minutes per phase, stray files, tool
  * gaps, and what the subagents cost (as the orchestrator recorded it with the note command). A story is shown as
  * <profile>/<KEY> when the project has several profiles; --aut keeps one profile's stories (and says which, for a key
  * in several). With KEY, also the runs, each subagent's cost, the probes refused before the freeze, the tool gaps and the remarks.
@@ -24,7 +24,7 @@ import { readRunRecord } from '../run/run-record';
 export interface Usage { agent: string; tokens: number; minutes: number }
 
 export interface StoryStats {
-  profile: string; key: string; runs: string[]; failed: number | null; scriptDefects: number; amendments: number; refreezes: number;
+  profile: string; key: string; runs: string[]; failed: number | null; scriptDefects: number; refreezes: number;
   reviews: number; probes: Record<string, number>; times: Record<string, number | null>; stray: string[]; gaps: string[];
   refused: string[]; remarks: string[]; usage: Usage[]; unreadable: string[];
 }
@@ -63,7 +63,7 @@ export function storyStats(dir: string, profile: string, key: string): StoryStat
   return {
     profile, key, runs, failed, unreadable,
     scriptDefects: all('decided').filter((e) => e.category === 'SCRIPT_DEFECT').reduce((n, e) => n + (Array.isArray(e.tests) ? e.tests.length : 1), 0),
-    amendments: all('amended').length, refreezes: all('refrozen').length, reviews: all('review-bound').length,
+    refreezes: all('refrozen').length, reviews: all('review-bound').length,
     probes: probes.reduce<Record<string, number>>((m, p) => ({ ...m, [p.phase]: (m[p.phase] ?? 0) + 1 }), {}),
     times: {
       requirement: minutes(first('fetched'), last('review-bound')),
@@ -102,9 +102,9 @@ export function statsTable(stories: StoryStats[]): string[] {
     return `${tokens >= 1000 ? `${Math.round(tokens / 1000)}k` : tokens} tok / ${Math.round(s.usage.reduce((n, u) => n + u.minutes, 0))}m`;
   };
   return [
-    '| Story | Runs | Failed (last eval) | Script defects | Amend / refreeze | Reviews | Probes harden / triage | Minutes req / tests / harden / triage / total | Stray | Tool gaps | Subagents |',
+    '| Story | Runs | Failed (last eval) | Script defects | Re-freezes | Reviews | Probes harden / triage | Minutes req / tests / harden / triage / total | Stray | Tool gaps | Subagents |',
     '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
-    ...stories.map((s) => `| ${several ? `${s.profile}/` : ''}${s.key} | ${s.runs.length} | ${s.failed ?? (s.unreadable.length ? '?' : '-')} | ${s.scriptDefects} | ${s.amendments} / ${s.refreezes} | ${s.reviews} | ${s.probes.hardening ?? 0} / ${s.probes.triage ?? 0} | ${PHASES.map((k) => t(s.times[k])).join(' / ')} | ${s.stray.length} | ${s.gaps.length} | ${cost(s)} |`),
+    ...stories.map((s) => `| ${several ? `${s.profile}/` : ''}${s.key} | ${s.runs.length} | ${s.failed ?? (s.unreadable.length ? '?' : '-')} | ${s.scriptDefects} | ${s.refreezes} | ${s.reviews} | ${s.probes.hardening ?? 0} / ${s.probes.triage ?? 0} | ${PHASES.map((k) => t(s.times[k])).join(' / ')} | ${s.stray.length} | ${s.gaps.length} | ${cost(s)} |`),
   ];
 }
 

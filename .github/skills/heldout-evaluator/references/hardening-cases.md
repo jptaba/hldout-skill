@@ -68,32 +68,20 @@ the valid ones are: a code outside the set, not the word passed through. An appl
 wrong form at once (a 404, a parsing error) and fails only on a value of the right form that it doesn't know. Map
 the test's unknown value to such a code in the journey, and say so in the log.
 
-## Assertion-implementation bugs: audited amendment
+## A check that can't be right: report it
 
-Sometimes the *assertion code* is wrong even though the requirement is right, for example a `\b`
-regex against text rendered without separators. Fix it so it still requires exactly what the
-requirement says, then record it:
-
-```bash
-npm run heldout -- integrity KEY --amend "<file>: [REQ AC-3] <message>" --reason "<why the implementation was wrong; why the requirement is unchanged>"
-```
-
-The message alone is enough when only one spec has it. When the fix also changes what the assertion reads (another
-page, another call), say so in the reason: integrity tracks the assertion, not the request before it.
-Integrity becomes AMENDED and the verdict lists the amendment. Never use an amendment to align
-with AUT behaviour. An expected value computed from what the application answers about the property under test
-(its `last_page` when pages are checked) is such a bug: derive it from the requirement.
-
-The test: after the amendment, does the assertion still fail for every application that violates **its own**
-criterion, and pass for every one that meets it? Then it is an implementation fix. Typical cases: a regex stricter than
-the wording; one AC's assertion re-checking another AC's oracle (AC-9 "one message remains" asserting AC-7's exact
-message text — the text stays AC-7's check, AC-9 asserts only what AC-9 states). Loosening an assertion because the
-application answers differently is never one. Say in `--reason` if you noticed it while looking at the live app.
+A check's expectation is in the contract, so you can't change it, and nothing lets you: when one is wrong in a way
+no application could meet (a pattern stricter than the story's wording, a value that describes rather than states,
+one criterion's check re-checking another's value), leave the test as it is and say so in your reply, with the
+check's id and why. The coordinator sends it back to the extractor, the reviewer reviews the corrected contract,
+and the draft is frozen again (below). The test of a real one: corrected, does the check still fail for every
+application that breaks **its own** criterion, and pass for every one that meets it? Loosening a check because the
+application answers differently is never one.
 
 ## Requirement revision: audited re-freeze
 
-When `jira-fetch` reports a revision, rebuild and re-review the contract, draft the new tests
-(before touching the AUT), then:
+When the fetch reports a revision of the story, or a check was corrected, the contract is rebuilt and reviewed
+again, the tests generated again (`scaffold KEY --force`), then:
 
 ```bash
 npm run heldout -- integrity KEY --snapshot --reason "Requirement revision N: <what changed>"

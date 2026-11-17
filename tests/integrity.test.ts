@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { checkIntegrity, copyDraft, draftOf, reqAssertions, reqConstants, revisionOf, type Amendment, type Freeze } from '../.github/scripts/hardening/integrity-check';
+import { checkIntegrity, copyDraft, draftOf, reqAssertions, reqConstants, revisionOf, type Freeze } from '../.github/scripts/hardening/integrity-check';
 
 const SPEC = `
 // @req-constants-start
@@ -19,13 +19,13 @@ test('SCN-001: a', async () => {
 
 const ORACLE = '{"acs":[]}';
 /** The frozen `draft` in 3-tests/ with its freeze, and the hardener's copy in 4-hardening/ holding `current`. */
-function workspace(draft: string, current: string, amendments: Amendment[] = []): { tests: string; hardened: string; freeze: Freeze } {
+function workspace(draft: string, current: string): { tests: string; hardened: string; freeze: Freeze } {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'heldout-int-'));
   const tests = path.join(dir, '3-tests');
   const hardened = path.join(dir, '4-hardening');
   fs.mkdirSync(tests);
   fs.writeFileSync(path.join(tests, 'a.spec.ts'), draft);
-  const freeze: Freeze = { ...draftOf(tests, ORACLE), refreezes: [], amendments };
+  const freeze: Freeze = { ...draftOf(tests, ORACLE), refreezes: [] };
   copyDraft(tests, hardened);
   fs.writeFileSync(path.join(hardened, 'a.spec.ts'), current);
   return { tests, hardened, freeze };
@@ -72,9 +72,8 @@ describe('checkIntegrity', () => {
   it('changing the constants block is a violation', () => {
     assert.equal(check(workspace(SPEC, SPEC.replace("MSG: 'Hello'", "MSG: 'Bye'"))).status, 'VIOLATED');
   });
-  it('an audited amendment turns the change into AMENDED', () => {
-    const amendment = { assertion: 'a.spec.ts: [REQ AC-1] message shown', draft: '.toHaveText(REQ.MSG)', current: '.toContainText(REQ.MSG)', reason: 'x', approvedAt: 'now' };
-    assert.equal(check(workspace(SPEC, SPEC.replace('.toHaveText(REQ.MSG)', '.toContainText(REQ.MSG)'), [amendment])).status, 'AMENDED');
+  it('a changed assertion implementation is a violation: there is no amendment, the check is corrected in the contract', () => {
+    assert.equal(check(workspace(SPEC, SPEC.replace('.toHaveText(REQ.MSG)', '.toContainText(REQ.MSG)'))).status, 'VIOLATED');
   });
   it('reports remaining TODO(harden) markers', () => {
     assert.equal(check(workspace(SPEC, `${SPEC}\nconst x = page.getByLabel('x'); // TODO(harden)\n`)).unhardenedMarkers.length, 1);

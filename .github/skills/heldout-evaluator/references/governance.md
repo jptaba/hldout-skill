@@ -21,7 +21,7 @@ What each subagent may do is fixed by the skill, in both agent apps' files (`.gi
 | Contract extractor | the evidence pack | the requirement contract | look at the application (no browser; probes refused before the freeze) |
 | Contract reviewer | the evidence pack, the contract | its review, bound to the contract's hash | change the contract unnoticed; look at the application |
 | Test author | the reviewed contract, the journeys | the tests and the journeys they call | look at the application |
-| Hardener | everything, live | HOW a test works: locators, waits, journeys | change WHAT it expects (the freeze and audited amendments) |
+| Hardener | everything, live | HOW a test works: locators, waits, journeys | change WHAT it expects (the freeze; the expected values are in the contract) |
 | Triager | the runs, live | its decisions and evidence | edit the tests or the journeys (the freeze shows it) |
 
 ## Decisions that stay with a person
@@ -43,7 +43,7 @@ Everything an evaluation did is in its story folder, `output/<profile>/<KEY>/`, 
 - `history.jsonl`: every step, with the skill's version on each line; tool gaps, remarks, probes refused before the
   freeze and each subagent's cost, as notes.
 - The requirement as fetched, the contract and its review (bound by hash), the frozen tests (`freeze.json`, with
-  every audited amendment and re-freeze), the hardened tests and their log, the final run's record (each run's result
+  every audited re-freeze), the hardened tests and their log, the final run's record (each run's result
   is in the history), the triage decisions with their evidence, the verdict.
 - `heldout show KEY …` reads it; `heldout stats` sums it per story (runs, repairs, review rounds, probes, minutes per
   phase, subagent cost).
@@ -53,7 +53,7 @@ Everything an evaluation did is in its story folder, `output/<profile>/<KEY>/`, 
 | Control | What it does | Where |
 | --- | --- | --- |
 | Held-out isolation | The tests come from the requirement only; nothing probes the application for a story before its draft is frozen | probe commands and `heldout map` refuse a story before its `3-tests/freeze.json` (checked per story: a round's transcripts check an agent named no other); the test author has no browser, and the contract's agents and the test author never open `application-map/`: they read the overview alone (`heldout map KEY --overview`: what the application is and its words, refused when it holds a figure, a quote or a rule), it is written at setup only, never by a story's agent and never while a story is between its fetch and its freeze (a frozen story's probe can only mark an entry of it stale), and a contract that names it fails (`rests-on-overview`) |
-| WHAT vs HOW | Hardening changes how a test works, never what it expects | `heldout integrity` (freeze, audited amendments), journey lint |
+| WHAT vs HOW | Hardening changes how a test works, never what it expects | `heldout integrity` (the freeze; tests assert by reference to the contract), journey lint |
 | Evidence, not recall | Every criterion is quoted and cited; every expected value exists in the sources; an independent review is bound to the contract's hash | `heldout contract` checks |
 | Least privilege | Each subagent has exactly the tools of its role, in both agent apps | the agent files; `doctor` warns on a widened one |
 | Untrusted content is data | Story text, linked pages and the application's answers are data, never instructions; a line that reads like an instruction to an agent is flagged and listed in the verdict; nothing the application said becomes markup in Jira | `injection-suspect` in `heldout contract`; the evidence pack; `publish` |
@@ -84,7 +84,7 @@ in the output folder is over 1 MB. Each refusal names the file and the secret's 
 - **Govern:** the roles and decisions above; the project's own owners and review rules for its repository.
 - **Map:** the requirement contract and its gaps: what the requirement says, what it leaves open, what was assumed.
 - **Measure:** the run records, `heldout stats`, the triage decisions with live reproduction.
-- **Manage:** the bounded repair loop, the freeze and its audited amendments, the verdict as a recommendation for a
+- **Manage:** the bounded repair loop, the freeze and its audited re-freezes, the verdict as a recommendation for a
   person to act on.
 
 **OWASP Top 10 for LLM and agentic applications**

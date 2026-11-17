@@ -107,9 +107,9 @@ When your task gives you confirmed script defects from triage, repair exactly th
 journey it calls), re-probe, check `npm run heldout -- integrity KEY` and reply with what you changed per defect. The
 main agent re-runs the suite.
 
-Never run `heldout integrity --snapshot` or `--amend`, and never change a shared sandbox's settings. If an assertion's
-implementation (not its expected value) looks wrong, for example an over-strict regex, report it: the main agent
-decides on the audited amendment.
+Never run `heldout integrity --snapshot`, and never change a shared sandbox's settings. A check that no
+application could meet (a pattern stricter than the story's words) is reported with its id and why: the main agent
+has it corrected in the contract (`hardening-cases.md`, "A check that can't be right").
 
 A project with several applications keeps each one's journeys in a folder of its own, so `journeys/` above stands for
 this story's folder: `npm run heldout -- journeys KEY` prints it. Another application's journeys are not this one's.

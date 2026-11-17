@@ -12,7 +12,7 @@ where everything passed needs no triage by hand; the verdict triages it itself.
 
 | Verdict (recommendation) | Rule (first match wins) |
 | --- | --- |
-| `INCONCLUSIVE` | integrity VIOLATED (the oracle changed without an amendment or re-freeze) |
+| `INCONCLUSIVE` | integrity VIOLATED (what the tests expect changed without a re-freeze) |
 | `FAIL` | ≥ 1 application defect reproduced by the evaluator |
 | `INCONCLUSIVE` | failures remain that are unconfirmed, script, environment or needs-investigation |
 | `PASS_WITH_WARNINGS` | all passed, but flaky tests, uncovered ACs, clarifications, contradicted assumptions, open questions or stated requirements no scenario verified (`@NFR-n`) remain. An open question about a non-required oracle gap (the criteria it touches can be evaluated without the answer, as the review confirmed) is listed "for the owner's information" and doesn't downgrade a PASS; one about a required gap does. Such questions are counted in the verdict's first line and in the summary posted to the story ("3 questions for the story's owner are listed …; no criterion waits on them"), whatever the verdict |
@@ -24,7 +24,7 @@ where everything passed needs no triage by hand; the verdict triages it itself.
    each finding in a line (id, criteria, severity, what is wrong), the questions for the story's owner, and what was
    not tested.
 2. **The record** starts below the findings: the story, AUT profile, final run, counts, integrity (with
-   amendment and re-freeze counts), tiers used, and items 4 to 9.
+   re-freeze counts), tiers used, and items 4 to 9.
 3. **Each finding** (grouped by root cause), right after the first screen:
    - requirement text and **source**
    - test type and layer
@@ -36,7 +36,7 @@ where everything passed needs no triage by hand; the verdict triages it itself.
    - **evidence**: inline screenshot for UI, failure context, trace, the evaluator's live re-check
    - the evaluator's analysis
    - reviewer decision: ☐ confirm · ☐ reject · ☐ clarify
-4. Script defects found and repaired, audited assertion amendments, audited draft re-freezes.
+4. Script defects found and repaired, audited draft re-freezes.
 5. **Test results** (test, criteria, type, result, classification).
 6. **Requirement coverage** (AC → tests → met / not met).
 7. **Traceability matrix**: AC → source → test (SCN id) → type → layer → tests passed → result → finding.

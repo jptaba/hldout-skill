@@ -25,7 +25,7 @@ import { doc, h, p, panel, table, txt, ul } from '../fetch/jira/adf';
 import { createTracker } from '../fetch/jira/client';
 
 interface VerdictJson {
-  key: string; verdict: string; reason: string; finalRun: string; integrity: string; amendments?: number;
+  key: string; verdict: string; reason: string; finalRun: string; integrity: string;
   aut: { name: string; baseURL: string };
   summary: { total: number; passed: number; failed: number; flaky: number; skipped: number };
   applicationDefects: { id: string; title: string; confirmed: boolean; severity: string | null; criteria: string[]; tests: string[]; testType?: string; expected: string | null; actual: string | null }[];
@@ -65,7 +65,7 @@ export async function run({ _, flags }: Args): Promise<void> {
     panel(PANEL[v.verdict] ?? 'note', p(txt(v.reason))),
     p(txt('AUT: ', 'strong'), `${v.aut.name} (${v.aut.baseURL})`),
     p(txt('Tests: ', 'strong'), `${v.summary.passed}/${v.summary.total} passed, ${v.summary.failed} failed, ${v.summary.flaky} flaky`,
-      txt('  ·  Held-out integrity: ', 'strong'), `${v.integrity}${v.amendments ? ` (${v.amendments} audited amendment(s))` : ''}`,
+      txt('  ·  Held-out integrity: ', 'strong'), v.integrity,
       txt('  ·  Script defects self-repaired: ', 'strong'), String(v.scriptDefectsRepaired.length)),
     ...(v.coverageByType?.length ? [
       h(4, 'Coverage by test type'),

@@ -116,7 +116,7 @@ go-ahead. Whatever is unclear or missing becomes part of the result:
 | The story has no acceptance criteria | `advance` writes an INCONCLUSIVE verdict saying so, and publishes it |
 | An account, role or secret the tests need is missing and the application can't create it | Those tests end BLOCKED; the verdict names what is missing |
 | The application is down or degraded, or a failure stays unexplained after 3 repair cycles | ENVIRONMENT_ISSUE or NEEDS_INVESTIGATION; verdict INCONCLUSIVE |
-| An assertion's implementation is wrong (not its expected value) | You decide on the audited amendment yourself; the verdict shows it |
+| A check no application could meet | The extractor corrects it, the reviewer reviews it again, the tests are generated again and re-frozen with a reason; the verdict shows the re-freeze |
 
 The owner's later answer to an open question enters the next evaluation: a revised story is fetched again, or
 `$H contract KEY --answer G<n> --value "…" --by "<who>"` records it (then a fresh review).
@@ -167,10 +167,9 @@ Non-negotiable, for every agent:
   how each step is done and where each actual value is read. An expectation written in a test, or a contract
   changed after the freeze, makes integrity VIOLATED. If the AUT contradicts the requirement, the check fails:
   that is the finding; log an *observed deviation*.
-- **Only two audited exceptions:**
-  - `heldout integrity --amend` fixes a buggy assertion *implementation* (e.g. an over-strict regex).
-  - `heldout integrity --snapshot --reason` re-freezes after a **requirement revision**.
-  Both are logged and shown in the verdict. Anything else makes integrity VIOLATED and the verdict INCONCLUSIVE.
+- **One audited exception:** `heldout integrity --snapshot --reason` re-freezes after a requirement revision or a
+  check corrected in the contract (rebuilt by the extractor, reviewed again). It is logged and shown in the
+  verdict. Anything else makes integrity VIOLATED and the verdict INCONCLUSIVE.
 - **No application defect without live reproduction.** The automatic triage is a hypothesis.
   Reproduce in the browser or with `heldout api-probe` before `--set … APPLICATION_DEFECT`. A sure API failure
   `advance` reproduces itself: it sends the test's calls again outside the test, twice, and the same answer both
@@ -232,7 +231,7 @@ Tell the user:
 - the verdict (PASS / PASS_WITH_WARNINGS / FAIL / INCONCLUSIVE, a recommendation) and why
 - each finding: AC, test type, expected vs actual, how to reproduce
 - script defects that were repaired
-- the integrity status, including any amendments or re-freezes
+- the integrity status, including any re-freezes
 - the tiers actually used, and the journeys: reused, added, fixed after the freeze, recorded in the registry, stale
 - requirement gaps and how each was filled (found, discovered, answered by the owner earlier, assumed or open)
 - the open questions for the story's owner, and anything that was missing (an account, a role, a secret) with the
