@@ -8,7 +8,8 @@
  *       [--from P7[:k]]   start from the steps of an earlier walk of the story (its first k)
  *       [--then '<step>']...   add one step after the others (in bash; in PowerShell write a step file instead)
  *       In that order: sign-in, --from, the step files, --steps-json, --then.
- *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text)
+ *       [--probe "getByRole('button', { name: 'Sign in' })"]...   verify candidate locators (count/visible/text;
+ *                               with several matches, each one's text in order: a list read in one probe)
  *       [--probes probes.txt]   the same, one locator per line in a file (regexes and nested quotes survive any shell)
  *       [--html "<locator>"]...   the element's HTML (how a list or a filter nests, a select's option values, a field's
  *                                 value; the value of a password field or a secret-named one left out)
@@ -463,6 +464,11 @@ export async function run({ flags, argv }: Args): Promise<void> {
           const visible = count ? await first.isVisible() : false;
           const text = count ? ((await first.innerText().catch(() => '')) || (await first.inputValue().catch(() => ''))).slice(0, 80) : '';
           out.push(`| \`${expr}\` | ${count}${count === 1 ? ' ✔' : count ? ' ⚠ not unique' : ' ✖'} | ${visible} | ${text.replace(/\n/g, ' ')} |`);
+          // Several matches: what each shows, in order, so a list (its names, its prices) is read in one probe.
+          if (count > 1) {
+            const texts = (await loc.allInnerTexts().catch(() => [] as string[])).slice(0, 60).map((t) => t.replace(/\s+/g, ' ').trim().slice(0, 60));
+            out.push(`|  | each, in order |  | ${texts.map((t, i) => `${i + 1}. ${t}`).join(' · ').replace(/\|/g, '\\|')}${count > 60 ? ` · … ${count - 60} more` : ''} |`);
+          }
         } catch (e) {
           out.push(`| \`${expr}\` | error | - | ${(e as Error).message.split('\n')[0]} |`);
         }
