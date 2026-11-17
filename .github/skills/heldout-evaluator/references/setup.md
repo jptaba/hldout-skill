@@ -33,7 +33,7 @@ repository (refreshed on later updates unless the project changed them):
 - `playwright.config.ts`, `heldout-support/fixtures.ts`, `tsconfig.json` and `.env.example`
 - the Playwright MCP server (tier 2) into `.vscode/mcp.json` and the root `.mcp.json`, added to any servers the project
   already has
-- the subagents in `.github/agents/` (contract extractor and reviewer, test author, hardener and triager, each with its
+- the subagents in `.github/agents/` (contract extractor and reviewer, hardener and triager, each with its
   model and fallbacks)
 - the coordinator agent for GitHub Copilot, `.github/agents/heldout-evaluator.agent.md`
 - the Claude Code bridges in `.claude/`, its fallback models and the approval of the `heldout` command, the
@@ -112,7 +112,7 @@ Last, for each profile (`--aut <id>` for another one): `$H map --survey` prints 
 when it serves one); it signs in nowhere and writes nothing. From it, write what the application is, one entry each:
 `$H map --about <part> --add "…"`, with the parts `purpose`, `area` (each area, named as its journeys' domain will
 be), `user` (each kind of user), `sign-in`, `api` (its style and base path) and `term` (a word of the application and
-its meaning). Every agent reads it (`$H map --overview`), the contract's and the test author too, so it says what the
+its meaning). Every agent reads it (`$H map --overview`), the contract's too, so it says what the
 application is and never what it does: the command refuses a figure, a quoted text, a rule or a judgement. It lives in
 `application-map/<profile>/app.yml`, committed; `$H status` says when a profile has none.
 

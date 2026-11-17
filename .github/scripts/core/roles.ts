@@ -17,7 +17,6 @@ export interface Role { writes: 'edit' | 'create'; browser: boolean }
 export const ROLES = {
   'heldout-contract-extractor': { writes: 'edit', browser: false },
   'heldout-contract-reviewer': { writes: 'create', browser: false },
-  'heldout-test-author': { writes: 'edit', browser: false },
   'heldout-hardener': { writes: 'edit', browser: true },
   'heldout-triager': { writes: 'edit', browser: true },
 } as const satisfies Record<string, Role>;

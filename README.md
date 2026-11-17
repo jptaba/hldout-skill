@@ -141,17 +141,16 @@ What each app needs for an evaluation (which agent to pick, the model, the appro
 | Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` (a Copilot session also reads `.mcp.json`) | ✔ `.mcp.json` (the only file it reads them from) |
 | The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) | ✔ (plain Node) |
 
-One agent coordinates (in GitHub Copilot the `heldout-evaluator` agent, which may call the five phase subagents only;
+One agent coordinates (in GitHub Copilot the `heldout-evaluator` agent, which may call the four phase subagents only;
 in Claude Code the main agent with the skill): `heldout advance KEY` runs the commands between phases and names the
 next subagent with its task, and the coordinator hands each phase that needs a model to that subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
-builder's reasoning, the test author has no browser and never sees the application, and the triager didn't write the
-tests it judges.
+builder's reasoning, and what a test expects is written by neither of the agents that make it run: it is in the
+reviewed contract, and the tests are generated from it.
 
 | Subagent | Phase | Browser | GitHub Copilot (first available) | Claude Code |
 | --- | --- | --- | --- | --- |
 | `heldout-contract-extractor` | 1b build the requirement contract | — | Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol | `opus`, falling back to `sonnet` |
 | `heldout-contract-reviewer` | 1b review it independently, in a fresh context | — | as the extractor | `opus`, falling back to `sonnet` |
-| `heldout-test-author` | 2 write the tests from the contract, on the app's journeys | — | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-hardener` | 3 harden tests and fixtures; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 | `heldout-triager` | 5 triage, reproduce live | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 
@@ -257,7 +256,8 @@ reason to add one, and what the story doesn't state or imply becomes a question,
 An audit requirement is tested like any other: a record the application shows is checked by a `functional` test, and one kept only in a
 database or log can't be observed by a black-box test, so the verdict lists it as not verified.
 
-Rules for each type: [test-authoring.md](.github/skills/heldout-evaluator/references/test-authoring.md).
+A type is the label of a check; how checks are chosen and written:
+[requirement-contract.md](.github/skills/heldout-evaluator/references/requirement-contract.md), "Checks".
 
 ## Data seeding, API pre-steps and entry points
 
@@ -270,8 +270,8 @@ never as the requirement failing. Strategy:
 
 The HOW of driving the application lives as code in `journeys/fixtures/`, one file per area of the application
 (`products.ts`, `cart.ts`, `favorites.ts`…). Each file holds that area's UI journeys (open a page and wait until it is
-ready, fill a form) and API journeys (create and delete a record, find one). The test author calls them for the steps
-of a new story's tests and adds the ones it needs; the hardener makes them work; the tests keep every expectation.
+ready, fill a form) and API journeys (create and delete a record, find one). The hardener calls them for the steps
+of a new story's tests and adds the ones it needs; the contract keeps every expectation.
 Journeys never hold what the application answers (the lint and the integrity check refuse it), so tests stay held out.
 
 `journeys/registry.yml` maps them, one entry per journey: its id (`ui.favorites.open-favourites`,

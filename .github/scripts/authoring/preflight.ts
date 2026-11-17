@@ -35,7 +35,7 @@ export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 
   }
 }
 
-/** The most tests a criterion gets without a stated reason (references/test-authoring.md, "The budget"). */
+/** The most tests a criterion gets without a stated reason (the same budget its checks have in the contract). */
 export const CHECK_BUDGET = 4;
 
 /** The criteria with more tests than the budget and no `// BUDGET: AC-n …` line in the specs, each with its count. */
@@ -60,7 +60,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   if (!contract) { err('no-contract', `No requirement contract (${rel(p.contract)}) — phase 1b comes first: heldout contract KEY --pack, then the extractor and reviewer subagents`); return out; }
   const tests = opts.draft ? p.tests : currentTests(p);
   const specs = specFiles(tests);
-  if (!specs.length) { err('no-tests', `No *.spec.ts under ${rel(tests)}/ — the heldout-test-author subagent writes them from the contract`); return out; }
+  if (!specs.length) { err('no-tests', `No *.spec.ts under ${rel(tests)}/ — heldout advance generates them from the contract's checks`); return out; }
   const f = readSuite(tests, contract);
   if (!f.acs.length) err('no-acs', 'The contract has no acceptance criteria — they drive coverage.');
 
@@ -76,7 +76,7 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     if (new Set(s.rawTypes).size > 1) err('several-types', `${s.id} has ${s.rawTypes.map((t) => `@type:${t}`).join(' and ')} — one type: what the test truly proves. If it fits two, take the more specific (${TEST_TYPES.join(' › ')}); if it proves two things, make it two tests`);
     // Is the type what the test truly is? Cheap signs from the test's own code; a warning to re-check, not a verdict.
     const mismatch = s.testType && typeMismatch(s.testType, s);
-    if (mismatch) warn('type-mismatch', `${s.id} is @type:${s.testType}, but ${mismatch} — re-check its type (references/test-authoring.md "Choosing the type")`);
+    if (mismatch) warn('type-mismatch', `${s.id} is @type:${s.testType}, but ${mismatch} — re-check the type of its check in the contract`);
   }
 
   // By preflight time the user has been asked; open gaps must be surfaced in the specs instead.

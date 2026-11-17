@@ -11,7 +11,7 @@
  * application (`heldout map KEY` with its harvest). Before the verdict it moves
  * files the record's layout doesn't have to the scratch area's stray/ and gives a probe id found twice (two merged
  * branches) a new number; before publishing it checks the story's files for secret values, as `heldout scrub` does.
- * Where it stops: heldout-contract-extractor, heldout-contract-reviewer, heldout-test-author, heldout-hardener,
+ * Where it stops: heldout-contract-extractor, heldout-contract-reviewer, heldout-hardener,
  * heldout-triager. Nothing stops it for a person: open questions about the requirement go into the tests and the
  * verdict, a story without acceptance criteria gets an INCONCLUSIVE verdict saying so, and the verdict is published
  * unless the project's config sets jira.publish to "manual".
@@ -279,15 +279,12 @@ export function run({ _, flags }: Args): void {
         if (heldout('scaffold', key, '--force') !== 0 || heldout('lint', key, '--allow-unhardened', '--no-health', '--draft-finished') !== 0 || !moved()) stuck('the tests could not be generated from the contract\'s checks');
         continue;
       }
-      // A spec that is there but not marked finished: its author was cut off (a session limit, a crash) before the end.
-      const started = fs.existsSync(p.tests) && specFiles(p.tests).some((f) => !/TODO\(test\)/.test(fs.readFileSync(f, 'utf8')));
-      return started
-        ? handOver('heldout-test-author', `Finish the tests for ${key}: a draft is there but was not marked finished. Check it against the contract, complete it, and end with: ${H} lint ${key} --allow-unhardened --no-health --draft-finished`, 'its author did not reach the end')
-        : handOver('heldout-test-author', `Write the tests for ${key}`, 'from the reviewed contract, without a browser');
+      // Only a contract with checks comes this far (the contract step asks for them).
+      stuck('the contract has no checks to generate the tests from');
     }
 
     if (next.name === 'freeze') {
-      if (heldout('lint', key, '--allow-unhardened', '--no-health') !== 0) return handOver('heldout-test-author', `Fix the lint errors in the tests of ${key} (${H} lint ${key} --allow-unhardened --no-health)`, 'the draft is frozen only when it lints clean');
+      if (heldout('lint', key, '--allow-unhardened', '--no-health') !== 0) stuck('the generated tests do not lint');
       if (heldout('integrity', key, '--snapshot') !== 0 || !moved()) stuck('the draft could not be frozen');
       continue;
     }

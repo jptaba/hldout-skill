@@ -137,7 +137,7 @@ describe('heldout stats', () => {
 
   it('records a subagent\'s cost with note --usage, and refuses a malformed one', () => {
     assert.deepEqual(parseUsage('heldout-triager tokens=42000 minutes=6.54'), { agent: 'heldout-triager', tokens: 42000, minutes: 6.5 });
-    assert.deepEqual(parseUsage('heldout-test-author minutes=3'), { agent: 'heldout-test-author', minutes: 3 });
+    assert.deepEqual(parseUsage('heldout-hardener minutes=3'), { agent: 'heldout-hardener', minutes: 3 });
     for (const bad of ['heldout-triager', 'tokens=5', 'heldout-triager tokens=lots', 'a b tokens=1', 'x tokens=1 tokens=999', 'x tokens=99999999999999999999', 'x minutes=1000000']) {
       assert.throws(() => parseUsage(bad), Error, bad);
     }

@@ -34,7 +34,7 @@ journey is checked by the first harden run (`--label harden`), and probed only i
 `not proven yet` and `STALE` ones are probed like any mechanic you found yourself. That is where the journeys save
 work: the more of a story's steps earlier stories proved, the less there is to discover. A journey's `requires` (in
 `journeys/registry.yml`) says what earlier stories ran before it: a test that calls it without them is a likely script
-defect. Replace the `// TODO(harden)` marks the test author left in journeys as in the tests.
+defect.
 
 A journey is shared by every story that calls it. Fix HOW it works when the application changed (a new locator, a new
 field) so every caller gets the fix; never bend it to one story's need (add a journey, or keep that step in the test).
@@ -60,8 +60,8 @@ gave). A required rule this story's contract replaces (its rule or the owner's a
 marked stale citing that item: `--stale <id> --evidence R2`; one it only contradicts stays beside it, for the verdict
 to put to the owner. A probe never retires a required rule.
 
-The overview (the first part of `npm run heldout -- map KEY`) is what every agent reads, the contract's agents and the
-test author too, so it has one writer: setup, with no story open. An entry of it your probe contradicts is marked stale
+The overview (the first part of `npm run heldout -- map KEY`) is what every agent reads, the contract's agents
+too, so it has one writer: setup, with no story open. An entry of it your probe contradicts is marked stale
 (`--stale <id> --evidence P9`); what it is missing (an area, a kind of user, a word of the application and its
 meaning) goes in your reply, and a person adds it between stories.
 
@@ -121,12 +121,26 @@ A mechanics gap the application gives no answer to (the endpoint a criterion nee
 route of it answers 404) stays open: don't record "nothing found" as its answer. Log it as an observed deviation, with
 the probe; the tests that depend on it end BLOCKED or fail on the criterion that owns the missing piece.
 
-## 2. Work from the marks
+## 2. Fill in the generated tests
 
-Most guesses are in the journeys, and a journey says what it needs. Open a test only for a mark in it, when a run or
-probe sends you there, or to tell a call under test from a precondition (1a): `npm run heldout -- show KEY spec --test SCN-n`
-prints one, and `show KEY spec` lists where each test and declaration is, for a mark in a declaration. A session pays on every turn for all it has read, and a large
-spec is most of what a hardener can afford.
+The spec was generated from the contract's checks: one test a check (one per row of a check with rows), its steps
+in the contract's words, each empty and marked `// TODO(harden)`, and each expectation as
+`expectCheck('C3.1.a', actual)`. You write how each step is done and where `actual` is read. What is expected is
+in the contract (`npm run heldout -- show KEY contract --ac AC-n`) and is never written in a test.
+
+| In a step | Rule |
+| --- | --- |
+| Given, When | Call a journey; add one to its domain's file when none does it ([journeys](journeys.md)). Records a step needs are seeded (`seed.*`, [data-and-journeys](data-and-journeys.md)), so a failed setup reads as BLOCKED. Values a later step needs go in a `let` above the steps |
+| Then | Read `actual` from what the application answered or shows in this test: a status, a field of an answer, the text or the count of what a page shows. Pass it as it is: a status as the number, a message as its text, a list as an array or its length for a count, and for `absent` / `present` the thing itself (`undefined`, `[]` or 0 when it isn't there) |
+| `actual` is never | a value the test sent, a constant, or something worked out from another answer of the application about the same property (its `last_page` when pages are checked, its `total` when the count is): a check fed that way passes whatever the application does |
+| A row | `row.values` is this row's input, by the names the contract gives |
+| An expectation of your own | Never (`expect(…)`, `expectResponse(…)`): integrity refuses it. A wait for a page or a record to be ready belongs in a journey |
+| Inputs the check doesn't fix (a product to add, a search term) | In `test-data.json` (`data`) or a plain `const`, so they can be swapped |
+
+The fixtures a test takes: `page` (the profile's `baseURL`), `api.get/post/put/patch/delete(path, { data, headers,
+params, cookies })` on the profile's `apiBaseURL` (returns `{ status, body, text, headers }`; every exchange is kept,
+redacted, as evidence), `journey.step(title, fn)`, `seed`, `data`, and `unique(prefix?)` / `uniqueId(prefix?)` for
+names that can't collide on a shared application.
 
 A journey doesn't say which of its words the requirement names, so **before you change the words of a guessed label or
 value, search `2-contract/contract.json` for them** with your search tool. Words the requirement names stay, and the difference is an
@@ -171,7 +185,7 @@ If the AUT contradicts the requirement (different text, status code, total, miss
 label, unauthenticated access…), **leave the assertion exactly as drafted** and log it under
 *Observed deviations*. A requirement-named element that is missing is also a deviation: keep the
 step, use the most literal locator, and use `strict` when the locator is the requirement. A deviation goes in the log
-only: never in a journey's comments, which the next story's test author reads before writing its tests.
+only: never in a journey's comments, which every later story reads.
 
 ## 4. Dry run, triage, integrity
 

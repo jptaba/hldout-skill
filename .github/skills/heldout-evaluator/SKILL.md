@@ -33,7 +33,7 @@ never files issues: it reports findings with evidence, and a person decides what
 
 This file holds the rules and the loop; an agent coordinates by following it. In GitHub Copilot that is the
 `heldout-evaluator` agent (`.github/agents/heldout-evaluator.agent.md`, picked in the agents dropdown): its tools,
-the five agents it may call and its model are fixed there, with how it works in that app. In Claude Code it is the
+the four agents it may call and its model are fixed there, with how it works in that app. In Claude Code it is the
 main agent with this skill, delegating with the Agent tool (`AskUserQuestion`, used during setup only, is its example
 of asking). Either way, run commands from the project's folder, the app's workspace.
 
@@ -64,8 +64,8 @@ the freeze, the integrity check and the evaluation run, the automatic triage, th
 registry, the story's rules kept for the application) and stops where a subagent has work to do, printing the subagent, its task and the command that follows:
 
 ```
-■ Next: the heldout-test-author subagent — from the reviewed contract, without a browser
-  Task: "Write the tests for KEY"
+■ Next: the heldout-hardener subagent — the draft is frozen
+  Task: "Harden the tests for KEY"
   Then: npm run heldout -- advance KEY
 ```
 
@@ -130,7 +130,7 @@ Kept between stories, in the project, and read through the `heldout` command onl
 | **The overview**: what the application is (its purpose, areas, kinds of user, sign-in, API style, words). Never what it does | setup only: `$H map --about <part> --add "…"` | every agent, before the freeze too: `$H map KEY --overview` |
 | **The map**: how the application works, one mechanic an entry, each citing the probe that showed it | the hardener and the triager | the hardener and the triager, after the freeze |
 | **The rules**: what judged stories required (kept by `advance`), and what the application was seen to do (observed, citing a probe) | `advance`; the hardener and the triager | the hardener and the triager, after the freeze |
-| **The journeys**: the reusable HOW, one file per domain | the test author and the hardener | every agent that writes or runs tests |
+| **The journeys**: the reusable HOW, one file per domain | the hardener | the hardener and the triager |
 
 After a freeze, `$H map KEY` prints the overview, the map and the rules in one read. None of it is an oracle or
 evidence: the story's contract says what is correct, and a probe says what the application does.
@@ -198,9 +198,8 @@ Non-negotiable, for every agent:
 - **Evidence, not recall.** The requirement contract is built by a model but must be proven. Each criterion is quoted from cited lines; every source line is accounted for; every expected literal (status, number, message, path) exists in the sources or in an answered gap. An independent reviewer subagent confirms each item, and its review is bound to the contract hash. The builder never writes its own review.
 - **Journeys are HOW, never WHAT.** The journeys in `journeys/fixtures/` hold routes, readiness anchors, locators,
   calls, seeding and cleanup, never a `[REQ …]` assertion, an `expectResponse`, or a status, message, limit or value the
-  application answers: the lint refuses them, and integrity marks a `[REQ …]` inside one as a violation. That is why the
-  test author may read and call them before the freeze while every expected value still comes from the requirement
-  alone and stays in the frozen spec. A journey is mechanics to verify, never evidence. It is shared: fix HOW it works
+  application answers: the lint refuses them, and integrity marks a `[REQ …]` inside one as a violation. Every
+  expected value comes from the requirement alone and stays in the frozen contract. A journey is mechanics to verify, never evidence. It is shared: fix HOW it works
   for every caller, never bend it to one story.
 - **One file per domain, one registry, written by the tools.** Each area of the application has one file of journeys
   (`fixtures/products.ts`), every journey documented; `registry.yml` is written by `journeys --sync` and the harvest,

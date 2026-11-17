@@ -18,7 +18,7 @@ output/<profile>/KEY/                       ← the record of one story (committ
                                               only what that phase hands the later ones
   1-requirement/  story.md linked/ transcripts/ (CHANGES.md revisions/ after a revision)   ← fetch (phase 1)
   2-contract/     contract.json review.json                              ← extractor, reviewer (phase 1b)
-  3-tests/        <key>.spec.ts test-data.json (the draft, as frozen) freeze.json (its hashes)   ← test author (phase 2)
+  3-tests/        <key>.spec.ts test-data.json (the draft, as frozen) freeze.json (its hashes)   ← advance, from the contract's checks (phase 2)
   4-hardening/    <key>.spec.ts test-data.json (the copy that runs) hardening.md probes.jsonl Pn.md (the cited ones)
                                                                           ← hardener (phase 3)
   5-run/          NN-label.json, one record per run: how it ran, every test, each failure's evidence   ← run (phase 4)

@@ -53,14 +53,14 @@ export async function openProduct(page: Page, id: string) {
 ```
 
 - Every exported function of a domain file is a journey, with a `/** doc comment */` that says what it does (the
-  registry shows it to the next test author). Helpers its journeys share stay in the file, not exported.
+  registry shows it to the next story's hardener). Helpers its journeys share stay in the file, not exported.
 - Its id is `<kind>.<domain>.<name>`: `api.favorites.add-favourite`, `ui.product.open-product`. A journey is `ui` when
   it drives a page (takes a `Page`), `api` otherwise.
 - Mechanics only: routes, readiness anchors, locators, calls and their fields, seeding and cleanup. A journey may check
   its own preconditions with a plain `expect(…, '… (precondition)')`.
 - Its comments too say HOW, never what the application did or failed to do (a check it skips, a value it gets wrong,
-  "takes no credentials on this build"): the next story's test author reads them before writing tests the application
-  must not shape. What a story's hardening observed goes in its log, as a deviation or a resolved gap.
+  "takes no credentials on this build"): the next story reads them, and what a story expects the application must
+  not shape. What a story's hardening observed goes in its log, as a deviation or a resolved gap.
 - **Never** what a story expects: no `[REQ …]` assertion, no `expectResponse`, no `@req-constants`, no message or value
   the requirement says the application shows. A journey returns what its step produced (an answer, a record, a
   locator); the test asserts it. `heldout lint` refuses a journey file that breaks this, and `heldout integrity` marks
@@ -105,8 +105,7 @@ agree on), brings it in line with the code, and leaves it ready to `git add`.
 
 ## Isolation
 
-The tests stay an independent oracle because the journeys hold no oracle. That is why the test author may read and
-call them while drafting, before the freeze:
+The tests stay an independent oracle because the journeys hold no oracle:
 
 - The expected values come from the requirement contract alone and stay in the story's spec (`@req-constants`,
   `[REQ …]` messages), which the freeze protects.
@@ -122,8 +121,8 @@ call them while drafting, before the freeze:
 
 1. **Writing the tests (phase 2):** `heldout journeys KEY` lists the application's journeys, the ones the story
    concerns first (it calls the story's resources, opens a route it starts on, or its domain is a word of the story),
-   with what each calls and opens, what it requires and its registry status. The test author calls them for the steps
-   and adds the missing ones to their domain's file, with `// TODO(harden)` on what it guessed.
+   with what each calls and opens, what it requires and its registry status. The hardener calls them for the steps
+   of the generated tests and adds the missing ones to their domain's file.
 2. **Hardening (phase 3):** the hardener makes every journey the tests call work against the live application, like
    the tests themselves. A journey that no longer works and is replaced:
    `heldout journeys KEY --stale "<id>" --evidence "…"` (`--unstage` takes it back).
