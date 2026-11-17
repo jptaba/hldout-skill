@@ -90,7 +90,9 @@ When something *was* disclosed or changed, the severity follows that, not the st
 assertion on an API answer, high confidence, no assumption or open question behind the test, no call sent signed in),
 it sends the test's calls again outside the test, twice. The same answer both times is a live reproduction, and the
 failure is confirmed with that as its evidence. Leave those decisions as they are unless your own probes show the
-test's request was wrong; then record yours over it with `--set`. `triage` prints why each other failure was not
+test's request was wrong; then record yours over it with `--set`. One cause is one finding: when a failure you
+decide has the same cause as one the replay confirmed (the page and the API showing the same wrong figure), record
+them together under one title, `--set SCN-a,SCN-b …`, with the replay named in the evidence beside your probe. `triage` prints why each other failure was not
 settled that way.
 
 ## Confirming each failure (mandatory)
