@@ -25,7 +25,9 @@
  *       [--body-limit N]   the API calls table shows the first N characters of each request body (default 200), and
  *                          a "request" step that much of its answer
  *
- * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog|force|rewrite|request, target?, value?, url? }
+ * Steps (run in order before inspecting): { do: goto|fill|click|press|select|check|uncheck|hover|wait|probe|dialog|force|rewrite|request|storage, target?, value?, url? }
+ *   { "do": "storage", "target": "session:cart_id", "value": "${var:cart}" } writes the page's own storage (local: or
+ *   session:), after a goto to its origin and before the page that reads it: a record made over the API, shown on it.
  *   { "do": "force", "target": "<a select or a field>", "value": "2" } gives the control a value it does not offer;
  *   { "do": "rewrite", "url": "createAccount", "value": "fromAccountId=123" } changes those fields of the page's next
  *   request to an address containing `url` (query, JSON or form body): together they replay a forced submission.
@@ -34,7 +36,7 @@
  *   step table shows its status and the start of its answer (300 characters, or --body-limit N).
  *   The report lists each rewritten request with the values it would have sent and the ones that went out.
  *   A "probe" step counts its target's matches at that point of the walk (what is gone by the end of it, such as a
- *   toast after a click): the step table shows the count, whether it is visible and its text.
+ *   toast after a click): the step table shows the count, whether it is visible, its text and, for a field, its value.
  *   { "do": "dialog", "value": "accept" | "dismiss" } answers the next browser dialog (alert, confirm, prompt) that way;
  *   dialogs nobody answers are dismissed. Every dialog shown is listed in the report.
  *   target = a Playwright page-locator expression WITHOUT the leading "page.", e.g. getByTestId('x').first()
@@ -105,7 +107,17 @@ async function runStep(page: Page, s: Step, baseURL: string, apiBaseURL = baseUR
       const count = await t().count();
       const visible = count ? await t().first().isVisible() : false;
       const text = count ? (await t().first().innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 80) : '';
-      return `${count} match(es)${count === 1 ? ' ✔' : count ? ' ⚠ not unique' : ' ✖'} · visible ${visible}${text ? ` · "${text}"` : ''}`;
+      // A field holds a value, not text: what it holds after the page changed it (a number clamped, a default).
+      const value = count ? await t().first().inputValue({ timeout: 1_000 }).catch(() => undefined) : undefined;
+      return `${count} match(es)${count === 1 ? ' ✔' : count ? ' ⚠ not unique' : ' ✖'} · visible ${visible}${text ? ` · "${text}"` : ''}${value !== undefined ? ` · value "${value.slice(0, 80)}"` : ''}`;
+    }
+    // A value in the page's own storage, before the page reads it: what a page keeps there (a cart's id) is set
+    // the way the page would have, so a record made over the API can be shown on it.
+    case 'storage': {
+      const [area, name] = (s.target ?? '').split(':');
+      if (!['local', 'session'].includes(area) || !name) throw new Error(`a storage step's target is local:<name> or session:<name> (got ${JSON.stringify(s.target)})`);
+      await page.evaluate(([a, n, v]) => (a === 'local' ? localStorage : sessionStorage).setItem(n, v), [area, name, env(s.value ?? '')] as const);
+      break;
     }
     case 'goto':
       if (!s.url && !s.value) throw new Error(`a goto step takes its address in "url" (got ${JSON.stringify(s)})`);

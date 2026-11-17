@@ -5,6 +5,8 @@
   "upstream": "http://localhost:8092",
   "composeProject": "bench",
   "freshData": ["docker", "exec", "bench-laravel-api-1", "php", "artisan", "migrate:fresh", "--seed", "--force"],
+  "saveData": ["docker", "exec", "bench-mariadb-1", "sh", "-c", "mariadb-dump -uroot -proot toolshop > /tmp/bench.sql"],
+  "restoreData": ["docker", "exec", "bench-mariadb-1", "sh", "-c", "mariadb -uroot -proot toolshop < /tmp/bench.sql"],
   "passwordEnv": "BENCH_APP_PASSWORD",
   "accounts": [
     { "username": "admin@practicesoftwaretesting.com", "role": "admin", "shared": true },

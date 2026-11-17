@@ -32,7 +32,7 @@ import { keyNames, readKey, score, type Evidence, type Finding, type Score } fro
 import { newRound, roundProject } from './round';
 
 const REPO = path.resolve(import.meta.dirname, '..');
-interface App { name: string; baseUrl: string; apiBaseUrl: string; upstream: string; composeProject: string; freshData: string[]; passwordEnv: string; accounts: { username: string; role: string; shared?: boolean }[] }
+interface App { name: string; baseUrl: string; apiBaseUrl: string; upstream: string; composeProject: string; freshData: string[]; saveData: string[]; restoreData: string[]; passwordEnv: string; accounts: { username: string; role: string; shared?: boolean }[] }
 const app = JSON.parse(fs.readFileSync(path.join(REPO, 'demo', 'bench', 'app.json'), 'utf8')) as App;
 const PID_FILE = path.join(os.tmpdir(), 'heldout-bench-proxy.pid');
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -76,7 +76,10 @@ function must(command: string, args: string[], cwd = REPO): void {
   if (r.status !== 0) throw new Error(`${command} ${args.join(' ')} failed (exit ${r.status})`);
 }
 const compose = (...args: string[]) => must('docker', ['compose', '-p', app.composeProject, '-f', path.join('demo', 'bench', 'docker-compose.yml'), ...args]);
-const freshData = () => must(app.freshData[0], app.freshData.slice(1));
+// Fresh data gives every record a new id; the data as a story's evaluation found it is kept and put back for its
+// score, so the ids its tests learned still name the same records and nothing the faulty run left is there.
+const freshData = () => { must(app.freshData[0], app.freshData.slice(1)); must(app.saveData[0], app.saveData.slice(1)); };
+const restoreData = () => must(app.restoreData[0], app.restoreData.slice(1));
 
 async function up(): Promise<void> {
   compose('up', '-d');
@@ -205,8 +208,9 @@ async function scoreStory(args: string[]): Promise<void> {
   const on = readJson<string[]>(path.join(benchDir(project), `${key}.on.json`));
   const findings: Finding[] = (verdict.applicationDefects ?? []).filter((d) => d.confirmed !== false).map((d) => ({ id: d.id, title: d.title, tests: d.tests ?? [] }));
   const questions: Finding[] = (verdict.contradictedReadings ?? []).map((q) => ({ id: q.test, title: q.title, tests: [q.test] }));
-  // What the evaluation left behind while a fault was on (a record a faulty delete kept) must not fail the clean run.
-  freshData();
+  // What the evaluation left behind while a fault was on (a record a faulty delete kept) must not fail the clean run;
+  // the data goes back to how the evaluation found it, ids and all.
+  restoreData();
   // The labels start with "harden": such a run is never taken for an evaluation, so the verdict stands as it is.
   await control([]);
   const failsClean = failing(project, key, 'harden-bench-clean');

@@ -19,7 +19,8 @@ export const COMPARATORS = ['equals', 'contains', 'matches', 'one-of', 'at-least
 export const BARE = new Set<string>(['absent', 'present', 'distinct', 'same-as']);
 export type Comparator = typeof COMPARATORS[number];
 export const CHECK_TYPES = ['concurrency', 'idempotency', 'security', 'boundary', 'contract', 'composition', 'integration', 'accessibility', 'negative', 'functional'] as const;
-export type ExpectedValue = string | number | boolean | (string | number)[];
+/** `null` is a value too: what an answer holds where the story says a field is empty ("the percentage is null"). */
+export type ExpectedValue = string | number | boolean | null | (string | number)[];
 
 export interface Expectation {
   /** The check's id and a letter: "C3.1.a". */
@@ -89,6 +90,7 @@ export function citedText(reqDir: string, ref: string): string | undefined {
 export function grounded(value: ExpectedValue, comparator: Comparator, text: string): boolean {
   if (Array.isArray(value)) return value.every((v) => grounded(v, 'equals', text));
   if (typeof value === 'boolean') return /\b(true|false)\b/i.test(text);
+  if (value === null) return /\bnull\b/i.test(text);
   if (comparator === 'status' && typeof value === 'string' && /^[1-5]xx$/.test(value)) return true;
   if (typeof value === 'number') return numbersIn(text).has(value);
   if (comparator === 'matches') return (value.toLowerCase().match(/[a-z]{3,}/g) ?? []).every((w) => plain(text).includes(w));
@@ -158,7 +160,7 @@ export function checkChecks(c: RequirementContract, reqDir: string): ContractFin
         if (!e.what?.trim()) err('check-shape', `${where} doesn't say what is observed`);
         if (!COMPARATORS.includes(e.comparator)) { err('check-shape', `${where}: comparator is one of ${COMPARATORS.join(', ')}`); continue; }
         const bare = BARE.has(e.comparator);
-        if (bare ? e.value !== undefined : e.value === undefined) err('check-shape', `${where}: ${bare ? `"${e.comparator}" takes no value` : 'no expected value'}`);
+        if (bare ? e.value !== undefined && e.value !== null : e.value === undefined) err('check-shape', `${where}: ${bare ? `"${e.comparator}" takes no value` : 'no expected value'}`);
         if (e.comparator === 'ordered' && e.value !== 'ascending' && e.value !== 'descending') err('check-shape', `${where}: "ordered" takes "ascending" or "descending"`);
         // A yes or no the test works out is a comparison nobody reviewed: it belongs in a comparator.
         if (typeof e.value === 'boolean') err('boolean-value', `${where}: an expected true or false leaves the comparison to the test's code — say it with a comparator (ordered, distinct, same-as, present, absent, at-least…)`);

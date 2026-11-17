@@ -85,6 +85,8 @@ describe('the contract\'s checks', () => {
     assert.equal(grounded('4xx', 'status', 'is refused'), true);
     assert.equal(grounded([204, 9], 'one-of', STORY), true);
     assert.equal(grounded([204, 500], 'one-of', STORY), false);
+    assert.equal(grounded(null, 'equals', 'the percentage is null without a rental'), true, 'null is a value the story can state');
+    assert.equal(grounded(null, 'equals', STORY), false);
   });
 
   it('takes a value from the gap a check rests on, once the gap has one', () => {

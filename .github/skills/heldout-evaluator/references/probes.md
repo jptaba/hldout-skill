@@ -40,7 +40,10 @@ request, and the report lists the requests it rewrote. `{ "do": "request", "url"
 makes a call in the middle of a walk (a record another user changes while the page is open). A step that changes
 the address says where it landed ("now at /overview"). A `request` step carries the page's cookies: for an
 application that keeps its token in the browser's storage, the call is sent without it (use `api-probe` with a
-sign-in for those).
+sign-in for those). A page that keeps a record's id in the browser's storage (a guest's cart) is shown a record made
+over the API with `{ "do": "storage", "target": "session:<name>", "value": "${var:id}" }` (or `local:`), after a
+`goto` to any page of the application and before the page that reads it. A `probe` step reports a field's value
+beside its text.
 
 Under Git Bash, pass paths without a leading `/` (`--url cart`, `api/room`): MSYS rewrites `/…` arguments into Windows
 paths. A regex with a backslash doesn't survive `--then` there: put the step in a `--steps` file, with the backslash

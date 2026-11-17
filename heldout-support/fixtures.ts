@@ -417,9 +417,11 @@ export function expectCheck(id: string, actual: unknown, row?: CheckRow): void {
   const text = typeof actual === 'string' ? actual : JSON.stringify(actual ?? '');
   // A figure read off a page is text: "9" is the 9 the story states.
   const num = (v: unknown) => (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : v);
+  const asJson = (v: unknown) => { if (typeof v !== 'string' || !/^\s*[{[]/.test(v)) return v; try { return JSON.parse(v) as unknown; } catch { return v; } };
   const nothing = (v: unknown) => v === undefined || v === null || v === false || v === 0 || v === '' || (Array.isArray(v) && !v.length);
   switch (e.comparator) {
-    case 'equals': expect.soft(typeof value === 'number' ? num(actual) : actual, message).toEqual(value); break;
+    // JSON the story writes as text ("{"message": "x"}") is the same answer however its spaces fall.
+    case 'equals': expect.soft(typeof value === 'number' ? num(actual) : asJson(actual), message).toEqual(asJson(value)); break;
     case 'contains':
       if (Array.isArray(actual)) expect.soft(actual, message).toContain(value);
       else expect.soft(text.toLowerCase(), message).toContain(String(value).toLowerCase());
