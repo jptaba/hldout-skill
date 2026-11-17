@@ -43,7 +43,7 @@ fresh chat with the same prompt and the instructions in `.github/agents/heldout-
 If the reviewer reports findings, send them back to the builder ("Fix the requirement contract for KEY: <findings>";
 continue the same builder when your app can, since it already knows the sources, and likewise the same reviewer for
 the second review: it stays separate from the builder),
-re-run the checks and review again. Stop after 3 rounds and surface what is still disputed as open questions.
+re-run the checks and review again. Stop after 2 rounds and surface what is still disputed as open questions.
 `--review-prompt` refuses a contract that still fails the mechanical checks, so an unfinished contract can't be reviewed.
 
 The builder works from the evidence pack only. It does not probe the application: HOW to exercise it (routes,
@@ -113,6 +113,11 @@ code sees of the test.
 | · `comparator` | `equals`, `contains`, `at-least`, `at-most`; `matches` when the story gives a message's meaning and not its wording (the value is a pattern of the story's own words: `did not match`); `one-of` with a list; `status` with a status (`204`), or with `"4xx"` for "is refused" and `"2xx"` for "is accepted" when no status is stated; `absent` (no value) when what is observed must not be there; `present` (no value) when it must be there and the story gives no text for it |
 | `rows[]` | Variants of one check: `{ "label", "values"?: { "quantity": 0 }, "expect"?: { "C3.2.a": 422 } }`. The same steps with other input, and, where the story states it, another expected value for that row. A row on each limit, one just past it, and the values the story names; at most 6 |
 | `restsOn` | The ids of the **oracle** gaps the expected values rest on, and no others: never a mechanics gap (how a step is done doesn't unsettle what is expected). An assumed gap's value may then be the expected value, and a failure is reported as a question for the owner; an open gap makes the check a test of the literal reading. Most checks rest on nothing |
+
+**State an expected value once, in a check.** `outcomes` says in a few words what decides the criterion; the
+values are in the checks. `rules[]` and `errorModel[]` take only what no check holds: a rule or an error case whose
+value a check's expectation already states is not written a second time there (cover its lines in the ledger as
+the criterion, `AC-n`). Every item you add is one more for the reviewer to confirm.
 
 **The fewest checks that could prove the criterion false.** A check exists because something the criterion states
 could be wrong in the application, never because a type has no check yet:

@@ -89,7 +89,7 @@ order and do not skip the freeze:
 What is yours to decide between the subagents:
 
 - **Contract.** Send the reviewer's findings back to the builder and review again, in a fresh context, until
-  `$H contract KEY` is clean; after 3 rounds, what is still disputed becomes an open question. Don't ask the user the
+  `$H contract KEY` is clean; after 2 rounds, what is still disputed becomes an open question. Don't ask the user the
   open oracle questions it lists: they go to the tests and the verdict.
 - **Hardening.** The hardener goes on by itself once the tests run: it runs `advance` (integrity, the evaluation
   run, the automatic triage and its replays) and triages what is left in the same context, as the triager would.
