@@ -140,7 +140,9 @@ in the contract (`npm run heldout -- show KEY contract --ac AC-n`) and is never 
 The fixtures a test takes: `page` (the profile's `baseURL`), `api.get/post/put/patch/delete(path, { data, headers,
 params, cookies })` on the profile's `apiBaseURL` (returns `{ status, body, text, headers }`; every exchange is kept,
 redacted, as evidence), `journey.step(title, fn)`, `seed`, `data`, and `unique(prefix?)` / `uniqueId(prefix?)` for
-names that can't collide on a shared application.
+names that can't collide on a shared application. For a signature this doesn't give, search
+`heldout-support/fixtures.ts` for its name and read that range: the file is long, and read whole it is paid for on
+every later turn.
 
 A journey doesn't say which of its words the requirement names, so **before you change the words of a guessed label or
 value, search `2-contract/contract.json` for them** with your search tool. Words the requirement names stay, and the difference is an

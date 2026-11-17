@@ -55,6 +55,10 @@ Shell: in Windows PowerShell write the commands as `npm run heldout '--' <comman
 bash. PowerShell drops a bare `--`, and npm then keeps the command's flags for itself. Read
 `2-contract/contract.json` with your file tool before you write to it (the skeleton is already there).
 
+The reference has the contract's whole shape, the checks' included: the skill's scripts (`.github/scripts/`) are not
+your instructions, and reading them costs every later turn. Write the contract once, then correct it with edits:
+rewriting the whole file for one fix pays for all of it again.
+
 Files: write and change files with your file tools only. Never with a shell redirection, `sed`, or a script written
 to patch a file: such a change shows nobody what was changed.
 
