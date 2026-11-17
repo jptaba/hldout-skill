@@ -24,7 +24,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test as base, expect, request as pwRequest, type APIRequestContext, type Locator, type Page, type TestInfo } from '@playwright/test';
-import { checksOf, type Check, type CheckRow } from '../.github/scripts/contract/checks';
+import { checksOf, relationProblem, type Check, type CheckRow } from '../.github/scripts/contract/checks';
 import { redact, redactHeaders, redactSnapshot } from '../.github/scripts/core/redact';
 import { closeOverlays, locateOn } from '../.github/scripts/probe/page';
 
@@ -434,6 +434,10 @@ export function expectCheck(id: string, actual: unknown, row?: CheckRow): void {
       break;
     case 'absent': expect.soft(nothing(actual), `${message} (expects nothing there, got ${text})`).toBe(true); break;
     case 'present': expect.soft(nothing(actual), `${message} (expects it to be there, got ${text || 'nothing'})`).toBe(false); break;
+    default: {
+      const problem = relationProblem(e.comparator, value, actual);
+      expect.soft(problem, `${message} (expects ${e.comparator === 'ordered' ? `${String(value)} order` : e.comparator === 'distinct' ? 'no item twice' : 'the two to be equal'}${problem ? `: ${problem}` : ''})`).toBeUndefined();
+    }
   }
 }
 

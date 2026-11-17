@@ -19,7 +19,7 @@ import { checksOf, hasChecks, type Expectation } from '../contract/checks';
 import { openQuestions, readContract, toDiscover, type RequirementContract } from '../contract/contract-model';
 
 const COMPARATOR_WORDS: Record<Expectation['comparator'], string> = {
-  equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there', present: 'is there',
+  equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there', present: 'is there', ordered: 'is in', distinct: 'holds no item twice', 'same-as': 'are the same',
 };
 const lit = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\s+/g, ' ').trim();
 const shown = (v: Expectation['value']) => (v === undefined ? '' : ` ${Array.isArray(v) ? v.join(', ') : String(v)}`);
@@ -63,7 +63,7 @@ export function specFromChecks(c: RequirementContract, at: { key: string; fixtur
     for (const g of k.given) lines.push(...step('Given', g, [`// TODO(harden) reach this state${rows ? ' (this row\'s input: row.values)' : ''}: call a journey, or add one`]));
     for (const w of k.when) lines.push(...step('When', w, [`// TODO(harden) do this${rows ? ' (this row\'s input: row.values)' : ''}: call a journey, or add one`]));
     for (const e of k.expect) {
-      lines.push(...step('Then', `${e.what} ${COMPARATOR_WORDS[e.comparator]}${rows && k.rows!.some((r) => r.expect?.[e.id] !== undefined) ? ' what this row states' : shown(e.value)}`, [
+      lines.push(...step('Then', `${e.what} ${COMPARATOR_WORDS[e.comparator]}${rows && k.rows!.some((r) => r.expect?.[e.id] !== undefined) ? ' what this row states' : `${shown(e.value)}${e.comparator === 'ordered' ? ' order' : ''}`}`, [
         `// TODO(harden) read ${lit(e.what)} from what the application answered or shows`,
         'const actual: unknown = undefined;',
         `expectCheck('${e.id}', actual${rows ? ', row' : ''});`,

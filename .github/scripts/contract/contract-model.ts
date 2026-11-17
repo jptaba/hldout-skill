@@ -313,7 +313,8 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
 
   // Endpoints and auth.
   for (const e of c.endpoints ?? []) {
-    if (!/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(e.method)) err('endpoint-method', `endpoint "${e.method} ${e.path}" has an unknown method`);
+    // Any method the HTTP grammar allows (an application may read with QUERY), written in capitals.
+    if (!/^[A-Z][A-Z-]*$/.test(e.method ?? '')) err('endpoint-method', `endpoint "${e.method} ${e.path}": a method is a word in capitals (GET, POST, QUERY…)`);
     if (!e.source) err('endpoint-source', `endpoint ${epKey(e)} has no source (requirement file or the gap that discovered it)`);
   }
   if ((c.endpoints ?? []).some((e) => e.auth === 'required') && !c.auth?.mechanism) err('no-auth', 'Some endpoints require authentication but auth.mechanism is not stated');

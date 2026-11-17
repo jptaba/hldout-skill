@@ -5,7 +5,7 @@
 import type { RequirementContract } from './contract-model';
 import type { ContractReview } from './evidence';
 
-const SAYS: Record<string, string> = { equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there', present: 'is there' };
+const SAYS: Record<string, string> = { equals: 'is', contains: 'contains', matches: 'reads like', 'one-of': 'is one of', 'at-least': 'is at least', 'at-most': 'is at most', status: 'is', absent: 'is not there', present: 'is there', ordered: 'is in', distinct: 'holds no item twice', 'same-as': 'are the same' };
 const valueOf = (v: unknown) => (v === undefined ? '' : ` ${Array.isArray(v) ? v.join(', ') : typeof v === 'string' ? `"${v}"` : String(v)}`);
 
 /** A criterion's checks in plain words: what is done, what is expected and where the story says so. */

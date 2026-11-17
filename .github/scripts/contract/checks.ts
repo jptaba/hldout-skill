@@ -14,7 +14,9 @@ import path from 'node:path';
 import type { ContractFinding, Layer, RequirementContract } from './contract-model';
 import { numbersIn, parseRange } from './evidence';
 
-export const COMPARATORS = ['equals', 'contains', 'matches', 'one-of', 'at-least', 'at-most', 'status', 'absent', 'present'] as const;
+export const COMPARATORS = ['equals', 'contains', 'matches', 'one-of', 'at-least', 'at-most', 'status', 'absent', 'present', 'ordered', 'distinct', 'same-as'] as const;
+/** Comparators that take no value: what they check is in what is observed alone. */
+export const BARE = new Set<string>(['absent', 'present', 'distinct', 'same-as']);
 export type Comparator = typeof COMPARATORS[number];
 export const CHECK_TYPES = ['concurrency', 'idempotency', 'security', 'boundary', 'contract', 'composition', 'integration', 'accessibility', 'negative', 'functional'] as const;
 export type ExpectedValue = string | number | boolean | (string | number)[];
@@ -28,7 +30,10 @@ export interface Expectation {
    * equals, contains, at-least, at-most: against the value. matches: the value is a pattern of the story's own words.
    * one-of: the value is a list. status: the value is a status (204) or a class ("2xx", "4xx") for "is accepted" and
    * "is refused" with no stated status. absent: what is observed must not be there; present: it must be there
-   * (the story says it is shown or listed and gives no text for it); neither takes a value.
+   * (the story says it is shown or listed and gives no text for it); neither takes a value. Relations, where
+   * what is observed is a list: ordered ("ascending" or "descending", as the story says "cheapest first"),
+   * distinct (no item twice), same-as (two observations, given as a pair, are equal: a total and the items
+   * counted). A comparison the test would otherwise work out itself belongs here, as data the reviewer sees.
    */
   comparator: Comparator;
   value?: ExpectedValue;
@@ -83,11 +88,35 @@ export function citedText(reqDir: string, ref: string): string | undefined {
 /** Is the value in the text? A number as a figure or a number word, a pattern by its words, anything else as it reads. */
 export function grounded(value: ExpectedValue, comparator: Comparator, text: string): boolean {
   if (Array.isArray(value)) return value.every((v) => grounded(v, 'equals', text));
-  if (typeof value === 'boolean') return true;
+  if (typeof value === 'boolean') return /\b(true|false)\b/i.test(text);
   if (comparator === 'status' && typeof value === 'string' && /^[1-5]xx$/.test(value)) return true;
   if (typeof value === 'number') return numbersIn(text).has(value);
   if (comparator === 'matches') return (value.toLowerCase().match(/[a-z]{3,}/g) ?? []).every((w) => plain(text).includes(w));
   return plain(text).includes(plain(value)) || (/^\d+(\.\d+)?$/.test(value) && numbersIn(text).has(Number(value)));
+}
+
+/**
+ * What breaks a relation the contract states, or undefined when it holds: `ordered` and `distinct` take a list,
+ * `same-as` a pair. Numbers read off a page as text compare as numbers; other text compares as the story reads it.
+ */
+export function relationProblem(comparator: string, value: unknown, actual: unknown): string | undefined {
+  const num = (v: unknown) => (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : v);
+  if (comparator === 'same-as') {
+    if (!Array.isArray(actual) || actual.length !== 2) return `got ${JSON.stringify(actual)}, not a pair of observations`;
+    return JSON.stringify(num(actual[0])) === JSON.stringify(num(actual[1])) ? undefined : `${JSON.stringify(actual[0])} and ${JSON.stringify(actual[1])}`;
+  }
+  if (!Array.isArray(actual)) return `got ${JSON.stringify(actual)}, not a list`;
+  // One item proves no order and no repeat: a check that reads so little would pass on anything.
+  if (actual.length < 2) return `a list of ${actual.length} item${actual.length === 1 ? '' : 's'} shows no ${comparator === 'ordered' ? 'order' : 'repeat'}: read more`;
+  const items = actual.map(num);
+  if (comparator === 'distinct') {
+    const seen = items.map((x) => JSON.stringify(x));
+    const twice = seen.find((x, i) => seen.indexOf(x) !== i);
+    return twice ? `${twice} more than once` : undefined;
+  }
+  const cmp = (a: unknown, b: unknown) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), undefined, { sensitivity: 'base', numeric: true }));
+  const at = items.findIndex((x, i) => i > 0 && (value === 'descending' ? cmp(items[i - 1], x) < 0 : cmp(items[i - 1], x) > 0));
+  return at < 0 ? undefined : `${JSON.stringify(actual[at - 1])} before ${JSON.stringify(actual[at])}`;
 }
 
 /** What is wrong with the contract's checks: [] when they are sound. Nothing when the contract has none. */
@@ -128,11 +157,13 @@ export function checkChecks(c: RequirementContract, reqDir: string): ContractFin
         ids.add(e.id);
         if (!e.what?.trim()) err('check-shape', `${where} doesn't say what is observed`);
         if (!COMPARATORS.includes(e.comparator)) { err('check-shape', `${where}: comparator is one of ${COMPARATORS.join(', ')}`); continue; }
-        const bare = e.comparator === 'absent' || e.comparator === 'present';
+        const bare = BARE.has(e.comparator);
         if (bare ? e.value !== undefined : e.value === undefined) err('check-shape', `${where}: ${bare ? `"${e.comparator}" takes no value` : 'no expected value'}`);
-        if (e.comparator === 'present') continue;
+        if (e.comparator === 'ordered' && e.value !== 'ascending' && e.value !== 'descending') err('check-shape', `${where}: "ordered" takes "ascending" or "descending"`);
+        // A yes or no the test works out is a comparison nobody reviewed: it belongs in a comparator.
+        if (typeof e.value === 'boolean') err('boolean-value', `${where}: an expected true or false leaves the comparison to the test's code — say it with a comparator (ordered, distinct, same-as, present, absent, at-least…)`);
+        if (bare || e.comparator === 'ordered') continue;
         if (e.comparator === 'one-of' && !Array.isArray(e.value)) err('check-shape', `${where}: "one-of" takes a list of values`);
-        if (e.comparator === 'absent') continue;
         const text = citedText(reqDir, e.source ?? '');
         if (text === undefined) { err('check-source', `${where}: ${e.source || 'no source'} is not a line of the story's sources (story.md#L12, linked/<page>.md#L4-L6)`); continue; }
         const values = [e.value, ...(k.rows ?? []).map((r) => r.expect?.[e.id])].filter((v): v is ExpectedValue => v !== undefined);

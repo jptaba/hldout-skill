@@ -150,9 +150,10 @@ export function journeysIn(file: string, base: string): JourneyCode[] {
     const doc = src.slice(0, start).match(/\/\*\*((?:(?!\*\/)[\s\S])*)\*\/\s*$/)?.[1];
     // The first sentence: up to a full stop that ends a sentence (not "e.g." or "i.e."), or the first blank line.
     const summary = doc?.replace(/^\s*\*\s?/gm, '').trim().split(/(?<!\b(?:e\.g|i\.e|etc|vs|cf))(?<=[.!?])\s+(?=[A-Z`"'(])|\n\s*\n/)[0]?.replace(/\s+/g, ' ').trim();
-    const endpoints = uniq([...body.matchAll(/\bapi\.(get|post|put|patch|delete|head)\s*(?:<[^()]*?>)?\(\s*(?:([`'"])([^`'"]+)\2|([A-Za-z_$][\w$]*))/g)]
-      .map((e) => [e[1], e[3] ?? paths.get(e[4])] as const).filter(([, p]) => p !== undefined)
-      .map(([method, p]) => `${method.toUpperCase()} ${asPath(p!).replace(/\?.*$/, '')}`));
+    // api.get('/x') and the like, and api.call('QUERY', '/x') for a method the client has no shorthand for.
+    const endpoints = uniq([...body.matchAll(/\bapi\.(?:(get|post|put|patch|delete|head)|call)\s*(?:<[^()]*?>)?\(\s*(?:(['"`])([A-Za-z]+)\2\s*,\s*)?(?:([`'"])([^`'"]+)\4|([A-Za-z_$][\w$]*))/g)]
+      .map((e) => [e[1] ?? e[3], e[5] ?? paths.get(e[6])] as const).filter(([method, p]) => method !== undefined && p !== undefined)
+      .map(([method, p]) => `${method!.toUpperCase()} ${asPath(p!).replace(/\?.*$/, '')}`));
     const routes = uniq([...body.matchAll(/\b(?:gotoPage\(\s*\w+\s*,|\.goto\()\s*([`'"])([^`'"]+)\1/g)].map((r) => asPath(r[2])));
     const params = (m[2] ?? m[4] ?? m[5])?.replace(/\s+/g, ' ').trim() ?? '';
     const kind = kindOf(params, body);

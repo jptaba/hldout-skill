@@ -121,6 +121,12 @@ describe('journeys: what the code says', () => {
     assert.deepEqual(journeysIn(file, base)[0].endpoints, ['PUT /brands/{}']);
     fs.rmSync(file);
   });
+  it('reads a call with a method the client has no shorthand for', () => {
+    const file = path.join(base, 'fixtures', 'listing.ts');
+    fs.writeFileSync(file, "const LIST = '/products';\n/** List products by criteria. */\nexport async function listProducts(api, q) { return api.call('QUERY', LIST, { data: q }); }\n");
+    assert.deepEqual(journeysIn(file, base)[0].endpoints, ['QUERY /products']);
+    fs.rmSync(file);
+  });
   it('the file\'s own helpers are part of the journeys that call them, not journeys themselves', () => {
     assert.ok(!allJourneys(cfg, 'shop').some((j) => j.name === 'favouritesIn'));
   });

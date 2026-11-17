@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { specFromChecks } from '../.github/scripts/authoring/scaffold';
-import { CHECK_BUDGET, checkChecks, grounded, type Check } from '../.github/scripts/contract/checks';
+import { CHECK_BUDGET, checkChecks, grounded, relationProblem, type Check } from '../.github/scripts/contract/checks';
 import { checkLines } from '../.github/scripts/contract/contract-render';
 import { oracleDigest, type RequirementContract } from '../.github/scripts/contract/contract-model';
 import { contractHash } from '../.github/scripts/contract/evidence';
@@ -54,6 +54,27 @@ describe('the contract\'s checks', () => {
     assert.deepEqual(codes(contract([check({ expect: [{ id: 'C1.1.a', what: 'the message', comparator: 'equals', value: 'Quantity too low', source: 'story.md#L3' }] })])), ['ungrounded-value']);
     assert.deepEqual(codes(contract([check({ expect: [{ id: 'C1.1.a', what: 'the status', comparator: 'status', value: 204, source: 'story.md#L9' }] })])), ['check-source']);
     assert.deepEqual(codes(contract([check({ rows: [{ label: 'again', expect: { 'C1.1.a': 404 } }] })])), ['ungrounded-value'], 'a row\'s own value too');
+  });
+
+  it('states a relation with a comparator, and refuses a yes or no the test would work out', () => {
+    const rel = (e: Partial<Check['expect'][number]>) => codes(contract([check({ expect: [{ id: 'C1.1.a', what: 'the prices listed', comparator: 'ordered', source: 'story.md#L3', ...e }] })]));
+    assert.deepEqual(rel({ value: 'descending' }), [], 'an order is not a value of the line');
+    assert.deepEqual(rel({ value: 'cheapest first' }), ['check-shape']);
+    assert.deepEqual(rel({ comparator: 'distinct' }), []);
+    assert.deepEqual(rel({ comparator: 'same-as', value: 9 }), ['check-shape']);
+    assert.deepEqual(rel({ comparator: 'equals', value: true }), ['boolean-value', 'ungrounded-value']);
+  });
+
+  it('judges a relation on what was observed', () => {
+    assert.equal(relationProblem('ordered', 'descending', ['89.55', 86.71, '3.55']), undefined, 'figures read as text compare as numbers');
+    assert.equal(relationProblem('ordered', 'descending', [3.55, 3.95]), '3.55 before 3.95');
+    assert.equal(relationProblem('ordered', 'ascending', ['Bolt cutters', 'claw hammer', 'Drill']), undefined, 'names compare as a reader would');
+    assert.match(relationProblem('ordered', 'ascending', [1])!, /shows no order: read more/);
+    assert.equal(relationProblem('distinct', undefined, ['a', 'b', 'c']), undefined);
+    assert.equal(relationProblem('distinct', undefined, ['a', 'b', 'a']), '"a" more than once');
+    assert.equal(relationProblem('same-as', undefined, [9, '9']), undefined);
+    assert.equal(relationProblem('same-as', undefined, [9, 8]), '9 and 8');
+    assert.match(relationProblem('same-as', undefined, 9)!, /not a pair/);
   });
 
   it('reads a value as the story writes it: a number word, quoted text, a pattern of its words, a status class', () => {
