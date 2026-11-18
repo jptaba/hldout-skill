@@ -100,6 +100,13 @@ function writeReport(p: StoryPaths, record: RunRecord): string {
   return places.report;
 }
 
+/**
+ * A rationale that says the failure is wrong however the open question is answered: then it holds under any reading,
+ * and the decision says so with --any-reading (a defect the verdict reports as one, not as a question).
+ */
+export const saysAnyReading = (rationale: string) =>
+  /\b(?:under|in|on|whatever|whichever)\s+(?:either|any|every|both|each)\s+(?:of the\s+)?readings?\b|\b(?:wrong|a defect|holds)\s+(?:under|whatever|whichever)\s+(?:the\s+)?(?:reading|way|answer)\b|\bwhichever way\b|\bunder (?:either|any|every|both) (?:interpretation|answer)s?\b/i.test(rationale);
+
 export const spec: CommandSpec = {
   name: 'triage', group: 'Run', usage: 'KEY [--run NN-label] [--set SCN --category … --rationale …] [--carry-from auto] [--replay]',
   about: 'classify failures; record confirmed decisions',
@@ -141,6 +148,9 @@ export async function run({ _, flags }: Args): Promise<void> {
     const marked = typeof anyReading === 'string' ? anyReading.split(',').map((x) => x.trim()).filter(Boolean) : [];
     const stray = marked.filter((id) => !entries.some((e) => e.scenario === id || baseScenarioId(e.scenario) === id));
     if (stray.length) throw new Error(`--any-reading names ${stray.join(', ')}, which --set does not: name tests of this call, or give the flag alone for all of them`);
+    if (category === 'APPLICATION_DEFECT' && !anyReading && saysAnyReading(rationale) && entries.some((e) => e.tags.some((t) => /^@(assumes:|needs-clarification)/.test(t)))) {
+      throw new Error('The rationale says the failure is wrong under any reading of the question its test rests on, but --any-reading is not given: without it the verdict reports the failure as a question for the owner, not as a defect. Add --any-reading (or the test ids it holds for), or reword the rationale if the failure does depend on the answer. Nothing was written.');
+    }
     for (const e of entries) e.final = { ...decision, ...(e.error?.headline ? { failure: e.error.headline.slice(0, 200) } : {}), ...(anyReading && (!marked.length || marked.includes(e.scenario) || marked.includes(baseScenarioId(e.scenario))) ? { anyReading: true } : {}) };
     writeRunRecord(file, record);
     writeReport(p, record);

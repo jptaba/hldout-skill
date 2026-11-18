@@ -5,6 +5,14 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { TriageEntry } from '../.github/scripts/run/run-record';
 import { findingsOf, heldAgain } from '../.github/scripts/triage/verification';
+import { saysAnyReading } from '../.github/scripts/triage/triage';
+
+describe('a decision that says it holds under any reading', () => {
+  it('is told apart from one that depends on the answer', () => {
+    for (const s of ['under either reading the line\'s quantity was changed to a value nobody sent', 'It is wrong whichever way G3 is answered', 'a defect under any reading of G7', 'holds under every reading']) assert.ok(saysAnyReading(s), s);
+    for (const s of ['under the narrow reading the story states no outcome', 'the owner is asked which reading holds', 'reading the list shows two lines']) assert.ok(!saysAnyReading(s), s);
+  });
+});
 
 const entry = (scenario: string, o: Partial<TriageEntry> = {}): TriageEntry => ({
   scenario, title: `${scenario}: x`, file: 'a.spec.ts', status: 'failed', tags: [], requirementRefs: ['AC-1'], otherFailures: [], evidence: { attempts: 1 },
