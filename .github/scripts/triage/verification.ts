@@ -25,8 +25,18 @@ export function findingsOf(entries: TriageEntry[]): Map<string, TriageEntry[]> {
 export const replayed = (e: TriageEntry) => /^replayed by the tool/.test(e.final?.evidence ?? '');
 
 /**
- * Whether a finding held when its tests ran again on their own: every test failed again, the same way (the same
- * failure signature as in the evaluation run). `again` is the rerun's entries.
+ * The failure as the check that failed, without what it received: a run picks its own records, so the same defect
+ * comes back with another id in the answer ("got {favourite 01KA…}"), and that is the same failure. A failure on no
+ * check of the requirement (a locator, a precondition) keeps its signature.
+ */
+export function failedCheck(e: Pick<TriageEntry, 'error'>): string {
+  const h = e.error?.headline ?? '';
+  return /^\[REQ /.test(h) ? h.replace(/\s*\((?:expects|got)\b[\s\S]*$/, '').replace(/\s*(?:Expected|Received)\b[\s\S]*$/, '').trim() : signature(e as TriageEntry);
+}
+
+/**
+ * Whether a finding held when its tests ran again on their own: every test failed again on the same check of the
+ * requirement as in the evaluation run (failedCheck). `again` is the rerun's entries.
  */
 export function heldAgain(tests: TriageEntry[], again: Pick<TriageEntry, 'scenario' | 'status' | 'error' | 'failingStep'>[]): string | undefined {
   for (const t of tests) {
@@ -34,7 +44,7 @@ export function heldAgain(tests: TriageEntry[], again: Pick<TriageEntry, 'scenar
     if (!r) return `${t.scenario} did not run again`;
     if (r.status === 'passed') return `${t.scenario} passed when it ran again on its own`;
     if (r.status !== 'failed' && r.status !== 'flaky') return `${t.scenario} ended ${r.status} when it ran again`;
-    if (signature(r as TriageEntry) !== signature(t)) return `${t.scenario} failed another way when it ran again: ${(r.error?.headline ?? '').slice(0, 160)}`;
+    if (failedCheck(r) !== failedCheck(t)) return `${t.scenario} failed another way when it ran again: ${(r.error?.headline ?? '').slice(0, 160)}`;
   }
   return undefined;
 }

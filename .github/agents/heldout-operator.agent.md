@@ -79,7 +79,9 @@ defect you confirm is recorded as one and repaired in a task of its own.
    A failure the replay confirmed and one you confirm for the same cause take the same title. A failed test tagged
    `@assumes:G<n>` or `@needs-clarification` whose failure is wrong whichever way the gap is answered takes
    `--any-reading`. Genuine ambiguity is NEEDS_INVESTIGATION. Each finding is reproduced once more by `advance`
-   (`heldout verify`) before it is published: one that doesn't hold is not reported as a defect.
+   (`heldout verify`) before it is published: one that doesn't hold is not reported as a defect. That decision and
+   the published verdict are final for this evaluation: never decide again after `advance` says the story is
+   complete; say in your reply what you think verify got wrong.
 
 ## Repairs (the task "Repair these script defects for KEY: …")
 

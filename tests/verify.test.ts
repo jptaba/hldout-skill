@@ -24,6 +24,14 @@ describe('a finding run again', () => {
   it('holds when every test failed again the same way', () => {
     assert.equal(heldAgain(tests, [entry('SCN-001'), entry('SCN-002')]), undefined);
   });
+  it('holds when the same check fails again on another record: a run picks its own, and what it received names it', () => {
+    const run1 = [defect('SCN-004', 'Not removed')]; run1[0].error = { headline: '[REQ AC-4] Removing a favourite: the product in the list (expects nothing there, got {"favourite":"01KA1"})' } as TriageEntry['error'];
+    const again = entry('SCN-004', { error: { headline: '[REQ AC-4] Removing a favourite: the product in the list (expects nothing there, got {"favourite":"01KB7"})' } as TriageEntry['error'] });
+    assert.equal(heldAgain(run1, [again]), undefined);
+    const other = entry('SCN-004', { error: { headline: '[REQ AC-4] Removing a favourite: the message shown (expects Removed)' } as TriageEntry['error'] });
+    assert.match(heldAgain(run1, [other])!, /failed another way/, 'another check of the same criterion is another failure');
+  });
+
   it('does not hold when a test passed, failed another way, or did not run', () => {
     assert.match(heldAgain(tests, [entry('SCN-001'), entry('SCN-002', { status: 'passed' })])!, /SCN-002 passed when it ran again/);
     assert.match(heldAgain(tests, [entry('SCN-001'), entry('SCN-002', { error: { headline: 'locator not found' } as TriageEntry['error'] })])!, /failed another way/);
