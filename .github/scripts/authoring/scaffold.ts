@@ -31,6 +31,7 @@ const shown = (v: Expectation['value']) => (v === undefined ? '' : ` ${Array.isA
  */
 export function specFromChecks(c: RequirementContract, at: { key: string; fixtures: string; journeys: string; journeysDir: string }): string {
   const gaps = new Map(c.gaps.map((g) => [g.id, g]));
+  const variantKeys = (c.variants ?? []).map((v) => v.key);
   const lines: string[] = [
     '/**',
     ` * Held-out acceptance tests for ${at.key} — "${c.title}".`,
@@ -58,7 +59,10 @@ export function specFromChecks(c: RequirementContract, at: { key: string; fixtur
     const pad = rows ? '  ' : '';
     const step = (kind: string, text: string, body: string[]) => [`${pad}    await journey.step('${kind} ${lit(text)}', async () => {`, ...body.map((b) => `${pad}      ${b}`), `${pad}    });`];
     lines.push(`  // from ${[...new Set(k.expect.map((e) => e.source))].join(', ')}`, `  // check ${k.id}`);
-    if (rows) lines.push(`  for (const [i, row] of rowsOf('${k.id}').entries()) {`, `    test(\`${scn}.\${i + 1}: ${lit(k.title).replace(/`/g, "'")} (\${row.label})\`, { tag: [${tags}] }, async ({ ${k.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`);
+    // A row that names a value of one of the contract's variants is the test of that setup: tagged, so the verdict's
+    // setups table counts it.
+    const variantTags = variantKeys.length ? `, ...Object.entries(row.values ?? {}).filter(([k]) => ${JSON.stringify(variantKeys).replace(/"/g, "'")}.includes(k)).map(([k, v]) => \`@variant:\${k}=\${String(v)}\`)` : '';
+    if (rows) lines.push(`  for (const [i, row] of rowsOf('${k.id}').entries()) {`, `    test(\`${scn}.\${i + 1}: ${lit(k.title).replace(/`/g, "'")} (\${row.label})\`, { tag: [${tags}${variantTags}] }, async ({ ${k.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`);
     else lines.push(`  test('${scn}: ${lit(k.title)}', { tag: [${tags}] }, async ({ ${k.layer === 'api' ? '' : 'page, '}api, journey, data, seed }) => {`);
     for (const g of k.given) lines.push(...step('Given', g, [`// TODO(harden) reach this state${rows ? ' (this row\'s input: row.values)' : ''}: call a journey, or add one`]));
     for (const w of k.when) lines.push(...step('When', w, [`// TODO(harden) do this${rows ? ' (this row\'s input: row.values)' : ''}: call a journey, or add one`]));

@@ -153,6 +153,13 @@ describe('the spec generated from the checks', () => {
     assert.match(spec, /\/\/ ASSUMPTION: G1 — the status of a refusal: 401/);
   });
 
+  it('tags the test of a row with the variant value it names, so the verdict counts that setup as tested', () => {
+    const c = contract([check({ id: 'C1.2', rows: [{ label: 'an admin', values: { role: 'admin' } }] })]);
+    const withVariant = { ...c, variants: [{ id: 'V1', key: 'role', values: [{ id: 'admin' }], appliesTo: ['AC-1'] }] } as typeof c;
+    assert.match(specFromChecks(withVariant, at), /\.\.\.Object\.entries\(row\.values \?\? \{\}\)\.filter\(\(\[k\]\) => \['role'\]\.includes\(k\)\)\.map\(\(\[k, v\]\) => `@variant:\$\{k\}=\$\{String\(v\)\}`\)\] \}/);
+    assert.doesNotMatch(specFromChecks(c, at), /@variant/, 'a contract with no variant tags nothing');
+  });
+
   it('tags a test as unsettled only for an oracle gap that is assumed or open', () => {
     const tagsOf = (resolution: 'assumed' | 'open' | 'found-in-requirement', kind: 'oracle' | 'mechanics' = 'oracle') =>
       /SCN-001[^\n]*tag: \[([^\]]*)\]/.exec(specFromChecks(contract([check({ restsOn: ['G1'] })], { gaps: [{ ...gap, kind, resolution }] }), at))![1];

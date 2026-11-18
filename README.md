@@ -5,18 +5,19 @@
 Works in GitHub Copilot (VS Code agent mode) or Claude Code. The examples say "Opus" for the AI model doing the work.
 
 A project skill ([.github/skills/heldout-evaluator](.github/skills/heldout-evaluator/SKILL.md)) that
-evaluates a Jira story against any web application or API using **held-out** Playwright tests,
-written from the requirement alone:
+evaluates a Jira story against any web application or API using **held-out** Playwright tests: what each test
+expects comes from the story alone, every expected value cited to its line, and where the application differs from
+the story, the story wins.
 
 ```
 Jira story (title, description, acceptance criteria) + the screenshots they show + the Confluence pages they link
-  → requirement contract: built by a subagent from any story format, every item cited to source lines,
-    every line accounted for, every expected value grounded — then checked by an independent reviewer subagent
-  → Playwright UI/API tests straight from the contract (criteria, test type and source on every test),
-    their steps on the app's reusable journeys → freeze → harden vs the live AUT
-  → run → triage (script defect vs application defect, reproduced live) → repair & re-run
-  → verdict.md (traceability, reproduction steps, evidence) → Jira comment + attachment → you decide
-  → journey registry: the journeys the passing tests proved, for the next story (never what the app answers)
+  → requirement contract with its checks: built by a subagent from any story format, every item cited to source lines,
+    every expected value grounded — then checked by an independent reviewer subagent
+  → Playwright UI/API tests generated from the checks (expectations by reference) → freeze
+  → made to run against the live application by the operator subagent, on the app's reusable journeys
+  → run → triage (replayed by the tool, or reproduced live) → each finding verified again → repair & re-run
+  → verdict.md and catalogue.md (every check in plain words) → Jira comment + attachment → you decide
+  → what was learned of the application, and the journeys the passing tests proved, kept for the next story
 ```
 
 Three folders in your project hold the work:
@@ -24,17 +25,16 @@ Three folders in your project hold the work:
 ```
 journeys/fixtures/<domain>.ts   reusable journeys, UI and API, one file per area of the app (products.ts, favorites.ts…)
 journeys/registry.yml           each journey's id and file, what it touches, what must run before it, which story proved it
-application-map/<app>/          how the app works, as probes proved it, one file per area; read only after a story's freeze
-application-map/<app>/app.yml   what the app is (an overview written at setup, read by every agent) and its business
-                                rules (from judged stories and from probes, read only after a story's freeze)
+application-map/<app>/knowledge.jsonl   what is known of the app: what it is, how it is operated, what it was seen to
+                                do, its data; read by every agent, added to when something is new, never an oracle
 output/<app>/<KEY>/             the record of one story, one folder per phase, each keeping only what the next ones read:
   1-requirement/  story.md  linked/  transcripts/                  what was asked
   2-contract/     contract.json  review.json                       what we took it to mean, and its independent review
   3-tests/        <key>.spec.ts  test-data.json  freeze.json       how it is tested: the draft, as frozen
   4-hardening/    <key>.spec.ts  hardening.md  P7.md               the tests made to work, and what showed how
   5-run/          05-eval.json                                     what ran: its tests and the evidence of failures
-  6-triage/       decisions.json  P12.md                           why each failure failed, reproduced live
-  7-verdict/      verdict.md  verdict.json  05-eval-SCN-012.png    what we recommend
+  6-triage/       decisions.json  verification.json  P12.md        why each failure failed, reproduced and verified
+  7-verdict/      verdict.md  verdict.json  catalogue.md  05-eval-SCN-012.png   what we recommend, and what was tested
   history.jsonl                                                    every step that changed the story, in order
 ```
 
@@ -42,9 +42,9 @@ About ten files per story, plus one per run and the evidence a decision cites. E
 output, traces, views, working files) goes to `.heldout/<app>/<KEY>/` under the same folder names: git-ignored, and
 removed once the story is complete.
 
-**The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains every capability with diagrams, plain-English
-summaries, terminal replays and recordings of the tests driving a real app. Git hosts show HTML as source,
-so open it from a clone (or a Pages site) in a browser.
+**The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains the design,
+the three roles, a story end to end, the checks, the verdict and the catalogue. Git hosts show HTML as source, so
+open it from a clone (or a Pages site) in a browser.
 
 ## Adopt it in another project (about 1 minute)
 
@@ -60,8 +60,6 @@ git clone --depth 1 <skill-repository-url> "$HOME/heldout-skill"
 git clone --depth 1 <skill-repository-url> "$HOME/heldout-skill"
 "$HOME/heldout-skill/setup.sh" --base-url https://your-app
 ```
-
-![An onboarding: clone, setup and doctor on Practice Software Testing](docs/media/onboarding.gif)
 
 `setup.ps1` is for PowerShell, `setup.sh` for bash and zsh (Git Bash on Windows too). If PowerShell refuses to run
 scripts, run it as `powershell -ExecutionPolicy Bypass -File "$HOME/heldout-skill/setup.ps1" -BaseUrl https://your-app`.
@@ -141,18 +139,18 @@ What each app needs for an evaluation (which agent to pick, the model, the appro
 | Playwright MCP server (browser tier 2) | `.vscode/mcp.json`, and the root `.mcp.json` made from it | ✔ `.vscode/mcp.json` (a Copilot session also reads `.mcp.json`) | ✔ `.mcp.json` (the only file it reads them from) |
 | The `heldout` command line | `npm run heldout -- …` | ✔ (plain Node, any terminal) | ✔ (plain Node) |
 
-One agent coordinates (in GitHub Copilot the `heldout-evaluator` agent, which may call the four phase subagents only;
-in Claude Code the main agent with the skill): `heldout advance KEY` runs the commands between phases and names the
-next subagent with its task, and the coordinator hands each phase that needs a model to that subagent, in a fresh context. The separation is part of the held-out design: the reviewer never sees the
-builder's reasoning, and what a test expects is written by neither of the agents that make it run: it is in the
-reviewed contract, and the tests are generated from it.
+One agent coordinates (in GitHub Copilot the `heldout-evaluator` agent, which may call the three phase subagents only;
+in Claude Code the main agent with the skill, or `heldout drive KEY` with nobody watching): `heldout advance KEY` runs
+the commands between phases and names the next subagent with its task and its brief (`heldout brief KEY`), and the
+coordinator hands each phase that needs a model to that subagent, in a fresh context. The reviewer never sees the
+builder's reasoning, and what a test expects is written by neither agent that makes it run: it is in the reviewed
+contract, and the tests are generated from it.
 
 | Subagent | Phase | Browser | GitHub Copilot (first available) | Claude Code |
 | --- | --- | --- | --- | --- |
-| `heldout-contract-extractor` | 1b build the requirement contract | — | Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol | `opus`, falling back to `sonnet` |
-| `heldout-contract-reviewer` | 1b review it independently, in a fresh context | — | as the extractor | `opus`, falling back to `sonnet` |
-| `heldout-hardener` | 3 harden tests and fixtures; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
-| `heldout-triager` | 5 triage, reproduce live | ✔ | as the extractor | `opus`, falling back to `sonnet` |
+| `heldout-contract-extractor` | 1b build the requirement contract and its checks | ✔ | Claude Opus 5.5 → Claude Opus 5 → Claude Sonnet 5.5 → GPT-6.1 Sol | `opus`, falling back to `sonnet` |
+| `heldout-contract-reviewer` | 1b review it independently, in a fresh context | ✔ | as the extractor | `opus`, falling back to `sonnet` |
+| `heldout-operator` | 3 make the tests run; 5 triage, reproduce live; repair script defects | ✔ | as the extractor | `opus`, falling back to `sonnet` |
 
 To change a model, edit the `model:` list in `.github/agents/*.agent.md` (Copilot) and the `model:` line in
 `.claude/agents/*.md` (Claude Code).
@@ -172,7 +170,7 @@ agent asks its setup questions in the chat (none after that), and passes `--quie
 | Where outputs and journeys go | `outputDir` (default `output`) and `journeysDir` (default `journeys`) in `heldout.config.json` |
 | Jira and Confluence | `JIRA_MODE=datacenter`, `JIRA_BASE_URL` and a personal access token `JIRA_PAT` (`CONFLUENCE_PAT` if Confluence needs its own) in `.env`; `doctor --jira` finds your acceptance-criteria custom field — [jira.md](.github/skills/heldout-evaluator/references/jira.md) |
 | Browser tier 2 (Playwright MCP) | [.vscode/mcp.json](.vscode/mcp.json) (GitHub Copilot) · root `.mcp.json` (Claude Code; `init` and `update` write it from `.vscode/mcp.json`) |
-| Subagents (contract, tests, hardening, triage) | [.github/agents/](.github/agents/) |
+| Subagents (contract, review, operator) | [.github/agents/](.github/agents/) |
 | CI regression run | `setup.ps1 -Ci gitlab` (`setup.sh --ci gitlab`) → a GitLab CI job (`.gitlab/heldout.gitlab-ci.yml`, included from `.gitlab-ci.yml`) |
 
 ## Commands
@@ -185,22 +183,22 @@ keeps the command's flags for itself; `heldout` stops with this hint when it not
 | --- | --- |
 | `init`, `update`, `add-aut`, `doctor`, `status [KEY]` | set up, install or update the skill (what `setup.ps1` / `setup.sh` run from the skill's clone), add an application, check the setup, see where each story is and the next step |
 | `init --git-hooks` · `precommit` | opt-in pre-commit hook: a commit with a secret value, or a file over 1 MB in the output folder, is refused; who decides what and how the evaluator is controlled: [references/governance.md](.github/skills/heldout-evaluator/references/governance.md) |
-| `advance KEY [--rerun]` | run a story's next script steps (fetch, evidence pack, freeze, run, automatic triage, verdict, publish, journey registry) up to the next subagent; run it again after each one. When a draft leaves nothing to discover (no guess marked, every journey it calls proven in the registry), it also does the hardening itself: two runs of the tests instead of a hardener subagent |
+| `advance KEY [--rerun]` · `brief KEY` · `drive KEY` | run a story's next script steps (fetch, evidence pack, tests generated from the checks, freeze, run, triage and replays, verification, verdict, publish, journey registry) up to the next subagent; the brief of that subagent; or the whole story with each subagent started headlessly (Claude Code) |
 | `secret NAME --generate` · `secret NAME --ask` | a test password into `.env` without showing it: generated, or typed at a hidden prompt |
 | `accounts --add-existing … [--role admin] [--shared]` · `accounts --from-chain …` · `accounts --check` | test accounts: existing ones (.env, CI, Vault; a role each when stories need kinds of users; `--shared` for an account every parallel worker may use, such as the one administrator) or created by the tests; checked live |
 | `fetch KEY [--aut id]` | the story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link (never comments or other attachments); binds the AUT; detects requirement revisions |
 | `contract KEY --pack` · `contract KEY` · `contract KEY --review-prompt` · `contract KEY --review-bind` | evidence pack; checks for the model-built contract (anchoring, coverage, grounded literals, review); binds the reviewer's review to the contract's hash |
-| `scaffold KEY` | a spec skeleton (one stub per criterion) and test data from the contract |
+| `scaffold KEY` | the tests generated from the contract's checks, and their test data (`advance` runs it) |
 | `journeys KEY` · `journeys KEY --harvest --apply` · `journeys --check` · `journeys --resolve` | the app's journeys for this story; record in the registry what passing tests proved; lint them all and find duplicates (after merging); settle a merge conflict in `registry.yml` |
-| `map --survey` · `map --about <part> --add "…"` · `map KEY --overview` · `map KEY` · `map KEY --rules` · `map KEY --harvest` | what a person sees of the app before signing in, as material for its overview; write the overview (at setup only: before a story or between stories); read it (any agent, any time); after a freeze, everything known of the app in one read (the overview, the map by domain, the rules); the business rules alone; keep a judged story's rules (`advance` does) |
+| `map --survey` · `map [KEY]` · `map [KEY] --domain <d> --kind about\|how\|seen\|data --add "…" [--evidence Pn]` · `--fix <id>` · `--remove <id>` | what a person sees of the app before signing in; what is known of it (any agent, any phase); add what is new, citing this story's probe; correct an entry found wrong |
 | `journeys --aut <id> --copy-from <profile>` | start an application's journeys from a related one's (another environment or build of the same product): copied as drafts, marked to be probed, proven by nothing until a story passes on them |
 | `lint`, `integrity`, `inspect`, `api-probe [--chain]`, `mcp-probe` | traceability, freeze/verify, UI and API probing (tiers 2 and 3); with `--key`, each probe is logged as the story's next `Pn` and cited by that id |
 | `inspect --sign-in <role>` · `--from P4[:k]` · `--then '<step>'` · `api-probe --chain P7 --set 2.json.qty=0` · `--pages` `--where` `--pick` `--count` | build a probe on earlier ones (signed in, an earlier walk, an earlier chain with one value changed, every page of a list, some of its items) instead of writing a script |
 | `show KEY contract\|run\|triage\|spec\|probes\|history` · `show config` · `trace KEY SCN-x [--network] [--steps]` | read a story's record, the profile (secrets as references), a failed test's trace as text |
-| `note KEY --tool-gap "…"` · `note KEY --usage "<agent> tokens=<n> minutes=<m>"` · `prune KEY` (or `--all --older-than 30d`) | record what no command could do (it becomes a command), or what a subagent cost; remove scratch areas |
+| `note KEY --tool-gap "…"` · `note KEY --discrepancy "…"` · `note KEY --usage "<agent> tokens=<n> minutes=<m>"` · `prune KEY` (or `--all --older-than 30d`) | record what no command could do (it becomes a command), where the application and the story differ (the verdict lists it), or what a subagent cost; remove scratch areas |
 | `stats [KEY] [--aut <profile>]` | per story: runs, repairs, review rounds, probes, minutes per phase, tool gaps and subagent cost |
 | `confirm KEY --file <file> --evidence "<probe report>"` | hardening: remove the `TODO(harden)` marks of the guesses a probe showed were right, in one go |
-| `run`, `triage`, `verdict`, `publish`, `scrub [--check]` | run → triage → verdict → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report), or list where one still is. A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
+| `run`, `triage`, `verify`, `verdict`, `publish`, `scrub [--check]` | run → triage → each finding verified → verdict and catalogue → Jira; remove secrets from artifacts (text files, the files inside trace archives, the HTML report), or list where one still is. A run of some of the tests (`--grep`) is never the evaluation a verdict comes from |
 | `npm run test:skill` · `npm run typecheck` | the skill's own tests (including a fake Jira and Confluence) · TypeScript |
 
 ## Requirement contract: any story format, evidence not recall
@@ -218,27 +216,27 @@ factual:
 - A separate reviewer subagent confirms each item. Its review is bound to the contract's hash.
 
 Missing elements become gaps, resolved in this order: the requirement, then the application (only for **how**
-to exercise it), then config, then **you**. **What** is correct is never read off the application.
+to exercise it), then config, then **you**. **What** is correct is never read off the application: any agent may look
+at it, and a difference it sees is listed in the verdict, never taken as the expected value.
 See [requirement-contract.md](.github/skills/heldout-evaluator/references/requirement-contract.md).
 
 **Checks across setups.** A story that says "validate every criterion for each user type" (or data set) gets a
-`variant` per dimension in the contract. Every criterion × setup then needs a test tagged `@variant:<key>=<value>`;
-the lint names a combination no test covers, and the verdict's Setups table shows how each one fared. Kinds of users are
+`variant` per dimension in the contract. A check covers a setup with a row that names the variant's value (its
+generated test is tagged `@variant:<key>=<value>`), and the verdict's Setups table shows how each one fared and which
+none tested. Kinds of users are
 existing accounts with a role (`accounts --add-existing … --role admin`), handed out by
 `seed.account('administrator', { role: 'admin' })`.
 
 ## Test types
 
-Every test has exactly one test type (`@type:`): what its assertions truly prove, read off what the application has got
-wrong when the test fails, not off the steps it takes on the way. A test that seems to fit two types takes the more
-specific one (higher in the table: a refused value just outside a limit is `boundary`); a test that truly proves two
-things is split into two tests. The lint warns when a test's code doesn't match its type (a `concurrency` test that
-sends nothing at the same time, a `composition` that chains no other criterion).
+Every check, and so every test, has exactly one test type (`@type:`): what it truly proves, read off what the
+application has got wrong when it fails. A check that seems to fit two types takes the more specific one (higher in the
+table: a refused value just outside a limit is `boundary`); one that truly proves two things is two checks.
 
-A criterion gets the fewest tests that could prove it false: its plain case, a table for each limit it states, a test
+A criterion gets the fewest checks that could prove it false: its plain case, a table for each limit it states, a check
 for each kind of refusal it states, and one for anything else its wording states; at most four, a table counting as
-one, unless the spec says what the criterion states that needs more. A type is the label of such a test, never a
-reason to add one, and what the story doesn't state or imply becomes a question, not a guessed test.
+one, unless the contract says what the criterion states that needs more. A type is the label of such a check, never a
+reason to add one, and what the story doesn't state or imply becomes a question, not a guessed check.
 
 | Type | What it proves |
 | --- | --- |
@@ -270,7 +268,7 @@ never as the requirement failing. Strategy:
 
 The HOW of driving the application lives as code in `journeys/fixtures/`, one file per area of the application
 (`products.ts`, `cart.ts`, `favorites.ts`…). Each file holds that area's UI journeys (open a page and wait until it is
-ready, fill a form) and API journeys (create and delete a record, find one). The hardener calls them for the steps
+ready, fill a form) and API journeys (create and delete a record, find one). The operator calls them for the steps
 of a new story's tests and adds the ones it needs; the contract keeps every expectation.
 Journeys never hold what the application answers (the lint and the integrity check refuse it), so tests stay held out.
 
