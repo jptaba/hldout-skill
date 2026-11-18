@@ -487,21 +487,3 @@ export function readContract(file: string): RequirementContract | undefined {
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as RequirementContract) : undefined;
 }
 
-/** Cross-check the specs' scenarios against the contract's gaps (called by the traceability lint). */
-export function checkSuiteAgainstContract(c: RequirementContract, suite: {
-  openQuestions: string[]; assumptions: string[]; scenarios: { id: string; acs: string[]; needsClarification: boolean; assumes?: string[] }[];
-}): ContractFinding[] {
-  const out: ContractFinding[] = [];
-  for (const g of openQuestions(c)) {
-    const tagged = g.affects.some((ac) => suite.scenarios.some((s) => s.acs.includes(ac) && s.needsClarification));
-    const asked = suite.openQuestions.some((q) => q.includes(g.id));
-    if (!tagged && !asked) out.push({ level: 'error', code: 'open-gap-not-surfaced', message: `${g.id} (${g.element}) is open but no test of ${g.affects.join(', ')} is tagged @needs-clarification and no // OPEN-QUESTION: mentions ${g.id}` });
-  }
-  for (const g of (c.gaps ?? []).filter((x) => x.resolution === 'assumed' && x.kind === 'oracle')) {
-    if (!suite.assumptions.some((a) => a.includes(g.id))) out.push({ level: 'error', code: 'assumption-not-surfaced', message: `${g.id} is an assumed oracle value but no // ASSUMPTION: in the spec mentions ${g.id}` });
-    // An assumption that only drops an assertion ("no status asserted") has no expectation to tag: "(not asserted)".
-    const notAsserted = suite.assumptions.some((a) => a.includes(g.id) && /\(not asserted\b[^)]*\)/i.test(a));
-    if (g.affects.length && !notAsserted && !suite.scenarios.some((s) => s.assumes?.includes(g.id))) out.push({ level: 'warn', code: 'assumption-not-tagged', message: `tag the tests whose expectation rests on ${g.id} with @assumes:${g.id}, so a failure there reads as a question for the owner, not a defect` });
-  }
-  return out;
-}

@@ -8,7 +8,6 @@ import { confluenceBase, confluenceLinks, pageIdOf, storageToMarkdown } from '..
 import { embeddedFiles } from '../.github/scripts/fetch/jira/client';
 import { markdownToStorage } from '../.github/scripts/fetch/mock/storage-format';
 import { baseScenarioId, matchEndpoint, normaliseTestType, readSuite } from '../.github/scripts/authoring/spec-model';
-import { typeMismatch } from '../.github/scripts/authoring/preflight';
 import { curlFor, rerunCommand } from '../.github/scripts/triage/repro';
 import { decideVerdict, holdsUnderAnyReading } from '../.github/scripts/verdict/verdict-rules';
 import type { RequirementContract } from '../.github/scripts/contract/contract-model';
@@ -86,10 +85,6 @@ describe('readSuite', () => {
     assert.deepEqual(a.assumes, []);
     assert.deepEqual(b.assumes, ['G2']);
     assert.equal(b.testType, 'boundary');
-    assert.equal(typeMismatch('boundary', b), undefined, 'a table of cases is a boundary test');
-    assert.match(typeMismatch('composition', b) ?? '', /chains no other criterion/);
-    assert.match(typeMismatch('concurrency', a) ?? '', /no requests together/);
-    assert.match(typeMismatch('integration', a) ?? '', /page and read the API/);
     assert.deepEqual(b.steps, ['When ${v}', 'Then z']);
     assert.deepEqual(b.sources, []);
     assert.equal(b.declarations, 1);
@@ -704,15 +699,5 @@ describe('accounts recipe from an api-probe chain', () => {
   it('refuses a chain that never saves the new id', async () => {
     const { recipeFromChain } = await import('../.github/scripts/probe/accounts-recipe');
     assert.throws(() => recipeFromChain({ steps: [{ method: 'POST', path: 'users', json: { p: '${env:X}' } }] }), /a step saving "id"/);
-  });
-});
-
-describe('the budget of tests per criterion', () => {
-  it('names a criterion with more tests than the budget, unless the spec says what needs more', async () => {
-    const { CHECK_BUDGET, overBudget } = await import('../.github/scripts/authoring/preflight');
-    const tests = (ac: string, n: number) => Array.from({ length: n }, () => ({ acs: [ac] }));
-    const scenarios = [...tests('AC-1', CHECK_BUDGET), ...tests('AC-2', CHECK_BUDGET + 1), ...tests('AC-3', CHECK_BUDGET + 3), { acs: ['AC-1', 'AC-12'] }];
-    assert.deepEqual(overBudget(['AC-1', 'AC-2', 'AC-3', 'AC-12'], scenarios, ''), [['AC-1', CHECK_BUDGET + 1], ['AC-2', CHECK_BUDGET + 1], ['AC-3', CHECK_BUDGET + 3]]);
-    assert.deepEqual(overBudget(['AC-1', 'AC-2', 'AC-3'], scenarios, '// BUDGET: AC-3 states seven refusals\n  //BUDGET: AC-12 is not AC-1'), [['AC-1', CHECK_BUDGET + 1], ['AC-2', CHECK_BUDGET + 1]]);
   });
 });

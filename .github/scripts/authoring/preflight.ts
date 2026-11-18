@@ -1,7 +1,10 @@
 /**
  * Preflight gates run before every official run (scripts/run.ts) and on demand (scripts/lint.ts):
- *   1. Traceability lint — contract ⇄ tests ⇄ [REQ] assertions are consistent, and the journeys hold no oracle.
- *   2. AUT healthcheck   — the target is reachable, so environment noise never reaches triage.
+ *   1. Lint — the contract and its review hold, the tests generated from its checks compile and run in full, and the
+ *      journeys hold no expectation.
+ *   2. AUT healthcheck — the target is reachable, so environment noise never reaches triage.
+ * The tests are generated from the contract's checks, so what a lint of hand-written tests checked (tags, sources,
+ * types, a requirement assertion per criterion) holds by construction and is not checked again.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -11,38 +14,12 @@ import { ROOT, rel } from '../core/files';
 import { currentTests, evalPaths, journeyPaths, knowledgeIds, strayFiles } from '../core/paths';
 import { duplicateProbeIds } from '../core/probe-log';
 import { accountRoles, type HeldoutConfig } from '../core/profile';
-import { checkContract, checkSuiteAgainstContract, checkVariantCoverage, readContract } from '../contract/contract-model';
+import { checkContract, readContract } from '../contract/contract-model';
 import { checkReview, readReview } from '../contract/evidence';
 import { allJourneys, describeJourney, duplicateJourneys, journeysUsedBy, lintJourneys, readRegistry } from './journeys/registry';
-import { TEST_TYPES, readSuite, specFiles, type Scenario, type TestType } from './spec-model';
+import { readSuite, specFiles } from './spec-model';
 
 export interface Finding { level: 'error' | 'warn'; code: string; message: string }
-
-/**
- * What a test of a type has to do, checked on its own code (helpers it calls may do more, so this only warns):
- * concurrency sends requests together, idempotency sends the same request again, composition chains criteria,
- * integration drives the page and reads the API, boundary is a table of cases or names its limit value.
- */
-export function typeMismatch(type: TestType, s: Pick<Scenario, 'code' | 'acs' | 'outline' | 'title' | 'steps'>): string | undefined {
-  const code = s.code;
-  switch (type) {
-    case 'concurrency': return /Promise\.(all|allSettled)\(|parallel/.test(code) ? undefined : 'its code sends no requests together (Promise.all)';
-    case 'idempotency': return /again|twice|repeat|second|retr(y|ies)|\bfor\s*\(|\.map\(/i.test(`${code}\n${s.steps.join('\n')}`) ? undefined : 'nothing in it sends the same request again';
-    case 'composition': return s.acs.length >= 2 ? undefined : 'it chains no other criterion (a composition carries the @AC-n of every step it chains)';
-    case 'integration': return /\bpage\b/.test(code) && /\bapi\b/.test(code) ? undefined : 'it does not drive the page and read the API both';
-    case 'boundary': return s.outline || /\d|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred|thousand|empty|maximum|minimum)\b/i.test(s.title) ? undefined : 'it is neither a table of cases nor names the limit value it tries';
-    default: return undefined;
-  }
-}
-
-/** The most tests a criterion gets without a stated reason (the same budget its checks have in the contract). */
-export const CHECK_BUDGET = 4;
-
-/** The criteria with more tests than the budget and no `// BUDGET: AC-n …` line in the specs, each with its count. */
-export function overBudget(acs: string[], scenarios: Pick<Scenario, 'acs'>[], src: string): [string, number][] {
-  return acs.map((id): [string, number] => [id, scenarios.filter((s) => s.acs.includes(id)).length])
-    .filter(([id, n]) => n > CHECK_BUDGET && !new RegExp(`//\\s*BUDGET:\\s*${id}\\b`).test(src));
-}
 
 export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnhardened?: boolean; draft?: boolean } = {}): Finding[] {
   const p = evalPaths(cfg, key);
@@ -55,63 +32,24 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   for (const s of strayFiles(p)) warn('stray-file', `${s.file} is not part of a story's record: it belongs in ${s.home}`);
   for (const id of duplicateProbeIds(p)) warn('probe-id-twice', `${id} is in the story's probe logs more than once (two branches merged): heldout advance gives the later one a new id`);
 
-  // Requirement contract (phase 1b): the tests are written from it, and its criteria drive coverage.
   const contract = readContract(p.contract);
   if (!contract) { err('no-contract', `No requirement contract (${rel(p.contract)}) — phase 1b comes first: heldout contract KEY --pack, then the extractor and reviewer subagents`); return out; }
   const tests = opts.draft ? p.tests : currentTests(p);
   const specs = specFiles(tests);
   if (!specs.length) { err('no-tests', `No *.spec.ts under ${rel(tests)}/ — heldout advance generates them from the contract's checks`); return out; }
   const f = readSuite(tests, contract);
-  if (!f.acs.length) err('no-acs', 'The contract has no acceptance criteria — they drive coverage.');
+  if (!f.acs.length) err('no-acs', 'The contract has no acceptance criteria.');
 
-  for (const s of f.scenarios) {
-    if (!s.acs.length && !s.nfrs.length) err('test-without-ac', `${s.id} has no @AC-n (or @NFR-n) tag`);
-    for (const ac of s.acs) if (!f.acs.some((a) => a.id === ac)) err('unknown-ac', `${s.id} is tagged @${ac}, which is not a criterion of the contract`);
-    if (s.declarations > 1) err('duplicate-scenario-id', `${s.id} is the id of ${s.declarations} tests — give each test its own SCN id (a table of cases is SCN-nnn.\${i + 1})`);
-    if (!s.steps.some((x) => /^Then\b/.test(x))) warn('no-then', `${s.id} has no journey.step('Then …') (nothing observable is asserted)`);
-    for (const d of s.depends) if (!f.scenarios.some((x) => x.id === d)) err('unknown-depends', `${s.id} is tagged @depends:${d}, which is not a test of this story`);
-    if (!s.sources.length) warn('no-source', `${s.id} has no "// from <story section / linked page>" line above its test — the verdict cannot trace it to a requirement source`);
-    if (!s.rawType) err('test-without-type', `${s.id} has no @type:<t> tag (one of ${TEST_TYPES.join(', ')})`);
-    else if (!s.testType) err('unknown-type', `${s.id} has @type:${s.rawType}, not in the taxonomy (${TEST_TYPES.join(', ')})`);
-    if (new Set(s.rawTypes).size > 1) err('several-types', `${s.id} has ${s.rawTypes.map((t) => `@type:${t}`).join(' and ')} — one type: what the test truly proves. If it fits two, take the more specific (${TEST_TYPES.join(' › ')}); if it proves two things, make it two tests`);
-    // Is the type what the test truly is? Cheap signs from the test's own code; a warning to re-check, not a verdict.
-    const mismatch = s.testType && typeMismatch(s.testType, s);
-    if (mismatch) warn('type-mismatch', `${s.id} is @type:${s.testType}, but ${mismatch} — re-check the type of its check in the contract`);
-  }
-
-  // By preflight time the user has been asked; open gaps must be surfaced in the specs instead.
-  for (const x of checkContract(contract, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL, knowledgeIds: knowledgeIds(cfg) })) {
-    // An assumed oracle value that the specs already surface as "// ASSUMPTION: G<n>" needs no further warning.
-    const gap = x.code === 'oracle-assumed' ? x.message.match(/^(G\d+):/)?.[1] : undefined;
-    if (gap && f.assumptions.some((a) => a.startsWith(gap))) continue;
-    // An open oracle question the specs already surface (OPEN-QUESTION line, or every affected test tagged
-    // @needs-clarification) is handled.
-    const open = x.code === 'oracle-gap-open' ? contract.gaps.find((g) => x.message.startsWith(`${g.id} `)) : undefined;
-    if (open && (f.openQuestions.some((q) => q.startsWith(open.id)) || f.scenarios.filter((s) => s.acs.some((a) => open.affects.includes(a))).every((s) => s.needsClarification))) continue;
-    out.push({ ...x, code: `contract/${x.code}` });
-  }
-  // A criterion whose every test rests on an assumption or an open question can only raise a question, even when
-  // the application does nothing of what it says: one test of what holds under every reading keeps a plain defect a defect.
-  for (const ac of contract.acceptanceCriteria) {
-    const tests = f.scenarios.filter((s) => s.acs.includes(ac.id));
-    if (tests.length && tests.every((s) => s.assumes.length || s.needsClarification)) warn('only-assumed-tests', `every test of ${ac.id} is tagged @assumes or @needs-clarification, so a failure can only be reported as a question for the owner — if something of ${ac.id} holds under every reading (an empty search returns products at all; a refusal is an error status), assert that in a test without the tag`);
-  }
-  // Independent review: required, current (hash-bound) and without findings.
-  // Reviewer observations are notes for the contract's builder (shown by `heldout contract`), not test-suite problems.
+  // The contract as checked and reviewed: its errors only (its warnings are the extractor's and the reviewer's).
+  for (const x of checkContract(contract, p.requirement, { hasApiBase: Boolean(cfg.aut.apiBaseURL ?? cfg.aut.baseURL), apiBaseURL: cfg.aut.apiBaseURL ?? cfg.aut.baseURL, knowledgeIds: knowledgeIds(cfg) })) if (x.level === 'error') out.push({ ...x, code: `contract/${x.code}` });
   for (const x of checkReview(contract, readReview(p.review), { requireReview: true }).filter((r) => r.code !== 'review-observation')) out.push({ ...x, code: `contract/${x.code}` });
-  out.push(...checkSuiteAgainstContract(contract, f));
-  out.push(...checkVariantCoverage(contract, f));
-  // A non-functional requirement the story states is verified by a test tagged @NFR-n, or reported as not verified.
   for (const n of contract.nonFunctional ?? []) {
-    if (!f.scenarios.some((s) => s.nfrs.includes(n.id))) warn('nfr-not-verified', `${n.id} is not verified by any test — tag the test that checks it @${n.id}; otherwise the verdict lists it as not verified (at most PASS WITH WARNINGS)`);
+    if (!f.scenarios.some((s) => s.nfrs.includes(n.id))) warn('nfr-not-verified', `${n.id} is not verified by any test: the verdict lists it as not verified (at most PASS WITH WARNINGS)`);
   }
+  for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} has no check, so no test`);
   for (const e of typeErrors(tests)) err('spec-type-error', e);
-  for (const ac of f.acs) if (!f.scenarios.some((s) => s.acs.includes(ac.id))) warn('ac-uncovered', `${ac.id} is not covered by any test`);
 
   const src = specs.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
-  // Every test costs a hardening, a run and a triage: past the budget, the spec says what the criterion states that
-  // needs more. A table of cases is one scenario here, however many rows it has.
-  for (const [id, n] of overBudget(f.acs.map((a) => a.id), f.scenarios, src)) warn('over-budget', `${id} has ${n} tests, more than ${CHECK_BUDGET} — keep the fewest that could prove it false (rows of an existing table, not more tests), or say what it states that needs more: // BUDGET: ${id} …`);
   const journeys = journeysUsedBy(cfg, cfg.autId, specs);
   const journeySrc = journeys.map((a) => fs.readFileSync(a, 'utf8'));
   // A control character in source (a "\b" that became a backspace through a shell edit) silently changes a regex.
@@ -120,14 +58,6 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
     const bad = lines.map((l, i) => (/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(l) ? i + 1 : 0)).filter(Boolean);
     if (bad.length) err('control-character', `${rel(s)} line(s) ${bad.slice(0, 5).join(', ')} contain a control character — likely an escape (\\b, \\t) mangled by a shell edit`);
   }
-  for (const ac of f.acs) {
-    const covered = f.scenarios.some((s) => s.acs.includes(ac.id));
-    // A spec generated from the contract's checks asserts by reference: expectCheck('C3.1.a', …) is AC-3's assertion.
-    const byReference = new RegExp(`\\bexpectCheck\\(\\s*['"\`]C${ac.id.replace(/^AC-/, '')}\\.\\d+\\.[a-z]['"\`]`).test(src);
-    if (covered && !byReference && !new RegExp(`\\[REQ [^\\]]*\\b${ac.id}\\b`).test(src)) err('ac-without-req-assertion', `${ac.id} has tests but no "[REQ ${ac.id}]" assertion in the spec — write the tag literally in each assertion message (a helper that builds it from a variable also hides the assertion from the integrity freeze)`);
-  }
-  const stubs = (src.match(/TODO\(test\)/g) ?? []).length;
-  if (stubs) err('unfinished-scaffold', `${stubs} TODO(test) marker(s) from "heldout scaffold" remain in the spec — write the journeys and assertions`);
   // The journeys the tests use: HOW only, never an expected value (they are not frozen with the tests), one file per domain.
   for (const x of lintJourneys(journeys, contract, journeyPaths(cfg, cfg.autId).base)) out.push({ ...x, code: `journeys/${x.code}` });
   // A journey this story adds (not in the registry yet) that makes the same calls as one already there: reuse that one.
@@ -139,45 +69,17 @@ export function lintEvaluation(cfg: HeldoutConfig, key: string, opts: { allowUnh
   }
   const todo = [src, ...journeySrc].reduce((n, s) => n + (s.match(/TODO\(harden\)/g) ?? []).length, 0);
   if (todo) (opts.allowUnhardened ? warn : err)('unhardened', `${todo} TODO(harden) marker(s) remain (in the spec or the journey files it uses)`);
-  // Once hardened, the log says which browser/API tiers were used; the verdict quotes it.
+  // Once the tests run, the log says which browser/API tiers were used; the verdict quotes it.
   if (!opts.allowUnhardened && fs.existsSync(p.hardeningLog) && !/^\*\*Tiers? used:\*\*[ \t]*\S/m.test(fs.readFileSync(p.hardeningLog, 'utf8'))) {
-    err('hardening-log-empty', `${rel(p.hardeningLog)} has no "Tiers used" — record the tiers you used and what hardening changed before the evaluation run (the verdict quotes it)`);
+    err('hardening-log-empty', `${rel(p.hardeningLog)} has no "Tiers used" — record the tiers you used and what you changed before the evaluation run (the verdict quotes it)`);
   }
-  if (/\bwaitForTimeout\(/.test(src)) warn('hard-wait', 'page.waitForTimeout() found — use web-first assertions instead');
+  if (/\bwaitForTimeout\(/.test(src)) warn('hard-wait', 'page.waitForTimeout() found — wait for what you act on instead');
   if (/\btest\.(only|fixme)\(|\.skip\(/.test(src)) err('focused-or-skipped', 'test.only / test.fixme / skip found — every test of the requirement must run');
 
-  // Entry point: UI/e2e journeys must say where they start (a Given step first).
-  for (const s of f.scenarios.filter((x) => x.layer !== 'api')) {
-    const first = s.steps[0] ?? '';
-    if (!/^Given\b/.test(first)) warn('no-entry-point', `${s.id} starts with "${first.slice(0, 50)}" — state the entry point / preconditions as a journey.step('Given …') (deep-link to the page under test unless navigation is part of the AC)`);
-  }
-  // Data preconditions ("Given … exists / I am signed in / I created …") should be seeded, not assumed.
-  // Only the Given block counts: an "And" after a Then is an outcome ("And the list shows Created"), not a precondition.
-  const givens = (steps: string[]) => { const out: string[] = []; let inGiven = false; for (const st of steps) { if (/^Given\b/.test(st)) inGiven = true; else if (/^(When|Then)\b/.test(st)) inGiven = false; if (inGiven && /^(Given|And|But)\b/.test(st)) out.push(st); } return out; };
-  const needsData = f.scenarios.filter((x) => givens(x.steps).some((st) => /\b(exists?|created|signed in|have added|know (the|an) id|registered)\b/i.test(st)));
-  // Lookups ("I know the id of …") are satisfied by seed.step; data by seed.create/track; auth by seed.once — in the
-  // spec or in the journeys it calls.
-  const seeding = [src, ...journeySrc].some((s) => /\bseed\.(create|track|step|once|shared|until|account)\(/.test(s));
-  if (needsData.length && !seeding) {
-    warn('no-seeding', `${needsData.length} test(s) have data/state preconditions (${needsData.slice(0, 4).map((x) => x.id).join(', ')}…) but neither the spec nor its journeys use seed.* — seed data via the API (seed.create), look ids up with seed.step, so setup failures read as BLOCKED`);
-  }
-
-  // Accounts with roles: a test that asks for "an account" without one may be handed any kind of user.
+  // Accounts with roles: a step that asks for "an account" without one may be handed any kind of user.
   const roles = accountRoles(cfg.aut.accounts);
   const roleless = [src, ...journeySrc].join('\n').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').match(/\bseed\.account\(\s*(?:(['"`])[^'"`]*\1\s*)?\)/g) ?? [];
   if (roles.size && roleless.length) warn('account-without-role', `${roleless.length} seed.account() call(s) ask for no role, so they may get any of the profile's accounts (${[...roles.keys()].join(', ')}) — pass the kind of user the step needs: seed.account('admin', { role: '${[...roles.keys()][0]}' })`);
-
-  // An assertion whose message starts from a variable (a local helper building "[REQ …]") is invisible to the integrity
-  // freeze: its expected value could change unnoticed. expectResponse() or a literal message keeps it frozen.
-  const hidden = [...src.matchAll(/expect(?:\.soft)?\([^;]*?,\s*`\$\{/g)].length;
-  if (hidden) warn('req-message-not-literal', `${hidden} assertion(s) take their message from a variable (e.g. a helper that builds "[REQ …]"), so the integrity freeze can't see them — use expectResponse(res, { status, body }, '[REQ AC-n] …') for API answers, or write the [REQ] message literally`);
-
-  const used = [src, ...journeySrc].join('\n');
-  for (const ep of f.endpoints) {
-    const prefix = ep.path.split(/[{:]/)[0].replace(/\/+$/, '');
-    // The profile's accounts recipe calls endpoints on the tests' behalf (seed.account()), and so do journeys.
-    if (prefix && !used.includes(prefix) && !JSON.stringify(cfg.aut.accounts ?? {}).includes(prefix)) warn('endpoint-unused', `Declared endpoint ${ep.method} ${ep.path} is not referenced by any test or journey it uses`);
-  }
 
   const testData = path.join(tests, 'test-data.json');
   if (fs.existsSync(testData)) {
@@ -229,7 +131,7 @@ export async function healthcheck(cfg: HeldoutConfig, samples = 3): Promise<Heal
 }
 
 export function printFindings(findings: Finding[]): void {
-  if (!findings.length) { console.log('  ✔ traceability lint clean'); return; }
+  if (!findings.length) { console.log('  ✔ lint clean'); return; }
   for (const f of findings) console.log(`  ${f.level === 'error' ? '✖' : '⚠'} [${f.code}] ${f.message}`);
 }
 

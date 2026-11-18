@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
-  checkContract, checkSuiteAgainstContract, locateQuote, normaliseText, notEvaluable, openQuestions, oracleDigest,
+  checkContract, locateQuote, normaliseText, notEvaluable, openQuestions, oracleDigest,
   requirementRevision, shapeFindings, skeletonContract, toDiscover, type RequirementContract,
 } from '../.github/scripts/contract/contract-model';
 import { checkIntegrity, draftOf } from '../.github/scripts/hardening/integrity-check';
@@ -136,16 +136,12 @@ describe('requirement contract', () => {
     assert.ok(f.includes('gap-ladder'));
   });
 
-  it('open oracle gaps are questions for the owner of the story and must be surfaced in the specs', () => {
+  it('open oracle gaps are questions for the owner of the story', () => {
     const dir = fixture();
     const c = goodContract(dir);
     c.gaps.push({ id: 'G3', element: 'maximum widgets per user', kind: 'oracle', required: true, affects: ['AC-1'], tried: [{ where: 'story', result: 'silent' }, { where: 'linked', result: 'silent' }], resolution: 'open' });
     assert.equal(checkContract(c, dir).find((x) => x.code === 'oracle-gap-open')?.level, 'warn');
     assert.deepEqual(openQuestions(c).map((g) => g.id), ['G3']);
-    const suite = { openQuestions: [] as string[], assumptions: [], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
-    assert.ok(codes(checkSuiteAgainstContract(c, suite)).includes('open-gap-not-surfaced'));
-    suite.openQuestions = ['G3: how many widgets may a user own?'];
-    assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
   });
 
   it('a story without acceptance criteria is not evaluable once the builder recorded that as a required open question', () => {
@@ -158,15 +154,11 @@ describe('requirement contract', () => {
     assert.equal(notEvaluable(c), true);
   });
 
-  it('an assumption that asserts nothing needs no @assumes tag when marked "(not asserted)"', () => {
+  it('takes the story and what it links as one rung of the gap ladder', () => {
     const dir = fixture();
     const c = goodContract(dir);
     c.gaps.push({ id: 'G3', element: 'status of a rejected widget', kind: 'oracle', required: false, affects: ['AC-1'], tried: [{ where: 'linked', result: 'silent' }, { where: 'story', result: 'silent' }], resolution: 'assumed', value: 'no status asserted' });
-    assert.ok(!codes(checkContract(c, dir)).includes('gap-ladder-order')); // the story and what it links are one rung
-    const suite = { openQuestions: [] as string[], assumptions: ['G3: no status is asserted'], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
-    assert.ok(codes(checkSuiteAgainstContract(c, suite)).includes('assumption-not-tagged'));
-    suite.assumptions = ['G3: no status is asserted (not asserted)'];
-    assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
+    assert.ok(!codes(checkContract(c, dir)).includes('gap-ladder-order'));
   });
 
   it('open mechanics gaps are discovered from the application, never asked of the user', () => {
@@ -176,8 +168,6 @@ describe('requirement contract', () => {
     assert.equal(checkContract(c, dir).find((x) => x.code === 'mechanics-to-discover')?.level, 'warn');
     assert.deepEqual(openQuestions(c), []);
     assert.deepEqual(toDiscover(c).map((g) => g.id), ['G4']);
-    const suite = { openQuestions: [] as string[], assumptions: [], scenarios: [{ id: 'SCN-001', acs: ['AC-1'], needsClarification: false }] };
-    assert.deepEqual(checkSuiteAgainstContract(c, suite), []);
   });
 
   it('requires R<n> and E<n> ids on rules and error cases', () => {
