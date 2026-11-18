@@ -1,9 +1,11 @@
 /**
- * Held-out integrity: hardening/repair may change HOW a test drives the AUT (locators, waits, navigation),
- * never WHAT it expects. The generated draft stays as frozen in 3-tests/ (freeze.json holds its hashes, and the
- * contract's oracle, where the expected values are); the hardener works on its copy in 4-hardening/. Every
- * expectation the draft names must still be asserted, none may be added, and the contract may not change: any of
- * these is a violation. A check that was wrong is corrected in the contract, reviewed again and re-frozen.
+ * Held-out integrity: making the tests run may change HOW a test drives the application, never WHAT it expects. The
+ * tests are generated from the contract's checks and assert by reference (`expectCheck('C3.1.a', actual)`): what is
+ * expected lives in the contract alone, frozen by its oracle digest. The generated draft stays as frozen in 3-tests/
+ * (freeze.json holds its hashes); the operator works on its copy in 4-hardening/. A violation: the draft or the
+ * contract changed after the freeze, an expectation the draft names is gone or one is added, a test states an
+ * expectation of its own, an actual value is not read from the application (a literal, or the row's own input: a
+ * check that compares what it sent with itself passes vacuously), or a journey asserts anything.
  */
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -12,7 +14,7 @@ import { specFiles } from '../authoring/spec-model';
 
 const sha256 = (s: string) => createHash('sha256').update(s.replace(/\r\n/g, '\n')).digest('hex');
 
-/** The journeys a story's specs use: their files (for [REQ …] checks) and a hash per journey id (frozen, compared). */
+/** The journeys a story's specs use: their files (checked for assertions) and a hash per journey id (frozen, compared). */
 export interface StoryJourneys { files: string[]; hashes: Record<string, string> }
 const NO_JOURNEYS: StoryJourneys = { files: [], hashes: {} };
 
@@ -21,39 +23,41 @@ export interface IntegrityResult {
   checkedAt: string;
   /** Draft files changed or gone since the freeze: the draft is the frozen record, never edited after it. */
   draftChanged: string[];
-  files: { file: string; draftAssertions: number; currentAssertions: number }[];
+  files: { file: string; draftChecks: number; currentChecks: number }[];
+  /** Expectations the draft names that a test no longer asserts, and ones added after the freeze. */
   removed: string[];
-  changed: { assertion: string; draft: string; current: string }[];
   added: string[];
-  constantsChanged: string[];
-  /** The requirement contract's oracle part (ACs, outcomes, rules, error model) changed since the freeze. */
+  /** Lines of a test that state an expectation of their own. */
+  own: string[];
+  /** expectCheck calls whose actual value is not read from the application. */
+  echoed: string[];
+  /** The requirement contract's oracle (criteria, checks, rules, errors) changed since the freeze. */
   contractChanged?: boolean;
   /** Journeys the tests use that changed (or are new) since the freeze: HOW, so not a violation; listed by id. */
   journeysChanged?: string[];
-  /** [REQ …] assertions inside journey files: they would escape the freeze, so they are a violation. */
+  /** Assertions inside journey files: an expectation there escapes the freeze. */
   journeyAssertions?: string[];
   unhardenedMarkers: { file: string; line: number; text: string }[];
 }
 
-
-/** One frozen draft: the hashes of the specs as the author left them, the contract's oracle and the journeys they used. */
+/** One frozen draft: the hashes of the generated specs, the expectations each names, the contract's oracle and the journeys. */
 export interface FrozenDraft {
   frozenAt: string;
   /** Each spec file (relative to the tests folder) and the SHA-256 of its source (line endings as LF). */
   specs: Record<string, string>;
-  /** Per spec file, the SHA-256 of each requirement assertion as frozen and of its @req-constants block: what a later re-freeze is audited against. */
-  assertions: Record<string, { req: Record<string, string>; constants: string }>;
+  /** Per spec file, the expectation ids it asserts (expectCheck), each once a call. */
+  checks: Record<string, string[]>;
   /** The requirement contract's oracle at the freeze (contract-model oracleDigest). */
   contractOracle: string;
   /** The hash of each journey the draft used, at the freeze. */
   journeys: Record<string, string>;
 }
 
-/** A re-freeze after a requirement revision: why, what it absorbed, and the draft it replaced. */
+/** A re-freeze after a requirement revision or a corrected check: why, what it absorbed, and the draft it replaced. */
 export interface Refreeze {
   at: string;
   reason: string;
-  absorbed: { changed: string[]; removed: string[]; constantsChanged: string[]; added: string[]; contractOracleChanged?: boolean };
+  absorbed: { added: string[]; removed: string[]; contractOracleChanged?: boolean };
   previous: FrozenDraft;
 }
 
@@ -69,75 +73,55 @@ export function writeFreeze(file: string, freeze: Freeze): void {
   fs.writeFileSync(file, `${JSON.stringify(freeze, null, 2)}\n`);
 }
 
-const squash = (s: string) => s.replace(/\s+/g, ' ').trim();
-/** Comments inside an assertion (a `// TODO(harden)` mark) are not what it expects: removing one changes nothing. */
 const withoutComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[\s,;{(\[])\/\/[^\n]*/g, '$1');
+const CALL = /\bexpectCheck\(\s*(['"`])(C\d+\.\d+\.[a-z])\1\s*,\s*([^,)]+?)\s*(?:,[^)]*)?\)/g;
 
-/**
- * A literal timeout-only options argument is mechanics (how long to wait), so hardening may add or change it:
- * `.toHaveCount(1, { timeout: 15_000 })` freezes as `.toHaveCount(1)`. Other options (ignoreCase, …) stay frozen.
- */
-const withoutTimeout = (matcher: string) => matcher
-  .replace(/,\s*\{\s*timeout:\s*[\d_]+\s*,?\s*\}\s*\)$/, ')')
-  .replace(/\(\s*\{\s*timeout:\s*[\d_]+\s*,?\s*\}\s*\)$/, '()');
-
-/**
- * Map "[REQ …] message #n" → frozen text for every requirement assertion.
- * Normally only the matcher (WHAT is expected) is frozen — the subject/locator is mechanics.
- * `[REQ AC-n strict]` freezes the whole assertion including its subject, for requirements where the
- * locator *is* the requirement (accessible names, roles, alt text).
- * Supports expect(…, '[REQ …]'), expect.soft(…) and expect.poll(fn, { message: '[REQ …]' }).
- */
-export function reqAssertions(source: string): Map<string, string> {
-  const map = new Map<string, string>();
-  const seen = new Map<string, number>();
-  const add = (message: string, subject: string, matcher: string) => {
-    const n = (seen.get(message) ?? 0) + 1;
-    seen.set(message, n);
-    const strict = /^\[REQ [^\]]*\bstrict\b/.test(message);
-    const [subj, match] = [withoutComments(subject), withoutComments(matcher)];
-    map.set(n > 1 ? `${message} #${n}` : message, squash(strict ? `${subj} ${withoutTimeout(match)}` : withoutTimeout(match)));
-  };
-  // The subject may not cross a statement boundary (`;`) — otherwise a lazy match starting at an
-  // earlier non-REQ expect( would swallow unrelated code up to the next [REQ …] message.
-  // A message runs to the closing quote of its own kind: other quotes inside it (`[REQ AC-7] "Home" shown`) are text.
-  const plain = /expect(?:\.soft)?\(\s*([^;]*?),\s*(['"`])(\[REQ [^\]]+\](?:(?!\2)[^\\\n]|\\.)*)\2\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
-  for (const m of source.matchAll(plain)) add(m[3], m[1], m[4]);
-  // expectResponse(res, { status, body }, '[REQ …]') from the fixtures: the expected status and body are the oracle.
-  const response = /expectResponse\(\s*([^;]*?),\s*(\{[\s\S]*?\}),\s*(['"`])(\[REQ [^\]]+\](?:(?!\3)[^\\\n]|\\.)*)\3\s*\)\s*;/g;
-  for (const m of source.matchAll(response)) add(m[4], m[1], `expectResponse ${m[2]}`);
-  const poll = /expect\.poll\(((?:(?!expect[.(])[\s\S])*?)message:\s*(['"`])(\[REQ [^\]]+\](?:(?!\2)[^\\\n]|\\.)*)\2[\s\S]*?\}\s*\)\s*((?:\.not)?\.to\w+\([\s\S]*?\))\s*;/g;
-  for (const m of source.matchAll(poll)) add(m[3], m[1], m[4]);
-  // expectCheck('C3.1.a', actual): the expected value is in the contract (frozen by its oracle digest); what is
-  // frozen here is that the expectation is still asserted. Where the actual value is read is mechanics.
-  for (const m of source.matchAll(/\bexpectCheck\(\s*(['"`])(C\d+\.\d+\.[a-z])\1\s*,/g)) add(`[CHECK ${m[2]}]`, '', 'expectCheck');
-  return map;
+/** The expectation ids a spec asserts, in order: each expectCheck call once. */
+export function checkRefs(source: string): string[] {
+  return [...withoutComments(source).matchAll(CALL)].map((m) => m[2]);
 }
 
-/**
- * In a spec that asserts by reference, the lines that state an expectation of their own (expect(…), expectResponse(…)):
- * a value written in a test is one the review never saw and the freeze doesn't hold.
- */
+/** The lines of a spec that state an expectation of their own (expect(…), expectResponse(…)). */
 export function ownExpectations(source: string): number[] {
-  if (!/\bexpectCheck\(/.test(source)) return [];
   return source.split(/\r?\n/).map((l, i) => (/\bexpect(?:\.soft|\.poll)?\(|\bexpectResponse\(/.test(l.replace(/\/\/.*$/, '')) ? i + 1 : 0)).filter(Boolean);
 }
 
-export function reqConstants(source: string): string {
-  return squash(source.match(/@req-constants-start([\s\S]*?)@req-constants-end/)?.[1] ?? '');
+/** A value that was not read from the application: a literal, or what the test itself sends (a row's input, its data). */
+const NOT_READ = /^(?:-?\d[\d_.]*|true|false|null|undefined|(['"`])[^]*\1|\[[^]*\]|\{[^]*\}|row\.values\b[\w.[\]'"]*|data\.[\w.[\]'"]+)$/;
+
+/**
+ * The expectCheck calls whose actual value is not read from the application: given as a literal or as the test's own
+ * input, directly or through a const assigned so in the same file. The value reached otherwise (a call, a locator's
+ * text, a field of a response) is the application's.
+ */
+export function echoedActuals(source: string): string[] {
+  const src = withoutComments(source);
+  const out: string[] = [];
+  for (const m of src.matchAll(CALL)) {
+    const arg = m[3].trim();
+    let why = NOT_READ.test(arg) ? arg : undefined;
+    if (!why && /^[A-Za-z_$][\w$]*$/.test(arg)) {
+      const before = src.slice(0, m.index);
+      const decl = [...before.matchAll(new RegExp(`\\b(?:const|let|var)\\s+${arg.replace(/\$/g, '\\$')}\\s*(?::[^=;]+)?=\\s*([^;\\n]+)`, 'g'))].at(-1);
+      const assigned = [...before.matchAll(new RegExp(`(?<![\\w$.])${arg.replace(/\$/g, '\\$')}\\s*=(?!=)\\s*([^;\\n]+)`, 'g'))].at(-1);
+      const value = (assigned && (!decl || (assigned.index ?? 0) > (decl.index ?? 0)) ? assigned[1] : decl?.[1])?.trim();
+      if (value && NOT_READ.test(value)) why = `${arg} = ${value}`;
+    }
+    if (why) out.push(`${m[2]}: ${why.slice(0, 80)}`);
+  }
+  return out;
 }
 
-/** The draft as it is now: the hashes of its specs, the requirement contract's oracle and the hashes of the journeys they use. */
+/** The draft as it is now: the hashes of its specs, the expectations they name, the contract's oracle and the journeys. */
 export function draftOf(testsDir: string, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): FrozenDraft {
   const sources = specFiles(testsDir).map((f) => [path.relative(testsDir, f).split(path.sep).join('/'), fs.readFileSync(f, 'utf8')] as const);
-  const specs = Object.fromEntries(sources.map(([name, src]) => [name, sha256(src)]));
-  const assertions = Object.fromEntries(sources.map(([name, src]) => [name, assertionHashes(src)]));
-  return { frozenAt: new Date().toISOString(), specs, assertions, contractOracle, journeys: journeys.hashes };
+  return {
+    frozenAt: new Date().toISOString(), specs: Object.fromEntries(sources.map(([name, src]) => [name, sha256(src)])),
+    checks: Object.fromEntries(sources.map(([name, src]) => [name, checkRefs(src)])), contractOracle, journeys: journeys.hashes,
+  };
 }
 
-const assertionHashes = (src: string) => ({ req: Object.fromEntries([...reqAssertions(src)].map(([k, v]) => [k, sha256(v)])), constants: sha256(reqConstants(src)) });
-
-/** The hardener's copy of the draft: the spec files and the test data, written over any earlier copy. */
+/** The operator's copy of the draft: the spec files and the test data, written over any earlier copy. */
 export function copyDraft(testsDir: string, hardenedDir: string): string[] {
   fs.mkdirSync(hardenedDir, { recursive: true });
   for (const f of specFiles(hardenedDir)) fs.rmSync(f);
@@ -150,60 +134,43 @@ export function copyDraft(testsDir: string, hardenedDir: string): string[] {
   return files.map((f) => path.relative(testsDir, f).split(path.sep).join('/'));
 }
 
-/**
- * What a revised draft changes in what the tests expect, against the assertion hashes frozen with the draft it
- * replaces (the freeze's own record, not a copy anyone can edit): for the audit of a re-freeze.
- */
-export function revisionOf(previous: Pick<FrozenDraft, 'assertions'>, testsDir: string): Refreeze['absorbed'] {
-  const out: Refreeze['absorbed'] = { changed: [], removed: [], constantsChanged: [], added: [] };
-  const now = draftOf(testsDir, '').assertions;
-  for (const relName of [...new Set([...Object.keys(previous.assertions), ...Object.keys(now)])]) {
-    const d = previous.assertions[relName] ?? { req: {}, constants: sha256('') };
-    const c = now[relName] ?? { req: {}, constants: sha256('') };
-    for (const [k, v] of Object.entries(d.req)) if (!(k in c.req)) out.removed.push(`${relName}: ${k}`); else if (c.req[k] !== v) out.changed.push(`${relName}: ${k}`);
-    for (const k of Object.keys(c.req)) if (!(k in d.req)) out.added.push(`${relName}: ${k}`);
-    if (d.constants !== c.constants) out.constantsChanged.push(relName);
-  }
-  return out;
+/** What a draft generated again changes in the expectations it names, against the freeze's own record: for the audit of a re-freeze. */
+export function revisionOf(previous: Pick<FrozenDraft, 'checks'>, testsDir: string): Pick<Refreeze['absorbed'], 'added' | 'removed'> {
+  const was = new Set(Object.values(previous.checks ?? {}).flat());
+  const now = new Set(Object.values(draftOf(testsDir, '').checks).flat());
+  return { added: [...now].filter((c) => !was.has(c)), removed: [...was].filter((c) => !now.has(c)) };
 }
 
+/** Each id as often as it is asserted, so a call removed while a second of the same id stays is still a removal. */
+const counted = (ids: string[]) => ids.map((id, i) => `${id}${ids.slice(0, i).filter((x) => x === id).length ? ` #${ids.slice(0, i).filter((x) => x === id).length + 1}` : ''}`);
+
 export function checkIntegrity(testsDir: string, hardenedDir: string, freeze: Freeze | undefined, contractOracle: string, journeys: StoryJourneys = NO_JOURNEYS): IntegrityResult {
-  const result: IntegrityResult = { status: 'PRESERVED', checkedAt: new Date().toISOString(), draftChanged: [], files: [], removed: [], changed: [], added: [], constantsChanged: [], unhardenedMarkers: [] };
+  const result: IntegrityResult = { status: 'PRESERVED', checkedAt: new Date().toISOString(), draftChanged: [], files: [], removed: [], added: [], own: [], echoed: [], unhardenedMarkers: [] };
   for (const file of specFiles(hardenedDir)) {
-    const src = fs.readFileSync(file, 'utf8');
-    src.split(/\r?\n/).forEach((text, i) => {
+    fs.readFileSync(file, 'utf8').split(/\r?\n/).forEach((text, i) => {
       if (/TODO\(harden\)/.test(text)) result.unhardenedMarkers.push({ file: path.relative(hardenedDir, file), line: i + 1, text: text.trim() });
     });
   }
   if (!freeze || !Object.keys(freeze.specs).length) return { ...result, status: 'NO_DRAFT' };
   for (const [relName, hash] of Object.entries(freeze.specs)) {
     const draftFile = path.join(testsDir, relName);
-    const draftSrc = fs.existsSync(draftFile) ? fs.readFileSync(draftFile, 'utf8') : '';
-    if (sha256(draftSrc) !== hash) result.draftChanged.push(relName);
+    if (sha256(fs.existsSync(draftFile) ? fs.readFileSync(draftFile, 'utf8') : '') !== hash) result.draftChanged.push(relName);
     const curFile = path.join(hardenedDir, relName);
-    const curSrc = fs.existsSync(curFile) ? fs.readFileSync(curFile, 'utf8') : '';
-    const d = reqAssertions(draftSrc);
-    const c = reqAssertions(curSrc);
-    result.files.push({ file: relName, draftAssertions: d.size, currentAssertions: c.size });
-    for (const [k, v] of d) {
-      if (!c.has(k)) result.removed.push(`${relName}: ${k}`);
-      else if (c.get(k) !== v) result.changed.push({ assertion: `${relName}: ${k}`, draft: v, current: c.get(k)! });
-    }
-    for (const k of c.keys()) if (!d.has(k)) result.added.push(`${relName}: ${k}`);
-    if (reqConstants(draftSrc) !== reqConstants(curSrc)) result.constantsChanged.push(relName);
-    // A spec generated from the contract's checks expects nothing of its own: an expectation written into it after
-    // the freeze is a value nobody reviewed.
-    if (/\bexpectCheck\(/.test(draftSrc)) {
-      for (const k of c.keys()) if (!d.has(k)) result.changed.push({ assertion: `${relName}: ${k}`, draft: '(not in the frozen spec)', current: 'an expectation added after the freeze' });
-      for (const line of ownExpectations(curSrc)) result.changed.push({ assertion: `${relName}: line ${line}`, draft: '(the spec asserts by reference only)', current: 'an expectation written in the test: expected values live in the contract\'s checks' });
-    }
+    const cur = fs.existsSync(curFile) ? fs.readFileSync(curFile, 'utf8') : '';
+    const d = counted(freeze.checks?.[relName] ?? []); const c = counted(checkRefs(cur));
+    result.files.push({ file: relName, draftChecks: d.length, currentChecks: c.length });
+    result.removed.push(...d.filter((k) => !c.includes(k)).map((k) => `${relName}: ${k}`));
+    result.added.push(...c.filter((k) => !d.includes(k)).map((k) => `${relName}: ${k}`));
+    result.own.push(...ownExpectations(cur).map((l) => `${relName}: line ${l}`));
+    result.echoed.push(...echoedActuals(cur).map((x) => `${relName}: ${x}`));
   }
-  // A draft frozen without the contract oracle, or with a different one, no longer proves what was expected.
+  // A draft frozen with a different contract oracle no longer proves what was expected.
   if (freeze.contractOracle !== contractOracle) result.contractChanged = true;
   // Journeys are HOW and may change after the freeze (listed); an expectation hidden in one escapes the freeze.
   const before = freeze.journeys ?? {};
   result.journeysChanged = Object.keys(journeys.hashes).filter((id) => before[id] !== journeys.hashes[id]);
-  result.journeyAssertions = journeys.files.flatMap((f) => [...reqAssertions(fs.readFileSync(f, 'utf8')).keys()].map((k) => `${path.basename(f)}: ${k}`));
-  if (result.draftChanged.length || result.removed.length || result.changed.length || result.constantsChanged.length || result.contractChanged || result.journeyAssertions.length) result.status = 'VIOLATED';
+  // A wait for a page to be ready (`expect(…).toBeVisible()`) is a journey's mechanics; a requirement's expectation is not.
+  result.journeyAssertions = journeys.files.flatMap((f) => fs.readFileSync(f, 'utf8').split(/\r?\n/).map((l, i) => (/\bexpectCheck\(|\bexpectResponse\(|\[REQ /.test(l.replace(/\/\/.*$/, '')) ? `${path.basename(f)}: line ${i + 1}` : '')).filter(Boolean));
+  if (result.draftChanged.length || result.removed.length || result.added.length || result.own.length || result.echoed.length || result.contractChanged || result.journeyAssertions.length) result.status = 'VIOLATED';
   return result;
 }

@@ -37,12 +37,11 @@ const logOf = (p: LogPaths, phase: ProbingPhase) => path.join(phase === 'hardeni
 const scratchReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).work, 'probes', `${id}.md`);
 const keptReport = (p: ProbePaths, phase: ProbingPhase, id: string) => path.join(phaseDirs(p, phase).kept, `${id}.md`);
 export const PROBE_ID = /\bP[1-9]\d*\b/g;
-const MAP_ENTRY = /\bM[0-9a-f]{6}\b/;
 /**
- * The map entry (M…), or the overview entry or rule the profile's knowledge holds (O…, B…), a text names: never a
- * story's evidence alone. Knowledge ids count only when the store holds them, so a record's "B12345a" is not one.
+ * The entry of the application's knowledge a text names (K…): never a story's evidence alone. An id counts only when
+ * the store holds it, so a record's "K12345a" is not one.
  */
-const namedEntry = (text: string, known: string[]) => text.match(MAP_ENTRY)?.[0] ?? known.find((id) => new RegExp(`\\b${id}\\b`).test(text));
+const namedEntry = (text: string, known: string[]) => known.find((id) => new RegExp(`\\b${id}\\b`).test(text));
 /**
  * A saved value no log may keep: by the name it is saved under, the field it came from, or what it is. Wide on purpose
  * (`keyword` and `author` count too): a value wrongly left out is said in the report and can be given again, and one
@@ -88,20 +87,8 @@ export function tableRows(report: string, sections: string[]): string[] {
 }
 
 /**
- * Held-out isolation: nobody looks at the application for a story before its draft is frozen, so a probe for a story
- * (--key) is refused until `3-tests/freeze.json` exists, whatever tools the caller has. The refusal is a `note` of kind
- * `isolation` in the story's history. A probe for no story (setting a profile up) is not about a story, and stays open.
- */
-export function requireFrozen(cfg: HeldoutConfig, key: string | undefined, tool: ProbeEntry['tool'] | 'map'): void {
-  if (!key) return;
-  const p = evalPaths(cfg, assertIssueKey(key));
-  if (fs.existsSync(p.freeze)) return;
-  if (fs.existsSync(p.base)) recordEvent(p.history, 'note', { kind: 'isolation', text: `${tool} refused: the draft of ${key} is not frozen yet` });
-  throw new Error(`${tool} refused: the draft of ${key} is not frozen yet (${rel(p.freeze)}). Nobody looks at the application for a story before its tests are frozen (held-out isolation); the freeze comes first: heldout integrity ${key} --snapshot`);
-}
-
-/**
- * The phase a probe is made in, by where the story is: hardening before the evaluation run, and again when the draft
+ * The phase a probe is made in, by where the story is: hardening before the evaluation run (a probe while the contract
+ * is written, to understand what the story talks about, is logged there too), and again when the draft
  * was frozen anew after it or when the triager has decided every failure and some are script defects (the hardener
  * repairs them); triage otherwise.
  */

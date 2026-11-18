@@ -38,32 +38,22 @@ defect.
 
 A journey is shared by every story that calls it. Fix HOW it works when the application changed (a new locator, a new
 field) so every caller gets the fix; never bend it to one story's need (add a journey, or keep that step in the test).
-Never move an expectation into a journey: no `[REQ …]`, no `expectResponse`, no expected message. A journey you
+Never move an expectation into a journey: no `expectCheck`, no `expectResponse`, no expected message (a wait for a
+page to be ready is mechanics). A journey you
 replace with another: `npm run heldout -- journeys KEY --stale "<id>" --evidence "<probe report>"`. What you discover
 that later stories will need (opening a page and waiting for it, creating and deleting a record) becomes a new journey:
 an exported function with a `/** doc comment */` in its domain's file, called from the test. The harvest after the
 verdict records in `journeys/registry.yml` what the passing tests proved; never edit that file yourself.
 
-What you learned that no journey can hold (an answer's shape, the call a page makes, a wait it needs) goes in the
-application map: `npm run heldout -- map KEY --domain <domain> --add "<how it works>" --evidence P7`. Write it so it holds
-in another environment and for another story: `{id}` for a record, no value a run made, no secret. It says how to reach
-and read the application (a route, a call, an answer's format, a wait), never what it accepts, refuses or computes, nor
-who may call it: a requirement could judge those, so they belong in your log or the triager's decision, and a reader of the map would take
-them as settled. Nobody reads the map before a freeze, or today's behaviour would become the oracle. It is a starting
-point, so a guess confirmed or a gap resolved still cites this story's probe or run; `--evidence` that names an entry
-alone is refused.
-
-What the application was seen to accept, refuse or compute is an observed rule, kept apart from the mechanics:
-`npm run heldout -- map KEY --rule "<what it did>" --domain <domain> --evidence P7`. It says what happened, never that
-it is right or wrong, and it is read after a freeze only (`--rules`, beside the rules earlier stories' requirements
-gave). A required rule this story's contract replaces (its rule or the owner's answer says the rule changes) is
-marked stale citing that item: `--stale <id> --evidence R2`; one it only contradicts stays beside it, for the verdict
-to put to the owner. A probe never retires a required rule.
-
-The overview (the first part of `npm run heldout -- map KEY`) is what every agent reads, the contract's agents
-too, so it has one writer: setup, with no story open. An entry of it your probe contradicts is marked stale
-(`--stale <id> --evidence P9`); what it is missing (an area, a kind of user, a word of the application and its
-meaning) goes in your reply, and a person adds it between stories.
+What you learned that no journey can hold goes into what is known of the application, once, when it is new:
+`npm run heldout -- map KEY --domain <domain> --kind how --add "<how it is done>" --evidence P7` (an answer's shape, the
+call a page makes, a wait it needs); `--kind seen` for what it was seen to accept, refuse or compute, said as what
+happened and never as right or wrong; `--kind data` for accounts, how a precondition is made, what a run leaves and how
+it is cleaned up. Write it so it holds in another environment and for another story: `{id}` for a record, no value a
+run made, no secret. An entry your probe shows wrong is corrected in the same step:
+`npm run heldout -- map KEY --fix <id> --add "<what holds>" --evidence P9` (or `--remove <id>`). Using an entry, or
+finding again that it holds, writes nothing. The store is a starting point, never evidence and never an oracle: a gap
+resolved still cites this story's probe or run, and `--evidence` that names an entry alone is refused.
 
 ## 1. Choose the tier
 
@@ -183,18 +173,19 @@ can do.
 
 ## 3. Observed deviations: do NOT "fix" these
 
-If the AUT contradicts the requirement (different text, status code, total, missing control or
-label, unauthenticated access…), **leave the assertion exactly as drafted** and log it under
-*Observed deviations*. A requirement-named element that is missing is also a deviation: keep the
-step, use the most literal locator, and use `strict` when the locator is the requirement. A deviation goes in the log
-only: never in a journey's comments, which every later story reads.
+If the AUT contradicts the requirement (different text, status code, total, missing control or label,
+unauthenticated access…), **leave the check exactly as generated**, log it under *Observed deviations* and note it for
+the verdict: `npm run heldout -- note KEY --discrepancy "<the story says …; the application shows …>" --evidence P7`. A
+requirement-named element that is missing is also a deviation: keep the step and use the most literal locator. A
+deviation goes in the log and the note only: never in a journey's comments or in what is known of the application,
+which every later story reads.
 
 ## 4. Dry run, triage, integrity
 
 ```bash
 npm run heldout -- run KEY --label harden --capture   # a dry run, not when the tests create records the application can't delete; TODO(harden) allowed for harden* labels
 npm run heldout -- triage KEY                          # separates mechanics from deviations
-npm run heldout -- integrity KEY                       # PRESERVED (or AMENDED) and no TODO(harden)
+npm run heldout -- integrity KEY                       # PRESERVED and no TODO(harden)
 ```
 
 For the stability proof (`--repeat-each 3 --workers 2`), use `--repeat-each 2` and one worker on a host that
@@ -208,8 +199,8 @@ The stability run is also where a mechanic no mark showed comes to light. After 
 records can't be deleted, that is instead of the whole suite, which would leave another set behind; and when too many tests
 call a changed journey to re-run them all, the evaluation run is their check, and the log says so.
 
-Fix only failures that triage calls SCRIPT_DEFECT (after checking). `[REQ]` failures matching an
-observed deviation are expected; leave them for the official run.
+Fix only failures that triage calls SCRIPT_DEFECT (after checking). A failing check that matches an observed
+deviation is expected; leave it for the evaluation run.
 
 ## 5. Hardening log — `4-hardening/hardening.md`
 

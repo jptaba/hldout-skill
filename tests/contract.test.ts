@@ -99,31 +99,31 @@ describe('requirement contract', () => {
     for (const code of ['quote-not-found', 'no-outcome', 'endpoint-undeclared', 'source-unread']) assert.ok(f.includes(code), code);
   });
 
-  it('refuses a contract that rests on the application\'s overview or knowledge', () => {
+  it('refuses a contract that rests on what is known of the application', () => {
     const dir = fixture();
-    const known = { knowledgeIds: ['O1a2b3c', 'B9f8e7d'] };
-    for (const named of ['as O1a2b3c says', 'B9f8e7d', 'application-map/shop/app.yml', 'npm run heldout -- map ABC-9 --overview']) {
+    const known = { knowledgeIds: ['K1a2b3c', 'K9f8e7d'] };
+    for (const named of ['as K1a2b3c says', 'K9f8e7d', 'application-map/shop/knowledge.jsonl', 'npm run heldout -- map ABC-9 --domain cart']) {
       const c = goodContract(dir);
       c.rules[0].text = `name is 1-40 characters (${named})`;
-      assert.ok(codes(checkContract(c, dir, known)).includes('rests-on-overview'), named);
+      assert.ok(codes(checkContract(c, dir, known)).includes('rests-on-knowledge'), named);
     }
-    assert.ok(!codes(checkContract(goodContract(dir), dir, known)).includes('rests-on-overview'));
+    assert.ok(!codes(checkContract(goodContract(dir), dir, known)).includes('rests-on-knowledge'));
   });
 
   it('lets a story write a value shaped like a knowledge id, or name a folder, in its own words', () => {
     const dir = fixture();
     const c = goodContract(dir);
-    c.rules[0].text = 'name is 1-40 characters (booking B123456, order O204511)';
-    c.acceptanceCriteria[0].quote = 'see application-map/ in app.yml';
-    c.rules.push({ id: 'R2', text: 'the settings live in app.yml', source: 'story.md#L9' });
-    assert.ok(!codes(checkContract(c, dir, { knowledgeIds: ['O1a2b3c'] })).includes('rests-on-overview'));
+    c.rules[0].text = 'name is 1-40 characters (booking K123456, order K204511)';
+    c.acceptanceCriteria[0].quote = 'see application-map/ in knowledge.jsonl';
+    c.rules.push({ id: 'R2', text: 'the settings live in knowledge.jsonl', source: 'story.md#L9' });
+    assert.ok(!codes(checkContract(c, dir, { knowledgeIds: ['K1a2b3c'] })).includes('rests-on-knowledge'));
   });
 
-  it('lets a mechanics gap resolved after the freeze name the knowledge beside its probe', () => {
+  it('lets a mechanics gap name the knowledge beside its probe', () => {
     const dir = fixture();
     const c = goodContract(dir);
-    c.gaps[0].evidence = 'P7, as O1a2b3c says (heldout map ABC-9 --domain cart)';
-    assert.ok(!codes(checkContract(c, dir, { knowledgeIds: ['O1a2b3c'] })).includes('rests-on-overview'));
+    c.gaps[0].evidence = 'P7, as K1a2b3c says (heldout map ABC-9 --domain cart)';
+    assert.ok(!codes(checkContract(c, dir, { knowledgeIds: ['K1a2b3c'] })).includes('rests-on-knowledge'));
   });
 
   it('never lets expected behaviour be discovered from the AUT, and enforces the ladder', () => {
@@ -201,7 +201,7 @@ describe('requirement contract', () => {
   it('freezes the oracle part with the draft: changing expected outcomes violates integrity, mechanics do not', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'contract-int-'));
     fs.mkdirSync(path.join(dir, 'tests'));
-    fs.writeFileSync(path.join(dir, 'tests', 'a.spec.ts'), "expect(r.status, '[REQ AC-1] created').toBe(201);\n");
+    fs.writeFileSync(path.join(dir, 'tests', 'a.spec.ts'), "expectCheck('C1.1.a', r.status);\n");
     const c = goodContract(fixture());
     const freeze = { ...draftOf(path.join(dir, 'tests'), oracleDigest(c)), refreezes: [] };
     const mech = structuredClone(c);

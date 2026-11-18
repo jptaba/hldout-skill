@@ -8,22 +8,21 @@
 export interface Role { writes: 'edit' | 'create'; browser: boolean }
 
 /**
- * Before the freeze no role may look at the application (held-out isolation); after it, the hardener and the triager
- * work live. The contract reviewer creates its review and never edits the contract it judges: Claude Code withholds
+ * Every role may use the live application, in any phase: what is correct is held by what each expected value must
+ * cite (the story), not by who may look. The contract reviewer creates its review and never edits the contract it judges: Claude Code withholds
  * its Edit tool, as defence in depth (Write and a shell can still change a file; the guard is `contract
  * --review-bind`, which binds the review to the contract's hash). Copilot's `edit` covers creating a file, so there
  * every role has it.
  */
 export const ROLES = {
-  'heldout-contract-extractor': { writes: 'edit', browser: false },
-  'heldout-contract-reviewer': { writes: 'create', browser: false },
-  'heldout-hardener': { writes: 'edit', browser: true },
-  'heldout-triager': { writes: 'edit', browser: true },
+  'heldout-contract-extractor': { writes: 'edit', browser: true },
+  'heldout-contract-reviewer': { writes: 'create', browser: true },
+  'heldout-operator': { writes: 'edit', browser: true },
 } as const satisfies Record<string, Role>;
 
 /**
  * GitHub Copilot's coordinator: the entry point a user picks, which runs `heldout advance` and hands each phase to its
- * subagent. It may call those five agents only (`agents:`). Claude Code has no file for it: its main agent with the
+ * subagent. It may call those agents only (`agents:`). Claude Code has no file for it: its main agent with the
  * skill coordinates, since a main-thread agent there would replace Claude Code's own system prompt.
  */
 export const COORDINATOR = 'heldout-evaluator';

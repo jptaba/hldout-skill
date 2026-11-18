@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, probingPhase, readProbes, trimProbeLogs, renumberDuplicateProbes, requireFrozen, savedOf, tableRows } from '../.github/scripts/core/probe-log';
+import { chainOfProbe, citeProbes, deliverProbe, duplicateProbeIds, probingPhase, readProbes, trimProbeLogs, renumberDuplicateProbes, savedOf, tableRows } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 
 // The record goes to a temporary folder; the scratch area is the project's (.heldout/), under a profile of its own.
@@ -81,19 +81,15 @@ describe('the probe log', () => {
     assert.deepEqual(tableRows(report, ['Setup steps', 'Locator probes']), ['| 1 | goto ✔ |', '| `a` | 1 ✔ |']);
   });
 
-  it('refuses a probe for a story whose draft is not frozen, and notes it in the story\'s history', () => {
-    const q = { ...cfg, autId: `${profile}-frozen` } as HeldoutConfig;
+  it('logs a probe for a story whose draft is not frozen yet: any agent may look at the application in any phase', () => {
+    const q = { ...cfg, autId: `${profile}-unfrozen` } as HeldoutConfig;
     const s = evalPaths(q, 'ABC-2');
-    fs.mkdirSync(path.dirname(s.freeze), { recursive: true });
-    assert.throws(() => requireFrozen(q, 'ABC-2', 'inspect'), /inspect refused: the draft of ABC-2 is not frozen yet.*integrity ABC-2 --snapshot/s);
-    assert.match(fs.readFileSync(s.history, 'utf8'), /"event":"note".*"kind":"isolation"/);
-    fs.writeFileSync(s.freeze, '{}');
-    assert.doesNotThrow(() => requireFrozen(q, 'ABC-2', 'inspect'));
-    assert.doesNotThrow(() => requireFrozen(q, undefined, 'api-probe'), 'a probe for no story stays open');
-    assert.throws(() => requireFrozen(q, 'NEW-1', 'api-probe'), /not frozen/);
-    assert.ok(!fs.existsSync(evalPaths(q, 'NEW-1').base), 'a story that does not exist gets no folder');
-    assert.throws(() => requireFrozen(q, '../..', 'inspect'), /KEY|key/, 'a key that is no story key goes nowhere');
+    const log = console.log; console.log = () => {};
+    try { assert.equal(deliverProbe(q, 'ABC-2', { tool: 'inspect', tier: 3, input: {}, report: '# P', digest: [] })?.phase, 'hardening'); } finally { console.log = log; }
+    assert.ok(!fs.existsSync(s.freeze));
+    assert.equal(readProbes(s).length, 1);
     fs.rmSync(path.join(q.outputDir, q.autId), { recursive: true, force: true });
+    fs.rmSync(path.dirname(s.work.base), { recursive: true, force: true });
   });
 
   it('gives back what a chain saved, for a later chain or walk', () => {

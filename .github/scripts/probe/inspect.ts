@@ -61,7 +61,7 @@ import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/
 import { generatedId, siteOf } from './detect';
 import { composeSteps, walkInput, walkVars } from './compose';
 import { closeOverlays, locateOn } from './page';
-import { deliverProbe, looksSecret, requireFrozen, scrubsFromReport, tableRows } from '../core/probe-log';
+import { deliverProbe, looksSecret, scrubsFromReport, tableRows } from '../core/probe-log';
 
 interface Step { do: string; target?: string; value?: string; url?: string }
 interface Candidate {
@@ -211,7 +211,6 @@ export const spec: CommandSpec = {
 
 export async function run({ flags, argv }: Args): Promise<void> {
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
-  requireFrozen(cfg, flagStr(flags, 'key'), 'inspect');
   // The walk it starts from, then what a chain saved (--vars-from P7), then --var: the later one wins.
   const given = walkVars(cfg, flags);
   Object.assign(vars, given);

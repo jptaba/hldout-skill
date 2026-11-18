@@ -23,6 +23,8 @@ import { comboLabel, oracleDigest, readContract, variantCombinations } from '../
 import { injectionSuspects } from '../contract/evidence';
 import type { Category } from '../run/classify';
 import { curlFor, exchangeLine, rerunCommand } from '../triage/repro';
+import { readVerification } from '../triage/verification';
+import { renderCatalogue } from './catalogue';
 import { readDecisions, readRunRecord, type Decisions, type TriageEntry } from '../run/run-record';
 import { decideVerdict, holdsUnderAnyReading, type Verdict } from './verdict-rules';
 
@@ -262,20 +264,23 @@ export function run({ _, flags }: Args): void {
   // The journey steps of the test (a case of a table, SCN-012.2, has its values in the test title).
   const stepsOf = (id: string) => feature.scenarios.find((s) => s.id === baseScenarioId(id))?.steps ?? [];
   const durationS = meta.stats ? Math.round(meta.stats.duration / 1000) : Math.round((Date.parse(meta.finishedAt) - Date.parse(meta.startedAt)) / 1000);
-  const reqCount = integrity.files.reduce((n, f) => n + f.currentAssertions, 0);
+  const reqCount = integrity.files.reduce((n, f) => n + f.currentChecks, 0);
   const tiersUsed = fs.existsSync(p.hardeningLog) ? fs.readFileSync(p.hardeningLog, 'utf8').match(/^\*\*Tiers? used:\*\*[ \t]*(\S.*)$/m)?.[1] : undefined; // same line only: an empty value is "not recorded"
   // A table cell: the first sentence, capped; the full account stays in the hardening log.
   const firstSentence = tiersUsed?.replace(/`/g, '').split(/(?<=\.)\s/)[0]; // no code spans: a cut must not break markdown
   const tierLine = firstSentence && firstSentence.length > 160 ? `${firstSentence.slice(0, 160).replace(/\s+\S*$/, '')}… (see hardening log)` : firstSentence;
   const s = tri.summary;
   const integrityCell = {
-    PRESERVED: `✅ PRESERVED — ${reqCount} requirement assertions identical to the pre-hardening draft`,
-    VIOLATED: `❌ VIOLATED — ${integrity.changed.length + integrity.removed.length} expectation(s) changed, removed or added after the freeze${integrity.contractChanged ? '; expected outcomes in the requirement contract changed after the freeze' : ''}${integrity.journeyAssertions?.length ? `; ${integrity.journeyAssertions.length} requirement assertion(s) inside journeys, outside the freeze` : ''}`,
+    PRESERVED: `✅ PRESERVED — the ${reqCount} expectations the generated tests name, asserted by reference to the frozen contract`,
+    VIOLATED: `❌ VIOLATED — ${[integrity.removed.length + integrity.added.length && `${integrity.removed.length + integrity.added.length} expectation(s) removed or added after the freeze`, integrity.own.length && `${integrity.own.length} expectation(s) written in a test`, integrity.echoed.length && `${integrity.echoed.length} actual value(s) not read from the application`, integrity.contractChanged && 'the contract\'s oracle changed after the freeze', integrity.journeyAssertions?.length && `${integrity.journeyAssertions.length} expectation(s) inside journeys`, integrity.draftChanged.length && 'the frozen draft was edited'].filter(Boolean).join('; ')}`,
     NO_DRAFT: '⚠️ NO_DRAFT — no frozen draft to compare',
   }[integrity.status];
 
   // The first screen answers the reader's questions and nothing else: the verdict, each finding in a line, what the
   // owner must answer, what was not tested. The findings in full follow; everything else is the record, below them.
+  const discrepancies = readHistory(p.history).filter((e) => e.event === 'note' && e.kind === 'discrepancy').map((e) => `${String(e.text)}${Array.isArray(e.probes) && e.probes.length ? ` (${e.probes.join(' ')})` : ''}`);
+  const verification = readVerification(p);
+  const verifiedAs = (title: string) => (verification?.run === finalRun ? verification.findings.find((v) => v.title === title) : undefined);
   const ownerQuestions = [...feature.openQuestions.filter((q) => !infoQuestions.includes(q)), ...(contradicted.length ? [`${contradicted.length} failing test(s) rest on a reading the story doesn't settle: see "Readings the application contradicts"`] : [])];
   const notTested = [
     ...uncovered.map((a) => `${a.id} has no test: ${a.text}`),
@@ -295,6 +300,8 @@ export function run({ _, flags }: Args): void {
     ...ownerQuestions.map((q) => `- ${esc(q)}`), ...(ownerQuestions.length ? [''] : []),
     `**Not tested (${notTested.length}):**${notTested.length ? '' : ' nothing: every criterion has a test that ran.'}`, '',
     ...notTested.map((n) => `- ${esc(n)}`), ...(notTested.length ? [''] : []),
+    // Where an agent saw the application differ from the story: the story won, and the owner sees the difference.
+    ...(discrepancies.length ? [`**Where the application and the story differ (${discrepancies.length}):** the tests expect what the story says.`, '', ...discrepancies.map((d) => `- ${esc(d)}`), ''] : []),
   ];
   const record: string[] = [
     '---', '', '# The record', '',
@@ -328,6 +335,7 @@ export function run({ _, flags }: Args): void {
       ...g.map((x) => `| ${x.scenario}: expected (requirement) → actual (AUT) | \`${esc(x.error?.expected ?? '-')}\` → \`${esc(actualOf(x))}\` |`),
       ...g.flatMap((x) => (x.otherFailures ?? []).map((o) => `| ${x.scenario}: also failed | ${esc(o.headline)}${o.expected !== undefined ? ` — \`${esc(short(o.expected, 120))}\` → \`${esc(short(o.received, 160))}\`` : ''} |`)),
       `| Failing step | ${esc(e.failingStep ?? '-')} |`,
+      ...(f ? [`| Verified before publishing | ${verifiedAs(title) ? `✅ ${esc(verifiedAs(title)!.by)}` : 'not verified'} |`] : []),
       `| Evaluator classification | ${f ? `APPLICATION_DEFECT (reproduced live${e.auto && e.auto.category !== 'APPLICATION_DEFECT' ? `; automatic triage said ${e.auto.category}, overridden after investigation` : ''})` : `auto: ${e.auto?.category} (${e.auto?.confidence})`} |`, '',
       '#### How to reproduce', '',
       ...(seededOf(e).length ? [
@@ -359,8 +367,8 @@ export function run({ _, flags }: Args): void {
   const refreezes = freeze?.refreezes ?? [];
   if (refreezes.length) {
     md.push('## Draft re-freezes (audited)', '', `The frozen draft was re-created after its first freeze, for example after a requirement revision. Each re-freeze has a logged reason; the draft it replaced is kept in [freeze.json](${link(rel(p.freeze))}).`, '',
-      '| When | Reason | REQ changes absorbed | Draft it replaced |', '| --- | --- | --- | --- |',
-      ...refreezes.map((r) => `| ${r.at} | ${esc(r.reason)} | ${[r.absorbed.added.length && `${r.absorbed.added.length} added`, r.absorbed.changed.length && `${r.absorbed.changed.length} changed`, r.absorbed.removed.length && `${r.absorbed.removed.length} removed`, r.absorbed.constantsChanged.length && 'constants block changed'].filter(Boolean).join(', ') || 'none'} | frozen ${r.previous.frozenAt} |`), '');
+      '| When | Reason | What it absorbed | Draft it replaced |', '| --- | --- | --- | --- |',
+      ...refreezes.map((r) => `| ${r.at} | ${esc(r.reason)} | ${[r.absorbed.added.length && `${r.absorbed.added.length} expectation(s) added`, r.absorbed.removed.length && `${r.absorbed.removed.length} removed`, r.absorbed.contractOracleChanged && 'the contract\'s oracle changed'].filter(Boolean).join(', ') || 'none'} | frozen ${r.previous.frozenAt} |`), '');
   }
 
   if (other.length || flaky.length) {
@@ -487,6 +495,7 @@ export function run({ _, flags }: Args): void {
       return `| \`${r}\`${note} | ${st?.passed ?? '-'} | ${st?.failed ?? '-'} | ${st?.flaky ?? '-'} |`;
     }), '',
     '## Artifacts', '',
+    `- What was tested, in plain words, and how to run each check again: [catalogue.md](catalogue.md)`,
     `- Requirement: [story.md](${link(rel(p.storyMd))}) · contract: [contract.json](${link(rel(p.contract))}) · review: [review.json](${link(rel(p.review))})`,
     `- Tests: the frozen draft [${rel(p.tests)}/](${link(rel(p.tests))}/) ([freeze.json](${link(rel(p.freeze))})) · as hardened and run [${rel(p.hardened)}/](${link(rel(p.hardened))}/) · hardening: [hardening.md](${link(rel(p.hardeningLog))})`,
     `- Journeys: ${rel(journeyPaths(cfg, cfg.autId).fixtures)}/ · registry: ${rel(journeyPaths(cfg, cfg.autId).registry)}`,
@@ -496,6 +505,8 @@ export function run({ _, flags }: Args): void {
 
   const out = md.join('\n');
   writeFile(p.verdictMd, out);
+  // What was tested, in plain words, beside the verdict: the deliverable a reader opens to know what the tests checked.
+  writeFile(path.join(verdictDir, 'catalogue.md'), renderCatalogue(key, contract, { name: finalRun, entries: tri.entries }));
   const json = {
     key, verdict, reason, finalRun, generatedAt: new Date().toISOString(), autId: cfg.autId, aut: cfg.aut, summary: s,
     integrity: integrity.status, journeys,

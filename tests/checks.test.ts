@@ -13,7 +13,7 @@ import { CHECK_BUDGET, checkChecks, grounded, relationProblem, type Check } from
 import { checkLines } from '../.github/scripts/contract/contract-render';
 import { oracleDigest, type RequirementContract } from '../.github/scripts/contract/contract-model';
 import { contractHash } from '../.github/scripts/contract/evidence';
-import { ownExpectations, reqAssertions } from '../.github/scripts/hardening/integrity-check';
+import { checkRefs, ownExpectations } from '../.github/scripts/hardening/integrity-check';
 
 const dirs: string[] = [];
 after(() => { for (const d of dirs) fs.rmSync(d, { recursive: true, force: true }); });
@@ -165,7 +165,7 @@ describe('the spec generated from the checks', () => {
   it('asserts every expectation by its id and states no expected value in code', () => {
     assert.deepEqual([...spec.matchAll(/expectCheck\('([^']+)', actual(, row)?\);/g)].map((m) => `${m[1]}${m[2] ?? ''}`), ['C1.1.a', 'C1.2.a, row']);
     assert.deepEqual(ownExpectations(spec), []);
-    assert.deepEqual([...reqAssertions(spec).keys()], ['[CHECK C1.1.a]', '[CHECK C1.2.a]']);
+    assert.deepEqual(checkRefs(spec), ['C1.1.a', 'C1.2.a']);
     // The words of a step say what is expected, for the reader; a row's own value is left to the row.
     assert.match(spec, /'Then the status of the second delete is 204'/);
     assert.match(spec, /'Then the message shown is what this row states'/);
@@ -176,6 +176,5 @@ describe('a spec that asserts by reference', () => {
   it('names the lines that state an expectation of their own', () => {
     const src = ['expectCheck(\'C1.1.a\', status);', '  expect(status).toBe(204);', '// expect(x) in a comment', 'expectResponse(res, { status: 204 }, \'m\');', 'await expect.poll(() => n).toBe(1);'].join('\n');
     assert.deepEqual(ownExpectations(src), [2, 4, 5]);
-    assert.deepEqual(ownExpectations('expect(status).toBe(204);'), [], 'a spec written by hand is not held to it');
   });
 });

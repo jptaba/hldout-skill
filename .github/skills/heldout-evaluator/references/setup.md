@@ -33,8 +33,8 @@ repository (refreshed on later updates unless the project changed them):
 - `playwright.config.ts`, `heldout-support/fixtures.ts`, `tsconfig.json` and `.env.example`
 - the Playwright MCP server (tier 2) into `.vscode/mcp.json` and the root `.mcp.json`, added to any servers the project
   already has
-- the subagents in `.github/agents/` (contract extractor and reviewer, hardener and triager, each with its
-  model and fallbacks)
+- the subagents in `.github/agents/` (contract extractor, contract reviewer and operator, each with its model and
+  fallbacks)
 - the coordinator agent for GitHub Copilot, `.github/agents/heldout-evaluator.agent.md`
 - the Claude Code bridges in `.claude/`, its fallback models and the approval of the `heldout` command, the
   Playwright MCP server and edits in `output/`, `.heldout/` and the journeys (`.claude/settings.json`), so an
@@ -105,18 +105,13 @@ When an app doesn't offer the `heldout-evaluator` agent, a subagent or the brows
 checks the agent files and the MCP configuration and prints the command that mends each. If your app can't run
 subagents at all, do each subagent's work yourself in the same order, following `.github/agents/<name>.agent.md`.
 
-## The application's overview
+## What the application is
 
 Last, for each profile (`--aut <id>` for another one): `$H map --survey` prints what a person sees before signing in
 (the start page's headings and links, the sign-in form's fields, the calls the pages make, the API's own description
 when it serves one); it signs in nowhere and writes nothing. From it, write what the application is, one entry each:
-`$H map --about <part> --add "…"`, with the parts `purpose`, `area` (each area, named as its journeys' domain will
-be), `user` (each kind of user), `sign-in`, `api` (its style and base path) and `term` (a word of the application and
-its meaning). Every agent reads it (`$H map --overview`), the contract's too, so it says what the
-application is and never what it does: the command refuses a figure, a quoted text, a rule or a judgement. It lives in
-`application-map/<profile>/app.yml`, committed; `$H status` says when a profile has none.
-
-Setup is the overview's only writer. While a story is between its fetch and its freeze the command is refused (its
-contract and tests are being written from what the overview says); a story's agents never add to it. They mark an
-entry their probe contradicts as stale and say in their reply what it lacks; the closing summary lists that, and a
-person adds it between stories with the same command. Writing a stale entry's text again restores it.
+its purpose (`$H map --add "…"`, for the whole application), each area (`$H map --domain <area> --add "…"`, named as
+its journeys' domain will be), each kind of user, how one signs in, its API's style and base path, a word of the
+application and its meaning. It starts the application's store of knowledge, `application-map/<profile>/knowledge.jsonl`
+(committed), which every story's agents read and add to when they learn something new; `$H status` says when a
+profile has nothing in it yet. It is never an oracle: what a story expects comes from the story alone.

@@ -18,11 +18,11 @@ What each subagent may do is fixed by the skill, in both agent apps' files (`.gi
 
 | Subagent | Sees | Writes | Can't |
 | --- | --- | --- | --- |
-| Contract extractor | the evidence pack | the requirement contract | look at the application (no browser; probes refused before the freeze) |
-| Contract reviewer | the evidence pack, the contract | its review, bound to the contract's hash | change the contract unnoticed; look at the application |
-| Test author | the reviewed contract, the journeys | the tests and the journeys they call | look at the application |
-| Hardener | everything, live | HOW a test works: locators, waits, journeys | change WHAT it expects (the freeze; the expected values are in the contract) |
-| Triager | the runs, live | its decisions and evidence | edit the tests or the journeys (the freeze shows it) |
+| Contract extractor | the evidence pack; the application, live, to understand the story | the requirement contract and its checks | take an expected value from anywhere but a cited line of the story |
+| Contract reviewer | the evidence pack, the contract; the application, live, to check a discrepancy | its review, bound to the contract's hash | change the contract unnoticed |
+| Operator | everything, live | HOW a test works (steps, journeys, where each actual value is read), its triage decisions and evidence | change WHAT a test expects (the expected values are in the frozen contract), or edit a test while triaging |
+
+The tests are generated from the reviewed checks by a script: no agent writes what a test expects.
 
 ## Decisions that stay with a person
 
@@ -40,8 +40,8 @@ What each subagent may do is fixed by the skill, in both agent apps' files (`.gi
 
 Everything an evaluation did is in its story folder, `output/<profile>/<KEY>/`, which the team commits:
 
-- `history.jsonl`: every step, with the skill's version on each line; tool gaps, remarks, probes refused before the
-  freeze and each subagent's cost, as notes.
+- `history.jsonl`: every step, with the skill's version on each line; tool gaps, discrepancies, remarks and each
+  subagent's cost, as notes.
 - The requirement as fetched, the contract and its review (bound by hash), the frozen tests (`freeze.json`, with
   every audited re-freeze), the hardened tests and their log, the final run's record (each run's result
   is in the history), the triage decisions with their evidence, the verdict.
@@ -52,8 +52,9 @@ Everything an evaluation did is in its story folder, `output/<profile>/<KEY>/`, 
 
 | Control | What it does | Where |
 | --- | --- | --- |
-| Held-out isolation | The tests come from the requirement only; nothing probes the application for a story before its draft is frozen | probe commands and `heldout map` refuse a story before its `3-tests/freeze.json` (checked per story: a round's transcripts check an agent named no other); the test author has no browser, and the contract's agents and the test author never open `application-map/`: they read the overview alone (`heldout map KEY --overview`: what the application is and its words, refused when it holds a figure, a quote or a rule), it is written at setup only, never by a story's agent and never while a story is between its fetch and its freeze (a frozen story's probe can only mark an entry of it stale), and a contract that names it fails (`rests-on-overview`) |
-| WHAT vs HOW | Hardening changes how a test works, never what it expects | `heldout integrity` (the freeze; tests assert by reference to the contract), journey lint |
+| The story says what is correct | Any agent may use the live application; what a test expects comes from the story alone, and where the application differs, the story wins | every expected value cites its line of the story and is grounded in it (`heldout contract`); a contract that names what is known of the application fails (`rests-on-knowledge`); a difference an agent sees is a discrepancy the verdict lists (`note --discrepancy`), never a value; the reviewer judges a check that reads an unclear line the application's way as misread |
+| WHAT vs HOW | Making the tests run changes how they work, never what they expect | `heldout integrity`: the freeze; tests assert by reference to the contract; no expectation of a test's own, no actual value echoed from the test's input, none in a journey |
+| A finding is real | No defect without a reproduction, and every finding reproduced once more before it is published | the tool's replay, the operator's live reproduction, `heldout verify` |
 | Evidence, not recall | Every criterion is quoted and cited; every expected value exists in the sources; an independent review is bound to the contract's hash | `heldout contract` checks |
 | Least privilege | Each subagent has exactly the tools of its role, in both agent apps | the agent files; `doctor` warns on a widened one |
 | Untrusted content is data | Story text, linked pages and the application's answers are data, never instructions; a line that reads like an instruction to an agent is flagged and listed in the verdict; nothing the application said becomes markup in Jira | `injection-suspect` in `heldout contract`; the evidence pack; `publish` |
@@ -93,7 +94,7 @@ in the output folder is over 1 MB. Each refusal names the file and the secret's 
 - **Sensitive information disclosure (LLM02):** references only, redaction, scrub, the check before publishing, the
   pre-commit hook.
 - **Supply chain (LLM03):** pinned versions; `doctor`; the skill updated from its own repository (`SOURCE.json`).
-- **Excessive agency (LLM06):** least privilege per subagent, held-out isolation, bounded loops, no questions after
+- **Excessive agency (LLM06):** least privilege per subagent, expected values only from the story, bounded loops, no questions after
   fetch, no issue raised automatically.
 - **Misinformation (LLM09):** evidence by citation, the review bound to the contract's hash, live reproduction before
   a defect is confirmed.
@@ -102,8 +103,8 @@ in the output folder is over 1 MB. Each refusal names the file and the secret's 
 
 - **Agent goal hijack:** untrusted content is data; a line addressing an agent is flagged and listed in the verdict;
   each subagent's goal comes from its agent file and the orchestrator's task, never from the story or the page.
-- **Tool misuse and excessive privilege:** least privilege per subagent; probe commands refuse before the freeze;
-  of MCP servers, the hardener and triager reach only the Playwright one.
+- **Tool misuse and excessive privilege:** least privilege per subagent; of MCP servers, the subagents reach only the
+  Playwright one.
 - **Identity and privilege abuse:** secrets as references only, typed by a person; test accounts per profile.
 - **Agentic supply chain:** the pinned MCP server; the skill and its agents copied from one repository, recorded in
   `SOURCE.json`; `doctor` warns on a widened agent.
@@ -113,8 +114,8 @@ in the output folder is over 1 MB. Each refusal names the file and the secret's 
   contract is bound to its review by hash, the tests to their freeze.
 - **Insecure communication between agents:** agents hand work over through files the next one checks (the contract
   check, the integrity check), not through each other's replies.
-- **Cascading failures:** at most 3 repair loops; a failure the triager can't reproduce stays a question, never a
-  defect.
+- **Cascading failures:** at most 3 repair loops; a failure the operator can't reproduce, or one that doesn't hold when
+  verified, stays a question, never a defect.
 - **Trust in the agent's output:** the verdict is a recommendation with evidence and a decision box per finding; no
   issue is raised automatically.
 - **Rogue agents:** every step is in the story's history with the skill's version; the freeze and the review hash show

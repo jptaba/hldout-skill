@@ -213,7 +213,7 @@ export interface CheckOptions {
   hasApiBase?: boolean;
   /** The AUT profile's API origin: a base path the sources state under it grounds the paths relative to it. */
   apiBaseURL?: string;
-  /** The ids of the profile's overview entries and rules (knowledgeIds): a contract that names one rests on them. */
+  /** The ids of the entries of the application's knowledge (knowledgeIds): a contract that names one rests on them. */
   knowledgeIds?: string[];
 }
 
@@ -256,14 +256,14 @@ export function checkContract(c: RequirementContract, reqDir: string, opts: Chec
   const diff = [...new Set([...Object.keys(was), ...Object.keys(now.linked)])].filter((f) => was[f] !== now.linked[f]);
   if (diff.length) err('contract-stale', `screenshots or linked pages changed since the contract was built: ${diff.join(', ')}`);
 
-  // The application's overview explains a word of the story, never supplies what the contract says (held-out): a
+  // What is known of the application explains a word of the story and how it is operated, never what is correct: a
   // contract that names it rests on something that is not the story's evidence.
-  // The story's own words (quotes, the coverage ledger) are left out: a story may well write "B1a2b3c" or a folder name.
+  // The story's own words (quotes, the coverage ledger) are left out: a story may well write "K1a2b3c" or a folder name.
   // An id counts only when the profile's knowledge holds it.
-  // A mechanics gap is HOW, resolved after the freeze by an agent that may read the knowledge: it is left out too.
+  // A mechanics gap is HOW, answered from the application and what is known of it: it is left out too.
   const said = JSON.stringify({ ...c, gaps: (c.gaps ?? []).filter((g) => g.kind !== 'mechanics') }, (k, v: unknown) => (k === 'quote' || k === 'coverage' || k === 'sourcesRead' ? undefined : v));
   const named = KNOWLEDGE_REF.exec(said)?.[0] ?? (opts.knowledgeIds ?? []).find((id) => new RegExp(`\\b${id}\\b`).test(said));
-  if (named) err('rests-on-overview', `The contract names the application's overview (${named}): a criterion, a rule, an error, a value or a gap's answer comes from the story's sources alone. The overview only explains a word; cite the story's line instead`);
+  if (named) err('rests-on-knowledge', `The contract names what is known of the application (${named}): a criterion, a rule, an error, a value or a gap's answer comes from the story's sources alone. That knowledge only explains a word; cite the story's line instead`);
 
   // Every source must have been read.
   for (const file of requirementFiles(reqDir)) {

@@ -54,7 +54,7 @@ const FULL = [
   { at: at(16), event: 'frozen' }, { at: at(40), event: 'run', run: '01-harden' }, { at: at(46), event: 'run', run: '02-eval' },
   { at: at(50), event: 'decided', category: 'SCRIPT_DEFECT', tests: ['SCN-002', 'SCN-003'] },
   { at: at(53), event: 'note', kind: 'tool-gap', text: 'no command for X' }, { at: at(54), event: 'note', kind: 'remark', text: 'slow login' },
-  { at: at(54), event: 'note', remark: 'P3 was in the probe log twice' }, { at: at(54), event: 'note', kind: 'isolation', text: 'inspect refused: not frozen' },
+  { at: at(54), event: 'note', remark: 'P3 was in the probe log twice' },
   { at: at(55), event: 'note', kind: 'usage', agent: 'heldout-hardener', tokens: 120000, minutes: 20.1 },
   { at: at(56), event: 'note', kind: 'usage', agent: 'heldout-hardener', tokens: 30000, minutes: 3.9 },
   { at: at(57), event: 'note', kind: 'usage', agent: 'heldout-triager', tokens: 50000 },
@@ -75,7 +75,6 @@ describe('heldout stats', () => {
     assert.deepEqual([s.refreezes, s.reviews], [0, 1]);
     assert.deepEqual(s.times, { requirement: 5, tests: 10, harden: 30, triage: 14, total: 60 }, 'the eval run, not the harden run, ends hardening');
     assert.deepEqual(s.gaps, ['no command for X']);
-    assert.deepEqual(s.refused, ['inspect refused: not frozen']);
     assert.deepEqual(s.remarks, ['slow login', 'P3 was in the probe log twice'], 'a note without a kind is a remark');
     // A negative or infinite figure (a hand-edited line) counts as nothing; minutes are rounded when summed.
     assert.deepEqual(usageByAgent(s.usage), [{ agent: 'heldout-hardener', tokens: 150000, minutes: 24 }, { agent: 'heldout-triager', tokens: 50000, minutes: 0 }]);
@@ -93,7 +92,6 @@ describe('heldout stats', () => {
     assert.doesNotMatch(all.stdout, /ABC-3/);
     const one = heldout(root, 'stats', 'ABC-1');
     assert.match(one.stdout, /^Subagent heldout-hardener: 150000 tokens, 24 minutes$/m);
-    assert.match(one.stdout, /^Refused before the freeze: inspect refused: not frozen$/m);
     assert.match(one.stdout, /^Remark: P3 was in the probe log twice$/m);
     assert.notEqual(heldout(root, 'stats', 'XYZ-9').status, 0, 'an unknown story is an error');
     assert.notEqual(heldout(project(), 'stats').status, 0, 'a project with no story yet');

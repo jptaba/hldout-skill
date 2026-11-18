@@ -7,12 +7,9 @@ journeys/                                   ← shared by every story on the app
   fixtures/<domain>.ts                      ← the journeys of one area, UI and API (phases 2–3)
   registry.yml                              ← ids, what each touches and requires, who proved it (phase 8)
 
-application-map/<profile>/<domain>.jsonl    ← how the application works, as probes proved it (committed): read and
-                                              written after a freeze only, through `heldout map` (phases 3 and 5)
-application-map/<profile>/app.yml           ← what the application is (overview: read by every agent, written at
-                                              setup only) and its business rules (required by judged stories,
-                                              observed by probes: after a freeze only), through `heldout map`
-                                              (setup, phases 3, 5 and 9)
+application-map/<profile>/knowledge.jsonl  ← what is known of the application (committed): what it is, how it is
+                                              operated, what it was seen to do, its data; one entry a line, read by any
+                                              agent and written when something is new, through `heldout map`
 
 output/<profile>/KEY/                       ← the record of one story (committed): one folder per phase, each holding
                                               only what that phase hands the later ones
@@ -20,10 +17,10 @@ output/<profile>/KEY/                       ← the record of one story (committ
   2-contract/     contract.json review.json                              ← extractor, reviewer (phase 1b)
   3-tests/        <key>.spec.ts test-data.json (the draft, as frozen) freeze.json (its hashes)   ← advance, from the contract's checks (phase 2)
   4-hardening/    <key>.spec.ts test-data.json (the copy that runs) hardening.md probes.jsonl Pn.md (the cited ones)
-                                                                          ← hardener (phase 3)
+                                                                          ← operator (phase 3)
   5-run/          NN-label.json, one record per run: how it ran, every test, each failure's evidence   ← run (phase 4)
-  6-triage/       decisions.json probes.jsonl Pn.md (the cited ones)     ← triager (phase 5)
-  7-verdict/      verdict.md verdict.json, the screenshots it shows       ← verdict (phase 6)
+  6-triage/       decisions.json verification.json probes.jsonl Pn.md (the cited ones)   ← operator, verify (phases 5, 6)
+  7-verdict/      verdict.md verdict.json catalogue.md, the screenshots it shows   ← verdict (phase 7)
   history.jsonl                                                           ← every step that changed the story
 
 .heldout/<profile>/KEY/                     ← scratch and views (git-ignored), the same folder names

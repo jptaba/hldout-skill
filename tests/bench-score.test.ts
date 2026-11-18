@@ -4,9 +4,10 @@
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { band, costOf, report, type Scored } from '../dev/bench';
+import { band, costOf, costOfStory, report, type Scored } from '../dev/bench';
 import { FAULTS } from '../dev/bench/faults';
 import { keyNames, keyProblems, readKey, score, type Evidence, type Key } from '../dev/bench/score';
 
@@ -81,6 +82,16 @@ describe('the benchmark report', () => {
       { total_cost_usd: 0.5, duration_ms: 30_000, num_turns: 1 },
     ]);
     assert.deepEqual(c, { usd: 1.73, minutes: 2, turns: 4, runs: 2, newTokens: 116, outputTokens: 6, cachedTokens: 1000 });
+  });
+
+  it('adds up what a driven story\'s subagents cost, from its history', () => {
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bench-cost-')), 'history.jsonl');
+    fs.writeFileSync(file, [
+      { event: 'note', kind: 'usage', agent: 'heldout-operator', tokens: 1000, minutes: 2.5, usd: 1.2 },
+      { event: 'note', kind: 'usage', agent: 'heldout-contract-reviewer', tokens: 500, minutes: 1 },
+      { event: 'note', kind: 'tool-gap', text: 'x' }, { event: 'run', run: '01-eval' },
+    ].map((e) => JSON.stringify(e)).join('\n'));
+    assert.deepEqual(costOfStory(file), { usd: 1.2, minutes: 3.5, turns: 0, runs: 2, newTokens: 1500, outputTokens: 0, cachedTokens: 0 });
   });
 
   it('shows the band of unchanged runs of one story', () => {

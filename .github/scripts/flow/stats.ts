@@ -8,7 +8,7 @@
  * re-freezes, contract review rounds, probes while hardening and triaging, minutes per phase, stray files, tool
  * gaps, and what the subagents cost (as the orchestrator recorded it with the note command). A story is shown as
  * <profile>/<KEY> when the project has several profiles; --aut keeps one profile's stories (and says which, for a key
- * in several). With KEY, also the runs, each subagent's cost, the probes refused before the freeze, the tool gaps and the remarks.
+ * in several). With KEY, also the runs, each subagent's cost, the tool gaps and the remarks.
  * A record that can't be read is named on stderr and counted as unknown, never fatal to the table.
  */
 import fs from 'node:fs';
@@ -26,7 +26,7 @@ export interface Usage { agent: string; tokens: number; minutes: number }
 export interface StoryStats {
   profile: string; key: string; runs: string[]; failed: number | null; scriptDefects: number; refreezes: number;
   reviews: number; probes: Record<string, number>; times: Record<string, number | null>; stray: string[]; gaps: string[];
-  refused: string[]; remarks: string[]; usage: Usage[]; unreadable: string[];
+  remarks: string[]; usage: Usage[]; unreadable: string[];
 }
 
 export const PHASES = ['requirement', 'tests', 'harden', 'triage', 'total'] as const;
@@ -74,9 +74,8 @@ export function storyStats(dir: string, profile: string, key: string): StoryStat
     },
     stray: all('stray-moved').flatMap((e) => (Array.isArray(e.files) ? e.files.map(String) : [])),
     gaps: notes.filter((e) => e.kind === 'tool-gap').map(text),
-    refused: notes.filter((e) => e.kind === 'isolation').map(text),
     // Every other note is a remark, whoever wrote it.
-    remarks: notes.filter((e) => !['tool-gap', 'isolation', 'usage'].includes(String(e.kind))).map(text),
+    remarks: notes.filter((e) => !['tool-gap', 'usage', 'discrepancy'].includes(String(e.kind))).map(text),
     usage: notes.filter((e) => e.kind === 'usage').map((e) => ({ agent: String(e.agent), tokens: figure(e.tokens), minutes: figure(e.minutes) })),
   };
 }
@@ -131,7 +130,6 @@ export function run({ _, flags }: Args): void {
   console.log(`\nRuns: ${s.runs.join(', ') || 'none'}`);
   for (const u of usageByAgent(s.usage)) console.log(`Subagent ${u.agent}: ${u.tokens} tokens, ${u.minutes} minutes`);
   if (s.stray.length) console.log(`Stray files moved: ${s.stray.join(', ')}`);
-  for (const r of s.refused) console.log(`Refused before the freeze: ${r}`);
   for (const g of s.gaps) console.log(`Tool gap: ${g}`);
   for (const r of s.remarks) console.log(`Remark: ${r}`);
 }

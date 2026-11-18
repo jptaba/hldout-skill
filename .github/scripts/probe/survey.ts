@@ -217,11 +217,11 @@ export function renderSurvey(s: Survey, name: string): string {
       ? `API description: ${s.api.url} (${s.api.kind}${s.api.title ? `, ${s.api.title}` : ''})${s.api.basePath ? `, base path ${s.api.basePath}` : ''}; resources: ${s.api.resources.join(', ') || 'none'}${s.api.tags.length ? `; tags: ${s.api.tags.join(', ')}` : ''}`
       : `API description: none found (tried ${s.apiTried.length} places, such as ${s.apiTried.slice(0, 2).join(', ')})`,
     '',
-    'Write the overview from this: what the application is, in its own words, one entry each; no figure, no quoted',
-    'text, no rule (those wait for a story\'s freeze). Parts: purpose, area (each area, named as the journeys\' domains),',
-    'user (each kind of user), sign-in (how one signs in), api (its style and base path), term (a word and its meaning).',
-    `  ${H} map --about purpose --add "<what the application is for>"`,
-    `  ${H} map --overview        (what it holds)`,
+    'Write what the application is from this, in your own words, one entry each: its purpose, each area (named as the',
+    'journeys\' domains will be), each kind of user, how one signs in, its API\'s style and base path, a word and its meaning.',
+    `  ${H} map --add "<what the application is for>"             (the whole application)`,
+    `  ${H} map --domain <area> --add "<what the area is>"`,
+    `  ${H} map        (what it holds)`,
   ];
   return lines.join('\n');
 }

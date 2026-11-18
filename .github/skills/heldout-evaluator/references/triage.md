@@ -8,13 +8,10 @@ npm run heldout -- triage KEY --carry-from auto   # also reuse confirmed decisio
 Triage keeps its own output apart: the decisions in `6-triage/decisions.json` (the run record stays as the run wrote
 it), and the reports of the probes they cite in `6-triage/`.
 
-The application map (`npm run heldout -- map KEY`) says what the application is, how earlier stories reached things and
-what is known of its business. It is never evidence: a decision that names a map entry, an overview entry or a rule and
-no probe is refused, whatever its category. The rules say what earlier stories required and what the application was
-seen to do; this story's contract is still the oracle, and a rule that contradicts it is a question for the verdict,
-never settled by you. What you add follows [hardening.md](hardening.md): mechanics with `--domain … --add`, what the
-application did with `--rule`. The overview is written at setup only: an entry your probe contradicts is marked
-`--stale`, and what it is missing goes in your reply.
+What is known of the application (`npm run heldout -- map KEY`) says how earlier stories reached things and what the
+application was seen to do. It is never evidence: a decision that names an entry and no probe is refused, whatever its
+category, and this story's contract is the oracle. What you learn, and an entry you find wrong, follow
+[hardening.md](hardening.md) (`map … --add`, `--fix`, `--remove`).
 
 ## Categories
 
@@ -95,6 +92,10 @@ decide has the same cause as one the replay confirmed (the page and the API show
 them together under one title, `--set SCN-a,SCN-b …`, with the replay named in the evidence beside your probe. `triage` prints why each other failure was not
 settled that way.
 
+After the triage `advance` verifies every finding once more (`heldout verify`): a replayed one stands; the others'
+tests run again on their own, and a finding whose tests don't fail the same way again is recorded as
+NEEDS_INVESTIGATION, saying why. A defect you are sure of survives this; one that rested on a flaky step does not.
+
 ## Confirming each failure (mandatory)
 
 1. Go through the failures one group at a time: `heldout triage` numbers the groups, and
@@ -156,14 +157,14 @@ workaround or limited scope. **Minor** means wording, contract nuance or cosmeti
 
 ## Repair loop
 
-1. Fix every confirmed SCRIPT_DEFECT (mechanics only; the `heldout-hardener` subagent repairs what the
-   `heldout-triager` confirmed). Re-probe; when the triager's reports in `6-triage/` already show the new locator
-   with one match and the control working through it, cite them, and make no second walk that leaves more records.
+1. Fix every confirmed SCRIPT_DEFECT (mechanics only, in a repair task of the `heldout-operator`, never while
+   triaging). Re-probe; when the triage's reports in `6-triage/` already show the new locator with one match and the
+   control working through it, cite them, and make no second walk that leaves more records.
    Check the repair with a run of the repaired tests only (`heldout run KEY --label repair --grep "SCN-010|SCN-014"`):
    such a run is never the evaluation, whatever comes of it. A shared journey that was repaired needs nothing done in
    the registry: it reads "changed since proven" until the harvest of a passing story proves the new code; only a
    journey that was replaced by another is marked stale.
-2. `heldout integrity KEY` must stay PRESERVED or AMENDED.
+2. `heldout integrity KEY` must stay PRESERVED.
 3. Re-run the **full** suite (`heldout run KEY --label rerun`), then `heldout triage KEY --carry-from auto`.
    Decisions carry over only for identical signatures (assertion, expected, received, locator, API
    method+status). Anything new must be investigated.

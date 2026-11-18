@@ -12,7 +12,7 @@ import { pathToFileURL } from 'node:url';
 import { keepNamedProbes, readProbes, savedOf, trimProbeLogs } from '../.github/scripts/core/probe-log';
 import type { HeldoutConfig } from '../.github/scripts/core/profile';
 import { evalPaths } from '../.github/scripts/core/paths';
-import { repairsTried } from '../.github/scripts/flow/advance';
+import { repairsTried } from '../.github/scripts/flow/steps';
 import { dropUnshownScreenshots, keptScreenshotName, repairedDefects, reproducedBy, runsOfHistory, showsScreenshot } from '../.github/scripts/verdict/verdict';
 import { contextCall } from '../.github/scripts/run/record';
 import { failureScreenshot } from '../heldout-support/fixtures';

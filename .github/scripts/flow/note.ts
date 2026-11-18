@@ -1,24 +1,29 @@
 /**
- * A note in a story's history, from a subagent or a person: something no command could do (a tool gap), or a remark
- * the review of the evaluation should read.
+ * A note in a story's history, from a subagent or a person: something no command could do (a tool gap), a place where
+ * the application and the story differ (a discrepancy, which the verdict lists), or a remark the review of the
+ * evaluation should read.
  *
  *   heldout note KEY --tool-gap "what was needed, and what was done by hand instead"
+ *   heldout note KEY --discrepancy "what the story says, and what the application showed" [--evidence P7]
  *   heldout note KEY --remark "…"
  *   heldout note KEY --usage "<agent> tokens=<n> minutes=<m>"
  *
- * Tool gaps are what the skill's developers turn into commands: the round audit counts them. Usage is what a subagent
- * cost, as the agent app reported it when the subagent handed back; `heldout stats` sums it per story and agent.
+ * Tool gaps are what the skill's developers turn into commands: the round audit counts them. A discrepancy never
+ * changes what a check expects: the story wins, and the verdict puts the difference before the story's owner. Usage
+ * is what a subagent cost, as the agent app reported it when the subagent handed back; `heldout stats` sums it per
+ * story and agent.
  */
 import { flagStr, type Args, type CommandSpec } from '../core/cli';
 import { assertIssueKey, loadConfig } from '../core/config';
 import { rel } from '../core/files';
 import { recordEvent } from '../core/history';
 import { evalPaths } from '../core/paths';
+import { citeProbes } from '../core/probe-log';
 
 export const spec: CommandSpec = {
-  name: 'note', group: 'Report', usage: 'KEY --tool-gap "…" | --remark "…" | --usage "<agent> tokens=<n> minutes=<m>"',
-  about: 'a note in the story\'s history: a tool gap (a need no command met), a remark, or what a subagent cost',
-  flags: ['remark', 'tool-gap', 'usage'],
+  name: 'note', group: 'Report', usage: 'KEY --tool-gap "…" | --discrepancy "…" [--evidence Pn] | --remark "…" | --usage "<agent> tokens=<n> minutes=<m>"',
+  about: 'a note in the story\'s history: a tool gap, where the application and the story differ, a remark, or what a subagent cost',
+  flags: ['discrepancy', 'evidence', 'remark', 'tool-gap', 'usage'],
 };
 
 /** What a hand-back can plausibly cost: beyond this, a figure is a typo, not a measurement. */
@@ -44,9 +49,15 @@ export function parseUsage(text: string): { agent: string; tokens?: number; minu
 
 export function run({ _, flags }: Args): void {
   const key = assertIssueKey(_[0]);
-  const p = evalPaths(loadConfig({ key }), key);
-  const gap = flagStr(flags, 'tool-gap'); const remark = flagStr(flags, 'remark'); const usage = flagStr(flags, 'usage');
-  if ([gap, remark, usage].filter(Boolean).length !== 1) throw new Error('Give one of --tool-gap "…", --remark "…" or --usage "<agent> tokens=<n> minutes=<m>"');
-  recordEvent(p.history, 'note', gap ? { kind: 'tool-gap', text: gap } : remark ? { kind: 'remark', text: remark } : { kind: 'usage', ...parseUsage(usage!) });
+  const cfg = loadConfig({ key });
+  const p = evalPaths(cfg, key);
+  const gap = flagStr(flags, 'tool-gap'); const remark = flagStr(flags, 'remark'); const usage = flagStr(flags, 'usage'); const discrepancy = flagStr(flags, 'discrepancy');
+  if ([gap, remark, usage, discrepancy].filter(Boolean).length !== 1) throw new Error('Give one of --tool-gap "…", --discrepancy "…", --remark "…" or --usage "<agent> tokens=<n> minutes=<m>"');
+  const evidence = flagStr(flags, 'evidence');
+  if (evidence && !discrepancy) throw new Error('--evidence goes with --discrepancy');
+  // The probe that showed it is kept in the record, as any cited probe is.
+  const probes = evidence ? citeProbes(cfg, key, evidence) : [];
+  recordEvent(p.history, 'note', gap ? { kind: 'tool-gap', text: gap } : remark ? { kind: 'remark', text: remark }
+    : discrepancy ? { kind: 'discrepancy', text: discrepancy, ...(probes.length ? { probes } : {}) } : { kind: 'usage', ...parseUsage(usage!) });
   console.log(`✔ noted in ${rel(p.history)}`);
 }

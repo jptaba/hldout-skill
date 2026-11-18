@@ -93,9 +93,9 @@ const RECORD_LAYOUT: RegExp[] = [
   new RegExp(`^${TESTS}/([^/]+\\.spec\\.ts|test-data\\.json|freeze\\.json)$`),
   new RegExp(`^${HARDENING}/([^/]+\\.spec\\.ts|test-data\\.json|hardening\\.md|probes\\.jsonl|P[1-9]\\d*\\.md)$`),
   new RegExp(`^${RUN}/\\d{2,}-[\\w-]+\\.json$`),
-  new RegExp(`^${TRIAGE}/(decisions\\.json|probes\\.jsonl|P[1-9]\\d*\\.md)$`),
-  // The verdict keeps the screenshot of each failure it reports.
-  new RegExp(`^${VERDICT}/(verdict\\.(md|json)|[^/]+\\.(png|jpe?g|gif|webp))$`),
+  new RegExp(`^${TRIAGE}/(decisions\\.json|verification\\.json|probes\\.jsonl|P[1-9]\\d*\\.md)$`),
+  // The verdict keeps the screenshot of each failure it reports, and the catalogue of what was tested.
+  new RegExp(`^${VERDICT}/(verdict\\.(md|json)|catalogue\\.md|[^/]+\\.(png|jpe?g|gif|webp))$`),
 ];
 
 /** Where a stray file most likely belongs, said to whoever made it. */
@@ -172,23 +172,18 @@ export function journeyPaths(cfg: Pick<HeldoutConfig, 'journeysDir' | 'auts'>, p
   return { base, fixtures: path.join(base, 'fixtures'), registry: path.join(base, 'registry.yml') };
 }
 
-/**
- * What hardeners and triagers proved about how an application works, one file per domain (probe/app-map.ts), and what is
- * known of the application (app.yml). Apart from the journeys and the story records on purpose: those the test author
- * may read; of this folder only the overview in app.yml is read before a freeze, through `heldout map --overview`.
- */
+/** What is known of an application, kept between stories (probe/knowledge.ts); its journeys are in journeyPaths. */
 export const appMapDir = (cfg: Pick<HeldoutConfig, 'autId'>) => path.resolve(ROOT, 'application-map', cfg.autId);
+export const knowledgeFile = (cfg: Pick<HeldoutConfig, 'autId'>) => path.join(appMapDir(cfg), 'knowledge.jsonl');
 
 /**
- * The ids of the overview entries and rules the profile's knowledge holds (app.yml, probe/app-knowledge.ts): a text
- * that names one rests on that knowledge. Only ids the store holds count, so a story's "B1a2b3c" is just its value.
+ * The ids of the entries the application's knowledge holds: a text that names one rests on that knowledge. Only ids the
+ * store holds count, so a story's "K1a2b3c" is just its value.
  */
 export function knowledgeIds(cfg: Pick<HeldoutConfig, 'autId'>): string[] {
   const file = knowledgeFile(cfg);
-  return fs.existsSync(file) ? [...new Set([...fs.readFileSync(file, 'utf8').matchAll(/"id"\s*:\s*"([OB][0-9a-f]{6})"/g)].map((m) => m[1]))] : [];
+  return fs.existsSync(file) ? [...new Set([...fs.readFileSync(file, 'utf8').matchAll(/"id"\s*:\s*"(K[0-9a-f]{6})"/g)].map((m) => m[1]))] : [];
 }
-/** What the application is and what is known of its business, one file per application (probe/app-knowledge.ts). */
-export const knowledgeFile = (cfg: Pick<HeldoutConfig, 'autId'>) => path.join(appMapDir(cfg), 'app.yml');
 
 /** Runs that are not evaluations (hardening, reproductions, probes, robustness drills) — never the verdict's final run. */
 export const NON_EVAL_RUN = /^\d+-(harden|repro|probe|robustness|repair)/;

@@ -49,6 +49,9 @@ describe('contract --resolve-from', () => {
   const scratch = path.join(root, '.heldout', 'shop', 'ABC-1', '4-hardening', 'probes');
   fs.mkdirSync(scratch, { recursive: true });
   fs.writeFileSync(path.join(scratch, 'P1.md'), '# P1');
+  // An entry of what is known of the application: never evidence for a story by itself.
+  fs.mkdirSync(path.join(root, 'application-map', 'shop'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'application-map', 'shop', 'knowledge.jsonl'), `${JSON.stringify({ id: 'K1a2b3c', domain: 'cart', kind: 'how', text: 'a line answers plain text' })}\n`);
   const gaps = path.join(root, 'gaps.json');
 
   const resolve = (list: unknown[]) => { fs.writeFileSync(gaps, JSON.stringify(list)); return heldout('contract', 'ABC-1', '--resolve-from', 'gaps.json'); };
@@ -56,7 +59,7 @@ describe('contract --resolve-from', () => {
   const kept = path.join(story, '4-hardening', 'P1.md');
 
   it('keeps no report and writes nothing when a later gap\'s evidence is refused', () => {
-    for (const later of ['P99', 'M1a2b3c']) {
+    for (const later of ['P99', 'K1a2b3c']) {
       const r = resolve([{ id: 'G1', value: 'a', evidence: 'P1' }, { id: 'G2', value: 'b', evidence: later }]);
       assert.notEqual(r.status, 0, later);
       assert.ok(!fs.existsSync(kept), `${later}: no report kept`);
@@ -65,7 +68,7 @@ describe('contract --resolve-from', () => {
   });
 
   it('refuses a gap that rests on the map though another gap cites a probe', () => {
-    const r = resolve([{ id: 'G1', value: 'a', evidence: 'P1' }, { id: 'G2', value: 'b', evidence: 'M1a2b3c' }]);
+    const r = resolve([{ id: 'G1', value: 'a', evidence: 'P1' }, { id: 'G2', value: 'b', evidence: 'K1a2b3c' }]);
     assert.match(r.stderr, /what an earlier story saw/);
   });
 

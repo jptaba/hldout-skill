@@ -27,15 +27,17 @@ function frontmatter(file: string): Record<string, string> {
 describe('agent files', () => {
   it('sends each agent to the part it needs, not a whole handoff or a reference of another phase', () => {
     const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
-    const triager = read('heldout-triager.agent.md'), hardener = read('heldout-hardener.agent.md');
-    for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md']) assert.ok(triager.includes(view), view);
-    for (const whole of ['references/hardening.md', '2-contract/contract.json', 'probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!triager.includes(whole), whole);
-    assert.ok(hardener.includes('show KEY spec'));
-    // The spec is generated from the contract's checks and holds only steps to fill in: the hardener reads it once.
-    assert.match(hardener, /0\. Read the spec in `4-hardening\/` once: every step in it is yours to fill in/);
-    assert.match(hardener, /Never write an expectation of your own in a test/);
-    for (const kept of ['searching `2-contract/contract.json` for the words of', 'with the same flags and `--grep`, the tests that failed on a mechanic and those that call a journey you changed']) assert.ok(hardener.includes(kept), kept);
-    for (const later of ['`hardening-cases.md` for the cases', '`journeys.md` when you add', '`accounts.md` when']) assert.ok(hardener.includes(later), later);
+    const operator = read('heldout-operator.agent.md');
+    for (const view of ['--group <n>', 'show KEY spec --test', 'show KEY contract --ac', '--rules', '--errors', '--endpoints', '--variants', '--gaps', '--auth', 'show KEY probes', 'probes.md', 'heldout -- brief KEY']) assert.ok(operator.includes(view), view);
+    for (const whole of ['probes.jsonl', '6-triage/triage-<run>.md', '*.spec.ts']) assert.ok(!operator.includes(whole), whole);
+    // The spec is generated from the contract's checks and holds only steps to fill in: the operator reads it once.
+    assert.match(operator, /0\. Read the spec in `4-hardening\/` once: every step in it is yours to fill in/);
+    assert.match(operator, /never write an\s+expectation of your own in a test/);
+    // It triages in the context it made the tests run in, and never edits a test while it triages.
+    assert.match(operator, /triage in this\s+same context/);
+    assert.match(operator, /While triaging you never edit a test or a journey/);
+    for (const kept of ['searching `2-contract/contract.json` for its', 'with the same flags and `--grep`, the tests that failed on a mechanic and those']) assert.ok(operator.replace(/\s+/g, ' ').includes(kept), kept);
+    for (const later of ['`hardening-cases.md` for the cases', '`journeys.md` when you add', '`accounts.md` when']) assert.ok(operator.replace(/\s+/g, ' ').includes(later), later);
     const procedure = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening.md'), 'utf8');
     const cases = fs.readFileSync(path.join(SKILL_DIR, 'references', 'hardening-cases.md'), 'utf8');
     for (const section of ['Tier 2 in practice', 'Tier notes', 'Values the application takes as codes', 'A check that can\'t be right', 'Requirement revision']) {
@@ -48,30 +50,25 @@ describe('agent files', () => {
     assert.ok(!fs.readFileSync(path.join(references, 'data-and-journeys.md'), 'utf8').includes('--add-existing'), 'the recipe lives in accounts.md alone');
   });
 
-  it('sends the agents after the freeze to the application map and its rules, and those before it to the overview alone', () => {
-    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8');
-    for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
-      // One command reads all of it; the parts are for a map too large to print whole.
-      for (const use of ['heldout -- map KEY`', 'map KEY --domain <domain>', '--add', '--stale <id>', '--rules', 'map KEY --rule "']) assert.ok(read(f).includes(use), `${f}: ${use}`);
-      // The overview has one writer, setup: a story's agent marks an entry stale and says what is missing.
-      assert.ok(!read(f).includes('--about'), `${f} names no way to add to the overview`);
-      assert.match(read(f), /overview lacks[^.]*reply/, `${f} reports what the overview lacks`);
+  it('lets every agent use the application and what is known of it, and keeps both from being an oracle', () => {
+    const read = (f: string) => fs.readFileSync(path.join(REPO, '.github', 'agents', f), 'utf8').replace(/\s+/g, ' ');
+    const operator = read('heldout-operator.agent.md');
+    // What is new is added once; what is wrong is corrected where it is found; using an entry writes nothing.
+    for (const use of ['map KEY --domain <domain> --kind how --add', '--kind seen', '--kind data', 'map KEY --fix <id> --add', '--remove <id>', 'writes nothing']) assert.ok(operator.includes(use), use);
+    for (const f of ['heldout-contract-extractor.agent.md', 'heldout-contract-reviewer.agent.md', 'heldout-operator.agent.md']) {
+      assert.ok(read(f).includes('heldout -- brief KEY'), `${f} starts from its brief`);
+      assert.match(read(f), /never (?:ever )?(?:give|supply|gives|supplies)[^.]*(?:value|criterion)|what a check expects is in the contract alone/i, `${f} is told the application is no oracle`);
     }
-    for (const f of ['heldout-contract-extractor.agent.md', 'heldout-contract-reviewer.agent.md']) {
-      assert.ok(read(f).includes('`application-map/`'), `${f} is told to stay out of the files`);
-      const uses = [...read(f).matchAll(/heldout(?: '?--'?)? map\b[^`\n]*/g)].map((m) => m[0]);
-      assert.deepEqual(uses, ['heldout -- map KEY --overview'], `${f} names the overview and no other way in`);
-      assert.match(read(f), /never (?:give|supply|gives|supplies)[^.]*(?:value|criterion)/, `${f} is told the overview is no oracle`);
-    }
-    assert.match(read('heldout-evaluator.agent.md'), /map --survey/, 'the coordinator writes the overview at setup');
-    for (const f of ['heldout-hardener.agent.md', 'heldout-triager.agent.md']) {
-      assert.match(read(f), /probe that contradicts a required rule[^.]*(?:leaves it as it is|stays)/, `${f}: a probe never retires a required rule`);
-    }
-    const skill = fs.readFileSync(path.join(SKILL_DIR, 'SKILL.md'), 'utf8');
-    assert.match(skill, /overview lacks[^.]*map --about <part> --add/, 'the closing summary hands what is missing to a person');
-    for (const f of ['hardening.md', 'triage.md']) assert.ok(!fs.readFileSync(path.join(SKILL_DIR, 'references', f), 'utf8').includes('--about'), `${f} names no way to add to the overview`);
-    for (const f of ['requirement-contract.md', 'contract-review-prompt.md', 'data-and-journeys.md', 'journeys.md']) {
-      assert.ok(!/heldout(?: '?--'?)? map\b/.test(fs.readFileSync(path.join(SKILL_DIR, 'references', f), 'utf8')), `${f} is read before the freeze`);
+    for (const f of ['heldout-contract-extractor.agent.md', 'heldout-operator.agent.md']) assert.ok(read(f).includes('note KEY --discrepancy'), `${f} notes where the application and the story differ`);
+    assert.match(read('heldout-evaluator.agent.md'), /map --survey/, 'the coordinator writes what the application is at setup');
+    const skill = fs.readFileSync(path.join(SKILL_DIR, 'SKILL.md'), 'utf8').replace(/\s+/g, ' ');
+    assert.match(skill, /Any agent may use the live application in any phase/);
+    assert.match(skill, /the story wins/);
+    for (const gone of ['--about', '--overview', '--rules', '--harvest', '--stale']) {
+      for (const f of ['SKILL.md', ...fs.readdirSync(path.join(SKILL_DIR, 'references')).map((r) => `references/${r}`)]) {
+        if (gone === '--stale' && f.endsWith('journeys.md')) continue; // a journey is marked stale; knowledge is corrected
+        assert.ok(!(f === 'SKILL.md' ? skill : fs.readFileSync(path.join(SKILL_DIR, f), 'utf8')).match(new RegExp(`map[^\\n\`]*${gone}\\b`)), `${f}: map ${gone}`);
+      }
     }
   });
 
@@ -167,8 +164,9 @@ describe('agent files', () => {
     const onDisk = fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => `.github/agents/${f}`).filter((f) => !DEV.includes(f) && f !== COORD);
     assert.deepEqual(Object.keys(ROLES).sort(), onDisk.map((f) => path.basename(f, '.agent.md')).sort());
     for (const f of [...COPILOT, ...COPILOT.map(bridgeOf)]) assert.deepEqual(toolProblems(f, fs.readFileSync(path.join(REPO, f), 'utf8')), [], f);
-    // No role looks at the application before the freeze; the contract reviewer never edits what it judges.
-    for (const [name, role] of Object.entries(ROLES)) assert.equal(role.browser, ['heldout-hardener', 'heldout-triager'].includes(name), name);
+    // Every role may use the live application; the contract reviewer never edits what it judges.
+    for (const [name, role] of Object.entries(ROLES)) assert.equal(role.browser, true, name);
+    assert.deepEqual(Object.keys(ROLES).sort(), ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-operator']);
     assert.equal(ROLES['heldout-contract-reviewer'].writes, 'create');
   });
 
@@ -185,7 +183,7 @@ describe('agent files', () => {
     const widened = [
       text.replace(/^tools:.*$/m, "tools: ['agent', 'read', 'search', 'edit', 'execute', 'browser']"),
       text.replace(/^tools:.*\r?\n/m, ''),
-      text.replace(/^agents:.*$/m, "agents: ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-hardener', 'heldout-triager', 'Explore']"),
+      text.replace(/^agents:.*$/m, "agents: ['heldout-contract-extractor', 'heldout-contract-reviewer', 'heldout-operator', 'Explore']"),
       text.replace(/^agents:.*$/m, "agents: ['*']"),
       text.replace(/^agents:.*\r?\n/m, ''),
       text.replace(/^name:/m, 'handoffs: x\nname:'),
@@ -193,12 +191,12 @@ describe('agent files', () => {
     for (const t of widened) assert.ok(toolProblems(COORD, t).length >= 1, t.slice(0, 400));
     // Another agent's file may not take the coordinator's keys or tools.
     const author = '.github/agents/heldout-contract-extractor.agent.md';
-    assert.ok(toolProblems(author, fs.readFileSync(path.join(REPO, author), 'utf8').replace(/^name:/m, "agents: ['heldout-hardener']\nname:")).length >= 1);
+    assert.ok(toolProblems(author, fs.readFileSync(path.join(REPO, author), 'utf8').replace(/^name:/m, "agents: ['heldout-operator']\nname:")).length >= 1);
     assert.ok(toolProblems(bridgeOf(COORD), '---\nname: heldout-evaluator\ntools: Read\n---\n').length >= 1, 'a Claude Code file for it has no role');
     // Copilot calls agents by name: a file whose name: isn't its own, or another agent with a skill agent's name, is caught.
-    assert.ok(toolProblems(author, fs.readFileSync(path.join(REPO, author), 'utf8').replace(/^name:.*$/m, 'name: heldout-hardener')).some((p) => p.includes('must be heldout-contract-extractor')));
-    assert.deepEqual(nameClashes([['.github/agents/mine.agent.md', '---\nname: heldout-hardener\ntools: [\'*\']\n---\n'], ['.github/agents/other.agent.md', '---\nname: other\n---\n']]),
-      ['.github/agents/mine.agent.md: name heldout-hardener is the skill\'s own agent\'s']);
+    assert.ok(toolProblems(author, fs.readFileSync(path.join(REPO, author), 'utf8').replace(/^name:.*$/m, 'name: heldout-operator')).some((p) => p.includes('must be heldout-contract-extractor')));
+    assert.deepEqual(nameClashes([['.github/agents/mine.agent.md', '---\nname: heldout-operator\ntools: [\'*\']\n---\n'], ['.github/agents/other.agent.md', '---\nname: other\n---\n']]),
+      ['.github/agents/mine.agent.md: name heldout-operator is the skill\'s own agent\'s']);
     assert.equal(nameClashes([['.github/agents/x.agent.md', '---\nname: heldout-evaluator\n---\n']]).length, 1);
   });
 
@@ -222,15 +220,14 @@ describe('agent files', () => {
 
   it('a widened tool list is caught, however it is written', () => {
     const read = (f: string) => fs.readFileSync(path.join(REPO, f), 'utf8');
-    // An agent without a browser: the one that builds the contract.
     const author = '.github/agents/heldout-contract-extractor.agent.md';
     const bridge = bridgeOf(author);
-    const hardener = bridgeOf('.github/agents/heldout-hardener.agent.md');
+    const hardener = bridgeOf('.github/agents/heldout-operator.agent.md');
     const reviewer = bridgeOf('.github/agents/heldout-contract-reviewer.agent.md');
     const widened: [string, string][] = [
-      [author, read(author).replace(/^tools:.*$/m, "tools: ['read', 'search', 'edit', 'execute', 'browser']")],
+      [author, read(author).replace(/^tools:.*$/m, "tools: ['read', 'search', 'edit', 'execute', 'browser', 'playwright/*', 'web']")],
       [author, read(author).replace(/^tools:.*\r?\n/m, '')], // no tools line: every tool
-      [author, read(author).replace(/^tools: \[(.*)\]$/m, "tools: [$1,\n  'browser', 'playwright/*']")], // continued on the next line
+      [author, read(author).replace(/^tools: \[(.*)\]$/m, "tools: [$1,\n  'web']")], // continued on the next line
       [author, read(author).replace(/^name:/m, "mcp-servers:\n  - x\nname:")],
       [bridge, read(bridge).replace(/^(tools:.*)$/m, '$1,\n  WebFetch')],
       [bridge, read(bridge).replace(/^(tools:.*)$/m, '$1\ntools: Read, Grep, Glob, Write, Edit, Bash, WebFetch')], // given twice
@@ -252,9 +249,8 @@ describe('agent files', () => {
     const allowed: Record<string, string[]> = {
       'heldout-contract-extractor': ['1-requirement', '2-contract'],
       'heldout-contract-reviewer': ['1-requirement', '2-contract'],
-      // The hardener is told the draft in 3-tests/ stays as frozen; it works in its own folder.
-      'heldout-hardener': ['2-contract', '3-tests', '4-hardening'],
-      'heldout-triager': ['2-contract', '4-hardening', '5-run', '6-triage'],
+      // The operator is told the draft in 3-tests/ stays as frozen; it works in its own folder, and triages.
+      'heldout-operator': ['2-contract', '3-tests', '4-hardening', '5-run', '6-triage'],
     };
     // Every phase folder named in the agent files, SKILL.md and the references is one of the layout's, with or without "/".
     const docs = [...fs.readdirSync(path.join(REPO, '.github', 'agents')).map((f) => path.join(REPO, '.github', 'agents', f)),

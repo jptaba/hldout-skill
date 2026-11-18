@@ -124,7 +124,7 @@ seed.track('booking', res.body.bookingid, (id) => api.delete(`/booking/${id}`, {
 ## 4a. Test accounts in a test
 
 How tests get a signed-in user is written once per application, in the profile ([accounts.md](accounts.md): the
-hardener and onboarding set it up). A test only asks:
+operator and onboarding set it up). A test only asks:
 
 ```ts
 const me = await seed.account();                         // BLOCKED if it fails

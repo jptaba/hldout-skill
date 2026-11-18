@@ -1,6 +1,6 @@
 # Probing the application
 
-For the hardener and the triager: what `heldout inspect` shows and can do, and how to build on a probe instead of
+For every agent that looks at the application: what `heldout inspect` shows and can do, and how to build on a probe instead of
 writing a script.
 
 ## Compose probes instead of writing scripts

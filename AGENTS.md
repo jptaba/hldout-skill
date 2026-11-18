@@ -43,9 +43,9 @@ so it stays short. Security rules are in `SECURITY.md`.
 ## Agent and skill files (`.github/agents/`, `.github/skills/`)
 - They name commands, never script files, and folders by phase (`4-hardening/`), never paths built from a profile.
 - Every `heldout <command> --flag` they write must exist (`tests/agent-files.test.ts`).
-- The held-out rules (who may see what: the test author never sees the application, the evaluator never reads an
-  answer key; WHAT vs HOW) are not weakened. Their detail is in the skill's references; the benchmark's keys are
-  maintainer-only (`demo/`).
+- The held-out rules (every expected value comes from the story and cites its line, and where the application differs
+  the story wins; any agent may use the live application, none reads its code or an answer key; WHAT vs HOW) are not
+  weakened. Their detail is in the skill's references; the benchmark's keys are maintainer-only (`demo/`).
 
 ## Testing
 - New behaviour ships with tests; a bug fix with a regression test that fails without the fix.

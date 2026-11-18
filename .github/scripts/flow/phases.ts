@@ -15,6 +15,7 @@ import type { HeldoutConfig } from '../core/profile';
 import { checkContract, readContract } from '../contract/contract-model';
 import { checkReview, readReview } from '../contract/evidence';
 import { pendingOf, readRunRecord } from '../run/run-record';
+import { findingsOf, readVerification } from '../triage/verification';
 
 export interface Phase { name: string; folder: string; done: boolean; detail: string; next?: string }
 const H = 'npm run heldout --';
@@ -40,9 +41,11 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
   const triage = Boolean(lastEval) && readHistory(p.history).some((e) => e.event === 'triaged' && e.run === lastEval);
   const failures = meta?.stats ? meta.stats.unexpected + meta.stats.flaky : 0;
   const pending = record ? pendingOf(record).length : failures;
+  const findings = record ? findingsOf(record.entries).size : 0;
+  const verification = readVerification(p);
+  const verified = !findings || verification?.run === lastEval;
   const verdict = fs.existsSync(p.verdictJson) ? readJson<{ verdict: string; finalRun?: string; run?: string; generatedAt?: string }>(p.verdictJson) : undefined;
   const harvested = lastEvent<{ finalRun: string; proven: string[] }>(p.history, 'harvested');
-  const rulesKept = lastEvent<{ finalRun: string; added: number; known: number }>(p.history, 'rules-harvested');
   // Stale when a later evaluation run exists than the one the verdict judged (by run name: file times change with a
   // clone or a copy, the recorded final run does not).
   const verdictStale = Boolean(verdict && lastEval && verdict.finalRun && verdict.finalRun < lastEval);
@@ -63,13 +66,12 @@ export function phasesOf(cfg: HeldoutConfig, key: string): Phase[] {
     // Once the draft is frozen, the author's "finished" mark has done its job (hardening may change the spec's HOW).
     { name: 'tests', folder: TESTS, done: specs.length > 0 && !/TODO\(test\)/.test(src) && (frozen || finished), detail: specs.length ? `${specs.length} spec file(s) · ${new Set([...src.matchAll(/\btest(?:\.\w+)?\(\s*[`'"](SCN-\d+)/g)].map((m) => m[1])).size} scenario id(s)${/TODO\(test\)/.test(src) ? ' · scaffold stubs left' : ''}${!frozen && !finished ? ' · not yet linted' : ''}` : 'missing', next: `${H} advance ${key} (it generates ${rel(p.tests)}/*.spec.ts from the contract's checks: ${H} scaffold ${key} --force, then ${H} lint ${key} --allow-unhardened --no-health --draft-finished)` },
     { name: 'freeze', folder: TESTS, done: frozen, detail: frozen ? 'draft frozen' : 'not frozen', next: `${H} integrity ${key} --snapshot` },
-    { name: 'harden', folder: HARDENING, done: hardenedSpecs.length > 0 && todo === 0 && hardened && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}`, next: `heldout-hardener subagent (hardens against the AUT), then ${H} integrity ${key}` },
+    { name: 'harden', folder: HARDENING, done: hardenedSpecs.length > 0 && todo === 0 && hardened && integrity !== 'VIOLATED', detail: `${todo} TODO(harden)${integrity ? ` · integrity ${integrity}` : ''}${hardened ? '' : ' · hardening log not filled in ("Tiers used")'}`, next: `heldout-operator subagent (makes the tests run against the AUT), then ${H} integrity ${key}` },
     { name: 'run', folder: RUN, done: Boolean(lastEval), detail: lastEval ? `${lastEval}${meta?.stats ? `: ${meta.stats.expected} passed, ${meta.stats.unexpected} failed, ${meta.stats.flaky} flaky` : ''}` : 'no evaluation run', next: `${H} run ${key}` },
-    { name: 'triage', folder: TRIAGE, done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: `heldout-triager subagent (${triage ? 'reproduces each pending failure live and records it' : `runs ${H} triage ${key}, then reproduces each failure live`})` },
+    { name: 'triage', folder: TRIAGE, done: Boolean(lastEval) && (failures === 0 || (Boolean(triage) && pending === 0)), detail: !lastEval ? '-' : failures === 0 ? 'nothing to triage' : !triage ? 'not triaged' : `${pending} pending confirmation`, next: `heldout-operator subagent (${triage ? 'reproduces each pending failure live and records it' : `runs ${H} triage ${key}, then reproduces each failure live`})` },
+    { name: 'verify', folder: TRIAGE, done: Boolean(lastEval) && verified, detail: !lastEval ? '-' : !findings ? 'no finding to verify' : verified ? `${verification!.findings.filter((f) => f.held).length} of ${verification!.findings.length} finding(s) held` : `${findings} finding(s) not verified yet`, next: `${H} verify ${key}` },
     { name: 'verdict', folder: VERDICT, done: Boolean(verdict) && !verdictStale, detail: verdict ? `${verdict.verdict}${verdictStale ? ' (older than the last run)' : ''}` : 'none', next: `${H} verdict ${key}` },
     { name: 'publish', folder: VERDICT, done: Boolean(published) && (!verdict || published!.verdict === verdict.verdict) && !verdictStale, detail: published ? `${published.verdict} at ${published.at.slice(0, 16)}` : 'not published', next: `${H} publish ${key}` },
     { name: 'journeys', folder: VERDICT, done: Boolean(harvested) && harvested!.finalRun === verdict?.finalRun, detail: harvested ? `${harvested.proven.length} journey(s) recorded in the registry${harvested.finalRun === verdict?.finalRun ? '' : ` (from ${harvested.finalRun}, an older run)`}` : 'not harvested', next: `${H} journeys ${key} --harvest --apply` },
-    // The story's requirement, kept as the application's business rules for the next stories (read after their freeze).
-    { name: 'knowledge', folder: VERDICT, done: Boolean(rulesKept) && rulesKept!.finalRun === (verdict?.finalRun ?? '-'), detail: rulesKept ? `${rulesKept.added} rule(s) kept, ${rulesKept.known} known already${rulesKept.finalRun === (verdict?.finalRun ?? '-') ? '' : ' (from an older verdict)'}` : 'rules not kept', next: `${H} map ${key} --harvest` },
   ];
 }

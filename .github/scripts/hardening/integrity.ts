@@ -65,7 +65,7 @@ export function run({ _, flags }: Args): void {
       const { refreezes, ...previous } = freeze;
       next = { ...draft, refreezes: [...refreezes, { at: draft.frozenAt, reason, previous, absorbed: {
         ...before, ...(freeze.contractOracle !== oracle ? { contractOracleChanged: true } : {}) } }] };
-      if (before.changed.length || before.removed.length) console.log(`⚠ re-freeze absorbs ${before.changed.length} changed / ${before.removed.length} removed REQ assertion(s) — logged for the verdict.`);
+      console.log(`⚠ re-freeze absorbs ${before.added.length} added / ${before.removed.length} removed expectation(s)${freeze.contractOracle !== oracle ? ' and a changed contract oracle' : ''} — logged for the verdict.`);
     }
     writeFreeze(p.freeze, next);
     // Hardening starts from a copy: the draft stays as frozen, the hardener edits only its own folder.
@@ -81,18 +81,18 @@ export function run({ _, flags }: Args): void {
 
   const r = checkIntegrity();
   recordChange(p.history, 'integrity', {
-    status: r.status, changed: r.changed.map((c) => c.assertion), removed: r.removed, constantsChanged: r.constantsChanged,
+    status: r.status, removed: r.removed, added: r.added, own: r.own, echoed: r.echoed,
     contractChanged: Boolean(r.contractChanged), journeysChanged: r.journeysChanged ?? [], unhardened: r.unhardenedMarkers.length,
   });
   console.log(`Held-out integrity: ${r.status}`);
-  for (const f of r.files) console.log(`  ${f.file}: ${f.draftAssertions} REQ assertions in draft → ${f.currentAssertions} now`);
-  for (const x of r.draftChanged) console.log(`  ✖ the frozen draft changed: ${rel(p.tests)}/${x} — the draft stays as frozen; hardening edits ${rel(p.hardened)}/`);
-  for (const x of r.removed) console.log(`  ✖ removed:  ${x}`);
-  for (const x of r.changed) console.log(`  ✖ changed:  ${x.assertion}\n      draft:   ${x.draft}\n      current: ${x.current}`);
-  for (const x of r.constantsChanged) console.log(`  ✖ @req-constants block changed in ${x}`);
-  if (r.contractChanged) console.log('  ✖ requirement contract oracle (ACs / outcomes / rules / error model / oracle gaps) changed since the freeze — only a requirement revision justifies that (re-freeze with --reason)');
-  for (const x of r.added) console.log(`  + added:    ${x}`);
-  for (const x of r.journeyAssertions ?? []) console.log(`  ✖ requirement assertion in a journey file (outside the freeze): ${x} — move it into the test`);
+  for (const f of r.files) console.log(`  ${f.file}: ${f.draftChecks} expectation(s) in the draft → ${f.currentChecks} now`);
+  for (const x of r.draftChanged) console.log(`  ✖ the frozen draft changed: ${rel(p.tests)}/${x} — the draft stays as frozen; the operator edits ${rel(p.hardened)}/`);
+  for (const x of r.removed) console.log(`  ✖ no longer asserted: ${x}`);
+  for (const x of r.added) console.log(`  ✖ added after the freeze: ${x}`);
+  for (const x of r.own) console.log(`  ✖ an expectation written in the test: ${x} — what is expected lives in the contract's checks; assert with expectCheck`);
+  for (const x of r.echoed) console.log(`  ✖ an actual value not read from the application: ${x} — read it from what the application answered or shows`);
+  if (r.contractChanged) console.log('  ✖ the requirement contract\'s oracle (criteria, checks, rules, errors) changed since the freeze — only a revision or a corrected check justifies that (re-freeze with --reason)');
+  for (const x of r.journeyAssertions ?? []) console.log(`  ✖ an expectation in a journey file (outside the freeze): ${x} — journeys are HOW only`);
   for (const x of r.journeysChanged ?? []) console.log(`  • journey changed since the freeze (HOW; listed in the verdict): ${x}`);
   for (const m of r.unhardenedMarkers) console.log(`  ⚠ unhardened: ${m.file}:${m.line} ${m.text}`);
   if (r.status === 'VIOLATED' || r.unhardenedMarkers.length) process.exit(2);

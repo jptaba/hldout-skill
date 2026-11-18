@@ -42,7 +42,7 @@ import { redactSnapshot, secretValuesFor } from '../core/redact';
 import { expandSecrets, loadedVaultSecrets, requireVaultSecrets } from '../core/secrets';
 import { composeSteps, walkInput, walkVars } from './compose';
 import { McpStdioClient, nodeFor, refFor } from './mcp-client';
-import { deliverProbe, requireFrozen } from '../core/probe-log';
+import { deliverProbe } from '../core/probe-log';
 
 interface Match { role: string; name?: string; exact?: boolean }
 interface Find { role?: string; name?: string; exact?: boolean; nth?: number; ref?: string }
@@ -74,7 +74,6 @@ export const spec: CommandSpec = {
 
 export async function run({ flags, argv }: Args): Promise<void> {
   const cfg = loadConfig({ key: flagStr(flags, 'key'), aut: flagStr(flags, 'aut') });
-  requireFrozen(cfg, flagStr(flags, 'key'), 'mcp-probe');
   Object.assign(vars, walkVars(cfg, flags));
   const steps = composeSteps(cfg, flags) as Step[];
   await requireVaultSecrets([argv.join(' '), JSON.stringify(steps)]);

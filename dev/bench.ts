@@ -12,8 +12,9 @@
  *        the stories in its mock Jira (default: every story with a key), and the application's overview, written
  *        by an agent as setup asks
  *   npx tsx dev/bench.ts eval <run> <KEY> [--faults F01,F02|none]
- *        switch the story's faults on (default: all its key lists) and evaluate it with the agent app's command
- *        line, nobody watching; what the app says it cost is kept. Run it again to go on after a usage limit
+ *        switch the story's faults on (default: all its key lists) and evaluate it with the project's
+ *        `heldout drive`, nobody watching: each subagent started headlessly, what the app says each cost kept in the
+ *        story's history. Run it again to go on after a usage limit
  *   npx tsx dev/bench.ts score <run> <KEY>       run the story's tests again with no fault and with each fault
  *        alone, and score the verdict against the faults that were on
  *   npx tsx dev/bench.ts report [<run> …]        the scores and costs side by side, and how far unchanged runs differ
@@ -54,6 +55,16 @@ export function costOf(results: AgentResult[]): Cost {
     outputTokens: sum((u) => u.outputTokens),
     cachedTokens: sum((u) => u.cacheReadInputTokens),
   };
+}
+
+/**
+ * The cost of a story driven headlessly: the subagents' usage as `heldout drive` recorded it in the story's history
+ * (new tokens, minutes, dollars). No coordinating session runs, so there is nothing else to count.
+ */
+export function costOfStory(history: string): Cost {
+  const usage = (fs.existsSync(history) ? fs.readFileSync(history, 'utf8').split('\n') : []).flatMap((l) => { try { const e = JSON.parse(l) as { event?: string; kind?: string; tokens?: number; minutes?: number; usd?: number }; return e.event === 'note' && e.kind === 'usage' ? [e] : []; } catch { return []; } });
+  const sum = (f: (u: (typeof usage)[number]) => number | undefined) => usage.reduce((a, u) => a + (f(u) ?? 0), 0);
+  return { usd: Math.round(sum((u) => u.usd) * 100) / 100, minutes: Math.round(sum((u) => u.minutes) * 10) / 10, turns: 0, runs: usage.length, newTokens: sum((u) => u.tokens), outputTokens: 0, cachedTokens: 0 };
 }
 
 /** Lowest and highest of a figure over unchanged runs: the band a change has to leave to be seen. */
@@ -173,12 +184,13 @@ async function evaluate(args: string[]): Promise<void> {
   // The counts start with the story and survive a second run of it: only a first run resets them.
   if (first || (await control()).on.join() !== [...wanted].sort().join()) await control(wanted);
   console.log(`faults on: ${wanted.join(', ') || 'none'}`);
-  const result = agent(project, `${key}-eval`, `Use the heldout-evaluator skill to evaluate the story ${key}, from its fetch to its published verdict. Ask nothing.`);
+  // Headless, with no coordinating session: the project's own `heldout drive` runs the steps and starts each subagent.
+  const drive = heldout(project, ['drive', key]);
   fs.writeFileSync(path.join(benchDir(project), `${key}.hits.json`), JSON.stringify((await control()).hits));
   const dir = storyDir(project, key);
   const verdictFile = dir && path.join(dir, '7-verdict', 'verdict.json');
   if (!verdictFile || !fs.existsSync(verdictFile)) {
-    console.log(`✖ ${key} has no verdict yet${result.is_error ? ' (the run ended in an error: run eval again to go on)' : ''}`);
+    console.log(`✖ ${key} has no verdict yet${drive.status ? ' (drive stopped: run eval again to go on)' : ''}`);
     process.exitCode = 2;
     return;
   }
@@ -226,7 +238,7 @@ async function scoreStory(args: string[]): Promise<void> {
   const hitsFile = path.join(benchDir(project), `${key}.hits.json`);
   const scored: Scored = {
     run, key, on, score: score(readKey(key), evidence), evidence, hits: fs.existsSync(hitsFile) ? readJson(hitsFile) : {},
-    tests: verdict.summary.total, failed: verdict.summary.failed, openQuestions: verdict.openQuestions?.length ?? 0, cost: costOf(agentRuns(project, `${key}-eval`)),
+    tests: verdict.summary.total, failed: verdict.summary.failed, openQuestions: verdict.openQuestions?.length ?? 0, cost: costOfStory(path.join(dir, 'history.jsonl')),
   };
   fs.writeFileSync(path.join(benchDir(project), `${key}.score.json`), JSON.stringify(scored, null, 1));
   console.log(row(scored).join(' | '));

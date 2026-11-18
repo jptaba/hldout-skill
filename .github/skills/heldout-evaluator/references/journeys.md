@@ -53,7 +53,7 @@ export async function openProduct(page: Page, id: string) {
 ```
 
 - Every exported function of a domain file is a journey, with a `/** doc comment */` that says what it does (the
-  registry shows it to the next story's hardener). Helpers its journeys share stay in the file, not exported.
+  registry shows it to the next story's operator). Helpers its journeys share stay in the file, not exported.
 - Its id is `<kind>.<domain>.<name>`: `api.favorites.add-favourite`, `ui.product.open-product`. A journey is `ui` when
   it drives a page (takes a `Page`), `api` otherwise.
 - Mechanics only: routes, readiness anchors, locators, calls and their fields, seeding and cleanup. A journey may check
@@ -61,10 +61,10 @@ export async function openProduct(page: Page, id: string) {
 - Its comments too say HOW, never what the application did or failed to do (a check it skips, a value it gets wrong,
   "takes no credentials on this build"): the next story reads them, and what a story expects the application must
   not shape. What a story's hardening observed goes in its log, as a deviation or a resolved gap.
-- **Never** what a story expects: no `[REQ …]` assertion, no `expectResponse`, no `@req-constants`, no message or value
-  the requirement says the application shows. A journey returns what its step produced (an answer, a record, a
-  locator); the test asserts it. `heldout lint` refuses a journey file that breaks this, and `heldout integrity` marks
-  a `[REQ …]` assertion inside one as a violation (it would escape the freeze).
+- **Never** what a story expects: no `expectCheck`, no `expectResponse`, no message or value the requirement says the
+  application shows. A journey returns what its step produced (an answer, a record, a locator); the test passes it to
+  its check. `heldout lint` refuses a journey file that breaks this, and `heldout integrity` marks an expectation
+  inside one as a violation (it would escape the freeze). A wait for a page to be ready is mechanics.
 - It takes what it needs as parameters and imports only `heldout-support/fixtures` and other domains' journeys. Tests
   import the domain file: `import { addFavourite } from '../../../../journeys/fixtures/favorites'`.
 
@@ -107,10 +107,10 @@ agree on), brings it in line with the code, and leaves it ready to `git add`.
 
 The tests stay an independent oracle because the journeys hold no oracle:
 
-- The expected values come from the requirement contract alone and stay in the story's spec (`@req-constants`,
-  `[REQ …]` messages), which the freeze protects.
+- The expected values come from the requirement contract alone and stay there, frozen with it: the tests name them
+  (`expectCheck`), and a journey never asserts one.
 - A journey is mechanics to verify, never evidence: one not proven in its current form is probed like any locator or
-  call the hardener found itself; a proven one is checked by the first hardening run.
+  call the operator found itself; a proven one is checked by the first hardening run.
 - Journeys are not frozen. Hardening may fix HOW one works (a locator, a wait, a field); `integrity --snapshot`
   records a hash of every journey in the files the draft uses, and the verdict lists the journeys that changed after
   the freeze.
@@ -121,9 +121,9 @@ The tests stay an independent oracle because the journeys hold no oracle:
 
 1. **Writing the tests (phase 2):** `heldout journeys KEY` lists the application's journeys, the ones the story
    concerns first (it calls the story's resources, opens a route it starts on, or its domain is a word of the story),
-   with what each calls and opens, what it requires and its registry status. The hardener calls them for the steps
+   with what each calls and opens, what it requires and its registry status. The operator calls them for the steps
    of the generated tests and adds the missing ones to their domain's file.
-2. **Hardening (phase 3):** the hardener makes every journey the tests call work against the live application, like
+2. **Hardening (phase 3):** the operator makes every journey the tests call work against the live application, like
    the tests themselves. A journey that no longer works and is replaced:
    `heldout journeys KEY --stale "<id>" --evidence "…"` (`--unstage` takes it back).
 3. **After the verdict (phase 8):** `heldout journeys KEY --harvest` previews what the story proved; `--harvest
