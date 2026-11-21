@@ -43,8 +43,10 @@ output, traces, views, working files) goes to `.heldout/<app>/<KEY>/` under the 
 removed once the story is complete.
 
 **The Held-out Evaluator guide:** [docs/heldout-evaluator.html](docs/heldout-evaluator.html) explains the design,
-the three roles, a story end to end, the checks, the verdict and the catalogue. Git hosts show HTML as source, so
-open it from a clone (or a Pages site) in a browser.
+the three roles, a story end to end, the checks, the verdict and the catalogue.
+[docs/heldout-atlas.html](docs/heldout-atlas.html) is the interactive atlas: one reading path each for leadership,
+users and developers, from the outcome down to the code, and a 3D journey of every hand-off from a request to the
+verdict in Jira. Git hosts show HTML as source, so open them from a clone (or a Pages site) in a browser.
 
 ## Adopt it in another project (about 1 minute)
 

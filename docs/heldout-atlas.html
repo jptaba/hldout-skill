@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Held-out Evaluator Atlas</title>
+<meta name="description" content="The held-out evaluator for leadership, users and developers: the outcome, how to use it, and how it is built, with a 3D map of a story's journey from the request to the verdict in Jira.">
+<style>body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: a 3D hero of the pipeline as a ring with one segment held out; below it, one reading path per audience,
+   each running from the highest level to the lowest, with a depth control that folds the deeper layers away. */
+:root {
+  --bg: #F6F4EE; --bg-2: #EDEAE0; --surface: #FFFFFF; --surface-2: #F3F1EA;
+  --ink: #17161A; --muted: #5C5A60; --faint: #8B8890; --line: #E1DDD2; --line-2: #CDC9BD;
+  --acc: #C9643F; --acc-soft: #F6E2D7; --acc-ink: #8A3A1E;
+  --blue: #3F6FA8; --blue-soft: #E1EAF5; --green: #4F7A3A; --green-soft: #E3EDDA;
+  --amber: #A97A12; --amber-soft: #F5EBCF; --red: #B0413A; --red-soft: #F5DFDB; --violet: #6A58A8; --violet-soft: #E9E5F5;
+  --hero-a: #F6F4EE; --hero-b: #E9E4D8;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --shadow: 0 1px 2px rgba(23,22,26,.05), 0 8px 24px rgba(23,22,26,.07);
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17161A; --bg-2: #1E1D22; --surface: #222127; --surface-2: #2A2930;
+  --ink: #F1EFEA; --muted: #B6B3BC; --faint: #8C8992; --line: #34333B; --line-2: #44434B;
+  --acc: #E07E57; --acc-soft: #3D2A22; --acc-ink: #F2B79F;
+  --blue: #8CB0DD; --blue-soft: #233041; --green: #A2C285; --green-soft: #26301F;
+  --amber: #DDB45C; --amber-soft: #3A3120; --red: #E68479; --red-soft: #3D2523; --violet: #B3A6E3; --violet-soft: #2E2A40;
+  --hero-a: #17161A; --hero-b: #201E25; --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #17161A; --bg-2: #1E1D22; --surface: #222127; --surface-2: #2A2930;
+  --ink: #F1EFEA; --muted: #B6B3BC; --faint: #8C8992; --line: #34333B; --line-2: #44434B;
+  --acc: #E07E57; --acc-soft: #3D2A22; --acc-ink: #F2B79F;
+  --blue: #8CB0DD; --blue-soft: #233041; --green: #A2C285; --green-soft: #26301F;
+  --amber: #DDB45C; --amber-soft: #3A3120; --red: #E68479; --red-soft: #3D2523; --violet: #B3A6E3; --violet-soft: #2E2A40;
+  --hero-a: #17161A; --hero-b: #201E25; --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3); color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.62 var(--sans); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--acc-ink); text-underline-offset: 3px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -.012em; line-height: 1.15; text-wrap: balance; }
+h2 { font-size: clamp(1.55rem, 3.2vw, 2.15rem); margin: 0 0 .35rem; }
+h3 { font-size: 1.18rem; margin: 0 0 .35rem; }
+p { margin: .5rem 0 .9rem; max-width: 68ch; }
+code { font-family: var(--mono); font-size: .86em; background: var(--surface-2); border: 1px solid var(--line); padding: .06em .36em; border-radius: 6px; overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 14px; padding-block: 10px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 9px; font: 600 1.02rem var(--serif); color: var(--ink); text-decoration: none; white-space: nowrap; }
+.brand svg { width: 24px; height: 24px; }
+.mark path { fill: none; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
+.mark .ring { stroke: var(--ink); } .mark .out, .mark .tick { stroke: var(--acc); }
+.spacer { flex: 1; }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; color: var(--muted); font: 500 .86rem var(--sans); padding: 6px 13px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.iconbtn { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: 500 .84rem var(--sans); cursor: pointer; }
+
+/* hero */
+.hero { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 70% 40%, var(--hero-b), var(--hero-a)); border-bottom: 1px solid var(--line); }
+#stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 24px; padding-block: 64px 46px; pointer-events: none; }
+.hero .copy { pointer-events: auto; }
+.eyebrow { font: 600 .74rem var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--acc-ink); }
+.hero h1 { font-size: clamp(2.3rem, 5.6vw, 4rem); margin: .4rem 0 .8rem; }
+.hero h1 em { font-style: italic; color: var(--acc); }
+.lede { font-size: 1.14rem; color: var(--muted); }
+.phasecard { align-self: end; justify-self: end; width: min(360px, 100%); pointer-events: auto; background: color-mix(in srgb, var(--surface) 90%, transparent); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; box-shadow: var(--shadow); backdrop-filter: blur(6px); }
+.phasecard .k { font: 500 .72rem var(--mono); color: var(--faint); }
+.phasecard h3 { margin: .15rem 0 .2rem; }
+.phasecard p { margin: 0; font-size: .9rem; color: var(--muted); }
+.phasecard .who { display: inline-block; margin-top: 8px; font: 600 .7rem var(--sans); letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--acc-soft); color: var(--acc-ink); }
+.phasecard .nav { display: flex; gap: 6px; margin-top: 10px; }
+.phasecard .nav button { flex: 1; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 5px; cursor: pointer; font: 500 .8rem var(--sans); }
+.hint { font-size: .8rem; color: var(--faint); margin-top: 10px; }
+@media (max-width: 820px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 40px 28px; } .phasecard { justify-self: stretch; width: 100%; } #stage { opacity: .55; } }
+
+/* audience + depth */
+.paths { padding-block: 34px 8px; }
+.paths .row { display: flex; flex-wrap: wrap; align-items: end; gap: 18px; justify-content: space-between; }
+.paths .who h2 { margin: 0; }
+.depth { display: grid; gap: 6px; min-width: 240px; }
+.depth label { font: 600 .72rem var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.depth .scale { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.depth .scale button { border: 1px solid var(--line-2); background: var(--surface); color: var(--muted); border-radius: 9px; padding: 6px 8px; font: 500 .82rem var(--sans); cursor: pointer; text-align: left; }
+.depth .scale button[aria-pressed="true"] { border-color: var(--acc); background: var(--acc-soft); color: var(--acc-ink); }
+.track { display: grid; gap: 18px; padding-block: 18px 60px; }
+.layer { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; }
+.layer > .tag { position: sticky; top: 74px; align-self: start; }
+.layer .tag b { display: block; font: 700 1.05rem var(--serif); color: var(--ink); }
+.layer .tag span { font: 500 .74rem var(--mono); color: var(--faint); }
+.layer .body { min-width: 0; display: grid; gap: 14px; }
+@media (max-width: 760px) { .layer { grid-template-columns: minmax(0, 1fr); gap: 6px; } .layer > .tag { position: static; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; box-shadow: var(--shadow); min-width: 0; }
+.panel > h3 { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.panel .sub { font: 500 .72rem var(--mono); color: var(--faint); }
+.grid { display: grid; gap: 12px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { .g2, .g3 { grid-template-columns: minmax(0, 1fr); } }
+.mini { border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px; background: var(--surface-2); min-width: 0; }
+.mini h4 { margin: 0 0 .25rem; font: 600 .95rem var(--sans); }
+.mini p { margin: 0; font-size: .88rem; color: var(--muted); }
+.mini .t { font: 500 .72rem var(--mono); color: var(--acc-ink); }
+ul.clean { margin: .3rem 0 .6rem; padding-left: 1.1rem; } ul.clean li { margin: .25rem 0; } ul.clean li::marker { color: var(--acc); }
+.badge { display: inline-flex; font: 600 .72rem var(--sans); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.b-pass { background: var(--green-soft); color: var(--green); } .b-pww { background: var(--amber-soft); color: var(--amber); }
+.b-fail { background: var(--red-soft); color: var(--red); } .b-inc { background: var(--violet-soft); color: var(--violet); }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 .72rem var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td.num { text-align: right; }
+pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px; font: 12.6px/1.6 var(--mono); color: var(--ink); }
+.c-k { color: var(--acc-ink); } .c-s { color: var(--green); } .c-c { color: var(--faint); font-style: italic; } .c-n { color: var(--blue); }
+.callout { border-left: 3px solid var(--acc); padding: 8px 0 8px 14px; color: var(--muted); }
+.callout b { color: var(--ink); }
+
+/* interactive pieces */
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font: 11.5px var(--sans); }
+.chart .lbl { fill: var(--ink); font-weight: 600; }
+.chart .axis { stroke: var(--line-2); } .chart .grid-l { stroke: var(--line); }
+.chart .base { fill: var(--line-2); } .chart .now { fill: var(--acc); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.toggle { display: inline-flex; gap: 4px; }
+.toggle button { border: 1px solid var(--line-2); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 4px 10px; font: 500 .8rem var(--sans); cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.anat { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 760px) { .anat { grid-template-columns: minmax(0, 1fr); } }
+.anat .key { cursor: pointer; border-radius: 4px; padding: 0 2px; }
+.anat .key:hover, .anat .key.on { background: var(--acc-soft); }
+.anat .explain { border: 1px dashed var(--line-2); border-radius: 11px; padding: 12px 14px; font-size: .9rem; color: var(--muted); }
+.anat .explain b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
+.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.flow .st { border: 1px solid var(--line-2); background: var(--surface-2); border-radius: 9px; padding: 6px 10px; font: 500 .8rem var(--mono); }
+.flow .st.on { background: var(--acc-soft); border-color: var(--acc); color: var(--acc-ink); }
+.flow .ar { color: var(--faint); }
+.sim { display: grid; gap: 10px; }
+.sim .ctl { display: flex; gap: 8px; flex-wrap: wrap; }
+.sim .ctl button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 6px 11px; font: 500 .84rem var(--sans); cursor: pointer; }
+.sim .out { font: 12.5px/1.6 var(--mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px; min-height: 120px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ok { color: var(--green); } .bad { color: var(--red); } .warn { color: var(--amber); }
+.layer[data-depth="2"].hide, .layer[data-depth="3"].hide { display: none; }
+
+/* the story's journey between people, agents and scripts */
+.journey { padding-block: 40px 10px; }
+.journey .head { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; justify-content: space-between; }
+.jgrid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+@media (max-width: 900px) { .jgrid { grid-template-columns: minmax(0, 1fr); } }
+.jmap { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow-x: auto; min-width: 0; }
+.jstage { position: relative; height: clamp(380px, 56vw, 560px); background: radial-gradient(90% 80% at 50% 45%, var(--hero-b), var(--hero-a)); overflow: hidden; touch-action: pan-y; }
+#jcanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+.jlabels { position: absolute; inset: 0; pointer-events: none; }
+.jlabel { position: absolute; transform: translate(-50%, 0); pointer-events: auto; border: 1px solid var(--line-2); background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--ink); border-radius: 999px; padding: 3px 10px; font: 600 .76rem var(--sans); white-space: nowrap; cursor: pointer; backdrop-filter: blur(4px); }
+.jlabel.human { border-color: var(--amber); } .jlabel.agent { border-color: var(--violet); } .jlabel.script { border-color: var(--blue); } .jlabel.external { border-color: var(--green); }
+.jlabel.active { background: var(--acc); border-color: var(--acc); color: #fff; }
+.jcap { position: absolute; transform: translate(-50%, -100%); pointer-events: none; max-width: 260px; background: var(--surface); border: 1px solid var(--acc); color: var(--ink); border-radius: 10px; padding: 5px 10px; font: 600 .78rem var(--sans); box-shadow: var(--shadow); text-align: center; }
+.jfallback { position: absolute; inset: auto 16px 16px; color: var(--muted); font-size: .9rem; }
+.jctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); }
+.jctl button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 5px 11px; font: 500 .82rem var(--sans); cursor: pointer; }
+.jctl button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.jctl .count { margin-left: auto; font: 500 .78rem var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
+.jlegend { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px 12px 0; font-size: .78rem; color: var(--muted); }
+.jlegend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; border: 2px solid; }
+.jside { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.jcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; box-shadow: var(--shadow); min-width: 0; }
+.jcard .k { font: 500 .72rem var(--mono); color: var(--faint); }
+.jcard h3 { margin: .2rem 0 .3rem; }
+.jcard p { margin: .2rem 0 .5rem; font-size: .92rem; color: var(--muted); }
+.jcard .say { font: 12.5px/1.55 var(--mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; overflow-wrap: anywhere; color: var(--ink); }
+.jcard .kind { display: inline-block; font: 600 .68rem var(--sans); letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-right: 6px; }
+.kind.human { background: var(--amber-soft); color: var(--amber); } .kind.agent { background: var(--violet-soft); color: var(--violet); }
+.kind.script { background: var(--blue-soft); color: var(--blue); } .kind.external { background: var(--green-soft); color: var(--green); }
+.jsteps { max-height: 300px; overflow-y: auto; padding: 0; margin: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.jsteps li button { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); padding: 7px 10px; font: 400 .84rem var(--sans); cursor: pointer; }
+.jsteps li:last-child button { border-bottom: 0; }
+.jsteps li button b { font: 500 .74rem var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
+.jsteps li button.on { background: var(--acc-soft); color: var(--ink); }
+.jsteps li button.on b { color: var(--acc-ink); }
+footer { border-top: 1px solid var(--line); padding-block: 26px 48px; color: var(--faint); font-size: .84rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path class="ring" d="M25.82 12.98A20 20 0 0 1 38.18 12.98M51.02 25.82A20 20 0 0 1 51.02 38.18M49.82 41.08A20 20 0 0 1 41.08 49.82M38.18 51.02A20 20 0 0 1 25.82 51.02M22.92 49.82A20 20 0 0 1 14.18 41.08M12.98 38.18A20 20 0 0 1 12.98 25.82M14.18 22.92A20 20 0 0 1 22.92 14.18"/><path class="out" d="M45.32 9.94A20 20 0 0 1 54.06 18.68"/><path class="tick" d="M23.5 32.5L29.5 38.5L41 27"/></svg>Held-out Evaluator</a>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Who is reading">
+      <button id="aud-leadership" data-aud="leadership" aria-pressed="true">Leadership</button>
+      <button id="aud-users" data-aud="users" aria-pressed="false">Users</button>
+      <button id="aud-developers" data-aud="developers" aria-pressed="false">Developers</button>
+    </div>
+    <button class="iconbtn" id="themeBtn" type="button">Theme</button>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="copy">
+      <div class="eyebrow">An agent skill for GitHub Copilot and Claude Code</div>
+      <h1>Does the build do what the story <em>asked</em>?</h1>
+      <p class="lede">The held-out evaluator reads a Jira story, tests the live application against what the story says and
+      nothing else, and hands a person a verdict they can check: each finding with steps to repeat it, the questions the
+      story leaves open, and every test in plain English.</p>
+      <p class="hint">The ring is one story's path through the evaluator. Drag to turn it; select a phase to read it.</p>
+    </div>
+    <aside class="phasecard" aria-live="polite">
+      <div class="k" id="pc-k">phase 1 of 9</div>
+      <h3 id="pc-h">Fetch</h3>
+      <p id="pc-p">The story's title, description and acceptance criteria, the screenshots they show and the Confluence pages they link.</p>
+      <span class="who" id="pc-w">script</span>
+      <div class="nav"><button type="button" id="pc-prev">Previous</button><button type="button" id="pc-next">Next phase</button></div>
+    </aside>
+  </div>
+</section>
+
+<section class="journey wrap" id="journey" aria-labelledby="journey-title">
+  <div class="head">
+    <div><div class="eyebrow">Follow one story</div><h2 id="journey-title">From your request to the verdict on the Jira story</h2>
+      <p>Every hand-off between you, the AI agents, the scripts, the live application and Jira, in the order it happens. Play it, step through it, or select anyone on the map to read what they do.</p></div>
+  </div>
+  <div class="jgrid">
+    <div class="jmap">
+      <div class="jlegend">
+        <span><i style="background:var(--amber-soft);border-color:var(--amber)"></i>A person</span>
+        <span><i style="background:var(--violet-soft);border-color:var(--violet)"></i>An AI agent (Opus)</span>
+        <span><i style="background:var(--blue-soft);border-color:var(--blue)"></i>A script (the heldout command)</span>
+        <span><i style="background:var(--green-soft);border-color:var(--green)"></i>Outside systems</span>
+      </div>
+      <div class="jstage" id="jstage" role="img" aria-label="A 3D map of the people, agents, scripts and systems a story passes between">
+        <canvas id="jcanvas"></canvas>
+        <div class="jlabels" id="jlabels"></div>
+        <p class="jfallback" id="jfallback" hidden>This browser could not start the 3D view. The steps and their explanations are beside it.</p>
+      </div>
+      <div class="jctl">
+        <button type="button" id="j-play" class="primary">Play</button>
+        <button type="button" id="j-prev">Back</button>
+        <button type="button" id="j-next">Step</button>
+        <button type="button" id="j-reset">Restart</button>
+        <button type="button" id="j-speed">Speed 1×</button>
+        <span class="count" id="j-count">step 1 of 30</span>
+      </div>
+    </div>
+    <div class="jside">
+      <div class="jcard" aria-live="polite">
+        <div class="k" id="js-k">step 1</div>
+        <h3 id="js-h">You ask for an evaluation</h3>
+        <div class="say" id="js-say"></div>
+        <p id="js-p"></p>
+      </div>
+      <div class="jcard" id="actor-card">
+        <div><span class="kind" id="ac-kind">person</span><span class="k" id="ac-k"></span></div>
+        <h3 id="ac-h">You</h3>
+        <p id="ac-p"></p>
+        <p id="ac-x" class="hint"></p>
+      </div>
+      <ol class="jsteps" id="jsteps" aria-label="Every step"></ol>
+    </div>
+  </div>
+</section>
+
+<section class="paths wrap" aria-labelledby="path-title">
+  <div class="row">
+    <div class="who"><div class="eyebrow" id="path-eyebrow">For leadership</div><h2 id="path-title">What it buys, what it costs, where it stands</h2></div>
+    <div class="depth">
+      <label for="depth-1">How deep to read</label>
+      <div class="scale" role="group" aria-label="Depth">
+        <button type="button" id="depth-1" data-depth="1" aria-pressed="false">High level</button>
+        <button type="button" id="depth-2" data-depth="2" aria-pressed="false">Mid level</button>
+        <button type="button" id="depth-3" data-depth="3" aria-pressed="true">Every detail</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+<!-- ================= LEADERSHIP ================= -->
+<div class="track" data-track="leadership">
+  <div class="layer" data-depth="1"><div class="tag"><b>High level</b><span>the outcome</span></div><div class="body">
+    <div class="panel"><h3>A verdict a person can trust and check, without doing the testing</h3>
+      <p>Someone has to accept or reject each story. The evaluator gives them one of four recommendations, with the evidence behind it, and raises nothing in Jira on its own.</p>
+      <div class="grid g2">
+        <div class="mini"><h4><span class="badge b-pass">PASS</span></h4><p>The application did what every criterion states, in every test that ran.</p></div>
+        <div class="mini"><h4><span class="badge b-pww">PASS WITH WARNINGS</span></h4><p>Nothing failed, but something was not tested, flaky, or rests on a question for the owner.</p></div>
+        <div class="mini"><h4><span class="badge b-fail">FAIL</span></h4><p>At least one defect was reproduced against the live application, and verified once more.</p></div>
+        <div class="mini"><h4><span class="badge b-inc">INCONCLUSIVE</span></h4><p>The evaluation could not judge: the environment failed, or a failure is still unexplained.</p></div>
+      </div>
+    </div>
+    <div class="panel"><h3>Why "held-out"</h3>
+      <p>What each test expects comes from the story alone, and every expected value cites the line of the story it came from. The agents may look at the application as much as they need, to understand it and operate it, but where the application differs from the story, <b>the story wins</b> and the difference is shown to the story's owner. That is what lets the evaluator catch an implementation that drifted from what was asked, which a test written by watching the application never could.</p>
+      <p class="callout"><b>The stories are implemented by another group of agents.</b> This project checks their work from the outside, as an independent reviewer would.</p>
+    </div>
+  </div></div>
+
+  <div class="layer" data-depth="2"><div class="tag"><b>Mid level</b><span>evidence and cost</span></div><div class="body">
+    <div class="panel chart"><h3>What the redesign changed, measured <span class="sub">benchmark, one run per story</span></h3>
+      <p>Three stories nobody tuned the skill on, run against a shop application with known faults switched on. Grey: the build before the redesign. Orange: the redesigned build of 2026-11-18.</p>
+      <div class="toggle" role="group" aria-label="Measure">
+        <button type="button" id="m-tokens" data-m="tokens" aria-pressed="true">Tokens</button>
+        <button type="button" id="m-minutes" data-m="minutes" aria-pressed="false">Minutes</button>
+        <button type="button" id="m-faults" data-m="faults" aria-pressed="false">Faults found</button>
+      </div>
+      <svg id="chart" viewBox="0 0 640 250" role="img" aria-label="Baseline against redesign per story"></svg>
+      <div class="legend"><span><i style="background:var(--line-2)"></i>Baseline</span><span><i style="background:var(--acc)"></i>Redesigned</span></div>
+      <p id="chart-note" class="hint">Tokens are what the subagents read for the first time or wrote. The SHOP-2 run includes a run a usage limit cut off.</p>
+    </div>
+    <div class="grid g3">
+      <div class="mini"><h4>Verdicts as keyed</h4><p><b>3 of 3</b> on the redesigned build, and no false positive on any story.</p></div>
+      <div class="mini"><h4>Faults found</h4><p><b>6 of 8</b>, one more raised as a question. Both misses had a cause, now fixed in the tool.</p></div>
+      <div class="mini"><h4>Minutes</h4><p><b>15% to 44% less</b> per story than before; tokens from 17% less to 12% more.</p></div>
+    </div>
+  </div></div>
+
+  <div class="layer" data-depth="3"><div class="tag"><b>Every detail</b><span>risk and roadmap</span></div><div class="body">
+    <div class="panel"><h3>The risks, and what controls each</h3>
+      <div class="tbl"><table>
+        <tr><th>Risk</th><th>Control</th></tr>
+        <tr><td>The tests expect what the application happens to do</td><td>Every expected value cites its line of the story and is checked against it; an independent reviewer judges each one; a difference an agent sees is listed in the verdict, never used as a value</td></tr>
+        <tr><td>A requirement the story never stated</td><td>Criteria are quoted from cited lines; every source line is accounted for; the review is bound to the contract's hash</td></tr>
+        <tr><td>A test that passes for the wrong reason</td><td>An actual value must be read from the application; a literal or the test's own input is refused</td></tr>
+        <tr><td>A wrong finding</td><td>Reproduced by the tool or live, then reproduced once more before publishing</td></tr>
+        <tr><td>The implementers write to the tests</td><td>The evaluation project is kept apart from the application's repository; implementers get the published verdict only</td></tr>
+        <tr><td>Instructions hidden in a story or page</td><td>Treated as data, flagged, and listed in the verdict</td></tr>
+        <tr><td>Leaked secrets</td><td>References only, redaction while running, a scrub after each run, a check before publishing</td></tr>
+      </table></div>
+    </div>
+    <div class="panel"><h3>Where the programme stands</h3>
+      <div class="tbl"><table>
+        <tr><th>Phase</th><th>State</th></tr>
+        <tr><td>0 · A benchmark that can see a difference</td><td>Built; noise band cut to a minimum on the owner's word</td></tr>
+        <tr><td>1 · Savings with no redesign</td><td>Built; the 30% gate missed</td></tr>
+        <tr><td>2 · The oracle as data</td><td>Built: the checks live in the reviewed contract, tests are generated</td></tr>
+        <tr><td>3 · Three roles</td><td>Built: extractor, reviewer, operator; findings verified before publishing</td></tr>
+        <tr><td>4 · A headless run</td><td>Built: <code>heldout drive</code>; the Copilot checklist is still to be run by the owner</td></tr>
+        <tr><td>5 · Delete</td><td>Done as listed; the size target (half the code) not met</td></tr>
+        <tr><td>6 · The guide</td><td>Written new for this build</td></tr>
+      </table></div>
+      <p class="hint">Open decision: re-run SHOP-2 and SHOP-3 on the build with both fixes, about two evaluations of usage, to replace the figures their bugs affected.</p>
+    </div>
+    <div class="panel"><h3>What stays with a person</h3>
+      <ul class="clean">
+        <li><b>Acting on the verdict:</b> each finding has a confirm, reject or clarify box for the story's owner.</li>
+        <li><b>What is correct:</b> open questions go to the owner through the verdict; no agent answers them.</li>
+        <li><b>Publishing</b>, when a team wants to read the verdict first.</li>
+        <li><b>Secrets</b>, typed by a person, never by an agent.</li>
+      </ul>
+    </div>
+  </div></div>
+</div>
+
+<!-- ================= USERS ================= -->
+<div class="track" data-track="users" hidden>
+  <div class="layer" data-depth="1"><div class="tag"><b>High level</b><span>asking for a verdict</span></div><div class="body">
+    <div class="panel"><h3>One sentence starts it</h3>
+      <div class="grid g2">
+        <div class="mini"><h4>GitHub Copilot</h4><p>Pick the <code>heldout-evaluator</code> agent in the agents dropdown, with Opus, and ask <b>"Run a held-out evaluation of ABC-123"</b>.</p></div>
+        <div class="mini"><h4>Claude Code</h4><p>Ask the same in the project's folder, or run the whole story with nobody watching: <code>npm run heldout -- drive ABC-123</code>.</p></div>
+      </div>
+      <p>Nobody is asked anything from the fetch to the published verdict. What the story leaves unclear is tested as far as it can be and put to the story's owner in the verdict.</p>
+    </div>
+  </div></div>
+
+  <div class="layer" data-depth="2"><div class="tag"><b>Mid level</b><span>reading the result</span></div><div class="body">
+    <div class="panel"><h3>The verdict's first screen</h3>
+      <ul class="clean">
+        <li><b>The verdict and why</b>, in one line.</li>
+        <li><b>Findings</b>, one line each: the criterion, the suggested severity, what is wrong.</li>
+        <li><b>Questions for the story's owner</b>: what the story does not settle.</li>
+        <li><b>Not tested</b>: a criterion with no test, a setup no test covered, a test that did not run.</li>
+        <li><b>Where the application and the story differ</b>: noted by the agents, and never used as an expected value.</li>
+      </ul>
+      <p>Each finding follows in full: the requirement, expected against actual, the steps and API calls to reproduce it, a screenshot, whether it held when verified, and a decision box.</p>
+    </div>
+    <div class="panel"><h3>The catalogue: every test in plain English</h3>
+      <p><code>7-verdict/catalogue.md</code> sits beside the verdict. For each criterion and each check: the starting state, what is done, what is expected and the line of the story that says so, the result, and one command to run it again.</p>
+      <pre class="code"><span class="c-c"># run one check again</span>
+npm run heldout -- run ABC-123 --label repro --grep "SCN-005:"
+<span class="c-c"># run every check again</span>
+npm run heldout -- run ABC-123 --label repro</pre>
+    </div>
+  </div></div>
+
+  <div class="layer" data-depth="3"><div class="tag"><b>Every detail</b><span>setting a project up</span></div><div class="body">
+    <div class="panel"><h3>Setup, once per project</h3>
+      <p>A project is a folder of its own, outside the application's repository. From a clone of the skill:</p>
+      <pre class="code">&lt;clone&gt;/setup.ps1 -BaseUrl https://your-app.example     <span class="c-c"># or setup.sh --base-url …</span>
+npm run heldout -- accounts --add-existing --username qa1@example.com --password-env APP_PASSWORD_1 --role customer
+npm run heldout -- secret APP_PASSWORD_1 --ask                <span class="c-c"># typed by a person</span>
+npm run heldout -- map --survey                               <span class="c-c"># what a visitor sees</span>
+npm run heldout -- map --add "A web shop that sells and rents tools"
+npm run heldout -- doctor</pre>
+    </div>
+    <div class="panel"><h3>The steps a story goes through</h3>
+      <p>Select a step to see who does it and what it leaves behind.</p>
+      <div class="flow" id="userflow"></div>
+      <p id="userflow-out" class="callout"></p>
+    </div>
+    <div class="panel"><h3>Settings people ask about</h3>
+      <div class="tbl"><table>
+        <tr><th>To</th><th>Do</th></tr>
+        <tr><td>Publish the verdict yourself</td><td><code>"publish": "manual"</code> under <code>jira</code>, then <code>npm run heldout -- publish KEY</code></td></tr>
+        <tr><td>Record an owner's answer</td><td><code>npm run heldout -- contract KEY --answer G3 --value "…" --by "&lt;who&gt;"</code></td></tr>
+        <tr><td>See where each story is</td><td><code>npm run heldout -- status</code></td></tr>
+        <tr><td>See what a story cost</td><td><code>npm run heldout -- stats KEY</code></td></tr>
+        <tr><td>Use a secret from Vault</td><td><code>${vault:secret/qa/app#password}</code> wherever a secret is referenced</td></tr>
+      </table></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ================= DEVELOPERS ================= -->
+<div class="track" data-track="developers" hidden>
+  <div class="layer" data-depth="1"><div class="tag"><b>High level</b><span>the architecture</span></div><div class="body">
+    <div class="panel"><h3>Scripts do what is the same every time; agents do what needs judgement</h3>
+      <div class="grid g3">
+        <div class="mini"><span class="t">heldout-contract-extractor</span><h4>Writes the oracle</h4><p>The contract: criteria quoted from cited lines, gaps, and per criterion the fewest checks that could prove it false.</p></div>
+        <div class="mini"><span class="t">heldout-contract-reviewer</span><h4>Reviews it</h4><p>A fresh context, the evidence only; its review is bound to the contract's hash.</p></div>
+        <div class="mini"><span class="t">heldout-operator</span><h4>Operates the application</h4><p>Makes the generated tests run, then triages and repairs, in one context.</p></div>
+      </div>
+      <p><code>heldout advance KEY</code> is a state machine read from the files on disk: it runs every script step that comes next and stops at a subagent, printing its task and its brief. <code>heldout drive KEY</code> runs the same machine and starts each subagent itself through Claude Code's command line.</p>
+    </div>
+  </div></div>
+
+  <div class="layer" data-depth="2"><div class="tag"><b>Mid level</b><span>data and flow</span></div><div class="body">
+    <div class="panel"><h3>Anatomy of a check <span class="sub">2-contract/contract.json</span></h3>
+      <div class="anat">
+        <pre class="code" id="anat-code">{ <span class="key" data-k="id">"id"</span>: <span class="c-s">"C3.1"</span>, <span class="key" data-k="title">"title"</span>: <span class="c-s">"a coupon of 15% lowers the total"</span>,
+  <span class="key" data-k="type">"type"</span>: <span class="c-s">"functional"</span>, <span class="key" data-k="layer">"layer"</span>: <span class="c-s">"ui"</span>,
+  <span class="key" data-k="given">"given"</span>: [<span class="c-s">"a cart with one rental of 40.00"</span>],
+  <span class="key" data-k="when">"when"</span>: [<span class="c-s">"the shopper applies RENT15"</span>],
+  <span class="key" data-k="expect">"expect"</span>: [{ <span class="c-s">"id"</span>: <span class="c-s">"C3.1.a"</span>, <span class="c-s">"what"</span>: <span class="c-s">"the total shown"</span>,
+    <span class="key" data-k="comparator">"comparator"</span>: <span class="c-s">"equals"</span>, <span class="key" data-k="value">"value"</span>: <span class="c-n">34</span>, <span class="key" data-k="source">"source"</span>: <span class="c-s">"story.md#L12"</span> }],
+  <span class="key" data-k="rows">"rows"</span>: <span class="c-c">/* variants of one check */</span>, <span class="key" data-k="restsOn">"restsOn"</span>: [<span class="c-s">"G2"</span>] }</pre>
+        <div class="explain" id="anat-explain"><b>Select a key</b> to see what it means and which rule guards it.</div>
+      </div>
+    </div>
+    <div class="panel"><h3>From check to running test</h3>
+      <pre class="code"><span class="c-c">// generated from the check; the operator fills in the steps and where `actual` is read</span>
+test(<span class="c-s">'SCN-005: a coupon of 15% lowers the total'</span>, { tag: [<span class="c-s">'@AC-3'</span>, <span class="c-s">'@type:functional'</span>] }, <span class="c-k">async</span> ({ page, seed }) =&gt; {
+  <span class="c-k">await</span> journey.step(<span class="c-s">'When the shopper applies RENT15'</span>, <span class="c-k">async</span> () =&gt; { <span class="c-k">await</span> applyCoupon(page, <span class="c-s">'RENT15'</span>); });
+  <span class="c-k">await</span> journey.step(<span class="c-s">'Then the total shown is 34'</span>, <span class="c-k">async</span> () =&gt; {
+    <span class="c-k">const</span> actual = <span class="c-k">await</span> page.getByTestId(<span class="c-s">'cart-total'</span>).textContent();
+    expectCheck(<span class="c-s">'C3.1.a'</span>, actual);   <span class="c-c">// the expected 34 lives only in the frozen contract</span>
+  });
+});</pre>
+    </div>
+    <div class="panel"><h3>Try the integrity check</h3>
+      <p>Integrity compares the tests that run with the frozen draft and the contract. Pick an edit an operator might make and see what <code>heldout integrity</code> says.</p>
+      <div class="sim">
+        <div class="ctl" id="sim-ctl">
+          <button type="button" data-case="locator">Change a locator</button>
+          <button type="button" data-case="own">Write expect(actual).toBe('34')</button>
+          <button type="button" data-case="echo">Pass row.values.total as actual</button>
+          <button type="button" data-case="journey">Assert inside a journey</button>
+          <button type="button" data-case="contract">Edit the contract after the freeze</button>
+        </div>
+        <div class="out" id="sim-out">Held-out integrity: PRESERVED
+  shop.spec.ts: 15 expectation(s) in the draft → 15 now</div>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="layer" data-depth="3"><div class="tag"><b>Every detail</b><span>code and rules</span></div><div class="body">
+    <div class="panel"><h3>The scripts, by phase <span class="sub">.github/scripts/</span></h3>
+      <p>Imports follow the phases' order and never run backwards; a command module never imports another command (both are tested).</p>
+      <div class="flow" id="layers"></div>
+      <p id="layers-out" class="callout"></p>
+    </div>
+    <div class="panel"><h3>Triage, replay and verification</h3>
+      <div class="tbl"><table>
+        <tr><th>Category</th><th>Meaning</th><th>Effect</th></tr>
+        <tr><td><code>APPLICATION_DEFECT</code></td><td>The application does not do what the requirement says, reproduced</td><td>FAIL</td></tr>
+        <tr><td><code>SCRIPT_DEFECT</code></td><td>The test is wrong about mechanics</td><td>Repair and run again, at most three times</td></tr>
+        <tr><td><code>ENVIRONMENT_ISSUE</code></td><td>Down, rate-limited, a sandbox someone changed</td><td>INCONCLUSIVE if it persists</td></tr>
+        <tr><td><code>FLAKY</code></td><td>Failed only some of the time</td><td>PASS WITH WARNINGS</td></tr>
+        <tr><td><code>BLOCKED</code></td><td>A precondition could not be made</td><td>INCONCLUSIVE until it can</td></tr>
+        <tr><td><code>NEEDS_INVESTIGATION</code></td><td>Not settled, or not held when verified</td><td>INCONCLUSIVE</td></tr>
+      </table></div>
+      <ul class="clean">
+        <li><b>Replay:</b> a sure API failure is sent again outside the test, twice, signing in afresh; the same answer both times confirms it with no agent.</li>
+        <li><b>Live reproduction:</b> the operator reproduces the rest with probes, each logged as <code>Pn</code> and cited by its decision.</li>
+        <li><b>Verify:</b> each finding's tests run again on their own; it holds when the same check fails again, whatever record it named.</li>
+      </ul>
+    </div>
+    <div class="panel"><h3>What is known of the application</h3>
+      <p>One store per application, <code>application-map/&lt;profile&gt;/knowledge.jsonl</code>, one entry a line, sorted so two branches merge cleanly:</p>
+      <pre class="code">{<span class="c-s">"id"</span>:<span class="c-s">"Ke1bbcd"</span>,<span class="c-s">"domain"</span>:<span class="c-s">"cart"</span>,<span class="c-s">"kind"</span>:<span class="c-s">"how"</span>,<span class="c-s">"text"</span>:<span class="c-s">"Adding a product creates the cart over the API: POST /carts answers its id …"</span>}</pre>
+      <ul class="clean">
+        <li>Kinds: <code>about</code>, <code>how</code>, <code>seen</code>, <code>data</code>. Written only when new; corrected with <code>--fix</code> or <code>--remove</code> when wrong.</li>
+        <li>No story, date, run or counter in an entry: a story that learned nothing leaves the file as it was.</li>
+        <li>Never an oracle: a contract that names an entry is refused (<code>rests-on-knowledge</code>); a decision needs this story's own probe.</li>
+      </ul>
+    </div>
+    <div class="panel"><h3>The benchmark <span class="sub">dev/bench.ts · maintainers only</span></h3>
+      <p>Toolshop runs locally behind a proxy that switches 14 known faults on per run. Five stories were written by an author who had not read the evaluator; each has a key naming the faults that break it. A score runs the story's tests with no fault and with each fault alone: a fault counts as found when a finding's test fails with only that fault on and passes with none.</p>
+      <pre class="code">npx tsx dev/bench.ts up                 <span class="c-c"># the app, fresh data, the fault proxy</span>
+npx tsx dev/bench.ts new p11 --stories SHOP-2
+npx tsx dev/bench.ts eval p11 SHOP-2     <span class="c-c"># headless, through heldout drive</span>
+npx tsx dev/bench.ts score p11 SHOP-2
+npx tsx dev/bench.ts report</pre>
+    </div>
+    <div class="panel"><h3>Rules of the repository</h3>
+      <div class="grid g2">
+        <div class="mini"><h4>Greenfield and lean</h4><p>No compatibility shims; one fact in one place; instruction files carry only what a change needs.</p></div>
+        <div class="mini"><h4>Application-agnostic</h4><p>The skill never names an application, its routes or values; demo applications live under <code>demo/</code>.</p></div>
+        <div class="mini"><h4>Commands, not scripts</h4><p>No agent writes a script of its own; a need no command meets is a tool gap that becomes a command.</p></div>
+        <div class="mini"><h4>Green before push</h4><p><code>npm run typecheck</code> and <code>npm run test:skill</code>, then a small commit on <code>master</code>. A bug fix ships with a test that fails without it.</p></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+</main>
+
+<footer><div class="wrap">Held-out Evaluator · figures from the benchmark runs of 2026-11-16 to 2026-11-18, one run per story and build; differences below about a fifth cannot be told from chance.</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+<script>
+(function () {
+  'use strict';
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* no storage */ } } };
+  const root = document.documentElement;
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const css = (name) => getComputedStyle(root).getPropertyValue(name).trim();
+
+  /* ---------- theme ---------- */
+  const isDark = () => root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const themeBtn = document.getElementById('themeBtn');
+  const paintTheme = () => { themeBtn.textContent = isDark() ? 'Light' : 'Dark'; recolor(); };
+  const saved = store.get('heldout-atlas-theme');
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  themeBtn.addEventListener('click', () => { const next = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', next); store.set('heldout-atlas-theme', next); paintTheme(); drawChart(); });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { paintTheme(); drawChart(); });
+
+  /* ---------- the phases ---------- */
+  const PHASES = [
+    { n: 'Fetch', who: 'script', p: 'The story\'s title, description and acceptance criteria, the screenshots they show and the Confluence pages they link.', out: '1-requirement/' },
+    { n: 'Contract and checks', who: 'contract extractor', p: 'Each criterion quoted from cited lines, the gaps the story leaves, and per criterion the fewest checks that could prove it false, every expected value cited.', out: '2-contract/contract.json' },
+    { n: 'Independent review', who: 'contract reviewer', p: 'A fresh context confirms each item against the evidence; at most two rounds, then what is disputed becomes a question for the owner.', out: '2-contract/review.json' },
+    { n: 'Tests generated, frozen', who: 'script', p: 'One test a check, its steps in the contract\'s words, each expectation named by its id. The freeze records their hashes and the contract\'s.', out: '3-tests/ · freeze.json', held: true },
+    { n: 'Made to run', who: 'operator', p: 'How each step is done and where each actual value is read, verified with probes against the live application, proven stable over repeated runs.', out: '4-hardening/ · journeys/' },
+    { n: 'Run', who: 'script', p: 'Every test once, as the evaluation. Preflight lints the tests and checks the application is healthy first.', out: '5-run/NN-eval.json' },
+    { n: 'Triage', who: 'script, then operator', p: 'Failures grouped by cause; sure API failures replayed by the tool twice; the rest reproduced live and decided with evidence.', out: '6-triage/decisions.json' },
+    { n: 'Verify', who: 'script', p: 'Each finding reproduced once more, its tests on their own. One that does not hold is published as needing investigation, not as a defect.', out: '6-triage/verification.json' },
+    { n: 'Verdict and catalogue', who: 'script', p: 'The verdict on one screen, the findings in full, the record below; every check in plain words; posted to the story; the journeys recorded.', out: '7-verdict/' },
+  ];
+  let current = 0;
+  const pc = { k: document.getElementById('pc-k'), h: document.getElementById('pc-h'), p: document.getElementById('pc-p'), w: document.getElementById('pc-w') };
+  function showPhase(i) {
+    current = (i + PHASES.length) % PHASES.length;
+    const ph = PHASES[current];
+    pc.k.textContent = `phase ${current + 1} of ${PHASES.length} · ${ph.out}`;
+    pc.h.textContent = ph.n; pc.p.textContent = ph.p; pc.w.textContent = ph.who;
+    if (scene) scene.focus(current);
+  }
+  document.getElementById('pc-prev').addEventListener('click', () => showPhase(current - 1));
+  document.getElementById('pc-next').addEventListener('click', () => showPhase(current + 1));
+
+  /* ---------- the 3D ring ---------- */
+  let scene = null;
+  function recolor() { if (scene) scene.recolor(); if (typeof J !== 'undefined' && J) J.colors(); }
+  function makeScene() {
+    const canvas = document.getElementById('stage');
+    if (!window.THREE || !canvas) return null;
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { return null; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const s = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+    cam.position.set(0, 2.6, 9.2);
+    const world = new THREE.Group(); s.add(world);
+    world.position.x = 2.2;
+    const R = 2.6, N = PHASES.length;
+    const segs = [], nodes = [];
+    const ringMat = () => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45, metalness: 0.1 });
+    for (let i = 0; i < N; i++) {
+      const a0 = (i / N) * Math.PI * 2 + 0.07, a1 = ((i + 1) / N) * Math.PI * 2 - 0.07;
+      const curve = new THREE.EllipseCurve(0, 0, R, R, a0, a1, false, 0);
+      const pts = curve.getPoints(24).map((p) => new THREE.Vector3(p.x, 0, p.y));
+      const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.085, 10, false), ringMat());
+      const mid = (a0 + a1) / 2;
+      tube.userData = { i, mid, held: Boolean(PHASES[i].held) };
+      world.add(tube); segs.push(tube);
+      const node = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+      node.position.set(Math.cos(mid) * R, 0, Math.sin(mid) * R);
+      node.userData = { i }; world.add(node); nodes.push(node);
+    }
+    // The held-out segment floats out of the ring: what is expected is kept apart from everything that runs.
+    const held = segs.find((t) => t.userData.held);
+    const out = new THREE.Vector3(Math.cos(held.userData.mid), 0.35, Math.sin(held.userData.mid)).multiplyScalar(0.55);
+    held.position.copy(out); nodes[held.userData.i].position.add(out);
+    // A story travelling the ring.
+    const traveller = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    world.add(traveller);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.018, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 }));
+    halo.rotation.x = Math.PI / 2; world.add(halo);
+    // Dust: the evidence a story leaves.
+    const dustGeo = new THREE.BufferGeometry(); const COUNT = 420; const pos = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) { const a = Math.random() * Math.PI * 2, r = R + (Math.random() - 0.5) * 2.6; pos[i * 3] = Math.cos(a) * r; pos[i * 3 + 1] = (Math.random() - 0.5) * 1.8; pos[i * 3 + 2] = Math.sin(a) * r; }
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ size: 0.03, transparent: true, opacity: 0.55, color: 0xffffff }));
+    world.add(dust);
+    s.add(new THREE.AmbientLight(0xffffff, 0.75));
+    const key = new THREE.DirectionalLight(0xffffff, 0.8); key.position.set(3, 6, 5); s.add(key);
+
+    let focus = 0, tilt = 0.42, spin = 0, dragging = false, lastX = 0, autoT = 0;
+    world.rotation.x = tilt;
+    function recolorScene() {
+      const ink = new THREE.Color(css('--ink')), acc = new THREE.Color(css('--acc')), faint = new THREE.Color(css('--faint'));
+      segs.forEach((t) => { t.material.color.copy(t.userData.held ? acc : (t.userData.i === focus ? acc : ink)); t.material.opacity = 1; });
+      nodes.forEach((n, i) => n.material.color.copy(i === focus ? acc : faint));
+      traveller.material.color.copy(acc); halo.material.color.copy(acc); dust.material.color.copy(faint);
+    }
+    function size() { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); world.position.x = w < 820 ? 0 : 2.2; }
+    window.addEventListener('resize', size); size();
+    const ray = new THREE.Raycaster(), m = new THREE.Vector2();
+    function pick(ev) {
+      const r = canvas.getBoundingClientRect(); m.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(m, cam); const hit = ray.intersectObjects([...segs, ...nodes])[0];
+      return hit ? hit.object.userData.i : -1;
+    }
+    canvas.style.pointerEvents = 'auto';
+    canvas.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; canvas.setPointerCapture(e.pointerId); canvas.dataset.moved = '0'; });
+    canvas.addEventListener('pointermove', (e) => {
+      if (dragging) { const dx = e.clientX - lastX; lastX = e.clientX; spin += dx * 0.008; if (Math.abs(dx) > 2) canvas.dataset.moved = '1'; }
+      else canvas.style.cursor = pick(e) >= 0 ? 'pointer' : 'grab';
+    });
+    canvas.addEventListener('pointerup', (e) => { dragging = false; if (canvas.dataset.moved !== '1') { const i = pick(e); if (i >= 0) showPhase(i); } });
+    let t0 = performance.now();
+    function frame(now) {
+      const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
+      if (!dragging && !reduced) spin += dt * 0.06;
+      world.rotation.y = spin;
+      autoT += reduced ? 0 : dt * 0.09;
+      const target = (focus + 0.5) / N * Math.PI * 2;
+      const a = reduced ? target : (autoT % 1) * Math.PI * 2;
+      const tr = new THREE.Vector3(Math.cos(a) * R, 0.0, Math.sin(a) * R);
+      traveller.position.copy(tr);
+      const fn = nodes[focus].position; halo.position.copy(fn); halo.scale.setScalar(1 + Math.sin(now / 420) * (reduced ? 0 : 0.08));
+      dust.rotation.y = reduced ? 0 : now / 60000;
+      renderer.render(s, cam);
+      if (!reduced) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    return {
+      focus(i) { focus = i; recolorScene(); if (reduced) requestAnimationFrame(frame); },
+      recolor() { recolorScene(); if (reduced) requestAnimationFrame(frame); },
+    };
+  }
+  scene = makeScene();
+  if (scene) scene.recolor();
+  showPhase(0);
+
+  /* ---------- audiences and depth (the audience lives in the hash) ---------- */
+  const TITLES = {
+    leadership: ['For leadership', 'What it buys, what it costs, where it stands'],
+    users: ['For the people who use it', 'Asking for a verdict, and reading one'],
+    developers: ['For developers', 'How it is built, from the roles to the rules'],
+  };
+  let depth = 3;
+  function setAudience(a) {
+    if (!TITLES[a]) a = 'leadership';
+    document.querySelectorAll('[data-aud]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.aud === a)));
+    document.querySelectorAll('.track').forEach((t) => { t.hidden = t.dataset.track !== a; });
+    document.getElementById('path-eyebrow').textContent = TITLES[a][0];
+    document.getElementById('path-title').textContent = TITLES[a][1];
+    if (location.hash.slice(1) !== a) history.replaceState(null, '', '#' + a);
+    drawChart();
+  }
+  function setDepth(d) {
+    depth = d;
+    document.querySelectorAll('[data-depth]').forEach((el) => { if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(Number(el.dataset.depth) === d)); else el.classList.toggle('hide', Number(el.dataset.depth) > d); });
+    store.set('heldout-atlas-depth', String(d));
+  }
+  document.querySelectorAll('[data-aud]').forEach((b) => b.addEventListener('click', () => setAudience(b.dataset.aud)));
+  document.querySelectorAll('button[data-depth]').forEach((b) => b.addEventListener('click', () => setDepth(Number(b.dataset.depth))));
+  window.addEventListener('hashchange', () => setAudience(location.hash.slice(1)));
+  const savedDepth = Number(store.get('heldout-atlas-depth'));
+  setDepth(savedDepth >= 1 && savedDepth <= 3 ? savedDepth : 3);
+
+  /* ---------- the benchmark chart ---------- */
+  const DATA = {
+    tokens: { unit: 'k tokens', max: 900, rows: [['SHOP-1', 624, 517], ['SHOP-2', 591, 663], ['SHOP-3', 824, 692]], note: 'Tokens are what the subagents read for the first time or wrote. The SHOP-2 run includes 104k for a run a usage limit cut off, and a second review round.' },
+    minutes: { unit: 'minutes', max: 80, rows: [['SHOP-1', 67, 37.5], ['SHOP-2', 55, 46.7], ['SHOP-3', 60, 46]], note: 'Minutes the subagents worked. The redesigned build runs with no coordinating session.' },
+    faults: { unit: 'faults found', max: 3, rows: [['SHOP-1', 3, 3], ['SHOP-2', 2, 1], ['SHOP-3', 3, 2]], note: 'Baseline bars show the faults switched on (all found by the baseline). SHOP-2 lost one to a verification bug, SHOP-3 raised one as a question; both causes are fixed.' },
+  };
+  let measure = 'tokens';
+  document.querySelectorAll('[data-m]').forEach((b) => b.addEventListener('click', () => { measure = b.dataset.m; document.querySelectorAll('[data-m]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); drawChart(); }));
+  function drawChart() {
+    const svg = document.getElementById('chart'); if (!svg) return;
+    const d = DATA[measure], W = 640, H = 250, L = 70, B = 40, T = 16, plotW = W - L - 16, plotH = H - B - T;
+    const x = (v) => L + (v / d.max) * plotW;
+    const ticks = measure === 'faults' ? [0, 1, 2, 3] : measure === 'minutes' ? [0, 20, 40, 60, 80] : [0, 300, 600, 900];
+    let s = '';
+    ticks.forEach((t) => { s += `<line class="grid-l" x1="${x(t)}" x2="${x(t)}" y1="${T}" y2="${H - B}"/><text x="${x(t)}" y="${H - B + 16}" text-anchor="middle">${t}</text>`; });
+    s += `<text x="${L + plotW / 2}" y="${H - 6}" text-anchor="middle">${d.unit}</text>`;
+    const band = plotH / d.rows.length;
+    d.rows.forEach(([name, base, now], i) => {
+      const y = T + i * band + band * 0.18, h = band * 0.28;
+      s += `<text class="lbl" x="${L - 10}" y="${y + h + 4}" text-anchor="end">${name}</text>`;
+      s += `<rect class="base" x="${L}" y="${y}" width="${x(base) - L}" height="${h}" rx="3"><title>Baseline: ${base} ${d.unit}</title></rect>`;
+      s += `<rect class="now" x="${L}" y="${y + h + 4}" width="${x(now) - L}" height="${h}" rx="3"><title>Redesigned: ${now} ${d.unit}</title></rect>`;
+      s += `<text x="${x(base) + 6}" y="${y + h - 3}">${base}</text><text x="${x(now) + 6}" y="${y + 2 * h + 1}">${now}</text>`;
+    });
+    s += `<line class="axis" x1="${L}" x2="${L}" y1="${T}" y2="${H - B}"/>`;
+    svg.innerHTML = s;
+    document.getElementById('chart-note').textContent = d.note;
+  }
+
+  /* ---------- users: the steps ---------- */
+  const uf = document.getElementById('userflow'), ufo = document.getElementById('userflow-out');
+  PHASES.forEach((ph, i) => {
+    if (i) { const ar = document.createElement('span'); ar.className = 'ar'; ar.textContent = '→'; uf.appendChild(ar); }
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'st'; b.textContent = ph.n;
+    b.addEventListener('click', () => { uf.querySelectorAll('.st').forEach((x) => x.classList.toggle('on', x === b)); ufo.innerHTML = `<b>${ph.n}</b> · ${ph.who} · leaves <code>${ph.out}</code><br>${ph.p}`; showPhase(i); });
+    uf.appendChild(b);
+  });
+  uf.querySelector('.st').click();
+
+  /* ---------- developers: anatomy of a check ---------- */
+  const ANAT = {
+    id: 'C<criterion>.<n>: the check\'s id. Each expectation gets a letter (C3.1.a) and a test names it by that id.',
+    title: 'What is checked, in a line a non-technical reader follows. It becomes the test\'s title and a heading of the catalogue.',
+    type: 'One test type, what a failure would mean: functional, negative, boundary, security, contract, composition, integration, idempotency, concurrency, accessibility.',
+    layer: 'ui or api: whether the test drives the page or calls the API.',
+    given: 'The starting state, in words. The operator makes it with a journey; a failed precondition reads as BLOCKED, never as a defect.',
+    when: 'The action, in words, as a person would do it.',
+    expect: 'What is observed and what it must be. A check has at most four of these per criterion before it must say why it needs more.',
+    comparator: 'equals, contains, matches, one-of, at-least, at-most, status, absent, present, ordered, distinct, same-as. A comparison the test would otherwise work out itself belongs here, where the reviewer sees it.',
+    value: 'The expected value, copied from the cited line. `heldout contract` refuses a value the line does not hold (ungrounded-value).',
+    source: 'The line of the story the value came from. The verdict and the catalogue show it beside the result.',
+    rows: 'Variants of one check as a table (eight refused quantities are one check with eight rows). A row may name a variant value; its test is then tagged for the verdict\'s setups table.',
+    restsOn: 'Oracle gaps the expected value rests on. Assumed or open, they tag the test, and a failure becomes a question for the owner unless it is wrong under any reading.',
+  };
+  const ex = document.getElementById('anat-explain');
+  document.querySelectorAll('#anat-code .key').forEach((k) => {
+    k.tabIndex = 0;
+    const show = () => { document.querySelectorAll('#anat-code .key').forEach((x) => x.classList.toggle('on', x === k)); ex.innerHTML = `<b>${k.dataset.k}</b><br>${ANAT[k.dataset.k]}`; };
+    k.addEventListener('click', show); k.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(); } });
+  });
+
+  /* ---------- developers: integrity simulator ---------- */
+  const SIM = {
+    locator: ['ok', 'Held-out integrity: PRESERVED\n  shop.spec.ts: 15 expectation(s) in the draft → 15 now\n  • how a step is done is the operator\'s to change'],
+    own: ['bad', "Held-out integrity: VIOLATED\n  ✖ no longer asserted: shop.spec.ts: C3.1.a\n  ✖ an expectation written in the test: shop.spec.ts: line 41\n    what is expected lives in the contract's checks; assert with expectCheck"],
+    echo: ['bad', "Held-out integrity: VIOLATED\n  ✖ an actual value not read from the application:\n    shop.spec.ts: C3.2.a: actual = row.values.total\n    a check fed the test's own input passes whatever the application does"],
+    journey: ['bad', "Held-out integrity: VIOLATED\n  ✖ an expectation in a journey file (outside the freeze): cart.ts: line 12\n    journeys are HOW only (a wait for a page to be ready is fine)"],
+    contract: ['bad', "Held-out integrity: VIOLATED\n  ✖ the requirement contract's oracle changed since the freeze\n    only a revision or a corrected check justifies that: re-review, then\n    heldout integrity KEY --snapshot --reason \"…\" (shown in the verdict)"],
+  };
+  const so = document.getElementById('sim-out');
+  document.querySelectorAll('#sim-ctl button').forEach((b) => b.addEventListener('click', () => { const [cls, txt] = SIM[b.dataset.case]; so.className = 'out ' + cls; so.textContent = txt; }));
+
+  /* ---------- developers: the layers ---------- */
+  const LAYERS = [
+    ['core', 'paths, config, history, secrets and redaction, probe logs, roles'],
+    ['fetch', 'Jira Data Center and the file-based mock, Confluence pages, image transcripts'],
+    ['contract', 'the contract model, its checks, the evidence pack, grounding, the review binding'],
+    ['authoring', 'tests generated from the checks, lint, the journeys and their registry'],
+    ['probe', 'inspect, api-probe, mcp-probe, the survey, the knowledge store'],
+    ['hardening', 'the freeze and the integrity check'],
+    ['run', 'running Playwright, the run record, the automatic classification'],
+    ['triage', 'decisions, replay, verification, reproductions'],
+    ['verdict', 'the verdict, the catalogue, publishing, scrubbing'],
+    ['flow', 'advance and drive, brief, status, stats, notes'],
+  ];
+  const ly = document.getElementById('layers'), lo = document.getElementById('layers-out');
+  LAYERS.forEach(([n, what], i) => {
+    if (i) { const ar = document.createElement('span'); ar.className = 'ar'; ar.textContent = '←'; ly.appendChild(ar); }
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'st'; b.textContent = n;
+    b.addEventListener('click', () => { ly.querySelectorAll('.st').forEach((x) => x.classList.toggle('on', x === b)); lo.innerHTML = `<b>${n}/</b> · ${what}. It may import ${i ? LAYERS.slice(0, i).map((x) => x[0]).join(', ') : 'nothing but node builtins'}; never a later phase.`; });
+    ly.appendChild(b);
+  });
+  ly.querySelector('.st').click();
+
+  /* ---------- the journey: who hands what to whom ---------- */
+  const ACTORS = {
+    you: { x: 90, y: 270, kind: 'human', ic: 'Y', name: 'You', k: 'the person who asks', p: 'You ask for an evaluation in the chat, and at the end you get the verdict. Nobody asks you anything in between: what the story leaves unclear is put to the story\'s owner in the verdict.', x2: 'Setup is the only time you are asked anything: the application\'s address, Jira, the test accounts.' },
+    owner: { x: 150, y: 470, kind: 'human', ic: 'O', name: 'Story owner', k: 'the person who decides', p: 'Reads the verdict on the Jira story and decides each finding: confirm it as a defect, reject it, or say the requirement needs clarifying. Answers the open questions for the next evaluation.', x2: 'The evaluator raises no issue and moves no story. A person decides what is a defect.' },
+    coord: { x: 270, y: 270, kind: 'agent', ic: 'C', name: 'Coordinator', k: 'heldout-evaluator · Opus', p: 'In GitHub Copilot, the heldout-evaluator agent you pick; in Claude Code, the main agent with the skill. It runs advance, hands each phase to the subagent advance names, and writes nothing of the evaluation itself.', x2: 'With heldout drive there is no coordinator session at all: the script starts each subagent itself, headlessly.' },
+    advance: { x: 470, y: 290, kind: 'script', ic: '⚙', name: 'heldout advance', k: 'the state machine (scripts)', p: 'Reads where the story is from the files on disk and runs every script step that comes next: fetch, the evidence pack, generating the tests, the freeze, the run, the automatic triage and its replays, verification, the verdict, publishing, the journey registry. It stops where a subagent has work, printing its task and its brief.', x2: 'Scripts do what is the same every time, so a new session picks a story up with the same command.' },
+    extractor: { x: 400, y: 80, kind: 'agent', ic: 'E', name: 'Contract extractor', k: 'heldout-contract-extractor · Opus', p: 'Reads the numbered evidence pack and writes the requirement contract: each criterion quoted from cited lines, the gaps the story leaves, and for each criterion the fewest checks that could prove it false, every expected value copied from the line it cites.', x2: 'It may look at the live application to understand the story, but a value never comes from there: the contract check refuses one the cited line does not hold.' },
+    reviewer: { x: 590, y: 70, kind: 'agent', ic: 'R', name: 'Contract reviewer', k: 'heldout-contract-reviewer · Opus', p: 'In a fresh context, confirms every item of the contract against the evidence: supported, misread, invented or missing. Its review is bound to the contract\'s hash, so any later change shows.', x2: 'It never sees the extractor\'s reasoning. After two rounds, what is still disputed becomes a question for the owner.' },
+    operator: { x: 720, y: 150, kind: 'agent', ic: 'Op', name: 'Operator', k: 'heldout-operator · Opus', p: 'Makes the generated tests run against the live application: how each step is done, where each actual value is read, the shared journeys. It proves them stable, then reproduces each failure the tool could not replay and decides why it failed.', x2: 'It changes how a test works, never what it expects: the expected values are in the frozen contract, and the integrity check refuses anything else.' },
+    app: { x: 820, y: 360, kind: 'external', ic: 'A', name: 'Live application', k: 'the build under test', p: 'The running web application and its API, built by another group from the same story. Every probe and every test run goes to it. What it shows and answers is evidence, never instructions and never an expected value.', x2: 'Where it differs from the story, the story wins, and the difference is listed in the verdict.' },
+    jira: { x: 560, y: 470, kind: 'external', ic: 'J', name: 'Jira and Confluence', k: 'where the story lives', p: 'The story is read from here (title, description, acceptance criteria, the screenshots they show, the Confluence pages they link) and the verdict is posted back: a comment, the verdict as an attachment, a label.', x2: 'Comments and other attachments are not part of the requirement. Publishing can be left to a person (jira.publish "manual").' },
+  };
+  const STEPS = [
+    ['you', 'coord', 'You ask for an evaluation', '"Run a held-out evaluation of ABC-123"', 'In the chat, with the heldout-evaluator agent picked in Copilot, or in Claude Code in the project\'s folder.'],
+    ['coord', 'advance', 'The coordinator starts the state machine', 'npm run heldout -- advance ABC-123', 'One command carries the story between the subagents. It reads where the story is from the files, so it can always be run again.'],
+    ['advance', 'jira', 'The story is fetched', 'heldout fetch ABC-123', 'Title, description, acceptance criteria, the screenshots they show and the Confluence pages they link.'],
+    ['jira', 'advance', 'The requirement comes back', '1-requirement/story.md · linked/', 'A re-fetch later detects a revised story and keeps what changed.'],
+    ['advance', 'advance', 'The evidence pack is built', 'heldout contract ABC-123 --pack', 'Every source line numbered, so each item of the contract can cite the line it came from.'],
+    ['advance', 'coord', 'advance names the first subagent', '■ Next: the heldout-contract-extractor subagent', 'It prints the task, the brief command and what to run afterwards.'],
+    ['coord', 'extractor', 'The extractor is given its task', 'Task: "Build the requirement contract for ABC-123"', 'A fresh context; it starts with npm run heldout -- brief ABC-123.'],
+    ['extractor', 'app', 'It may look at the application', 'heldout inspect --key ABC-123', 'Only to understand what the story talks about. A difference it sees is noted for the verdict (note --discrepancy), never used as a value.'],
+    ['extractor', 'coord', 'The contract and its checks are written', '2-contract/contract.json · contract --allow-unreviewed clean', 'Every criterion quoted, every expected value grounded in its cited line, every source line accounted for.'],
+    ['coord', 'advance', 'Back to the state machine', 'npm run heldout -- advance ABC-123', 'The coordinator never passes one agent\'s reasoning to another: the files on disk are what they share.'],
+    ['advance', 'coord', 'A review is due', '■ Next: the heldout-contract-reviewer subagent', 'In a fresh context, from the evidence only.'],
+    ['coord', 'reviewer', 'The reviewer is given its task', 'Task: "Review the requirement contract of ABC-123"', 'It gets its exact instructions with contract --review-prompt.'],
+    ['reviewer', 'coord', 'The review is bound to the contract', '2-contract/review.json · contract --review-bind', 'Findings go back to the extractor and the contract is reviewed again, at most two rounds.'],
+    ['coord', 'advance', 'Back to the state machine', 'npm run heldout -- advance ABC-123', 'The contract is clean and reviewed.'],
+    ['advance', 'advance', 'The tests are generated and frozen', 'heldout scaffold · lint · integrity --snapshot', 'One test a check, each expectation named by its id (expectCheck). The freeze records the tests\' hashes and the contract\'s oracle.'],
+    ['advance', 'coord', 'The operator is due', '■ Next: the heldout-operator subagent', 'The tests exist; how each step is done is still to be found.'],
+    ['coord', 'operator', 'The operator is given its task', 'Task: "Make the tests of ABC-123 run"', 'It reads its brief: the checks, the mechanics to discover, what is known of the application.'],
+    ['operator', 'app', 'It probes the application and fills in the steps', 'inspect · api-probe · heldout run --label harden --repeat-each 3', 'Each final locator matches one element; each API call answers through a probe; every probe is logged as P1, P2… and cited.'],
+    ['app', 'operator', 'The application answers', 'P7: 1 match ✔ · POST /carts → 201', 'What it learns that the next story would need goes into the application\'s knowledge store, once.'],
+    ['operator', 'advance', 'It goes on by itself', 'npm run heldout -- advance ABC-123', 'Integrity must say PRESERVED: no expectation written in a test, no actual value echoed from the test\'s own input.'],
+    ['advance', 'app', 'Every test runs once, as the evaluation', 'heldout run ABC-123 --label eval', 'After a lint and a health check of the application.'],
+    ['app', 'advance', 'The run comes back', '5-run/05-eval.json · 12 passed, 5 failed', 'Each failure with its evidence: the page at the failure, every API call, the precondition data.'],
+    ['advance', 'app', 'Sure API failures are replayed', 'heldout triage ABC-123 --replay', 'The test\'s calls are sent again outside the test, twice. The same answer both times confirms the defect with no agent.'],
+    ['advance', 'operator', 'The rest goes to the operator', '■ Next: triage run 05-eval', 'In the same context that made the tests run, so nothing is learned twice.'],
+    ['operator', 'app', 'Each failure is reproduced live', 'api-probe --chain … · triage --set SCN-008 --category APPLICATION_DEFECT', 'A script defect is recorded and repaired in a task of its own, then the whole suite runs again, at most three times.'],
+    ['operator', 'advance', 'Triage is done', 'npm run heldout -- advance ABC-123', 'Every failure has a category, a rationale and the probe that shows it.'],
+    ['advance', 'app', 'Each finding is verified once more', 'heldout verify ABC-123', 'Its tests run again on their own. A finding that does not fail the same way again is published as needing investigation, not as a defect.'],
+    ['advance', 'jira', 'The verdict is published', 'heldout verdict · heldout publish', 'A summary comment, verdict.md as an attachment, a label; the catalogue of every check sits beside it.'],
+    ['advance', 'coord', 'The story is complete', '✔ ABC-123 is complete', 'The journeys the passing tests used are recorded for the next story.'],
+    ['coord', 'you', 'You get the summary', 'FAIL · 3 findings · 1 question for the owner', 'The verdict and why, each finding with how to reproduce it, the open questions, where the application and the story differ, what it cost.'],
+    ['jira', 'owner', 'A person decides', '☐ Confirm as defect · ☐ Not a defect · ☐ Needs clarification', 'The verdict is a recommendation. Nothing was raised in Jira by the evaluator.'],
+  ];
+  /*
+   * The journey in three.js: each actor a shape by kind (a person a sphere, an AI agent an icosahedron, a script a
+   * cube, an outside system an octahedron) on its own height, each hand-off an arc that lifts off the floor, a
+   * story's packet travelling it. Labels and the caption are HTML placed over the projected 3D points, so they stay
+   * crisp and clickable. Motion (motion.dev) animates the cards and the caption.
+   */
+  const ids = Object.keys(ACTORS);
+  const LIFT = { human: 0.15, agent: 1.55, script: 0.7, external: 0.25 };
+  const pos3 = (id) => { const A = ACTORS[id]; return new THREE.Vector3((A.x - 455) / 88, LIFT[A.kind], (A.y - 280) / 88); };
+  const MotionLib = window.Motion && window.Motion.animate ? window.Motion : null;
+  const mo = (target, kf, opt) => { if (MotionLib && !reduced) { try { MotionLib.animate(target, kf, opt); } catch (e) { /* motion is a nicety */ } } };
+  const stage = document.getElementById('jstage'), jc = document.getElementById('jcanvas'), labels = document.getElementById('jlabels');
+  const nodeEls = {}, arcs = {}, meshes = {};
+  let J = null;
+  function makeJourney() {
+    if (!window.THREE) return null;
+    let r; try { r = new THREE.WebGLRenderer({ canvas: jc, antialias: true, alpha: true }); } catch (e) { return null; }
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const s = new THREE.Scene(), cam = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+    const root3 = new THREE.Group(); s.add(root3);
+    s.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(4, 8, 6); s.add(sun);
+    // A floor grid, the plane the hand-offs lift off.
+    const grid = new THREE.GridHelper(14, 28, 0x888888, 0x888888); grid.material.transparent = true; grid.material.opacity = 0.12; grid.position.y = -0.35; root3.add(grid);
+    const GEO = { human: new THREE.SphereGeometry(0.32, 32, 20), agent: new THREE.IcosahedronGeometry(0.4, 0), script: new THREE.BoxGeometry(0.56, 0.56, 0.56), external: new THREE.OctahedronGeometry(0.42, 0) };
+    ids.forEach((id) => {
+      const A = ACTORS[id];
+      const m = new THREE.Mesh(GEO[A.kind], new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.15, flatShading: A.kind !== 'human' }));
+      m.position.copy(pos3(id)); m.userData = { id }; root3.add(m); meshes[id] = m;
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, m.position.y + 0.35, 6), new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.35 }));
+      stem.position.set(m.position.x, (m.position.y - 0.35) / 2, m.position.z); root3.add(stem);
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.02, 8, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
+      halo.rotation.x = Math.PI / 2; halo.position.copy(m.position); root3.add(halo); m.userData.halo = halo;
+    });
+    // One arc per directed hand-off; the reply bows the other way so both read.
+    STEPS.forEach(([a, b]) => {
+      const k = `${a}>${b}`; if (arcs[k]) return;
+      const A = pos3(a), B = pos3(b);
+      let curve;
+      if (a === b) curve = new THREE.CubicBezierCurve3(A.clone().add(new THREE.Vector3(-0.3, 0.3, 0)), A.clone().add(new THREE.Vector3(-1.1, 1.9, 0.4)), A.clone().add(new THREE.Vector3(1.1, 1.9, -0.4)), A.clone().add(new THREE.Vector3(0.3, 0.3, 0)));
+      else {
+        const mid = A.clone().add(B).multiplyScalar(0.5), d = B.clone().sub(A), side = new THREE.Vector3(-d.z, 0, d.x).normalize();
+        const sgn = ids.indexOf(a) < ids.indexOf(b) ? 1 : -1;
+        mid.add(side.multiplyScalar(0.45 * sgn)); mid.y += 0.6 + d.length() * 0.12;
+        curve = new THREE.QuadraticBezierCurve3(A, mid, B);
+      }
+      const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.02, 8, false), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22 }));
+      tube.userData = { curve }; root3.add(tube); arcs[k] = tube;
+    });
+    const packet = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    const glow = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 }));
+    root3.add(packet); root3.add(glow);
+    const trailPts = []; for (let i = 0; i < 10; i++) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.05 * (1 - i / 12), 10, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 * (1 - i / 10) })); root3.add(t); trailPts.push(t); }
+
+    let az = -0.35, el = 0.72, dist = 9.6, targetAz = az, dragging = false, lx = 0, ly = 0, moved = false;
+    const look = new THREE.Vector3(0, 0.4, 0), lookTo = look.clone();
+    function size() { const w = stage.clientWidth, h = stage.clientHeight; r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); dist = (w < 640 ? 14 : 11) * Math.max(1, 1.15 / cam.aspect + 0.25); }
+    window.addEventListener('resize', size); size();
+    const ray = new THREE.Raycaster(), mv = new THREE.Vector2();
+    const pickAt = (e) => { const b = jc.getBoundingClientRect(); mv.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(mv, cam); const h = ray.intersectObjects(Object.values(meshes))[0]; return h ? h.object.userData.id : null; };
+    jc.addEventListener('pointerdown', (e) => { dragging = true; moved = false; lx = e.clientX; ly = e.clientY; jc.setPointerCapture(e.pointerId); });
+    jc.addEventListener('pointermove', (e) => {
+      if (dragging) { const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY; if (Math.abs(dx) + Math.abs(dy) > 2) moved = true; targetAz += dx * 0.008; az = targetAz; el = Math.max(0.25, Math.min(1.25, el + dy * 0.005)); }
+      else jc.style.cursor = pickAt(e) ? 'pointer' : 'grab';
+    });
+    jc.addEventListener('pointerup', (e) => { dragging = false; if (!moved) { const id = pickAt(e); if (id) pickActor(id, true); } });
+
+    const v = new THREE.Vector3();
+    const project = (p) => { v.copy(p); root3.localToWorld(v); v.project(cam); return { x: (v.x + 1) / 2 * stage.clientWidth, y: (1 - v.y) / 2 * stage.clientHeight, front: v.z < 1 }; };
+    let frac = 1, active = null, t0 = performance.now(), last = performance.now();
+    function colors() {
+      const pick = (n) => new THREE.Color(css(n));
+      const tone = { human: pick('--amber'), agent: pick('--violet'), script: pick('--blue'), external: pick('--green') };
+      ids.forEach((id) => { meshes[id].material.color.copy(tone[ACTORS[id].kind]); meshes[id].userData.halo.material.color.copy(pick('--acc')); });
+      const acc = pick('--acc'), ink = pick('--faint');
+      Object.values(arcs).forEach((t) => t.material.color.copy(t.userData.on ? acc : t.userData.seen ? acc : ink));
+      packet.material.color.copy(acc); glow.material.color.copy(acc); trailPts.forEach((t) => t.material.color.copy(acc));
+      grid.material.color.copy(ink);
+    }
+    function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (!dragging && !reduced) targetAz += dt * 0.05;
+      az += (targetAz - az) * 0.08; look.lerp(lookTo, 0.06);
+      cam.position.set(look.x + dist * Math.cos(el) * Math.sin(az), look.y + dist * Math.sin(el), look.z + dist * Math.cos(el) * Math.cos(az));
+      cam.lookAt(look);
+      ids.forEach((id, i) => { const m = meshes[id]; if (!reduced) { m.rotation.y += dt * (ACTORS[id].kind === 'agent' ? 0.6 : 0.25); m.position.y = pos3(id).y + Math.sin(now / 900 + i) * 0.05; } const hl = m.userData.halo; hl.position.copy(m.position); hl.material.opacity += ((m.userData.on ? 0.9 : 0) - hl.material.opacity) * 0.15; hl.scale.setScalar(1 + (m.userData.on && !reduced ? Math.sin(now / 300) * 0.06 : 0)); });
+      Object.values(arcs).forEach((t) => { const goal = t.userData.on ? 1 : t.userData.seen ? 0.42 : 0.16; t.material.opacity += (goal - t.material.opacity) * 0.12; });
+      if (active) {
+        const c = arcs[active].userData.curve, f = Math.max(0, Math.min(1, frac));
+        packet.position.copy(c.getPoint(f)); glow.position.copy(packet.position); glow.scale.setScalar(1 + (reduced ? 0 : Math.sin(now / 160) * 0.2));
+        trailPts.forEach((t, i) => t.position.copy(c.getPoint(Math.max(0, f - (i + 1) * 0.018))));
+      }
+      ids.forEach((id) => { const p = project(meshes[id].position.clone().add(new THREE.Vector3(0, -0.72, 0))); const l = nodeEls[id]; l.style.left = `${p.x}px`; l.style.top = `${p.y}px`; l.style.visibility = p.front ? 'visible' : 'hidden'; });
+      if (active) { const p = project(arcs[active].userData.curve.getPoint(0.5)); cap.style.left = `${Math.max(90, Math.min(stage.clientWidth - 90, p.x))}px`; cap.style.top = `${Math.max(40, p.y - 34)}px`; }
+      r.render(s, cam);
+      requestAnimationFrame(frame);
+    }
+    const cap = document.createElement('div'); cap.className = 'jcap'; labels.appendChild(cap);
+    requestAnimationFrame(frame);
+    return {
+      colors,
+      show(a, b, f, h) {
+        const k = `${a}>${b}`;
+        Object.entries(arcs).forEach(([key, t]) => { t.userData.on = key === k; });
+        ids.forEach((id) => { meshes[id].userData.on = id === a || id === b; });
+        active = k; frac = f;
+        const mid = pos3(a).add(pos3(b)).multiplyScalar(0.5); lookTo.set(mid.x * 0.45, 0.4, mid.z * 0.45);
+        if (cap.textContent !== h) { cap.textContent = h; mo(cap, { opacity: [0, 1], transform: ['translate(-50%, -80%) scale(.92)', 'translate(-50%, -100%) scale(1)'] }, { duration: 0.35 }); }
+        colors();
+      },
+      seen(keys) { Object.entries(arcs).forEach(([key, t]) => { t.userData.seen = keys.has(key); }); },
+      at(f) { frac = f; },
+    };
+  }
+  ids.forEach((id) => {
+    const A = ACTORS[id];
+    const b = document.createElement('button'); b.type = 'button'; b.className = `jlabel ${A.kind}`; b.textContent = A.name;
+    b.setAttribute('aria-label', `${A.name}: what it does`);
+    b.addEventListener('click', () => pickActor(id, true));
+    labels.appendChild(b); nodeEls[id] = b;
+  });
+  J = makeJourney();
+  if (!J) { document.getElementById('jfallback').hidden = false; ids.forEach((id, i) => { const l = nodeEls[id]; l.style.left = `${12 + (i % 3) * 38}%`; l.style.top = `${20 + Math.floor(i / 3) * 28}%`; }); }
+
+  const ac = { kind: document.getElementById('ac-kind'), k: document.getElementById('ac-k'), h: document.getElementById('ac-h'), p: document.getElementById('ac-p'), x: document.getElementById('ac-x') };
+  const KIND = { human: 'a person', agent: 'AI agent', script: 'script', external: 'outside system' };
+  let pickedActor = null;
+  function pickActor(id, byHand) {
+    if (id === pickedActor && !byHand) return;
+    pickedActor = id;
+    const A = ACTORS[id];
+    ac.kind.className = `kind ${A.kind}`; ac.kind.textContent = KIND[A.kind];
+    ac.k.textContent = A.k; ac.h.textContent = A.name; ac.p.textContent = A.p; ac.x.textContent = A.x2;
+    mo(document.getElementById('actor-card'), { opacity: [0.35, 1], transform: ['translateY(6px)', 'translateY(0)'] }, { duration: 0.4, easing: [0.2, 0.8, 0.2, 1] });
+    if (byHand) mo(nodeEls[id], { transform: ['translate(-50%, 0) scale(1.18)', 'translate(-50%, 0) scale(1)'] }, { duration: 0.45 });
+  }
+
+  const list = document.getElementById('jsteps');
+  STEPS.forEach((s, i) => {
+    const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = `<b>${String(i + 1).padStart(2, '0')}</b><span>${ACTORS[s[0]].name} → ${ACTORS[s[1]].name}: ${s[2]}</span>`;
+    b.addEventListener('click', () => { stop(); go(i, true); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  const sk = document.getElementById('js-k'), sh = document.getElementById('js-h'), ssay = document.getElementById('js-say'), sp = document.getElementById('js-p'), count = document.getElementById('j-count');
+  let at = 0, playing = false, speed = 1, raf = 0, t0 = 0;
+  const DUR = 1500;
+  function place(i, f) { if (J) J.at(f); }
+  function go(i, settle) {
+    at = Math.max(0, Math.min(STEPS.length - 1, i));
+    const [a, b, h, say, p] = STEPS[at];
+    Object.entries(nodeEls).forEach(([k, g]) => g.classList.toggle('active', k === a || k === b));
+    sk.textContent = `step ${at + 1} of ${STEPS.length} · ${ACTORS[a].name} → ${ACTORS[b].name}`;
+    sh.textContent = h; ssay.textContent = say; sp.textContent = p;
+    count.textContent = `step ${at + 1} of ${STEPS.length}`;
+    if (J) { J.seen(new Set(STEPS.slice(0, at).map(([x, y]) => `${x}>${y}`))); J.show(a, b, settle || reduced ? 1 : 0, h); }
+    mo([sh, ssay, sp], { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0)'] }, { duration: 0.35, delay: MotionLib && MotionLib.stagger ? MotionLib.stagger(0.05) : 0 });
+    list.querySelectorAll('button').forEach((x, j) => x.classList.toggle('on', j === at));
+    const cur = list.querySelectorAll('button')[at]; if (cur) cur.scrollIntoView({ block: 'nearest' });
+    pickActor(b);
+    if (settle || reduced) place(at, 1); else { t0 = performance.now(); }
+  }
+  const playBtn = document.getElementById('j-play');
+  function tick(now) {
+    if (!playing) return;
+    const f = Math.max(0, Math.min(1, (now - t0) / (DUR / speed)));
+    place(at, f);
+    if (f >= 1) {
+      if (at >= STEPS.length - 1) { stop(); return; }
+      t0 = now + 450 / speed; go(at + 1, false); t0 = now + 450 / speed;
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  function play() { if (at >= STEPS.length - 1) go(0, false); playing = true; playBtn.textContent = 'Pause'; t0 = performance.now(); cancelAnimationFrame(raf); if (reduced) { stop(); go(at + 1, true); return; } raf = requestAnimationFrame(tick); }
+  function stop() { playing = false; playBtn.textContent = 'Play'; cancelAnimationFrame(raf); }
+  playBtn.addEventListener('click', () => (playing ? (stop(), place(at, 1)) : play()));
+  document.getElementById('j-next').addEventListener('click', () => { stop(); go(at + 1, true); });
+  document.getElementById('j-prev').addEventListener('click', () => { stop(); go(at - 1, true); });
+  document.getElementById('j-reset').addEventListener('click', () => { stop(); go(0, true); });
+  const speedBtn = document.getElementById('j-speed');
+  speedBtn.addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; speedBtn.textContent = `Speed ${speed}×`; });
+  go(0, true);
+
+  // An entrance for the hero and, as each comes into view, the panels below: from a visible resting state.
+  mo('.hero .copy > *', { opacity: [0.4, 1], transform: ['translateY(14px)', 'translateY(0)'] }, { duration: 0.7, delay: MotionLib && MotionLib.stagger ? MotionLib.stagger(0.08) : 0, easing: [0.2, 0.8, 0.2, 1] });
+  mo('.phasecard', { opacity: [0.4, 1], transform: ['translateY(18px)', 'translateY(0)'] }, { duration: 0.8, delay: 0.25 });
+  if (MotionLib && MotionLib.inView && !reduced) {
+    try { MotionLib.inView('.panel, .jmap, .jcard', (info) => { MotionLib.animate(info.target, { opacity: [0.55, 1], transform: ['translateY(12px)', 'translateY(0)'] }, { duration: 0.55, easing: [0.2, 0.8, 0.2, 1] }); }, { amount: 0.15 }); } catch (e) { /* panels stay as they are */ }
+  }
+  paintTheme();
+  setAudience(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>
