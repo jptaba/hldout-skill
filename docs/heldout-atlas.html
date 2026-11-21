@@ -49,7 +49,7 @@ h3 { font-size: 1.18rem; margin: 0 0 .35rem; }
 p { margin: .5rem 0 .9rem; max-width: 68ch; }
 code { font-family: var(--mono); font-size: .86em; background: var(--surface-2); border: 1px solid var(--line); padding: .06em .36em; border-radius: 6px; overflow-wrap: anywhere; }
 :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 6px; }
-.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1880px; margin: 0 auto; padding-left: max(clamp(16px, 3vw, 48px), env(safe-area-inset-left, 0px)); padding-right: max(clamp(16px, 3vw, 48px), env(safe-area-inset-right, 0px)); }
 
 /* top bar */
 .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
@@ -155,11 +155,11 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 /* the story's journey between people, agents and scripts */
 .journey { padding-block: 40px 10px; }
 .journey .head { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; justify-content: space-between; }
-.jgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 330px); gap: 16px; margin-top: 16px; }
+.jgrid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 24vw, 420px); gap: 24px; margin-top: 16px; }
 @media (max-width: 900px) { .jgrid { grid-template-columns: minmax(0, 1fr); } }
 .jmap { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow-x: auto; min-width: 0; }
 .jscroll { overflow-x: auto; }
-#jsvg { display: block; min-width: 780px; width: 100%; height: auto; }
+#jsvg { display: block; min-width: 900px; width: 100%; height: auto; }
 #jsvg text { font-family: var(--sans); }
 #jsvg .band { fill: var(--surface-2); }
 #jsvg .band.alt { fill: var(--surface); }
@@ -171,9 +171,9 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 #jsvg .card.on .face { stroke: var(--acc); stroke-width: 2.4; }
 #jsvg .card:focus-visible .face { stroke: var(--acc); stroke-width: 2.4; }
 #jsvg .card text.ic { font: 700 13px var(--sans); fill: var(--ink); }
-#jsvg .card text.nm { font: 600 11px var(--sans); fill: var(--ink); }
+#jsvg .card text.nm { font: 600 12.5px var(--sans); fill: var(--ink); }
 #jsvg .card text.kd { font: 600 8.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
-#jsvg .card text.rl { font: 400 9.5px var(--sans); fill: var(--muted); }
+#jsvg .card text.rl { font: 400 10.5px var(--sans); fill: var(--muted); }
 #jsvg .card.human .strip, #jsvg .card.human .badge { fill: var(--amber-soft); } #jsvg .card.human .strip { fill: var(--amber); } #jsvg .card.human text.kd { fill: var(--amber); }
 #jsvg .card.agent .badge { fill: var(--violet-soft); } #jsvg .card.agent .strip { fill: var(--violet); } #jsvg .card.agent text.kd { fill: var(--violet); }
 #jsvg .card.script .badge { fill: var(--blue-soft); } #jsvg .card.script .strip { fill: var(--blue); } #jsvg .card.script text.kd { fill: var(--blue); }
@@ -183,7 +183,7 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 #jsvg .head { fill: var(--line-2); }
 #jsvg .head.on { fill: var(--acc); }
 #jsvg .msg { cursor: pointer; }
-#jsvg .msg text { fill: var(--muted); font-size: 10.5px; }
+#jsvg .msg text { fill: var(--muted); font-size: 12px; }
 #jsvg .msg.seen text { fill: var(--ink); }
 #jsvg .msg.on text { fill: var(--acc-ink); font-weight: 600; }
 #jsvg .msg .hit { fill: transparent; }
@@ -888,7 +888,7 @@ npx tsx dev/bench.ts report</pre>
   const SVGNS = 'http://www.w3.org/2000/svg';
   const jsvg = document.getElementById('jsvg');
   const mk = (tag, attrs, parent) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v)); (parent || jsvg).appendChild(e); return e; };
-  const GUT = 96, COL = 84, CARD_H = 114, TOP = CARD_H + 26, ROW = 40, W = GUT + COL * LANES.length + 8;
+  const GUT = 110, COL = 124, CARD_H = 118, TOP = CARD_H + 26, ROW = 42, W = GUT + COL * LANES.length + 8;
   const H = TOP + ROW * STEPS.length + 24;
   jsvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   const xOf = (id) => GUT + COL * LANES.indexOf(id) + COL / 2;
@@ -897,7 +897,7 @@ npx tsx dev/bench.ts report</pre>
   PHASE_OF.forEach(([name, from, to], i) => {
     mk('rect', { class: `band${i % 2 ? ' alt' : ''}`, x: 0, y: TOP + ROW * from, width: W, height: ROW * (to - from + 1) });
     const t = mk('text', { class: 'phase', x: 10, y: TOP + ROW * from + 17 });
-    name.split(' ').reduce((lines, w) => { const l = lines[lines.length - 1]; if (l && (`${l} ${w}`).length <= 8) lines[lines.length - 1] = `${l} ${w}`; else lines.push(w); return lines; }, [])
+    name.split(' ').reduce((lines, w) => { const l = lines[lines.length - 1]; if (l && (`${l} ${w}`).length <= 10) lines[lines.length - 1] = `${l} ${w}`; else lines.push(w); return lines; }, [])
       .forEach((line, j) => { const s = mk('tspan', { x: 10, dy: j ? 12 : 0 }, t); s.textContent = line; });
   });
   LANES.forEach((id) => mk('line', { class: 'life', x1: xOf(id), x2: xOf(id), y1: CARD_H + 10, y2: H - 10 }));
@@ -913,14 +913,14 @@ npx tsx dev/bench.ts report</pre>
   LANES.forEach((id) => {
     const A = ACTORS[id], x = xOf(id), [name, kind, role] = CARD[id];
     const g = mk('g', { class: `card ${A.kind}`, tabindex: 0, role: 'button', 'aria-label': `${A.name}: what it does` });
-    mk('rect', { class: 'face', x: x - 39, y: 8, width: 78, height: CARD_H - 8, rx: 12 }, g);
-    mk('rect', { class: 'strip', x: x - 39, y: 8, width: 78, height: 6, rx: 3 }, g);
+    mk('rect', { class: 'face', x: x - 54, y: 8, width: 108, height: CARD_H - 8, rx: 12 }, g);
+    mk('rect', { class: 'strip', x: x - 54, y: 8, width: 108, height: 6, rx: 3 }, g);
     mk('circle', { class: 'badge', cx: x, cy: 38, r: 15 }, g);
     const ic = mk('text', { class: 'ic', x, y: 43, 'text-anchor': 'middle' }, g); ic.textContent = A.ic;
     const nm = mk('text', { class: 'nm', x, y: 70, 'text-anchor': 'middle' }, g);
     // A two-word name wraps; one word stays on its line.
     const words = name.split(' ');
-    if (name.length > 11 && words.length > 1) { mk('tspan', { x, dy: -4 }, nm).textContent = words[0]; mk('tspan', { x, dy: 12 }, nm).textContent = words.slice(1).join(' '); } else nm.textContent = name;
+    if (name.length > 16 && words.length > 1) { mk('tspan', { x, dy: -4 }, nm).textContent = words[0]; mk('tspan', { x, dy: 12 }, nm).textContent = words.slice(1).join(' '); } else nm.textContent = name;
     const kd = mk('text', { class: 'kd', x, y: 92, 'text-anchor': 'middle' }, g); kd.textContent = kind;
     const rl = mk('text', { class: 'rl', x, y: 105, 'text-anchor': 'middle' }, g); rl.textContent = role;
     g.addEventListener('click', () => pickActor(id, true));
@@ -957,7 +957,7 @@ npx tsx dev/bench.ts report</pre>
     mk('rect', { class: 'hit', x: GUT, y: y - ROW / 2 - 4, width: W - GUT, height: ROW }, g);
     const t = mk('text', { x: a === b ? xa + 30 : (xa + xb) / 2, y: a === b ? y + 8 : y - 6, 'text-anchor': a === b ? 'start' : 'middle' }, g);
     t.textContent = h;
-    const span = Math.abs(xb - xa) - 10, want = h.length * 5.5;
+    const span = Math.abs(xb - xa) - 10, want = h.length * 6.4;
     if (a !== b && want > span) { const dir = xb > xa ? 1 : -1; t.setAttribute('text-anchor', dir > 0 ? 'start' : 'end'); t.setAttribute('x', xa + dir * 4); if (dir > 0 && xa + want > W - 4) { t.setAttribute('text-anchor', 'end'); t.setAttribute('x', W - 6); } if (dir < 0 && xa - want < GUT) { t.setAttribute('text-anchor', 'start'); t.setAttribute('x', GUT + 4); } }
     g.addEventListener('click', () => { stop(); go(i, true); });
     g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stop(); go(i, true); } });
