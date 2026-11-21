@@ -948,11 +948,20 @@ npx tsx dev/bench.ts report</pre>
   });
   const dot = mk('circle', { class: 'dot', r: 6 });
   const dotRing = mk('circle', { class: 'dot-ring', r: 11 });
-  let shown = arrive[0], tween = null;
+  let shown = arrive[0], tween = null, followOn = false;
   const setProgress = (len) => {
     shown = len; drawn.style.strokeDashoffset = `${TOTAL - len}`;
     const p = route.getPointAtLength(len); dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dotRing.setAttribute('cx', p.x); dotRing.setAttribute('cy', p.y);
+    if (followOn) follow();
   };
+  // While it plays, the page keeps the moving dot in a band in the middle of the screen, nudging a little each frame
+  // so the arrows stay in view as they run; a step chosen by hand leaves the page where it is.
+  function follow() {
+    const r = dot.getBoundingClientRect(), y = (r.top + r.bottom) / 2, vh = window.innerHeight;
+    const lo = vh * 0.3, hi = vh * 0.7;
+    if (y > hi) window.scrollBy(0, Math.min(18, (y - hi) * 0.2 + 1));
+    else if (y < lo && window.scrollY > 0) window.scrollBy(0, -Math.min(18, (lo - y) * 0.2 + 1));
+  }
   setProgress(arrive[0]);
   const J = {
     colors() {},
@@ -967,9 +976,9 @@ npx tsx dev/bench.ts report</pre>
       else if (MotionLib && !reduced && Math.abs(shown - to) > 1) tween = MotionLib.animate(shown, to, { duration: 0.5, ease: [0.45, 0, 0.2, 1], onUpdate: setProgress });
       else setProgress(to);
       mo(dotRing, { r: [6, 14], opacity: [0.9, 0] }, { duration: 0.8, delay: 1.1 / speed });
-      if (playing) { const r = labels[at].getBoundingClientRect(); if (r.top < 90 || r.bottom > window.innerHeight - 40) window.scrollBy({ top: r.top - window.innerHeight / 2, behavior: reduced ? 'auto' : 'smooth' }); }
     },
     at() {},
+    follow(on) { followOn = on; },
   };
 
   const ac = { kind: document.getElementById('ac-kind'), k: document.getElementById('ac-k'), h: document.getElementById('ac-h'), p: document.getElementById('ac-p'), x: document.getElementById('ac-x') };
@@ -1006,7 +1015,9 @@ npx tsx dev/bench.ts report</pre>
     if (J) { J.seen(new Set(STEPS.slice(0, at).map(([x, y]) => `${x}>${y}`))); J.show(a, b, settle || reduced ? 1 : 0, h); }
     mo([sh, ssay, sp], { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0)'] }, { duration: 0.35, delay: MotionLib && MotionLib.stagger ? MotionLib.stagger(0.05) : 0 });
     list.querySelectorAll('button').forEach((x, j) => x.classList.toggle('on', j === at));
-    const cur = list.querySelectorAll('button')[at]; if (cur) cur.scrollIntoView({ block: 'nearest' });
+    // The list scrolls inside itself only: scrollIntoView would move the whole page away from the diagram.
+    const cur = list.querySelectorAll('button')[at];
+    if (cur) { const top = cur.offsetTop, bottom = top + cur.offsetHeight; if (top < list.scrollTop) list.scrollTop = top; else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight; }
     pickActor(b);
     if (settle || reduced) place(at, 1); else { t0 = performance.now(); }
   }
@@ -1021,8 +1032,8 @@ npx tsx dev/bench.ts report</pre>
     }
     raf = requestAnimationFrame(tick);
   }
-  function play() { if (at >= STEPS.length - 1) go(0, false); playing = true; playBtn.textContent = 'Pause'; t0 = performance.now(); cancelAnimationFrame(raf); if (reduced) { stop(); go(at + 1, true); return; } raf = requestAnimationFrame(tick); }
-  function stop() { playing = false; playBtn.textContent = 'Play'; cancelAnimationFrame(raf); }
+  function play() { if (at >= STEPS.length - 1) go(0, false); playing = true; J.follow(true); playBtn.textContent = 'Pause'; t0 = performance.now(); cancelAnimationFrame(raf); if (reduced) { stop(); go(at + 1, true); return; } raf = requestAnimationFrame(tick); }
+  function stop() { playing = false; J.follow(false); playBtn.textContent = 'Play'; cancelAnimationFrame(raf); }
   playBtn.addEventListener('click', () => (playing ? (stop(), place(at, 1)) : play()));
   document.getElementById('j-next').addEventListener('click', () => { stop(); go(at + 1, true); });
   document.getElementById('j-prev').addEventListener('click', () => { stop(); go(at - 1, true); });
