@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Held-out Evaluator Atlas</title>
-<meta name="description" content="The held-out evaluator for leadership, users and developers: the outcome, how to use it, and how it is built, with a 3D map of a story's journey from the request to the verdict in Jira.">
+<meta name="description" content="The held-out evaluator for leadership, users and developers: the outcome, how to use it, and how it is built, with a sequence diagram of every hand-off from the request to the verdict in Jira.">
 <style>body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,24 +155,44 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 /* the story's journey between people, agents and scripts */
 .journey { padding-block: 40px 10px; }
 .journey .head { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; justify-content: space-between; }
-.jgrid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+.jgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 330px); gap: 16px; margin-top: 16px; }
 @media (max-width: 900px) { .jgrid { grid-template-columns: minmax(0, 1fr); } }
 .jmap { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow-x: auto; min-width: 0; }
-.jstage { position: relative; height: clamp(380px, 56vw, 560px); background: radial-gradient(90% 80% at 50% 45%, var(--hero-b), var(--hero-a)); overflow: hidden; touch-action: pan-y; }
-#jcanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
-.jlabels { position: absolute; inset: 0; pointer-events: none; }
-.jlabel { position: absolute; transform: translate(-50%, 0); pointer-events: auto; border: 1px solid var(--line-2); background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--ink); border-radius: 999px; padding: 3px 10px; font: 600 .76rem var(--sans); white-space: nowrap; cursor: pointer; backdrop-filter: blur(4px); }
-.jlabel.human { border-color: var(--amber); } .jlabel.agent { border-color: var(--violet); } .jlabel.script { border-color: var(--blue); } .jlabel.external { border-color: var(--green); }
-.jlabel.active { background: var(--acc); border-color: var(--acc); color: #fff; }
-.jcap { position: absolute; transform: translate(-50%, -100%); pointer-events: none; max-width: 260px; background: var(--surface); border: 1px solid var(--acc); color: var(--ink); border-radius: 10px; padding: 5px 10px; font: 600 .78rem var(--sans); box-shadow: var(--shadow); text-align: center; }
-.jfallback { position: absolute; inset: auto 16px 16px; color: var(--muted); font-size: .9rem; }
+.jscroll { overflow-x: auto; }
+#jsvg { display: block; min-width: 740px; width: 100%; height: auto; }
+#jsvg text { font-family: var(--sans); }
+#jsvg .band { fill: var(--surface-2); }
+#jsvg .band.alt { fill: var(--surface); }
+#jsvg .phase { fill: var(--faint); font: 600 9.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+#jsvg .life { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 5; }
+#jsvg .lane { cursor: pointer; }
+#jsvg .lane rect { stroke-width: 1.5; }
+#jsvg .lane.human rect { fill: var(--amber-soft); stroke: var(--amber); } #jsvg .lane.agent rect { fill: var(--violet-soft); stroke: var(--violet); }
+#jsvg .lane.script rect { fill: var(--blue-soft); stroke: var(--blue); } #jsvg .lane.external rect { fill: var(--green-soft); stroke: var(--green); }
+#jsvg .lane text { fill: var(--ink); font-weight: 600; font-size: 11.5px; }
+#jsvg .lane text.k { fill: var(--muted); font-weight: 500; font-size: 9.5px; }
+#jsvg .lane.on rect { stroke-width: 3; }
+#jsvg .msg { cursor: pointer; opacity: .5; transition: opacity .25s; }
+#jsvg .msg.seen { opacity: .85; }
+#jsvg .msg.on { opacity: 1; }
+#jsvg .msg path, #jsvg .msg line { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+#jsvg .msg .head { fill: var(--muted); stroke: none; }
+#jsvg .msg.on path, #jsvg .msg.on line { stroke: var(--acc); stroke-width: 2.5; }
+#jsvg .msg.on .head { fill: var(--acc); }
+#jsvg .msg text { fill: var(--ink); font-size: 11px; }
+#jsvg .msg .num { fill: var(--faint); font: 500 9.5px var(--mono); }
+#jsvg .msg.on .num { fill: var(--acc-ink); }
+#jsvg .msg .hit { fill: transparent; }
+#jsvg .msg.on .hit { fill: color-mix(in srgb, var(--acc) 9%, transparent); }
+#jsvg .dot { fill: var(--acc); }
 .jctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); }
 .jctl button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 5px 11px; font: 500 .82rem var(--sans); cursor: pointer; }
 .jctl button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .jctl .count { margin-left: auto; font: 500 .78rem var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
 .jlegend { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px 12px 0; font-size: .78rem; color: var(--muted); }
 .jlegend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; border: 2px solid; }
-.jside { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.jside { display: grid; gap: 12px; min-width: 0; align-content: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); align-self: start; }
+@media (max-width: 900px) { .jside { position: static; } }
 .jcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; box-shadow: var(--shadow); min-width: 0; }
 .jcard .k { font: 500 .72rem var(--mono); color: var(--faint); }
 .jcard h3 { margin: .2rem 0 .3rem; }
@@ -181,7 +201,7 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 .jcard .kind { display: inline-block; font: 600 .68rem var(--sans); letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-right: 6px; }
 .kind.human { background: var(--amber-soft); color: var(--amber); } .kind.agent { background: var(--violet-soft); color: var(--violet); }
 .kind.script { background: var(--blue-soft); color: var(--blue); } .kind.external { background: var(--green-soft); color: var(--green); }
-.jsteps { max-height: 300px; overflow-y: auto; padding: 0; margin: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.jsteps { max-height: 260px; overflow-y: auto; padding: 0; margin: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
 .jsteps li button { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); padding: 7px 10px; font: 400 .84rem var(--sans); cursor: pointer; }
 .jsteps li:last-child button { border-bottom: 0; }
 .jsteps li button b { font: 500 .74rem var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
@@ -240,10 +260,8 @@ footer { border-top: 1px solid var(--line); padding-block: 26px 48px; color: var
         <span><i style="background:var(--blue-soft);border-color:var(--blue)"></i>A script (the heldout command)</span>
         <span><i style="background:var(--green-soft);border-color:var(--green)"></i>Outside systems</span>
       </div>
-      <div class="jstage" id="jstage" role="img" aria-label="A 3D map of the people, agents, scripts and systems a story passes between">
-        <canvas id="jcanvas"></canvas>
-        <div class="jlabels" id="jlabels"></div>
-        <p class="jfallback" id="jfallback" hidden>This browser could not start the 3D view. The steps and their explanations are beside it.</p>
+      <div class="jscroll" id="jscroll">
+        <svg id="jsvg" role="img" aria-label="Sequence diagram: who hands what to whom, from your request to the verdict in Jira"></svg>
       </div>
       <div class="jctl">
         <button type="button" id="j-play" class="primary">Play</button>
@@ -831,128 +849,94 @@ npx tsx dev/bench.ts report</pre>
     ['jira', 'owner', 'A person decides', '☐ Confirm as defect · ☐ Not a defect · ☐ Needs clarification', 'The verdict is a recommendation. Nothing was raised in Jira by the evaluator.'],
   ];
   /*
-   * The journey in three.js: each actor a shape by kind (a person a sphere, an AI agent an icosahedron, a script a
-   * cube, an outside system an octahedron) on its own height, each hand-off an arc that lifts off the floor, a
-   * story's packet travelling it. Labels and the caption are HTML placed over the projected 3D points, so they stay
-   * crisp and clickable. Motion (motion.dev) animates the cards and the caption.
+   * The journey as a sequence diagram: one column per actor, time running down, each hand-off an arrow from the one who
+   * hands over to the one who receives, grouped in the phases of the evaluation. Motion draws the current arrow and
+   * moves a dot along it; everything stays readable at rest.
    */
   const ids = Object.keys(ACTORS);
-  const LIFT = { human: 0.15, agent: 1.55, script: 0.7, external: 0.25 };
-  const pos3 = (id) => { const A = ACTORS[id]; return new THREE.Vector3((A.x - 455) / 88, LIFT[A.kind], (A.y - 280) / 88); };
   const MotionLib = window.Motion && window.Motion.animate ? window.Motion : null;
-  const mo = (target, kf, opt) => { if (MotionLib && !reduced) { try { MotionLib.animate(target, kf, opt); } catch (e) { /* motion is a nicety */ } } };
-  const stage = document.getElementById('jstage'), jc = document.getElementById('jcanvas'), labels = document.getElementById('jlabels');
-  const nodeEls = {}, arcs = {}, meshes = {};
-  let J = null;
-  function makeJourney() {
-    if (!window.THREE) return null;
-    let r; try { r = new THREE.WebGLRenderer({ canvas: jc, antialias: true, alpha: true }); } catch (e) { return null; }
-    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    const s = new THREE.Scene(), cam = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-    const root3 = new THREE.Group(); s.add(root3);
-    s.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(4, 8, 6); s.add(sun);
-    // A floor grid, the plane the hand-offs lift off.
-    const grid = new THREE.GridHelper(14, 28, 0x888888, 0x888888); grid.material.transparent = true; grid.material.opacity = 0.12; grid.position.y = -0.35; root3.add(grid);
-    const GEO = { human: new THREE.SphereGeometry(0.32, 32, 20), agent: new THREE.IcosahedronGeometry(0.4, 0), script: new THREE.BoxGeometry(0.56, 0.56, 0.56), external: new THREE.OctahedronGeometry(0.42, 0) };
-    ids.forEach((id) => {
-      const A = ACTORS[id];
-      const m = new THREE.Mesh(GEO[A.kind], new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.15, flatShading: A.kind !== 'human' }));
-      m.position.copy(pos3(id)); m.userData = { id }; root3.add(m); meshes[id] = m;
-      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, m.position.y + 0.35, 6), new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.35 }));
-      stem.position.set(m.position.x, (m.position.y - 0.35) / 2, m.position.z); root3.add(stem);
-      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.02, 8, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
-      halo.rotation.x = Math.PI / 2; halo.position.copy(m.position); root3.add(halo); m.userData.halo = halo;
-    });
-    // One arc per directed hand-off; the reply bows the other way so both read.
-    STEPS.forEach(([a, b]) => {
-      const k = `${a}>${b}`; if (arcs[k]) return;
-      const A = pos3(a), B = pos3(b);
-      let curve;
-      if (a === b) curve = new THREE.CubicBezierCurve3(A.clone().add(new THREE.Vector3(-0.3, 0.3, 0)), A.clone().add(new THREE.Vector3(-1.1, 1.9, 0.4)), A.clone().add(new THREE.Vector3(1.1, 1.9, -0.4)), A.clone().add(new THREE.Vector3(0.3, 0.3, 0)));
-      else {
-        const mid = A.clone().add(B).multiplyScalar(0.5), d = B.clone().sub(A), side = new THREE.Vector3(-d.z, 0, d.x).normalize();
-        const sgn = ids.indexOf(a) < ids.indexOf(b) ? 1 : -1;
-        mid.add(side.multiplyScalar(0.45 * sgn)); mid.y += 0.6 + d.length() * 0.12;
-        curve = new THREE.QuadraticBezierCurve3(A, mid, B);
-      }
-      const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.02, 8, false), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22 }));
-      tube.userData = { curve }; root3.add(tube); arcs[k] = tube;
-    });
-    const packet = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    const glow = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 }));
-    root3.add(packet); root3.add(glow);
-    const trailPts = []; for (let i = 0; i < 10; i++) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.05 * (1 - i / 12), 10, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 * (1 - i / 10) })); root3.add(t); trailPts.push(t); }
-
-    let az = -0.35, el = 0.72, dist = 9.6, targetAz = az, dragging = false, lx = 0, ly = 0, moved = false;
-    const look = new THREE.Vector3(0, 0.4, 0), lookTo = look.clone();
-    function size() { const w = stage.clientWidth, h = stage.clientHeight; r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); dist = (w < 640 ? 14 : 11) * Math.max(1, 1.15 / cam.aspect + 0.25); }
-    window.addEventListener('resize', size); size();
-    const ray = new THREE.Raycaster(), mv = new THREE.Vector2();
-    const pickAt = (e) => { const b = jc.getBoundingClientRect(); mv.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(mv, cam); const h = ray.intersectObjects(Object.values(meshes))[0]; return h ? h.object.userData.id : null; };
-    jc.addEventListener('pointerdown', (e) => { dragging = true; moved = false; lx = e.clientX; ly = e.clientY; jc.setPointerCapture(e.pointerId); });
-    jc.addEventListener('pointermove', (e) => {
-      if (dragging) { const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY; if (Math.abs(dx) + Math.abs(dy) > 2) moved = true; targetAz += dx * 0.008; az = targetAz; el = Math.max(0.25, Math.min(1.25, el + dy * 0.005)); }
-      else jc.style.cursor = pickAt(e) ? 'pointer' : 'grab';
-    });
-    jc.addEventListener('pointerup', (e) => { dragging = false; if (!moved) { const id = pickAt(e); if (id) pickActor(id, true); } });
-
-    const v = new THREE.Vector3();
-    const project = (p) => { v.copy(p); root3.localToWorld(v); v.project(cam); return { x: (v.x + 1) / 2 * stage.clientWidth, y: (1 - v.y) / 2 * stage.clientHeight, front: v.z < 1 }; };
-    let frac = 1, active = null, t0 = performance.now(), last = performance.now();
-    function colors() {
-      const pick = (n) => new THREE.Color(css(n));
-      const tone = { human: pick('--amber'), agent: pick('--violet'), script: pick('--blue'), external: pick('--green') };
-      ids.forEach((id) => { meshes[id].material.color.copy(tone[ACTORS[id].kind]); meshes[id].userData.halo.material.color.copy(pick('--acc')); });
-      const acc = pick('--acc'), ink = pick('--faint');
-      Object.values(arcs).forEach((t) => t.material.color.copy(t.userData.on ? acc : t.userData.seen ? acc : ink));
-      packet.material.color.copy(acc); glow.material.color.copy(acc); trailPts.forEach((t) => t.material.color.copy(acc));
-      grid.material.color.copy(ink);
-    }
-    function frame(now) {
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if (!dragging && !reduced) targetAz += dt * 0.05;
-      az += (targetAz - az) * 0.08; look.lerp(lookTo, 0.06);
-      cam.position.set(look.x + dist * Math.cos(el) * Math.sin(az), look.y + dist * Math.sin(el), look.z + dist * Math.cos(el) * Math.cos(az));
-      cam.lookAt(look);
-      ids.forEach((id, i) => { const m = meshes[id]; if (!reduced) { m.rotation.y += dt * (ACTORS[id].kind === 'agent' ? 0.6 : 0.25); m.position.y = pos3(id).y + Math.sin(now / 900 + i) * 0.05; } const hl = m.userData.halo; hl.position.copy(m.position); hl.material.opacity += ((m.userData.on ? 0.9 : 0) - hl.material.opacity) * 0.15; hl.scale.setScalar(1 + (m.userData.on && !reduced ? Math.sin(now / 300) * 0.06 : 0)); });
-      Object.values(arcs).forEach((t) => { const goal = t.userData.on ? 1 : t.userData.seen ? 0.42 : 0.16; t.material.opacity += (goal - t.material.opacity) * 0.12; });
-      if (active) {
-        const c = arcs[active].userData.curve, f = Math.max(0, Math.min(1, frac));
-        packet.position.copy(c.getPoint(f)); glow.position.copy(packet.position); glow.scale.setScalar(1 + (reduced ? 0 : Math.sin(now / 160) * 0.2));
-        trailPts.forEach((t, i) => t.position.copy(c.getPoint(Math.max(0, f - (i + 1) * 0.018))));
-      }
-      ids.forEach((id) => { const p = project(meshes[id].position.clone().add(new THREE.Vector3(0, -0.72, 0))); const l = nodeEls[id]; l.style.left = `${p.x}px`; l.style.top = `${p.y}px`; l.style.visibility = p.front ? 'visible' : 'hidden'; });
-      if (active) { const p = project(arcs[active].userData.curve.getPoint(0.5)); cap.style.left = `${Math.max(90, Math.min(stage.clientWidth - 90, p.x))}px`; cap.style.top = `${Math.max(40, p.y - 34)}px`; }
-      r.render(s, cam);
-      requestAnimationFrame(frame);
-    }
-    const cap = document.createElement('div'); cap.className = 'jcap'; labels.appendChild(cap);
-    requestAnimationFrame(frame);
-    return {
-      colors,
-      show(a, b, f, h) {
-        const k = `${a}>${b}`;
-        Object.entries(arcs).forEach(([key, t]) => { t.userData.on = key === k; });
-        ids.forEach((id) => { meshes[id].userData.on = id === a || id === b; });
-        active = k; frac = f;
-        const mid = pos3(a).add(pos3(b)).multiplyScalar(0.5); lookTo.set(mid.x * 0.45, 0.4, mid.z * 0.45);
-        if (cap.textContent !== h) { cap.textContent = h; mo(cap, { opacity: [0, 1], transform: ['translate(-50%, -80%) scale(.92)', 'translate(-50%, -100%) scale(1)'] }, { duration: 0.35 }); }
-        colors();
-      },
-      seen(keys) { Object.entries(arcs).forEach(([key, t]) => { t.userData.seen = keys.has(key); }); },
-      at(f) { frac = f; },
-    };
-  }
-  ids.forEach((id) => {
-    const A = ACTORS[id];
-    const b = document.createElement('button'); b.type = 'button'; b.className = `jlabel ${A.kind}`; b.textContent = A.name;
-    b.setAttribute('aria-label', `${A.name}: what it does`);
-    b.addEventListener('click', () => pickActor(id, true));
-    labels.appendChild(b); nodeEls[id] = b;
+  const mo = (target, kf, opt) => { if (MotionLib && !reduced) { try { return MotionLib.animate(target, kf, opt); } catch (e) { /* motion is a nicety */ } } return null; };
+  const LANES = ['you', 'coord', 'advance', 'extractor', 'reviewer', 'operator', 'app', 'jira', 'owner'];
+  const PHASE_OF = [
+    ['Ask', 0, 1], ['Fetch', 2, 4], ['Contract and review', 5, 13], ['Tests', 14, 14], ['Make them run', 15, 19],
+    ['Run and triage', 20, 25], ['Verify and publish', 26, 29], ['Decide', 30, 30],
+  ];
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const jsvg = document.getElementById('jsvg'), jscroll = document.getElementById('jscroll');
+  const mk = (tag, attrs, parent) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v)); (parent || jsvg).appendChild(e); return e; };
+  const GUT = 96, COL = 78, TOP = 74, ROW = 38, W = GUT + COL * LANES.length + 10;
+  const H = TOP + ROW * STEPS.length + 20;
+  jsvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const xOf = (id) => GUT + COL * LANES.indexOf(id) + COL / 2;
+  const yOf = (i) => TOP + ROW * i + ROW / 2;
+  // Phase bands, then the lifelines, then the lanes' heads, then the messages on top.
+  PHASE_OF.forEach(([name, from, to], i) => {
+    mk('rect', { class: `band${i % 2 ? ' alt' : ''}`, x: 0, y: TOP + ROW * from, width: W, height: ROW * (to - from + 1) });
+    const words = name.split(' '); const t = mk('text', { class: 'phase', x: 10, y: TOP + ROW * from + 16 });
+    words.reduce((lines, w) => { const l = lines[lines.length - 1]; if (l && (l + ' ' + w).length <= 10) lines[lines.length - 1] = l + ' ' + w; else lines.push(w); return lines; }, [])
+      .forEach((line, j) => { const s = mk('tspan', { x: 10, dy: j ? 13 : 0 }, t); s.textContent = line; });
   });
-  J = makeJourney();
-  if (!J) { document.getElementById('jfallback').hidden = false; ids.forEach((id, i) => { const l = nodeEls[id]; l.style.left = `${12 + (i % 3) * 38}%`; l.style.top = `${20 + Math.floor(i / 3) * 28}%`; }); }
+  LANES.forEach((id) => mk('line', { class: 'life', x1: xOf(id), x2: xOf(id), y1: TOP - 6, y2: H - 8 }));
+  const nodeEls = {};
+  const SHORT = { you: 'You', coord: 'Coordinator', advance: 'advance', extractor: 'Extractor', reviewer: 'Reviewer', operator: 'Operator', app: 'Live app', jira: 'Jira', owner: 'Story owner' };
+  const KINDWORD = { human: 'person', agent: 'AI agent', script: 'script', external: 'system' };
+  LANES.forEach((id) => {
+    const A = ACTORS[id], x = xOf(id);
+    const g = mk('g', { class: `lane ${A.kind}`, tabindex: 0, role: 'button', 'aria-label': `${A.name}: what it does` });
+    mk('rect', { x: x - 37, y: 10, width: 74, height: 46, rx: 10 }, g);
+    const t = mk('text', { x, y: 30, 'text-anchor': 'middle' }, g); t.textContent = SHORT[id];
+    const k = mk('text', { class: 'k', x, y: 45, 'text-anchor': 'middle' }, g); k.textContent = KINDWORD[A.kind];
+    g.addEventListener('click', () => pickActor(id, true));
+    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickActor(id, true); } });
+    nodeEls[id] = g;
+  });
+  const msgs = STEPS.map(([a, b, h], i) => {
+    const g = mk('g', { class: 'msg', tabindex: 0, role: 'button', 'aria-label': `Step ${i + 1}: ${h}` });
+    const y = yOf(i), xa = xOf(a), xb = xOf(b);
+    mk('rect', { class: 'hit', x: GUT, y: y - ROW / 2, width: W - GUT, height: ROW }, g);
+    const n = mk('text', { class: 'num', x: GUT - 4, y: y + 4, 'text-anchor': 'end' }, g); n.textContent = String(i + 1).padStart(2, '0');
+    let path;
+    if (a === b) {
+      path = mk('path', { d: `M ${xa} ${y - 8} h 26 v 16 h -20` }, g);
+      mk('path', { class: 'head', d: `M ${xa + 2} ${y + 8} l 8 -5 v 10 z` }, g);
+      const t = mk('text', { x: xa + 34, y: y + 4 }, g); t.textContent = h;
+    } else {
+      const dir = xb > xa ? 1 : -1;
+      path = mk('path', { d: `M ${xa} ${y + 6} H ${xb - dir * 6}` }, g);
+      mk('path', { class: 'head', d: `M ${xb} ${y + 6} l ${-dir * 9} -5 v 10 z` }, g);
+      // The label sits over the arrow, inside the span it covers when it fits, else beside its start.
+      const t = mk('text', { x: (xa + xb) / 2, y: y - 2, 'text-anchor': 'middle' }, g); t.textContent = h;
+      const span = Math.abs(xb - xa) - 12, want = h.length * 5.6;
+      if (want > span) { t.setAttribute('text-anchor', dir > 0 ? 'start' : 'end'); t.setAttribute('x', xa + dir * 6); }
+      if (want > span && (dir > 0 ? xa + want : xa - want) > W - 4) { t.setAttribute('text-anchor', 'end'); t.setAttribute('x', W - 6); }
+      if (want > span && dir < 0 && xa - want < GUT) { t.setAttribute('text-anchor', 'start'); t.setAttribute('x', GUT + 4); }
+    }
+    g.addEventListener('click', () => { stop(); go(i, true); });
+    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stop(); go(i, true); } });
+    return { g, path };
+  });
+  const dot = mk('circle', { class: 'dot', r: 5.5, cx: -20, cy: -20 });
+  let dotAnim = null;
+  const J = {
+    colors() {},
+    seen(keys) { msgs.forEach((m, i) => m.g.classList.toggle('seen', i < at)); },
+    show(a, b, f) {
+      msgs.forEach((m, i) => m.g.classList.toggle('on', i === at));
+      LANES.forEach((id) => nodeEls[id].classList.toggle('on', id === a || id === b));
+      const { path } = msgs[at], L = path.getTotalLength();
+      if (dotAnim && dotAnim.stop) dotAnim.stop();
+      const put = (p) => { const pt = path.getPointAtLength(L * p); dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y); };
+      // Motion draws the arrow and carries the dot along it; at rest (or with reduced motion) both are simply there.
+      if (MotionLib && !reduced && f < 1) {
+        path.style.strokeDasharray = `${L}`; path.style.strokeDashoffset = `${L}`;
+        mo(path, { strokeDashoffset: [L, 0] }, { duration: 0.9 / speed, easing: [0.4, 0, 0.2, 1] });
+        dotAnim = MotionLib.animate(0, 1, { duration: 0.9 / speed, ease: [0.4, 0, 0.2, 1], onUpdate: put });
+      } else { path.style.strokeDasharray = ''; path.style.strokeDashoffset = ''; put(1); }
+      // While it plays, the page follows the current arrow; a step chosen by hand leaves the page where it is.
+      if (playing) { const r = msgs[at].g.getBoundingClientRect(); if (r.top < 90 || r.bottom > window.innerHeight - 40) window.scrollBy({ top: r.top - window.innerHeight / 2, behavior: reduced ? 'auto' : 'smooth' }); }
+    },
+    at() {},
+  };
 
   const ac = { kind: document.getElementById('ac-kind'), k: document.getElementById('ac-k'), h: document.getElementById('ac-h'), p: document.getElementById('ac-p'), x: document.getElementById('ac-x') };
   const KIND = { human: 'a person', agent: 'AI agent', script: 'script', external: 'outside system' };
