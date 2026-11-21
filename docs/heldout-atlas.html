@@ -191,14 +191,21 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 #jsvg .msg:focus-visible .hit { stroke: var(--acc); }
 #jsvg .dot-ring { fill: none; stroke: var(--acc); stroke-width: 2; opacity: 0; }
 #jsvg .dot { fill: var(--acc); }
-.jctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); }
+.jctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
 .jctl button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 5px 11px; font: 500 .82rem var(--sans); cursor: pointer; }
 .jctl button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .jctl .count { margin-left: auto; font: 500 .78rem var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
 .jlegend { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px 12px 0; font-size: .78rem; color: var(--muted); }
 .jlegend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; border: 2px solid; }
 .jside { display: grid; gap: 12px; min-width: 0; align-content: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); align-self: start; }
-@media (max-width: 900px) { .jside { position: static; } }
+/* On a narrow screen the panel rides along the bottom of the screen, under the diagram, so Pause and the current
+   step stay in reach while the route runs. */
+@media (max-width: 900px) {
+  .jside { position: sticky; top: auto; bottom: env(safe-area-inset-bottom, 0px); z-index: 5; }
+  .jside .jcard { max-height: 44vh; box-shadow: 0 -6px 24px rgba(23, 22, 26, .16); }
+  .jside .jactor, .jside #js-p { display: none; }
+}
+.jctl button { padding: 4px 9px; font-size: .78rem; }
 .jcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; box-shadow: var(--shadow); min-width: 0; }
 .jcard .k { font: 500 .72rem var(--mono); color: var(--faint); }
 .jcard h3 { margin: .2rem 0 .3rem; }
@@ -207,12 +214,21 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 .jcard .kind { display: inline-block; font: 600 .68rem var(--sans); letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-right: 6px; }
 .kind.human { background: var(--amber-soft); color: var(--amber); } .kind.agent { background: var(--violet-soft); color: var(--violet); }
 .kind.script { background: var(--blue-soft); color: var(--blue); } .kind.external { background: var(--green-soft); color: var(--green); }
-.jsteps { max-height: 260px; overflow-y: auto; padding: 0; margin: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
-.jsteps li button { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); padding: 7px 10px; font: 400 .84rem var(--sans); cursor: pointer; }
-.jsteps li:last-child button { border-bottom: 0; }
-.jsteps li button b { font: 500 .74rem var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
-.jsteps li button.on { background: var(--acc-soft); color: var(--ink); }
-.jsteps li button.on b { color: var(--acc-ink); }
+.jside .jcard { max-height: calc(100vh - 96px); overflow-y: auto; display: grid; gap: 6px; }
+.jhead { display: flex; align-items: baseline; gap: 8px; }
+.jno { font: 700 1.5rem var(--serif); color: var(--acc); font-variant-numeric: tabular-nums; line-height: 1; }
+.jpair { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.jpair .arr { color: var(--acc); font-weight: 700; }
+.chip { border: 1px solid var(--line-2); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 2px 10px; font: 600 .78rem var(--sans); cursor: pointer; }
+.chip.human { border-color: var(--amber); } .chip.agent { border-color: var(--violet); } .chip.script { border-color: var(--blue); } .chip.external { border-color: var(--green); }
+.jcard h3 { margin: 2px 0 0; font-size: 1.08rem; }
+.jcard p { margin: 0; font-size: .88rem; }
+.jactor { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 2px; display: grid; gap: 3px; }
+.jactor-top { display: flex; align-items: center; gap: 6px; }
+.jactor-top b { font: 600 .95rem var(--sans); }
+.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.jactor.open .clamp { -webkit-line-clamp: unset; display: block; }
+.more { justify-self: start; border: 0; background: none; color: var(--acc-ink); font: 500 .8rem var(--sans); padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 footer { border-top: 1px solid var(--line); padding-block: 26px 48px; color: var(--faint); font-size: .84rem; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
@@ -256,7 +272,7 @@ footer { border-top: 1px solid var(--line); padding-block: 26px 48px; color: var
 <section class="journey wrap" id="journey" aria-labelledby="journey-title">
   <div class="head">
     <div><div class="eyebrow">Follow one story</div><h2 id="journey-title">From your request to the verdict on the Jira story</h2>
-      <p>Every hand-off between you, the AI agents, the scripts, the live application and Jira, in the order it happens. Play it, step through it, or select anyone on the map to read what they do.</p></div>
+      <p>Every hand-off between you, the AI agents, the scripts, the live application and Jira, in the order it happens. Play it, step through it, or select a step or a card to read about it. The panel beside the table stays with you as it plays.</p></div>
   </div>
   <div class="jgrid">
     <div class="jmap">
@@ -269,29 +285,30 @@ footer { border-top: 1px solid var(--line); padding-block: 26px 48px; color: var
       <div class="jscroll" id="jscroll">
         <svg id="jsvg" role="img" aria-label="Sequence diagram: who hands what to whom, from your request to the verdict in Jira"></svg>
       </div>
-      <div class="jctl">
-        <button type="button" id="j-play" class="primary">Play</button>
-        <button type="button" id="j-prev">Back</button>
-        <button type="button" id="j-next">Step</button>
-        <button type="button" id="j-reset">Restart</button>
-        <button type="button" id="j-speed">Speed 1×</button>
-        <span class="count" id="j-count">step 1 of 30</span>
-      </div>
     </div>
     <div class="jside">
       <div class="jcard" aria-live="polite">
-        <div class="k" id="js-k">step 1</div>
+        <div class="jctl">
+          <button type="button" id="j-play" class="primary">Play</button>
+          <button type="button" id="j-prev" aria-label="Previous step">Back</button>
+          <button type="button" id="j-next" aria-label="Next step">Step</button>
+          <button type="button" id="j-reset">Restart</button>
+          <button type="button" id="j-speed">1×</button>
+          <span class="count" id="j-count" hidden>step 1 of 31</span>
+        </div>
+        <div class="jhead"><span class="jno" id="js-no">01</span><span class="k" id="js-k">of 31 · Ask</span></div>
+        <div class="jpair"><button type="button" class="chip" id="js-from">You</button><span class="arr">→</span><button type="button" class="chip" id="js-to">Coordinator</button></div>
         <h3 id="js-h">You ask for an evaluation</h3>
         <div class="say" id="js-say"></div>
         <p id="js-p"></p>
+        <div class="jactor" id="actor-card">
+          <div class="jactor-top"><span class="kind" id="ac-kind">person</span><b id="ac-h">You</b></div>
+          <div class="k" id="ac-k"></div>
+          <p id="ac-p" class="clamp"></p>
+          <p id="ac-x" class="hint clamp"></p>
+          <button type="button" class="more" id="ac-more" aria-expanded="false">More about them</button>
+        </div>
       </div>
-      <div class="jcard" id="actor-card">
-        <div><span class="kind" id="ac-kind">person</span><span class="k" id="ac-k"></span></div>
-        <h3 id="ac-h">You</h3>
-        <p id="ac-p"></p>
-        <p id="ac-x" class="hint"></p>
-      </div>
-      <ol class="jsteps" id="jsteps" aria-label="Every step"></ol>
     </div>
   </div>
 </section>
@@ -958,7 +975,12 @@ npx tsx dev/bench.ts report</pre>
   // so the arrows stay in view as they run; a step chosen by hand leaves the page where it is.
   function follow() {
     const r = dot.getBoundingClientRect(), y = (r.top + r.bottom) / 2, vh = window.innerHeight;
-    const lo = vh * 0.3, hi = vh * 0.7;
+    // Sideways too, where the diagram scrolls inside its own box on a narrow screen.
+    const box = document.getElementById('jscroll'), br = box.getBoundingClientRect(), x = (r.left + r.right) / 2;
+    if (box.scrollWidth > box.clientWidth) { if (x > br.right - 40) box.scrollLeft += Math.min(18, (x - br.right + 40) * 0.25 + 1); else if (x < br.left + 40) box.scrollLeft -= Math.min(18, (br.left + 40 - x) * 0.25 + 1); }
+    // On a narrow screen the panel covers the bottom of the screen: the dot keeps above it.
+    const panel = window.innerWidth <= 900 ? document.querySelector('.jside .jcard').getBoundingClientRect().height : 0;
+    const lo = vh * 0.25, hi = Math.min(vh * 0.7, vh - panel - 40);
     if (y > hi) window.scrollBy(0, Math.min(18, (y - hi) * 0.2 + 1));
     else if (y < lo && window.scrollY > 0) window.scrollBy(0, -Math.min(18, (lo - y) * 0.2 + 1));
   }
@@ -990,17 +1012,15 @@ npx tsx dev/bench.ts report</pre>
     const A = ACTORS[id];
     ac.kind.className = `kind ${A.kind}`; ac.kind.textContent = KIND[A.kind];
     ac.k.textContent = A.k; ac.h.textContent = A.name; ac.p.textContent = A.p; ac.x.textContent = A.x2;
-    mo(document.getElementById('actor-card'), { opacity: [0.35, 1], transform: ['translateY(6px)', 'translateY(0)'] }, { duration: 0.4, easing: [0.2, 0.8, 0.2, 1] });
-    if (byHand) mo(nodeEls[id], { transform: ['translate(-50%, 0) scale(1.18)', 'translate(-50%, 0) scale(1)'] }, { duration: 0.45 });
+    mo(actorBox, { opacity: [0.35, 1], transform: ['translateY(6px)', 'translateY(0)'] }, { duration: 0.4, easing: [0.2, 0.8, 0.2, 1] });
   }
-
-  const list = document.getElementById('jsteps');
-  STEPS.forEach((s, i) => {
-    const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
-    b.innerHTML = `<b>${String(i + 1).padStart(2, '0')}</b><span>${ACTORS[s[0]].name} → ${ACTORS[s[1]].name}: ${s[2]}</span>`;
-    b.addEventListener('click', () => { stop(); go(i, true); });
-    li.appendChild(b); list.appendChild(li);
-  });
+  // The actor's description is three lines until asked for: the card stays short enough to sit beside the diagram.
+  const actorBox = document.getElementById('actor-card'), moreBtn = document.getElementById('ac-more');
+  moreBtn.addEventListener('click', () => { const open = actorBox.classList.toggle('open'); moreBtn.setAttribute('aria-expanded', String(open)); moreBtn.textContent = open ? 'Less' : 'More about them'; });
+  const fromChip = document.getElementById('js-from'), toChip = document.getElementById('js-to'), sno = document.getElementById('js-no');
+  fromChip.addEventListener('click', () => pickActor(STEPS[at][0], true));
+  toChip.addEventListener('click', () => pickActor(STEPS[at][1], true));
+  const phaseOf = (i) => (PHASE_OF.find(([, f, t]) => i >= f && i <= t) || ['', 0, 0])[0];
   const sk = document.getElementById('js-k'), sh = document.getElementById('js-h'), ssay = document.getElementById('js-say'), sp = document.getElementById('js-p'), count = document.getElementById('j-count');
   let at = 0, playing = false, speed = 1, raf = 0, t0 = 0;
   const DUR = 1500;
@@ -1009,15 +1029,15 @@ npx tsx dev/bench.ts report</pre>
     at = Math.max(0, Math.min(STEPS.length - 1, i));
     const [a, b, h, say, p] = STEPS[at];
     Object.entries(nodeEls).forEach(([k, g]) => g.classList.toggle('active', k === a || k === b));
-    sk.textContent = `step ${at + 1} of ${STEPS.length} · ${ACTORS[a].name} → ${ACTORS[b].name}`;
+    sno.textContent = String(at + 1).padStart(2, '0');
+    sk.textContent = `of ${STEPS.length} · ${phaseOf(at)}`;
+    fromChip.textContent = ACTORS[a].name; fromChip.className = `chip ${ACTORS[a].kind}`;
+    toChip.textContent = ACTORS[b].name; toChip.className = `chip ${ACTORS[b].kind}`;
     sh.textContent = h; ssay.textContent = say; sp.textContent = p;
     count.textContent = `step ${at + 1} of ${STEPS.length}`;
     if (J) { J.seen(new Set(STEPS.slice(0, at).map(([x, y]) => `${x}>${y}`))); J.show(a, b, settle || reduced ? 1 : 0, h); }
-    mo([sh, ssay, sp], { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0)'] }, { duration: 0.35, delay: MotionLib && MotionLib.stagger ? MotionLib.stagger(0.05) : 0 });
-    list.querySelectorAll('button').forEach((x, j) => x.classList.toggle('on', j === at));
-    // The list scrolls inside itself only: scrollIntoView would move the whole page away from the diagram.
-    const cur = list.querySelectorAll('button')[at];
-    if (cur) { const top = cur.offsetTop, bottom = top + cur.offsetHeight; if (top < list.scrollTop) list.scrollTop = top; else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight; }
+    mo([sh, ssay, sp], { opacity: [0.5, 1], transform: ['translateY(6px)', 'translateY(0)'] }, { duration: 0.25, delay: MotionLib && MotionLib.stagger ? MotionLib.stagger(0.05) : 0 });
+    mo(sno, { opacity: [0, 1], transform: ['scale(.7)', 'scale(1)'] }, { duration: 0.3 });
     pickActor(b);
     if (settle || reduced) place(at, 1); else { t0 = performance.now(); }
   }
@@ -1039,7 +1059,7 @@ npx tsx dev/bench.ts report</pre>
   document.getElementById('j-prev').addEventListener('click', () => { stop(); go(at - 1, true); });
   document.getElementById('j-reset').addEventListener('click', () => { stop(); go(0, true); });
   const speedBtn = document.getElementById('j-speed');
-  speedBtn.addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; speedBtn.textContent = `Speed ${speed}×`; });
+  speedBtn.addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; speedBtn.textContent = `${speed}×`; });
   go(0, true);
 
   // An entrance for the hero and, as each comes into view, the panels below: from a visible resting state.
