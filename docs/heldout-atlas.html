@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Held-out Evaluator Atlas</title>
-<meta name="description" content="The held-out evaluator for leadership, users and developers: the outcome, how to use it, and how it is built, with a sequence diagram of every hand-off from the request to the verdict in Jira.">
+<meta name="description" content="The held-out evaluator for leadership, users and developers: the outcome, how to use it, and how it is built, with an animated route through every hand-off from the request to the verdict in Jira.">
 <style>body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,31 +159,37 @@ pre.code { margin: 0; overflow-x: auto; background: var(--surface-2); border: 1p
 @media (max-width: 900px) { .jgrid { grid-template-columns: minmax(0, 1fr); } }
 .jmap { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow-x: auto; min-width: 0; }
 .jscroll { overflow-x: auto; }
-#jsvg { display: block; min-width: 740px; width: 100%; height: auto; }
+#jsvg { display: block; min-width: 780px; width: 100%; height: auto; }
 #jsvg text { font-family: var(--sans); }
 #jsvg .band { fill: var(--surface-2); }
 #jsvg .band.alt { fill: var(--surface); }
 #jsvg .phase { fill: var(--faint); font: 600 9.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
-#jsvg .life { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 5; }
-#jsvg .lane { cursor: pointer; }
-#jsvg .lane rect { stroke-width: 1.5; }
-#jsvg .lane.human rect { fill: var(--amber-soft); stroke: var(--amber); } #jsvg .lane.agent rect { fill: var(--violet-soft); stroke: var(--violet); }
-#jsvg .lane.script rect { fill: var(--blue-soft); stroke: var(--blue); } #jsvg .lane.external rect { fill: var(--green-soft); stroke: var(--green); }
-#jsvg .lane text { fill: var(--ink); font-weight: 600; font-size: 11.5px; }
-#jsvg .lane text.k { fill: var(--muted); font-weight: 500; font-size: 9.5px; }
-#jsvg .lane.on rect { stroke-width: 3; }
-#jsvg .msg { cursor: pointer; opacity: .5; transition: opacity .25s; }
-#jsvg .msg.seen { opacity: .85; }
-#jsvg .msg.on { opacity: 1; }
-#jsvg .msg path, #jsvg .msg line { fill: none; stroke: var(--muted); stroke-width: 1.5; }
-#jsvg .msg .head { fill: var(--muted); stroke: none; }
-#jsvg .msg.on path, #jsvg .msg.on line { stroke: var(--acc); stroke-width: 2.5; }
-#jsvg .msg.on .head { fill: var(--acc); }
-#jsvg .msg text { fill: var(--ink); font-size: 11px; }
-#jsvg .msg .num { fill: var(--faint); font: 500 9.5px var(--mono); }
-#jsvg .msg.on .num { fill: var(--acc-ink); }
+#jsvg .num { fill: var(--faint); font: 500 9.5px var(--mono); }
+#jsvg .life { stroke: var(--line); stroke-width: 1; }
+#jsvg .card { cursor: pointer; }
+#jsvg .card .face { fill: var(--surface); stroke: var(--line-2); stroke-width: 1.2; filter: drop-shadow(0 3px 6px rgba(23, 22, 26, .10)); }
+#jsvg .card.on .face { stroke: var(--acc); stroke-width: 2.4; }
+#jsvg .card:focus-visible .face { stroke: var(--acc); stroke-width: 2.4; }
+#jsvg .card text.ic { font: 700 13px var(--sans); fill: var(--ink); }
+#jsvg .card text.nm { font: 600 11px var(--sans); fill: var(--ink); }
+#jsvg .card text.kd { font: 600 8.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+#jsvg .card text.rl { font: 400 9.5px var(--sans); fill: var(--muted); }
+#jsvg .card.human .strip, #jsvg .card.human .badge { fill: var(--amber-soft); } #jsvg .card.human .strip { fill: var(--amber); } #jsvg .card.human text.kd { fill: var(--amber); }
+#jsvg .card.agent .badge { fill: var(--violet-soft); } #jsvg .card.agent .strip { fill: var(--violet); } #jsvg .card.agent text.kd { fill: var(--violet); }
+#jsvg .card.script .badge { fill: var(--blue-soft); } #jsvg .card.script .strip { fill: var(--blue); } #jsvg .card.script text.kd { fill: var(--blue); }
+#jsvg .card.external .badge { fill: var(--green-soft); } #jsvg .card.external .strip { fill: var(--green); } #jsvg .card.external text.kd { fill: var(--green); }
+#jsvg .route { fill: none; stroke: var(--line-2); stroke-width: 1.6; stroke-dasharray: 5 5; stroke-linejoin: round; }
+#jsvg .route-on { fill: none; stroke: var(--acc); stroke-width: 2.4; stroke-linejoin: round; }
+#jsvg .head { fill: var(--line-2); }
+#jsvg .head.on { fill: var(--acc); }
+#jsvg .msg { cursor: pointer; }
+#jsvg .msg text { fill: var(--muted); font-size: 10.5px; }
+#jsvg .msg.seen text { fill: var(--ink); }
+#jsvg .msg.on text { fill: var(--acc-ink); font-weight: 600; }
 #jsvg .msg .hit { fill: transparent; }
-#jsvg .msg.on .hit { fill: color-mix(in srgb, var(--acc) 9%, transparent); }
+#jsvg .msg.on .hit { fill: color-mix(in srgb, var(--acc) 8%, transparent); }
+#jsvg .msg:focus-visible .hit { stroke: var(--acc); }
+#jsvg .dot-ring { fill: none; stroke: var(--acc); stroke-width: 2; opacity: 0; }
 #jsvg .dot { fill: var(--acc); }
 .jctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); }
 .jctl button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 5px 11px; font: 500 .82rem var(--sans); cursor: pointer; }
@@ -849,9 +855,10 @@ npx tsx dev/bench.ts report</pre>
     ['jira', 'owner', 'A person decides', '☐ Confirm as defect · ☐ Not a defect · ☐ Needs clarification', 'The verdict is a recommendation. Nothing was raised in Jira by the evaluator.'],
   ];
   /*
-   * The journey as a sequence diagram: one column per actor, time running down, each hand-off an arrow from the one who
-   * hands over to the one who receives, grouped in the phases of the evaluation. Motion draws the current arrow and
-   * moves a dot along it; everything stays readable at rest.
+   * The journey as a table: one card per actor across the top, the evaluation's phases as bands down the side, and one
+   * dashed route that runs through the table from the first request to the owner's decision. Each hand-off is a
+   * horizontal run with an arrow, joined to the next by an elbow. Motion draws the route step by step and carries a dot
+   * along it; the whole route stays readable at rest.
    */
   const ids = Object.keys(ACTORS);
   const MotionLib = window.Motion && window.Motion.animate ? window.Motion : null;
@@ -862,78 +869,105 @@ npx tsx dev/bench.ts report</pre>
     ['Run and triage', 20, 25], ['Verify and publish', 26, 29], ['Decide', 30, 30],
   ];
   const SVGNS = 'http://www.w3.org/2000/svg';
-  const jsvg = document.getElementById('jsvg'), jscroll = document.getElementById('jscroll');
+  const jsvg = document.getElementById('jsvg');
   const mk = (tag, attrs, parent) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v)); (parent || jsvg).appendChild(e); return e; };
-  const GUT = 96, COL = 78, TOP = 74, ROW = 38, W = GUT + COL * LANES.length + 10;
-  const H = TOP + ROW * STEPS.length + 20;
+  const GUT = 96, COL = 84, CARD_H = 114, TOP = CARD_H + 26, ROW = 40, W = GUT + COL * LANES.length + 8;
+  const H = TOP + ROW * STEPS.length + 24;
   jsvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   const xOf = (id) => GUT + COL * LANES.indexOf(id) + COL / 2;
-  const yOf = (i) => TOP + ROW * i + ROW / 2;
-  // Phase bands, then the lifelines, then the lanes' heads, then the messages on top.
+  const yOf = (i) => TOP + ROW * i + ROW / 2 + 4;
+
   PHASE_OF.forEach(([name, from, to], i) => {
     mk('rect', { class: `band${i % 2 ? ' alt' : ''}`, x: 0, y: TOP + ROW * from, width: W, height: ROW * (to - from + 1) });
-    const words = name.split(' '); const t = mk('text', { class: 'phase', x: 10, y: TOP + ROW * from + 16 });
-    words.reduce((lines, w) => { const l = lines[lines.length - 1]; if (l && (l + ' ' + w).length <= 10) lines[lines.length - 1] = l + ' ' + w; else lines.push(w); return lines; }, [])
-      .forEach((line, j) => { const s = mk('tspan', { x: 10, dy: j ? 13 : 0 }, t); s.textContent = line; });
+    const t = mk('text', { class: 'phase', x: 10, y: TOP + ROW * from + 17 });
+    name.split(' ').reduce((lines, w) => { const l = lines[lines.length - 1]; if (l && (`${l} ${w}`).length <= 8) lines[lines.length - 1] = `${l} ${w}`; else lines.push(w); return lines; }, [])
+      .forEach((line, j) => { const s = mk('tspan', { x: 10, dy: j ? 12 : 0 }, t); s.textContent = line; });
   });
-  LANES.forEach((id) => mk('line', { class: 'life', x1: xOf(id), x2: xOf(id), y1: TOP - 6, y2: H - 8 }));
+  LANES.forEach((id) => mk('line', { class: 'life', x1: xOf(id), x2: xOf(id), y1: CARD_H + 10, y2: H - 10 }));
+  STEPS.forEach((_, i) => { const n = mk('text', { class: 'num', x: GUT - 6, y: yOf(i) + 3, 'text-anchor': 'end' }); n.textContent = String(i + 1).padStart(2, '0'); });
+
+  // The cards: who each column is.
   const nodeEls = {};
-  const SHORT = { you: 'You', coord: 'Coordinator', advance: 'advance', extractor: 'Extractor', reviewer: 'Reviewer', operator: 'Operator', app: 'Live app', jira: 'Jira', owner: 'Story owner' };
-  const KINDWORD = { human: 'person', agent: 'AI agent', script: 'script', external: 'system' };
+  const CARD = {
+    you: ['You', 'person', 'asks'], coord: ['Coordinator', 'AI agent', 'hands off'], advance: ['heldout advance', 'script', 'runs the steps'],
+    extractor: ['Extractor', 'AI agent', 'writes checks'], reviewer: ['Reviewer', 'AI agent', 'reviews them'], operator: ['Operator', 'AI agent', 'runs and triages'],
+    app: ['Live app', 'system', 'under test'], jira: ['Jira', 'system', 'story, verdict'], owner: ['Story owner', 'person', 'decides'],
+  };
   LANES.forEach((id) => {
-    const A = ACTORS[id], x = xOf(id);
-    const g = mk('g', { class: `lane ${A.kind}`, tabindex: 0, role: 'button', 'aria-label': `${A.name}: what it does` });
-    mk('rect', { x: x - 37, y: 10, width: 74, height: 46, rx: 10 }, g);
-    const t = mk('text', { x, y: 30, 'text-anchor': 'middle' }, g); t.textContent = SHORT[id];
-    const k = mk('text', { class: 'k', x, y: 45, 'text-anchor': 'middle' }, g); k.textContent = KINDWORD[A.kind];
+    const A = ACTORS[id], x = xOf(id), [name, kind, role] = CARD[id];
+    const g = mk('g', { class: `card ${A.kind}`, tabindex: 0, role: 'button', 'aria-label': `${A.name}: what it does` });
+    mk('rect', { class: 'face', x: x - 39, y: 8, width: 78, height: CARD_H - 8, rx: 12 }, g);
+    mk('rect', { class: 'strip', x: x - 39, y: 8, width: 78, height: 6, rx: 3 }, g);
+    mk('circle', { class: 'badge', cx: x, cy: 38, r: 15 }, g);
+    const ic = mk('text', { class: 'ic', x, y: 43, 'text-anchor': 'middle' }, g); ic.textContent = A.ic;
+    const nm = mk('text', { class: 'nm', x, y: 70, 'text-anchor': 'middle' }, g);
+    // A two-word name wraps; one word stays on its line.
+    const words = name.split(' ');
+    if (name.length > 11 && words.length > 1) { mk('tspan', { x, dy: -4 }, nm).textContent = words[0]; mk('tspan', { x, dy: 12 }, nm).textContent = words.slice(1).join(' '); } else nm.textContent = name;
+    const kd = mk('text', { class: 'kd', x, y: 92, 'text-anchor': 'middle' }, g); kd.textContent = kind;
+    const rl = mk('text', { class: 'rl', x, y: 105, 'text-anchor': 'middle' }, g); rl.textContent = role;
     g.addEventListener('click', () => pickActor(id, true));
     g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickActor(id, true); } });
+    g.addEventListener('pointerenter', () => mo(g, { transform: ['translateY(0px)', 'translateY(-3px)'] }, { duration: 0.2 }));
+    g.addEventListener('pointerleave', () => mo(g, { transform: ['translateY(-3px)', 'translateY(0px)'] }, { duration: 0.2 }));
     nodeEls[id] = g;
   });
-  const msgs = STEPS.map(([a, b, h], i) => {
-    const g = mk('g', { class: 'msg', tabindex: 0, role: 'button', 'aria-label': `Step ${i + 1}: ${h}` });
+
+  // The route: for each hand-off an elbow from where the last one arrived, then the run to the receiver.
+  let d = ''; let px = null, py = null;
+  const arrive = [], heads = [];
+  const segs = STEPS.map(([a, b], i) => {
     const y = yOf(i), xa = xOf(a), xb = xOf(b);
-    mk('rect', { class: 'hit', x: GUT, y: y - ROW / 2, width: W - GUT, height: ROW }, g);
-    const n = mk('text', { class: 'num', x: GUT - 4, y: y + 4, 'text-anchor': 'end' }, g); n.textContent = String(i + 1).padStart(2, '0');
-    let path;
-    if (a === b) {
-      path = mk('path', { d: `M ${xa} ${y - 8} h 26 v 16 h -20` }, g);
-      mk('path', { class: 'head', d: `M ${xa + 2} ${y + 8} l 8 -5 v 10 z` }, g);
-      const t = mk('text', { x: xa + 34, y: y + 4 }, g); t.textContent = h;
-    } else {
-      const dir = xb > xa ? 1 : -1;
-      path = mk('path', { d: `M ${xa} ${y + 6} H ${xb - dir * 6}` }, g);
-      mk('path', { class: 'head', d: `M ${xb} ${y + 6} l ${-dir * 9} -5 v 10 z` }, g);
-      // The label sits over the arrow, inside the span it covers when it fits, else beside its start.
-      const t = mk('text', { x: (xa + xb) / 2, y: y - 2, 'text-anchor': 'middle' }, g); t.textContent = h;
-      const span = Math.abs(xb - xa) - 12, want = h.length * 5.6;
-      if (want > span) { t.setAttribute('text-anchor', dir > 0 ? 'start' : 'end'); t.setAttribute('x', xa + dir * 6); }
-      if (want > span && (dir > 0 ? xa + want : xa - want) > W - 4) { t.setAttribute('text-anchor', 'end'); t.setAttribute('x', W - 6); }
-      if (want > span && dir < 0 && xa - want < GUT) { t.setAttribute('text-anchor', 'start'); t.setAttribute('x', GUT + 4); }
-    }
+    let part = '';
+    if (px === null) part += `M ${xa} ${y}`;
+    else if (xa === px) part += ` V ${y}`; else part += ` V ${y - ROW / 2 + 2} H ${xa} V ${y}`;
+    if (a === b) { part += ` h 24 v 10 h -24`; px = xa; py = y + 10; heads.push({ x: xa + 2, y: y + 10, dir: -1 }); }
+    else { part += ` H ${xb}`; px = xb; py = y; heads.push({ x: xb, y, dir: xb > xa ? 1 : -1 }); }
+    d += part;
+    return d;
+  });
+  const route = mk('path', { class: 'route', d });
+  const drawn = mk('path', { class: 'route-on', d });
+  // Arrival lengths, measured on the route itself: the animation runs from one arrival to the next.
+  const meter = mk('path', { d: '', fill: 'none', stroke: 'none' });
+  segs.forEach((partial) => { meter.setAttribute('d', partial); arrive.push(meter.getTotalLength()); });
+  meter.remove();
+  const TOTAL = route.getTotalLength();
+  drawn.style.strokeDasharray = `${TOTAL}`;
+  const headEls = heads.map((h) => mk('path', { class: 'head', d: `M ${h.x} ${h.y} l ${-h.dir * 9} -5 v 10 z` }));
+  const labels = STEPS.map(([a, b, h], i) => {
+    const y = yOf(i), xa = xOf(a), xb = xOf(b), g = mk('g', { class: 'msg', tabindex: 0, role: 'button', 'aria-label': `Step ${i + 1}: ${h}` });
+    mk('rect', { class: 'hit', x: GUT, y: y - ROW / 2 - 4, width: W - GUT, height: ROW }, g);
+    const t = mk('text', { x: a === b ? xa + 30 : (xa + xb) / 2, y: a === b ? y + 8 : y - 6, 'text-anchor': a === b ? 'start' : 'middle' }, g);
+    t.textContent = h;
+    const span = Math.abs(xb - xa) - 10, want = h.length * 5.5;
+    if (a !== b && want > span) { const dir = xb > xa ? 1 : -1; t.setAttribute('text-anchor', dir > 0 ? 'start' : 'end'); t.setAttribute('x', xa + dir * 4); if (dir > 0 && xa + want > W - 4) { t.setAttribute('text-anchor', 'end'); t.setAttribute('x', W - 6); } if (dir < 0 && xa - want < GUT) { t.setAttribute('text-anchor', 'start'); t.setAttribute('x', GUT + 4); } }
     g.addEventListener('click', () => { stop(); go(i, true); });
     g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stop(); go(i, true); } });
-    return { g, path };
+    return g;
   });
-  const dot = mk('circle', { class: 'dot', r: 5.5, cx: -20, cy: -20 });
-  let dotAnim = null;
+  const dot = mk('circle', { class: 'dot', r: 6 });
+  const dotRing = mk('circle', { class: 'dot-ring', r: 11 });
+  let shown = arrive[0], tween = null;
+  const setProgress = (len) => {
+    shown = len; drawn.style.strokeDashoffset = `${TOTAL - len}`;
+    const p = route.getPointAtLength(len); dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dotRing.setAttribute('cx', p.x); dotRing.setAttribute('cy', p.y);
+  };
+  setProgress(arrive[0]);
   const J = {
     colors() {},
-    seen(keys) { msgs.forEach((m, i) => m.g.classList.toggle('seen', i < at)); },
+    seen() {},
     show(a, b, f) {
-      msgs.forEach((m, i) => m.g.classList.toggle('on', i === at));
+      labels.forEach((g, i) => { g.classList.toggle('on', i === at); g.classList.toggle('seen', i < at); });
+      headEls.forEach((h, i) => h.classList.toggle('on', i <= at));
       LANES.forEach((id) => nodeEls[id].classList.toggle('on', id === a || id === b));
-      const { path } = msgs[at], L = path.getTotalLength();
-      if (dotAnim && dotAnim.stop) dotAnim.stop();
-      const put = (p) => { const pt = path.getPointAtLength(L * p); dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y); };
-      // Motion draws the arrow and carries the dot along it; at rest (or with reduced motion) both are simply there.
-      if (MotionLib && !reduced && f < 1) {
-        path.style.strokeDasharray = `${L}`; path.style.strokeDashoffset = `${L}`;
-        mo(path, { strokeDashoffset: [L, 0] }, { duration: 0.9 / speed, easing: [0.4, 0, 0.2, 1] });
-        dotAnim = MotionLib.animate(0, 1, { duration: 0.9 / speed, ease: [0.4, 0, 0.2, 1], onUpdate: put });
-      } else { path.style.strokeDasharray = ''; path.style.strokeDashoffset = ''; put(1); }
-      // While it plays, the page follows the current arrow; a step chosen by hand leaves the page where it is.
-      if (playing) { const r = msgs[at].g.getBoundingClientRect(); if (r.top < 90 || r.bottom > window.innerHeight - 40) window.scrollBy({ top: r.top - window.innerHeight / 2, behavior: reduced ? 'auto' : 'smooth' }); }
+      if (tween && tween.stop) tween.stop();
+      const to = arrive[at], from = f < 1 && at > 0 ? arrive[at - 1] : to;
+      if (MotionLib && !reduced && from !== to) tween = MotionLib.animate(from, to, { duration: 1.1 / speed, ease: [0.45, 0, 0.2, 1], onUpdate: setProgress });
+      else if (MotionLib && !reduced && Math.abs(shown - to) > 1) tween = MotionLib.animate(shown, to, { duration: 0.5, ease: [0.45, 0, 0.2, 1], onUpdate: setProgress });
+      else setProgress(to);
+      mo(dotRing, { r: [6, 14], opacity: [0.9, 0] }, { duration: 0.8, delay: 1.1 / speed });
+      if (playing) { const r = labels[at].getBoundingClientRect(); if (r.top < 90 || r.bottom > window.innerHeight - 40) window.scrollBy({ top: r.top - window.innerHeight / 2, behavior: reduced ? 'auto' : 'smooth' }); }
     },
     at() {},
   };
